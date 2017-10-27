@@ -25,8 +25,8 @@ def write_java_head(tofile, name):
 def replace_xml_head(line, name):
     return line.replace('<?xml version="1.0" encoding="utf-8"?>', '<?xml version="1.0" encoding="utf-8"?>\n<!-- This file is auto-generated from {}.xml.  DO NOT MODIFY. -->\n'.format(name))
 
-file = open('src/com/example/android/leanback/GuidedStepActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/GuidedStepSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/GuidedStepActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java', 'w')
 write_java_head(outfile, "GuidedStepActivity")
 for line in file:
     line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
@@ -38,8 +38,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/GuidedStepHalfScreenActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java', 'w')
 write_java_head(outfile, "GuidedStepHalfScreenActivity")
 for line in file:
     line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
@@ -52,8 +52,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/BrowseFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/BrowseSupportFragment.java', 'w')
+file = open('src/main/java/com/example/android/leanback/BrowseFragment.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/BrowseSupportFragment.java', 'w')
 write_java_head(outfile, "BrowseFragment")
 for line in file:
     line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
@@ -72,8 +72,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/BrowseActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/BrowseSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/BrowseActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/BrowseSupportActivity.java', 'w')
 write_java_head(outfile, "BrowseActivity")
 for line in file:
     line = line.replace('BrowseActivity', 'BrowseSupportActivity')
@@ -84,8 +84,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('res/layout/browse.xml', 'r')
-outfile = open('res/layout/browse_support.xml', 'w')
+file = open('src/main/res/layout/browse.xml', 'r')
+outfile = open('src/main/res/layout/browse_support.xml', 'w')
 for line in file:
     line = replace_xml_head(line, "browse")
     line = line.replace('com.example.android.leanback.BrowseFragment', 'com.example.android.leanback.BrowseSupportFragment')
@@ -94,8 +94,8 @@ file.close()
 outfile.close()
 
 
-file = open('src/com/example/android/leanback/DetailsFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/DetailsSupportFragment.java', 'w')
+file = open('src/main/java/com/example/android/leanback/DetailsFragment.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/DetailsSupportFragment.java', 'w')
 write_java_head(outfile, "DetailsFragment")
 for line in file:
     line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
@@ -108,8 +108,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/NewDetailsFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/NewDetailsSupportFragment.java', 'w')
+file = open('src/main/java/com/example/android/leanback/NewDetailsFragment.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java', 'w')
 write_java_head(outfile, "NewDetailsFragment")
 for line in file:
     line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
@@ -127,8 +127,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/DetailsActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/DetailsSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/DetailsActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/DetailsSupportActivity.java', 'w')
 write_java_head(outfile, "DetailsActivity")
 for line in file:
     line = line.replace('DetailsActivity', 'DetailsSupportActivity')
@@ -141,8 +141,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/SearchDetailsActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/SearchDetailsSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/SearchDetailsActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/SearchDetailsSupportActivity.java', 'w')
 write_java_head(outfile, "SearchDetailsActivity")
 for line in file:
     line = line.replace('DetailsActivity', 'DetailsSupportActivity')
@@ -151,8 +151,8 @@ file.close()
 outfile.close()
 
 
-file = open('src/com/example/android/leanback/SearchFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/SearchSupportFragment.java', 'w')
+file = open('src/main/java/com/example/android/leanback/SearchFragment.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/SearchSupportFragment.java', 'w')
 write_java_head(outfile, "SearchFragment")
 for line in file:
     line = line.replace('SearchFragment', 'SearchSupportFragment')
@@ -161,8 +161,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/SearchActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/SearchSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/SearchActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/SearchSupportActivity.java', 'w')
 write_java_head(outfile, "SearchActivity")
 for line in file:
     line = line.replace('SearchActivity', 'SearchSupportActivity')
@@ -175,8 +175,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('res/layout/search.xml', 'r')
-outfile = open('res/layout/search_support.xml', 'w')
+file = open('src/main/res/layout/search.xml', 'r')
+outfile = open('src/main/res/layout/search_support.xml', 'w')
 for line in file:
     line = replace_xml_head(line, "search")
     line = line.replace('com.example.android.leanback.SearchFragment', 'com.example.android.leanback.SearchSupportFragment')
@@ -184,8 +184,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/VerticalGridFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/VerticalGridSupportFragment.java', 'w')
+file = open('src/main/java/com/example/android/leanback/VerticalGridFragment.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java', 'w')
 write_java_head(outfile, "VerticalGridFragment")
 for line in file:
     line = line.replace('VerticalGridFragment', 'VerticalGridSupportFragment')
@@ -195,8 +195,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/VerticalGridActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/VerticalGridSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/VerticalGridActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/VerticalGridSupportActivity.java', 'w')
 write_java_head(outfile, "VerticalGridActivity")
 for line in file:
     line = line.replace('VerticalGridActivity', 'VerticalGridSupportActivity')
@@ -209,8 +209,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('res/layout/vertical_grid.xml', 'r')
-outfile = open('res/layout/vertical_grid_support.xml', 'w')
+file = open('src/main/res/layout/vertical_grid.xml', 'r')
+outfile = open('src/main/res/layout/vertical_grid_support.xml', 'w')
 for line in file:
     line = replace_xml_head(line, "vertical_grid")
     line = line.replace('com.example.android.leanback.VerticalGridFragment', 'com.example.android.leanback.VerticalGridSupportFragment')
@@ -219,8 +219,8 @@ file.close()
 outfile.close()
 
 
-file = open('src/com/example/android/leanback/ErrorFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/ErrorSupportFragment.java', 'w')
+file = open('src/main/java/com/example/android/leanback/ErrorFragment.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/ErrorSupportFragment.java', 'w')
 write_java_head(outfile, "ErrorFragment")
 for line in file:
     line = line.replace('ErrorFragment', 'ErrorSupportFragment')
@@ -228,8 +228,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/BrowseErrorActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/BrowseErrorSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/BrowseErrorActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/BrowseErrorSupportActivity.java', 'w')
 write_java_head(outfile, "BrowseErrorActivity")
 for line in file:
     line = line.replace('BrowseErrorActivity', 'BrowseErrorSupportActivity')
@@ -244,8 +244,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/RowsFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/RowsSupportFragment.java', 'w')
+file = open('src/main/java/com/example/android/leanback/RowsFragment.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/RowsSupportFragment.java', 'w')
 write_java_head(outfile, "RowsFragment")
 for line in file:
     line = line.replace('RowsFragment', 'RowsSupportFragment')
@@ -254,8 +254,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/RowsActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/RowsSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/RowsActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/RowsSupportActivity.java', 'w')
 write_java_head(outfile, "RowsActivity")
 for line in file:
     line = line.replace('RowsActivity', 'RowsSupportActivity')
@@ -269,8 +269,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('res/layout/rows.xml', 'r')
-outfile = open('res/layout/rows_support.xml', 'w')
+file = open('src/main/res/layout/rows.xml', 'r')
+outfile = open('src/main/res/layout/rows_support.xml', 'w')
 for line in file:
     line = replace_xml_head(line, "rows")
     line = line.replace('com.example.android.leanback.RowsFragment', 'com.example.android.leanback.RowsSupportFragment')
@@ -278,8 +278,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/PlaybackFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/PlaybackSupportFragment.java', 'w')
+file = open('src/main/java/com/example/android/leanback/PlaybackFragment.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/PlaybackSupportFragment.java', 'w')
 write_java_head(outfile, "PlaybackFragment")
 for line in file:
     line = line.replace('PlaybackFragment', 'PlaybackSupportFragment')
@@ -288,8 +288,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/PlaybackActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/PlaybackSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/PlaybackActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/PlaybackSupportActivity.java', 'w')
 write_java_head(outfile, "PlaybackActivity")
 for line in file:
     line = line.replace('PlaybackActivity', 'PlaybackSupportActivity')
@@ -300,8 +300,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('res/layout/playback_activity.xml', 'r')
-outfile = open('res/layout/playback_activity_support.xml', 'w')
+file = open('src/main/res/layout/playback_activity.xml', 'r')
+outfile = open('src/main/res/layout/playback_activity_support.xml', 'w')
 for line in file:
     line = replace_xml_head(line, "playback_controls")
     line = line.replace('com.example.android.leanback.PlaybackFragment', 'com.example.android.leanback.PlaybackSupportFragment')
@@ -309,8 +309,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/PlaybackTransportControlFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/PlaybackTransportControlSupportFragment.java', 'w')
+file = open('src/main/java/com/example/android/leanback/PlaybackTransportControlFragment.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/PlaybackTransportControlSupportFragment.java', 'w')
 write_java_head(outfile, "PlaybackTransportControlFragment")
 for line in file:
     line = line.replace('PlaybackFragment', 'PlaybackSupportFragment')
@@ -320,8 +320,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/PlaybackTransportControlActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/PlaybackTransportControlSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/PlaybackTransportControlActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/PlaybackTransportControlSupportActivity.java', 'w')
 write_java_head(outfile, "PlaybackTransportControlActivity")
 for line in file:
     line = line.replace('PlaybackTransportControlActivity', 'PlaybackTransportControlSupportActivity')
@@ -332,8 +332,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('res/layout/playback_transportcontrol_activity.xml', 'r')
-outfile = open('res/layout/playback_transportcontrol_activity_support.xml', 'w')
+file = open('src/main/res/layout/playback_transportcontrol_activity.xml', 'r')
+outfile = open('src/main/res/layout/playback_transportcontrol_activity_support.xml', 'w')
 for line in file:
     line = replace_xml_head(line, "playback_transportcontrols")
     line = line.replace('com.example.android.leanback.PlaybackTransportControlFragment', 'com.example.android.leanback.PlaybackTransportControlSupportFragment')
@@ -341,45 +341,8 @@ for line in file:
 file.close()
 outfile.close()
 
-
-
-file = open('src/com/example/android/leanback/PlaybackOverlayFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/PlaybackOverlaySupportFragment.java', 'w')
-write_java_head(outfile, "PlaybackOverlayFragment")
-for line in file:
-    line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
-    line = line.replace('PlaybackControlHelper', 'PlaybackControlSupportHelper')
-    line = line.replace('PlaybackOverlayActivity', 'PlaybackOverlaySupportActivity')
-    outfile.write(line)
-file.close()
-outfile.close()
-
-
-file = open('src/com/example/android/leanback/PlaybackControlHelper.java', 'r')
-outfile = open('src/com/example/android/leanback/PlaybackControlSupportHelper.java', 'w')
-write_java_head(outfile, "PlaybackControlHelper")
-for line in file:
-    line = line.replace('PlaybackControlHelper', 'PlaybackControlSupportHelper')
-    line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue')
-    line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
-    outfile.write(line)
-file.close()
-outfile.close()
-
-file = open('src/com/example/android/leanback/PlaybackOverlayActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/PlaybackOverlaySupportActivity.java', 'w')
-write_java_head(outfile, "PlaybackOverlayActivity")
-for line in file:
-    line = line.replace('PlaybackOverlayActivity', 'PlaybackOverlaySupportActivity')
-    line = line.replace('extends Activity', 'extends FragmentActivity')
-    line = line.replace('R.layout.playback_controls', 'R.layout.playback_controls_support')
-    line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
-    outfile.write(line)
-file.close()
-outfile.close()
-
-file = open('res/layout/playback_controls.xml', 'r')
-outfile = open('res/layout/playback_controls_support.xml', 'w')
+file = open('src/main/res/layout/playback_controls.xml', 'r')
+outfile = open('src/main/res/layout/playback_controls_support.xml', 'w')
 for line in file:
     line = replace_xml_head(line, "playback_controls")
     line = line.replace('com.example.android.leanback.PlaybackOverlayFragment', 'com.example.android.leanback.PlaybackOverlaySupportFragment')
@@ -387,8 +350,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/OnboardingActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/OnboardingSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/OnboardingActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/OnboardingSupportActivity.java', 'w')
 write_java_head(outfile, "OnboardingActivity")
 for line in file:
     line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
@@ -401,8 +364,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/OnboardingDemoFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/OnboardingDemoSupportFragment.java', 'w')
+file = open('src/main/java/com/example/android/leanback/OnboardingDemoFragment.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/OnboardingDemoSupportFragment.java', 'w')
 write_java_head(outfile, "OnboardingDemoFragment")
 for line in file:
     line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
@@ -414,8 +377,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/SampleVideoFragment.java', 'r')
-outfile = open('src/com/example/android/leanback/SampleVideoSupportFragment.java', 'w')
+file = open('src/main/java/com/example/android/leanback/SampleVideoFragment.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/SampleVideoSupportFragment.java', 'w')
 write_java_head(outfile, "OnboardingDemoFragment")
 for line in file:
     line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
@@ -426,8 +389,8 @@ for line in file:
 file.close()
 outfile.close()
 
-file = open('src/com/example/android/leanback/VideoActivity.java', 'r')
-outfile = open('src/com/example/android/leanback/VideoSupportActivity.java', 'w')
+file = open('src/main/java/com/example/android/leanback/VideoActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/VideoSupportActivity.java', 'w')
 write_java_head(outfile, "OnboardingDemoFragment")
 for line in file:
     line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')

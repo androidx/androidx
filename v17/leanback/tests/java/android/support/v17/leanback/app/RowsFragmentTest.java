@@ -15,11 +15,14 @@
  */
 package android.support.v17.leanback.app;
 
+import static junit.framework.Assert.assertFalse;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import android.app.Fragment;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,7 +32,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v17.leanback.R;
+import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
@@ -39,19 +42,24 @@ import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.PageRow;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SinglePresenterSelector;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -461,4 +469,487 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
             }
         }
     }
+
+    public static class F_Base extends BrowseFragment {
+
+        List<Long> mEntranceTransitionStartTS = new ArrayList();
+        List<Long> mEntranceTransitionEndTS = new ArrayList();
+
+        @Override
+        protected void onEntranceTransitionStart() {
+            super.onEntranceTransitionStart();
+            mEntranceTransitionStartTS.add(SystemClock.uptimeMillis());
+        }
+
+        @Override
+        protected void onEntranceTransitionEnd() {
+            super.onEntranceTransitionEnd();
+            mEntranceTransitionEndTS.add(SystemClock.uptimeMillis());
+        }
+
+        public void assertExecutedEntranceTransition() {
+            assertEquals(1, mEntranceTransitionStartTS.size());
+            assertEquals(1, mEntranceTransitionEndTS.size());
+            assertTrue(mEntranceTransitionEndTS.get(0) - mEntranceTransitionStartTS.get(0) > 100);
+        }
+
+        public void assertNoEntranceTransition() {
+            assertEquals(0, mEntranceTransitionStartTS.size());
+            assertEquals(0, mEntranceTransitionEndTS.size());
+        }
+    }
+
+    /**
+     * Create BrowseFragmentAdapter with 3 ListRows
+     */
+    static ArrayObjectAdapter createListRowsAdapter() {
+        ListRowPresenter lrp = new ListRowPresenter();
+        final ArrayObjectAdapter adapter = new ArrayObjectAdapter(lrp);
+        for (int i = 0; i < 3; i++) {
+            StableIdAdapter listRowAdapter = new StableIdAdapter();
+            listRowAdapter.setHasStableIds(false);
+            listRowAdapter.setPresenterSelector(
+                    new SinglePresenterSelector(sCardPresenter));
+            int index = 0;
+            listRowAdapter.mList.add(index++);
+            listRowAdapter.mList.add(index++);
+            listRowAdapter.mList.add(index++);
+            HeaderItem header = new HeaderItem(i, "Row " + i);
+            adapter.add(new ListRow(header, listRowAdapter));
+        }
+        return adapter;
+    }
+
+    /**
+     * A typical BrowseFragment with multiple rows that start entrance transition
+     */
+    public static class F_standard extends F_Base {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            if (savedInstanceState == null) {
+                prepareEntranceTransition();
+            }
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setAdapter(createListRowsAdapter());
+                    startEntranceTransition();
+                }
+            }, 100);
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void browseFragmentSetNullAdapter() throws InterruptedException {
+        final SingleFragmentTestActivity activity = launchAndWaitActivity(
+                RowsFragmentTest.F_standard.class, 2000);
+        final F_standard fragment = ((F_standard) activity.getTestFragment());
+        fragment.assertExecutedEntranceTransition();
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragment.setAdapter(null);
+            }
+        });
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragment.setAdapter(createListRowsAdapter());
+            }
+        });
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void browseFragmentRestore() throws InterruptedException {
+        final SingleFragmentTestActivity activity = launchAndWaitActivity(
+                RowsFragmentTest.F_standard.class, 2000);
+        final F_standard fragment = ((F_standard) activity.getTestFragment());
+        fragment.assertExecutedEntranceTransition();
+
+        // select item 2 on row 1
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragment.setSelectedPosition(1, true,
+                        new ListRowPresenter.SelectItemViewHolderTask(2));
+            }
+        });
+        // save activity to state
+        final Bundle[] savedState = new Bundle[1];
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                savedState[0] = activity.performSaveInstanceState();
+            }
+        });
+        activity.finish();
+
+        // recreate activity with saved state
+        SingleFragmentTestActivity activity2 = launchAndWaitActivity(
+                RowsFragmentTest.F_standard.class,
+                new Options().savedInstance(savedState[0]), 2000);
+        final F_standard fragment2 = ((F_standard) activity2.getTestFragment());
+        // validate restored activity selected row and selected item
+        fragment2.assertNoEntranceTransition();
+        assertEquals(1, fragment2.getSelectedPosition());
+        assertEquals(2, ((ListRowPresenter.ViewHolder) fragment2.getSelectedRowViewHolder())
+                .getSelectedPosition());
+        activity2.finish();
+    }
+
+    public static class MyPageRow extends PageRow {
+        public int type;
+        public MyPageRow(int type) {
+            super(new HeaderItem(100 + type, "page type " + type));
+            this.type = type;
+        }
+    }
+
+    /**
+     * A RowsFragment that is a separate page in BrowseFragment.
+     */
+    public static class SampleRowsFragment extends RowsFragment {
+        public SampleRowsFragment() {
+            // simulates late data loading:
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setAdapter(createListRowsAdapter());
+                    if (getMainFragmentAdapter() != null) {
+                        getMainFragmentAdapter().getFragmentHost()
+                                .notifyDataReady(getMainFragmentAdapter());
+                    }
+                }
+            }, 500);
+        }
+    }
+
+    /**
+     * A custom Fragment that is a separate page in BrowseFragment.
+     */
+    public static class SampleFragment extends Fragment implements
+            BrowseFragment.MainFragmentAdapterProvider {
+
+        public static class PageFragmentAdapterImpl extends
+                BrowseFragment.MainFragmentAdapter<SampleFragment> {
+
+            public PageFragmentAdapterImpl(SampleFragment fragment) {
+                super(fragment);
+                setScalingEnabled(true);
+            }
+
+            @Override
+            public void setEntranceTransitionState(boolean state) {
+                getFragment().setEntranceTransitionState(state);
+            }
+        }
+
+        final PageFragmentAdapterImpl mMainFragmentAdapter = new PageFragmentAdapterImpl(this);
+
+        void setEntranceTransitionState(boolean state) {
+            final View view = getView();
+            int visibility = state ? View.VISIBLE : View.INVISIBLE;
+            view.findViewById(R.id.tv1).setVisibility(visibility);
+            view.findViewById(R.id.tv2).setVisibility(visibility);
+            view.findViewById(R.id.tv3).setVisibility(visibility);
+        }
+
+        @Override
+        public View onCreateView(
+                final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.page_fragment, container, false);
+            return view;
+        }
+
+        @Override
+        public void onViewCreated(View view, Bundle savedInstanceState) {
+            // static layout has view and data ready immediately
+            mMainFragmentAdapter.getFragmentHost().notifyViewCreated(mMainFragmentAdapter);
+            mMainFragmentAdapter.getFragmentHost().notifyDataReady(mMainFragmentAdapter);
+        }
+
+        @Override
+        public BrowseFragment.MainFragmentAdapter getMainFragmentAdapter() {
+            return mMainFragmentAdapter;
+        }
+    }
+
+    /**
+     * Create BrowseFragmentAdapter with 3 ListRows and 2 PageRows
+     */
+    private static ArrayObjectAdapter create3ListRow2PageRowAdapter() {
+        ListRowPresenter lrp = new ListRowPresenter();
+        final ArrayObjectAdapter adapter = new ArrayObjectAdapter(lrp);
+        for (int i = 0; i < 3; i++) {
+            StableIdAdapter listRowAdapter = new StableIdAdapter();
+            listRowAdapter.setHasStableIds(false);
+            listRowAdapter.setPresenterSelector(
+                    new SinglePresenterSelector(sCardPresenter));
+            int index = 0;
+            listRowAdapter.mList.add(index++);
+            listRowAdapter.mList.add(index++);
+            listRowAdapter.mList.add(index++);
+            HeaderItem header = new HeaderItem(i, "Row " + i);
+            adapter.add(new ListRow(header, listRowAdapter));
+        }
+        adapter.add(new MyPageRow(0));
+        adapter.add(new MyPageRow(1));
+        return adapter;
+    }
+
+    /**
+     * A BrowseFragment with three ListRows, one SampleRowsFragment and one SampleFragment.
+     */
+    public static class F_3ListRow2PageRow extends F_Base {
+        public F_3ListRow2PageRow() {
+            getMainFragmentRegistry().registerFragment(MyPageRow.class,
+                    new BrowseFragment.FragmentFactory() {
+                        @Override
+                        public Fragment createFragment(Object rowObj) {
+                            MyPageRow row = (MyPageRow) rowObj;
+                            if (row.type == 0) {
+                                return new SampleRowsFragment();
+                            } else if (row.type == 1) {
+                                return new SampleFragment();
+                            }
+                            return null;
+                        }
+                });
+        }
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            if (savedInstanceState == null) {
+                prepareEntranceTransition();
+            }
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setAdapter(create3ListRow2PageRowAdapter());
+                    startEntranceTransition();
+                }
+            }, 100);
+        }
+
+        /**
+         * Util to wait PageFragment swapped.
+         */
+        Fragment waitPageFragment(final Class pageFragmentClass) {
+            PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+                @Override
+                public boolean canProceed() {
+                    return pageFragmentClass.isInstance(getMainFragment())
+                            && getMainFragment().getView() != null;
+                }
+            });
+            return getMainFragment();
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void mixedBrowseFragmentRestoreToListRow() throws Throwable {
+        final SingleFragmentTestActivity activity = launchAndWaitActivity(
+                RowsFragmentTest.F_3ListRow2PageRow.class, 2000);
+        final F_3ListRow2PageRow fragment = ((F_3ListRow2PageRow) activity.getTestFragment());
+        fragment.assertExecutedEntranceTransition();
+
+        // select item 2 on row 1.
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragment.setSelectedPosition(1, true,
+                        new ListRowPresenter.SelectItemViewHolderTask(2));
+            }
+        });
+        final Bundle[] savedState = new Bundle[1];
+        // save activity state
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                savedState[0] = activity.performSaveInstanceState();
+            }
+        });
+        activity.finish();
+
+        // start a new activity with the state
+        SingleFragmentTestActivity activity2 = launchAndWaitActivity(
+                RowsFragmentTest.F_standard.class,
+                new Options().savedInstance(savedState[0]), 2000);
+        final F_3ListRow2PageRow fragment2 = ((F_3ListRow2PageRow) activity2.getTestFragment());
+        assertFalse(fragment2.isShowingHeaders());
+        fragment2.assertNoEntranceTransition();
+        assertEquals(1, fragment2.getSelectedPosition());
+        assertEquals(2, ((ListRowPresenter.ViewHolder) fragment2.getSelectedRowViewHolder())
+                .getSelectedPosition());
+        activity2.finish();
+    }
+
+    void mixedBrowseFragmentRestoreToSampleRowsFragment(final boolean hideFastLane)
+            throws Throwable {
+        final SingleFragmentTestActivity activity = launchAndWaitActivity(
+                RowsFragmentTest.F_3ListRow2PageRow.class, 2000);
+        final F_3ListRow2PageRow fragment = ((F_3ListRow2PageRow) activity.getTestFragment());
+        fragment.assertExecutedEntranceTransition();
+
+        // select row 3 which is mapped to SampleRowsFragment.
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragment.setSelectedPosition(3, true);
+            }
+        });
+        // Wait SampleRowsFragment being created
+        final SampleRowsFragment mainFragment = (SampleRowsFragment) fragment.waitPageFragment(
+                SampleRowsFragment.class);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                if (hideFastLane) {
+                    fragment.startHeadersTransition(false);
+                }
+            }
+        });
+        // Wait header transition finishes
+        SystemClock.sleep(100);
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return !fragment.isInHeadersTransition();
+            }
+        });
+        // Select item 1 on row 1 in SampleRowsFragment
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mainFragment.setSelectedPosition(1, true,
+                        new ListRowPresenter.SelectItemViewHolderTask(1));
+            }
+        });
+        // Save activity state
+        final Bundle[] savedState = new Bundle[1];
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                savedState[0] = activity.performSaveInstanceState();
+            }
+        });
+        activity.finish();
+
+        SingleFragmentTestActivity activity2 = launchAndWaitActivity(
+                RowsFragmentTest.F_3ListRow2PageRow.class,
+                new Options().savedInstance(savedState[0]), 2000);
+        final F_3ListRow2PageRow fragment2 = ((F_3ListRow2PageRow) activity2.getTestFragment());
+        final SampleRowsFragment mainFragment2 = (SampleRowsFragment) fragment2.waitPageFragment(
+                SampleRowsFragment.class);
+        assertEquals(!hideFastLane, fragment2.isShowingHeaders());
+        fragment2.assertNoEntranceTransition();
+        // Validate BrowseFragment selected row 3 (mapped to SampleRowsFragment)
+        assertEquals(3, fragment2.getSelectedPosition());
+        // Validate SampleRowsFragment's selected row and selected item
+        assertEquals(1, mainFragment2.getSelectedPosition());
+        assertEquals(1, ((ListRowPresenter.ViewHolder) mainFragment2
+                .findRowViewHolderByPosition(1)).getSelectedPosition());
+        activity2.finish();
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void mixedBrowseFragmentRestoreToSampleRowsFragmentHideFastLane() throws Throwable {
+        mixedBrowseFragmentRestoreToSampleRowsFragment(true);
+
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void mixedBrowseFragmentRestoreToSampleRowsFragmentShowFastLane() throws Throwable {
+        mixedBrowseFragmentRestoreToSampleRowsFragment(false);
+    }
+
+    void mixedBrowseFragmentRestoreToSampleFragment(final boolean hideFastLane)
+            throws Throwable {
+        final SingleFragmentTestActivity activity = launchAndWaitActivity(
+                RowsFragmentTest.F_3ListRow2PageRow.class, 2000);
+        final F_3ListRow2PageRow fragment = ((F_3ListRow2PageRow) activity.getTestFragment());
+        fragment.assertExecutedEntranceTransition();
+
+        // select row 3 which is mapped to SampleFragment.
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragment.setSelectedPosition(4, true);
+            }
+        });
+        // Wait SampleFragment to be created
+        final SampleFragment mainFragment = (SampleFragment) fragment.waitPageFragment(
+                SampleFragment.class);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                if (hideFastLane) {
+                    fragment.startHeadersTransition(false);
+                }
+            }
+        });
+        SystemClock.sleep(100);
+        // Wait header transition finishes
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return !fragment.isInHeadersTransition();
+            }
+        });
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                // change TextView content which should be saved in states.
+                TextView t = mainFragment.getView().findViewById(R.id.tv2);
+                t.setText("changed text");
+            }
+        });
+        // Save activity state
+        final Bundle[] savedState = new Bundle[1];
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                savedState[0] = activity.performSaveInstanceState();
+            }
+        });
+        activity.finish();
+
+        SingleFragmentTestActivity activity2 = launchAndWaitActivity(
+                RowsFragmentTest.F_3ListRow2PageRow.class,
+                new Options().savedInstance(savedState[0]), 2000);
+        final F_3ListRow2PageRow fragment2 = ((F_3ListRow2PageRow) activity2.getTestFragment());
+        final SampleFragment mainFragment2 = (SampleFragment) fragment2.waitPageFragment(
+                SampleFragment.class);
+        assertEquals(!hideFastLane, fragment2.isShowingHeaders());
+        fragment2.assertNoEntranceTransition();
+        // Validate BrowseFragment selected row 3 (mapped to SampleFragment)
+        assertEquals(4, fragment2.getSelectedPosition());
+        // Validate SampleFragment's view states are restored
+        TextView t = mainFragment2.getView().findViewById(R.id.tv2);
+        assertEquals("changed text", t.getText().toString());
+        activity2.finish();
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void mixedBrowseFragmentRestoreToSampleFragmentHideFastLane() throws Throwable {
+        mixedBrowseFragmentRestoreToSampleFragment(true);
+
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    public void mixedBrowseFragmentRestoreToSampleFragmentShowFastLane() throws Throwable {
+        mixedBrowseFragmentRestoreToSampleFragment(false);
+    }
+
+
 }
