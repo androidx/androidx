@@ -19,6 +19,7 @@ package android.support.v4.app.test;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.fragment.test.R;
+import android.support.testutils.RecreatedActivity;
 
 public class HangingFragmentActivity extends RecreatedActivity {
 
