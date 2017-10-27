@@ -23,7 +23,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 /**
- * Sample NullPaddedList adapter, which uses a PagedListAdapterHelper.
+ * Sample PagedList item Adapter, which uses a PagedListAdapterHelper.
  */
 class PagedListItemAdapter extends PagedListAdapter<Item, RecyclerView.ViewHolder> {
 
