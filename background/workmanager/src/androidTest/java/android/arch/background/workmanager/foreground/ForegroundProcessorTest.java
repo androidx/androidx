@@ -103,11 +103,11 @@ public class ForegroundProcessorTest {
         workSpecDao.insertWorkSpec(workSpec);
         mWorkDatabase.dependencyDao().insertDependency(
                 new Dependency(workSpec.getId(), prerequisite.getId()));
-
+        drain();
         mForegroundProcessor.process(prerequisite.getId(), 0L);
+        drain();
 
         assertThat(workSpecDao.getWorkSpecStatus(prerequisite.getId()), is(STATUS_SUCCEEDED));
-        drain();
         assertThat(workSpecDao.getWorkSpecStatus(workSpec.getId()), is(STATUS_SUCCEEDED));
     }
 
