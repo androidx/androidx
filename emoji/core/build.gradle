@@ -1,6 +1,8 @@
 import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
+import java.util.zip.ZipException
+import java.util.zip.ZipFile
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -76,4 +78,54 @@ supportLibrary {
         name = "Unicode, Inc. License"
         url = "http://www.unicode.org/copyright.html#License"
     }
+}
+
+import org.gradle.api.Task
+import org.gradle.api.tasks.TaskAction
+
+class ValidateJarInput extends DefaultTask {
+    Task syncTask
+
+    @TaskAction
+    void validate() {
+        for (File f : syncTask.inputs.files.files) {
+            if (f.name.endsWith(".jar")) {
+                ZipFile zip = null
+                for (def i : 0..3) {
+                    try {
+                        zip = new ZipFile(f)
+                        if (i > 0) {
+                            // If we get here, we know this is some timing issues.  The jar file is
+                            // properly created, but only if we wait.
+                            log.error("Succeeded in opening jar file '$f' after $i retries.  Failing build.")
+                            throw new RuntimeException("Failed opening zip file earlier.")
+                        }
+                        break
+                    } catch (ZipException e) {
+                        log.error("Error opening jar file '$f' (attempt: $i): $e.message")
+                        sleep(1000)
+                    } finally {
+                        if (zip != null) {
+                            zip.close()
+                        }
+                    }
+                    if (i == 3) {
+                        // We failed after 3 retries, this means the generated file is not a proper
+                        // jar file.
+                        throw new RuntimeException("Failed opening zip file after 3 retries.")
+                    }
+                }
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    def syncJniTask = tasks.getByName("transformNativeLibsWithSyncJniLibsForRelease")
+    println "found $syncJniTask.name"
+    def validateTask = tasks.create("validateJarInputsForRelease", ValidateJarInput.class) { t ->
+        t.syncTask = syncJniTask
+    }
+    validateTask.dependsOn(syncJniTask.getDependsOn().collect())
+    syncJniTask.dependsOn(validateTask)
 }
