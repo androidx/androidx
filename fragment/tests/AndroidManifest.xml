@@ -38,6 +38,7 @@
                   android:launchMode="singleInstance"/>
 
         <activity android:name="android.support.v4.app.test.NonConfigOnStopActivity"/>
+        <activity android:name="android.support.v4.app.test.HangingFragmentActivity"/>
     </application>
 
 </manifest>
