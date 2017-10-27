@@ -15,16 +15,13 @@
  */
 package android.support.wear.utils;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.os.Build;
 
 /**
  * Constants for android wear apps which are related to manifest meta-data.
  */
-@TargetApi(Build.VERSION_CODES.N)
 public class MetadataConstants {
 
     //  Constants for standalone apps. //

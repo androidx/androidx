@@ -15,7 +15,6 @@
  */
 package android.support.wear.widget;
 
-import android.annotation.TargetApi;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -29,7 +28,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -76,7 +74,6 @@ import java.util.Objects;
  *   app:radius="dimension"
  *   app:clipEnabled="boolean" /&gt;</pre>
  */
-@TargetApi(Build.VERSION_CODES.N)
 public class RoundedDrawable extends Drawable {
 
     @VisibleForTesting

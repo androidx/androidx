@@ -113,7 +113,7 @@ public class CurvingLayoutCallback extends WearableLinearLayoutManager.LayoutCal
      */
     public void adjustAnchorOffsetXY(View child, float[] anchorOffsetXY) {
         return;
-    };
+    }
 
     @VisibleForTesting
     void setRound(boolean isScreenRound) {

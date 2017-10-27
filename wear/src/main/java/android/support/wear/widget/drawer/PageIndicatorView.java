@@ -54,7 +54,7 @@ import java.util.concurrent.TimeUnit;
  * @hide
  */
 @RequiresApi(Build.VERSION_CODES.M)
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 public class PageIndicatorView extends View implements OnPageChangeListener {
 
     private static final String TAG = "Dots";
