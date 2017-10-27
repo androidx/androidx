@@ -20,6 +20,7 @@ import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.rules.JavaType
 import android.support.tools.jetifier.core.map.TypesMap
 import android.support.tools.jetifier.core.transform.TransformationContext
+import android.support.tools.jetifier.core.transform.proguard.ProGuardTypesMap
 import com.google.common.truth.Truth
 import org.junit.Test
 import java.nio.charset.Charset
@@ -168,6 +169,21 @@ class XmlResourcesTransformerTest {
         )
     }
 
+    @Test fun layout_onePrefix_oneRule_identity() {
+        testRewrite(
+            givenXml =
+                "<android.support.v7.preference.Preference>\n" +
+                "</android.support.v7.preference.Preference>",
+            expectedXml =
+                "<android.support.v7.preference.Preference>\n" +
+                "</android.support.v7.preference.Preference>",
+            prefixes = listOf("android/support/"),
+            map = mapOf(
+                "android/support/v7/preference/Preference" to "android/support/v7/preference/Preference"
+            )
+        )
+    }
+
     @Test fun layout_twoPrefixes_threeRules_multipleRewrites() {
         testRewrite(
             givenXml =
@@ -227,7 +243,7 @@ class XmlResourcesTransformerTest {
 
         val typesMap = TypesMap(map.map{ JavaType(it.key) to JavaType(it.value) }.toMap(),
             emptyMap())
-        val config = Config(prefixes, emptyList(), emptyList(), typesMap)
+        val config = Config(prefixes, emptyList(), emptyList(), typesMap, ProGuardTypesMap.EMPTY)
         val context = TransformationContext(config)
         val processor = XmlResourcesTransformer(context)
         val result = processor.transform(given.toByteArray())
