@@ -31,11 +31,11 @@ import android.support.annotation.NonNull;
 
 public class NetworkStateMeteredController extends ConstraintController<NetworkStateListener> {
 
-    private boolean mIsNetworkMetered;
+    private boolean mIsConnectedAndMetered;
     private final NetworkStateListener mNetworkStateMeteredListener = new NetworkStateListener() {
         @Override
-        public void setNetworkState(@NonNull NetworkState networkState) {
-            mIsNetworkMetered = networkState.isMetered();
+        public void setNetworkState(@NonNull NetworkState state) {
+            mIsConnectedAndMetered = state.isConnected() && state.isMetered();
             updateListener();
         }
     };
@@ -63,6 +63,6 @@ public class NetworkStateMeteredController extends ConstraintController<NetworkS
 
     @Override
     boolean isConstrained() {
-        return !mIsNetworkMetered;
+        return !mIsConnectedAndMetered;
     }
 }

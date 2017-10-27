@@ -31,12 +31,12 @@ import android.support.annotation.NonNull;
 
 public class NetworkStateNotRoamingController extends ConstraintController<NetworkStateListener> {
 
-    private boolean mIsNetworkNotRoaming;
+    private boolean mIsConnectedAndNotRoaming;
     private final NetworkStateListener mNetworkStateNotRoamingListener =
             new NetworkStateListener() {
                 @Override
-                public void setNetworkState(@NonNull NetworkState networkState) {
-                    mIsNetworkNotRoaming = networkState.isNotRoaming();
+                public void setNetworkState(@NonNull NetworkState state) {
+                    mIsConnectedAndNotRoaming = state.isConnected() && state.isNotRoaming();
                     updateListener();
                 }
             };
@@ -64,6 +64,6 @@ public class NetworkStateNotRoamingController extends ConstraintController<Netwo
 
     @Override
     boolean isConstrained() {
-        return !mIsNetworkNotRoaming;
+        return !mIsConnectedAndNotRoaming;
     }
 }

@@ -23,6 +23,7 @@ import android.net.ConnectivityManager.NetworkCallback;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
@@ -31,7 +32,6 @@ import android.util.Log;
  * is heavily based on how {@link android.app.job.JobScheduler}'s ConnectivityController monitors
  * network connectivity in API 26.
  * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/job/controllers/ConnectivityController.java}
- *
  * <p>
  * This approach works on API 24+ because
  * {@link ConnectivityManager#registerDefaultNetworkCallback(NetworkCallback)} was added in API 24.
@@ -48,12 +48,10 @@ public class ConnectivityManagerNetworkStateTracker
     private final NetworkCallback mNetworkCallback = new NetworkCallback() {
         @Override
         public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
-            Log.d(TAG, "Network connection capability changed to: " + capabilities);
-            // ConnectivityManager.getActiveNetworkInfo() is used instead of getNetworkInfo(network)
-            // because the network parameter may not be usable when a VPN app is running.
-            NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
-            NetworkState updatedState = NetworkState.create(info, capabilities);
+            // The Network parameter is unreliable when a VPN app is running - use active network.
+            final NetworkState updatedState = getActiveNetworkState();
             mNetworkStateContainer.setStateAndNotify(updatedState, mListeners);
+            Log.d(TAG, "Network connection capability changed. Updated state: " + updatedState);
         }
 
         @Override
@@ -91,10 +89,31 @@ public class ConnectivityManagerNetworkStateTracker
         mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
     }
 
+    /**
+     * Creates an instance of {@link NetworkState} based the active network.
+     * <p>
+     * Based on the network constraint logic in API 26 {@link android.app.job.JobScheduler}
+     * ConnectivityController#updateConstraintsSatisfied(JobStatus, NetworkCapabilities).
+     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/job/controllers/ConnectivityController.java#102}
+     *
+     * @return A {@link NetworkState} that represents the state of a network.
+     */
     private NetworkState getActiveNetworkState() {
+        // Use getActiveNetworkInfo() instead of getNetworkInfo(network) because it can detect VPNs.
         NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
-        NetworkCapabilities capabilities = mConnectivityManager
-                .getNetworkCapabilities(mConnectivityManager.getActiveNetwork());
-        return NetworkState.create(info, capabilities);
+        Network network = mConnectivityManager.getActiveNetwork();
+        NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);
+        boolean isMetered = mConnectivityManager.isActiveNetworkMetered();
+        boolean isConnected = false;
+        boolean isValidated = false;
+        boolean isNotRoaming = false;
+        if (info != null) {
+            isConnected = info.isConnected();
+            isNotRoaming = !info.isRoaming();
+        }
+        if (Build.VERSION.SDK_INT >= 23 && capabilities != null) {
+            isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        }
+        return new NetworkState(isConnected, isValidated, isMetered, isNotRoaming);
     }
 }
