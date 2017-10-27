@@ -23,6 +23,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito.any
+import org.mockito.Mockito.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
@@ -41,37 +43,27 @@ class TiledPagedListTest {
         }
     }
 
-    private class TestTiledSource : TiledDataSource<Item>() {
-        override fun countItems(): Int {
-            return ITEMS.size
-        }
-
-        override fun loadRange(startPosition: Int, count: Int): List<Item> {
-            val endPosition = Math.min(ITEMS.size, startPosition + count)
-            return ITEMS.subList(startPosition, endPosition)
-        }
-    }
-
-    private fun verifyRange(list: List<Item>, vararg loadedPages: Int) {
+    private fun verifyLoadedPages(list: List<Item>, vararg loadedPages: Int, expected: List<Item> = ITEMS) {
         val loadedPageList = loadedPages.asList()
-        assertEquals(ITEMS.size, list.size)
+        assertEquals(expected.size, list.size)
         for (i in list.indices) {
             if (loadedPageList.contains(i / PAGE_SIZE)) {
-                assertSame("Index $i", ITEMS[i], list[i])
+                assertSame("Index $i", expected[i], list[i])
             } else {
                 assertNull("Index $i", list[i])
             }
         }
     }
 
-    private fun createTiledPagedList(loadPosition: Int, initPages: Int,
-            prefetchDistance: Int = PAGE_SIZE): TiledPagedList<Item> {
-        val source = TestTiledSource()
+    private fun createTiledPagedList(loadPosition: Int, initPageCount: Int,
+            prefetchDistance: Int = PAGE_SIZE,
+            listData: List<Item> = ITEMS,
+            boundaryCallback: PagedList.BoundaryCallback<Item>? = null): TiledPagedList<Item> {
         return TiledPagedList(
-                source, mMainThread, mBackgroundThread,
+                ListDataSource(listData), mMainThread, mBackgroundThread, boundaryCallback,
                 PagedList.Config.Builder()
                         .setPageSize(PAGE_SIZE)
-                        .setInitialLoadSizeHint(PAGE_SIZE * initPages)
+                        .setInitialLoadSizeHint(PAGE_SIZE * initPageCount)
                         .setPrefetchDistance(prefetchDistance)
                         .build(),
                 loadPosition)
@@ -94,87 +86,87 @@ class TiledPagedListTest {
 
     @Test
     fun initialLoad_onePage() {
-        val pagedList = createTiledPagedList(0, 1)
-        verifyRange(pagedList, 0, 1)
+        val pagedList = createTiledPagedList(loadPosition = 0, initPageCount = 1)
+        verifyLoadedPages(pagedList, 0, 1)
     }
 
     @Test
     fun initialLoad_onePageOffset() {
-        val pagedList = createTiledPagedList(10, 1)
-        verifyRange(pagedList, 0, 1)
+        val pagedList = createTiledPagedList(loadPosition = 10, initPageCount = 1)
+        verifyLoadedPages(pagedList, 0, 1)
     }
 
     @Test
     fun initialLoad_full() {
-        val pagedList = createTiledPagedList(0, 100)
-        verifyRange(pagedList, 0, 1, 2, 3, 4)
+        val pagedList = createTiledPagedList(loadPosition = 0, initPageCount = 100)
+        verifyLoadedPages(pagedList, 0, 1, 2, 3, 4)
     }
 
     @Test
     fun initialLoad_end() {
-        val pagedList = createTiledPagedList(44, 2)
-        verifyRange(pagedList, 3, 4)
+        val pagedList = createTiledPagedList(loadPosition = 44, initPageCount = 2)
+        verifyLoadedPages(pagedList, 3, 4)
     }
 
     @Test
     fun initialLoad_multiple() {
-        val pagedList = createTiledPagedList(9, 2)
-        verifyRange(pagedList, 0, 1)
+        val pagedList = createTiledPagedList(loadPosition = 9, initPageCount = 2)
+        verifyLoadedPages(pagedList, 0, 1)
     }
 
     @Test
     fun initialLoad_offset() {
-        val pagedList = createTiledPagedList(41, 2)
-        verifyRange(pagedList, 3, 4)
+        val pagedList = createTiledPagedList(loadPosition = 41, initPageCount = 2)
+        verifyLoadedPages(pagedList, 3, 4)
     }
 
     @Test
     fun append() {
-        val pagedList = createTiledPagedList(0, 1)
+        val pagedList = createTiledPagedList(loadPosition = 0, initPageCount = 1)
         val callback = mock(PagedList.Callback::class.java)
         pagedList.addWeakCallback(null, callback)
-        verifyRange(pagedList, 0, 1)
+        verifyLoadedPages(pagedList, 0, 1)
         verifyZeroInteractions(callback)
 
         pagedList.loadAround(15)
 
-        verifyRange(pagedList, 0, 1)
+        verifyLoadedPages(pagedList, 0, 1)
 
         drain()
 
-        verifyRange(pagedList, 0, 1, 2)
+        verifyLoadedPages(pagedList, 0, 1, 2)
         verify(callback).onChanged(20, 10)
         verifyNoMoreInteractions(callback)
     }
 
     @Test
     fun prepend() {
-        val pagedList = createTiledPagedList(44, 2)
+        val pagedList = createTiledPagedList(loadPosition = 44, initPageCount = 2)
         val callback = mock(PagedList.Callback::class.java)
         pagedList.addWeakCallback(null, callback)
-        verifyRange(pagedList, 3, 4)
+        verifyLoadedPages(pagedList, 3, 4)
         verifyZeroInteractions(callback)
 
         pagedList.loadAround(35)
         drain()
 
-        verifyRange(pagedList, 2, 3, 4)
+        verifyLoadedPages(pagedList, 2, 3, 4)
         verify<PagedList.Callback>(callback).onChanged(20, 10)
         verifyNoMoreInteractions(callback)
     }
 
     @Test
     fun loadWithGap() {
-        val pagedList = createTiledPagedList(0, 1)
+        val pagedList = createTiledPagedList(loadPosition = 0, initPageCount = 1)
         val callback = mock(PagedList.Callback::class.java)
         pagedList.addWeakCallback(null, callback)
-        verifyRange(pagedList, 0, 1)
+        verifyLoadedPages(pagedList, 0, 1)
         verifyZeroInteractions(callback)
 
         pagedList.loadAround(44)
         drain()
 
-        verifyRange(pagedList, 0, 1, 3, 4)
+        verifyLoadedPages(pagedList, 0, 1, 3, 4)
         verify(callback).onChanged(30, 10)
         verify(callback).onChanged(40, 5)
         verifyNoMoreInteractions(callback)
@@ -182,45 +174,47 @@ class TiledPagedListTest {
 
     @Test
     fun tinyPrefetchTest() {
-        val pagedList = createTiledPagedList(0, 1, 1)
+        val pagedList = createTiledPagedList(
+                loadPosition = 0, initPageCount = 1, prefetchDistance = 1)
         val callback = mock(PagedList.Callback::class.java)
         pagedList.addWeakCallback(null, callback)
-        verifyRange(pagedList, 0, 1)
+        verifyLoadedPages(pagedList, 0, 1)
         verifyZeroInteractions(callback)
 
         pagedList.loadAround(33)
         drain()
 
-        verifyRange(pagedList, 0, 1, 3)
+        verifyLoadedPages(pagedList, 0, 1, 3)
         verify(callback).onChanged(30, 10)
         verifyNoMoreInteractions(callback)
 
         pagedList.loadAround(44)
         drain()
 
-        verifyRange(pagedList, 0, 1, 3, 4)
+        verifyLoadedPages(pagedList, 0, 1, 3, 4)
         verify(callback).onChanged(40, 5)
         verifyNoMoreInteractions(callback)
     }
 
     @Test
     fun appendCallbackAddedLate() {
-        val pagedList = createTiledPagedList(0, 1, 0)
-        verifyRange(pagedList, 0, 1)
+        val pagedList = createTiledPagedList(
+                loadPosition = 0, initPageCount = 1, prefetchDistance = 0)
+        verifyLoadedPages(pagedList, 0, 1)
 
         pagedList.loadAround(25)
         drain()
-        verifyRange(pagedList, 0, 1, 2)
+        verifyLoadedPages(pagedList, 0, 1, 2)
 
         // snapshot at 30 items
         val snapshot = pagedList.snapshot()
-        verifyRange(snapshot, 0, 1, 2)
+        verifyLoadedPages(snapshot, 0, 1, 2)
 
         pagedList.loadAround(35)
         pagedList.loadAround(44)
         drain()
-        verifyRange(pagedList, 0, 1, 2, 3, 4)
-        verifyRange(snapshot, 0, 1, 2)
+        verifyLoadedPages(pagedList, 0, 1, 2, 3, 4)
+        verifyLoadedPages(snapshot, 0, 1, 2)
 
         val callback = mock(PagedList.Callback::class.java)
         pagedList.addWeakCallback(snapshot, callback)
@@ -230,22 +224,23 @@ class TiledPagedListTest {
 
     @Test
     fun prependCallbackAddedLate() {
-        val pagedList = createTiledPagedList(44, 2, 0)
-        verifyRange(pagedList, 3, 4)
+        val pagedList = createTiledPagedList(
+                loadPosition = 44, initPageCount = 2, prefetchDistance = 0)
+        verifyLoadedPages(pagedList, 3, 4)
 
         pagedList.loadAround(25)
         drain()
-        verifyRange(pagedList, 2, 3, 4)
+        verifyLoadedPages(pagedList, 2, 3, 4)
 
         // snapshot at 30 items
         val snapshot = pagedList.snapshot()
-        verifyRange(snapshot, 2, 3, 4)
+        verifyLoadedPages(snapshot, 2, 3, 4)
 
         pagedList.loadAround(15)
         pagedList.loadAround(5)
         drain()
-        verifyRange(pagedList, 0, 1, 2, 3, 4)
-        verifyRange(snapshot, 2, 3, 4)
+        verifyLoadedPages(pagedList, 0, 1, 2, 3, 4)
+        verifyLoadedPages(snapshot, 2, 3, 4)
 
         val callback = mock(PagedList.Callback::class.java)
         pagedList.addWeakCallback(snapshot, callback)
@@ -257,7 +252,7 @@ class TiledPagedListTest {
     fun placeholdersDisabled() {
         // disable placeholders with config, so we create a contiguous version of the pagedlist
         val pagedList = PagedList.Builder<Int, Item>()
-                .setDataSource(TestTiledSource())
+                .setDataSource(ListDataSource(ITEMS))
                 .setMainThreadExecutor(mMainThread)
                 .setBackgroundThreadExecutor(mBackgroundThread)
                 .setConfig(PagedList.Config.Builder()
@@ -276,6 +271,98 @@ class TiledPagedListTest {
         assertEquals(0, contiguousPagedList.mStorage.leadingNullCount)
         assertEquals(PAGE_SIZE, contiguousPagedList.mStorage.storageCount)
         assertEquals(0, contiguousPagedList.mStorage.trailingNullCount)
+    }
+
+    @Test
+    fun boundaryCallback_empty() {
+        @Suppress("UNCHECKED_CAST")
+        val boundaryCallback =
+                mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<Item>
+        val pagedList = createTiledPagedList(loadPosition = 0, initPageCount = 1,
+                listData = ArrayList(), boundaryCallback = boundaryCallback)
+        assertEquals(0, pagedList.size)
+
+        // nothing yet
+        verifyNoMoreInteractions(boundaryCallback)
+
+        // onZeroItemsLoaded posted, since creation often happens on BG thread
+        drain()
+        verify(boundaryCallback).onZeroItemsLoaded()
+        verifyNoMoreInteractions(boundaryCallback)
+    }
+
+    @Test
+    fun boundaryCallback_immediate() {
+        @Suppress("UNCHECKED_CAST")
+        val boundaryCallback =
+                mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<Item>
+        val pagedList = createTiledPagedList(loadPosition = 0, initPageCount = 1,
+                listData = ITEMS.subList(0, 2), boundaryCallback = boundaryCallback)
+        assertEquals(2, pagedList.size)
+
+        // nothing yet
+        verifyZeroInteractions(boundaryCallback)
+
+        // callbacks posted, since creation often happens on BG thread
+        drain()
+        verify(boundaryCallback).onItemAtFrontLoaded(any(), eq(ITEMS[0]), eq(2))
+        verify(boundaryCallback).onItemAtEndLoaded(any(), eq(ITEMS[1]), eq(2))
+        verifyNoMoreInteractions(boundaryCallback)
+    }
+
+    @Test
+    fun boundaryCallback_delayedUntilLoaded() {
+        @Suppress("UNCHECKED_CAST")
+        val boundaryCallback =
+                mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<Item>
+        val pagedList = createTiledPagedList(loadPosition = 20, initPageCount = 1,
+                boundaryCallback = boundaryCallback)
+        verifyLoadedPages(pagedList, 1, 2) // 0, 3, and 4 not loaded yet
+
+        // nothing yet, even after drain
+        verifyZeroInteractions(boundaryCallback)
+        drain()
+        verifyZeroInteractions(boundaryCallback)
+
+        pagedList.loadAround(0)
+        pagedList.loadAround(44)
+
+        // still nothing, since items aren't loaded...
+        verifyZeroInteractions(boundaryCallback)
+
+        drain()
+        // first/last items loaded now, so callbacks dispatched
+        verify(boundaryCallback).onItemAtFrontLoaded(any(), eq(ITEMS.first()), eq(45))
+        verify(boundaryCallback).onItemAtEndLoaded(any(), eq(ITEMS.last()), eq(45))
+        verifyNoMoreInteractions(boundaryCallback)
+    }
+
+    @Test
+    fun boundaryCallback_delayedUntilNearbyAccess() {
+        @Suppress("UNCHECKED_CAST")
+        val boundaryCallback =
+                mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<Item>
+        val pagedList = createTiledPagedList(loadPosition = 0, initPageCount = 5,
+                prefetchDistance = 2, boundaryCallback = boundaryCallback)
+        verifyLoadedPages(pagedList, 0, 1, 2, 3, 4)
+
+        // all items loaded, but no access near ends, so no callbacks
+        verifyZeroInteractions(boundaryCallback)
+        drain()
+        verifyZeroInteractions(boundaryCallback)
+
+        pagedList.loadAround(0)
+        pagedList.loadAround(44)
+
+        // callbacks not posted immediately
+        verifyZeroInteractions(boundaryCallback)
+
+        drain()
+
+        // items accessed, so now posted callbacks are run
+        verify(boundaryCallback).onItemAtFrontLoaded(any(), eq(ITEMS.first()), eq(45))
+        verify(boundaryCallback).onItemAtEndLoaded(any(), eq(ITEMS.last()), eq(45))
+        verifyNoMoreInteractions(boundaryCallback)
     }
 
     private fun drain() {

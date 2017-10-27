@@ -47,7 +47,9 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
             });
         }
 
-        @MainThread
+        // Creation thread for initial synchronous load, otherwise main thread
+        // Safe to access main thread only state - no other thread has reference during construction
+        @AnyThread
         @Override
         public void onPageResult(@NonNull PageResult<K, V> pageResult) {
             if (pageResult.page == null) {
@@ -70,6 +72,17 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
             } else if (pageResult.type == PageResult.PREPEND) {
                 mKeyedStorage.prependPage(page, ContiguousPagedList.this);
             }
+
+            if (mBoundaryCallback != null) {
+                boolean deferEmpty = mStorage.size() == 0;
+                boolean deferBegin = !deferEmpty
+                        && pageResult.type == PageResult.PREPEND
+                        && pageResult.page.items.size() == 0;
+                boolean deferEnd = !deferEmpty
+                        && pageResult.type == PageResult.APPEND
+                        && pageResult.page.items.size() == 0;
+                deferBoundaryCallbacks(deferEmpty, deferBegin, deferEnd);
+            }
         }
     };
 
@@ -77,9 +90,11 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
             @NonNull ContiguousDataSource<K, V> dataSource,
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
+            @Nullable BoundaryCallback<V> boundaryCallback,
             @NonNull Config config,
             final @Nullable K key) {
-        super(new PagedStorage<K, V>(), mainThreadExecutor, backgroundThreadExecutor, config);
+        super(new PagedStorage<K, V>(), mainThreadExecutor, backgroundThreadExecutor,
+                boundaryCallback, config);
         mDataSource = dataSource;
 
         // blocking init just triggers the initial load on the construction thread -
@@ -168,7 +183,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         final int position = mStorage.getLeadingNullCount() + mStorage.getPositionOffset();
 
         // safe to access first item here - mStorage can't be empty if we're prepending
-        final V item = mStorage.getFirstContiguousItem();
+        final V item = mStorage.getFirstLoadedItem();
         mBackgroundThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -191,7 +206,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 + mStorage.getStorageCount() - 1 + mStorage.getPositionOffset();
 
         // safe to access first item here - mStorage can't be empty if we're appending
-        final V item = mStorage.getLastContiguousItem();
+        final V item = mStorage.getLastLoadedItem();
         mBackgroundThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -234,6 +249,8 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         // finally dispatch callbacks, after prepend may have already been scheduled
         notifyChanged(leadingNulls, changedCount);
         notifyInserted(0, addedCount);
+
+        offsetBoundaryAccessIndices(addedCount);
     }
 
     @MainThread
