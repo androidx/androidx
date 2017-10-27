@@ -41,14 +41,16 @@ import android.util.Log;
  */
 @RequiresApi(24)
 public class ConnectivityManagerNetworkStateTracker extends NetworkStateTracker {
-    private static final String TAG = "ApiNetworkStateTracker";
+    private static final String TAG = "ConnManagerNetwrkTrcker";
 
     private final ConnectivityManager mConnectivityManager;
     private final NetworkCallback mNetworkCallback = new NetworkCallback() {
         @Override
         public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
             Log.d(TAG, "Network connection capability changed to: " + capabilities);
-            final NetworkInfo info = mConnectivityManager.getNetworkInfo(network);
+            // ConnectivityManager.getActiveNetworkInfo() is used instead of getNetworkInfo(network)
+            // because the network parameter may not be usable when a VPN app is running.
+            final NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
             setNetworkStateAndNotify(NetworkState.create(info, capabilities));
         }
 
@@ -85,9 +87,9 @@ public class ConnectivityManagerNetworkStateTracker extends NetworkStateTracker 
     }
 
     private NetworkState getActiveNetworkState() {
-        Network network = mConnectivityManager.getActiveNetwork();
-        NetworkInfo info = mConnectivityManager.getNetworkInfo(network);
-        NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);
+        NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
+        NetworkCapabilities capabilities = mConnectivityManager
+                .getNetworkCapabilities(mConnectivityManager.getActiveNetwork());
         return NetworkState.create(info, capabilities);
     }
 }
