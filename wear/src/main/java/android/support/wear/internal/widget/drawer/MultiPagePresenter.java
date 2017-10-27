@@ -28,7 +28,7 @@ import android.support.wear.widget.drawer.WearableNavigationDrawerView.WearableN
  *
  * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 public class MultiPagePresenter extends WearableNavigationDrawerPresenter {
 
     private final Ui mUi;

@@ -17,8 +17,6 @@
 package android.support.wear.widget;
 
 import android.animation.TimeInterpolator;
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.RestrictTo.Scope;
 
@@ -27,8 +25,7 @@ import android.support.annotation.RestrictTo.Scope;
  *
  * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
-@TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
+@RestrictTo(Scope.LIBRARY)
 class BezierSCurveInterpolator implements TimeInterpolator {
 
     /**

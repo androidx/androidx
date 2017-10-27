@@ -19,14 +19,12 @@ package android.support.wear.widget;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
-import android.annotation.TargetApi;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.RestrictTo.Scope;
 import android.util.Property;
@@ -37,8 +35,7 @@ import android.view.animation.LinearInterpolator;
  *
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 class ProgressDrawable extends Drawable {
 
     private static final Property<ProgressDrawable, Integer> LEVEL =

@@ -32,7 +32,7 @@ import java.lang.ref.WeakReference;
  *
  * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 class AbsListViewFlingWatcher implements FlingWatcher, OnScrollListener {
 
     private final FlingListener mListener;
