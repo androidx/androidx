@@ -18,7 +18,6 @@ package android.arch.background.workmanager;
 
 import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 
-import android.arch.background.workmanager.firebase.FirebaseJobScheduler;
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
@@ -29,10 +28,6 @@ import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -69,27 +64,10 @@ public final class WorkManager {
     WorkManager(Context context, boolean useTestDatabase) {
         mContext = context.getApplicationContext();
         mWorkDatabase = WorkDatabase.create(mContext, useTestDatabase);
-        mScheduler = createBackgroundScheduler();
-        new ForegroundProcessor(mContext, mWorkDatabase, mScheduler, ProcessLifecycleOwner.get());
-    }
-
-    private Scheduler createBackgroundScheduler() {
         if (Build.VERSION.SDK_INT >= 23) {
-            Log.d(TAG, "Setting Scheduler to SystemJobScheduler");
-            return new SystemJobScheduler(mContext);
-        } else if (isGooglePlayServicesAvailable()) {
-            // FirebaseJobScheduler uses Google Play Services
-            Log.d(TAG, "Setting Scheduler to FirebaseJobScheduler");
-            return new FirebaseJobScheduler(mContext);
-        } else {
-            Log.e(TAG, "No Scheduler available");
-            return null;
+            mScheduler = new SystemJobScheduler(mContext);
         }
-    }
-
-    private boolean isGooglePlayServicesAvailable() {
-        return GoogleApiAvailability.getInstance()
-                .isGooglePlayServicesAvailable(mContext) == ConnectionResult.SUCCESS;
+        new ForegroundProcessor(mContext, mWorkDatabase, mScheduler, ProcessLifecycleOwner.get());
     }
 
     /**
