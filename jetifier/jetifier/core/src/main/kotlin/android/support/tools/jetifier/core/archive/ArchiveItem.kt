@@ -54,4 +54,6 @@ interface ArchiveItem {
 
     fun isXmlFile() = fileName.endsWith(".xml", ignoreCase = true)
 
+    fun isProGuardFile () = fileName.equals("proguard.txt", ignoreCase = true)
+
 }

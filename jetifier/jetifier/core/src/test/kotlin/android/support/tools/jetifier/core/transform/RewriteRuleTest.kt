@@ -130,8 +130,5 @@ class RewriteRuleTest {
         }
     }
 
-
-
-
 }
 

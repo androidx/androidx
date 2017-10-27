@@ -19,6 +19,7 @@ package android.support.tools.jetifier.core.config
 import android.support.tools.jetifier.core.rules.RewriteRule
 import android.support.tools.jetifier.core.transform.pom.PomRewriteRule
 import android.support.tools.jetifier.core.map.TypesMap
+import android.support.tools.jetifier.core.transform.proguard.ProGuardTypesMap
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -33,7 +34,8 @@ data class Config(
         val restrictToPackagePrefixes: List<String>,
         val rewriteRules: List<RewriteRule>,
         val pomRewriteRules: List<PomRewriteRule>,
-        val typesMap: TypesMap) {
+        val typesMap: TypesMap,
+        val proGuardMap: ProGuardTypesMap) {
 
     companion object {
         /** Path to the default config file located within the jar file. */
@@ -41,7 +43,8 @@ data class Config(
     }
 
     fun setNewMap(mappings: TypesMap) : Config {
-        return Config(restrictToPackagePrefixes, rewriteRules, pomRewriteRules, mappings)
+        return Config(
+            restrictToPackagePrefixes, rewriteRules, pomRewriteRules, mappings, proGuardMap)
     }
 
     /** Returns JSON data model of this class */
@@ -50,7 +53,8 @@ data class Config(
             restrictToPackagePrefixes,
             rewriteRules.map { it.toJson() }.toList(),
             pomRewriteRules.map { it.toJson() }.toList(),
-            typesMap.toJson()
+            typesMap.toJson(),
+            proGuardMap.toJson()
         )
     }
 
@@ -69,7 +73,10 @@ data class Config(
             val pomRules: List<PomRewriteRule.JsonData?>,
 
             @SerializedName("map")
-            val mappings: TypesMap.JsonData? = null) {
+            val mappings: TypesMap.JsonData? = null,
+
+            @SerializedName("proGuardMap")
+            val proGuardMap: ProGuardTypesMap.JsonData? = null) {
 
         /** Creates instance of [Config] */
         fun toConfig() : Config {
@@ -77,7 +84,8 @@ data class Config(
                 restrictToPackages.filterNotNull(),
                 rules.filterNotNull().map { it.toRule() },
                 pomRules.filterNotNull().map { it.toRule() },
-                mappings?.toMappings() ?: TypesMap.EMPTY
+                mappings?.toMappings() ?: TypesMap.EMPTY,
+                proGuardMap?.toMappings() ?: ProGuardTypesMap.EMPTY
             )
         }
     }
