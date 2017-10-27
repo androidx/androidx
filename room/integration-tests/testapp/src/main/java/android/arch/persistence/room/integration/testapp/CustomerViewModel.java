@@ -21,7 +21,7 @@ import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.paging.DataSource;
-import android.arch.paging.LivePagedListProvider;
+import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.database.Customer;
@@ -81,30 +81,30 @@ public class CustomerViewModel extends AndroidViewModel {
         });
     }
 
+    private static <K> LiveData<PagedList<Customer>> getLivePagedList(
+            K initialLoadKey, DataSource.Factory<K, Customer> dataSourceFactory) {
+        return new LivePagedListBuilder<K, Customer>()
+                .setInitialLoadKey(initialLoadKey)
+                .setPagingConfig(new PagedList.Config.Builder()
+                        .setPageSize(10)
+                        .setEnablePlaceholders(false)
+                        .build())
+                .setDataSourceFactory(dataSourceFactory)
+                .build();
+    }
+
     LiveData<PagedList<Customer>> getLivePagedList(int position) {
         if (mLiveCustomerList == null) {
-            mLiveCustomerList = mDatabase.getCustomerDao()
-                    .loadPagedAgeOrder().create(position,
-                            new PagedList.Config.Builder()
-                                    .setPageSize(10)
-                                    .setEnablePlaceholders(false)
-                                    .build());
+            mLiveCustomerList =
+                    getLivePagedList(position, mDatabase.getCustomerDao().loadPagedAgeOrder());
         }
         return mLiveCustomerList;
     }
 
     LiveData<PagedList<Customer>> getLivePagedList(String key) {
         if (mLiveCustomerList == null) {
-            mLiveCustomerList = new LivePagedListProvider<String, Customer>() {
-                @Override
-                protected DataSource<String, Customer> createDataSource() {
-                    return new LastNameAscCustomerDataSource(mDatabase);
-                }
-            }.create(key,
-                    new PagedList.Config.Builder()
-                            .setPageSize(10)
-                            .setEnablePlaceholders(false)
-                            .build());
+            mLiveCustomerList =
+                    getLivePagedList(key, LastNameAscCustomerDataSource.factory(mDatabase));
         }
         return mLiveCustomerList;
     }

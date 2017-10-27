@@ -17,6 +17,7 @@
 package android.arch.persistence.room.integration.testapp.dao;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListProvider;
 import android.arch.paging.TiledDataSource;
 import android.arch.persistence.room.Dao;
@@ -184,7 +185,10 @@ public abstract class UserDao {
     }
 
     @Query("SELECT * FROM user where mAge > :age")
-    public abstract LivePagedListProvider<Integer, User> loadPagedByAge(int age);
+    public abstract DataSource.Factory<Integer, User> loadPagedByAge(int age);
+
+    @Query("SELECT * FROM user where mAge > :age")
+    public abstract LivePagedListProvider<Integer, User> loadPagedByAge_legacy(int age);
 
     @Query("SELECT * FROM user ORDER BY mAge DESC")
     public abstract TiledDataSource<User> loadUsersByAgeDesc();

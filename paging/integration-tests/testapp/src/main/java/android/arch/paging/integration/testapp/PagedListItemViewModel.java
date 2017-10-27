@@ -19,7 +19,7 @@ package android.arch.paging.integration.testapp;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.paging.DataSource;
-import android.arch.paging.LivePagedListProvider;
+import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
 
 /**
@@ -41,16 +41,19 @@ public class PagedListItemViewModel extends ViewModel {
 
     LiveData<PagedList<Item>> getLivePagedList() {
         if (mLivePagedList == null) {
-            mLivePagedList = new LivePagedListProvider<Integer, Item>() {
-                @Override
-                protected DataSource<Integer, Item> createDataSource() {
-                    ItemDataSource newDataSource = new ItemDataSource();
-                    synchronized (mDataSourceLock) {
-                        mDataSource = newDataSource;
-                        return mDataSource;
-                    }
-                }
-            }.create(0, 20);
+            mLivePagedList = new LivePagedListBuilder<Integer, Item>()
+                    .setPagingConfig(20)
+                    .setDataSourceFactory(new DataSource.Factory<Integer, Item>() {
+                        @Override
+                        public DataSource<Integer, Item> create() {
+                            ItemDataSource newDataSource = new ItemDataSource();
+                            synchronized (mDataSourceLock) {
+                                mDataSource = newDataSource;
+                                return mDataSource;
+                            }
+                        }
+                    })
+                    .build();
         }
 
         return mLivePagedList;

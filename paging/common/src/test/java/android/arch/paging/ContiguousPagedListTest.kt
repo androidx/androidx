@@ -22,6 +22,8 @@ import org.junit.Assert.assertSame
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import org.mockito.Mockito.any
+import org.mockito.Mockito.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
@@ -41,17 +43,18 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         }
     }
 
-    private inner class TestSource : PositionalDataSource<Item>() {
+    private inner class TestSource(val listData: List<Item> = ITEMS)
+            : PositionalDataSource<Item>() {
         override fun countItems(): Int {
             return if (mCounted) {
-                ITEMS.size
+                listData.size
             } else {
                 DataSource.COUNT_UNDEFINED
             }
         }
 
         private fun getClampedRange(startInc: Int, endExc: Int, reverse: Boolean): List<Item> {
-            val list = ITEMS.subList(Math.max(0, startInc), Math.min(ITEMS.size, endExc))
+            val list = listData.subList(Math.max(0, startInc), Math.min(listData.size, endExc))
             if (reverse) {
                 Collections.reverse(list)
             }
@@ -140,21 +143,20 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         verifyRange(90, 10, TestSource().loadInitial(95, 10, true)!!)
     }
 
-
     private fun createCountedPagedList(
-            config: PagedList.Config, initialPosition: Int): ContiguousPagedList<Int, Item> {
+            initialPosition: Int,
+            pageSize: Int = 20,
+            initLoadSize: Int = 40,
+            prefetchDistance: Int = 20,
+            listData: List<Item> = ITEMS,
+            boundaryCallback: PagedList.BoundaryCallback<Item>? = null)
+            : ContiguousPagedList<Int, Item> {
         return ContiguousPagedList(
-                TestSource(), mMainThread, mBackgroundThread,
-                config,
-                initialPosition)
-    }
-
-    private fun createCountedPagedList(initialPosition: Int): ContiguousPagedList<Int, Item> {
-        return createCountedPagedList(
+                TestSource(listData), mMainThread, mBackgroundThread, boundaryCallback,
                 PagedList.Config.Builder()
-                        .setInitialLoadSizeHint(40)
-                        .setPageSize(20)
-                        .setPrefetchDistance(20)
+                        .setInitialLoadSizeHint(initLoadSize)
+                        .setPageSize(pageSize)
+                        .setPrefetchDistance(prefetchDistance)
                         .build(),
                 initialPosition)
     }
@@ -240,13 +242,8 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
 
     @Test
     fun distantPrefetch() {
-        val pagedList = createCountedPagedList(
-                PagedList.Config.Builder()
-                        .setInitialLoadSizeHint(10)
-                        .setPageSize(10)
-                        .setPrefetchDistance(30)
-                        .build(),
-                0)
+        val pagedList = createCountedPagedList(0,
+                initLoadSize = 10, pageSize = 10, prefetchDistance = 30)
         val callback = mock(PagedList.Callback::class.java)
         pagedList.addWeakCallback(null, callback)
         verifyRange(0, 10, pagedList)
@@ -303,7 +300,6 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         val snapshot = pagedList.snapshot() as PagedList<Item>
         verifyRange(40, 60, snapshot)
 
-
         pagedList.loadAround(if (mCounted) 45 else 5)
         drain()
         verifyRange(20, 80, pagedList)
@@ -313,6 +309,71 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         pagedList.addWeakCallback(snapshot, callback)
         verifyCallback(callback, 40, 0)
         verifyNoMoreInteractions(callback)
+    }
+
+    @Test
+    fun boundaryCallback_empty() {
+        @Suppress("UNCHECKED_CAST")
+        val boundaryCallback =
+                mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<Item>
+        val pagedList = createCountedPagedList(0,
+                listData = ArrayList(), boundaryCallback = boundaryCallback)
+        assertEquals(0, pagedList.size)
+
+        // nothing yet
+        verifyNoMoreInteractions(boundaryCallback)
+
+        // onZeroItemsLoaded posted, since creation often happens on BG thread
+        drain()
+        verify(boundaryCallback).onZeroItemsLoaded()
+        verifyNoMoreInteractions(boundaryCallback)
+    }
+
+    @Test
+    fun boundaryCallback_delayed() {
+        @Suppress("UNCHECKED_CAST")
+        val boundaryCallback =
+                mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<Item>
+        val pagedList = createCountedPagedList(90,
+                initLoadSize = 20, prefetchDistance = 5, boundaryCallback = boundaryCallback)
+        verifyRange(80, 20, pagedList)
+
+
+        // nothing yet
+        verifyZeroInteractions(boundaryCallback)
+        drain()
+        verifyZeroInteractions(boundaryCallback)
+
+        // loading around last item causes onItemAtEndLoaded
+        pagedList.loadAround(if (mCounted) 99 else 19)
+        drain()
+        verifyRange(80, 20, pagedList)
+        verify(boundaryCallback).onItemAtEndLoaded(
+                any(), eq(ITEMS.last()), eq(if (mCounted) 100 else 20))
+        verifyNoMoreInteractions(boundaryCallback)
+
+
+        // prepending doesn't trigger callback...
+        pagedList.loadAround(if (mCounted) 80 else 0)
+        drain()
+        verifyRange(60, 40, pagedList)
+        verifyZeroInteractions(boundaryCallback)
+
+        // ...load rest of data, still no dispatch...
+        pagedList.loadAround(if (mCounted) 60 else 0)
+        drain()
+        pagedList.loadAround(if (mCounted) 40 else 0)
+        drain()
+        pagedList.loadAround(if (mCounted) 20 else 0)
+        drain()
+        verifyRange(0, 100, pagedList)
+        verifyZeroInteractions(boundaryCallback)
+
+        // ... finally try prepend, see 0 items, which will dispatch front callback
+        pagedList.loadAround(0)
+        drain()
+        verify(boundaryCallback).onItemAtFrontLoaded(any(), eq(ITEMS.first()), eq(100))
+        verifyNoMoreInteractions(boundaryCallback)
     }
 
     private fun drain() {
