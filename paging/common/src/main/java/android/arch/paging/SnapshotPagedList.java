@@ -27,6 +27,7 @@ class SnapshotPagedList<T> extends PagedList<T> {
         super(pagedList.mStorage.snapshot(),
                 pagedList.mMainThreadExecutor,
                 pagedList.mBackgroundThreadExecutor,
+                null,
                 pagedList.mConfig);
         mContiguous = pagedList.isContiguous();
         mLastKey = pagedList.getLastKey();
