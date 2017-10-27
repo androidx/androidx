@@ -19,6 +19,7 @@ package android.support.v4.app;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.testutils.FragmentActivityUtils;
 import android.support.v4.app.test.HangingFragmentActivity;
 
 import org.junit.Assert;
@@ -37,7 +38,7 @@ public class HangingFragmentTest {
 
     @Test
     public void testNoCrash() throws InterruptedException {
-        HangingFragmentActivity newActivity = FragmentTestUtil.recreateActivity(
+        HangingFragmentActivity newActivity = FragmentActivityUtils.recreateActivity(
                 mActivityRule, mActivityRule.getActivity());
         Assert.assertNotNull(newActivity);
     }
