@@ -1,3 +1,5 @@
+import android.support.LibraryGroups
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -28,6 +30,7 @@ android {
 supportLibrary {
     name = "Android Support Leanback Preference v17"
     publish = true
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2015"
     description = "Android Support Leanback Preference v17"
     legacySourceLocation = true

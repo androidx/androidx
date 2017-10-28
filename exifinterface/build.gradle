@@ -1,3 +1,5 @@
+import android.support.LibraryGroups
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -17,6 +19,7 @@ android {
 supportLibrary {
     name = "Android Support ExifInterface"
     publish = true
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2016"
     description = "Android Support ExifInterface"
     legacySourceLocation = true

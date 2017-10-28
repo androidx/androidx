@@ -1,3 +1,5 @@
+import android.support.LibraryGroups
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -23,6 +25,7 @@ dependencies {
 supportLibrary {
     name = "Android Emoji Compat"
     publish = true
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "Library bundled with assets to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
 

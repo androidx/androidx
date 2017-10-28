@@ -1,3 +1,5 @@
+import android.support.LibraryGroups
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -37,6 +39,7 @@ android {
 supportLibrary {
     name = "Android Wear Support UI"
     publish = true
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2016"
     description = "Android Wear Support UI"
     legacySourceLocation = true

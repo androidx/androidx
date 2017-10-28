@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import android.support.LibraryGroups
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -33,6 +35,7 @@ android {
 supportLibrary {
     name = "Android Emoji AppCompat"
     publish = true
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "EmojiCompat Widgets for AppCompat integration"
     legacySourceLocation = true
