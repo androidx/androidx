@@ -9,6 +9,7 @@ dependencies {
 
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_contrib, { exclude group: 'com.android.support' }
     androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
     androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
 }
