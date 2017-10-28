@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension;
 
@@ -40,6 +41,7 @@ version = LibraryVersions.PAGING.toString()
 supportLibrary {
     name = "Android Paging-Common"
     publish = true
+    mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2017"
     description = "Android Paging-Common"
     url = SupportLibraryExtension.ARCHITECTURE_URL
