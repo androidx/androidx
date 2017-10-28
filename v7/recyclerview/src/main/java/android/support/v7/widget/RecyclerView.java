@@ -386,8 +386,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private List<OnChildAttachStateChangeListener> mOnChildAttachStateListeners;
 
     /**
-     * Set to true when an adapter data set changed notification is received.
-     * In that case, we cannot run any animations since we don't know what happened until layout.
+     * True after an event occurs that signals that the entire data set has changed. In that case,
+     * we cannot run any animations since we don't know what happened until layout.
      *
      * Attached items are invalid until next layout, at which point layout will animate/replace
      * items as necessary, building up content from the (effectively) new adapter from scratch.
@@ -395,9 +395,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * Cached items must be discarded when setting this to true, so that the cache may be freely
      * used by prefetching until the next layout occurs.
      *
-     * @see #setDataSetChangedAfterLayout()
+     * @see #processDataSetCompletelyChanged(boolean)
      */
     boolean mDataSetHasChangedAfterLayout = false;
+
+    /**
+     * True after the data set has completely changed and
+     * {@link LayoutManager#onItemsChanged(RecyclerView)} should be called during the subsequent
+     * measure/layout.
+     *
+     * @see #processDataSetCompletelyChanged(boolean)
+     */
+    boolean mDispatchItemsChangedEvent = false;
 
     /**
      * This variable is incremented during a dispatchLayout and/or scroll.
@@ -1044,6 +1053,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // bail out if layout is frozen
         setLayoutFrozen(false);
         setAdapterInternal(adapter, true, removeAndRecycleExistingViews);
+        processDataSetCompletelyChanged(true);
         requestLayout();
     }
     /**
@@ -1059,6 +1069,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // bail out if layout is frozen
         setLayoutFrozen(false);
         setAdapterInternal(adapter, false, true);
+        processDataSetCompletelyChanged(false);
         requestLayout();
     }
 
@@ -1112,7 +1123,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         mRecycler.onAdapterChanged(oldAdapter, mAdapter, compatibleWithPrevious);
         mState.mStructureChanged = true;
-        setDataSetChangedAfterLayout();
     }
 
     /**
@@ -3398,7 +3408,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // Processing these items have no value since data set changed unexpectedly.
             // Instead, we just reset it.
             mAdapterHelper.reset();
-            mLayout.onItemsChanged(this);
+            if (mDispatchItemsChangedEvent) {
+                mLayout.onItemsChanged(this);
+            }
         }
         // simple animations are a subset of advanced animations (which will cause a
         // pre-layout step)
@@ -3821,6 +3833,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         mLayout.removeAndRecycleScrapInt(mRecycler);
         mState.mPreviousLayoutItemCount = mState.mItemCount;
         mDataSetHasChangedAfterLayout = false;
+        mDispatchItemsChangedEvent = false;
         mState.mRunSimpleAnimations = false;
 
         mState.mRunPredictiveAnimations = false;
@@ -4288,19 +4301,21 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 viewHolder.getUnmodifiedPayloads());
     }
 
-
     /**
-     * Call this method to signal that *all* adapter content has changed (generally, because of
-     * setAdapter, swapAdapter, or notifyDataSetChanged), and that once layout occurs, all
-     * attached items should be discarded or animated.
+     * Processes the fact that, as far as we can tell, the data set has completely changed.
      *
-     * Attached items are labeled as invalid, and all cached items are discarded.
+     * <ul>
+     *   <li>Once layout occurs, all attached items should be discarded or animated.
+     *   <li>Attached items are labeled as invalid.
+     *   <li>Because items may still be prefetched between a "data set completely changed"
+     *       event and a layout event, all cached items are discarded.
+     * </ul>
      *
-     * It is still possible for items to be prefetched while mDataSetHasChangedAfterLayout == true,
-     * so this method must always discard all cached views so that the only valid items that remain
-     * in the cache, once layout occurs, are valid prefetched items.
+     * @param dispatchItemsChanged Whether to call
+     * {@link LayoutManager#onItemsChanged(RecyclerView)} during measure/layout.
      */
-    void setDataSetChangedAfterLayout() {
+    void processDataSetCompletelyChanged(boolean dispatchItemsChanged) {
+        mDispatchItemsChangedEvent |= dispatchItemsChanged;
         mDataSetHasChangedAfterLayout = true;
         markKnownViewsInvalid();
     }
@@ -5110,7 +5125,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             assertNotInLayoutOrScroll(null);
             mState.mStructureChanged = true;
 
-            setDataSetChangedAfterLayout();
+            processDataSetCompletelyChanged(true);
             if (!mAdapterHelper.hasPendingUpdates()) {
                 requestLayout();
             }
@@ -9491,9 +9506,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * Called if the RecyclerView this LayoutManager is bound to has a different adapter set.
-         * The LayoutManager may use this opportunity to clear caches and configure state such
-         * that it can relayout appropriately with the new data and potentially new view types.
+         * Called if the RecyclerView this LayoutManager is bound to has a different adapter set via
+         * {@link RecyclerView#setAdapter(Adapter)} or
+         * {@link RecyclerView#swapAdapter(Adapter, boolean)}. The LayoutManager may use this
+         * opportunity to clear caches and configure state such that it can relayout appropriately
+         * with the new data and potentially new view types.
          *
          * <p>The default implementation removes all currently attached views.</p>
          *
@@ -9535,8 +9552,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * Called when {@link Adapter#notifyDataSetChanged()} is triggered instead of giving
-         * detailed information on what has actually changed.
+         * Called in response to a call to {@link Adapter#notifyDataSetChanged()} or
+         * {@link RecyclerView#swapAdapter(Adapter, boolean)} ()} and signals that the the entire
+         * data set has changed.
          *
          * @param recyclerView
          */

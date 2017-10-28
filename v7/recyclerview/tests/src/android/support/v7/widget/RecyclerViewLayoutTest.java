@@ -253,6 +253,186 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
+    public void setAdapter_afterSwapAdapter_callsCorrectLmMethods() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final LayoutAllLayoutManager lm = new LayoutAllLayoutManager(true);
+        final TestAdapter testAdapter = new TestAdapter(1);
+
+        lm.expectLayouts(1);
+        rv.setLayoutManager(lm);
+        setRecyclerView(rv);
+        setAdapter(testAdapter);
+        lm.waitForLayout(2);
+
+        lm.onAdapterChagnedCallCount = 0;
+        lm.onItemsChangedCallCount = 0;
+
+        lm.expectLayouts(1);
+        mActivityRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        rv.swapAdapter(testAdapter, true);
+                        rv.setAdapter(testAdapter);
+                    }
+                });
+        lm.waitForLayout(2);
+
+        assertEquals(2, lm.onAdapterChagnedCallCount);
+        assertEquals(1, lm.onItemsChangedCallCount);
+    }
+
+    @Test
+    public void setAdapter_afterNotifyDataSetChanged_callsCorrectLmMethods() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final LayoutAllLayoutManager lm = new LayoutAllLayoutManager(true);
+        final TestAdapter testAdapter = new TestAdapter(1);
+
+        lm.expectLayouts(1);
+        rv.setLayoutManager(lm);
+        setRecyclerView(rv);
+        setAdapter(testAdapter);
+        lm.waitForLayout(2);
+
+        lm.onAdapterChagnedCallCount = 0;
+        lm.onItemsChangedCallCount = 0;
+
+        lm.expectLayouts(1);
+        mActivityRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        testAdapter.notifyDataSetChanged();
+                        rv.setAdapter(testAdapter);
+                    }
+                });
+        lm.waitForLayout(2);
+
+        assertEquals(1, lm.onAdapterChagnedCallCount);
+        assertEquals(1, lm.onItemsChangedCallCount);
+    }
+
+    @Test
+    public void notifyDataSetChanged_afterSetAdapter_callsCorrectLmMethods() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final LayoutAllLayoutManager lm = new LayoutAllLayoutManager(true);
+        final TestAdapter testAdapter = new TestAdapter(1);
+
+        lm.expectLayouts(1);
+        rv.setLayoutManager(lm);
+        setRecyclerView(rv);
+        setAdapter(testAdapter);
+        lm.waitForLayout(2);
+
+        lm.onAdapterChagnedCallCount = 0;
+        lm.onItemsChangedCallCount = 0;
+
+        lm.expectLayouts(1);
+        mActivityRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        rv.setAdapter(testAdapter);
+                        testAdapter.notifyDataSetChanged();
+                    }
+                });
+        lm.waitForLayout(2);
+
+        assertEquals(1, lm.onAdapterChagnedCallCount);
+        assertEquals(1, lm.onItemsChangedCallCount);
+    }
+
+    @Test
+    public void notifyDataSetChanged_afterSwapAdapter_callsCorrectLmMethods() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final LayoutAllLayoutManager lm = new LayoutAllLayoutManager(true);
+        final TestAdapter testAdapter = new TestAdapter(1);
+
+        lm.expectLayouts(1);
+        rv.setLayoutManager(lm);
+        setRecyclerView(rv);
+        setAdapter(testAdapter);
+        lm.waitForLayout(2);
+
+        lm.onAdapterChagnedCallCount = 0;
+        lm.onItemsChangedCallCount = 0;
+
+        lm.expectLayouts(1);
+        mActivityRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        rv.swapAdapter(testAdapter, true);
+                        testAdapter.notifyDataSetChanged();
+                    }
+                });
+        lm.waitForLayout(2);
+
+        assertEquals(1, lm.onAdapterChagnedCallCount);
+        assertEquals(1, lm.onItemsChangedCallCount);
+    }
+
+    @Test
+    public void swapAdapter_afterSetAdapter_callsCorrectLmMethods() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final LayoutAllLayoutManager lm = new LayoutAllLayoutManager(true);
+        final TestAdapter testAdapter = new TestAdapter(1);
+
+        lm.expectLayouts(1);
+        rv.setLayoutManager(lm);
+        setRecyclerView(rv);
+        setAdapter(testAdapter);
+        lm.waitForLayout(2);
+
+        lm.onAdapterChagnedCallCount = 0;
+        lm.onItemsChangedCallCount = 0;
+
+        lm.expectLayouts(1);
+        mActivityRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        rv.setAdapter(testAdapter);
+                        rv.swapAdapter(testAdapter, true);
+                    }
+                });
+        lm.waitForLayout(2);
+
+        assertEquals(2, lm.onAdapterChagnedCallCount);
+        assertEquals(1, lm.onItemsChangedCallCount);
+    }
+
+    @Test
+    public void swapAdapter_afterNotifyDataSetChanged_callsCorrectLmMethods() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final LayoutAllLayoutManager lm = new LayoutAllLayoutManager(true);
+        final TestAdapter testAdapter = new TestAdapter(1);
+
+        lm.expectLayouts(1);
+        rv.setLayoutManager(lm);
+        setRecyclerView(rv);
+        setAdapter(testAdapter);
+        lm.waitForLayout(2);
+
+        lm.onAdapterChagnedCallCount = 0;
+        lm.onItemsChangedCallCount = 0;
+
+        lm.expectLayouts(1);
+        mActivityRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        testAdapter.notifyDataSetChanged();
+                        rv.swapAdapter(testAdapter, true);
+                    }
+                });
+        lm.waitForLayout(2);
+
+        assertEquals(1, lm.onAdapterChagnedCallCount);
+        assertEquals(1, lm.onItemsChangedCallCount);
+    }
+
+    @Test
     public void setAdapterNotifyItemRangeInsertedCrashTest() throws Throwable {
         final RecyclerView rv = new RecyclerView(getActivity());
         final TestLayoutManager lm = new LayoutAllLayoutManager(true);
@@ -4788,6 +4968,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public class LayoutAllLayoutManager extends TestLayoutManager {
         private final boolean mAllowNullLayoutLatch;
+        public int onItemsChangedCallCount = 0;
+        public int onAdapterChagnedCallCount = 0;
 
         public LayoutAllLayoutManager() {
             // by default, we don't allow unexpected layouts.
@@ -4797,6 +4979,18 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             mAllowNullLayoutLatch = allowNullLayoutLatch;
         }
 
+        @Override
+        public void onItemsChanged(RecyclerView recyclerView) {
+            super.onItemsChanged(recyclerView);
+            onItemsChangedCallCount++;
+        }
+
+        @Override
+        public void onAdapterChanged(RecyclerView.Adapter oldAdapter,
+                RecyclerView.Adapter newAdapter) {
+            super.onAdapterChanged(oldAdapter, newAdapter);
+            onAdapterChagnedCallCount++;
+        }
 
         @Override
         public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
