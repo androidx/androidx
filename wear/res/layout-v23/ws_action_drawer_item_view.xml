@@ -15,7 +15,6 @@
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/ws_action_item_background"
@@ -30,7 +29,7 @@
         android:tint="?android:attr/colorBackground"
         android:padding="@dimen/ws_action_drawer_item_icon_padding"
         android:scaleType="fitCenter"
-        tools:ignore="ContentDescription" />
+        android:importantForAccessibility="no"/>
 
     <TextView
         android:id="@+id/ws_action_drawer_item_text"
