@@ -13,7 +13,10 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.database.Observable;
+import android.support.annotation.RestrictTo;
 
 /**
  * Base class adapter to be used in leanback activities.  Provides access to a data model and is
@@ -132,6 +135,10 @@ public abstract class ObjectAdapter {
                 mObservers.get(i).onItemMoved(positionStart, toPosition);
             }
         }
+
+        boolean hasObserver() {
+            return mObservers.size() > 0;
+        }
     }
 
     private final DataObservable mObservable = new DataObservable();
@@ -204,6 +211,14 @@ public abstract class ObjectAdapter {
      */
     public final void unregisterObserver(DataObserver observer) {
         mObservable.unregisterObserver(observer);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public final boolean hasObserver() {
+        return mObservable.hasObserver();
     }
 
     /**

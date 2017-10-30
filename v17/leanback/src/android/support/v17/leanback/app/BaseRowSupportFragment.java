@@ -161,8 +161,10 @@ abstract class BaseRowSupportFragment extends Fragment {
      * Set the presenter selector used to create and bind views.
      */
     public final void setPresenterSelector(PresenterSelector presenterSelector) {
-        mPresenterSelector = presenterSelector;
-        updateAdapter();
+        if (mPresenterSelector != presenterSelector) {
+            mPresenterSelector = presenterSelector;
+            updateAdapter();
+        }
     }
 
     /**
@@ -177,8 +179,10 @@ abstract class BaseRowSupportFragment extends Fragment {
      * @param rowsAdapter Adapter that represents list of rows.
      */
     public final void setAdapter(ObjectAdapter rowsAdapter) {
-        mAdapter = rowsAdapter;
-        updateAdapter();
+        if (mAdapter != rowsAdapter) {
+            mAdapter = rowsAdapter;
+            updateAdapter();
+        }
     }
 
     /**

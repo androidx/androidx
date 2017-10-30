@@ -570,14 +570,27 @@ public class BrowseFragment extends BaseFragment {
         }
 
         boolean oldIsPageRow = mIsPageRow;
+        Object oldPageRow = mPageRow;
         mIsPageRow = mCanShowHeaders && item instanceof PageRow;
+        mPageRow = mIsPageRow ? item : null;
         boolean swap;
 
         if (mMainFragment == null) {
             swap = true;
         } else {
             if (oldIsPageRow) {
-                swap = true;
+                if (mIsPageRow) {
+                    if (oldPageRow == null) {
+                        // fragment is restored, page row object not yet set, so just set the
+                        // mPageRow object and there is no need to replace the fragment
+                        swap = false;
+                    } else {
+                        // swap if page row object changes
+                        swap = oldPageRow != mPageRow;
+                    }
+                } else {
+                    swap = true;
+                }
             } else {
                 swap = mIsPageRow;
             }
@@ -590,23 +603,27 @@ public class BrowseFragment extends BaseFragment {
                         "Fragment must implement MainFragmentAdapterProvider");
             }
 
-            mMainFragmentAdapter = ((MainFragmentAdapterProvider)mMainFragment)
-                    .getMainFragmentAdapter();
-            mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
-            if (!mIsPageRow) {
-                if (mMainFragment instanceof MainFragmentRowsAdapterProvider) {
-                    mMainFragmentRowsAdapter = ((MainFragmentRowsAdapterProvider)mMainFragment)
-                            .getMainFragmentRowsAdapter();
-                } else {
-                    mMainFragmentRowsAdapter = null;
-                }
-                mIsPageRow = mMainFragmentRowsAdapter == null;
-            } else {
-                mMainFragmentRowsAdapter = null;
-            }
+            setMainFragmentAdapter();
         }
 
         return swap;
+    }
+
+    void setMainFragmentAdapter() {
+        mMainFragmentAdapter = ((MainFragmentAdapterProvider) mMainFragment)
+                .getMainFragmentAdapter();
+        mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
+        if (!mIsPageRow) {
+            if (mMainFragment instanceof MainFragmentRowsAdapterProvider) {
+                setMainFragmentRowsAdapter(((MainFragmentRowsAdapterProvider) mMainFragment)
+                        .getMainFragmentRowsAdapter());
+            } else {
+                setMainFragmentRowsAdapter(null);
+            }
+            mIsPageRow = mMainFragmentRowsAdapter == null;
+        } else {
+            setMainFragmentRowsAdapter(null);
+        }
     }
 
     /**
@@ -678,7 +695,8 @@ public class BrowseFragment extends BaseFragment {
     MainFragmentAdapter mMainFragmentAdapter;
     Fragment mMainFragment;
     HeadersFragment mHeadersFragment;
-    private MainFragmentRowsAdapter mMainFragmentRowsAdapter;
+    MainFragmentRowsAdapter mMainFragmentRowsAdapter;
+    ListRowDataAdapter mMainFragmentListRowDataAdapter;
 
     private ObjectAdapter mAdapter;
     private PresenterSelector mAdapterPresenter;
@@ -701,6 +719,7 @@ public class BrowseFragment extends BaseFragment {
     private int mSelectedPosition = -1;
     private float mScaleFactor;
     boolean mIsPageRow;
+    Object mPageRow;
 
     private PresenterSelector mHeaderPresenterSelector;
     private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
@@ -820,11 +839,45 @@ public class BrowseFragment extends BaseFragment {
             return;
         }
 
-        if (mMainFragmentRowsAdapter != null) {
-            mMainFragmentRowsAdapter.setAdapter(
-                    adapter == null ? null : new ListRowDataAdapter(adapter));
+        updateMainFragmentRowsAdapter();
+        mHeadersFragment.setAdapter(mAdapter);
+    }
+
+    void setMainFragmentRowsAdapter(MainFragmentRowsAdapter mainFragmentRowsAdapter) {
+        if (mainFragmentRowsAdapter == mMainFragmentRowsAdapter) {
+            return;
         }
-        mHeadersFragment.setAdapter(adapter);
+        // first clear previous mMainFragmentRowsAdapter and set a new mMainFragmentRowsAdapter
+        if (mMainFragmentRowsAdapter != null) {
+            // RowsFragment cannot change click/select listeners after view created.
+            // The main fragment and adapter should be GCed as long as there is no reference from
+            // BrowseFragment to it.
+            mMainFragmentRowsAdapter.setAdapter(null);
+        }
+        mMainFragmentRowsAdapter = mainFragmentRowsAdapter;
+        if (mMainFragmentRowsAdapter != null) {
+            mMainFragmentRowsAdapter.setOnItemViewSelectedListener(
+                    new MainFragmentItemViewSelectedListener(mMainFragmentRowsAdapter));
+            mMainFragmentRowsAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
+        }
+        // second update mMainFragmentListRowDataAdapter set on mMainFragmentRowsAdapter
+        updateMainFragmentRowsAdapter();
+    }
+
+    /**
+     * Update mMainFragmentListRowDataAdapter and set it on mMainFragmentRowsAdapter.
+     * It also clears old mMainFragmentListRowDataAdapter.
+     */
+    void updateMainFragmentRowsAdapter() {
+        if (mMainFragmentListRowDataAdapter != null) {
+            mMainFragmentListRowDataAdapter.detach();
+            mMainFragmentListRowDataAdapter = null;
+        }
+        if (mMainFragmentRowsAdapter != null) {
+            mMainFragmentListRowDataAdapter = mAdapter == null
+                    ? null : new ListRowDataAdapter(mAdapter);
+            mMainFragmentRowsAdapter.setAdapter(mMainFragmentListRowDataAdapter);
+        }
     }
 
     public final MainFragmentAdapterRegistry getMainFragmentRegistry() {
@@ -1144,7 +1197,8 @@ public class BrowseFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
-        mMainFragmentRowsAdapter = null;
+        setMainFragmentRowsAdapter(null);
+        mPageRow = null;
         mMainFragmentAdapter = null;
         mMainFragment = null;
         mHeadersFragment = null;
@@ -1198,26 +1252,17 @@ public class BrowseFragment extends BaseFragment {
             mHeadersFragment = (HeadersFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_headers_dock);
             mMainFragment = getChildFragmentManager().findFragmentById(R.id.scale_frame);
-            mMainFragmentAdapter = ((MainFragmentAdapterProvider)mMainFragment)
-                    .getMainFragmentAdapter();
-            mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
 
             mIsPageRow = savedInstanceState != null
                     && savedInstanceState.getBoolean(IS_PAGE_ROW, false);
+            // mPageRow object is unable to restore, if its null and mIsPageRow is true, this is
+            // the case for restoring, later if setSelection() triggers a createMainFragment(),
+            // should not create fragment.
 
             mSelectedPosition = savedInstanceState != null
                     ? savedInstanceState.getInt(CURRENT_SELECTED_POSITION, 0) : 0;
 
-            if (!mIsPageRow) {
-                if (mMainFragment instanceof MainFragmentRowsAdapterProvider) {
-                    mMainFragmentRowsAdapter = ((MainFragmentRowsAdapterProvider) mMainFragment)
-                            .getMainFragmentRowsAdapter();
-                } else {
-                    mMainFragmentRowsAdapter = null;
-                }
-            } else {
-                mMainFragmentRowsAdapter = null;
-            }
+            setMainFragmentAdapter();
         }
 
         mHeadersFragment.setHeadersGone(!mCanShowHeaders);
@@ -1241,8 +1286,6 @@ public class BrowseFragment extends BaseFragment {
         mScaleFrameLayout = (ScaleFrameLayout) root.findViewById(R.id.scale_frame);
         mScaleFrameLayout.setPivotX(0);
         mScaleFrameLayout.setPivotY(mContainerListAlignTop);
-
-        setupMainFragment();
 
         if (mBrandColorSet) {
             mHeadersFragment.setBackgroundColor(mBrandColor);
@@ -1268,17 +1311,6 @@ public class BrowseFragment extends BaseFragment {
         });
 
         return root;
-    }
-
-    private void setupMainFragment() {
-        if (mMainFragmentRowsAdapter != null) {
-            if (mAdapter != null) {
-                mMainFragmentRowsAdapter.setAdapter(new ListRowDataAdapter(mAdapter));
-            }
-            mMainFragmentRowsAdapter.setOnItemViewSelectedListener(
-                    new MainFragmentItemViewSelectedListener(mMainFragmentRowsAdapter));
-            mMainFragmentRowsAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
-        }
     }
 
     void createHeadersTransition() {
@@ -1470,10 +1502,10 @@ public class BrowseFragment extends BaseFragment {
     };
 
     void onRowSelected(int position) {
-        if (position != mSelectedPosition) {
-            mSetSelectionRunnable.post(
-                    position, SetSelectionRunnable.TYPE_INTERNAL_SYNC, true);
-        }
+        // even position is same, it could be data changed, always post selection runnable
+        // to possibly swap main fragment.
+        mSetSelectionRunnable.post(
+                position, SetSelectionRunnable.TYPE_INTERNAL_SYNC, true);
     }
 
     void setSelection(int position, boolean smooth) {
@@ -1500,7 +1532,6 @@ public class BrowseFragment extends BaseFragment {
         if (createMainFragment(mAdapter, position)) {
             swapToMainFragment();
             expandMainFragment(!(mCanShowHeaders && mShowingHeaders));
-            setupMainFragment();
         }
     }
 
