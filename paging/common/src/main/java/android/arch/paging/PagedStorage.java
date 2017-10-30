@@ -17,13 +17,21 @@
 package android.arch.paging;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-final class PagedStorage<K, V> extends AbstractList<V> {
+final class PagedStorage<T> extends AbstractList<T> {
+    /**
+     * Lists instances are compared (with instance equality) to PLACEHOLDER_LIST to check if an item
+     * in that position is already loading. We use a singleton placeholder list that is distinct
+     * from Collections.EMPTY_LIST for safety.
+     */
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    private static final List PLACEHOLDER_LIST = new ArrayList();
+
     // Always set
     private int mLeadingNullCount;
     /**
@@ -37,7 +45,7 @@ final class PagedStorage<K, V> extends AbstractList<V> {
      * Non-contiguous - mPages may have nulls or a placeholder page, isTiled() always returns true.
      *     mPages may have nulls, or placeholder (empty) pages while content is loading.
      */
-    private final ArrayList<Page<K, V>> mPages;
+    private final ArrayList<List<T>> mPages;
     private int mTrailingNullCount;
 
     private int mPositionOffset;
@@ -53,9 +61,6 @@ final class PagedStorage<K, V> extends AbstractList<V> {
     private int mNumberPrepended;
     private int mNumberAppended;
 
-    // only used in tiling case
-    private Page<K, V> mPlaceholderPage;
-
     PagedStorage() {
         mLeadingNullCount = 0;
         mPages = new ArrayList<>();
@@ -67,12 +72,12 @@ final class PagedStorage<K, V> extends AbstractList<V> {
         mNumberAppended = 0;
     }
 
-    PagedStorage(int leadingNulls, Page<K, V> page, int trailingNulls) {
+    PagedStorage(int leadingNulls, List<T> page, int trailingNulls) {
         this();
         init(leadingNulls, page, trailingNulls, 0);
     }
 
-    private PagedStorage(PagedStorage<K, V> other) {
+    private PagedStorage(PagedStorage<T> other) {
         mLeadingNullCount = other.mLeadingNullCount;
         mPages = new ArrayList<>(other.mPages);
         mTrailingNullCount = other.mTrailingNullCount;
@@ -81,40 +86,37 @@ final class PagedStorage<K, V> extends AbstractList<V> {
         mPageSize = other.mPageSize;
         mNumberPrepended = other.mNumberPrepended;
         mNumberAppended = other.mNumberAppended;
-
-        // preserve placeholder page so we can locate placeholder pages if needed later
-        mPlaceholderPage = other.mPlaceholderPage;
     }
 
-    PagedStorage<K, V> snapshot() {
+    PagedStorage<T> snapshot() {
         return new PagedStorage<>(this);
     }
 
-    private void init(int leadingNulls, Page<K, V> page, int trailingNulls, int positionOffset) {
+    private void init(int leadingNulls, List<T> page, int trailingNulls, int positionOffset) {
         mLeadingNullCount = leadingNulls;
         mPages.clear();
         mPages.add(page);
         mTrailingNullCount = trailingNulls;
 
         mPositionOffset = positionOffset;
-        mStorageCount = page.items.size();
+        mStorageCount = page.size();
 
         // initialized as tiled. There may be 3 nulls, 2 items, but we still call this tiled
         // even if it will break if nulls convert.
-        mPageSize = page.items.size();
+        mPageSize = page.size();
 
         mNumberPrepended = 0;
         mNumberAppended = 0;
     }
 
-    void init(int leadingNulls, Page<K, V> page, int trailingNulls, int positionOffset,
+    void init(int leadingNulls, @NonNull List<T> page, int trailingNulls, int positionOffset,
             @NonNull Callback callback) {
         init(leadingNulls, page, trailingNulls, positionOffset);
         callback.onInitialized(size());
     }
 
     @Override
-    public V get(int i) {
+    public T get(int i) {
         if (i < 0 || i >= size()) {
             throw new IndexOutOfBoundsException("Index: " + i + ", Size: " + size());
         }
@@ -138,7 +140,7 @@ final class PagedStorage<K, V> extends AbstractList<V> {
             pageInternalIndex = localIndex;
             final int localPageCount = mPages.size();
             for (localPageIndex = 0; localPageIndex < localPageCount; localPageIndex++) {
-                int pageSize = mPages.get(localPageIndex).items.size();
+                int pageSize = mPages.get(localPageIndex).size();
                 if (pageSize > pageInternalIndex) {
                     // stop, found the page
                     break;
@@ -147,12 +149,12 @@ final class PagedStorage<K, V> extends AbstractList<V> {
             }
         }
 
-        Page<?, V> page = mPages.get(localPageIndex);
-        if (page == null || page.items.size() == 0) {
+        List<T> page = mPages.get(localPageIndex);
+        if (page == null || page.size() == 0) {
             // can only occur in tiled case, with untouched inner/placeholder pages
             return null;
         }
-        return page.items.get(pageInternalIndex);
+        return page.get(pageInternalIndex);
     }
 
     /**
@@ -207,8 +209,8 @@ final class PagedStorage<K, V> extends AbstractList<V> {
         int total = mLeadingNullCount;
         final int pageCount = mPages.size();
         for (int i = 0; i < pageCount; i++) {
-            Page page = mPages.get(i);
-            if (page != null && page != mPlaceholderPage) {
+            List page = mPages.get(i);
+            if (page != null && page != PLACEHOLDER_LIST) {
                 break;
             }
             total += mPageSize;
@@ -219,8 +221,8 @@ final class PagedStorage<K, V> extends AbstractList<V> {
     int computeTrailingNulls() {
         int total = mTrailingNullCount;
         for (int i = mPages.size() - 1; i >= 0; i--) {
-            Page page = mPages.get(i);
-            if (page != null && page != mPlaceholderPage) {
+            List page = mPages.get(i);
+            if (page != null && page != PLACEHOLDER_LIST) {
                 break;
             }
             total += mPageSize;
@@ -230,21 +232,21 @@ final class PagedStorage<K, V> extends AbstractList<V> {
 
     // ---------------- Contiguous API -------------------
 
-    V getFirstLoadedItem() {
+    T getFirstLoadedItem() {
         // safe to access first page's first item here:
         // If contiguous, mPages can't be empty, can't hold null Pages, and items can't be empty
-        return mPages.get(0).items.get(0);
+        return mPages.get(0).get(0);
     }
 
-    V getLastLoadedItem() {
+    T getLastLoadedItem() {
         // safe to access last page's last item here:
         // If contiguous, mPages can't be empty, can't hold null Pages, and items can't be empty
-        Page<K, V> page = mPages.get(mPages.size() - 1);
-        return page.items.get(page.items.size() - 1);
+        List<T> page = mPages.get(mPages.size() - 1);
+        return page.get(page.size() - 1);
     }
 
-    public void prependPage(@NonNull Page<K, V> page, @NonNull Callback callback) {
-        final int count = page.items.size();
+    void prependPage(@NonNull List<T> page, @NonNull Callback callback) {
+        final int count = page.size();
         if (count == 0) {
             // Nothing returned from source, stop loading in this direction
             return;
@@ -274,8 +276,8 @@ final class PagedStorage<K, V> extends AbstractList<V> {
         callback.onPagePrepended(mLeadingNullCount, changedCount, addedCount);
     }
 
-    public void appendPage(@NonNull Page<K, V> page, @NonNull Callback callback) {
-        final int count = page.items.size();
+    void appendPage(@NonNull List<T> page, @NonNull Callback callback) {
+        final int count = page.size();
         if (count == 0) {
             // Nothing returned from source, stop loading in this direction
             return;
@@ -284,7 +286,7 @@ final class PagedStorage<K, V> extends AbstractList<V> {
         if (mPageSize > 0) {
             // if the previous page was smaller than mPageSize,
             // or if this page is larger than the previous, disable tiling
-            if (mPages.get(mPages.size() - 1).items.size() != mPageSize
+            if (mPages.get(mPages.size() - 1).size() != mPageSize
                     || count > mPageSize) {
                 mPageSize = -1;
             }
@@ -306,8 +308,30 @@ final class PagedStorage<K, V> extends AbstractList<V> {
 
     // ------------------ Non-Contiguous API (tiling required) ----------------------
 
-    public void insertPage(int position, @NonNull Page<K, V> page, Callback callback) {
-        final int newPageSize = page.items.size();
+    void initAndSplit(int leadingNulls, @NonNull List<T> multiPageList,
+            int trailingNulls, int positionOffset, int pageSize, @NonNull Callback callback) {
+
+        int pageCount = (multiPageList.size() + (pageSize - 1)) / pageSize;
+        for (int i = 0; i < pageCount; i++) {
+            int beginInclusive = i * pageSize;
+            int endExclusive = Math.min(multiPageList.size(), (i + 1) * pageSize);
+
+            List<T> sublist = multiPageList.subList(beginInclusive, endExclusive);
+
+            if (i == 0) {
+                // Trailing nulls for first page includes other pages in multiPageList
+                int initialTrailingNulls = trailingNulls + multiPageList.size() - sublist.size();
+                init(leadingNulls, sublist, initialTrailingNulls, positionOffset);
+            } else {
+                int insertPosition = leadingNulls + beginInclusive;
+                insertPage(insertPosition, sublist, null);
+            }
+        }
+        callback.onInitialized(size());
+    }
+
+    public void insertPage(int position, @NonNull List<T> page, @Nullable Callback callback) {
+        final int newPageSize = page.size();
         if (newPageSize != mPageSize) {
             // differing page size is OK in 2 cases, when the page is being added:
             // 1) to the end (in which case, ignore new smaller size)
@@ -334,22 +358,15 @@ final class PagedStorage<K, V> extends AbstractList<V> {
 
         int localPageIndex = pageIndex - mLeadingNullCount / mPageSize;
 
-        Page<K, V> oldPage = mPages.get(localPageIndex);
-        if (oldPage != null && oldPage != mPlaceholderPage) {
+        List<T> oldPage = mPages.get(localPageIndex);
+        if (oldPage != null && oldPage != PLACEHOLDER_LIST) {
             throw new IllegalArgumentException(
                     "Invalid position " + position + ": data already loaded");
         }
         mPages.set(localPageIndex, page);
-        callback.onPageInserted(position, page.items.size());
-    }
-
-    private Page<K, V> getPlaceholderPage() {
-        if (mPlaceholderPage == null) {
-            @SuppressWarnings("unchecked")
-            List<V> list = Collections.emptyList();
-            mPlaceholderPage = new Page<>(null, list, null);
+        if (callback != null) {
+            callback.onPageInserted(position, page.size());
         }
-        return mPlaceholderPage;
     }
 
     private void allocatePageRange(final int minimumPage, final int maximumPage) {
@@ -399,7 +416,8 @@ final class PagedStorage<K, V> extends AbstractList<V> {
         for (int pageIndex = minimumPage; pageIndex <= maximumPage; pageIndex++) {
             int localPageIndex = pageIndex - leadingNullPages;
             if (mPages.get(localPageIndex) == null) {
-                mPages.set(localPageIndex, getPlaceholderPage());
+                //noinspection unchecked
+                mPages.set(localPageIndex, PLACEHOLDER_LIST);
                 callback.onPagePlaceholderInserted(pageIndex);
             }
         }
@@ -414,9 +432,9 @@ final class PagedStorage<K, V> extends AbstractList<V> {
             return false;
         }
 
-        Page<K, V> page = mPages.get(index - leadingNullPages);
+        List<T> page = mPages.get(index - leadingNullPages);
 
-        return page != null && page != mPlaceholderPage;
+        return page != null && page != PLACEHOLDER_LIST;
     }
 
     @Override

@@ -22,45 +22,30 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
+// NOTE: Room 1.0 depends on this class, so it should not be removed
+// until Room switches to using DataSource.Factory directly
 /**
  * Provides a {@code LiveData<PagedList>}, given a means to construct a DataSource.
  * <p>
  * Return type for data-loading system of an application or library to produce a
  * {@code LiveData<PagedList>}, while leaving the details of the paging mechanism up to the
  * consumer.
- * <p>
- * If you're using Room, it can generate a LivePagedListProvider from a query:
- * <pre>
- * {@literal @}Dao
- * interface UserDao {
- *     {@literal @}Query("SELECT * FROM user ORDER BY lastName ASC")
- *     public abstract LivePagedListProvider&lt;Integer, User> usersByLastName();
- * }</pre>
- * In the above sample, {@code Integer} is used because it is the {@code Key} type of
- * {@link TiledDataSource}. Currently, Room can only generate a {@code LIMIT}/{@code OFFSET},
- * position based loader that uses TiledDataSource under the hood, and specifying {@code Integer}
- * here lets you pass an initial loading position as an integer.
- * <p>
- * In the future, Room plans to offer other key types to support paging content with a
- * {@link KeyedDataSource}.
  *
  * @param <Key> Type of input valued used to load data from the DataSource. Must be integer if
- *             you're using TiledDataSource.
+ *             you're using PositionalDataSource.
  * @param <Value> Data type produced by the DataSource, and held by the PagedLists.
  *
  * @see PagedListAdapter
  * @see DataSource
  * @see PagedList
  *
- * @deprecated To construct a {@code LiveData<PagedList>}, use {@link LivePagedListBuilder}, which
- * provides the same construction capability with more customization, and better defaults. The role
+ * @deprecated use {@link LivePagedListBuilder} to construct a {@code LiveData<PagedList>}. It
+ * provides the same construction capability with more customization, and simpler defaults. The role
  * of DataSource construction has been separated out to {@link DataSource.Factory} to access or
  * provide a self-invalidating sequence of DataSources. If you were acquiring this from Room, you
- * can switch to having your Dao return a {@link DataSource.Factory} instead, and create a LiveData
- * of PagedList with a {@link LivePagedListBuilder}.
+ * can switch to having your Dao return a {@link DataSource.Factory} instead, and create a
+ * {@code LiveData<PagedList>} with a {@link LivePagedListBuilder}.
  */
-// NOTE: Room 1.0 depends on this class, so it should not be removed
-// until Room switches to using DataSource.Factory directly
 @Deprecated
 public abstract class LivePagedListProvider<Key, Value> implements DataSource.Factory<Key, Value> {
 
@@ -93,10 +78,8 @@ public abstract class LivePagedListProvider<Key, Value> implements DataSource.Fa
     @AnyThread
     @NonNull
     public LiveData<PagedList<Value>> create(@Nullable Key initialLoadKey, int pageSize) {
-        return new LivePagedListBuilder<Key, Value>()
+        return new LivePagedListBuilder<>(this, pageSize)
                 .setInitialLoadKey(initialLoadKey)
-                .setPagingConfig(pageSize)
-                .setDataSourceFactory(this)
                 .build();
     }
 
@@ -116,10 +99,8 @@ public abstract class LivePagedListProvider<Key, Value> implements DataSource.Fa
     @NonNull
     public LiveData<PagedList<Value>> create(@Nullable Key initialLoadKey,
             @NonNull PagedList.Config config) {
-        return new LivePagedListBuilder<Key, Value>()
+        return new LivePagedListBuilder<>(this, config)
                 .setInitialLoadKey(initialLoadKey)
-                .setPagingConfig(config)
-                .setDataSourceFactory(this)
                 .build();
     }
 }

@@ -16,11 +16,22 @@
 
 package android.arch.paging;
 
-import android.support.annotation.AnyThread;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
-class PageResult<K, V> {
+import java.util.Collections;
+import java.util.List;
+
+class PageResult<T> {
+    @SuppressWarnings("unchecked")
+    private static final PageResult INVALID_RESULT =
+            new PageResult(Collections.EMPTY_LIST, 0);
+
+    @SuppressWarnings("unchecked")
+    static <T> PageResult<T> getInvalidResult() {
+        return INVALID_RESULT;
+    }
+
     static final int INIT = 0;
 
     // contiguous results
@@ -30,8 +41,8 @@ class PageResult<K, V> {
     // non-contiguous, tile result
     static final int TILE = 3;
 
-    public final int type;
-    public final Page<K, V> page;
+    @NonNull
+    public final List<T> page;
     @SuppressWarnings("WeakerAccess")
     public final int leadingNulls;
     @SuppressWarnings("WeakerAccess")
@@ -39,26 +50,34 @@ class PageResult<K, V> {
     @SuppressWarnings("WeakerAccess")
     public final int positionOffset;
 
-    PageResult(int type, Page<K, V> page, int leadingNulls, int trailingNulls, int positionOffset) {
-        this.type = type;
-        this.page = page;
+    PageResult(@NonNull List<T> list, int leadingNulls, int trailingNulls, int positionOffset) {
+        this.page = list;
         this.leadingNulls = leadingNulls;
         this.trailingNulls = trailingNulls;
         this.positionOffset = positionOffset;
     }
 
-    PageResult(int type) {
-        this.type = type;
-        this.page = null;
+    PageResult(@NonNull List<T> list, int positionOffset) {
+        this.page = list;
         this.leadingNulls = 0;
         this.trailingNulls = 0;
-        this.positionOffset = 0;
+        this.positionOffset = positionOffset;
     }
 
-    interface Receiver<K, V> {
-        @AnyThread
-        void postOnPageResult(@NonNull PageResult<K, V> pageResult);
+    @Override
+    public String toString() {
+        return "Result " + leadingNulls
+                + ", " + page
+                + ", " + trailingNulls
+                + ", offset " + positionOffset;
+    }
+
+    public boolean isInvalid() {
+        return this == INVALID_RESULT;
+    }
+
+    abstract static class Receiver<T> {
         @MainThread
-        void onPageResult(@NonNull PageResult<K, V> pageResult);
+        public abstract void onPageResult(int type, @NonNull PageResult<T> pageResult);
     }
 }
