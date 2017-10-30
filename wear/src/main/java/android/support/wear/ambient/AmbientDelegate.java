@@ -19,14 +19,12 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.google.android.wearable.compat.WearableActivityController;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
 
 /**
  * Provides compatibility for ambient mode.
@@ -146,19 +144,6 @@ final class AmbientDelegate {
     }
 
     /**
-     * Sets whether this activity's task should be moved to the front when the system exits ambient
-     * mode. If true, the activity's task may be moved to the front if it was the last activity to
-     * be running when ambient started, depending on how much time the system spent in ambient mode.
-     */
-    void setAutoResumeEnabled(boolean enabled) {
-        if (mWearableController != null) {
-            if (hasSetAutoResumeEnabledMethod()) {
-                mWearableController.setAutoResumeEnabled(enabled);
-            }
-        }
-    }
-
-    /**
      * @return {@code true} if the activity is currently in ambient.
      */
     boolean isAmbient() {
@@ -176,32 +161,5 @@ final class AmbientDelegate {
         if (mWearableController != null) {
             mWearableController.dump(prefix, fd, writer, args);
         }
-    }
-
-    private boolean hasSetAutoResumeEnabledMethod() {
-        if (!sInitAutoResumeEnabledMethod) {
-            sInitAutoResumeEnabledMethod = true;
-            try {
-                Method method =
-                        WearableActivityController.class
-                                .getDeclaredMethod("setAutoResumeEnabled", boolean.class);
-                // Proguard is sneaky -- it will actually rewrite strings it finds in addition to
-                // function names. Therefore add a "." prefix to the method name check to ensure the
-                // function was not renamed by proguard.
-                if (!(".setAutoResumeEnabled".equals("." + method.getName()))) {
-                    throw new NoSuchMethodException();
-                }
-                sHasAutoResumeEnabledMethod = true;
-            } catch (NoSuchMethodException e) {
-                Log.w(
-                        "WearableActivity",
-                        "Could not find a required method for auto-resume "
-                                + "support, likely due to proguard optimization. Please add "
-                                + "com.google.android.wearable:wearable jar to the list of library "
-                                + "jars for your project");
-                sHasAutoResumeEnabledMethod = false;
-            }
-        }
-        return sHasAutoResumeEnabledMethod;
     }
 }
