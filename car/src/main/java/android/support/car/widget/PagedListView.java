@@ -23,6 +23,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -178,6 +179,11 @@ public class PagedListView extends FrameLayout {
 
             mRecyclerView.addItemDecoration(new DividerDecoration(context, dividerStartMargin,
                     dividerStartId, dividerEndId));
+        }
+
+        int itemSpacing = a.getDimensionPixelSize(R.styleable.PagedListView_itemSpacing, 0);
+        if (itemSpacing > 0) {
+            mRecyclerView.addItemDecoration(new ItemSpacingDecoration(itemSpacing));
         }
 
         // Set this to true so that this view consumes clicks events and views underneath
@@ -419,6 +425,32 @@ public class PagedListView extends FrameLayout {
      */
     public void removeItemDecoration(@NonNull RecyclerView.ItemDecoration decor) {
         mRecyclerView.removeItemDecoration(decor);
+    }
+
+    /**
+     * Sets spacing between each item in the list. The spacing will not be added before the first
+     * item and after the last.
+     *
+     * @param itemSpacing the spacing between each item.
+     */
+    public void setItemSpacing(int itemSpacing) {
+        ItemSpacingDecoration existing = null;
+        for (int i = 0, count = mRecyclerView.getItemDecorationCount(); i < count; i++) {
+            RecyclerView.ItemDecoration itemDecoration = mRecyclerView.getItemDecorationAt(i);
+            if (itemDecoration instanceof ItemSpacingDecoration) {
+                existing = (ItemSpacingDecoration) itemDecoration;
+                break;
+            }
+        }
+
+        if (itemSpacing == 0 && existing != null) {
+            mRecyclerView.removeItemDecoration(existing);
+        } else if (existing == null) {
+            mRecyclerView.addItemDecoration(new ItemSpacingDecoration(itemSpacing));
+        } else {
+            existing.setItemSpacing(itemSpacing);
+        }
+        mRecyclerView.invalidateItemDecorations();
     }
 
     /**
@@ -766,16 +798,50 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
+     * A {@link android.support.v7.widget.RecyclerView.ItemDecoration} that will add spacing
+     * between each item in the RecyclerView that it is added to.
+     */
+    private static class ItemSpacingDecoration extends RecyclerView.ItemDecoration {
+
+        private int mHalfItemSpacing;
+
+        private ItemSpacingDecoration(int itemSpacing) {
+            mHalfItemSpacing = itemSpacing / 2;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+            // Skip top offset for first item and bottom offset for last.
+            int position = parent.getChildAdapterPosition(view);
+            if (position > 0) {
+                outRect.top = mHalfItemSpacing;
+            }
+            if (position < state.getItemCount() - 1) {
+                outRect.bottom = mHalfItemSpacing;
+            }
+        }
+
+        /**
+         * @param itemSpacing sets spacing between each item.
+         */
+        public void setItemSpacing(int itemSpacing) {
+            mHalfItemSpacing = itemSpacing / 2;
+        }
+    }
+
+    /**
      * A {@link android.support.v7.widget.RecyclerView.ItemDecoration} that will draw a dividing
      * line between each item in the RecyclerView that it is added to.
      */
-    public static class DividerDecoration extends RecyclerView.ItemDecoration {
+    private static class DividerDecoration extends RecyclerView.ItemDecoration {
         private final Context mContext;
         private final Paint mPaint;
         private final int mDividerHeight;
         private final int mDividerStartMargin;
         @IdRes private final int mDividerStartId;
-        @IdRes private final int mDvidierEndId;
+        @IdRes private final int mDividerEndId;
 
         /**
          * @param dividerStartMargin The start offset of the dividing line. This offset will be
@@ -792,7 +858,7 @@ public class PagedListView extends FrameLayout {
             mContext = context;
             mDividerStartMargin = dividerStartMargin;
             mDividerStartId = dividerStartId;
-            mDvidierEndId = dividerEndId;
+            mDividerEndId = dividerEndId;
 
             Resources res = context.getResources();
             mPaint = new Paint();
@@ -807,16 +873,20 @@ public class PagedListView extends FrameLayout {
 
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-            for (int i = 0, childCount = parent.getChildCount(); i < childCount; i++) {
+            // Draw a divider line between each item. No need to draw the line for the last item.
+            for (int i = 0, childCount = parent.getChildCount(); i < childCount - 1; i++) {
                 View container = parent.getChildAt(i);
+                View nextContainer = parent.getChildAt(i + 1);
+                int spacing = nextContainer.getTop() - container.getBottom();
+
                 View startChild =
                         mDividerStartId != INVALID_RESOURCE_ID
                                 ? container.findViewById(mDividerStartId)
                                 : container;
 
                 View endChild =
-                        mDvidierEndId != INVALID_RESOURCE_ID
-                                ? container.findViewById(mDvidierEndId)
+                        mDividerEndId != INVALID_RESOURCE_ID
+                                ? container.findViewById(mDividerEndId)
                                 : container;
 
                 if (startChild == null || endChild == null) {
@@ -825,14 +895,24 @@ public class PagedListView extends FrameLayout {
 
                 int left = mDividerStartMargin + startChild.getLeft();
                 int right = endChild.getRight();
-                int bottom = container.getBottom();
+                int bottom = container.getBottom() + spacing / 2 + mDividerHeight / 2;
                 int top = bottom - mDividerHeight;
 
-                // Draw a divider line between each item. No need to draw the line for the last
-                // item.
-                if (i != childCount - 1) {
-                    c.drawRect(left, top, right, bottom, mPaint);
-                }
+                c.drawRect(left, top, right, bottom, mPaint);
+            }
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+            // Skip top offset for first item and bottom offset for last.
+            int position = parent.getChildAdapterPosition(view);
+            if (position > 0) {
+                outRect.top = mDividerHeight / 2;
+            }
+            if (position < state.getItemCount() - 1) {
+                outRect.bottom = mDividerHeight / 2;
             }
         }
     }
