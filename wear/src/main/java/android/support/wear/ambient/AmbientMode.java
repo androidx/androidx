@@ -44,7 +44,7 @@ import java.io.PrintWriter;
  * <p>
  * <pre class="prettyprint">{@code
  *     AmbientMode.AmbientController controller = AmbientMode.attachAmbientSupport(this);
- *     controller.setAutoResumeEnabled(true);
+ *     boolean isAmbient =  controller.isAmbient();
  * }</pre>
  */
 public final class AmbientMode extends Fragment {
