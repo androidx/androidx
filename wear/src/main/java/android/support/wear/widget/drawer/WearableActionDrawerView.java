@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -183,6 +184,16 @@ public class WearableActionDrawerView extends WearableDrawerView {
         mActionListAdapter = new ActionListAdapter(getMenu());
         mActionList.setAdapter(mActionListAdapter);
         setDrawerContent(mActionList);
+    }
+
+    @Override
+    public void onDrawerOpened() {
+        if (mActionListAdapter.getItemCount() > 0) {
+            RecyclerView.ViewHolder holder = mActionList.findViewHolderForAdapterPosition(0);
+            if (holder != null && holder.itemView != null) {
+                holder.itemView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
+            }
+        }
     }
 
     @Override
