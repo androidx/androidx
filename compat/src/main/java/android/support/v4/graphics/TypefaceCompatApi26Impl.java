@@ -61,6 +61,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     private static final String FREEZE_METHOD = "freeze";
     private static final String ABORT_CREATION_METHOD = "abortCreation";
     private static final int RESOLVE_BY_FONT_TABLE = -1;
+    private static final String DEFAULT_FAMILY = "sans-serif";
 
     protected final Class mFontFamily;
     protected final Constructor mFontFamilyCtor;
@@ -206,9 +207,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
         }
         Object fontFamily = newFamily();
         for (final FontFileResourceEntry fontFile : entry.getEntries()) {
-            // TODO: Add ttc and variation font support. (b/37853920)
+            // TODO: Add variation font support. (b/37853920)
             if (!addFontFromAssetManager(context, fontFamily, fontFile.getFileName(),
-                    0 /* ttcIndex */, fontFile.getWeight(), fontFile.isItalic() ? 1 : 0)) {
+                    fontFile.getTtcIndex(), fontFile.getWeight(), fontFile.isItalic() ? 1 : 0)) {
                 abortCreation(fontFamily);
                 return null;
             }

@@ -79,10 +79,13 @@
          common values are 400 for regular weight and 700 for bold weight. If unspecified, the value
          in the font's header tables will be used. -->
         <attr name="fontWeight" format="integer" />
-
+        <!-- The index of the font in the tcc font file. If the font file referenced is not in the
+        tcc format, this attribute needs not be specified. -->
+        <attr name="ttcIndex" format="integer" />
         <!-- References to the framework attrs -->
         <attr name="android:fontStyle" />
         <attr name="android:font" />
         <attr name="android:fontWeight" />
+        <attr name="android:ttcIndex" />
     </declare-styleable>
 </resources>

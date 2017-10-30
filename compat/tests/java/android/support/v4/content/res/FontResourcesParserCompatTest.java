@@ -63,7 +63,7 @@ public class FontResourcesParserCompatTest {
     @Test
     public void testParse() throws XmlPullParserException, IOException {
         @SuppressLint("ResourceType")
-        XmlResourceParser parser = mResources.getXml(R.font.samplexmlfont);
+        XmlResourceParser parser = mResources.getXml(R.font.samplexmlfontforparsing);
 
         FamilyResourceEntry result = FontResourcesParserCompat.parse(parser, mResources);
 
@@ -74,18 +74,22 @@ public class FontResourcesParserCompatTest {
         FontFileResourceEntry font1 = fileEntries[0];
         assertEquals(400, font1.getWeight());
         assertEquals(false, font1.isItalic());
+        assertEquals(0, font1.getTtcIndex());
         assertEquals(R.font.samplefont, font1.getResourceId());
         FontFileResourceEntry font2 = fileEntries[1];
         assertEquals(400, font2.getWeight());
         assertEquals(true, font2.isItalic());
+        assertEquals(1, font2.getTtcIndex());
         assertEquals(R.font.samplefont2, font2.getResourceId());
         FontFileResourceEntry font3 = fileEntries[2];
         assertEquals(700, font3.getWeight());
         assertEquals(false, font3.isItalic());
+        assertEquals(2, font3.getTtcIndex());
         assertEquals(R.font.samplefont3, font3.getResourceId());
         FontFileResourceEntry font4 = fileEntries[3];
         assertEquals(700, font4.getWeight());
         assertEquals(true, font4.isItalic());
+        assertEquals(0, font4.getTtcIndex());
         assertEquals(R.font.samplefont4, font4.getResourceId());
     }
 
@@ -98,7 +102,7 @@ public class FontResourcesParserCompatTest {
         }
 
         @SuppressLint("ResourceType")
-        XmlResourceParser parser = mResources.getXml(R.font.samplexmlfont2);
+        XmlResourceParser parser = mResources.getXml(R.font.samplexmlfontforparsing2);
 
         FamilyResourceEntry result = FontResourcesParserCompat.parse(parser, mResources);
 
@@ -109,18 +113,22 @@ public class FontResourcesParserCompatTest {
         FontFileResourceEntry font1 = fileEntries[0];
         assertEquals(400, font1.getWeight());
         assertEquals(false, font1.isItalic());
+        assertEquals(0, font1.getTtcIndex());
         assertEquals(R.font.samplefont, font1.getResourceId());
         FontFileResourceEntry font2 = fileEntries[1];
         assertEquals(400, font2.getWeight());
         assertEquals(true, font2.isItalic());
+        assertEquals(1, font2.getTtcIndex());
         assertEquals(R.font.samplefont2, font2.getResourceId());
         FontFileResourceEntry font3 = fileEntries[2];
         assertEquals(700, font3.getWeight());
         assertEquals(false, font3.isItalic());
+        assertEquals(2, font3.getTtcIndex());
         assertEquals(R.font.samplefont3, font3.getResourceId());
         FontFileResourceEntry font4 = fileEntries[3];
         assertEquals(700, font4.getWeight());
         assertEquals(true, font4.isItalic());
+        assertEquals(0, font4.getTtcIndex());
         assertEquals(R.font.samplefont4, font4.getResourceId());
     }
 
