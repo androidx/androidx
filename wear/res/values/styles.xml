@@ -29,6 +29,7 @@
         <item name="android:textSize">@dimen/ws_nav_drawer_text_size</item>
         <item name="android:gravity">center</item>
         <item name="android:maxLines">2</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="layout_marginTopPercent">@fraction/ws_nav_drawer_text_margin</item>
         <item name="layout_marginStartPercent">@fraction/ws_nav_drawer_text_margin</item>
         <item name="layout_marginEndPercent">@fraction/ws_nav_drawer_text_margin</item>
