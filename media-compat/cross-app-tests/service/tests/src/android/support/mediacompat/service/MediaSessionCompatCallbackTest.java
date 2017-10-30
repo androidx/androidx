@@ -50,6 +50,8 @@ import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_COM
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_KEY;
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_SESSION_TAG;
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_VALUE;
+import static android.support.mediacompat.testlib.VersionConstants.KEY_CLIENT_VERSION;
+import static android.support.test.InstrumentationRegistry.getArguments;
 import static android.support.test.InstrumentationRegistry.getContext;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.InstrumentationRegistry.getTargetContext;
@@ -69,6 +71,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 
 import org.junit.After;
 import org.junit.Before;
@@ -83,6 +86,9 @@ import java.util.List;
  */
 @RunWith(AndroidJUnit4.class)
 public class MediaSessionCompatCallbackTest {
+
+    private static final String TAG = "MediaSessionCompatCallbackTest";
+
     // The maximum time to wait for an operation.
     private static final long TIME_OUT_MS = 3000L;
     private static final float DELTA = 1e-4f;
@@ -90,11 +96,16 @@ public class MediaSessionCompatCallbackTest {
 
     private final Object mWaitLock = new Object();
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private String mClientVersion;
     private MediaSessionCompat mSession;
     private MediaSessionCallback mCallback = new MediaSessionCallback();
 
     @Before
     public void setUp() throws Exception {
+        // The version of the client app is provided through the instrumentation arguments.
+        mClientVersion = getArguments().getString(KEY_CLIENT_VERSION, "");
+        Log.d(TAG, "Client app version: " + mClientVersion);
+
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {

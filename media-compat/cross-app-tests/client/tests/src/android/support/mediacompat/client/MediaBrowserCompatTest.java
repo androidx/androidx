@@ -47,6 +47,8 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VAL
 import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VALUE_2;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VALUE_3;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VALUE_4;
+import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
+import static android.support.test.InstrumentationRegistry.getArguments;
 import static android.support.test.InstrumentationRegistry.getContext;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 
@@ -69,6 +71,7 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.util.Log;
 
 import org.junit.After;
 import org.junit.Before;
@@ -83,6 +86,8 @@ import java.util.List;
  */
 @RunWith(AndroidJUnit4.class)
 public class MediaBrowserCompatTest {
+
+    private static final String TAG = "MediaBrowserCompatTest";
 
     // The maximum time to wait for an operation.
     private static final long TIME_OUT_MS = 3000L;
@@ -107,9 +112,8 @@ public class MediaBrowserCompatTest {
                     "android.support.mediacompat.service.test",
                     "android.support.mediacompat.service"
                             + ".StubMediaBrowserServiceCompatWithDelayedMediaSession");
-    private static final ComponentName TEST_INVALID_BROWSER_SERVICE = new ComponentName(
-            "invalid.package", "invalid.ServiceClassName");
 
+    private String mServiceVersion;
     private MediaBrowserCompat mMediaBrowser;
     private StubConnectionCallback mConnectionCallback;
     private StubSubscriptionCallback mSubscriptionCallback;
@@ -120,6 +124,10 @@ public class MediaBrowserCompatTest {
 
     @Before
     public void setUp() {
+        // The version of the service app is provided through the instrumentation arguments.
+        mServiceVersion = getArguments().getString(KEY_SERVICE_VERSION, "");
+        Log.d(TAG, "Service app version: " + mServiceVersion);
+
         mConnectionCallback = new StubConnectionCallback();
         mSubscriptionCallback = new StubSubscriptionCallback();
         mItemCallback = new StubItemCallback();
