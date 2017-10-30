@@ -38,7 +38,7 @@ import java.lang.ref.WeakReference;
  *
  * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 class ScrollViewFlingWatcher implements FlingWatcher, OnScrollChangeListener {
 
     static final int MAX_WAIT_TIME_MS = 100;

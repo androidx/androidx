@@ -16,11 +16,9 @@
 
 package android.support.wear.widget.drawer;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.IntDef;
@@ -58,7 +56,6 @@ import java.util.concurrent.TimeUnit;
  * <p>The developer may specify which style to use with the {@code app:navigationStyle} custom
  * attribute. If not specified, {@link #SINGLE_PAGE singlePage} will be used as the default.
  */
-@TargetApi(Build.VERSION_CODES.M)
 public class WearableNavigationDrawerView extends WearableDrawerView {
 
     private static final String TAG = "WearableNavDrawer";
@@ -79,7 +76,7 @@ public class WearableNavigationDrawerView extends WearableDrawerView {
      * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY)
     @IntDef({SINGLE_PAGE, MULTI_PAGE})
     public @interface NavigationStyle {}
 
@@ -282,7 +279,7 @@ public class WearableNavigationDrawerView extends WearableDrawerView {
         /**
          * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @RestrictTo(Scope.LIBRARY)
         public void setPresenter(WearableNavigationDrawerPresenter presenter) {
             mPresenter = presenter;
         }

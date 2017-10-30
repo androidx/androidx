@@ -31,7 +31,7 @@ import java.lang.ref.WeakReference;
  *
  * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 class RecyclerViewFlingWatcher extends OnScrollListener implements FlingWatcher {
 
     private final FlingListener mListener;

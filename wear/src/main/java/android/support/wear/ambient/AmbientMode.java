@@ -117,7 +117,7 @@ public final class AmbientMode extends Fragment {
          * Called when the system is updating the display for ambient mode. Activities may use this
          * opportunity to update or invalidate views.
          */
-        public void onUpdateAmbient() {};
+        public void onUpdateAmbient() {}
 
         /**
          * Called when an activity should exit ambient mode. This event is sent while an activity is
@@ -126,7 +126,7 @@ public final class AmbientMode extends Fragment {
          * <p><em>Derived classes must call through to the super class's implementation of this
          * method. If they do not, an exception will be thrown.</em>
          */
-        public void onExitAmbient() {};
+        public void onExitAmbient() {}
     }
 
     private final AmbientDelegate.AmbientCallback mCallback =
