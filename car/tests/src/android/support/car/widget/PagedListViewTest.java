@@ -43,6 +43,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -251,6 +252,51 @@ public final class PagedListViewTest {
         }
 
         assertThat(mPagedListView.getFirstFullyVisibleChildPosition(), is(equalTo(topPosition)));
+    }
+
+    @Test
+    public void setItemSpacing() throws Throwable {
+        final int itemCount = 3;
+        setUpPagedListView(itemCount /* itemCount */);
+
+        // Initial spacing is 0.
+        final View[] views = new View[itemCount];
+        mActivityRule.runOnUiThread(() -> {
+            for (int i = 0; i < itemCount; i++) {
+                views[i] = mPagedListView.findViewByPosition(i);
+            }
+        });
+        for (int i = 0; i < itemCount - 1; i++) {
+            assertThat(views[i + 1].getTop() - views[i].getBottom(), is(equalTo(0)));
+        }
+
+        // Setting item spacing causes layout change.
+        // Implicitly wait for layout by making two calls in UI thread.
+        final int itemSpacing = 10;
+        mActivityRule.runOnUiThread(() -> {
+            mPagedListView.setItemSpacing(itemSpacing);
+        });
+        mActivityRule.runOnUiThread(() -> {
+            for (int i = 0; i < itemCount; i++) {
+                views[i] = mPagedListView.findViewByPosition(i);
+            }
+        });
+        for (int i = 0; i < itemCount - 1; i++) {
+            assertThat(views[i + 1].getTop() - views[i].getBottom(), is(equalTo(itemSpacing)));
+        }
+
+        // Re-setting spacing back to 0 also works.
+        mActivityRule.runOnUiThread(() -> {
+            mPagedListView.setItemSpacing(0);
+        });
+        mActivityRule.runOnUiThread(() -> {
+            for (int i = 0; i < itemCount; i++) {
+                views[i] = mPagedListView.findViewByPosition(i);
+            }
+        });
+        for (int i = 0; i < itemCount - 1; i++) {
+            assertThat(views[i + 1].getTop() - views[i].getBottom(), is(equalTo(0)));
+        }
     }
 
     private static String itemText(int index) {

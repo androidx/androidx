@@ -45,6 +45,8 @@ limitations under the License.
         <attr name="dividerStartMargin" format="dimension" />
         <!-- The width of the margin on the right side of the list -->
         <attr name="listEndMargin" format="dimension" />
+        <!-- An optional spacing between items in the list -->
+        <attr name="itemSpacing" format="dimension" />
     </declare-styleable>
 
     <!-- The attributes for customizing the appearance of the hamburger and back arrow in the
