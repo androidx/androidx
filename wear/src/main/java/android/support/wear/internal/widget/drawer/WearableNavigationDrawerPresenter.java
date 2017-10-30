@@ -30,7 +30,7 @@ import java.util.Set;
  *
  * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 public abstract class WearableNavigationDrawerPresenter {
 
     private final Set<OnItemSelectedListener> mOnItemSelectedListeners = new HashSet<>();

@@ -28,7 +28,7 @@ import java.lang.reflect.Method;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WearableControllerProvider {
 
     private static final String TAG = "WearableControllerProvider";

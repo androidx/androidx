@@ -16,12 +16,11 @@
 
 package android.support.wear.widget;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.RestrictTo.Scope;
 import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -40,7 +39,7 @@ import android.widget.FrameLayout;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 @UiThread
 class SwipeDismissLayout extends FrameLayout {
     private static final String TAG = "SwipeDismissLayout";
