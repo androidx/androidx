@@ -47,6 +47,10 @@ limitations under the License.
         <attr name="listEndMargin" format="dimension" />
         <!-- An optional spacing between items in the list -->
         <attr name="itemSpacing" format="dimension" />
+        <!-- The icon to be used for the up button of the scroll bar. -->
+        <attr name="upButtonIcon" format="reference" />
+        <!-- The icon to be used for the down button of the scroll bar.  -->
+        <attr name="downButtonIcon" format="reference" />
     </declare-styleable>
 
     <!-- The attributes for customizing the appearance of the hamburger and back arrow in the

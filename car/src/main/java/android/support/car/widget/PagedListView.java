@@ -24,6 +24,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -218,6 +219,16 @@ public class PagedListView extends FrameLayout {
                     }
                 });
 
+        Drawable upButtonIcon = a.getDrawable(R.styleable.PagedListView_upButtonIcon);
+        if (upButtonIcon != null) {
+            setUpButtonIcon(upButtonIcon);
+        }
+
+        Drawable downButtonIcon = a.getDrawable(R.styleable.PagedListView_downButtonIcon);
+        if (downButtonIcon != null) {
+            setDownButtonIcon(downButtonIcon);
+        }
+
         mScrollBarView.setVisibility(mScrollBarEnabled ? VISIBLE : GONE);
 
         // Modify the layout the Scroll Bar is not visible.
@@ -316,6 +327,16 @@ public class PagedListView extends FrameLayout {
         // Sometimes #scrollToPosition doesn't change the scroll state so we need to make sure
         // the pagination arrows actually get updated. See b/http://b/15801119
         mHandler.post(mUpdatePaginationRunnable);
+    }
+
+    /** Sets the icon to be used for the up button. */
+    public void setUpButtonIcon(Drawable icon) {
+        mScrollBarView.setUpButtonIcon(icon);
+    }
+
+    /** Sets the icon to be used for the down button. */
+    public void setDownButtonIcon(Drawable icon) {
+        mScrollBarView.setDownButtonIcon(icon);
     }
 
     /**
