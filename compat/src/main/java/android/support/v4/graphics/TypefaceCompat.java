@@ -35,7 +35,6 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
 import android.support.v4.util.LruCache;
-
 /**
  * Helper for accessing features in {@link Typeface}.
  * @hide
@@ -46,7 +45,9 @@ public class TypefaceCompat {
 
     private static final TypefaceCompatImpl sTypefaceCompatImpl;
     static {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            sTypefaceCompatImpl = new TypefaceCompatApi28Impl();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             sTypefaceCompatImpl = new TypefaceCompatApi26Impl();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
                 && TypefaceCompatApi24Impl.isUsable()) {
