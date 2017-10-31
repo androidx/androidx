@@ -20,6 +20,7 @@ import android.arch.persistence.room.Delete
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.SkipQueryVerification
+import android.arch.persistence.room.Transaction
 import android.arch.persistence.room.Update
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.hasAnyOf
@@ -109,6 +110,18 @@ class DaoProcessor(baseContext : Context, val element: TypeElement, val dbType: 
                     executableElement = it).process()
         } ?: emptyList()
 
+        val transactionMethods = allMembers.filter { member ->
+            member.hasAnnotation(Transaction::class)
+                    && member.kind == ElementKind.METHOD
+                    && PROCESSED_ANNOTATIONS.none { member.hasAnnotation(it) }
+            // TODO: Exclude abstract methods and let @Query handle that case
+        }.map {
+            TransactionMethodProcessor(
+                    baseContext = context,
+                    containing = declaredType,
+                    executableElement = MoreElements.asExecutable(it)).process()
+        }
+
         val constructors = allMembers
                 .filter { it.kind == ElementKind.CONSTRUCTOR }
                 .map { MoreElements.asExecutable(it) }
@@ -139,6 +152,7 @@ class DaoProcessor(baseContext : Context, val element: TypeElement, val dbType: 
                 insertionMethods = insertionMethods,
                 deletionMethods = deletionMethods,
                 updateMethods = updateMethods,
+                transactionMethods = transactionMethods,
                 constructorParamType = constructorParamType)
     }
 
@@ -148,5 +162,4 @@ class DaoProcessor(baseContext : Context, val element: TypeElement, val dbType: 
                     element.toString(), dbType.toString()))
         }
     }
-
 }

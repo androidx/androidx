@@ -90,7 +90,7 @@ public class DrawerLayoutTest {
     // Tests for opening and closing the drawer and checking the open state
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDrawerOpenCloseViaAPI() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
@@ -118,7 +118,7 @@ public class DrawerLayoutTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDrawerOpenCloseFocus() throws Throwable {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
@@ -143,7 +143,7 @@ public class DrawerLayoutTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDrawerOpenCloseWithRedundancyViaAPI() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
@@ -191,7 +191,7 @@ public class DrawerLayoutTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDrawerOpenCloseViaSwipes() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 

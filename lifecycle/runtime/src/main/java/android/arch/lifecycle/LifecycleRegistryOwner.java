@@ -17,14 +17,11 @@
 package android.arch.lifecycle;
 
 /**
- * Specialization of {@link LifecycleOwner} that explicitly returns {@link LifecycleRegistry}.
- * <p>
- * This method may be used if an object which updates state of {@link Lifecycle} doesn't own it.
- * <p>
- * This class is a temporary implementation detail until Lifecycles are integrated with support
- * library.
+ * @deprecated Use {@code android.support.v7.app.AppCompatActivity}
+ * which extends {@link LifecycleOwner}, so there are no use cases for this class.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
+@Deprecated
 public interface LifecycleRegistryOwner extends LifecycleOwner {
     @Override
     LifecycleRegistry getLifecycle();

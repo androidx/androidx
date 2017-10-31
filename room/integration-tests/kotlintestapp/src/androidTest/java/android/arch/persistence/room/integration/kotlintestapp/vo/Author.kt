@@ -18,6 +18,13 @@ package android.arch.persistence.room.integration.kotlintestapp.vo
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.TypeConverters
+import java.util.Date
 
 @Entity
-data class Author(@PrimaryKey val authorId: String, val name: String)
+@TypeConverters(DateConverter::class, StringToIntListConverters::class)
+data class Author(
+        @PrimaryKey val authorId: String,
+        val name: String,
+        val dateOfBirth: Date? = null,
+        val aList: List<Integer>? = null)

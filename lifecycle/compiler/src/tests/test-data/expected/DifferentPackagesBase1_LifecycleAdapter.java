@@ -16,13 +16,15 @@
 
 package foo;
 
-import android.arch.lifecycle.GenericLifecycleObserver;
+import android.arch.lifecycle.GeneratedAdapter;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
-import java.lang.Object;
+import android.arch.lifecycle.MethodCallsLogger;
 import java.lang.Override;
+import javax.annotation.Generated;
 
-public class DifferentPackagesBase1_LifecycleAdapter implements GenericLifecycleObserver {
+@Generated("android.arch.lifecycle.LifecycleProcessor")
+public class DifferentPackagesBase1_LifecycleAdapter implements GeneratedAdapter {
   final DifferentPackagesBase1 mReceiver;
 
   DifferentPackagesBase1_LifecycleAdapter(DifferentPackagesBase1 receiver) {
@@ -30,14 +32,18 @@ public class DifferentPackagesBase1_LifecycleAdapter implements GenericLifecycle
   }
 
   @Override
-  public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
-    if (event == Lifecycle.Event.ON_STOP) {
-      mReceiver.onStop(owner);
+  public void callMethods(LifecycleOwner owner, Lifecycle.Event event, boolean onAny,
+      MethodCallsLogger logger) {
+    boolean hasLogger = logger != null;
+    if (onAny) {
+      return;
     }
-  }
-
-  public Object getReceiver() {
-    return mReceiver;
+    if (event == Lifecycle.Event.ON_STOP) {
+      if (!hasLogger || logger.approveCall("onStop", 2)) {
+        mReceiver.onStop(owner);
+      }
+      return;
+    }
   }
 
   public static void __synthetic_onStop(DifferentPackagesBase1 receiver, LifecycleOwner owner) {

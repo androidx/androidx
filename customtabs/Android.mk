@@ -26,10 +26,10 @@ include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-customtabs
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
-LOCAL_AIDL_INCLUDES := $LOCAL_PATH/src
+LOCAL_AIDL_INCLUDES := $(LOCAL_PATH)/src/main/java
 LOCAL_SRC_FILES := \
-    $(call all-java-files-under,src) \
-    $(call all-Iaidl-files-under,src)
+    $(call all-java-files-under,src/main/java) \
+    $(call all-Iaidl-files-under,src/main/java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-annotations \

@@ -1,19 +1,17 @@
 apply plugin: 'java'
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+}
 
 dependencies {
-    compile files(
-            '../../../../prebuilts/checkstyle/checkstyle.jar',
-            '../../../../prebuilts/sdk/current/support/annotations/android-support-annotations.jar')
+    compile files('../../../../prebuilts/checkstyle/checkstyle.jar')
 }
 
 sourceSets {
     main.java.srcDir 'src'
 }
-
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
 
 jar {
     from sourceSets.main.output

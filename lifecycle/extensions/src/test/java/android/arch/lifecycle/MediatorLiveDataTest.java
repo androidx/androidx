@@ -25,10 +25,9 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.lifecycle.util.InstantTaskExecutor;
 import android.support.annotation.Nullable;
-import android.support.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +35,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @SuppressWarnings("unchecked")
-@SmallTest
 @RunWith(JUnit4.class)
 public class MediatorLiveDataTest {
 
@@ -71,7 +69,7 @@ public class MediatorLiveDataTest {
 
     @Before
     public void swapExecutorDelegate() {
-        AppToolkitTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
+        ArchTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
     }
 
     @Test
@@ -207,6 +205,14 @@ public class MediatorLiveDataTest {
     public void reAddSameSourceWithDifferentObserver() {
         mMediator.addSource(mSource, mock(Observer.class));
         mMediator.addSource(mSource, mock(Observer.class));
+    }
+
+    @Test
+    public void addSameSourceWithSameObserver() {
+        Observer observer = mock(Observer.class);
+        mMediator.addSource(mSource, observer);
+        mMediator.addSource(mSource, observer);
+        // no exception was thrown
     }
 
     @Test

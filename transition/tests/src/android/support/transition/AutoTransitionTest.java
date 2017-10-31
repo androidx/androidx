@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
 
 import android.graphics.Color;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -48,6 +49,7 @@ public class AutoTransitionTest extends BaseTest {
         mRoot.addView(mView1, new LinearLayout.LayoutParams(100, 100));
     }
 
+    @LargeTest
     @Test
     public void testLayoutBetweenFadeAndChangeBounds() throws Throwable {
         final LayoutCounter counter = new LayoutCounter();

@@ -1,32 +1,23 @@
-apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'support-dynamic-animation'
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-core-utils')
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation libs.mockito_core
-    androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
 }
 
 android {
     defaultConfig {
-        minSdkVersion 16
-    }
-
-    sourceSets {
-        main.java.srcDir 'src'
-        main.res.srcDirs 'res', 'res-public'
+        minSdkVersion 14
     }
 }
 
 supportLibrary {
     name 'Android Support DynamicAnimation'
+    publish true
     inceptionYear '2017'
     description "Physics-based animation in support library, where the animations are driven by physics force. You can use this Animation library to create smooth and realistic animations."
 }

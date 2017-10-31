@@ -15,13 +15,27 @@ import java.lang.StringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Generated;
 
+@Generated("android.arch.persistence.room.RoomProcessor")
 public class ComplexDao_Impl extends ComplexDao {
     private final RoomDatabase __db;
 
     public ComplexDao_Impl(ComplexDatabase __db) {
         super(__db);
         this.__db = __db;
+    }
+
+    @Override
+    public boolean transactionMethod(int i, String s, long l) {
+        __db.beginTransaction();
+        try {
+            boolean _result = super.transactionMethod(i, s, l);
+            __db.setTransactionSuccessful();
+            return _result;
+        } finally {
+            __db.endTransaction();
+        }
     }
 
     @Override

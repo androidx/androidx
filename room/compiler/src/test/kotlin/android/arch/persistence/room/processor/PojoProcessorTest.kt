@@ -18,6 +18,7 @@ package android.arch.persistence.room.processor
 
 import COMMON
 import android.arch.persistence.room.parser.SQLTypeAffinity
+import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import android.arch.persistence.room.processor.ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY
 import android.arch.persistence.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
@@ -97,6 +98,72 @@ class PojoProcessorTest {
             assertThat(pojo.fields.find { it.name == "myField" }, notNullValue())
             assertThat(pojo.fields.find { it.name == "baseField" }, notNullValue())
         }.compilesWithoutError()
+    }
+
+    @Test
+    fun transient_ignore() {
+        singleRun("""
+            transient int foo;
+            int bar;
+        """) { pojo ->
+            assertThat(pojo.fields.size, `is`(1))
+            assertThat(pojo.fields[0].name, `is`("bar"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun transient_withColumnInfo() {
+        singleRun("""
+            @ColumnInfo
+            transient int foo;
+            int bar;
+        """) { pojo ->
+            assertThat(pojo.fields.map { it.name }.toSet(), `is`(setOf("bar", "foo")))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun transient_embedded() {
+        singleRun("""
+            @Embedded
+            transient Foo foo;
+            int bar;
+            static class Foo {
+                int x;
+            }
+        """) { pojo ->
+            assertThat(pojo.fields.map { it.name }.toSet(), `is`(setOf("x", "bar")))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun transient_insideEmbedded() {
+        singleRun("""
+            @Embedded
+            Foo foo;
+            int bar;
+            static class Foo {
+                transient int x;
+                int y;
+            }
+        """) { pojo ->
+            assertThat(pojo.fields.map { it.name }.toSet(), `is`(setOf("bar", "y")))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun transient_relation() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentColumn = "id", entityColumn = "uid")
+                public transient List<User> user;
+                """, COMMON.USER
+        ) { pojo ->
+            assertThat(pojo.relations.size, `is`(1))
+            assertThat(pojo.relations.first().entityField.name, `is`("uid"))
+            assertThat(pojo.relations.first().parentField.name, `is`("id"))
+        }.compilesWithoutError().withWarningCount(0)
     }
 
     @Test
@@ -402,6 +469,20 @@ class PojoProcessorTest {
     }
 
     @Test
+    fun relation_badReturnTypeInGetter() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentColumn = "id", entityColumn = "uid")
+                private List<User> user;
+                public void setUser(List<User> user){ this.user = user;}
+                public User getUser(){return null;}
+                """, COMMON.USER
+        ) { _ ->
+        }.failsToCompile().withErrorContaining(CANNOT_FIND_GETTER_FOR_FIELD)
+    }
+
+    @Test
     fun cache() {
         val pojo = """
             $HEADER
@@ -610,6 +691,165 @@ class PojoProcessorTest {
                     parent = null).process()
             assertThat(process2.constructor, notNullValue())
         }.compilesWithoutError()
+    }
+
+    @Test
+    fun constructor_multipleMatching_withNoArg() {
+        singleRun("""
+            String mName;
+            String mLastName;
+            public MyPojo() {
+            }
+            public MyPojo(String name, String lastName) {
+            }
+        """) { pojo ->
+            assertThat(pojo.constructor?.params?.size ?: -1, `is`(0))
+        }.compilesWithoutError().withWarningContaining(
+                ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS_CHOOSING_NO_ARG)
+    }
+
+    @Test
+    fun recursion_1Level() {
+        singleRun(
+                """
+                @Embedded
+                MyPojo myPojo;
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo"))
+    }
+
+    @Test
+    fun recursion_2Levels_relationToEmbed() {
+        singleRun(
+                """
+                int pojoId;
+
+                @Relation(parentColumn = "pojoId", entityColumn = "entityId")
+                List<MyEntity> myEntity;
+
+                @Entity
+                static class MyEntity {
+                    int entityId;
+
+                    @Embedded
+                    MyPojo myPojo;
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.MyEntity -> foo.bar.MyPojo"))
+    }
+
+    @Test
+    fun recursion_2Levels_onlyEmbeds_pojoToEntity() {
+        singleRun(
+                """
+                @Embedded
+                A a;
+
+                @Entity
+                static class A {
+                    @Embedded
+                    MyPojo myPojo;
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
+    }
+
+    @Test
+    fun recursion_2Levels_onlyEmbeds_onlyPojos() {
+        singleRun(
+                """
+                @Embedded
+                A a;
+                static class A {
+                    @Embedded
+                    MyPojo myPojo;
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
+    }
+
+    @Test
+    fun recursion_3Levels() {
+        singleRun(
+                """
+                @Embedded
+                A a;
+                public static class A {
+                    @Embedded
+                    B b;
+                }
+                public static class B {
+                    @Embedded
+                    MyPojo myPojo;
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo.B -> foo.bar.MyPojo"))
+    }
+
+    @Test
+    fun recursion_1Level_1LevelDown() {
+        singleRun(
+                """
+                @Embedded
+                A a;
+                static class A {
+                    @Embedded
+                    B b;
+                }
+                static class B {
+                    @Embedded
+                    A a;
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo.A -> foo.bar.MyPojo.B -> foo.bar.MyPojo.A"))
+    }
+
+    @Test
+    fun recursion_branchAtLevel0_afterBackTrack() {
+        singleRun(
+                """
+                @PrimaryKey
+                int id;
+                @Embedded
+                A a;
+                @Embedded
+                C c;
+                static class A {
+                    @Embedded
+                    B b;
+                }
+                static class B {
+                }
+                static class C {
+                    @Embedded
+                    MyPojo myPojo;
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.C -> foo.bar.MyPojo"))
+    }
+
+    @Test
+    fun recursion_branchAtLevel1_afterBackTrack() {
+        singleRun(
+                """
+                @PrimaryKey
+                int id;
+                @Embedded
+                A a;
+                static class A {
+                    @Embedded
+                    B b;
+                    @Embedded
+                    MyPojo myPojo;
+                }
+                static class B {
+                    @Embedded
+                    C c;
+                }
+                static class C {
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
     }
 
     fun singleRun(code: String, vararg jfos:JavaFileObject, handler: (Pojo) -> Unit)

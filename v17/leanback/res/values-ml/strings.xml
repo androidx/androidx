@@ -53,8 +53,6 @@ limitations under the License.
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"മീഡിയ നിയന്ത്രണങ്ങൾ ‌മറച്ചിരിക്കുന്നു, കാണിക്കുന്നതിന് ഡി-‌പാഡ് അമർത്തുക"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"പൂര്‍ത്തിയാക്കുക"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"തുടരുക"</string>
-    <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
-    <string name="lb_time_separator" msgid="2763247350845477227">":"</string>
     <string name="lb_media_player_error" msgid="3650250994187305396">"മീഡിയ പ്ലെയർ പിശക് കോഡ്: %1$d, കൂടെ %2$d എന്നതും"</string>
     <string name="lb_onboarding_get_started" msgid="6961440391306351139">"ആരംഭിക്കുക"</string>
     <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"അടുത്തത്"</string>

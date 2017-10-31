@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 
 dependencies {
     implementation 'com.github.bumptech.glide:glide:3.6.1'
-    implementation project(':support-leanback-v17')
-    implementation project(':support-preference-leanback-v17')
+    implementation project(':leanback-v17')
+    implementation project(':preference-leanback-v17')
 }
 
 android {
@@ -15,21 +15,10 @@ android {
     }
 
     buildTypes {
-        debug {
-            minifyEnabled true
-            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
-        }
         release {
             minifyEnabled true
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
         }
-    }
-
-    sourceSets {
-        main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['src']
-        main.aidl.srcDirs = ['src']
-        main.res.srcDirs = ['res']
     }
 
     signingConfigs {

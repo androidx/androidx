@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-apply plugin: 'java'
-apply plugin: 'maven'
+import android.support.LibraryVersions
+import android.support.SupportLibraryExtension;
 
-sourceCompatibility = 1.7
+apply plugin: android.support.SupportJavaLibraryPlugin
 
 dependencies {
     compile libs.support.annotations
@@ -26,6 +26,13 @@ dependencies {
     testCompile libs.mockito_core
 }
 
-archivesBaseName = "common"
-
 createAndroidCheckstyle(project)
+
+version = LibraryVersions.ARCH_CORE.toString()
+supportLibrary {
+    name 'Android Arch-Common'
+    publish true
+    inceptionYear '2017'
+    description "Android Arch-Common"
+    url SupportLibraryExtension.ARCHITECTURE_URL
+}

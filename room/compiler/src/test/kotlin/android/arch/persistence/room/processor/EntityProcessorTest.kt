@@ -1002,6 +1002,21 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
+    fun primaryKey_nonNull_notNeeded() {
+        listOf("long", "Long", "Integer", "int").forEach { type ->
+            singleEntity(
+                    """
+                @PrimaryKey
+                public $type id;
+                """) { entity, _ ->
+                assertThat(entity.primaryKey.fields.size, `is`(1))
+                assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
+                assertThat(entity.primaryKey.autoGenerateId, `is`(false))
+            }.compilesWithoutError()
+        }
+    }
+
+    @Test
     fun primaryKey_autoGenerateBadType() {
         listOf("String", "float", "Float", "Double", "double").forEach { type ->
             singleEntity(
@@ -1025,6 +1040,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
 
                 @Embedded(prefix = "bar_")
                 @PrimaryKey
+                @NonNull
                 public Foo foo;
 
                 static class Foo {
@@ -1042,6 +1058,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
         val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
                 """
                 package foo.bar;
+                import android.support.annotation.NonNull;
                 import android.arch.persistence.room.*;
 
                 public class Base {
@@ -1049,6 +1066,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     String name, lastName;
                     @Embedded(prefix = "bar_")
                     @PrimaryKey
+                    @NonNull
                     public Foo foo;
 
                     static class Foo {
@@ -1086,6 +1104,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 @Embedded(prefix = "bar_")
                 @PrimaryKey
+                @NonNull
                 public Foo foo;
 
                 static class Foo {
@@ -1106,6 +1125,251 @@ class EntityProcessorTest : BaseEntityParserTest() {
         val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
                 """
                 package foo.bar;
+                import android.support.annotation.NonNull;
+                import android.arch.persistence.room.*;
+
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                    @Embedded(prefix = "bar_")
+                    @PrimaryKey
+                    @NonNull
+                    public Foo foo;
+
+                    static class Foo {
+                        public int a;
+                        public int b;
+                    }
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { entity, _ ->
+            assertThat(entity.primaryKey.fields.map { it.columnName },
+                    `is`(listOf("id")))
+        }.compilesWithoutError().withNoteContaining(
+                "PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
+    }
+
+    @Test
+    fun primaryKey_NonNull() {
+        singleEntity(
+                """
+            @PrimaryKey
+            @NonNull
+            public String id;
+            """) { entity, _ ->
+            assertThat(entity.primaryKey.fields.size, `is`(1))
+            assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun primaryKey_Nullable() {
+        singleEntity(
+                """
+            @PrimaryKey
+            public String id;
+            """) { entity, _ ->
+            assertThat(entity.primaryKey.fields.size, `is`(1))
+            assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("id"))
+    }
+
+    @Test
+    fun primaryKey_MultipleNullable() {
+        singleEntity(
+                """
+            @PrimaryKey
+            public String id;
+            @PrimaryKey
+            public String anotherId;
+            """) { entity, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("id"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("anotherId"))
+    }
+
+    @Test
+    fun primaryKey_MultipleNullableAndNonNullable() {
+        singleEntity(
+                """
+            @PrimaryKey
+            @NonNull
+            public String id;
+            @PrimaryKey
+            public String anotherId;
+            """) { entity, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("anotherId"))
+    }
+
+    @Test
+    fun primaryKey_definedAsAttributesNullable() {
+        singleEntity(
+                """
+                public int id;
+                public String foo;
+                """,
+                attributes = mapOf("primaryKeys" to "{\"id\", \"foo\"}")) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+    }
+
+    @Test
+    fun primaryKey_definedAsAttributesNonNull() {
+        singleEntity(
+                """
+                public int id;
+                @NonNull
+                public String foo;
+                """,
+                attributes = mapOf("primaryKeys" to "{\"id\", \"foo\"}")) { entity, _ ->
+            assertThat(entity.primaryKey.fields.map { it.name }, `is`(listOf("id", "foo")))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun primaryKey_nullableEmbedded(){
+        singleEntity(
+                """
+                public int id;
+
+                @Embedded(prefix = "bar_")
+                @PrimaryKey
+                public Foo foo;
+
+                static class Foo {
+                    public int a;
+                    public int b;
+                }
+                """) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+    }
+
+    @Test
+    fun primaryKey_nullableEmbeddedObject(){
+        singleEntity(
+                """
+                public int id;
+
+                @Embedded(prefix = "bar_")
+                @PrimaryKey
+                public Foo foo;
+
+                static class Foo {
+                    public String a;
+                    public String b;
+                }
+                """) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                .and().withErrorCount(3)
+    }
+
+    @Test
+    fun primaryKey_nullableEmbeddedObject_multipleParents(){
+        singleEntity(
+                """
+                public int id;
+
+                @Embedded(prefix = "bar_")
+                @PrimaryKey
+                public Foo foo;
+
+                static class Foo {
+                @Embedded(prefix = "baz_")
+                public Baz a;
+                public String b;
+
+                static class Baz {
+                    public Integer bb;
+                }
+            }
+                """) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a > bb"))
+                .and().withErrorCount(4)
+    }
+
+    @Test
+    fun primaryKey_nullableEmbeddedInherited(){
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import android.support.annotation.NonNull;
+                import android.arch.persistence.room.*;
+
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                    @Embedded(prefix = "bar_")
+                    @PrimaryKey
+                    public Foo foo;
+
+                    static class Foo {
+                        public int a;
+                        public int b;
+                    }
+                }
+                """)
+        singleEntity(
+                """
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
+                .and().withErrorCount(3)
+    }
+
+    @Test
+    fun primaryKey_nullableOverrideViaEmbedded() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import android.arch.persistence.room.*;
+
+                @Entity(primaryKeys = "baseId")
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                }
+                """)
+        singleEntity(
+                """
+                public int id;
+                @Embedded(prefix = "bar_")
+                @PrimaryKey
+                public Foo foo;
+
+                static class Foo {
+                    public int a;
+                    public int b;
+                }
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
+                .and().withNoteContaining(
+                "PrimaryKey[baseId] is overridden by PrimaryKey[foo > a, foo > b]")
+                .and().withErrorCount(3)
+    }
+
+    @Test
+    fun primaryKey_nullableOverrideEmbedded() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import android.support.annotation.NonNull;
                 import android.arch.persistence.room.*;
 
                 public class Base {
@@ -1127,11 +1391,78 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
                 baseClass = "foo.bar.Base",
-                jfos = listOf(parent)) { entity, _ ->
-            assertThat(entity.primaryKey.fields.map { it.columnName },
-                    `is`(listOf("id")))
-        }.compilesWithoutError().withNoteContaining(
+                jfos = listOf(parent)) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
+                .and().withNoteContaining(
                 "PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
+                .and().withErrorCount(3)
+    }
+
+    @Test
+    fun primaryKey_integerOverrideEmbedded() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import android.support.annotation.NonNull;
+                import android.arch.persistence.room.*;
+
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                    @Embedded(prefix = "bar_")
+                    @PrimaryKey
+                    public Foo foo;
+
+                    static class Foo {
+                        public Integer a;
+                    }
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { _, _ ->
+        }.compilesWithoutError().withNoteContaining(
+                "PrimaryKey[foo > a] is overridden by PrimaryKey[id]")
+    }
+
+    @Test
+    fun primaryKey_singleStringPrimaryKeyOverrideEmbedded() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import android.support.annotation.NonNull;
+                import android.arch.persistence.room.*;
+
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                    @Embedded(prefix = "bar_")
+                    @PrimaryKey
+                    public Foo foo;
+
+                    static class Foo {
+                        public String a;
+                    }
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                .and().withNoteContaining(
+                "PrimaryKey[foo > a] is overridden by PrimaryKey[id]")
+                .and().withErrorCount(2)
     }
 
     @Test
@@ -1468,5 +1799,103 @@ class EntityProcessorTest : BaseEntityParserTest() {
         ){ entity, _ ->
             assertThat(entity.indices, `is`(emptyList()))
         }.compilesWithoutWarnings()
+    }
+
+    @Test
+    fun recursion_1Level() {
+        singleEntity(
+                """
+                @Embedded
+                MyEntity myEntity;
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity"))
+    }
+
+    @Test
+    fun recursion_2Levels_embedToRelation() {
+        singleEntity(
+                """
+                int pojoId;
+                @Embedded
+                A a;
+
+                static class A {
+                    int entityId;
+                    @Relation(parentColumn = "pojoId", entityColumn = "entityId")
+                    MyEntity myEntity;
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
+    }
+
+    @Test
+    fun recursion_2Levels_onlyEmbeds_entityToPojo() {
+        singleEntity(
+                """
+                @Embedded
+                A a;
+
+                static class A {
+                    @Embedded
+                    MyEntity myEntity;
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
+    }
+
+    @Test
+    fun recursion_2Levels_onlyEmbeds_onlyEntities() {
+        singleEntity(
+                """
+                @Embedded
+                A a;
+
+                @Entity
+                static class A {
+                    @Embedded
+                    MyEntity myEntity;
+                }
+                """) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
+    }
+    fun okTableName() {
+        val annotation = mapOf("tableName" to "\"foo bar\"")
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ _, _ ->
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun badTableName() {
+        val annotation = mapOf("tableName" to """ "foo`bar" """)
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_TABLE_NAME)
+    }
+
+    @Test
+    fun badColumnName() {
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                @ColumnInfo(name = "\"foo bar\"")
+                String name;
+                """,
+                jfos = listOf(COMMON.USER)
+        ){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_COLUMN_NAME)
     }
 }

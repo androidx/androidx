@@ -31,6 +31,11 @@ abstract class ComplexDao {
         mDb = db;
     }
 
+    @Transaction
+    public boolean transactionMethod(int i, String s, long l) {
+        return true;
+    }
+
     @Query("SELECT name || lastName as fullName, uid as id FROM user where uid = :id")
     abstract public List<FullName> fullNames(int id);
 

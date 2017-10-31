@@ -19,8 +19,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.system.Settings;
-import android.view.ViewGroup;
 import android.view.View;
+import android.view.ViewGroup;
 
 
 /**
@@ -358,11 +358,11 @@ public final class ShadowOverlayHelper {
      * See also {@link ShadowOverlayContainer#setOverlayColor(int)}.
      */
     public static void setNoneWrapperOverlayColor(View view, int color) {
-        Drawable d = ForegroundHelper.getInstance().getForeground(view);
+        Drawable d = ForegroundHelper.getForeground(view);
         if (d instanceof ColorDrawable) {
             ((ColorDrawable) d).setColor(color);
         } else {
-            ForegroundHelper.getInstance().setForeground(view, new ColorDrawable(color));
+            ForegroundHelper.setForeground(view, new ColorDrawable(color));
         }
     }
 
@@ -394,6 +394,9 @@ public final class ShadowOverlayHelper {
                     Object tag = ShadowHelper.getInstance().addDynamicShadow(
                             view, mUnfocusedZ, mFocusedZ, mRoundedCornerRadius);
                     view.setTag(R.id.lb_shadow_impl, tag);
+                } else if (mNeedsRoundedCorner) {
+                    RoundedRectHelper.getInstance().setClipToRoundedOutline(view,
+                            true, mRoundedCornerRadius);
                 }
             }
         }

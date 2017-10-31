@@ -113,6 +113,14 @@ public class MediaControllerCompatTest {
 
     @Test
     @SmallTest
+    public void testIsSessionReady() throws Exception {
+        // mController already has the extra binder since it was created with the session token
+        // which holds the extra binder.
+        assertTrue(mController.isSessionReady());
+    }
+
+    @Test
+    @SmallTest
     public void testSendCommand() throws Exception {
         synchronized (mWaitLock) {
             mCallback.reset();
@@ -388,12 +396,6 @@ public class MediaControllerCompatTest {
             assertEquals(repeatMode, mCallback.mRepeatMode);
 
             mCallback.reset();
-            controls.setShuffleModeEnabled(ENABLED);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnSetShuffleModeEnabledCalled);
-            assertEquals(ENABLED, mCallback.mShuffleModeEnabled);
-
-            mCallback.reset();
             controls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCallback.mOnSetShuffleModeCalled);
@@ -467,7 +469,6 @@ public class MediaControllerCompatTest {
         private ResultReceiver mCommandCallback;
         private boolean mCaptioningEnabled;
         private int mRepeatMode;
-        private boolean mShuffleModeEnabled;
         private int mShuffleMode;
         private int mQueueIndex;
         private MediaDescriptionCompat mQueueDescription;
@@ -494,7 +495,6 @@ public class MediaControllerCompatTest {
         private boolean mOnPrepareFromUriCalled;
         private boolean mOnSetCaptioningEnabledCalled;
         private boolean mOnSetRepeatModeCalled;
-        private boolean mOnSetShuffleModeEnabledCalled;
         private boolean mOnSetShuffleModeCalled;
         private boolean mOnAddQueueItemCalled;
         private boolean mOnAddQueueItemAtCalled;
@@ -512,7 +512,6 @@ public class MediaControllerCompatTest {
             mCommand = null;
             mCommandCallback = null;
             mCaptioningEnabled = false;
-            mShuffleModeEnabled = false;
             mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
             mShuffleMode = PlaybackStateCompat.SHUFFLE_MODE_NONE;
             mQueueIndex = -1;
@@ -539,7 +538,6 @@ public class MediaControllerCompatTest {
             mOnPrepareFromUriCalled = false;
             mOnSetCaptioningEnabledCalled = false;
             mOnSetRepeatModeCalled = false;
-            mOnSetShuffleModeEnabledCalled = false;
             mOnSetShuffleModeCalled = false;
             mOnAddQueueItemCalled = false;
             mOnAddQueueItemAtCalled = false;
@@ -781,15 +779,6 @@ public class MediaControllerCompatTest {
             synchronized (mWaitLock) {
                 mOnSetCaptioningEnabledCalled = true;
                 mCaptioningEnabled = enabled;
-                mWaitLock.notify();
-            }
-        }
-
-        @Override
-        public void onSetShuffleModeEnabled(boolean enabled) {
-            synchronized (mWaitLock) {
-                mOnSetShuffleModeEnabledCalled = true;
-                mShuffleModeEnabled = enabled;
                 mWaitLock.notify();
             }
         }

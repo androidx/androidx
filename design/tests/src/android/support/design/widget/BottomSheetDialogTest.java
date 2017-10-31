@@ -39,6 +39,7 @@ import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.assertion.ViewAssertions;
 import android.support.test.espresso.matcher.ViewMatchers;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
@@ -233,7 +234,7 @@ public class BottomSheetDialogTest extends
 
     @SuppressWarnings("WrongConstant")
     @Test
-    @MediumTest
+    @LargeTest
     public void testHideThenShow() throws Throwable {
         // Hide the bottom sheet and wait for the dialog to be canceled.
         final DialogInterface.OnCancelListener onCancelListener = mock(

@@ -16,7 +16,7 @@
 
 package android.arch.persistence.room;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
@@ -49,7 +49,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @see Database
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+//@SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class RoomDatabase {
     private static final String DB_IMPL_SUFFIX = "_Impl";
     // set by the generated open helper.
@@ -153,12 +153,14 @@ public abstract class RoomDatabase {
      *
      * @hide
      */
+    @SuppressWarnings("WeakerAccess")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // used in generated code
     public void assertNotMainThread() {
         if (mAllowMainThreadQueries) {
             return;
         }
-        if (AppToolkitTaskExecutor.getInstance().isMainThread()) {
+        if (ArchTaskExecutor.getInstance().isMainThread()) {
             throw new IllegalStateException("Cannot access database on the main thread since"
                     + " it may potentially lock the UI for a long period of time.");
         }
@@ -216,7 +218,11 @@ public abstract class RoomDatabase {
      */
     public void endTransaction() {
         mOpenHelper.getWritableDatabase().endTransaction();
-        mInvalidationTracker.refreshVersionsAsync();
+        if (!inTransaction()) {
+            // enqueue refresh only if we are NOT in a transaction. Otherwise, wait for the last
+            // endTransaction call to do it.
+            mInvalidationTracker.refreshVersionsAsync();
+        }
     }
 
     /**
@@ -294,6 +300,7 @@ public abstract class RoomDatabase {
      * @return True if there is an active transaction in current thread, false otherwise.
      * @see SupportSQLiteDatabase#inTransaction()
      */
+    @SuppressWarnings("WeakerAccess")
     public boolean inTransaction() {
         return mOpenHelper.getWritableDatabase().inTransaction();
     }
@@ -303,7 +310,6 @@ public abstract class RoomDatabase {
      *
      * @param <T> The type of the abstract database class.
      */
-    @SuppressWarnings("unused")
     public static class Builder<T extends RoomDatabase> {
         private final Class<T> mDatabaseClass;
         private final String mName;
@@ -311,7 +317,6 @@ public abstract class RoomDatabase {
         private ArrayList<Callback> mCallbacks;
 
         private SupportSQLiteOpenHelper.Factory mFactory;
-        private boolean mInMemory;
         private boolean mAllowMainThreadQueries;
         private boolean mRequireMigration;
         /**
@@ -334,7 +339,8 @@ public abstract class RoomDatabase {
          * @param factory The factory to use to access the database.
          * @return this
          */
-        public Builder<T> openHelperFactory(SupportSQLiteOpenHelper.Factory factory) {
+        @NonNull
+        public Builder<T> openHelperFactory(@Nullable SupportSQLiteOpenHelper.Factory factory) {
             mFactory = factory;
             return this;
         }
@@ -358,6 +364,7 @@ public abstract class RoomDatabase {
          *                   changes.
          * @return this
          */
+        @NonNull
         public Builder<T> addMigrations(Migration... migrations) {
             mMigrationContainer.addMigrations(migrations);
             return this;
@@ -375,12 +382,16 @@ public abstract class RoomDatabase {
          *
          * @return this
          */
+        @NonNull
         public Builder<T> allowMainThreadQueries() {
             mAllowMainThreadQueries = true;
             return this;
         }
 
         /**
+         * Allows Room to destructively recreate database tables if {@link Migration}s that would
+         * migrate old database schemas to the latest schema version are not found.
+         * <p>
          * When the database version on the device does not match the latest schema version, Room
          * runs necessary {@link Migration}s on the database.
          * <p>
@@ -394,6 +405,7 @@ public abstract class RoomDatabase {
          *
          * @return this
          */
+        @NonNull
         public Builder<T> fallbackToDestructiveMigration() {
             mRequireMigration = false;
             return this;
@@ -405,6 +417,7 @@ public abstract class RoomDatabase {
          * @param callback The callback.
          * @return this
          */
+        @NonNull
         public Builder<T> addCallback(@NonNull Callback callback) {
             if (mCallbacks == null) {
                 mCallbacks = new ArrayList<>();
@@ -421,6 +434,7 @@ public abstract class RoomDatabase {
          *
          * @return A new database instance.
          */
+        @NonNull
         public T build() {
             //noinspection ConstantConditions
             if (mContext == null) {
@@ -487,6 +501,7 @@ public abstract class RoomDatabase {
          * @return An ordered list of {@link Migration} objects that should be run to migrate
          * between the given versions. If a migration path cannot be found, returns {@code null}.
          */
+        @SuppressWarnings("WeakerAccess")
         @Nullable
         public List<Migration> findMigrationPath(int start, int end) {
             if (start == end) {

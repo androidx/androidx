@@ -14,22 +14,17 @@
  * limitations under the License
  */
 
-apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'preference-v7'
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-v4')
-    api project(':support-appcompat-v7')
-    api project(':support-recyclerview-v7')
+    api project(':appcompat-v7')
+    api project(':recyclerview-v7')
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation libs.mockito_core
-    androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
 }
 
 android {
@@ -38,14 +33,10 @@ android {
     }
 
     sourceSets {
-        main.java.srcDir 'src'
-        main.java.srcDir 'constants'
         main.res.srcDirs = [
                 'res',
                 'res-public'
         ]
-        main.assets.srcDir 'assets'
-        main.resources.srcDir 'src'
     }
 
     lintOptions {
@@ -60,6 +51,7 @@ android {
 
 supportLibrary {
     name 'Android Support Preference v7'
+    publish true
     inceptionYear '2015'
     description 'Android Support Preference v7'
 }

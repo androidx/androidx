@@ -1,16 +1,11 @@
-apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'animated-vector-drawable'
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-vector-drawable')
     api project(':support-core-ui')
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
+    androidTestImplementation libs.test_runner,   { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core, { exclude module: 'support-annotations' }
 }
 
 android {
@@ -18,10 +13,6 @@ android {
         minSdkVersion 14
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
-    }
-
-    sourceSets {
-        main.java.srcDir 'src'
     }
 
     aaptOptions {
@@ -35,6 +26,7 @@ android {
 
 supportLibrary {
     name 'Android Support AnimatedVectorDrawable'
+    publish true
     inceptionYear '2015'
     description 'Android Support AnimatedVectorDrawable'
 }

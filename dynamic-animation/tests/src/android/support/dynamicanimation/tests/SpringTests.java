@@ -40,6 +40,7 @@ import android.support.animation.SpringAnimation;
 import android.support.animation.SpringForce;
 import android.support.dynamicanimation.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -305,6 +306,7 @@ public class SpringTests {
      * Verify that stiffer spring animations finish sooner than less stiff spring animations. Run
      * the same verification on different damping ratios.
      */
+    @LargeTest
     @Test
     public void testStiffness() {
         float[] dampingRatios = {0.3f, 0.5f, 1f, 5f};

@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -157,7 +157,7 @@ public class DrawerLayoutDoubleTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDrawerOpenCloseLtr() {
         onView(withId(R.id.drawer_layout)).perform(
                 setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_LTR));
@@ -166,7 +166,7 @@ public class DrawerLayoutDoubleTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDrawerOpenCloseRtl() {
         onView(withId(R.id.drawer_layout)).perform(
                 setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
@@ -220,7 +220,7 @@ public class DrawerLayoutDoubleTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDrawerLockUnlockLtr() {
         onView(withId(R.id.drawer_layout)).perform(
                 setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_LTR));
@@ -229,7 +229,7 @@ public class DrawerLayoutDoubleTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDrawerLockUnlockRtl() {
         onView(withId(R.id.drawer_layout)).perform(
                 setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));

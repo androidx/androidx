@@ -1,11 +1,10 @@
-apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'design'
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-v4')
-    api project(':support-appcompat-v7')
-    api project(':support-recyclerview-v7')
-    api project(':support-transition')
+    api project(':appcompat-v7')
+    api project(':recyclerview-v7')
+    api project(':transition')
 
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
@@ -61,6 +60,7 @@ android {
 
 supportLibrary {
     name 'Android Design Support Library'
+    publish true
     inceptionYear '2015'
     description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
 }

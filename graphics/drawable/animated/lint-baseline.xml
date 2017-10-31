@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0-alpha7">
+<issues format="4" by="lint 3.0.0-beta6">
 
     <issue
         id="ResourceType"
@@ -7,7 +7,7 @@
         errorLine1="            parser = resources.getAnimation(id);"
         errorLine2="                                            ~~">
         <location
-            file="src/android/support/graphics/drawable/AnimatorInflaterCompat.java"
+            file="src/main/java/android/support/graphics/drawable/AnimatorInflaterCompat.java"
             line="130"
             column="45"/>
     </issue>

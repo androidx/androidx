@@ -29,6 +29,7 @@ import static org.mockito.Mockito.verify;
 
 import android.annotation.TargetApi;
 import android.os.Build;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
@@ -104,6 +105,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         assertThat(calledA11DuringLayout.get(), is(false));
     }
 
+    @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Test

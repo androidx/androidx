@@ -22,9 +22,11 @@ import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
 import android.arch.persistence.room.Query
+import android.arch.persistence.room.ext.CommonTypeNames
 import android.arch.persistence.room.ext.LifecyclesTypeNames
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.typeName
+import android.arch.persistence.room.parser.Table
 import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER
 import android.arch.persistence.room.solver.query.result.LiveDataQueryResultBinder
 import android.arch.persistence.room.solver.query.result.PojoRowAdapter
@@ -48,7 +50,9 @@ import com.squareup.javapoet.TypeVariableName
 import createVerifierFromEntities
 import mockElementAndType
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -66,6 +70,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     companion object {
         const val DAO_PREFIX = """
                 package foo.bar;
+                import android.support.annotation.NonNull;
                 import android.arch.persistence.room.*;
                 @Dao
                 abstract class MyClass {
@@ -264,7 +269,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         singleQueryMethod(
                 """
                 @Query("select * from User")
-                abstract public <T> java.util.List<T> foo(int x);
+                abstract public <T> ${CommonTypeNames.LIST}<T> foo(int x);
                 """) { parsedQuery, _ ->
             val expected: TypeName = ParameterizedTypeName.get(ClassName.get(List::class.java),
                     TypeVariableName.get("T"))
@@ -283,6 +288,44 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             // do nothing
         }.failsToCompile()
                 .withErrorContaining("UNEXPECTED_CHAR=:")
+    }
+
+    @Test
+    fun testLiveDataWithWithClause() {
+        singleQueryMethod(
+                """
+                @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1, (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable, User")
+                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${CommonTypeNames.LIST}<Integer>> getFactorialLiveData();
+                """) { parsedQuery, _ ->
+            assertThat(parsedQuery.query.tables, hasItem(Table("User", "User")))
+            assertThat(parsedQuery.query.tables,
+                    not(hasItem(Table("tempTable", "tempTable"))))
+            assertThat(parsedQuery.query.tables.size, `is`(1))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testLiveDataWithNothingToObserve() {
+        singleQueryMethod(
+                """
+                @Query("SELECT 1")
+                abstract public ${LifecyclesTypeNames.LIVE_DATA}<Integer> getOne();
+                """) { _, _ ->
+            // do nothing
+        }.failsToCompile()
+                .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+    }
+
+    @Test
+    fun testLiveDataWithWithClauseAndNothingToObserve() {
+        singleQueryMethod(
+                """
+                @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1, (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable")
+                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${CommonTypeNames.LIST}<Integer>> getFactorialLiveData();
+                """) { _, _ ->
+            // do nothing
+        }.failsToCompile()
+                .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
     }
 
     @Test
@@ -399,6 +442,55 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         ) { _, _ ->
         }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT)
+    }
+
+    @Test
+    fun query_detectTransaction_delete() {
+        singleQueryMethod(
+                """
+                @Query("delete from user where uid = :id")
+                abstract int deleteUser(String id);
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun query_detectTransaction_update() {
+        singleQueryMethod(
+                """
+                @Query("UPDATE user set uid = :id + 1 where uid = :id")
+                abstract int incrementId(String id);
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun query_detectTransaction_select() {
+        singleQueryMethod(
+                """
+                @Query("select * from user")
+                abstract int loadUsers();
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(false))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun query_detectTransaction_selectInTransaction() {
+        singleQueryMethod(
+                """
+                @Transaction
+                @Query("select * from user")
+                abstract int loadUsers();
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(true))
+        }.compilesWithoutError()
     }
 
     @Test
@@ -554,6 +646,30 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         allColumns = listOf("lastName"),
                         allFields = listOf(createField("name"), createField("lastName"))
                 ))
+    }
+
+    @Test
+    fun pojo_missingNonNull() {
+        pojoTest("""
+            @NonNull
+            String name;
+            String lastName;
+            """, listOf("lastName")) { adapter, _, _ ->
+            assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
+            assertThat(adapter?.mapping?.unusedFields, `is`(
+                    adapter?.pojo?.fields?.filter { it.name == "name" }
+            ))
+        }?.failsToCompile()?.withWarningContaining(
+                ProcessorErrors.cursorPojoMismatch(
+                        pojoTypeName = POJO,
+                        unusedColumns = emptyList(),
+                        unusedFields = listOf(createField("name")),
+                        allColumns = listOf("lastName"),
+                        allFields = listOf(createField("name"), createField("lastName"))
+                ))?.and()?.withErrorContaining(
+                ProcessorErrors.pojoMissingNonNull(pojoTypeName = POJO,
+                        missingPojoFields = listOf("name"),
+                        allQueryColumns = listOf("lastName")))
     }
 
     @Test

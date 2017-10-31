@@ -1,6 +1,3 @@
-// CHECKSTYLE:OFF Generated code
-/* This file is auto-generated from SearchFragment.java.  DO NOT MODIFY. */
-
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -19,7 +16,6 @@ package android.support.v17.leanback.app;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import android.Manifest;
-import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -38,6 +34,7 @@ import android.support.v17.leanback.widget.SearchBar;
 import android.support.v17.leanback.widget.SearchOrbView;
 import android.support.v17.leanback.widget.SpeechRecognitionCallback;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,12 +52,11 @@ import java.util.List;
  * into a {@link RowsSupportFragment}, in the same way that they are in a {@link
  * BrowseSupportFragment}.
  *
- * <p>If you do not supply a callback via
- * {@link #setSpeechRecognitionCallback(SpeechRecognitionCallback)}, an internal speech
- * recognizer will be used for which your application will need to declare
+ * <p>A SpeechRecognizer object will be created for which your application will need to declare
  * android.permission.RECORD_AUDIO in AndroidManifest file. If app's target version is >= 23 and
  * the device version is >= 23, a permission dialog will show first time using speech recognition.
  * 0 will be used as requestCode in requestPermissions() call.
+ * {@link #setSpeechRecognitionCallback(SpeechRecognitionCallback)} is deprecated.
  * </p>
  * <p>
  * Speech recognition is automatically started when fragment is created, but
@@ -579,8 +575,11 @@ public class SearchSupportFragment extends Fragment {
 
     /**
      * Sets this callback to have the fragment pass speech recognition requests
-     * to the activity rather than using an internal recognizer.
+     * to the activity rather than using a SpeechRecognizer object.
+     * @deprecated Launching voice recognition activity is no longer supported. App should declare
+     *             android.permission.RECORD_AUDIO in AndroidManifest file.
      */
+    @Deprecated
     public void setSpeechRecognitionCallback(SpeechRecognitionCallback callback) {
         mSpeechRecognitionCallback = callback;
         if (mSearchBar != null) {

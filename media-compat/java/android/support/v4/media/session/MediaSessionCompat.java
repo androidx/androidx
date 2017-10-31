@@ -199,21 +199,21 @@ public class MediaSessionCompat {
     /**
      * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the artist.
      *
-     * @see ARGUMENT_MEDIA_ATTRIBUTE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_ARTIST = 0;
 
     /**
      * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the album.
      *
-     * @see ARGUMENT_MEDIA_ATTRIBUTE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_ALBUM = 1;
 
     /**
      * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the playlist.
      *
-     * @see ARGUMENT_MEDIA_ATTRIBUTE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_PLAYLIST = 2;
 
@@ -257,12 +257,6 @@ public class MediaSessionCompat {
      */
     static final String ACTION_SET_REPEAT_MODE =
             "android.support.v4.media.session.action.SET_REPEAT_MODE";
-
-    /**
-     * Custom action to invoke setShuffleModeEnabled() for the forward compatibility.
-     */
-    static final String ACTION_SET_SHUFFLE_MODE_ENABLED =
-            "android.support.v4.media.session.action.SET_SHUFFLE_MODE_ENABLED";
 
     /**
      * Custom action to invoke setShuffleMode() for the forward compatibility.
@@ -319,13 +313,6 @@ public class MediaSessionCompat {
      */
     static final String ACTION_ARGUMENT_REPEAT_MODE =
             "android.support.v4.media.session.action.ARGUMENT_REPEAT_MODE";
-
-    /**
-     * Argument for use with {@link #ACTION_SET_SHUFFLE_MODE_ENABLED} indicating that shuffle mode
-     * is enabled.
-     */
-    static final String ACTION_ARGUMENT_SHUFFLE_MODE_ENABLED =
-            "android.support.v4.media.session.action.ARGUMENT_SHUFFLE_MODE_ENABLED";
 
     /**
      * Argument for use with {@link #ACTION_SET_SHUFFLE_MODE} indicating shuffle mode.
@@ -699,20 +686,6 @@ public class MediaSessionCompat {
      */
     public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
         mImpl.setRepeatMode(repeatMode);
-    }
-
-    /**
-     * Sets the shuffle mode for this session.
-     * <p>
-     * Note that if this method is not called before,
-     * {@link MediaControllerCompat#isShuffleModeEnabled} will return {@code false}.
-     *
-     * @param enabled {@code true} to enable the shuffle mode, {@code false} to disable.
-     * @deprecated Use {@link #setShuffleMode} instead.
-     */
-    @Deprecated
-    public void setShuffleModeEnabled(boolean enabled) {
-        mImpl.setShuffleModeEnabled(enabled);
     }
 
     /**
@@ -1134,20 +1107,6 @@ public class MediaSessionCompat {
         /**
          * Override to handle the setting of the shuffle mode.
          * <p>
-         * You should call {@link #setShuffleModeEnabled} before the end of this method in order to
-         * notify the change to the {@link MediaControllerCompat}, or
-         * {@link MediaControllerCompat#isShuffleModeEnabled} could return an invalid value.
-         *
-         * @param enabled true when the shuffle mode is enabled, false otherwise.
-         * @deprecated Use {@link #onSetShuffleMode} instead.
-         */
-        @Deprecated
-        public void onSetShuffleModeEnabled(boolean enabled) {
-        }
-
-        /**
-         * Override to handle the setting of the shuffle mode.
-         * <p>
          * You should call {@link #setShuffleMode} before the end of this method in order to
          * notify the change to the {@link MediaControllerCompat}, or
          * {@link MediaControllerCompat#getShuffleMode} could return an invalid value.
@@ -1386,9 +1345,6 @@ public class MediaSessionCompat {
                 } else if (action.equals(ACTION_SET_REPEAT_MODE)) {
                     int repeatMode = extras.getInt(ACTION_ARGUMENT_REPEAT_MODE);
                     Callback.this.onSetRepeatMode(repeatMode);
-                } else if (action.equals(ACTION_SET_SHUFFLE_MODE_ENABLED)) {
-                    boolean enabled = extras.getBoolean(ACTION_ARGUMENT_SHUFFLE_MODE_ENABLED);
-                    Callback.this.onSetShuffleModeEnabled(enabled);
                 } else if (action.equals(ACTION_SET_SHUFFLE_MODE)) {
                     int shuffleMode = extras.getInt(ACTION_ARGUMENT_SHUFFLE_MODE);
                     Callback.this.onSetShuffleMode(shuffleMode);
@@ -1797,7 +1753,6 @@ public class MediaSessionCompat {
         void setRatingType(@RatingCompat.Style int type);
         void setCaptioningEnabled(boolean enabled);
         void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode);
-        void setShuffleModeEnabled(boolean enabled);
         void setShuffleMode(@PlaybackStateCompat.ShuffleMode int shuffleMode);
         void setExtras(Bundle extras);
 
@@ -1844,7 +1799,6 @@ public class MediaSessionCompat {
         boolean mCaptioningEnabled;
         @PlaybackStateCompat.RepeatMode int mRepeatMode;
         @PlaybackStateCompat.ShuffleMode int mShuffleMode;
-        boolean mShuffleModeEnabled;
         Bundle mExtras;
 
         int mVolumeType;
@@ -2254,14 +2208,6 @@ public class MediaSessionCompat {
         }
 
         @Override
-        public void setShuffleModeEnabled(boolean enabled) {
-            if (mShuffleModeEnabled != enabled) {
-                mShuffleModeEnabled = enabled;
-                sendShuffleModeEnabled(enabled);
-            }
-        }
-
-        @Override
         public void setShuffleMode(@PlaybackStateCompat.ShuffleMode int shuffleMode) {
             if (mShuffleMode != shuffleMode) {
                 mShuffleMode = shuffleMode;
@@ -2454,18 +2400,6 @@ public class MediaSessionCompat {
                 IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
                 try {
                     cb.onRepeatModeChanged(repeatMode);
-                } catch (RemoteException e) {
-                }
-            }
-            mControllerCallbacks.finishBroadcast();
-        }
-
-        private void sendShuffleModeEnabled(boolean enabled) {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onShuffleModeChangedDeprecated(enabled);
                 } catch (RemoteException e) {
                 }
             }
@@ -2695,8 +2629,8 @@ public class MediaSessionCompat {
             }
 
             @Override
-            public void setShuffleModeEnabledDeprecated(boolean enabled) throws RemoteException {
-                postToHandler(MessageHandler.MSG_SET_SHUFFLE_MODE_ENABLED, enabled);
+            public void setShuffleModeEnabledRemoved(boolean enabled) throws RemoteException {
+                // Do nothing.
             }
 
             @Override
@@ -2783,8 +2717,8 @@ public class MediaSessionCompat {
             }
 
             @Override
-            public boolean isShuffleModeEnabledDeprecated() {
-                return mShuffleModeEnabled;
+            public boolean isShuffleModeEnabledRemoved() {
+                return false;
             }
 
             @Override
@@ -2837,7 +2771,6 @@ public class MediaSessionCompat {
             private static final int MSG_MEDIA_BUTTON = 21;
             private static final int MSG_SET_VOLUME = 22;
             private static final int MSG_SET_REPEAT_MODE = 23;
-            private static final int MSG_SET_SHUFFLE_MODE_ENABLED = 24;
             private static final int MSG_ADD_QUEUE_ITEM = 25;
             private static final int MSG_ADD_QUEUE_ITEM_AT = 26;
             private static final int MSG_REMOVE_QUEUE_ITEM = 27;
@@ -2977,9 +2910,6 @@ public class MediaSessionCompat {
                         break;
                     case MSG_SET_REPEAT_MODE:
                         cb.onSetRepeatMode(msg.arg1);
-                        break;
-                    case MSG_SET_SHUFFLE_MODE_ENABLED:
-                        cb.onSetShuffleModeEnabled((boolean) msg.obj);
                         break;
                     case MSG_SET_SHUFFLE_MODE:
                         cb.onSetShuffleMode(msg.arg1);
@@ -3206,7 +3136,6 @@ public class MediaSessionCompat {
         @RatingCompat.Style int mRatingType;
         boolean mCaptioningEnabled;
         @PlaybackStateCompat.RepeatMode int mRepeatMode;
-        boolean mShuffleModeEnabled;
         @PlaybackStateCompat.ShuffleMode int mShuffleMode;
 
         public MediaSessionImplApi21(Context context, String tag) {
@@ -3373,22 +3302,6 @@ public class MediaSessionCompat {
                     IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
                     try {
                         cb.onRepeatModeChanged(repeatMode);
-                    } catch (RemoteException e) {
-                    }
-                }
-                mExtraControllerCallbacks.finishBroadcast();
-            }
-        }
-
-        @Override
-        public void setShuffleModeEnabled(boolean enabled) {
-            if (mShuffleModeEnabled != enabled) {
-                mShuffleModeEnabled = enabled;
-                int size = mExtraControllerCallbacks.beginBroadcast();
-                for (int i = size - 1; i >= 0; i--) {
-                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
-                    try {
-                        cb.onShuffleModeChangedDeprecated(enabled);
                     } catch (RemoteException e) {
                     }
                 }
@@ -3625,9 +3538,8 @@ public class MediaSessionCompat {
             }
 
             @Override
-            public void setShuffleModeEnabledDeprecated(boolean enabled) throws RemoteException {
-                // Will not be called.
-                throw new AssertionError();
+            public void setShuffleModeEnabledRemoved(boolean enabled) throws RemoteException {
+                // Do nothing.
             }
 
             @Override
@@ -3713,8 +3625,8 @@ public class MediaSessionCompat {
             }
 
             @Override
-            public boolean isShuffleModeEnabledDeprecated() {
-                return mShuffleModeEnabled;
+            public boolean isShuffleModeEnabledRemoved() {
+                return false;
             }
 
             @Override

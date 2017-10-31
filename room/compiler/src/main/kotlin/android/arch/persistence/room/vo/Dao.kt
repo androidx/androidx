@@ -26,6 +26,7 @@ data class Dao(val element : TypeElement, val type : DeclaredType,
                val insertionMethods : List<InsertionMethod>,
                val deletionMethods : List<DeletionMethod>,
                val updateMethods : List<UpdateMethod>,
+               val transactionMethods : List<TransactionMethod>,
                val constructorParamType : TypeName?) {
     // parsed dao might have a suffix if it is used in multiple databases.
     private var suffix : String? = null

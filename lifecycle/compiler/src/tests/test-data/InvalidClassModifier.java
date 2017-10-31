@@ -19,10 +19,11 @@ package foo;
 import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
 import android.arch.lifecycle.Lifecycle.Event;
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
 
 public class InvalidClassModifier {
-    private static class Inner {
+    private static class Inner implements LifecycleObserver {
         @OnLifecycleEvent(ON_STOP)
         private void onStop() {
         }

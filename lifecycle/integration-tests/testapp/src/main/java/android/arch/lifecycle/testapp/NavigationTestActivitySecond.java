@@ -16,10 +16,10 @@
 
 package android.arch.lifecycle.testapp;
 
-import android.arch.lifecycle.LifecycleActivity;
+import android.support.v4.app.FragmentActivity;
 
 /**
  * Activity for ProcessOwnerTest
  */
-public class NavigationTestActivitySecond extends LifecycleActivity {
+public class NavigationTestActivitySecond extends FragmentActivity {
 }

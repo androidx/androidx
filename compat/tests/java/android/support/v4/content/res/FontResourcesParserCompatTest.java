@@ -28,6 +28,7 @@ import android.annotation.SuppressLint;
 import android.app.Instrumentation;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
+import android.os.Build;
 import android.support.compat.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -89,6 +90,41 @@ public class FontResourcesParserCompatTest {
     }
 
     @Test
+    public void testParseAndroidAttrs() throws XmlPullParserException, IOException {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
+            // The following tests are only expected to pass on v22+ devices. The android
+            // resources are stripped in older versions and hence won't be parsed.
+            return;
+        }
+
+        @SuppressLint("ResourceType")
+        XmlResourceParser parser = mResources.getXml(R.font.samplexmlfont2);
+
+        FamilyResourceEntry result = FontResourcesParserCompat.parse(parser, mResources);
+
+        assertNotNull(result);
+        FontFamilyFilesResourceEntry filesEntry = (FontFamilyFilesResourceEntry) result;
+        FontFileResourceEntry[] fileEntries = filesEntry.getEntries();
+        assertEquals(4, fileEntries.length);
+        FontFileResourceEntry font1 = fileEntries[0];
+        assertEquals(400, font1.getWeight());
+        assertEquals(false, font1.isItalic());
+        assertEquals(R.font.samplefont, font1.getResourceId());
+        FontFileResourceEntry font2 = fileEntries[1];
+        assertEquals(400, font2.getWeight());
+        assertEquals(true, font2.isItalic());
+        assertEquals(R.font.samplefont2, font2.getResourceId());
+        FontFileResourceEntry font3 = fileEntries[2];
+        assertEquals(700, font3.getWeight());
+        assertEquals(false, font3.isItalic());
+        assertEquals(R.font.samplefont3, font3.getResourceId());
+        FontFileResourceEntry font4 = fileEntries[3];
+        assertEquals(700, font4.getWeight());
+        assertEquals(true, font4.isItalic());
+        assertEquals(R.font.samplefont4, font4.getResourceId());
+    }
+
+    @Test
     public void testParseDownloadableFont() throws IOException, XmlPullParserException {
         @SuppressLint("ResourceType")
         XmlResourceParser parser = mResources.getXml(R.font.samplexmldownloadedfont);
@@ -98,10 +134,10 @@ public class FontResourcesParserCompatTest {
         assertNotNull(result);
         ProviderResourceEntry providerEntry = (ProviderResourceEntry) result;
         FontRequest request = providerEntry.getRequest();
-        assertEquals("com.example.test.fontprovider.authority",
+        assertEquals("android.support.provider.fonts.font",
                 request.getProviderAuthority());
-        assertEquals("com.example.test.fontprovider.package", request.getProviderPackage());
-        assertEquals("MyRequestedFont", request.getQuery());
+        assertEquals("android.support.compat.test", request.getProviderPackage());
+        assertEquals("singleFontFamily", request.getQuery());
     }
 
     @Test

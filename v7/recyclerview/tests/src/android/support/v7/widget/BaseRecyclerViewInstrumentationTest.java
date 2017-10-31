@@ -37,7 +37,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.recyclerview.test.R;
-import android.support.v7.recyclerview.test.SameActivityTestRule;
 import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -81,12 +80,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     Thread mInstrumentationThread;
 
     @Rule
-    public ActivityTestRule<TestActivity> mActivityRule = new SameActivityTestRule() {
-        @Override
-        public boolean canReUseActivity() {
-            return BaseRecyclerViewInstrumentationTest.this.canReUseActivity();
-        }
-    };
+    public ActivityTestRule<TestActivity> mActivityRule = new ActivityTestRule(TestActivity.class);
 
     public BaseRecyclerViewInstrumentationTest() {
         this(false);

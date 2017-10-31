@@ -29,6 +29,7 @@ import android.arch.persistence.room.migration.bundle.DatabaseBundle;
 import android.arch.persistence.room.migration.bundle.EntityBundle;
 import android.arch.persistence.room.migration.bundle.FieldBundle;
 import android.arch.persistence.room.migration.bundle.ForeignKeyBundle;
+import android.arch.persistence.room.migration.bundle.IndexBundle;
 import android.arch.persistence.room.migration.bundle.SchemaBundle;
 import android.arch.persistence.room.util.TableInfo;
 import android.content.Context;
@@ -146,7 +147,7 @@ public class MigrationTestHelper extends TestWatcher {
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
                 schemaBundle.getDatabase().getIdentityHash());
-        return openDatabase(name, version, roomOpenHelper);
+        return openDatabase(name, roomOpenHelper);
     }
 
     /**
@@ -189,17 +190,15 @@ public class MigrationTestHelper extends TestWatcher {
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
                 schemaBundle.getDatabase().getIdentityHash());
-        return openDatabase(name, version, roomOpenHelper);
+        return openDatabase(name, roomOpenHelper);
     }
 
-    private SupportSQLiteDatabase openDatabase(String name, int version,
-            RoomOpenHelper roomOpenHelper) {
+    private SupportSQLiteDatabase openDatabase(String name, RoomOpenHelper roomOpenHelper) {
         SupportSQLiteOpenHelper.Configuration config =
                 SupportSQLiteOpenHelper.Configuration
                         .builder(mInstrumentation.getTargetContext())
                         .callback(roomOpenHelper)
                         .name(name)
-                        .version(version)
                         .build();
         SupportSQLiteDatabase db = mOpenFactory.create(config).getWritableDatabase();
         mManagedDatabases.add(new WeakReference<>(db));
@@ -287,7 +286,19 @@ public class MigrationTestHelper extends TestWatcher {
 
     private static TableInfo toTableInfo(EntityBundle entityBundle) {
         return new TableInfo(entityBundle.getTableName(), toColumnMap(entityBundle),
-                toForeignKeys(entityBundle.getForeignKeys()));
+                toForeignKeys(entityBundle.getForeignKeys()), toIndices(entityBundle.getIndices()));
+    }
+
+    private static Set<TableInfo.Index> toIndices(List<IndexBundle> indices) {
+        if (indices == null) {
+            return Collections.emptySet();
+        }
+        Set<TableInfo.Index> result = new HashSet<>();
+        for (IndexBundle bundle : indices) {
+            result.add(new TableInfo.Index(bundle.getName(), bundle.isUnique(),
+                    bundle.getColumnNames()));
+        }
+        return result;
     }
 
     private static Set<TableInfo.ForeignKey> toForeignKeys(
@@ -401,6 +412,7 @@ public class MigrationTestHelper extends TestWatcher {
         final DatabaseBundle mDatabaseBundle;
 
         RoomOpenHelperDelegate(DatabaseBundle databaseBundle) {
+            super(databaseBundle.getVersion());
             mDatabaseBundle = databaseBundle;
         }
 

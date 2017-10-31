@@ -17,12 +17,12 @@
 package android.arch.lifecycle.testapp;
 
 import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Activity for SimpleAppFullLifecycleTest
  */
-public class SimpleAppLifecycleTestActivity extends LifecycleActivity {
+public class SimpleAppLifecycleTestActivity extends FragmentActivity {
 
     public enum TestEventType {
         PROCESS_EVENT,

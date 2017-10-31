@@ -228,7 +228,7 @@ public class CustomSnackbarTest extends BaseInstrumentationTestCase<SnackbarActi
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDismissViaTimeout() throws Throwable {
         verifyDismissCallback(
                 onView(isAssignableFrom(Snackbar.SnackbarLayout.class)),

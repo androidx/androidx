@@ -27,7 +27,7 @@ public class PermissionHelper {
     public static void requestPermissions(android.app.Fragment fragment, String[] permissions,
             int requestCode) {
         if (Build.VERSION.SDK_INT >= 23) {
-            PermissionHelper23.requestPermissions(fragment, permissions, requestCode);
+            fragment.requestPermissions(permissions, requestCode);
         }
     }
 

@@ -16,16 +16,15 @@
 
 package android.arch.persistence.room.paging;
 
+import android.arch.paging.TiledDataSource;
 import android.arch.persistence.room.InvalidationTracker;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.RoomSQLiteQuery;
-import android.arch.util.paging.CountedDataSource;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -42,22 +41,21 @@ import java.util.Set;
  *
  * @hide
  */
-@SuppressWarnings("unused")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class LimitOffsetDataSource<T> extends CountedDataSource<T> {
+public abstract class LimitOffsetDataSource<T> extends TiledDataSource<T> {
     private final RoomSQLiteQuery mSourceQuery;
     private final String mCountQuery;
     private final String mLimitOffsetQuery;
     private final RoomDatabase mDb;
     @SuppressWarnings("FieldCanBeLocal")
     private final InvalidationTracker.Observer mObserver;
-
-    public Runnable invalidCallback;
+    private final boolean mInTransaction;
 
     protected LimitOffsetDataSource(RoomDatabase db, RoomSQLiteQuery query,
-            String... tables) {
+            boolean inTransaction, String... tables) {
         mDb = db;
         mSourceQuery = query;
+        mInTransaction = inTransaction;
         mCountQuery = "SELECT COUNT(*) FROM ( " + mSourceQuery.getSql() + " )";
         mLimitOffsetQuery = "SELECT * FROM ( " + mSourceQuery.getSql() + " ) LIMIT ? OFFSET ?";
         mObserver = new InvalidationTracker.Observer(tables) {
@@ -70,7 +68,7 @@ public abstract class LimitOffsetDataSource<T> extends CountedDataSource<T> {
     }
 
     @Override
-    public int loadCount() {
+    public int countItems() {
         final RoomSQLiteQuery sqLiteQuery = RoomSQLiteQuery.acquire(mCountQuery,
                 mSourceQuery.getArgCount());
         sqLiteQuery.copyArgumentsFrom(mSourceQuery);
@@ -92,64 +90,41 @@ public abstract class LimitOffsetDataSource<T> extends CountedDataSource<T> {
         return super.isInvalid();
     }
 
-    private List<T> queryRange(int offset, int limit) {
-        final RoomSQLiteQuery sqLiteQuery = RoomSQLiteQuery.acquire(mLimitOffsetQuery,
-                mSourceQuery.getArgCount() + 2);
-        sqLiteQuery.copyArgumentsFrom(mSourceQuery);
-        sqLiteQuery.bindLong(sqLiteQuery.getArgCount() - 1, limit);
-        sqLiteQuery.bindLong(sqLiteQuery.getArgCount(), offset);
-        Cursor cursor = mDb.query(sqLiteQuery);
-        try {
-            return convertRows(cursor);
-        } finally {
-            cursor.close();
-            sqLiteQuery.release();
-        }
-    }
-
     @SuppressWarnings("WeakerAccess")
     protected abstract List<T> convertRows(Cursor cursor);
 
     @Nullable
     @Override
-    public List<T> loadAfterInitial(int position, int pageSize) {
-        if (isInvalid()) {
-            return null;
+    public List<T> loadRange(int startPosition, int loadCount) {
+        final RoomSQLiteQuery sqLiteQuery = RoomSQLiteQuery.acquire(mLimitOffsetQuery,
+                mSourceQuery.getArgCount() + 2);
+        sqLiteQuery.copyArgumentsFrom(mSourceQuery);
+        sqLiteQuery.bindLong(sqLiteQuery.getArgCount() - 1, loadCount);
+        sqLiteQuery.bindLong(sqLiteQuery.getArgCount(), startPosition);
+        if (mInTransaction) {
+            mDb.beginTransaction();
+            Cursor cursor = null;
+            try {
+                cursor = mDb.query(sqLiteQuery);
+                List<T> rows = convertRows(cursor);
+                mDb.setTransactionSuccessful();
+                return rows;
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+                mDb.endTransaction();
+                sqLiteQuery.release();
+            }
+        } else {
+            Cursor cursor = mDb.query(sqLiteQuery);
+            //noinspection TryFinallyCanBeTryWithResources
+            try {
+                return convertRows(cursor);
+            } finally {
+                cursor.close();
+                sqLiteQuery.release();
+            }
         }
-        List<T> result = queryRange(position + 1, pageSize);
-        if (isInvalid()) {
-            return null;
-        }
-        return result;
-    }
-
-    @Nullable
-    @Override
-    public List<T> loadAfter(int currentEndIndex, @NonNull T currentEndItem, int pageSize) {
-        if (isInvalid()) {
-            return null;
-        }
-        List<T> result = queryRange(currentEndIndex + 1, pageSize);
-        if (isInvalid()) {
-            return null;
-        }
-        return result;
-    }
-
-    @Nullable
-    @Override
-    public List<T> loadBefore(int currentBeginIndex, @NonNull T currentBeginItem, int pageSize) {
-        if (isInvalid()) {
-            return null;
-        }
-        int offset = Math.max(0, currentBeginIndex - pageSize);
-        final List<T> list = queryRange(offset, pageSize);
-        // reverse it
-        Collections.reverse(list);
-
-        if (isInvalid()) {
-            return null;
-        }
-        return list;
     }
 }

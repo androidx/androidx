@@ -16,17 +16,19 @@
 
 package android.arch.persistence.room.integration.testapp.test;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
+import android.arch.persistence.room.integration.testapp.dao.FunnyNamedDao;
 import android.arch.persistence.room.integration.testapp.dao.PetCoupleDao;
 import android.arch.persistence.room.integration.testapp.dao.PetDao;
 import android.arch.persistence.room.integration.testapp.dao.SchoolDao;
+import android.arch.persistence.room.integration.testapp.dao.SpecificDogDao;
 import android.arch.persistence.room.integration.testapp.dao.ToyDao;
 import android.arch.persistence.room.integration.testapp.dao.UserDao;
 import android.arch.persistence.room.integration.testapp.dao.UserPetDao;
+import android.arch.persistence.room.integration.testapp.dao.WithClauseDao;
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 
 import org.junit.Before;
 
@@ -39,6 +41,9 @@ public abstract class TestDatabaseTest {
     protected SchoolDao mSchoolDao;
     protected PetCoupleDao mPetCoupleDao;
     protected ToyDao mToyDao;
+    protected SpecificDogDao mSpecificDogDao;
+    protected WithClauseDao mWithClauseDao;
+    protected FunnyNamedDao mFunnyNamedDao;
 
     @Before
     public void createDb() {
@@ -50,5 +55,8 @@ public abstract class TestDatabaseTest {
         mSchoolDao = mDatabase.getSchoolDao();
         mPetCoupleDao = mDatabase.getPetCoupleDao();
         mToyDao = mDatabase.getToyDao();
+        mSpecificDogDao = mDatabase.getSpecificDogDao();
+        mWithClauseDao = mDatabase.getWithClauseDao();
+        mFunnyNamedDao = mDatabase.getFunnyNamedDao();
     }
 }

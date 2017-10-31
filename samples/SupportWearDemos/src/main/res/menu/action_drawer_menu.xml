@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="Item 1" android:id="@+id/item_1" android:icon="@android:drawable/ic_menu_add"/>
+    <item android:title="Item 2" android:id="@+id/item_2" android:icon="@android:drawable/ic_menu_agenda"/>
+    <item android:title="Item 3" android:id="@+id/item_3" android:icon="@android:drawable/ic_menu_call"/>
+    <item android:title="Item 4" android:id="@+id/item_4" android:icon="@android:drawable/ic_menu_delete"/>
+</menu>

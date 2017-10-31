@@ -1,14 +1,4 @@
-apply plugin: 'java'
-archivesBaseName = 'support-annotations'
-
-sourceSets {
-    main.java.srcDir 'src'
-}
-
-compileJava {
-    sourceCompatibility = JavaVersion.VERSION_1_7
-    targetCompatibility = JavaVersion.VERSION_1_7
-}
+apply plugin: android.support.SupportJavaLibraryPlugin
 
 jar {
     from sourceSets.main.output
@@ -20,41 +10,7 @@ jar {
     // below by the annotationsZip task.
     exclude('android/support/annotation/ProductionVisibility.class')
     exclude('android/support/annotation/DimensionUnit.class')
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-
-            repository(url: uri(rootProject.ext.supportRepoOut)) {
-            }
-
-            pom.project {
-                name 'Android Support Library Annotations'
-                description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
-                url 'http://developer.android.com/tools/extras/support-library.html'
-                inceptionYear '2013'
-
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-
-                scm {
-                    url "http://source.android.com"
-                    connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
-                }
-                developers {
-                    developer {
-                        name 'The Android Open Source Project'
-                    }
-                }
-            }
-        }
-    }
+    preserveFileTimestamps = false
 }
 
 // configuration for the javadoc to include all source sets.
@@ -65,7 +21,9 @@ javadoc {
 // Disable strict javadoc lint checks with javadoc v8 builds on Mac. http://b/26744780
 if (JavaVersion.current().isJava8Compatible()) {
     tasks.withType(Javadoc) {
-        options.addBooleanOption('Xdoclint:none', true)
+        if (options.doclet == null) {
+            options.addBooleanOption('Xdoclint:none', true)
+        }
     }
 }
 
@@ -91,4 +49,11 @@ artifacts {
     archives sourcesJar
     archives javadocJar
     archives annotationsZip
+}
+
+supportLibrary {
+    name 'Android Support Library Annotations'
+    publish true
+    inceptionYear '2013'
+    description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
 }

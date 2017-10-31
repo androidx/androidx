@@ -1,16 +1,11 @@
-apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'customtabs'
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-compat')
     api project(':support-annotations')
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
+    androidTestImplementation libs.test_runner,   { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core, { exclude module: 'support-annotations' }
     androidTestImplementation project(':support-testutils')
 }
 
@@ -20,16 +15,13 @@ android {
     }
 
     sourceSets {
-        main.java.srcDirs = ['src']
-        main.aidl.srcDirs = ['src']
-        main.res.srcDir 'res'
-        main.assets.srcDir 'assets'
-        main.resources.srcDir 'java'
+        main.aidl.srcDirs = ['src/main/java']
     }
 }
 
 supportLibrary {
     name 'Android Support Custom Tabs'
+    publish true
     inceptionYear '2015'
     description 'Android Support Custom Tabs'
 }

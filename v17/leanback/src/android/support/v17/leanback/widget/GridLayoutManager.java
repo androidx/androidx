@@ -423,6 +423,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * The orientation of a "row".
      */
+    @RecyclerView.Orientation
     int mOrientation = HORIZONTAL;
     private OrientationHelper mOrientationHelper = OrientationHelper.createHorizontalHelper(this);
 
@@ -674,7 +675,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         setItemPrefetchEnabled(false);
     }
 
-    public void setOrientation(int orientation) {
+    public void setOrientation(@RecyclerView.Orientation int orientation) {
         if (orientation != HORIZONTAL && orientation != VERTICAL) {
             if (DEBUG) Log.v(getTag(), "invalid orientation: " + orientation);
             return;
@@ -2239,10 +2240,24 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             focusToViewInLayout(hadFocus, scrollToFocus, -deltaPrimary, -deltaSecondary);
             appendVisibleItems();
             prependVisibleItems();
-            removeInvisibleViewsAtFront();
-            removeInvisibleViewsAtEnd();
+            // b/67370222: do not removeInvisibleViewsAtFront/End() in the loop, otherwise
+            // loop may bounce between scroll forward and scroll backward forever. Example:
+            // Assuming there are 19 items, child#18 and child#19 are both in RV, we are
+            // trying to focus to child#18 and there are 200px remaining scroll distance.
+            //   1  focusToViewInLayout() tries scroll forward 50 px to align focused child#18 on
+            //      right edge, but there to compensate remaining scroll 200px, also scroll
+            //      backward 200px, 150px pushes last child#19 out side of right edge.
+            //   2  removeInvisibleViewsAtEnd() remove last child#19, updateScrollLimits()
+            //      invalidates scroll max
+            //   3  In next iteration, when scroll max/min is unknown, focusToViewInLayout() will
+            //      align focused child#18 at center of screen.
+            //   4  Because #18 is aligned at center, appendVisibleItems() will fill child#19 to
+            //      the right.
+            //   5  (back to 1 and loop forever)
         } while (mGrid.getFirstVisibleIndex() != oldFirstVisible
                 || mGrid.getLastVisibleIndex() != oldLastVisible);
+        removeInvisibleViewsAtFront();
+        removeInvisibleViewsAtEnd();
 
         if (state.willRunPredictiveAnimations()) {
             fillScrapViewsInPostLayout();
@@ -2347,21 +2362,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     // scroll in main direction may add/prune views
     private int scrollDirectionPrimary(int da) {
         if (TRACE) TraceCompat.beginSection("scrollPrimary");
-        boolean isMaxUnknown = false, isMinUnknown = false;
-        int minScroll = 0, maxScroll = 0;
-        if (!mIsSlidingChildViews) {
+        // We apply the cap of maxScroll/minScroll to the delta, except for two cases:
+        // 1. when children are in sliding out mode
+        // 2. During onLayoutChildren(), it may compensate the remaining scroll delta,
+        //    we should honor the request regardless if it goes over minScroll / maxScroll.
+        //    (see b/64931938 testScrollAndRemove and testScrollAndRemoveSample1)
+        if (!mIsSlidingChildViews && !mInLayout) {
             if (da > 0) {
-                isMaxUnknown = mWindowAlignment.mainAxis().isMaxUnknown();
-                if (!isMaxUnknown) {
-                    maxScroll = mWindowAlignment.mainAxis().getMaxScroll();
+                if (!mWindowAlignment.mainAxis().isMaxUnknown()) {
+                    int maxScroll = mWindowAlignment.mainAxis().getMaxScroll();
                     if (da > maxScroll) {
                         da = maxScroll;
                     }
                 }
             } else if (da < 0) {
-                isMinUnknown = mWindowAlignment.mainAxis().isMinUnknown();
-                if (!isMinUnknown) {
-                    minScroll = mWindowAlignment.mainAxis().getMinScroll();
+                if (!mWindowAlignment.mainAxis().isMinUnknown()) {
+                    int minScroll = mWindowAlignment.mainAxis().getMinScroll();
                     if (da < minScroll) {
                         da = minScroll;
                     }
@@ -2855,7 +2871,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (!mScrollEnabled && smooth) {
             return;
         }
-        if (getScrollPosition(view, childView, sTwoInts)) {
+        if (getScrollPosition(view, childView, sTwoInts)
+                || extraDelta != 0 || extraDeltaSecondary != 0) {
             scrollGrid(sTwoInts[0] + extraDelta, sTwoInts[1] + extraDeltaSecondary, smooth);
         }
     }

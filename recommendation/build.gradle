@@ -1,26 +1,18 @@
-apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'recommendation'
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
-    api project(':support-v4')
+    api project(':support-annotations')
 }
 
 android {
     defaultConfig {
         minSdkVersion 21
     }
-
-    sourceSets {
-        main.java.srcDirs = ['src']
-        main.res.srcDir 'res'
-        main.assets.srcDir 'assets'
-        main.resources.srcDir 'src'
-    }
-
 }
 
 supportLibrary {
     name 'Android Support Recommendation'
+    publish true
     inceptionYear '2015'
     description 'Android Support Recommendation'
 }

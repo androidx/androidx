@@ -41,19 +41,20 @@
  * <p>
  * Leanback contains a mixture of higher level building blocks such as Fragments in the
  * {@link android.support.v17.leanback.app} package. Notable examples are the
- * {@link android.support.v17.leanback.app.BrowseFragment} and the
- * {@link android.support.v17.leanback.app.GuidedStepFragment}.  Helper classes are also provided
- * that work with the leanback fragments, for example the
- * {@link android.support.v17.leanback.app.PlaybackControlGlue}.
+ * {@link android.support.v17.leanback.app.BrowseSupportFragment},
+ * {@link android.support.v17.leanback.app.DetailsSupportFragment},
+ * {@link android.support.v17.leanback.app.PlaybackSupportFragment} and the
+ * {@link android.support.v17.leanback.app.GuidedStepSupportFragment}.  Helper classes are also
+ * provided that work with the leanback fragments, for example the
+ * {@link android.support.v17.leanback.media.PlaybackTransportControlGlue} and
+ * {@link android.support.v17.leanback.app.PlaybackSupportFragmentGlueHost}.
  * </p>
  * <p>
  * Many lower level building blocks are also provided in the {@link android.support.v17.leanback.widget} package.
  * These allow applications to easily incorporate Leanback look and feel while allowing for a
  * high degree of customization.  Primary examples include the UI widget
  * {@link android.support.v17.leanback.widget.HorizontalGridView} and
- * {@link android.support.v17.leanback.widget.VerticalGridView}.  Helper classes also exist at this level
- * which do not depend on the leanback fragments, for example the
- * {@link android.support.v17.leanback.widget.TitleHelper}.
+ * {@link android.support.v17.leanback.widget.VerticalGridView}.
  */
 
 package android.support.v17.leanback;

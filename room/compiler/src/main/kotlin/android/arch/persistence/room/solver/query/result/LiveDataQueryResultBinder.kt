@@ -36,12 +36,13 @@ import javax.lang.model.type.TypeMirror
 /**
  * Converts the query into a LiveData and returns it. No query is run until necessary.
  */
-class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<String>,
+class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<String>,
                                 adapter: QueryResultAdapter?)
     : BaseObservableQueryResultBinder(adapter) {
     @Suppress("JoinDeclarationAndAssignment")
-    val tableNames = ((adapter?.accessedTableNames() ?: emptyList()) + queryTableNames).toSet()
-    override fun convertAndReturn(roomSQLiteQueryVar : String, dbField: FieldSpec,
+    override fun convertAndReturn(roomSQLiteQueryVar : String,
+                                  dbField: FieldSpec,
+                                  inTransaction : Boolean,
                                   scope: CodeGenScope) {
         val typeName = typeArg.typeName()
 
@@ -56,6 +57,7 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<S
                     typeName = typeName,
                     roomSQLiteQueryVar = roomSQLiteQueryVar,
                     dbField = dbField,
+                    inTransaction = inTransaction,
                     scope = scope
             ))
             addMethod(createFinalizeMethod(roomSQLiteQueryVar))
@@ -67,6 +69,7 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<S
 
     private fun createComputeMethod(roomSQLiteQueryVar: String, typeName: TypeName,
                                     observerField: FieldSpec, dbField: FieldSpec,
+                                    inTransaction: Boolean,
                                     scope: CodeGenScope): MethodSpec {
         return MethodSpec.methodBuilder("compute").apply {
             addAnnotation(Override::class.java)
@@ -80,7 +83,11 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<S
             }
             endControlFlow()
 
-            createRunQueryAndReturnStatements(this, roomSQLiteQueryVar, scope)
+            createRunQueryAndReturnStatements(builder = this,
+                    roomSQLiteQueryVar = roomSQLiteQueryVar,
+                    dbField = dbField,
+                    inTransaction = inTransaction,
+                    scope = scope)
         }.build()
     }
 

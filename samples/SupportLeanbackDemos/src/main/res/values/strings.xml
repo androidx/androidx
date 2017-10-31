@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <string name="app_name">MainActivity</string>
+    <string name="main_breadcrumb">Demo</string>
+    <string name="main_title">Activities</string>
+    <string name="browse">Browse</string>
+    <string name="browse_description">BrowseFragment test</string>
+    <string name="browse_support">Browse(support version)</string>
+    <string name="browse_support_description">BrowseSupportFragment test</string>
+    <string name="search">Search</string>
+    <string name="search_description">SearchFragment test</string>
+    <string name="search_support">Search(support version)</string>
+    <string name="search_support_description">SearchSupportFragment test</string>
+    <string name="details">Details</string>
+    <string name="details_description">DetailsFragment test</string>
+    <string name="details_video">Details with Video</string>
+    <string name="details_video_description">DetailsFragment with Video test</string>
+    <string name="details_custom_title">Details with custom title</string>
+    <string name="details_custom_title_description">DetailsFragment with custom title test</string>
+    <string name="details_support">Details(support version)</string>
+    <string name="details_support_description">DetailsSupportFragment test</string>
+    <string name="details_video_support">Details with Video(support version)</string>
+    <string name="details_video_support_description">DetailsFragment with Video test(support version)</string>
+    <string name="details_custom_title_support">Details with custom title(support version)</string>
+    <string name="details_custom_title_support_description">DetailsSupportFragment with custom title test</string>
+    <string name="custom_title">Custom Title</string>
+    <string name="search_details">Search Details</string>
+    <string name="search_details_description">Search style DetailsFragment test</string>
+    <string name="search_details_support">Search Details(support version)</string>
+    <string name="search_details_support_description">Search style DetailsSupportFragment test</string>
+    <string name="video_playback">Video Playback</string>
+    <string name="video_playback_support">Video Playback(support version)</string>
+    <string name="playback">Playback</string>
+    <string name="playback_description">PlaybackFragment test</string>
+    <string name="playback_support">Playback(support version)</string>
+    <string name="playback_support_description">PlaybackSupportFragment test</string>
+    <string name="playbackoverlay">PlaybackOverlay</string>
+    <string name="playbackoverlay_description">PlaybackOverlayFragment test</string>
+    <string name="playbackoverlay_support">PlaybackOverlay(support version)</string>
+    <string name="playbackoverlay_support_description">PlaybackOverlaySupportFragment test</string>
+    <string name="hgrid">Horizontal Grid</string>
+    <string name="hgrid_description">HorizontalGridView test</string>
+    <string name="vgrid">Vertical Grid</string>
+    <string name="vgrid_description">VerticalGridFragment test</string>
+    <string name="vgrid_support">Vertical Grid(support version)</string>
+    <string name="vgrid_support_description">VerticalGridSupportFragment test</string>
+    <string name="guidedstep">Guided Step</string>
+    <string name="guidedstephalfscreen">Guided Step Half Screen</string>
+    <string name="guidedstep_description">GuidedStepFragment test</string>
+    <string name="guidedstepsupport">Guided Step(support version)</string>
+    <string name="guidedstepsupporthalfscreen">Guided Step Half Screen(support version)</string>
+    <string name="guidedstepsupport_description">GuidedStepSupportFragment test</string>
+    <string name="browseerror">Browse Error</string>
+    <string name="browseerror_description">BrowseError test</string>
+    <string name="browseerror_support">Browse ErrorFragment(support version)</string>
+    <string name="browseerror_support_description">Browse ErrorSupportFragment test</string>
+    <string name="detail_presenter_options">Choose Presenter for Details</string>
+    <string name="detail_presenter_options_description">Choose Presenter for Details</string>
+    <string name="legacydetails_off">Use New DetailsPresenter</string>
+    <string name="legacydetails_on">Use Legacy DetailsPresenter</string>
+    <string name="settings">Settings</string>
+    <string name="settings_description">Settings and Preferences.</string>
+    <string name="onboarding">Onboarding</string>
+    <string name="onboarding_description">Show onboarding activity.</string>
+    <string name="onboarding_support">Onboarding(support version)</string>
+    <string name="video_play_with_detail_card">A video play activity with detail card</string>
+    <string name="video_play_with_detail_card_description">A video play activity with detail card</string>
+
+    <!-- Strings related to guided sequence activity -->
+    <string name="guidedstep_first_title">First</string>
+    <string name="guidedstep_first_description">First step of guided sequence</string>
+    <string name="guidedstep_first_breadcrumb">Guided Steps</string>
+    <string name="guidedstep_second_title">Second</string>
+    <string name="guidedstep_second_description">Showcasing editable actions and dropdown</string>
+    <string name="guidedstep_second_breadcrumb">Guided Steps</string>
+    <string name="guidedstep_newpayment_title">New payment</string>
+    <string name="guidedstep_newpayment_description">Showcasing editable actions</string>
+    <string name="guidedstep_newpayment_breadcrumb">Guided Steps</string>
+    <string name="guidedstep_third_title">Third</string>
+    <string name="guidedstep_third_description">Showcasing different action configurations</string>
+    <string name="guidedstep_third_breadcrumb">Guided Steps</string>
+    <string name="guidedstep_fourth_title">Fourth</string>
+    <string name="guidedstep_fourth_description">Fourth step of guided sequence</string>
+    <string name="guidedstep_fourth_breadcrumb">Guided Steps</string>
+
+    <string name="music">Music player</string>
+    <string name="music_description">Music player using control glue</string>
+</resources>

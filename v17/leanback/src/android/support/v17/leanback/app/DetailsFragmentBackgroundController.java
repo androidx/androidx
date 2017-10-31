@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from {}DetailsSupportFragmentBackgroundController.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2017 The Android Open Source Project
  *
@@ -16,7 +19,6 @@
 package android.support.v17.leanback.app;
 
 import android.animation.PropertyValuesHolder;
-import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -30,6 +32,7 @@ import android.support.v17.leanback.media.PlaybackGlue;
 import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.widget.DetailsParallaxDrawable;
 import android.support.v17.leanback.widget.ParallaxTarget;
+import android.app.Fragment;
 
 /**
  * Controller for DetailsFragment parallax background and embedded video play.

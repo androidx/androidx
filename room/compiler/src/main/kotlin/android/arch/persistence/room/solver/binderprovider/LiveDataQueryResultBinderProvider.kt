@@ -17,25 +17,29 @@
 package android.arch.persistence.room.solver.binderprovider
 
 import android.arch.persistence.room.ext.LifecyclesTypeNames
-import android.arch.persistence.room.parser.ParsedQuery
 import android.arch.persistence.room.processor.Context
-import android.arch.persistence.room.solver.QueryResultBinderProvider
+import android.arch.persistence.room.solver.ObservableQueryResultBinderProvider
 import android.arch.persistence.room.solver.query.result.LiveDataQueryResultBinder
+import android.arch.persistence.room.solver.query.result.QueryResultAdapter
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
-import com.google.common.annotations.VisibleForTesting
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
-class LiveDataQueryResultBinderProvider(val context : Context) : QueryResultBinderProvider {
+class LiveDataQueryResultBinderProvider(context : Context)
+    : ObservableQueryResultBinderProvider(context) {
     private val liveDataTypeMirror: TypeMirror? by lazy {
         context.processingEnv.elementUtils
                 .getTypeElement(LifecyclesTypeNames.LIVE_DATA.toString())?.asType()
     }
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
-        val liveDataTypeArg = declared.typeArguments.first()
-        return LiveDataQueryResultBinder(liveDataTypeArg, query.tables.map { it.name },
-                context.typeAdapterStore.findQueryResultAdapter(liveDataTypeArg, query))
+    override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
+
+    override fun create(typeArg: TypeMirror, resultAdapter: QueryResultAdapter?,
+                        tableNames: Set<String>): QueryResultBinder {
+        return LiveDataQueryResultBinder(
+                typeArg = typeArg,
+                tableNames = tableNames,
+                adapter = resultAdapter)
     }
 
     override fun matches(declared: DeclaredType): Boolean =

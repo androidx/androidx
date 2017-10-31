@@ -67,7 +67,7 @@ public class StaggeredGridLayoutManagerSavedStateTest extends BaseStaggeredGridL
 
                     @Override
                     public String describe() {
-                        return "doing nothing";
+                        return "doing_nothing";
                     }
                 },
                 new PostLayoutRunnable() {
@@ -80,7 +80,7 @@ public class StaggeredGridLayoutManagerSavedStateTest extends BaseStaggeredGridL
 
                     @Override
                     public String describe() {
-                        return "scroll to position item count * 3 / 4";
+                        return "scroll_to_position_item_count*3/4";
                     }
                 },
                 new PostLayoutRunnable() {
@@ -94,7 +94,7 @@ public class StaggeredGridLayoutManagerSavedStateTest extends BaseStaggeredGridL
 
                     @Override
                     public String describe() {
-                        return "scroll to position item count / 3 with positive offset";
+                        return "scroll_to_position_item_count/3_with_positive_offset";
                     }
                 },
                 new PostLayoutRunnable() {
@@ -108,7 +108,7 @@ public class StaggeredGridLayoutManagerSavedStateTest extends BaseStaggeredGridL
 
                     @Override
                     public String describe() {
-                        return "scroll to position with negative offset";
+                        return "scroll_to_position_with_negative_offset";
                     }
                 }
         };

@@ -44,7 +44,6 @@ import android.support.design.testutils.ViewPagerActions;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.test.filters.LargeTest;
-import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -469,7 +468,7 @@ public class TabLayoutWithViewPagerTest
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testFixedTabMode() {
         // Create a new adapter (with no content)
         final TextPagerAdapter newAdapter = new TextPagerAdapter();

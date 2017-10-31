@@ -26,18 +26,19 @@ ffVersions.kotlin = "1.1.3"
 ffVersions.auto_common = "0.6"
 ffVersions.javapoet = "1.8.0"
 ffVersions.compile_testing = "0.11"
-ffVersions.localize_maven = "1.2"
-ffVersions.support_lib = "26.0.0"
+ffVersions.support_lib = "26.1.0"
 ffVersions.intellij_annotations = "12.0"
 ffVersions.rxjava2 = "2.0.6"
 ffVersions.reactivestreams = "1.0.0"
 // this Xerial version is newer than we want but we need it to fix
 // https://github.com/xerial/sqlite-jdbc/issues/97
-ffVersions.xerial = "3.16.1"
+// https://github.com/xerial/sqlite-jdbc/issues/267
+ffVersions.xerial = "3.20.1"
 ffVersions.antlr = "4.5.3"
 ffVersions.commons_codec = "1.10"
 ffVersions.gson = "2.8.0"
 ffVersions.guava = "21.0"
+ffVersions.jsr250 = "1.2"
 
 ffLibs.kotlin = [
         stdlib : "org.jetbrains.kotlin:kotlin-stdlib:$ffVersions.kotlin",
@@ -64,12 +65,16 @@ ffLibs.support = [
         annotations : getSupportLib(":support-annotations", ffVersions.support_lib),
         core_utils : getSupportLib(':support-core-utils', ffVersions.support_lib),
         fragments : getSupportLib(':support-fragment', ffVersions.support_lib),
-        app_compat : getSupportLib(':support-appcompat-v7', ffVersions.support_lib, ":appcompat-v7"),
-        design : getSupportLib(':support-design', ffVersions.support_lib, ":design"),
-        recyclerview : getSupportLib(':support-recyclerview-v7', ffVersions.support_lib, ":recyclerview-v7")
+        app_compat : getSupportLib(':appcompat-v7', ffVersions.support_lib),
+        design : getSupportLib(':design', ffVersions.support_lib),
+        recyclerview : getSupportLib(':recyclerview-v7', ffVersions.support_lib)
 ]
 
-ffLibs.localize_maven = "com.android.databinding:localizemaven:$ffVersions.localize_maven"
+ffLibs.support_exclude_config = {
+    exclude group: 'android.arch.core'
+    exclude group: 'android.arch.lifecycle'
+}
+
 ffLibs.javapoet = "com.squareup:javapoet:$ffVersions.javapoet"
 ffLibs.antlr = "org.antlr:antlr4:$ffVersions.antlr"
 ffLibs.xerial = "org.xerial:sqlite-jdbc:$ffVersions.xerial"
@@ -79,18 +84,10 @@ ffLibs.reactive_streams = "org.reactivestreams:reactive-streams:$ffVersions.reac
 ffLibs.rx_java = "io.reactivex.rxjava2:rxjava:$ffVersions.rxjava2"
 ffLibs.gson = "com.google.code.gson:gson:$ffVersions.gson"
 ffLibs.guava= "com.google.guava:guava:$ffVersions.guava"
+ffLibs.jsr250 = "javax.annotation:javax.annotation-api:$ffVersions.jsr250"
 
 ext.tools = [:]
 ext.tools.current_sdk = gradle.ext.currentSdk
 ext.tools.build_tools_version = rootProject.ext.buildToolsVersion
 ext.flatfoot = [:]
-def fatfoot_dev_version = "1.0.0-alpha10"
-ext.flatfoot.versions = [
-        "dev" : fatfoot_dev_version,
-        "room" : fatfoot_dev_version,
-        "lifecycle-ext" : fatfoot_dev_version,
-        "support-lib-dep" : "1.0.0",
-        "paging" : "1.0.0-alpha1",
-        "core" : fatfoot_dev_version
-]
 ext.flatfoot.min_sdk = 14

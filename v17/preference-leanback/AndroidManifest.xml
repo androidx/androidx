@@ -16,9 +16,6 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.support.v17.preference"
-    android:versionCode="1"
-    android:versionName="1.0">
+    package="android.support.v17.preference">
     <uses-sdk android:minSdkVersion="17" />
-    <application />
 </manifest>

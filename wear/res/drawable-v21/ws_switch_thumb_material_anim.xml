@@ -24,7 +24,7 @@
         android:drawable="@drawable/ws_switch_thumb_mtrl_14w"
         android:state_checked="true" />
     <item
-        android:id="@+id/off"
+        android:id="@id/off"
         android:drawable="@drawable/ws_switch_thumb_mtrl_14w" />
     <transition
         android:fromId="@id/off"

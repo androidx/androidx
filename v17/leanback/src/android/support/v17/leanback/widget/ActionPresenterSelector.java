@@ -55,43 +55,13 @@ class ActionPresenterSelector extends PresenterSelector {
         }
     }
 
-    static class OneLineActionPresenter extends Presenter {
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent) {
-            View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.lb_action_1_line, parent, false);
-            return new ActionViewHolder(v, parent.getLayoutDirection());
-        }
-
+    abstract static class ActionPresenter extends Presenter {
         @Override
         public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
             Action action = (Action) item;
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mAction = action;
-            vh.mButton.setText(action.getLabel1());
-        }
-
-        @Override
-        public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-            ((ActionViewHolder) viewHolder).mAction = null;
-        }
-    }
-
-    static class TwoLineActionPresenter extends Presenter {
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent) {
-            View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.lb_action_2_lines, parent, false);
-            return new ActionViewHolder(v, parent.getLayoutDirection());
-        }
-
-        @Override
-        public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
-            Action action = (Action) item;
-            ActionViewHolder vh = (ActionViewHolder) viewHolder;
             Drawable icon = action.getIcon();
-            vh.mAction = action;
-
             if (icon != null) {
                 final int startPadding = vh.view.getResources()
                         .getDimensionPixelSize(R.dimen.lb_action_with_icon_padding_start);
@@ -108,6 +78,47 @@ class ActionPresenterSelector extends PresenterSelector {
             } else {
                 vh.mButton.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
             }
+        }
+
+        @Override
+        public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
+            ActionViewHolder vh = (ActionViewHolder) viewHolder;
+            vh.mButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+            vh.view.setPadding(0, 0, 0, 0);
+            vh.mAction = null;
+        }
+    }
+
+    static class OneLineActionPresenter extends ActionPresenter {
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent) {
+            View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.lb_action_1_line, parent, false);
+            return new ActionViewHolder(v, parent.getLayoutDirection());
+        }
+
+        @Override
+        public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+            super.onBindViewHolder(viewHolder, item);
+            ActionViewHolder vh = ((ActionViewHolder) viewHolder);
+            Action action = (Action) item;
+            vh.mButton.setText(action.getLabel1());
+        }
+    }
+
+    static class TwoLineActionPresenter extends ActionPresenter {
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent) {
+            View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.lb_action_2_lines, parent, false);
+            return new ActionViewHolder(v, parent.getLayoutDirection());
+        }
+
+        @Override
+        public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+            super.onBindViewHolder(viewHolder, item);
+            Action action = (Action) item;
+            ActionViewHolder vh = (ActionViewHolder) viewHolder;
 
             CharSequence line1 = action.getLabel1();
             CharSequence line2 = action.getLabel2();
@@ -118,14 +129,6 @@ class ActionPresenterSelector extends PresenterSelector {
             } else {
                 vh.mButton.setText(line1 + "\n" + line2);
             }
-        }
-
-        @Override
-        public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-            ActionViewHolder vh = (ActionViewHolder) viewHolder;
-            vh.mButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-            vh.view.setPadding(0, 0, 0, 0);
-            vh.mAction = null;
         }
     }
 }

@@ -1,15 +1,10 @@
-apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'percent'
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-compat')
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
+    androidTestImplementation libs.test_runner,   { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core, { exclude module: 'support-annotations' }
 }
 
 android {
@@ -18,15 +13,13 @@ android {
     }
 
     sourceSets {
-        main.java.srcDirs = ['src']
         main.res.srcDir 'res'
-        main.assets.srcDir 'assets'
-        main.resources.srcDir 'src'
     }
 }
 
 supportLibrary {
     name 'Android Percent Support Library'
+    publish true
     inceptionYear '2015'
     description 'Android Percent Support Library'
 }

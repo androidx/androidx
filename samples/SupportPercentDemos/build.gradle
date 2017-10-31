@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':support-percent')
+    implementation project(':percent')
 }
 
 android {
@@ -10,13 +10,6 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion project.ext.currentSdk
-    }
-
-    sourceSets {
-        main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['src']
-        main.aidl.srcDirs = ['src']
-        main.res.srcDirs = ['res']
     }
 
     lintOptions {
@@ -32,8 +25,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

@@ -64,6 +64,7 @@ import android.graphics.Color;
 import android.support.coreui.test.R;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.EspressoKey;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -404,7 +405,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testArrowPageChanges() {
         verifyPageChangeViewActions(arrowScroll(View.FOCUS_RIGHT), arrowScroll(View.FOCUS_LEFT));
     }
@@ -646,7 +647,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testPagerStripImmediate() {
         verifyPagerStrip(false);
     }
@@ -723,7 +724,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testPageScrollStateChangedSmooth() {
         // Note that all the actions tested in this method use smooth scrolling and as such we test
         // that we get the matching calls to onPageScrollStateChanged
@@ -746,7 +747,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testPageScrollStateChangedSwipe() {
         // Note that all the actions tested in this method use swiping and as such we test
         // that we get the matching calls to onPageScrollStateChanged
@@ -1045,7 +1046,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testPageScrollPositionChangesSmooth() {
         // Scroll one page to the right
         verifyScrollCallbacksToHigherPage(scrollRight(true), 1);
@@ -1063,7 +1064,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testPageScrollPositionChangesSwipe() {
         // Swipe one page to the left
         verifyScrollCallbacksToHigherPage(wrap(swipeLeft()), 1);
@@ -1075,6 +1076,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         verifyScrollCallbacksToLowerPage(wrap(swipeRight()), 0);
     }
 
+    @FlakyTest(bugId = 38260187)
     @Test
     @LargeTest
     public void testKeyboardNavigation() {

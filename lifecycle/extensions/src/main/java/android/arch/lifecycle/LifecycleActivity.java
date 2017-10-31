@@ -19,17 +19,8 @@ package android.arch.lifecycle;
 import android.support.v4.app.FragmentActivity;
 
 /**
- * Activity that implements {@link LifecycleOwner}.
- * <p>
- * This class is a temporary implementation detail until Lifecycles are integrated with support
- * library.
+ * @deprecated Use {@code android.support.v7.app.AppCompatActivity} instead of this class.
  */
-public class LifecycleActivity extends FragmentActivity implements LifecycleRegistryOwner {
-
-    private final LifecycleRegistry mRegistry = new LifecycleRegistry(this);
-
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return mRegistry;
-    }
+@Deprecated
+public class LifecycleActivity extends FragmentActivity {
 }

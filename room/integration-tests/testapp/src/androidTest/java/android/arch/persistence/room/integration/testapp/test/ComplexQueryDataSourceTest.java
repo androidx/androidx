@@ -16,8 +16,9 @@
 
 package android.arch.persistence.room.integration.testapp.test;
 
+import android.arch.paging.BoundedDataSource;
+import android.arch.paging.KeyedDataSource;
 import android.arch.persistence.room.integration.testapp.vo.User;
-import android.arch.util.paging.CountedDataSource;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.filters.MediumTest;
@@ -29,7 +30,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -38,40 +38,73 @@ import java.util.UUID;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ComplexQueryDataSourceTest extends TestDatabaseTest {
+
+    @SuppressWarnings("WeakerAccess")
+    public class LastFirstIdKey {
+        public final String lastName;
+        public final String name;
+        public final int id;
+
+        public LastFirstIdKey(String lastName, String name, int id) {
+            this.lastName = lastName;
+            this.name = name;
+            this.id = id;
+        }
+    }
+
     /**
      * Proper, keyed implementation.
      */
-    public class KeyedUserQueryDataSource extends CountedDataSource<User> {
+    public class KeyedUserQueryDataSource extends KeyedDataSource<LastFirstIdKey, User> {
+
+        @NonNull
         @Override
-        public int loadCount() {
-            return mUserDao.getUserCount();
+        public LastFirstIdKey getKey(@NonNull User user) {
+            return new LastFirstIdKey(
+                    user.getLastName(),
+                    user.getName(),
+                    user.getId());
+        }
+
+        @Override
+        public int countItemsBefore(@NonNull LastFirstIdKey key) {
+            return mUserDao.userComplexCountBefore(
+                    key.lastName,
+                    key.name,
+                    key.id);
+        }
+
+        @Override
+        public int countItemsAfter(@NonNull LastFirstIdKey key) {
+            return mUserDao.userComplexCountAfter(
+                    key.lastName,
+                    key.name,
+                    key.id);
         }
 
         @Nullable
         @Override
-        public List<User> loadAfterInitial(int position, int pageSize) {
-            return mUserDao.userComplexLimitOffset(pageSize, position + 1);
+        public List<User> loadInitial(int pageSize) {
+            return mUserDao.userComplexInitial(pageSize);
         }
 
         @Nullable
         @Override
-        public List<User> loadAfter(int currentEndIndex, @NonNull User currentEndItem,
-                int pageSize) {
-            return mUserDao.userComplexLoadAfter(
-                    currentEndItem.getLastName(),
-                    currentEndItem.getName(),
-                    currentEndItem.getId(),
+        public List<User> loadBefore(@NonNull LastFirstIdKey key, int pageSize) {
+            return mUserDao.userComplexLoadBefore(
+                    key.lastName,
+                    key.name,
+                    key.id,
                     pageSize);
         }
 
         @Nullable
         @Override
-        public List<User> loadBefore(int currentBeginIndex, @NonNull User currentBeginItem,
-                int pageSize) {
-            return mUserDao.userComplexLoadBefore(
-                    currentBeginItem.getLastName(),
-                    currentBeginItem.getName(),
-                    currentBeginItem.getId(),
+        public List<User> loadAfter(@Nullable LastFirstIdKey key, int pageSize) {
+            return mUserDao.userComplexLoadAfter(
+                    key.lastName,
+                    key.name,
+                    key.id,
                     pageSize);
         }
     }
@@ -79,37 +112,17 @@ public class ComplexQueryDataSourceTest extends TestDatabaseTest {
     /**
      * Lazy, LIMIT/OFFSET implementation.
      */
-    public class OffsetUserQueryDataSource extends CountedDataSource<User> {
+    public class OffsetUserQueryDataSource extends BoundedDataSource<User> {
 
         @Override
-        public int loadCount() {
+        public int countItems() {
             return mUserDao.getUserCount();
         }
 
         @Nullable
         @Override
-        public List<User> loadAfterInitial(int position, int pageSize) {
-            return mUserDao.userComplexLimitOffset(pageSize, position + 1);
-        }
-
-        @Nullable
-        @Override
-        public List<User> loadAfter(int currentEndIndex, @NonNull User currentEndItem,
-                int pageSize) {
-            return mUserDao.userComplexLimitOffset(pageSize, currentEndIndex + 1);
-        }
-
-        @Nullable
-        @Override
-        public List<User> loadBefore(int currentBeginIndex, @NonNull User currentBeginItem,
-                int pageSize) {
-            int targetOffset = currentBeginIndex - pageSize;
-            int offset = Math.max(0, targetOffset);
-            int limit = Math.min(pageSize, pageSize + targetOffset);
-
-            List<User> users = mUserDao.userComplexLimitOffset(limit, offset);
-            Collections.reverse(users); // :P
-            return users;
+        public List<User> loadRange(int startPosition, int loadCount) {
+            return mUserDao.userComplexLimitOffset(loadCount, startPosition);
         }
     }
 

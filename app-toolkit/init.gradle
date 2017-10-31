@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import android.support.LibraryVersions
 import org.gradle.internal.os.OperatingSystem
 
 def root = ext.supportRootFolder
-ext.usePrebuilts = "true" // for doclava
 ext.inAppToolkitProject = rootProject.name == "app-toolkit"
 
 if (ext.inAppToolkitProject) {
     apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
-    init.loadDefaultVersions()
     init.setSdkInLocalPropertiesFile()
 }
 
@@ -57,17 +57,9 @@ ext.localMavenRepo = localMavenRepo
 file(localMavenRepo).delete()
 file(localMavenRepo).mkdirs()
 
-ext.repoNames = ["$prebuiltsRootUri/maven_repo",
-                 "$prebuiltsRootUri/gradle-plugin",
-                 "$prebuiltsRootUri/tools/common/m2/repository",
-                 "$prebuiltsRootUri/tools/common/m2/internal",
-                 "$prebuiltsRootUri/tools/common/offline-m2",
-                 "$prebuiltsRootUri/maven_repo/android",
-                 "file://$fullSdkPath/extras/android/m2repository",
-                 "file://${new File(supportLibBuildDir, "support_repo").absolutePath}"]
+ext.repoNames += ["file://${new File(supportLibBuildDir, "support_repo").absolutePath}"]
 
 apply from: "${ext.supportRootFolder}/app-toolkit/dependencies.gradle"
-ext.enablePublicRepos = System.getenv("ALLOW_PUBLIC_REPOS")
 
 // repository creation task
 def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompilationTasks",
@@ -92,50 +84,22 @@ if (ext.inAppToolkitProject) {
 def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArchive", type : Zip) {
     from rootProject.docsDir
     destinationDir distDir
-    baseName = String.format("flatfoot-docs-%s", rootProject.ext.flatfoot.release_version)
+    baseName = "flatfoot-docs"
 }
 
 buildServerAnchorTask.dependsOn zipFlatfootDocsTask
 zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
-
-// Disable API checks for now.
-checkApiRelease.enabled = false
-checkApi.enabled = false
-generateApi.enabled = false
-
+buildServerAnchorTask.dependsOn createDiffArchive
 buildServerAnchorTask.dependsOn createArchive
 
 rootProject.ext.flatfootProjectGroups = [
         "room" : "android.arch.persistence.room",
+        "persistence" : "android.arch.persistence",
         "lifecycle" : "android.arch.lifecycle",
         "arch" : "android.arch.core",
         "paging" : "android.arch.paging",
         "navigation" : "android.arch.navigation"]
-// these are parent project which themselves have no artifacts.
-rootProject.ext.flatfootParentProjects = [
-        ":room", ":arch", ":lifecycle", ":paging", ":navigation"
-]
-// explicit versioning to avoid mistakes
-rootProject.ext.flatfootVersion = [
-        ":arch:common" : ext.flatfoot.versions["support-lib-dep"],
-        ":arch:core-testing" : ext.flatfoot.versions["core"],
-        ":arch:runtime" : ext.flatfoot.versions["core"],
-        ":lifecycle:common" : ext.flatfoot.versions["support-lib-dep"],
-        ":lifecycle:compiler" : ext.flatfoot.versions["support-lib-dep"],
-        ":lifecycle:extensions" : ext.flatfoot.versions["lifecycle-ext"],
-        ":lifecycle:reactivestreams" : ext.flatfoot.versions["lifecycle-ext"],
-        ":lifecycle:runtime" : ext.flatfoot.versions["support-lib-dep"],
-        ":paging:common" : ext.flatfoot.versions["paging"],
-        ":paging:runtime" : ext.flatfoot.versions["paging"],
-        ":room:common" : ext.flatfoot.versions["room"],
-        ":room:compiler" : ext.flatfoot.versions["room"],
-        ":room:runtime" : ext.flatfoot.versions["room"],
-        ":room:db" : ext.flatfoot.versions["room"],
-        ":room:db-impl" : ext.flatfoot.versions["room"],
-        ":room:migration" : ext.flatfoot.versions["room"],
-        ":room:rxjava2" : ext.flatfoot.versions["room"],
-        ":room:testing" : ext.flatfoot.versions["room"],
-]
+
 subprojects {
     repos.addMavenRepositories(project.repositories)
     if (project.name == 'doclava' || project.name == 'jdiff') {
@@ -147,18 +111,17 @@ subprojects {
         return
     }
 
-    if (rootProject.flatfootParentProjects.contains(project.getPath())) {
-        return
-    }
-
-    def mavenGroup = project.getPath().split(":")[1]
+    def projectPath = project.getPath().split(":")
+    def mavenGroup = projectPath[1]
     def finalGroup = rootProject.flatfootProjectGroups[mavenGroup]
 
     if (finalGroup == null) {
         return
     }
+    if (projectPath.size() == 2) {// root project.
+        return
+    }
     project.group = finalGroup
-    def projectVersion = rootProject.ext.flatfootVersion[project.path]
 
     if (project.getPath().contains("integration-tests")) {
         // disable upload tasks
@@ -168,44 +131,21 @@ subprojects {
             }
         }
     } else {
-        if (projectVersion == null) {
-            throw new GradleException("project ${project.path} (${project.archivesBaseName}) must specify artifactVersion property")
-        } else {
-            println "VERSION for $project is ${projectVersion}"
-        }
-        project.version = rootProject.ext.flatfootVersion[project.path]
-        // add license to pom
-        project.tasks.whenTaskAdded { task ->
-            if (task instanceof Upload) {
-                task.repositories {
-                    mavenDeployer {
-                        repository(url: project.uri(project.rootProject.supportRepoOut))
-                        pom.project {
-                            url "https://developer.android.com/topic/libraries/architecture/index.html"
-                            inceptionYear 2017
-                            licenses {
-                                license {
-                                    name 'The Apache Software License, Version 2.0'
-                                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                                    distribution 'repo'
-                                }
-                            }
-                            scm {
-                                url "http://source.android.com"
-                                connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
-                            }
-                            developers {
-                                developer {
-                                    name 'The Android Open Source Project'
-                                }
-                            }
-                        }
-                    }
+        def checkApi = project.tasks.create("checkVersion") {
+            doFirst {
+                if (project.version == null
+                        || project.version == LibraryVersions.SUPPORT_LIBRARY.toString()) {
+                    throw new GradleException("bad version for $project with $project.version")
                 }
             }
         }
-    }
 
+        project.tasks.whenTaskAdded { task ->
+            if (task instanceof Upload) {
+                task.dependsOn checkApi
+            }
+        }
+    }
 
     project.plugins.whenPluginAdded { plugin ->
         def isAndroidLibrary = "com.android.build.gradle.LibraryPlugin"
@@ -219,6 +159,10 @@ subprojects {
             }
             project.artifacts {
                 archives sourcesTask
+            }
+            project.android.defaultConfig {
+                // Update the version meta-data in each Manifest.
+                addManifestPlaceholders(["version" : project.version])
             }
         } else if(isJavaLibrary && project.name == "common") {
             // it is a shared lib, enable sources.
@@ -238,28 +182,6 @@ subprojects {
         }
         if (task.name.startsWith("assembleDebug")) {
             buildServerAnchorTask.dependsOn task
-        }
-    }
-
-    if (enablePublicRepos) {
-        project.afterEvaluate {
-            apply plugin: 'com.android.databinding.localizemaven'
-            project.localizeMaven {
-                localRepoDir = file("$prebuiltsRoot/tools/common/m2/repository")
-                otherRepoDirs = repoNames
-                licenseInformation = [
-                        [
-                                libraries: ["org.jetbrains:annotations",
-                                            "org.jetbrains.kotlin:kotlin-compiler-runner"],
-                                licenses : ["http://www.apache.org/licenses/LICENSE-2.0.txt"]
-                        ],
-                        [
-                                libraries: ["com.google.code.gson:gson"],
-                                licenses : ["http://www.apache.org/licenses/LICENSE-2.0.txt"]
-                        ]
-
-                ]
-            }
         }
     }
 }

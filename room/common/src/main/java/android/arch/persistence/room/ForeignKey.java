@@ -40,7 +40,7 @@ import android.support.annotation.IntDef;
  * <a href="https://sqlite.org/pragma.html#pragma_defer_foreign_keys">defer_foreign_keys</a> PRAGMA
  * to defer them depending on your transaction.
  * <p>
- * Please refer to the SQLite <a href="https://sqlite.org/foreignkeys.html>foreign keys</a>
+ * Please refer to the SQLite <a href="https://sqlite.org/foreignkeys.html">foreign keys</a>
  * documentation for details.
  */
 public @interface ForeignKey {

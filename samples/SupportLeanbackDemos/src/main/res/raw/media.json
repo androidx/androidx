@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Title0",
+    "description": "Description0",
+    "art": "google_map",
+    "file": "media0",
+    "duration":"2:15"
+  },
+  {
+    "title": "Title1",
+    "description": "Description1",
+    "art": "google_photo",
+    "file": "media1",
+    "duration":"3:32"
+  },
+  {
+    "title": "Title2",
+    "description": "Description2",
+    "art": "google_logo",
+    "file": "media0",
+    "duration":"2:15"
+  },
+  {
+    "title": "Title3",
+    "description": "Description3",
+    "art": "google_android",
+    "file": "media1",
+    "duration":"3:32"
+  }
+]

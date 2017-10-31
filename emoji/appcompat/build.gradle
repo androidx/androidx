@@ -14,38 +14,23 @@
  * limitations under the License.
  */
 
-apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'support-emoji-appcompat'
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     api project(':support-emoji')
-    api project(':support-appcompat-v7')
-
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation libs.mockito_core
-    androidTestImplementation libs.dexmaker_mockito
+    api project(':appcompat-v7')
 }
 
 android {
-    compileSdkVersion project.ext.currentSdk
-
     defaultConfig {
         minSdkVersion 14
-    }
-
-    sourceSets {
-        main.java.srcDir 'src'
     }
 }
 
 supportLibrary {
     name 'Android Emoji AppCompat'
+    publish true
     inceptionYear '2017'
     description 'EmojiCompat Widgets for AppCompat integration'
 }

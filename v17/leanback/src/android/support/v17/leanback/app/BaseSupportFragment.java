@@ -1,6 +1,3 @@
-// CHECKSTYLE:OFF Generated code
-/* This file is auto-generated from BaseFragment.java.  DO NOT MODIFY. */
-
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -18,6 +15,8 @@ package android.support.v17.leanback.app;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.util.StateMachine;
@@ -180,7 +179,7 @@ public class BaseSupportFragment extends BrandedSupportFragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mStateMachine.fireEvent(EVT_ON_CREATEVIEW);
     }
@@ -270,6 +269,10 @@ public class BaseSupportFragment extends BrandedSupportFragment {
     void onExecuteEntranceTransition() {
         // wait till views get their initial position before start transition
         final View view = getView();
+        if (view == null) {
+            // fragment view destroyed, transition not needed
+            return;
+        }
         view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {

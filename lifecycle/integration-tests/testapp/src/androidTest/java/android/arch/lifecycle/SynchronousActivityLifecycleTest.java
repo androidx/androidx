@@ -184,11 +184,6 @@ public class SynchronousActivityLifecycleTest {
             assertThat(mActivity.mLifecycleCallFinished, is(true));
             mEventReceived = true;
         }
-
-        @Override
-        public Object getReceiver() {
-            return null;
-        }
     }
 
     private interface ActivityCall {

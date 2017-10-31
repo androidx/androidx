@@ -19,10 +19,11 @@ package android.arch.lifecycle;
 import static android.arch.lifecycle.Lifecycle.State.DESTROYED;
 import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.internal.SafeIterableMap;
 import android.arch.lifecycle.Lifecycle.State;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.Iterator;
@@ -53,7 +54,7 @@ import java.util.Map;
  * but can also be used for sharing data between different modules in your application
  * in a decoupled fashion.
  *
- * @param <T> The type of data hold by this instance
+ * @param <T> The type of data held by this instance
  * @see ViewModel
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
@@ -119,6 +120,7 @@ public abstract class LiveData<T> {
         // the observer moved to an active state, if we've not received that event, we better not
         // notify for a more predictable notification order.
         if (!isActiveState(observer.owner.getLifecycle().getCurrentState())) {
+            observer.activeStateChanged(false);
             return;
         }
         if (observer.lastVersion >= mVersion) {
@@ -182,7 +184,7 @@ public abstract class LiveData<T> {
      * @param observer The observer that will receive the events
      */
     @MainThread
-    public void observe(LifecycleOwner owner, Observer<T> observer) {
+    public void observe(@NonNull LifecycleOwner owner, @NonNull Observer<T> observer) {
         if (owner.getLifecycle().getCurrentState() == DESTROYED) {
             // ignore
             return;
@@ -197,7 +199,6 @@ public abstract class LiveData<T> {
             return;
         }
         owner.getLifecycle().addObserver(wrapper);
-        wrapper.activeStateChanged(isActiveState(owner.getLifecycle().getCurrentState()));
     }
 
     /**
@@ -215,7 +216,7 @@ public abstract class LiveData<T> {
      * @param observer The observer that will receive the events
      */
     @MainThread
-    public void observeForever(Observer<T> observer) {
+    public void observeForever(@NonNull Observer<T> observer) {
         observe(ALWAYS_ON, observer);
     }
 
@@ -225,7 +226,7 @@ public abstract class LiveData<T> {
      * @param observer The Observer to receive events.
      */
     @MainThread
-    public void removeObserver(final Observer<T> observer) {
+    public void removeObserver(@NonNull final Observer<T> observer) {
         assertMainThread("removeObserver");
         LifecycleBoundObserver removed = mObservers.remove(observer);
         if (removed == null) {
@@ -241,7 +242,7 @@ public abstract class LiveData<T> {
      * @param owner The {@code LifecycleOwner} scope for the observers to be removed.
      */
     @MainThread
-    public void removeObservers(final LifecycleOwner owner) {
+    public void removeObservers(@NonNull final LifecycleOwner owner) {
         assertMainThread("removeObservers");
         for (Map.Entry<Observer<T>, LifecycleBoundObserver> entry : mObservers) {
             if (entry.getValue().owner == owner) {
@@ -274,7 +275,7 @@ public abstract class LiveData<T> {
         if (!postTask) {
             return;
         }
-        AppToolkitTaskExecutor.getInstance().postToMainThread(mPostValueRunnable);
+        ArchTaskExecutor.getInstance().postToMainThread(mPostValueRunnable);
     }
 
     /**
@@ -355,7 +356,7 @@ public abstract class LiveData<T> {
         return mActiveCount > 0;
     }
 
-    class LifecycleBoundObserver implements LifecycleObserver {
+    class LifecycleBoundObserver implements GenericLifecycleObserver {
         public final LifecycleOwner owner;
         public final Observer<T> observer;
         public boolean active;
@@ -366,9 +367,8 @@ public abstract class LiveData<T> {
             this.observer = observer;
         }
 
-        @SuppressWarnings("unused")
-        @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-        void onStateChange() {
+        @Override
+        public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
             if (owner.getLifecycle().getCurrentState() == DESTROYED) {
                 removeObserver(observer);
                 return;
@@ -376,7 +376,6 @@ public abstract class LiveData<T> {
             // immediately set active state, so we'd never dispatch anything to inactive
             // owner
             activeStateChanged(isActiveState(owner.getLifecycle().getCurrentState()));
-
         }
 
         void activeStateChanged(boolean newActive) {
@@ -403,7 +402,7 @@ public abstract class LiveData<T> {
     }
 
     private void assertMainThread(String methodName) {
-        if (!AppToolkitTaskExecutor.getInstance().isMainThread()) {
+        if (!ArchTaskExecutor.getInstance().isMainThread()) {
             throw new IllegalStateException("Cannot invoke " + methodName + " on a background"
                     + " thread");
         }

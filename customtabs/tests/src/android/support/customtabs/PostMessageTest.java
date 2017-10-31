@@ -36,7 +36,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -50,8 +49,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @SmallTest
 public class PostMessageTest {
     @Rule
-    public final ServiceTestRule mServiceRule;
-    @Rule
     public final ActivityTestRule<TestActivity> mActivityTestRule;
     private TestCustomTabsCallback mCallback;
     private Context mContext;
@@ -63,7 +60,6 @@ public class PostMessageTest {
 
     public PostMessageTest() {
         mActivityTestRule = new ActivityTestRule<TestActivity>(TestActivity.class);
-        mServiceRule = new ServiceTestRule();
         mCustomTabsServiceConnected = new AtomicBoolean(false);
     }
 
@@ -80,9 +76,9 @@ public class PostMessageTest {
                     postMessageServiceIntent.setClassName(
                             mContext.getPackageName(), PostMessageService.class.getName());
                     try {
-                        mServiceRule.bindService(postMessageServiceIntent,
+                        mContext.bindService(postMessageServiceIntent,
                                 mPostMessageServiceConnection, Context.BIND_AUTO_CREATE);
-                    } catch (TimeoutException e) {
+                    } catch (Exception e) {
                         fail();
                     }
                 }
@@ -117,9 +113,9 @@ public class PostMessageTest {
         customTabsServiceIntent.setClassName(
                 mContext.getPackageName(), TestCustomTabsService.class.getName());
         try {
-            mServiceRule.bindService(customTabsServiceIntent,
+            mContext.bindService(customTabsServiceIntent,
                     mCustomTabsServiceConnection, Context.BIND_AUTO_CREATE);
-        } catch (TimeoutException e) {
+        } catch (Exception e) {
             fail();
         }
     }

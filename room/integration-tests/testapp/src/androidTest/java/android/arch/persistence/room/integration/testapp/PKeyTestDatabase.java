@@ -23,13 +23,18 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.integration.testapp.vo.IntAutoIncPKeyEntity;
 import android.arch.persistence.room.integration.testapp.vo.IntegerAutoIncPKeyEntity;
+import android.arch.persistence.room.integration.testapp.vo.IntegerPKeyEntity;
+import android.arch.persistence.room.integration.testapp.vo.ObjectPKeyEntity;
 
 import java.util.List;
 
-@Database(entities = {IntAutoIncPKeyEntity.class, IntegerAutoIncPKeyEntity.class}, version = 1,
+@Database(entities = {IntAutoIncPKeyEntity.class, IntegerAutoIncPKeyEntity.class,
+        ObjectPKeyEntity.class, IntegerPKeyEntity.class}, version = 1,
         exportSchema = false)
 public abstract class PKeyTestDatabase extends RoomDatabase {
     public abstract IntPKeyDao intPKeyDao();
+    public abstract IntegerAutoIncPKeyDao integerAutoIncPKeyDao();
+    public abstract ObjectPKeyDao objectPKeyDao();
     public abstract IntegerPKeyDao integerPKeyDao();
 
     @Dao
@@ -50,9 +55,10 @@ public abstract class PKeyTestDatabase extends RoomDatabase {
     }
 
     @Dao
-    public interface IntegerPKeyDao {
+    public interface IntegerAutoIncPKeyDao {
         @Insert
-        void insertMe(IntegerAutoIncPKeyEntity items);
+        void insertMe(IntegerAutoIncPKeyEntity item);
+
         @Query("select * from IntegerAutoIncPKeyEntity WHERE pKey = :key")
         IntegerAutoIncPKeyEntity getMe(int key);
 
@@ -64,5 +70,20 @@ public abstract class PKeyTestDatabase extends RoomDatabase {
 
         @Query("select data from IntegerAutoIncPKeyEntity WHERE pKey IN(:ids)")
         List<String> loadDataById(long... ids);
+    }
+
+    @Dao
+    public interface ObjectPKeyDao {
+        @Insert
+        void insertMe(ObjectPKeyEntity item);
+    }
+
+    @Dao
+    public interface IntegerPKeyDao {
+        @Insert
+        void insertMe(IntegerPKeyEntity item);
+
+        @Query("select * from IntegerPKeyEntity")
+        List<IntegerPKeyEntity> loadAll();
     }
 }

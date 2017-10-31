@@ -20,6 +20,7 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.OnChildViewHolderSelectedListener;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -33,6 +34,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -74,23 +76,53 @@ public class Picker extends FrameLayout {
     private float mVisibleItems = 1;
     private int mSelectedColumn = 0;
 
-    private CharSequence mSeparator;
+    private List<CharSequence> mSeparators = new ArrayList<>();
     private int mPickerItemLayoutId = R.layout.lb_picker_item;
     private int mPickerItemTextViewId = 0;
 
     /**
      * Gets separator string between columns.
+     *
+     * @return The separator that will be populated between all the Picker columns.
+     * @deprecated Use {@link #getSeparators()}
      */
     public final CharSequence getSeparator() {
-        return mSeparator;
+        return mSeparators.get(0);
     }
 
     /**
      * Sets separator String between Picker columns.
+     *
      * @param separator Separator String between Picker columns.
      */
     public final void setSeparator(CharSequence separator) {
-        mSeparator = separator;
+        setSeparators(Arrays.asList(separator));
+    }
+
+    /**
+     * Returns the list of separators that will be populated between the picker column fields.
+     *
+     * @return The list of separators populated between the picker column fields.
+     */
+    public final List<CharSequence> getSeparators() {
+        return mSeparators;
+    }
+
+    /**
+     * Sets the list of separators that will be populated between the Picker columns. The
+     * number of the separators should be either 1 indicating the same separator used between all
+     * the columns fields (and nothing will be placed before the first and after the last column),
+     * or must be one unit larger than the number of columns passed to {@link #setColumns(List)}.
+     * In the latter case, the list of separators corresponds to the positions before the first
+     * column all the way to the position after the last column.
+     * An empty string for a given position indicates no separators needs to be placed for that
+     * position, otherwise a TextView with the given String will be created and placed there.
+     *
+     * @param separators The list of separators to be populated between the Picker columns.
+     */
+    public final void setSeparators(List<CharSequence> separators) {
+        mSeparators.clear();
+        mSeparators.addAll(separators);
     }
 
     /**
@@ -116,6 +148,7 @@ public class Picker extends FrameLayout {
      * layout provided by {@link Picker#getPickerItemLayoutId()} or 0 if the
      * layout provided by {@link Picker#getPickerItemLayoutId()} is a {link
      * TextView}.
+     *
      * @param textViewId View id of TextView inside a Picker item, or 0 if the Picker item is a
      *                   TextView.
      */
@@ -125,9 +158,6 @@ public class Picker extends FrameLayout {
 
     /**
      * Creates a Picker widget.
-     * @param context
-     * @param attrs
-     * @param defStyleAttr
      */
     public Picker(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -140,7 +170,8 @@ public class Picker extends FrameLayout {
         mVisibleColumnAlpha = 0.5f; //getFloat(R.dimen.picker_item_visible_column_item_alpha);
         mInvisibleColumnAlpha = 0f; //getFloat(R.dimen.picker_item_invisible_column_item_alpha);
 
-        mAlphaAnimDuration = 200; // mContext.getResources().getInteger(R.integer.dialog_animation_duration);
+        mAlphaAnimDuration =
+                200; // mContext.getResources().getInteger(R.integer.dialog_animation_duration);
 
         mDecelerateInterpolator = new DecelerateInterpolator(2.5F);
         mAccelerateInterpolator = new AccelerateInterpolator(2.5F);
@@ -152,7 +183,8 @@ public class Picker extends FrameLayout {
 
     /**
      * Get nth PickerColumn.
-     * @param colIndex  Index of PickerColumn.
+     *
+     * @param colIndex Index of PickerColumn.
      * @return PickerColumn at colIndex or null if {@link #setColumns(List)} is not called yet.
      */
     public PickerColumn getColumnAt(int colIndex) {
@@ -164,6 +196,7 @@ public class Picker extends FrameLayout {
 
     /**
      * Get number of PickerColumns.
+     *
      * @return Number of PickerColumns or 0 if {@link #setColumns(List)} is not called yet.
      */
     public int getColumnsCount() {
@@ -175,9 +208,30 @@ public class Picker extends FrameLayout {
 
     /**
      * Set columns and create Views.
-     * @param columns PickerColumns to be shown in the Picker.
+     *
+     * @param columns The actual focusable columns of a picker which are scrollable if the field
+     *                takes more than one value (e.g. for a DatePicker, day, month, and year fields
+     *                and for TimePicker, hour, minute, and am/pm fields form the columns).
      */
     public void setColumns(List<PickerColumn> columns) {
+        if (mSeparators.size() == 0) {
+            throw new IllegalStateException("Separators size is: " + mSeparators.size()
+                    + ". At least one separator must be provided");
+        } else if (mSeparators.size() == 1) {
+            CharSequence separator = mSeparators.get(0);
+            mSeparators.clear();
+            mSeparators.add("");
+            for (int i = 0; i < columns.size() - 1; i++) {
+                mSeparators.add(separator);
+            }
+            mSeparators.add("");
+        } else {
+            if (mSeparators.size() != (columns.size() + 1)) {
+                throw new IllegalStateException("Separators size: " + mSeparators.size() + " must"
+                        + "equal the size of columns: " + columns.size() + " + 1");
+            }
+        }
+
         mColumnViews.clear();
         mPickerView.removeAllViews();
         mColumns = new ArrayList<PickerColumn>(columns);
@@ -186,6 +240,13 @@ public class Picker extends FrameLayout {
         }
         LayoutInflater inflater = LayoutInflater.from(getContext());
         int totalCol = getColumnsCount();
+
+        if (!TextUtils.isEmpty(mSeparators.get(0))) {
+            TextView separator = (TextView) inflater.inflate(
+                    R.layout.lb_picker_separator, mPickerView, false);
+            separator.setText(mSeparators.get(0));
+            mPickerView.addView(separator);
+        }
         for (int i = 0; i < totalCol; i++) {
             final int colIndex = i;
             final VerticalGridView columnView = (VerticalGridView) inflater.inflate(
@@ -202,16 +263,16 @@ public class Picker extends FrameLayout {
             // as a result of the picker getting activated, otherwise the cached views with the
             // wrong alphas could be laid out.
             columnView.setItemViewCacheSize(0);
-            mColumnViews.add(columnView);
 
+            mColumnViews.add(columnView);
             // add view to root
             mPickerView.addView(columnView);
 
-            // add a separator if not the last element
-            if (i != totalCol - 1 && getSeparator() != null) {
+            if (!TextUtils.isEmpty(mSeparators.get(i + 1))) {
+                // add a separator if not the last element
                 TextView separator = (TextView) inflater.inflate(
                         R.layout.lb_picker_separator, mPickerView, false);
-                separator.setText(getSeparator());
+                separator.setText(mSeparators.get(i + 1));
                 mPickerView.addView(separator);
             }
 
@@ -224,8 +285,9 @@ public class Picker extends FrameLayout {
     /**
      * When column labels change or column range changes, call this function to re-populate the
      * selection list.  Note this function cannot be called from RecyclerView layout/scroll pass.
+     *
      * @param columnIndex Index of column to update.
-     * @param column New column to update.
+     * @param column      New column to update.
      */
     public void setColumnAt(int columnIndex, PickerColumn column) {
         mColumns.set(columnIndex, column);
@@ -239,8 +301,9 @@ public class Picker extends FrameLayout {
 
     /**
      * Manually set current value of a column.  The function will update UI and notify listeners.
-     * @param columnIndex Index of column to update.
-     * @param value New value of the column.
+     *
+     * @param columnIndex  Index of column to update.
+     * @param value        New value of the column.
      * @param runAnimation True to scroll to the value or false otherwise.
      */
     public void setColumnValue(int columnIndex, int value, boolean runAnimation) {
@@ -270,6 +333,7 @@ public class Picker extends FrameLayout {
 
     /**
      * Register a callback to be invoked when the picker's value has changed.
+     *
      * @param listener The callback to ad
      */
     public void addOnValueChangedListener(PickerValueListener listener) {
@@ -281,6 +345,7 @@ public class Picker extends FrameLayout {
 
     /**
      * Remove a previously installed value changed callback
+     *
      * @param listener The callback to remove.
      */
     public void removeOnValueChangedListener(PickerValueListener listener) {
@@ -311,7 +376,7 @@ public class Picker extends FrameLayout {
             if (columnShownAsActivated) {
                 setOrAnimateAlpha(view, animate, mFocusedAlpha, -1, mDecelerateInterpolator);
             } else {
-                setOrAnimateAlpha(view, animate, mUnfocusedAlpha, -1,  mDecelerateInterpolator);
+                setOrAnimateAlpha(view, animate, mUnfocusedAlpha, -1, mDecelerateInterpolator);
             }
         } else {
             // set alpha for remaining items in the column
@@ -343,11 +408,12 @@ public class Picker extends FrameLayout {
     /**
      * Classes extending {@link Picker} can override this function to supply the
      * behavior when a list has been scrolled.  Subclass may call {@link #setColumnValue(int, int,
-     * boolean)} and or {@link #setColumnAt(int,PickerColumn)}.  Subclass should not directly call
+     * boolean)} and or {@link #setColumnAt(int, PickerColumn)}.  Subclass should not directly call
      * {@link PickerColumn#setCurrentValue(int)} which does not update internal state or notify
      * listeners.
+     *
      * @param columnIndex index of which column was changed.
-     * @param newValue A new value desired to be set on the column.
+     * @param newValue    A new value desired to be set on the column.
      */
     public void onColumnValueChanged(int columnIndex, int newValue) {
         PickerColumn column = mColumns.get(columnIndex);
@@ -425,35 +491,37 @@ public class Picker extends FrameLayout {
     private final OnChildViewHolderSelectedListener mColumnChangeListener = new
             OnChildViewHolderSelectedListener() {
 
-        @Override
-        public void onChildViewHolderSelected(RecyclerView parent, RecyclerView.ViewHolder child,
-                int position, int subposition) {
-            PickerScrollArrayAdapter pickerScrollArrayAdapter = (PickerScrollArrayAdapter) parent
-                    .getAdapter();
+                @Override
+                public void onChildViewHolderSelected(RecyclerView parent,
+                        RecyclerView.ViewHolder child,
+                        int position, int subposition) {
+                    PickerScrollArrayAdapter pickerScrollArrayAdapter =
+                            (PickerScrollArrayAdapter) parent
+                                    .getAdapter();
 
-            int colIndex = mColumnViews.indexOf(parent);
-            updateColumnAlpha(colIndex, true);
-            if (child != null) {
-                int newValue = mColumns.get(colIndex).getMinValue() + position;
-                onColumnValueChanged(colIndex, newValue);
-            }
-        }
+                    int colIndex = mColumnViews.indexOf(parent);
+                    updateColumnAlpha(colIndex, true);
+                    if (child != null) {
+                        int newValue = mColumns.get(colIndex).getMinValue() + position;
+                        onColumnValueChanged(colIndex, newValue);
+                    }
+                }
 
-    };
+            };
 
     @Override
     public boolean dispatchKeyEvent(android.view.KeyEvent event) {
         if (isActivated()) {
             final int keyCode = event.getKeyCode();
             switch (keyCode) {
-            case KeyEvent.KEYCODE_DPAD_CENTER:
-            case KeyEvent.KEYCODE_ENTER:
-                if (event.getAction() == KeyEvent.ACTION_UP) {
-                    performClick();
-                }
-                break;
-            default:
-                return super.dispatchKeyEvent(event);
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                case KeyEvent.KEYCODE_ENTER:
+                    if (event.getAction() == KeyEvent.ACTION_UP) {
+                        performClick();
+                    }
+                    break;
+                default:
+                    return super.dispatchKeyEvent(event);
             }
             return true;
         }
@@ -501,9 +569,11 @@ public class Picker extends FrameLayout {
             }
         }
     }
+
     /**
      * Returns number of visible items showing in a column when it's activated.  The default value
      * is 3.
+     *
      * @return Number of visible items showing in a column when it's activated.
      */
     public float getActivatedVisibleItemCount() {
@@ -513,6 +583,7 @@ public class Picker extends FrameLayout {
     /**
      * Changes number of visible items showing in a column when it's activated.  The default value
      * is 3.
+     *
      * @param visiblePickerItems Number of visible items showing in a column when it's activated.
      */
     public void setActivatedVisibleItemCount(float visiblePickerItems) {
@@ -530,6 +601,7 @@ public class Picker extends FrameLayout {
     /**
      * Returns number of visible items showing in a column when it's not activated.  The default
      * value is 1.
+     *
      * @return Number of visible items showing in a column when it's not activated.
      */
     public float getVisibleItemCount() {
@@ -539,6 +611,7 @@ public class Picker extends FrameLayout {
     /**
      * Changes number of visible items showing in a column when it's not activated.  The default
      * value is 1.
+     *
      * @param pickerItems Number of visible items showing in a column when it's not activated.
      */
     public void setVisibleItemCount(float pickerItems) {
@@ -605,6 +678,7 @@ public class Picker extends FrameLayout {
      * Change current selected column.  Picker shows multiple items on selected column if Picker has
      * focus.  Picker shows multiple items on all column if Picker has no focus (e.g. a Touchscreen
      * screen).
+     *
      * @param columnIndex Index of column to activate.
      */
     public void setSelectedColumn(int columnIndex) {
@@ -618,6 +692,7 @@ public class Picker extends FrameLayout {
 
     /**
      * Get current activated column index.
+     *
      * @return Current activated column index.
      */
     public int getSelectedColumn() {

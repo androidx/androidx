@@ -14,5 +14,6 @@
   ~ limitations under the License.
   -->
 
-<manifest package="android.arch.core.testing">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="android.arch.core.testing">
 </manifest>

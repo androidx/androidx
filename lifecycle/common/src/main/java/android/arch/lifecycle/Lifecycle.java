@@ -17,6 +17,7 @@
 package android.arch.lifecycle;
 
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 
 /**
  * Defines an object that has an Android Lifecycle. {@link android.support.v4.app.Fragment Fragment}
@@ -34,21 +35,25 @@ import android.support.annotation.MainThread;
  * before {@link android.app.Activity#onStop onStop} is called.
  * This gives you certain guarantees on which state the owner is in.
  * <p>
- * Lifecycle events are observed using annotations.
+ * If you use <b>Java 8 Language</b>, then observe events with {@link DefaultLifecycleObserver}.
+ * To include it you should add {@code "android.arch.lifecycle:common-java8:<version>"} to your
+ * build.gradle file.
+ * <pre>
+ * class TestObserver implements DefaultLifecycleObserver {
+ *     {@literal @}Override
+ *     public void onCreate(LifecycleOwner owner) {
+ *         // your code
+ *     }
+ * }
+ * </pre>
+ * If you use <b>Java 7 Language</b>, Lifecycle events are observed using annotations.
+ * Once Java 8 Language becomes mainstream on Android, annotations will be deprecated, so between
+ * {@link DefaultLifecycleObserver} and annotations,
+ * you must always prefer {@code DefaultLifecycleObserver}.
  * <pre>
  * class TestObserver implements LifecycleObserver {
  *   {@literal @}OnLifecycleEvent(ON_STOP)
  *   void onStopped() {}
- * }
- * </pre>
- * <p>
- * Multiple methods can observe the same event.
- * <pre>
- * class TestObserver implements LifecycleObserver {
- *   {@literal @}OnLifecycleEvent(ON_STOP)
- *   void onStoppedFirst() {}
- *   {@literal @}OnLifecycleEvent(ON_STOP)
- *   void onStoppedSecond() {}
  * }
  * </pre>
  * <p>
@@ -79,7 +84,7 @@ public abstract class Lifecycle {
      * @param observer The observer to notify.
      */
     @MainThread
-    public abstract void addObserver(LifecycleObserver observer);
+    public abstract void addObserver(@NonNull LifecycleObserver observer);
 
     /**
      * Removes the given observer from the observers list.
@@ -95,7 +100,7 @@ public abstract class Lifecycle {
      * @param observer The observer to be removed.
      */
     @MainThread
-    public abstract void removeObserver(LifecycleObserver observer);
+    public abstract void removeObserver(@NonNull LifecycleObserver observer);
 
     /**
      * Returns the current state of the Lifecycle.
@@ -189,7 +194,7 @@ public abstract class Lifecycle {
          * @param state State to compare with
          * @return true if this State is greater or equal to the given {@code state}
          */
-        public boolean isAtLeast(State state) {
+        public boolean isAtLeast(@NonNull State state) {
             return compareTo(state) >= 0;
         }
     }

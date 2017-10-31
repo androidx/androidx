@@ -20,4 +20,5 @@
     <item type="id" name="text2"/>
     <item type="id" name="line1"/>
     <item type="id" name="line3"/>
+    <item name="tag_transition_group" type="id"/>
 </resources>

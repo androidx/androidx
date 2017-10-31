@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import android.os.Process;
 import android.support.annotation.GuardedBy;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -142,6 +143,7 @@ public class SelfDestructiveThreadTest {
         assertEquals(generation.intValue(), nextGeneration.intValue());
     }
 
+    @LargeTest
     @Test
     public void testReuseSameThread_Multiple() throws InterruptedException {
         final int destructAfterLastActivityInMs = 300;

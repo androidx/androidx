@@ -36,12 +36,6 @@
     <public type="style" name="TextAppearance.AppCompat.Medium"/>
     <public type="style" name="TextAppearance.AppCompat.Medium.Inverse"/>
     <public type="style" name="TextAppearance.AppCompat.Menu"/>
-    <public type="style" name="TextAppearance.AppCompat.Notification"/>
-    <public type="style" name="TextAppearance.AppCompat.Notification.Info"/>
-    <public type="style" name="TextAppearance.AppCompat.Notification.Line2"/>
-    <public type="style" name="TextAppearance.AppCompat.Notification.Media"/>
-    <public type="style" name="TextAppearance.AppCompat.Notification.Time"/>
-    <public type="style" name="TextAppearance.AppCompat.Notification.Title"/>
     <public type="style" name="TextAppearance.AppCompat.SearchResult.Subtitle"/>
     <public type="style" name="TextAppearance.AppCompat.SearchResult.Title"/>
     <public type="style" name="TextAppearance.AppCompat.Small"/>

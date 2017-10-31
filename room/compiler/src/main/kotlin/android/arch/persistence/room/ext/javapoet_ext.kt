@@ -78,20 +78,24 @@ object RoomTypeNames {
             ClassName.get("android.arch.persistence.room.util", "TableInfo.Column")
     val TABLE_INFO_FOREIGN_KEY : ClassName =
             ClassName.get("android.arch.persistence.room.util", "TableInfo.ForeignKey")
+    val TABLE_INFO_INDEX : ClassName =
+            ClassName.get("android.arch.persistence.room.util", "TableInfo.Index")
     val LIMIT_OFFSET_DATA_SOURCE : ClassName =
             ClassName.get("android.arch.persistence.room.paging", "LimitOffsetDataSource")
 }
 
 object ArchTypeNames {
     val APP_EXECUTOR : ClassName =
-            ClassName.get("android.arch.core.executor", "AppToolkitTaskExecutor")
+            ClassName.get("android.arch.core.executor", "ArchTaskExecutor")
 }
 
 object PagingTypeNames {
-    val COUNTED_DATA_SOURCE : ClassName =
-            ClassName.get("android.arch.util.paging", "CountedDataSource")
-    val LIVE_LAZY_LIST_PROVIDER: ClassName =
-            ClassName.get("android.arch.util.paging", "LiveLazyListProvider")
+    val DATA_SOURCE: ClassName =
+            ClassName.get("android.arch.paging", "DataSource")
+    val TILED_DATA_SOURCE: ClassName =
+            ClassName.get("android.arch.paging", "TiledDataSource")
+    val LIVE_PAGED_LIST_PROVIDER: ClassName =
+            ClassName.get("android.arch.paging", "LivePagedListProvider")
 
 }
 

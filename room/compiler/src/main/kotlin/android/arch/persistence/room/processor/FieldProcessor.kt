@@ -20,6 +20,7 @@ import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.ext.getAsBoolean
 import android.arch.persistence.room.ext.getAsInt
 import android.arch.persistence.room.ext.getAsString
+import android.arch.persistence.room.parser.Collate
 import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.vo.EmbeddedField
 import android.arch.persistence.room.vo.Field
@@ -42,6 +43,7 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
         val name = element.simpleName.toString()
         val columnName: String
         val affinity : SQLTypeAffinity?
+        val collate: Collate?
         val fieldPrefix = fieldParent?.prefix ?: ""
         val indexed : Boolean
         if (columnInfoAnnotation.isPresent) {
@@ -63,6 +65,9 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
                 null
             }
 
+            collate = Collate.fromAnnotationValue(AnnotationMirrors.getAnnotationValue(
+                    columnInfoAnnotation.get(), "collate").getAsInt(ColumnInfo.UNSPECIFIED)!!)
+
             indexed = AnnotationMirrors
                     .getAnnotationValue(columnInfoAnnotation.get(), "index")
                     .getAsBoolean(false)
@@ -70,6 +75,7 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
         } else {
             columnName = fieldPrefix + name
             affinity = null
+            collate = null
             indexed = false
         }
         context.checker.notBlank(columnName, element,
@@ -82,6 +88,7 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
                 element = element,
                 columnName = columnName,
                 affinity = affinity,
+                collate = collate,
                 parent = fieldParent,
                 indexed = indexed)
 

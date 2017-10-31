@@ -17,6 +17,7 @@
 package android.arch.lifecycle;
 
 import static android.arch.lifecycle.Lifecycle.State.RESUMED;
+import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -25,13 +26,14 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-public class TestUtils {
+class TestUtils {
 
     private static final long TIMEOUT_MS = 2000;
 
     @SuppressWarnings("unchecked")
-    public static <T extends Activity> T recreateActivity(final T activity, ActivityTestRule rule)
+    static <T extends Activity> T recreateActivity(final T activity, ActivityTestRule rule)
             throws Throwable {
         ActivityMonitor monitor = new ActivityMonitor(
                 activity.getClass().getCanonicalName(), null, false);
@@ -60,23 +62,36 @@ public class TestUtils {
         return result;
     }
 
-    static void waitTillResumed(final LifecycleActivity a, ActivityTestRule<?> activityRule)
+    static void waitTillResumed(final LifecycleOwner owner, ActivityTestRule<?> activityRule)
+            throws Throwable {
+        waitTillState(owner, activityRule, RESUMED);
+    }
+
+    static void waitTillStarted(final LifecycleOwner owner, ActivityTestRule<?> activityRule)
+            throws Throwable {
+        waitTillState(owner, activityRule, STARTED);
+    }
+
+    private static void waitTillState(final LifecycleOwner owner, ActivityTestRule<?> activityRule,
+            Lifecycle.State state)
             throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         activityRule.runOnUiThread(() -> {
-            Lifecycle.State currentState = a.getLifecycle().getCurrentState();
-            if (currentState == RESUMED) {
+            if (owner.getLifecycle().getCurrentState() == state) {
                 latch.countDown();
+            } else {
+                owner.getLifecycle().addObserver(new LifecycleObserver() {
+                    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+                    public void onStateChanged(LifecycleOwner provider) {
+                        if (provider.getLifecycle().getCurrentState() == state) {
+                            latch.countDown();
+                            provider.getLifecycle().removeObserver(this);
+                        }
+                    }
+                });
             }
-            a.getLifecycle().addObserver(new LifecycleObserver() {
-                @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-                public void onStateChanged(LifecycleOwner provider) {
-                    latch.countDown();
-                    provider.getLifecycle().removeObserver(this);
-                }
-            });
         });
-        latch.await();
+        latch.await(1, TimeUnit.SECONDS);
     }
 
 }

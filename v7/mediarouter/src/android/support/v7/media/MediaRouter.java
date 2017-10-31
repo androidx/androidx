@@ -2558,7 +2558,7 @@ public final class MediaRouter {
 
         private void setSelectedRouteInternal(@NonNull RouteInfo route, int unselectReason) {
             // TODO: Remove the following logging when no longer needed.
-            if (sGlobal == null || mBluetoothRoute != null && route.isDefault()) {
+            if (sGlobal == null || (mBluetoothRoute != null && route.isDefault())) {
                 final StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
                 StringBuffer sb = new StringBuffer();
                 // callStack[3] is the caller of this method.

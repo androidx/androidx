@@ -16,7 +16,7 @@
 
 package android.arch.persistence.room;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.internal.SafeIterableMap;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteStatement;
@@ -100,7 +100,7 @@ public class InvalidationTracker {
     private Object[] mQueryArgs = new Object[1];
 
     // max id in the last syc
-    private long mMaxVersion = -1;
+    private long mMaxVersion = 0;
 
     private final RoomDatabase mDatabase;
 
@@ -166,10 +166,12 @@ public class InvalidationTracker {
 
     private static void appendTriggerName(StringBuilder builder, String tableName,
             String triggerType) {
-        builder.append("room_table_modification_trigger_")
+        builder.append("`")
+                .append("room_table_modification_trigger_")
                 .append(tableName)
                 .append("_")
-                .append(triggerType);
+                .append(triggerType)
+                .append("`");
     }
 
     private void stopTrackingTable(SupportSQLiteDatabase writableDb, int tableId) {
@@ -192,9 +194,9 @@ public class InvalidationTracker {
             appendTriggerName(stringBuilder, tableName, trigger);
             stringBuilder.append(" AFTER ")
                     .append(trigger)
-                    .append(" ON ")
+                    .append(" ON `")
                     .append(tableName)
-                    .append(" BEGIN INSERT OR REPLACE INTO ")
+                    .append("` BEGIN INSERT OR REPLACE INTO ")
                     .append(UPDATE_TABLE_NAME)
                     .append(" VALUES(null, ")
                     .append(tableId)
@@ -217,7 +219,7 @@ public class InvalidationTracker {
      *
      * @param observer The observer which listens the database for changes.
      */
-    public void addObserver(Observer observer) {
+    public void addObserver(@NonNull Observer observer) {
         final String[] tableNames = observer.mTables;
         int[] tableIds = new int[tableNames.length];
         final int size = tableNames.length;
@@ -238,7 +240,7 @@ public class InvalidationTracker {
             currentObserver = mObserverMap.putIfAbsent(observer, wrapper);
         }
         if (currentObserver == null && mObservedTableTracker.onAdded(tableIds)) {
-            AppToolkitTaskExecutor.getInstance().executeOnDiskIO(mSyncTriggers);
+            ArchTaskExecutor.getInstance().executeOnDiskIO(mSyncTriggers);
         }
     }
 
@@ -263,13 +265,13 @@ public class InvalidationTracker {
      * @param observer The observer to remove.
      */
     @SuppressWarnings("WeakerAccess")
-    public void removeObserver(final Observer observer) {
+    public void removeObserver(@NonNull final Observer observer) {
         ObserverWrapper wrapper;
         synchronized (mObserverMap) {
             wrapper = mObserverMap.remove(observer);
         }
         if (wrapper != null && mObservedTableTracker.onRemoved(wrapper.mTableIds)) {
-            AppToolkitTaskExecutor.getInstance().executeOnDiskIO(mSyncTriggers);
+            ArchTaskExecutor.getInstance().executeOnDiskIO(mSyncTriggers);
         }
     }
 
@@ -350,11 +352,18 @@ public class InvalidationTracker {
                     return;
                 }
 
-                if (mDatabase.inTransaction()
-                        || !mPendingRefresh.compareAndSet(true, false)) {
+                if (!mPendingRefresh.compareAndSet(true, false)) {
                     // no pending refresh
                     return;
                 }
+
+                if (mDatabase.inTransaction()) {
+                    // current thread is in a transaction. when it ends, it will invoke
+                    // refreshRunnable again. mPendingRefresh is left as false on purpose
+                    // so that the last transaction can flip it on again.
+                    return;
+                }
+
                 mCleanupStatement.executeUpdateDelete();
                 mQueryArgs[0] = mMaxVersion;
                 Cursor cursor = mDatabase.query(SELECT_UPDATED_TABLES_SQL, mQueryArgs);
@@ -400,7 +409,7 @@ public class InvalidationTracker {
     public void refreshVersionsAsync() {
         // TODO we should consider doing this sync instead of async.
         if (mPendingRefresh.compareAndSet(false, true)) {
-            AppToolkitTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
+            ArchTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
         }
     }
 

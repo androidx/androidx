@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from RowsSupportFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -16,6 +19,8 @@ package android.support.v17.leanback.app;
 import android.animation.TimeAnimator;
 import android.animation.TimeAnimator.TimeListener;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
 import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
@@ -285,7 +290,7 @@ public class RowsFragment extends BaseRowFragment implements
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (DEBUG) Log.v(TAG, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
         // Align the top edge of child with id row_content.
@@ -625,6 +630,11 @@ public class RowsFragment extends BaseRowFragment implements
 
     }
 
+    /**
+     * The adapter that RowsFragment implements
+     * BrowseFragment.MainFragmentRowsAdapter.
+     * @see #getMainFragmentRowsAdapter().
+     */
     public static class MainFragmentRowsAdapter
             extends BrowseFragment.MainFragmentRowsAdapter<RowsFragment> {
 
