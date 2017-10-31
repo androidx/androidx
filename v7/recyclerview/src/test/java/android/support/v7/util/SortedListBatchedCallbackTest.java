@@ -50,6 +50,16 @@ public class SortedListBatchedCallbackTest {
     }
 
     @Test
+    public void onChangeWithPayload() {
+        final Object payload = 7;
+        mBatchedCallback.onChanged(1, 2, payload);
+        verifyZeroInteractions(mMockCallback);
+        mBatchedCallback.dispatchLastEvent();
+        verify(mMockCallback).onChanged(1, 2, payload);
+        verifyNoMoreInteractions(mMockCallback);
+    }
+
+    @Test
     public void onRemoved() {
         mBatchedCallback.onRemoved(2, 3);
         verifyZeroInteractions(mMockCallback);
