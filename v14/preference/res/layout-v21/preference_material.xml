@@ -31,11 +31,10 @@
         android:id="@+id/icon_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="-4dp"
-        android:minWidth="60dp"
+        android:minWidth="56dp"
         android:gravity="start|center_vertical"
         android:orientation="horizontal"
-        android:paddingEnd="12dp"
+        android:paddingEnd="8dp"
         android:paddingTop="4dp"
         android:paddingBottom="4dp">
         <android.support.v7.internal.widget.PreferenceImageView
