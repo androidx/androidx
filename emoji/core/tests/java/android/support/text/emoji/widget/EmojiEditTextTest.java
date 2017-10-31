@@ -21,11 +21,13 @@ import static android.support.text.emoji.util.EmojiMatcher.hasEmojiCount;
 
 import static junit.framework.Assert.assertEquals;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import android.annotation.TargetApi;
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
@@ -79,6 +81,15 @@ public class EmojiEditTextTest {
         mInstrumentation.waitForIdleSync();
 
         assertEquals(1, editText.getMaxEmojiCount());
+    }
+
+    @Test
+    @UiThreadTest
+    public void testSetKeyListener_withNull() {
+        final TestActivity activity = mActivityRule.getActivity();
+        final EmojiEditText editText = activity.findViewById(R.id.editTextWithMaxCount);
+        editText.setKeyListener(null);
+        assertNull(editText.getKeyListener());
     }
 
     @Test
