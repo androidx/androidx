@@ -47,6 +47,8 @@ import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_QUE
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_QUEUE_ID_2;
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_VALUE;
+import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
+import static android.support.test.InstrumentationRegistry.getArguments;
 import static android.support.test.InstrumentationRegistry.getContext;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.InstrumentationRegistry.getTargetContext;
@@ -80,6 +82,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.ParcelableVolumeInfo;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 
 import junit.framework.Assert;
 
@@ -96,6 +99,9 @@ import java.util.List;
  */
 @RunWith(AndroidJUnit4.class)
 public class MediaControllerCompatCallbackTest {
+
+    private static final String TAG = "MediaControllerCompatCallbackTest";
+
     // The maximum time to wait for an operation, that is expected to happen.
     private static final long TIME_OUT_MS = 3000L;
     private static final int MAX_AUDIO_INFO_CHANGED_CALLBACK_COUNT = 10;
@@ -107,6 +113,8 @@ public class MediaControllerCompatCallbackTest {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final Object mWaitLock = new Object();
 
+    private String mServiceVersion;
+
     // MediaBrowserCompat object to get the session token.
     private MediaBrowserCompat mMediaBrowser;
     private ConnectionCallback mConnectionCallback = new ConnectionCallback();
@@ -116,6 +124,10 @@ public class MediaControllerCompatCallbackTest {
 
     @Before
     public void setUp() throws Exception {
+        // The version of the service app is provided through the instrumentation arguments.
+        mServiceVersion = getArguments().getString(KEY_SERVICE_VERSION, "");
+        Log.d(TAG, "Service app version: " + mServiceVersion);
+
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
