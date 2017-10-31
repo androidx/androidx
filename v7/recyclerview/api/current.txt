@@ -106,6 +106,7 @@ package android.support.v7.util {
     method public abstract boolean areContentsTheSame(T2, T2);
     method public abstract boolean areItemsTheSame(T2, T2);
     method public abstract int compare(T2, T2);
+    method public java.lang.Object getChangePayload(T2, T2);
     method public abstract void onChanged(int, int);
     method public void onChanged(int, int, java.lang.Object);
   }
