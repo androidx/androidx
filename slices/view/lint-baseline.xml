@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: SliceView.MODE_SMALL, SliceView.MODE_LARGE, SliceView.MODE_SHORTCUT"
+        errorLine1="        return mMode;"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/app/slice/widget/SliceView.java"
+            line="290"
+            column="16"/>
+    </issue>
+
+</issues>
