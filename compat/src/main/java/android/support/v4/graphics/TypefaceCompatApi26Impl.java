@@ -60,76 +60,69 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
             "createFromFamiliesWithDefault";
     private static final String FREEZE_METHOD = "freeze";
     private static final String ABORT_CREATION_METHOD = "abortCreation";
-    private static final Class sFontFamily;
-    private static final Constructor sFontFamilyCtor;
-    private static final Method sAddFontFromAssetManager;
-    private static final Method sAddFontFromBuffer;
-    private static final Method sFreeze;
-    private static final Method sAbortCreation;
-    private static final Method sCreateFromFamiliesWithDefault;
     private static final int RESOLVE_BY_FONT_TABLE = -1;
 
-    static {
-        Class fontFamilyClass;
+    protected final Class mFontFamily;
+    protected final Constructor mFontFamilyCtor;
+    protected final Method mAddFontFromAssetManager;
+    protected final Method mAddFontFromBuffer;
+    protected final Method mFreeze;
+    protected final Method mAbortCreation;
+    protected final Method mCreateFromFamiliesWithDefault;
+
+    public TypefaceCompatApi26Impl() {
+        Class fontFamily;
         Constructor fontFamilyCtor;
-        Method addFontMethod;
-        Method addFromBufferMethod;
-        Method freezeMethod;
-        Method abortCreationMethod;
-        Method createFromFamiliesWithDefaultMethod;
+        Method addFontFromAssetManager;
+        Method addFontFromBuffer;
+        Method freeze;
+        Method abortCreation;
+        Method createFromFamiliesWithDefault;
         try {
-            fontFamilyClass = Class.forName(FONT_FAMILY_CLASS);
-            fontFamilyCtor = fontFamilyClass.getConstructor();
-            addFontMethod = fontFamilyClass.getMethod(ADD_FONT_FROM_ASSET_MANAGER_METHOD,
-                    AssetManager.class, String.class, Integer.TYPE, Boolean.TYPE, Integer.TYPE,
-                    Integer.TYPE, Integer.TYPE, FontVariationAxis[].class);
-            addFromBufferMethod = fontFamilyClass.getMethod(ADD_FONT_FROM_BUFFER_METHOD,
-                    ByteBuffer.class, Integer.TYPE, FontVariationAxis[].class, Integer.TYPE,
-                    Integer.TYPE);
-            freezeMethod = fontFamilyClass.getMethod(FREEZE_METHOD);
-            abortCreationMethod = fontFamilyClass.getMethod(ABORT_CREATION_METHOD);
-            Object familyArray = Array.newInstance(fontFamilyClass, 1);
-            createFromFamiliesWithDefaultMethod =
-                    Typeface.class.getDeclaredMethod(CREATE_FROM_FAMILIES_WITH_DEFAULT_METHOD,
-                            familyArray.getClass(), Integer.TYPE, Integer.TYPE);
-            createFromFamiliesWithDefaultMethod.setAccessible(true);
+            fontFamily = obtainFontFamily();
+            fontFamilyCtor = obtainFontFamilyCtor(fontFamily);
+            addFontFromAssetManager = obtainAddFontFromAssetManagerMethod(fontFamily);
+            addFontFromBuffer = obtainAddFontFromBufferMethod(fontFamily);
+            freeze = obtainFreezeMethod(fontFamily);
+            abortCreation = obtainAbortCreationMethod(fontFamily);
+            createFromFamiliesWithDefault = obtainCreateFromFamiliesWithDefaultMethod(fontFamily);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             Log.e(TAG, "Unable to collect necessary methods for class " + e.getClass().getName(),
                     e);
-            fontFamilyClass = null;
+            fontFamily = null;
             fontFamilyCtor = null;
-            addFontMethod = null;
-            addFromBufferMethod = null;
-            freezeMethod = null;
-            abortCreationMethod = null;
-            createFromFamiliesWithDefaultMethod = null;
+            addFontFromAssetManager = null;
+            addFontFromBuffer = null;
+            freeze = null;
+            abortCreation = null;
+            createFromFamiliesWithDefault = null;
         }
-        sFontFamilyCtor = fontFamilyCtor;
-        sFontFamily = fontFamilyClass;
-        sAddFontFromAssetManager = addFontMethod;
-        sAddFontFromBuffer = addFromBufferMethod;
-        sFreeze = freezeMethod;
-        sAbortCreation = abortCreationMethod;
-        sCreateFromFamiliesWithDefault = createFromFamiliesWithDefaultMethod;
+        mFontFamily = fontFamily;
+        mFontFamilyCtor = fontFamilyCtor;
+        mAddFontFromAssetManager = addFontFromAssetManager;
+        mAddFontFromBuffer = addFontFromBuffer;
+        mFreeze = freeze;
+        mAbortCreation = abortCreation;
+        mCreateFromFamiliesWithDefault = createFromFamiliesWithDefault;
     }
 
     /**
-     * Returns true if API26 implementation is usable.
+     * Returns true if all the necessary methods were found.
      */
-    private static boolean isFontFamilyPrivateAPIAvailable() {
-        if (sAddFontFromAssetManager == null) {
+    private boolean isFontFamilyPrivateAPIAvailable() {
+        if (mAddFontFromAssetManager == null) {
             Log.w(TAG, "Unable to collect necessary private methods. "
                     + "Fallback to legacy implementation.");
         }
-        return sAddFontFromAssetManager != null;
+        return mAddFontFromAssetManager != null;
     }
 
     /**
      * Create a new FontFamily instance
      */
-    private static Object newFamily() {
+    private Object newFamily() {
         try {
-            return sFontFamilyCtor.newInstance();
+            return mFontFamilyCtor.newInstance();
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -139,10 +132,10 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
      * Call FontFamily#addFontFromAssetManager(AssetManager mgr, String path, int cookie,
      *      boolean isAsset, int ttcIndex, int weight, int isItalic, FontVariationAxis[] axes)
      */
-    private static boolean addFontFromAssetManager(Context context, Object family, String fileName,
+    private boolean addFontFromAssetManager(Context context, Object family, String fileName,
             int ttcIndex, int weight, int style) {
         try {
-            final Boolean result = (Boolean) sAddFontFromAssetManager.invoke(family,
+            final Boolean result = (Boolean) mAddFontFromAssetManager.invoke(family,
                     context.getAssets(), fileName, 0 /* cookie */, false /* isAsset */, ttcIndex,
                     weight, style, null /* axes */);
             return result.booleanValue();
@@ -155,10 +148,10 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
      * Call FontFamily#addFontFromBuffer(ByteBuffer font, int ttcIndex, FontVariationAxis[] axes,
      *      int weight, int italic)
      */
-    private static boolean addFontFromBuffer(Object family, ByteBuffer buffer,
+    private boolean addFontFromBuffer(Object family, ByteBuffer buffer,
             int ttcIndex, int weight, int style) {
         try {
-            final Boolean result = (Boolean) sAddFontFromBuffer.invoke(family,
+            final Boolean result = (Boolean) mAddFontFromBuffer.invoke(family,
                     buffer, ttcIndex, null /* axes */, weight, style);
             return result.booleanValue();
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -167,14 +160,14 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     }
 
     /**
-     * Call static method Typeface#createFromFamiliesWithDefault(
+     * Call method Typeface#createFromFamiliesWithDefault(
      *      FontFamily[] families, int weight, int italic)
      */
-    private static Typeface createFromFamiliesWithDefault(Object family) {
+    protected Typeface createFromFamiliesWithDefault(Object family) {
         try {
-            Object familyArray = Array.newInstance(sFontFamily, 1);
+            Object familyArray = Array.newInstance(mFontFamily, 1);
             Array.set(familyArray, 0, family);
-            return (Typeface) sCreateFromFamiliesWithDefault.invoke(null /* static method */,
+            return (Typeface) mCreateFromFamiliesWithDefault.invoke(null /* static method */,
                     familyArray, RESOLVE_BY_FONT_TABLE, RESOLVE_BY_FONT_TABLE);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -184,9 +177,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     /**
      * Call FontFamily#freeze()
      */
-    private static boolean freeze(Object family) {
+    private boolean freeze(Object family) {
         try {
-            Boolean result = (Boolean) sFreeze.invoke(family);
+            Boolean result = (Boolean) mFreeze.invoke(family);
             return result.booleanValue();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -196,9 +189,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     /**
      * Call FontFamily#abortCreation()
      */
-    private static boolean abortCreation(Object family) {
+    private boolean abortCreation(Object family) {
         try {
-            Boolean result = (Boolean) sAbortCreation.invoke(family);
+            Boolean result = (Boolean) mAbortCreation.invoke(family);
             return result.booleanValue();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -298,5 +291,48 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
             return null;
         }
         return createFromFamiliesWithDefault(fontFamily);
+    }
+
+    // The following getters retrieve by reflection the Typeface methods, belonging to the
+    // framework code, which will be invoked. Since the definitions of these methods can change
+    // across different API versions, inheriting classes should override these getters in order to
+    // reflect the method definitions in the API versions they represent.
+    //===========================================================================================
+    protected Class obtainFontFamily() throws ClassNotFoundException {
+        return Class.forName(FONT_FAMILY_CLASS);
+    }
+
+    protected Constructor obtainFontFamilyCtor(Class fontFamily) throws NoSuchMethodException {
+        return fontFamily.getConstructor();
+    }
+
+    protected Method obtainAddFontFromAssetManagerMethod(Class fontFamily)
+            throws NoSuchMethodException {
+        return fontFamily.getMethod(ADD_FONT_FROM_ASSET_MANAGER_METHOD,
+                AssetManager.class, String.class, Integer.TYPE, Boolean.TYPE, Integer.TYPE,
+                Integer.TYPE, Integer.TYPE, FontVariationAxis[].class);
+    }
+
+    protected Method obtainAddFontFromBufferMethod(Class fontFamily) throws NoSuchMethodException {
+        return fontFamily.getMethod(ADD_FONT_FROM_BUFFER_METHOD,
+                ByteBuffer.class, Integer.TYPE, FontVariationAxis[].class, Integer.TYPE,
+                Integer.TYPE);
+    }
+
+    protected Method obtainFreezeMethod(Class fontFamily) throws NoSuchMethodException {
+        return fontFamily.getMethod(FREEZE_METHOD);
+    }
+
+    protected Method obtainAbortCreationMethod(Class fontFamily) throws NoSuchMethodException {
+        return fontFamily.getMethod(ABORT_CREATION_METHOD);
+    }
+
+    protected Method obtainCreateFromFamiliesWithDefaultMethod(Class fontFamily)
+            throws NoSuchMethodException {
+        Object familyArray = Array.newInstance(fontFamily, 1);
+        Method m =  Typeface.class.getDeclaredMethod(CREATE_FROM_FAMILIES_WITH_DEFAULT_METHOD,
+                familyArray.getClass(), Integer.TYPE, Integer.TYPE);
+        m.setAccessible(true);
+        return m;
     }
 }
