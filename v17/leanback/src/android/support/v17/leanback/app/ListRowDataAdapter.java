@@ -13,6 +13,7 @@ import android.support.v17.leanback.widget.Row;
  * thinks there are items even though they're invisible. This class takes care of filtering out
  * the invisible rows at the end. In case the data inside the adapter changes, it adjusts the
  * bounds to reflect the latest data.
+ * {@link #detach()} must be called to release DataObserver from Adapter.
  */
 class ListRowDataAdapter extends ObjectAdapter {
     public static final int ON_ITEM_RANGE_CHANGED = 2;
@@ -22,6 +23,7 @@ class ListRowDataAdapter extends ObjectAdapter {
 
     private final ObjectAdapter mAdapter;
     int mLastVisibleRowIndex;
+    final DataObserver mDataObserver;
 
     public ListRowDataAdapter(ObjectAdapter adapter) {
         super(adapter.getPresenterSelector());
@@ -34,10 +36,20 @@ class ListRowDataAdapter extends ObjectAdapter {
         // operation. To handle this case, we use QueueBasedDataObserver which forces
         // recyclerview to do a full data refresh after each update operation.
         if (adapter.isImmediateNotifySupported()) {
-            mAdapter.registerObserver(new SimpleDataObserver());
+            mDataObserver = new SimpleDataObserver();
         } else {
-            mAdapter.registerObserver(new QueueBasedDataObserver());
+            mDataObserver = new QueueBasedDataObserver();
         }
+        attach();
+    }
+
+    void detach() {
+        mAdapter.unregisterObserver(mDataObserver);
+    }
+
+    void attach() {
+        initialize();
+        mAdapter.registerObserver(mDataObserver);
     }
 
     void initialize() {
