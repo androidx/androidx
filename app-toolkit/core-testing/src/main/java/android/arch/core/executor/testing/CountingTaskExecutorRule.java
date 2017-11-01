@@ -16,7 +16,7 @@
 
 package android.arch.core.executor.testing;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.DefaultTaskExecutor;
 import android.os.SystemClock;
 
@@ -39,7 +39,7 @@ public class CountingTaskExecutorRule extends TestWatcher {
     @Override
     protected void starting(Description description) {
         super.starting(description);
-        AppToolkitTaskExecutor.getInstance().setDelegate(new DefaultTaskExecutor() {
+        ArchTaskExecutor.getInstance().setDelegate(new DefaultTaskExecutor() {
             @Override
             public void executeOnDiskIO(Runnable runnable) {
                 super.executeOnDiskIO(new CountingRunnable(runnable));
@@ -55,7 +55,7 @@ public class CountingTaskExecutorRule extends TestWatcher {
     @Override
     protected void finished(Description description) {
         super.finished(description);
-        AppToolkitTaskExecutor.getInstance().setDelegate(null);
+        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
     private void increment() {

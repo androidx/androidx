@@ -116,14 +116,6 @@ public class SearchBar extends RelativeLayout {
 
     }
 
-    private AudioManager.OnAudioFocusChangeListener mAudioFocusChangeListener =
-            new AudioManager.OnAudioFocusChangeListener() {
-                @Override
-                public void onAudioFocusChange(int focusChange) {
-                    stopRecognition();
-                }
-            };
-
     SearchBarListener mSearchBarListener;
     SearchEditText mSearchTextEditor;
     SpeechOrbView mSpeechOrbView;
@@ -495,7 +487,12 @@ public class SearchBar extends RelativeLayout {
 
     /**
      * Sets the speech recognition callback.
+     *
+     * @deprecated Launching voice recognition activity is no longer supported. App should declare
+     *             android.permission.RECORD_AUDIO in AndroidManifest file. See details in
+     *             {@link android.support.v17.leanback.app.SearchSupportFragment}.
      */
+    @Deprecated
     public void setSpeechRecognitionCallback(SpeechRecognitionCallback request) {
         mSpeechRecognitionCallback = request;
         if (mSpeechRecognitionCallback != null && mSpeechRecognizer != null) {
@@ -582,7 +579,6 @@ public class SearchBar extends RelativeLayout {
         if (mListening) {
             mSpeechRecognizer.cancel();
             mListening = false;
-            mAudioManager.abandonAudioFocus(mAudioFocusChangeListener);
         }
 
         mSpeechRecognizer.setRecognitionListener(null);
@@ -624,17 +620,6 @@ public class SearchBar extends RelativeLayout {
         }
 
         mRecognizing = true;
-        // Request audio focus
-        int result = mAudioManager.requestAudioFocus(mAudioFocusChangeListener,
-                // Use the music stream.
-                AudioManager.STREAM_MUSIC,
-                // Request exclusive transient focus.
-                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
-
-
-        if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            Log.w(TAG, "Could not get audio focus");
-        }
 
         mSearchTextEditor.setText("");
 

@@ -32,7 +32,8 @@ ffVersions.rxjava2 = "2.0.6"
 ffVersions.reactivestreams = "1.0.0"
 // this Xerial version is newer than we want but we need it to fix
 // https://github.com/xerial/sqlite-jdbc/issues/97
-ffVersions.xerial = "3.16.1"
+// https://github.com/xerial/sqlite-jdbc/issues/267
+ffVersions.xerial = "3.20.1"
 ffVersions.antlr = "4.5.3"
 ffVersions.commons_codec = "1.10"
 ffVersions.gson = "2.8.0"

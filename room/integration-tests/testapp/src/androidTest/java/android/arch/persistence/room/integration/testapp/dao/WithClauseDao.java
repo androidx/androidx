@@ -16,13 +16,16 @@
 
 package android.arch.persistence.room.integration.testapp.dao;
 
+import android.annotation.TargetApi;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Query;
+import android.os.Build;
 
 import java.util.List;
 
 @Dao
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public interface WithClauseDao {
     @Query("WITH RECURSIVE factorial(n, fact) AS \n"
             + "(SELECT 0, 1 \n"

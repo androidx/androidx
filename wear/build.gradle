@@ -3,6 +3,7 @@ apply plugin: android.support.SupportAndroidLibraryPlugin
 dependencies {
     api project(':support-annotations')
     api project(':support-core-ui')
+    api project(':support-fragment')
     api project(':percent')
     api project(':recyclerview-v7')
 
@@ -10,6 +11,8 @@ dependencies {
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
     androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
     androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+
+    provided fileTree(dir: 'wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
 }
 
 android {
@@ -18,8 +21,10 @@ android {
     }
 
     sourceSets {
-        main.java.srcDir 'src'
         main.res.srcDirs 'res', 'res-public'
+        main.resources {
+            includes = ["wear_stubs/LICENSE"]
+        }
     }
 
     buildTypes.all {
@@ -32,4 +37,9 @@ supportLibrary {
     publish true
     inceptionYear '2016'
     description 'Android Wear Support UI'
+
+    license {
+        name 'The Apache Software License, Version 2.0'
+        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    }
 }

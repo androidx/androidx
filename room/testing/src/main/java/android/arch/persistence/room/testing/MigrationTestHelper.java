@@ -29,6 +29,7 @@ import android.arch.persistence.room.migration.bundle.DatabaseBundle;
 import android.arch.persistence.room.migration.bundle.EntityBundle;
 import android.arch.persistence.room.migration.bundle.FieldBundle;
 import android.arch.persistence.room.migration.bundle.ForeignKeyBundle;
+import android.arch.persistence.room.migration.bundle.IndexBundle;
 import android.arch.persistence.room.migration.bundle.SchemaBundle;
 import android.arch.persistence.room.util.TableInfo;
 import android.content.Context;
@@ -285,7 +286,19 @@ public class MigrationTestHelper extends TestWatcher {
 
     private static TableInfo toTableInfo(EntityBundle entityBundle) {
         return new TableInfo(entityBundle.getTableName(), toColumnMap(entityBundle),
-                toForeignKeys(entityBundle.getForeignKeys()));
+                toForeignKeys(entityBundle.getForeignKeys()), toIndices(entityBundle.getIndices()));
+    }
+
+    private static Set<TableInfo.Index> toIndices(List<IndexBundle> indices) {
+        if (indices == null) {
+            return Collections.emptySet();
+        }
+        Set<TableInfo.Index> result = new HashSet<>();
+        for (IndexBundle bundle : indices) {
+            result.add(new TableInfo.Index(bundle.getName(), bundle.isUnique(),
+                    bundle.getColumnNames()));
+        }
+        return result;
     }
 
     private static Set<TableInfo.ForeignKey> toForeignKeys(

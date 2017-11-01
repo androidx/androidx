@@ -20,6 +20,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.persistence.room.integration.testapp.vo.User;
+import android.os.Build;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -32,6 +34,7 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WithClauseTest extends TestDatabaseTest{
     @Test
     public void noSourceOfData() {

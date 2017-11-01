@@ -20,6 +20,6 @@
         <provider android:authorities="${applicationId}.lifecycle-trojan"
             android:multiprocess="true"
             android:exported="false"
-            android:name="android.arch.lifecycle.LifecycleRuntimeTrojanProvider"/>
+            android:name="android.arch.lifecycle.ProcessLifecycleOwnerInitializer"/>
     </application>
 </manifest>

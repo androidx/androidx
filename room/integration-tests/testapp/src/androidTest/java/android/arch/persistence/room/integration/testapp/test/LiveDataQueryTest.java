@@ -21,7 +21,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
@@ -35,9 +35,11 @@ import android.arch.persistence.room.integration.testapp.vo.PetsToys;
 import android.arch.persistence.room.integration.testapp.vo.Toy;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -235,6 +237,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void withWithClause() throws ExecutionException, InterruptedException,
             TimeoutException {
         LiveData<List<String>> actual =
@@ -322,7 +325,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
                 return null;
             }
         });
-        AppToolkitTaskExecutor.getInstance().executeOnMainThread(futureTask);
+        ArchTaskExecutor.getInstance().executeOnMainThread(futureTask);
         futureTask.get();
     }
 

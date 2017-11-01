@@ -25,7 +25,6 @@ import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.vo.CustomTypeConverter
 import android.arch.persistence.room.vo.Field
 import com.squareup.javapoet.TypeName
-import javax.lang.model.type.TypeMirror
 
 object ProcessorErrors {
     private fun String.trim(): String {
@@ -38,6 +37,8 @@ object ProcessorErrors {
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
     val INVALID_INSERTION_METHOD_RETURN_TYPE = "Methods annotated with @Insert can return either" +
             " void, long, Long, long[], Long[] or List<Long>."
+    val TRANSACTION_REFERENCE_DOCS = "https://developer.android.com/reference/android/arch/" +
+            "persistence/room/Transaction.html"
 
     fun insertionMethodReturnTypeMismatch(definedReturn : TypeName,
                                           expectedReturnTypes : List<TypeName>) : String {
@@ -123,7 +124,13 @@ object ProcessorErrors {
             " @Update but does not have any parameters to update."
 
     val TRANSACTION_METHOD_MODIFIERS = "Method annotated with @Transaction must not be " +
-            "private, final, or abstract."
+            "private, final, or abstract. It can be abstract only if the method is also" +
+            " annotated with @Query."
+
+    val TRANSACTION_MISSING_ON_RELATION = "The return value includes a Pojo with a @Relation." +
+            " It is usually desired to annotate this method with @Transaction to avoid" +
+            " possibility of inconsistent results between the Pojo and its relations. See " +
+            TRANSACTION_REFERENCE_DOCS + " for details."
 
     val CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER = "Type of the parameter must be a class " +
             "annotated with @Entity or a collection/array of it."
@@ -134,9 +141,12 @@ object ProcessorErrors {
     val LIVE_DATA_QUERY_WITHOUT_SELECT = "LiveData return type can only be used with SELECT" +
             " queries."
 
-    val LIVE_DATA_QUERY_NOTHING_TO_OBSERVE = "LiveData return type can only be used with SELECT" +
-            " queries that directly or indirectly (via @Relation, for example) access at least" +
-            " one table.";
+    val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE = "Observable query return type (LiveData, Flowable" +
+            " etc) can only be used with SELECT queries that directly or indirectly (via" +
+            " @Relation, for example) access at least one table."
+
+    val RECURSIVE_REFERENCE_DETECTED = "Recursive referencing through @Embedded and/or @Relation " +
+            "detected: %s"
 
     private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
@@ -195,6 +205,16 @@ object ProcessorErrors {
                 interface, don't make it abstract, instead, implement the code that calls the
                 other one.
                 """.trim()
+    }
+
+    fun pojoMissingNonNull(pojoTypeName: TypeName, missingPojoFields: List<String>,
+                           allQueryColumns: List<String>) : String {
+        return """
+        The columns returned by the query does not have the fields
+        [${missingPojoFields.joinToString(",")}] in $pojoTypeName even though they are
+        annotated as non-null or primitive.
+        Columns returned by the query: [${allQueryColumns.joinToString(",")}]
+        """.trim()
     }
 
     fun cursorPojoMismatch(pojoTypeName: TypeName,
@@ -448,9 +468,22 @@ object ProcessorErrors {
             unwanted constructors with @Ignore.
             """.trim()
 
+    val TOO_MANY_POJO_CONSTRUCTORS_CHOOSING_NO_ARG = """
+            There are multiple good constructors and Room will pick the no-arg constructor.
+            You can use the @Ignore annotation to eliminate unwanted constructors.
+            """.trim()
+
     val PAGING_SPECIFY_DATA_SOURCE_TYPE = "For now, Room only supports TiledDataSource class."
 
-    val PRIMARY_KEY_NULL = "You must annotate primary keys with @NonNull. SQLite considers this a " +
-            "bug and Room does not allow it. See SQLite docs for details: " +
-            "https://www.sqlite.org/lang_createtable.html"
+    fun primaryKeyNull(field: String): String{
+        return "You must annotate primary keys with @NonNull. \"$field\" is nullable. SQLite " +
+                "considers this a " +
+                "bug and Room does not allow it. See SQLite docs for details: " +
+                "https://www.sqlite.org/lang_createtable.html"
+    }
+
+    val INVALID_COLUMN_NAME = "Invalid column name. Room does not allow using ` or \" in column" +
+            " names"
+
+    val INVALID_TABLE_NAME = "Invalid table name. Room does not allow using ` or \" in table names"
 }

@@ -26,39 +26,74 @@ import java.util.List;
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, Value> {
-    /**
-     * Number of items that this DataSource can provide in total, or COUNT_UNDEFINED.
-     *
-     * @return number of items that this DataSource can provide in total, or COUNT_UNDEFINED
-     * if difficult or undesired to compute.
-     */
-    public int countItems() {
-        return COUNT_UNDEFINED;
-    }
-
     @Override
     boolean isContiguous() {
         return true;
     }
 
+    void loadInitial(Key key, int pageSize, boolean enablePlaceholders,
+            PageResult.Receiver<Key, Value> receiver) {
+        NullPaddedList<Value> initial = loadInitial(key, pageSize, enablePlaceholders);
+        if (initial != null) {
+            receiver.onPageResult(new PageResult<>(
+                    PageResult.INIT,
+                    new Page<Key, Value>(initial.mList),
+                    initial.getLeadingNullCount(),
+                    initial.getTrailingNullCount(),
+                    initial.getPositionOffset()));
+        } else {
+            receiver.onPageResult(new PageResult<Key, Value>(
+                    PageResult.INIT, null, 0, 0, 0));
+        }
+    }
+
+    void loadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize,
+            PageResult.Receiver<Key, Value> receiver) {
+        List<Value> list = loadAfter(currentEndIndex, currentEndItem, pageSize);
+
+        Page<Key, Value> page = list != null
+                ? new Page<Key, Value>(list) : null;
+
+        receiver.postOnPageResult(new PageResult<>(
+                PageResult.APPEND, page, 0, 0, 0));
+    }
+
+    void loadBefore(int currentBeginIndex, @NonNull Value currentBeginItem, int pageSize,
+            PageResult.Receiver<Key, Value> receiver) {
+        List<Value> list = loadBefore(currentBeginIndex, currentBeginItem, pageSize);
+
+        Page<Key, Value> page = list != null
+                ? new Page<Key, Value>(list) : null;
+
+        receiver.postOnPageResult(new PageResult<>(
+                PageResult.PREPEND, page, 0, 0, 0));
+    }
+
+    /**
+     * Get the key from either the position, or item, or null if position/item invalid.
+     * <p>
+     * Position may not match passed item's position - if trying to query the key from a position
+     * that isn't yet loaded, a fallback item (last loaded item accessed) will be passed.
+     */
+    abstract Key getKey(int position, Value item);
+
+    @Nullable
+    abstract List<Value> loadAfterImpl(int currentEndIndex,
+            @NonNull Value currentEndItem, int pageSize);
+
+    @Nullable
+    abstract List<Value> loadBeforeImpl(int currentBeginIndex,
+            @NonNull Value currentBeginItem, int pageSize);
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @WorkerThread
     @Nullable
     public abstract NullPaddedList<Value> loadInitial(
             Key key, int initialLoadSize, boolean enablePlaceholders);
 
-    /**
-     * Load data after the given position / item.
-     * <p>
-     * It's valid to return a different list size than the page size, if it's easier for this data
-     * source. It is generally safer to increase number loaded than reduce.
-     *
-     * @param currentEndIndex Load items after this index, starting with currentEndIndex + 1.
-     * @param currentEndItem  Load items after this item, can be used for precise querying based on
-     *                        item contents.
-     * @param pageSize        Suggested number of items to load.
-     * @return List of items, starting at position currentEndIndex + 1. Null if the data source is
-     * no longer valid, and should not be queried again.
-     */
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @WorkerThread
     @Nullable
     public final List<Value> loadAfter(int currentEndIndex,
@@ -73,22 +108,8 @@ public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, V
         return list;
     }
 
-    @Nullable
-    abstract List<Value> loadAfterImpl(int currentEndIndex,
-            @NonNull Value currentEndItem, int pageSize);
-
-    /**
-     * Load data before the given position / item.
-     * <p>
-     * It's valid to return a different list size than the page size, if it's easier for this data
-     * source. It is generally safer to increase number loaded than reduce.
-     *
-     * @param currentBeginIndex Load items before this index, starting with currentBeginIndex - 1.
-     * @param currentBeginItem  Load items after this item, can be used for precise querying based
-     *                          on item contents.
-     * @param pageSize          Suggested number of items to load.
-     * @return List of items, in descending order, starting at position currentBeginIndex - 1.
-     */
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @WorkerThread
     @Nullable
     public final List<Value> loadBefore(int currentBeginIndex,
@@ -103,15 +124,4 @@ public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, V
         return list;
 
     }
-
-    @Nullable
-    abstract List<Value> loadBeforeImpl(int currentBeginIndex,
-            @NonNull Value currentBeginItem, int pageSize);
-
-    /**
-     * Get the key from either the position, or item. Position may not match passed item's position,
-     * if trying to query the key from a position that isn't yet loaded, so a fallback item must be
-     * used.
-     */
-    abstract Key getKey(int position, Value item);
 }

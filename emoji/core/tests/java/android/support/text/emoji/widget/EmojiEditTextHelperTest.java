@@ -16,8 +16,11 @@
 
 package android.support.text.emoji.widget;
 
+import static junit.framework.Assert.assertNotNull;
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,6 +35,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.text.emoji.EmojiCompat;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
@@ -76,16 +80,26 @@ public class EmojiEditTextHelperTest {
         assertSame(keyListener1, keyListener2);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testGetOnCreateInputConnection_withNull_throwsException() {
-        mEmojiEditTextHelper.onCreateInputConnection(null, null);
+    @Test
+    public void testGetOnCreateInputConnection_withNullAttrs_returnsInputConnection() {
+        final InputConnection inputConnection = mEmojiEditTextHelper.onCreateInputConnection(
+                mock(InputConnection.class), null);
+        assertNotNull(inputConnection);
+        assertThat(inputConnection, instanceOf(EmojiInputConnection.class));
+    }
+
+    @Test
+    public void testGetOnCreateInputConnection_withNullInputConnection_returnsNull() {
+        InputConnection inputConnection = mEmojiEditTextHelper.onCreateInputConnection(null,
+                new EditorInfo());
+        assertNull(inputConnection);
     }
 
     @Test
     public void testGetOnCreateInputConnection_returnsEmojiInputConnection() {
         final InputConnection inputConnection = mEmojiEditTextHelper.onCreateInputConnection(
                 mock(InputConnection.class), null);
-
+        assertNotNull(inputConnection);
         assertThat(inputConnection, instanceOf(EmojiInputConnection.class));
     }
 

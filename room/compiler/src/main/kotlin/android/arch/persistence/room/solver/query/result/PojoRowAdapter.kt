@@ -19,7 +19,6 @@ package android.arch.persistence.room.solver.query.result
 import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.S
 import android.arch.persistence.room.ext.T
-import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.processor.ProcessorErrors
 import android.arch.persistence.room.solver.CodeGenScope
@@ -70,6 +69,13 @@ class PojoRowAdapter(context: Context, val info: QueryResultInfo,
                     allFields = pojo.fields
             )
             context.logger.w(Warning.CURSOR_MISMATCH, null, warningMsg)
+        }
+        val nonNulls = remainingFields.filter { it.nonNull }
+        if (nonNulls.isNotEmpty()) {
+            context.logger.e(ProcessorErrors.pojoMissingNonNull(
+                    pojoTypeName = pojo.typeName,
+                    missingPojoFields = nonNulls.map { it.name },
+                    allQueryColumns = info.columns.map { it.name }))
         }
         if (matchedFields.isEmpty()) {
             context.logger.e(ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)

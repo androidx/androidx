@@ -17,6 +17,7 @@
 package android.arch.lifecycle;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.arch.lifecycle.ViewModelProvider.Factory;
 import android.support.annotation.MainThread;
@@ -40,6 +41,23 @@ public class ViewModelProviders {
         }
     }
 
+    private static Application checkApplication(Activity activity) {
+        Application application = activity.getApplication();
+        if (application == null) {
+            throw new IllegalStateException("Your activity/fragment is not yet attached to "
+                    + "Application. You can't request ViewModel before onCreate call.");
+        }
+        return application;
+    }
+
+    private static Activity checkActivity(Fragment fragment) {
+        Activity activity = fragment.getActivity();
+        if (activity == null) {
+            throw new IllegalStateException("Can't create ViewModelProvider for detached fragment");
+        }
+        return activity;
+    }
+
     /**
      * Creates a {@link ViewModelProvider}, which retains ViewModels while a scope of given
      * {@code fragment} is alive. More detailed explanation is in {@link ViewModel}.
@@ -51,12 +69,7 @@ public class ViewModelProviders {
      */
     @MainThread
     public static ViewModelProvider of(@NonNull Fragment fragment) {
-        FragmentActivity activity = fragment.getActivity();
-        if (activity == null) {
-            throw new IllegalArgumentException(
-                    "Can't create ViewModelProvider for detached fragment");
-        }
-        initializeFactoryIfNeeded(activity.getApplication());
+        initializeFactoryIfNeeded(checkApplication(checkActivity(fragment)));
         return new ViewModelProvider(ViewModelStores.of(fragment), sDefaultFactory);
     }
 
@@ -71,7 +84,7 @@ public class ViewModelProviders {
      */
     @MainThread
     public static ViewModelProvider of(@NonNull FragmentActivity activity) {
-        initializeFactoryIfNeeded(activity.getApplication());
+        initializeFactoryIfNeeded(checkApplication(activity));
         return new ViewModelProvider(ViewModelStores.of(activity), sDefaultFactory);
     }
 
@@ -87,6 +100,7 @@ public class ViewModelProviders {
      */
     @MainThread
     public static ViewModelProvider of(@NonNull Fragment fragment, @NonNull Factory factory) {
+        checkApplication(checkActivity(fragment));
         return new ViewModelProvider(ViewModelStores.of(fragment), factory);
     }
 
@@ -103,6 +117,7 @@ public class ViewModelProviders {
     @MainThread
     public static ViewModelProvider of(@NonNull FragmentActivity activity,
             @NonNull Factory factory) {
+        checkApplication(activity);
         return new ViewModelProvider(ViewModelStores.of(activity), factory);
     }
 
@@ -124,8 +139,9 @@ public class ViewModelProviders {
             mApplication = application;
         }
 
+        @NonNull
         @Override
-        public <T extends ViewModel> T create(Class<T> modelClass) {
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             if (AndroidViewModel.class.isAssignableFrom(modelClass)) {
                 //noinspection TryWithIdenticalCatches
                 try {

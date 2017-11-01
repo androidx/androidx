@@ -14,18 +14,6 @@ android {
     defaultConfig {
         minSdkVersion 14
     }
-
-    sourceSets {
-        main.java.srcDirs = [
-                'gingerbread',
-                'kitkat',
-                'api20',
-                'api21',
-                'api23',
-                'api24',
-                'java'
-        ]
-    }
 }
 
 supportLibrary {

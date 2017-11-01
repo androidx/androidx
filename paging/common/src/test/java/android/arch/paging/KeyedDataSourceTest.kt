@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package android.arch.paging
 
 import org.junit.Assert.assertEquals
@@ -5,6 +21,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito
 
 @RunWith(JUnit4::class)
 class KeyedDataSourceTest {
@@ -154,6 +172,29 @@ class KeyedDataSourceTest {
         assertEquals(0, initialLoad.leadingNullCount)
         assertTrue(initialLoad.mList.isEmpty())
         assertEquals(0, initialLoad.trailingNullCount)
+    }
+
+    // ----- Other behavior -----
+
+    @Test
+    fun loadBefore() {
+        val dataSource = ItemDataSource()
+        @Suppress("UNCHECKED_CAST")
+        val receiver = Mockito.mock(PageResult.Receiver::class.java)
+                as PageResult.Receiver<Key, Item>
+
+        dataSource.loadBefore(5, ITEMS_BY_NAME_ID[5], 5, receiver)
+
+        @Suppress("UNCHECKED_CAST")
+        val argument = ArgumentCaptor.forClass(PageResult::class.java)
+                as ArgumentCaptor<PageResult<Key, Item>>
+        Mockito.verify(receiver).postOnPageResult(argument.capture())
+        Mockito.verifyNoMoreInteractions(receiver)
+
+        val observed = argument.value
+
+        assertEquals(PageResult.PREPEND, observed.type)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 5), observed.page.items)
     }
 
     internal data class Key(val name: String, val id: Int)

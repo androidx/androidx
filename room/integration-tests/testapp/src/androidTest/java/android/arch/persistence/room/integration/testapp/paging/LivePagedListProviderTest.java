@@ -21,17 +21,17 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.paging.PagedList;
 import android.arch.persistence.room.integration.testapp.test.TestDatabaseTest;
 import android.arch.persistence.room.integration.testapp.test.TestUtil;
 import android.arch.persistence.room.integration.testapp.vo.User;
-import android.arch.paging.PagedList;
 import android.support.annotation.Nullable;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -131,7 +131,7 @@ public class LivePagedListProviderTest extends TestDatabaseTest {
                 return null;
             }
         });
-        AppToolkitTaskExecutor.getInstance().executeOnMainThread(futureTask);
+        ArchTaskExecutor.getInstance().executeOnMainThread(futureTask);
         futureTask.get();
     }
 
@@ -155,7 +155,7 @@ public class LivePagedListProviderTest extends TestDatabaseTest {
 
     private static class PagedListObserver<T> implements Observer<PagedList<T>> {
         private PagedList<T> mList;
-        public void reset() {
+        void reset() {
             mList = null;
         }
 

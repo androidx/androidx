@@ -7,7 +7,7 @@
 -keep class * implements android.arch.lifecycle.LifecycleObserver {
 }
 
--keep class * implements android.arch.lifecycle.GenericLifecycleObserver {
+-keep class * implements android.arch.lifecycle.GeneratedAdapter {
     <init>(...);
 }
 

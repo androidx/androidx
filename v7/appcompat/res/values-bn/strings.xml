@@ -21,7 +21,7 @@
     <string name="abc_action_bar_up_description" msgid="1594238315039666878">"উপরের দিকে নেভিগেট করুন"</string>
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"আরো বিকল্প"</string>
     <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"সঙ্কুচিত করুন"</string>
-    <string name="abc_searchview_description_search" msgid="8264924765203268293">"অনুসন্ধান করুন"</string>
+    <string name="abc_searchview_description_search" msgid="8264924765203268293">"খুঁজুন"</string>
     <string name="abc_search_hint" msgid="7723749260725869598">"অনুসন্ধান..."</string>
     <string name="abc_searchview_description_query" msgid="2550479030709304392">"ক্যোয়ারী অনুসন্ধান করুন"</string>
     <string name="abc_searchview_description_clear" msgid="3691816814315814921">"ক্যোয়ারী সাফ করুন"</string>

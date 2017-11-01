@@ -14,6 +14,12 @@
 
 LOCAL_PATH := $(call my-dir)
 
+# Here is a prebuilt library containing all the wearable stubs necessary for ambient mode
+include $(CLEAR_VARS)
+LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
+        prebuilt-com.google.android.wearable-stubs:wear_stubs/com.google.android.wearable-stubs.jar
+include $(BUILD_MULTI_PREBUILT)
+
 # Here is the final static library that apps can link against.
 # Applications that use this library must specify
 #
@@ -22,12 +28,13 @@ LOCAL_PATH := $(call my-dir)
 #       android-support-core-ui \
 #       android-support-v7-recyclerview
 #
-# in their makefiles to include the resources and their dependencies in their package.
+# in their makefiles to include the resources and their dependencies in their package
+
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-wear
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
-LOCAL_SRC_FILES := $(call all-java-files-under,src)
+LOCAL_SRC_FILES := $(call all-java-files-under,src/main/java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SHARED_ANDROID_LIBRARIES := \
         android-support-core-ui \
@@ -35,7 +42,10 @@ LOCAL_SHARED_ANDROID_LIBRARIES := \
         android-support-percent \
         android-support-v7-recyclerview \
         android-support-v4
+LOCAL_STATIC_JAVA_LIBRARIES := \
+        prebuilt-com.google.android.wearable-stubs
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
 include $(BUILD_STATIC_JAVA_LIBRARY)
+

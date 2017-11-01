@@ -59,7 +59,7 @@ public interface CustomerDao {
 
     // Keyed
 
-    @Query("SELECT * from customer ORDER BY mLastName ASC LIMIT :limit")
+    @Query("SELECT * from customer ORDER BY mLastName DESC LIMIT :limit")
     List<Customer> customerNameInitial(int limit);
 
     @Query("SELECT * from customer WHERE mLastName < :key ORDER BY mLastName DESC LIMIT :limit")

@@ -117,4 +117,20 @@ public class RoomWarnings {
      */
     public static final String MISSING_INDEX_ON_FOREIGN_KEY_CHILD =
             "ROOM_MISSING_FOREIGN_KEY_CHILD_INDEX";
+
+    /**
+     * Reported when a Pojo has multiple constructors, one of which is a no-arg constructor. Room
+     * will pick that one by default but will print this warning in case the constructor choice is
+     * important. You can always guide Room to use the right constructor using the @Ignore
+     * annotation.
+     */
+    public static final String DEFAULT_CONSTRUCTOR = "ROOM_DEFAULT_CONSTRUCTOR";
+
+    /**
+     * Reported when a @Query method returns a Pojo that has relations but the method is not
+     * annotated with @Transaction. Relations are run as separate queries and if the query is not
+     * run inside a transaction, it might return inconsistent results from the database.
+     */
+    public static final String RELATION_QUERY_WITHOUT_TRANSACTION =
+            "ROOM_RELATION_QUERY_WITHOUT_TRANSACTION";
 }

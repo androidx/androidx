@@ -18,15 +18,18 @@ package android.arch.persistence.room.processor
 
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.SkipQueryVerification
+import android.arch.persistence.room.Transaction
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.parser.ParsedQuery
 import android.arch.persistence.room.parser.QueryType
 import android.arch.persistence.room.parser.SqlParser
 import android.arch.persistence.room.solver.query.result.LiveDataQueryResultBinder
+import android.arch.persistence.room.solver.query.result.PojoRowAdapter
 import android.arch.persistence.room.verifier.DatabaseVerificaitonErrors
 import android.arch.persistence.room.verifier.DatabaseVerifier
 import android.arch.persistence.room.vo.QueryMethod
 import android.arch.persistence.room.vo.QueryParameter
+import android.arch.persistence.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -91,6 +94,22 @@ class QueryMethodProcessor(baseContext: Context,
                     ProcessorErrors.LIVE_DATA_QUERY_WITHOUT_SELECT)
         }
 
+        val inTransaction = when (query.type) {
+            QueryType.SELECT -> executableElement.hasAnnotation(Transaction::class)
+            else -> true
+        }
+
+        if (query.type == QueryType.SELECT && !inTransaction) {
+            // put a warning if it is has relations and not annotated w/ transaction
+            resultBinder.adapter?.rowAdapter?.let { rowAdapter ->
+                if (rowAdapter is PojoRowAdapter
+                        && rowAdapter.relationCollectors.isNotEmpty()) {
+                    context.logger.w(Warning.RELATION_QUERY_WITHOUT_TRANSACTION,
+                            executableElement, ProcessorErrors.TRANSACTION_MISSING_ON_RELATION)
+                }
+            }
+        }
+
         val queryMethod = QueryMethod(
                 element = executableElement,
                 query = query,
@@ -101,6 +120,7 @@ class QueryMethodProcessor(baseContext: Context,
                                 baseContext = context,
                                 containing = containing,
                                 element = it).process() },
+                inTransaction = inTransaction,
                 queryResultBinder = resultBinder)
 
         val missing = queryMethod.sectionToParamMapping

@@ -42,6 +42,17 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class PositionalDataSource<Value> extends ContiguousDataSource<Integer, Value> {
+
+    /**
+     * Number of items that this DataSource can provide in total, or COUNT_UNDEFINED.
+     *
+     * @return number of items that this DataSource can provide in total, or COUNT_UNDEFINED
+     * if difficult or undesired to compute.
+     */
+    public int countItems() {
+        return COUNT_UNDEFINED;
+    }
+
     @Nullable
     @Override
     List<Value> loadAfterImpl(int currentEndIndex, @NonNull Value currentEndItem, int pageSize) {
@@ -55,16 +66,7 @@ public abstract class PositionalDataSource<Value> extends ContiguousDataSource<I
         return loadBefore(currentBeginIndex - 1, pageSize);
     }
 
-
-    /**
-     * Load initial data, starting after the passed position.
-     *
-     * @param position Index just before the data to be loaded.
-     * @param initialLoadSize Suggested number of items to load.
-     * @return List of initial items, representing data starting at position. Null if the
-     *         DataSource is no longer valid, and should not be queried again.
-     * @hide
-     */
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @WorkerThread
     @Nullable
@@ -118,6 +120,9 @@ public abstract class PositionalDataSource<Value> extends ContiguousDataSource<I
 
     @Override
     Integer getKey(int position, Value item) {
+        if (position < 0) {
+            return null;
+        }
         return position;
     }
 }

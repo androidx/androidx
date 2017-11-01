@@ -39,13 +39,11 @@ android {
     }
 }
 dependencies {
-    compile project(":lifecycle:common")
     compile project(":lifecycle:runtime")
     compile project(":arch:common")
     compile project(":arch:runtime")
     compile libs.support.fragments, libs.support_exclude_config
-
-    annotationProcessor project(":lifecycle:compiler")
+    compile project(":lifecycle:common")
 
     testCompile project(":arch:core-testing")
     testCompile libs.junit

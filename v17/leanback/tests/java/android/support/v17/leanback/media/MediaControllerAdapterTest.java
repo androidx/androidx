@@ -789,7 +789,6 @@ public class MediaControllerAdapterTest {
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
         private long mSeekPosition;
         private int mRepeatMode;
-        private boolean mShuffleModeEnabled;
         private int mShuffleMode;
 
         private boolean mOnPlayCalled;
@@ -805,7 +804,6 @@ public class MediaControllerAdapterTest {
 
         public void reset() {
             mSeekPosition = -1;
-            mShuffleModeEnabled = false;
             mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
             mShuffleMode = PlaybackStateCompat.SHUFFLE_MODE_NONE;
 

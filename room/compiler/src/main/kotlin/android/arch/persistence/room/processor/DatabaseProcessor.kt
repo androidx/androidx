@@ -50,6 +50,14 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
     }
 
     fun process(): Database {
+        try {
+            return doProcess()
+        } finally {
+            context.databaseVerifier?.closeConnection(context)
+        }
+    }
+
+    private fun doProcess(): Database {
         val dbAnnotation = MoreElements
                 .getAnnotationMirror(element, android.arch.persistence.room.Database::class.java)
                 .orNull()

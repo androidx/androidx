@@ -55,7 +55,7 @@ import java.util.List;
  *     {@literal @}SuppressWarnings("FieldCanBeLocal")
  *     private final InvalidationTracker.Observer mObserver;
  *
- *     public OffsetUserQueryDataSource(MyDatabase db) {
+ *     public KeyedUserQueryDataSource(MyDatabase db) {
  *         mDb = db;
  *         mUserDao = db.getUserDao();
  *         mObserver = new InvalidationTracker.Observer("user") {
@@ -86,11 +86,15 @@ import java.util.List;
  *
  *     {@literal @}Override
  *     public List&lt;User> loadBefore({@literal @}NonNull String userName, int pageSize) {
+ *         // Return items adjacent to 'userName' in reverse order
+ *         // it's valid to return a different-sized list of items than pageSize, if it's easier
  *         return mUserDao.userNameLoadBefore(userName, pageSize);
  *     }
  *
  *     {@literal @}Override
  *     public List&lt;User> loadAfter({@literal @}Nullable String userName, int pageSize) {
+ *         // Return items adjacent to 'userName'
+ *         // it's valid to return a different-sized list of items than pageSize, if it's easier
  *         return mUserDao.userNameLoadAfter(userName, pageSize);
  *     }
  * }</pre>
@@ -99,10 +103,6 @@ import java.util.List;
  * @param <Value> Type of items being loaded by the DataSource.
  */
 public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<Key, Value> {
-    @Override
-    public final int countItems() {
-        return 0; // method not called, can't be overridden
-    }
 
     @Nullable
     @Override
@@ -114,7 +114,14 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
     @Override
     List<Value> loadBeforeImpl(
             int currentBeginIndex, @NonNull Value currentBeginItem, int pageSize) {
-        return loadBefore(getKey(currentBeginItem), pageSize);
+        List<Value> list = loadBefore(getKey(currentBeginItem), pageSize);
+
+        if (list != null && list.size() > 1) {
+            // TODO: move out of keyed entirely, into the DB DataSource.
+            list = new ArrayList<>(list);
+            Collections.reverse(list);
+        }
+        return list;
     }
 
     @Nullable
@@ -187,6 +194,8 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @WorkerThread
+    @Override
     public NullPaddedList<Value> loadInitial(
             @Nullable Key key, int initialLoadSize, boolean enablePlaceholders) {
         if (isInvalid()) {
@@ -283,10 +292,17 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
     public abstract List<Value> loadAfter(@NonNull Key currentEndKey, int pageSize);
 
     /**
-     * Load data before the currently loaded content, starting at the provided index.
+     * Load data before the currently loaded content, starting at the provided index,
+     * in reverse-display order.
      * <p>
      * It's valid to return a different list size than the page size, if it's easier for this data
      * source. It is generally safer to increase the number loaded than reduce.
+     * <p class="note"><strong>Note:</strong> Items returned from loadBefore <em>must</em> be in
+     * reverse order from how they will be presented in the list. The first item in the return list
+     * will be prepended immediately before the current beginning of the list. This is so that the
+     * KeyedDataSource may return a different number of items from the requested {@code pageSize} by
+     * shortening or lengthening the return list as it desires.
+     * <p>
      *
      * @param currentBeginKey Load items before this key.
      * @param pageSize         Suggested number of items to load.

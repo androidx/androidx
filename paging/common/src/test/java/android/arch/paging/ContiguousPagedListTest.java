@@ -16,6 +16,7 @@
 
 package android.arch.paging;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
@@ -109,6 +110,7 @@ public class ContiguousPagedListTest {
 
     private void verifyRange(int start, int count, NullPaddedList<Item> actual) {
         if (mCounted) {
+            //noinspection UnnecessaryLocalVariable
             int expectedLeading = start;
             int expectedTrailing = ITEMS.size() - start - count;
             assertEquals(ITEMS.size(), actual.size());
@@ -130,6 +132,38 @@ public class ContiguousPagedListTest {
                 assertSame(ITEMS.get(i + start), actual.get(i));
             }
         }
+    }
+
+    @SuppressWarnings("SuspiciousSystemArraycopy")
+    private void verifyRange(int start, int count, PagedStorage<?, Item> actual) {
+        if (mCounted) {
+            Item[] expected = new Item[ITEMS.size()];
+            System.arraycopy(ITEMS.toArray(), start, expected, start, count);
+            assertArrayEquals(expected, actual.toArray());
+
+            //noinspection UnnecessaryLocalVariable
+            int expectedLeading = start;
+            int expectedTrailing = ITEMS.size() - start - count;
+            assertEquals(ITEMS.size(), actual.size());
+            assertEquals(ITEMS.size() - expectedLeading - expectedTrailing,
+                    actual.getStorageCount());
+            assertEquals(expectedLeading, actual.getLeadingNullCount());
+            assertEquals(expectedTrailing, actual.getTrailingNullCount());
+
+        } else {
+            Item[] expected = new Item[count];
+            System.arraycopy(ITEMS.toArray(), start, expected, 0, count);
+            assertArrayEquals(expected, actual.toArray());
+
+            assertEquals(count, actual.size());
+            assertEquals(actual.size(), actual.getStorageCount());
+            assertEquals(0, actual.getLeadingNullCount());
+            assertEquals(0, actual.getTrailingNullCount());
+        }
+    }
+
+    private void verifyRange(int start, int count, PagedList<Item> actual) {
+        verifyRange(start, count, actual.mStorage);
     }
 
     private void verifyCallback(PagedList.Callback callback, int countedPosition,
@@ -154,7 +188,7 @@ public class ContiguousPagedListTest {
     }
 
 
-    private ContiguousPagedList<Item> createCountedPagedList(
+    private ContiguousPagedList<Integer, Item> createCountedPagedList(
             PagedList.Config config, int initialPosition) {
         TestSource source = new TestSource();
         return new ContiguousPagedList<>(
@@ -163,7 +197,7 @@ public class ContiguousPagedListTest {
                 initialPosition);
     }
 
-    private ContiguousPagedList<Item> createCountedPagedList(int initialPosition) {
+    private ContiguousPagedList<Integer, Item> createCountedPagedList(int initialPosition) {
         return createCountedPagedList(
                 new PagedList.Config.Builder()
                         .setInitialLoadSizeHint(40)
@@ -174,8 +208,14 @@ public class ContiguousPagedListTest {
     }
 
     @Test
+    public void construct() {
+        ContiguousPagedList<Integer, Item> pagedList = createCountedPagedList(0);
+        verifyRange(0, 40, pagedList);
+    }
+
+    @Test
     public void append() {
-        ContiguousPagedList<Item> pagedList = createCountedPagedList(0);
+        ContiguousPagedList<Integer, Item> pagedList = createCountedPagedList(0);
         PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addWeakCallback(null, callback);
         verifyRange(0, 40, pagedList);
@@ -192,7 +232,7 @@ public class ContiguousPagedListTest {
 
     @Test
     public void prepend() {
-        ContiguousPagedList<Item> pagedList = createCountedPagedList(80);
+        ContiguousPagedList<Integer, Item> pagedList = createCountedPagedList(80);
         PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addWeakCallback(null, callback);
         verifyRange(60, 40, pagedList);
@@ -208,7 +248,7 @@ public class ContiguousPagedListTest {
 
     @Test
     public void outwards() {
-        ContiguousPagedList<Item> pagedList = createCountedPagedList(50);
+        ContiguousPagedList<Integer, Item> pagedList = createCountedPagedList(50);
         PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addWeakCallback(null, callback);
         verifyRange(30, 40, pagedList);
@@ -231,7 +271,7 @@ public class ContiguousPagedListTest {
 
     @Test
     public void multiAppend() {
-        ContiguousPagedList<Item> pagedList = createCountedPagedList(0);
+        ContiguousPagedList<Integer, Item> pagedList = createCountedPagedList(0);
         PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addWeakCallback(null, callback);
         verifyRange(0, 40, pagedList);
@@ -248,7 +288,7 @@ public class ContiguousPagedListTest {
 
     @Test
     public void distantPrefetch() {
-        ContiguousPagedList<Item> pagedList = createCountedPagedList(
+        ContiguousPagedList<Integer, Item> pagedList = createCountedPagedList(
                 new PagedList.Config.Builder()
                         .setInitialLoadSizeHint(10)
                         .setPageSize(10)
@@ -274,7 +314,7 @@ public class ContiguousPagedListTest {
 
     @Test
     public void appendCallbackAddedLate() {
-        ContiguousPagedList<Item> pagedList = createCountedPagedList(0);
+        ContiguousPagedList<Integer, Item> pagedList = createCountedPagedList(0);
         verifyRange(0, 40, pagedList);
 
         pagedList.loadAround(35);
@@ -282,7 +322,7 @@ public class ContiguousPagedListTest {
         verifyRange(0, 60, pagedList);
 
         // snapshot at 60 items
-        NullPaddedList<Item> snapshot = (NullPaddedList<Item>) pagedList.snapshot();
+        PagedList<Item> snapshot = (PagedList<Item>) pagedList.snapshot();
         verifyRange(0, 60, snapshot);
 
 
@@ -300,7 +340,7 @@ public class ContiguousPagedListTest {
 
     @Test
     public void prependCallbackAddedLate() {
-        ContiguousPagedList<Item> pagedList = createCountedPagedList(80);
+        ContiguousPagedList<Integer, Item> pagedList = createCountedPagedList(80);
         verifyRange(60, 40, pagedList);
 
         pagedList.loadAround(mCounted ? 65 : 5);
@@ -308,7 +348,7 @@ public class ContiguousPagedListTest {
         verifyRange(40, 60, pagedList);
 
         // snapshot at 60 items
-        NullPaddedList<Item> snapshot = (NullPaddedList<Item>) pagedList.snapshot();
+        PagedList<Item> snapshot = (PagedList<Item>) pagedList.snapshot();
         verifyRange(40, 60, snapshot);
 
 

@@ -40,7 +40,9 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Str
                                 adapter: QueryResultAdapter?)
     : BaseObservableQueryResultBinder(adapter) {
     @Suppress("JoinDeclarationAndAssignment")
-    override fun convertAndReturn(roomSQLiteQueryVar : String, dbField: FieldSpec,
+    override fun convertAndReturn(roomSQLiteQueryVar : String,
+                                  dbField: FieldSpec,
+                                  inTransaction : Boolean,
                                   scope: CodeGenScope) {
         val typeName = typeArg.typeName()
 
@@ -55,6 +57,7 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Str
                     typeName = typeName,
                     roomSQLiteQueryVar = roomSQLiteQueryVar,
                     dbField = dbField,
+                    inTransaction = inTransaction,
                     scope = scope
             ))
             addMethod(createFinalizeMethod(roomSQLiteQueryVar))
@@ -66,6 +69,7 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Str
 
     private fun createComputeMethod(roomSQLiteQueryVar: String, typeName: TypeName,
                                     observerField: FieldSpec, dbField: FieldSpec,
+                                    inTransaction: Boolean,
                                     scope: CodeGenScope): MethodSpec {
         return MethodSpec.methodBuilder("compute").apply {
             addAnnotation(Override::class.java)
@@ -79,7 +83,11 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Str
             }
             endControlFlow()
 
-            createRunQueryAndReturnStatements(this, roomSQLiteQueryVar, scope)
+            createRunQueryAndReturnStatements(builder = this,
+                    roomSQLiteQueryVar = roomSQLiteQueryVar,
+                    dbField = dbField,
+                    inTransaction = inTransaction,
+                    scope = scope)
         }.build()
     }
 

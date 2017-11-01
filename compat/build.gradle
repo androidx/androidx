@@ -4,6 +4,7 @@ dependencies {
     api project(':support-annotations')
     api (libs.arch_lifecycle_runtime)  {
         exclude module: 'support-annotations'
+        transitive = true
     }
 
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
@@ -19,8 +20,7 @@ android {
     }
 
     sourceSets {
-        main.java.srcDirs = ['java']
-        main.aidl.srcDirs = ['java']
+        main.aidl.srcDirs = ['src/main/java']
         main.res.srcDirs 'res', 'res-public'
     }
 

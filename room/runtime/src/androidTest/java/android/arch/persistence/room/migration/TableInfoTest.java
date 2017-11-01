@@ -37,6 +37,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -179,10 +180,47 @@ public class TableInfoTest {
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
+    @Test
+    public void readIndices() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (n INTEGER, indexed TEXT, unique_indexed TEXT,"
+                        + "a INTEGER, b INTEGER);",
+                "CREATE INDEX foo_indexed ON foo(indexed);",
+                "CREATE UNIQUE INDEX foo_unique_indexed ON foo(unique_indexed COLLATE NOCASE"
+                        + " DESC);",
+                "CREATE INDEX " + TableInfo.Index.DEFAULT_PREFIX + "foo_composite_indexed"
+                        + " ON foo(a, b);"
+        );
+        TableInfo info = TableInfo.read(mDb, "foo");
+        assertThat(info, is(new TableInfo(
+                "foo",
+                toMap(new TableInfo.Column("n", "INTEGER", false, 0),
+                        new TableInfo.Column("indexed", "TEXT", false, 0),
+                        new TableInfo.Column("unique_indexed", "TEXT", false, 0),
+                        new TableInfo.Column("a", "INTEGER", false, 0),
+                        new TableInfo.Column("b", "INTEGER", false, 0)),
+                Collections.<TableInfo.ForeignKey>emptySet(),
+                toSet(new TableInfo.Index("index_foo_blahblah", false,
+                        Arrays.asList("a", "b")),
+                        new TableInfo.Index("foo_unique_indexed", true,
+                                Arrays.asList("unique_indexed")),
+                        new TableInfo.Index("foo_indexed", false,
+                                Arrays.asList("indexed"))))
+        ));
+    }
+
     private static Map<String, TableInfo.Column> toMap(TableInfo.Column... columns) {
         Map<String, TableInfo.Column> result = new HashMap<>();
         for (TableInfo.Column column : columns) {
             result.put(column.name, column);
+        }
+        return result;
+    }
+
+    private static <T> Set<T> toSet(T... ts) {
+        final HashSet<T> result = new HashSet<T>();
+        for (T t : ts) {
+            result.add(t);
         }
         return result;
     }

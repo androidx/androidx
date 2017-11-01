@@ -16,8 +16,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.v13">
     <uses-sdk android:minSdkVersion="14"/>
-    <application>
-        <meta-data android:name="android.support.v13.VERSION"
-                   android:value="${support-version}" />
-    </application>
 </manifest>

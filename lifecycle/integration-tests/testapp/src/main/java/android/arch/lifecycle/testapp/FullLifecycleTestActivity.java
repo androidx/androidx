@@ -19,8 +19,8 @@ package android.arch.lifecycle.testapp;
 import static android.arch.lifecycle.testapp.TestEvent.ACTIVITY_CALLBACK;
 
 import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Activity for testing full lifecycle
  */
-public class FullLifecycleTestActivity extends LifecycleActivity implements CollectingActivity {
+public class FullLifecycleTestActivity extends FragmentActivity implements CollectingActivity {
 
     private List<Pair<TestEvent, Lifecycle.Event>> mCollectedEvents = new ArrayList<>();
     private TestObserver mTestObserver = new TestObserver(mCollectedEvents);

@@ -70,6 +70,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     companion object {
         const val DAO_PREFIX = """
                 package foo.bar;
+                import android.support.annotation.NonNull;
                 import android.arch.persistence.room.*;
                 @Dao
                 abstract class MyClass {
@@ -312,7 +313,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { _, _ ->
             // do nothing
         }.failsToCompile()
-                .withErrorContaining(ProcessorErrors.LIVE_DATA_QUERY_NOTHING_TO_OBSERVE)
+                .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
     }
 
     @Test
@@ -324,7 +325,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { _, _ ->
             // do nothing
         }.failsToCompile()
-                .withErrorContaining(ProcessorErrors.LIVE_DATA_QUERY_NOTHING_TO_OBSERVE)
+                .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
     }
 
     @Test
@@ -441,6 +442,55 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         ) { _, _ ->
         }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT)
+    }
+
+    @Test
+    fun query_detectTransaction_delete() {
+        singleQueryMethod(
+                """
+                @Query("delete from user where uid = :id")
+                abstract int deleteUser(String id);
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun query_detectTransaction_update() {
+        singleQueryMethod(
+                """
+                @Query("UPDATE user set uid = :id + 1 where uid = :id")
+                abstract int incrementId(String id);
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun query_detectTransaction_select() {
+        singleQueryMethod(
+                """
+                @Query("select * from user")
+                abstract int loadUsers();
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(false))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun query_detectTransaction_selectInTransaction() {
+        singleQueryMethod(
+                """
+                @Transaction
+                @Query("select * from user")
+                abstract int loadUsers();
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(true))
+        }.compilesWithoutError()
     }
 
     @Test
@@ -596,6 +646,30 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         allColumns = listOf("lastName"),
                         allFields = listOf(createField("name"), createField("lastName"))
                 ))
+    }
+
+    @Test
+    fun pojo_missingNonNull() {
+        pojoTest("""
+            @NonNull
+            String name;
+            String lastName;
+            """, listOf("lastName")) { adapter, _, _ ->
+            assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
+            assertThat(adapter?.mapping?.unusedFields, `is`(
+                    adapter?.pojo?.fields?.filter { it.name == "name" }
+            ))
+        }?.failsToCompile()?.withWarningContaining(
+                ProcessorErrors.cursorPojoMismatch(
+                        pojoTypeName = POJO,
+                        unusedColumns = emptyList(),
+                        unusedFields = listOf(createField("name")),
+                        allColumns = listOf("lastName"),
+                        allFields = listOf(createField("name"), createField("lastName"))
+                ))?.and()?.withErrorContaining(
+                ProcessorErrors.pojoMissingNonNull(pojoTypeName = POJO,
+                        missingPojoFields = listOf("name"),
+                        allQueryColumns = listOf("lastName")))
     }
 
     @Test

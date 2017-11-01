@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <font-family xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:fontProviderAuthority="com.example.test.fontprovider.authority"
-    app:fontProviderPackage="com.example.test.fontprovider.package"
-    app:fontProviderQuery="MyRequestedFont">
+    app:fontProviderAuthority="android.support.provider.fonts.font"
+    app:fontProviderPackage="android.support.compat.test"
+    app:fontProviderQuery="singleFontFamily"
+    app:fontProviderCerts="@array/mock_provider_certs">
 </font-family>
