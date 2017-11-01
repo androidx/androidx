@@ -18,6 +18,7 @@ package android.arch.background.workmanager.firebase;
 
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
+import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.util.Log;
 
@@ -26,6 +27,7 @@ import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.JobTrigger;
 import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.ObservedUri;
 import com.firebase.jobdispatcher.RetryStrategy;
 import com.firebase.jobdispatcher.Trigger;
 
@@ -61,10 +63,18 @@ class FirebaseJobConverter {
     private JobTrigger createTrigger(WorkSpec workSpec) {
         int initialDelay = (int) TimeUnit.SECONDS
                 .convert(workSpec.getInitialDelay(), TimeUnit.MILLISECONDS);
+        // TODO(xbhatnag): Support Initial Delay + Content URI Triggers
         if (initialDelay > 0) {
             // This is a workaround for Firebase/GCM not supporting initial delay.
             // Execution is not guaranteed at initialDelay.
             return Trigger.executionWindow(initialDelay, initialDelay);
+        } else if (workSpec.getConstraints().hasContentUriTriggers()) {
+            List<ObservedUri> observedUris = new ArrayList<>();
+            ContentUriTriggers triggers = workSpec.getConstraints().getContentUriTriggers();
+            for (ContentUriTriggers.Trigger trigger : triggers) {
+                observedUris.add(convertContentUriTrigger(trigger));
+            }
+            return Trigger.contentUriTrigger(observedUris);
         } else {
             return Trigger.NOW;
         }
@@ -78,6 +88,13 @@ class FirebaseJobConverter {
         int maxBackoff = (int) TimeUnit.SECONDS
                 .convert(Work.MAX_BACKOFF_DURATION, TimeUnit.MILLISECONDS);
         return mDispatcher.newRetryStrategy(policy, initialBackoff, maxBackoff);
+    }
+
+    private static ObservedUri convertContentUriTrigger(
+            ContentUriTriggers.Trigger trigger) {
+        int flag = trigger.shouldTriggerForDescendants()
+                ? ObservedUri.Flags.FLAG_NOTIFY_FOR_DESCENDANTS : 0;
+        return new ObservedUri(trigger.getUri(), flag);
     }
 
     private int[] getConstraints(WorkSpec workSpec) {
