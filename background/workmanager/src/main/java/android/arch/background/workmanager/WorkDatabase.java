@@ -29,10 +29,14 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 /**
  * A Room database for keeping track of work statuses.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Database(entities = {WorkSpec.class, Dependency.class}, version = 1)
 public abstract class WorkDatabase extends RoomDatabase {
 

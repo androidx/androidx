@@ -26,6 +26,7 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
@@ -38,8 +39,10 @@ import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A {@link Processor} that handles execution when the app is in the foreground.
+ *
+ * @hide
  */
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ForegroundProcessor extends Processor
         implements Observer<List<WorkSpec>>, LifecycleObserver {
 

@@ -21,6 +21,7 @@ import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.WorkerWrapper;
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -32,7 +33,10 @@ import java.util.Map;
 
 /**
  * Service invoked by {@link com.firebase.jobdispatcher.FirebaseJobDispatcher} to run work tasks.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FirebaseJobService extends JobService implements ExecutionListener {
     private static final String TAG = "FirebaseJobService";
     private FirebaseJobProcessor mFirebaseJobProcessor;

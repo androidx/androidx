@@ -16,6 +16,7 @@
 package android.arch.background.workmanager;
 
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -26,8 +27,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A Processor can intelligently schedule and execute work on demand.
+ *
+ * @hide
  */
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class Processor implements ExecutionListener {
     private static final String TAG = "Processor";
     protected Context mAppContext;

@@ -21,11 +21,15 @@ import android.app.job.JobScheduler;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 /**
  * A class that schedules work using {@link android.app.job.JobScheduler}.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @TargetApi(23)
 public class SystemJobScheduler implements Scheduler {
     private static final String TAG = "SystemJobScheduler";

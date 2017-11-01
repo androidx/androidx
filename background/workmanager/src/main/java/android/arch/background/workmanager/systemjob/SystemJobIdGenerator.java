@@ -18,11 +18,15 @@ package android.arch.background.workmanager.systemjob;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.RestrictTo;
 
 /**
  * Generates IDs for {@link android.app.job.JobScheduler} jobs. The value for the next ID is
  * persisted in {@link SharedPreferences}.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemJobIdGenerator {
     static final String PREFERENCE_FILE_KEY = "android.arch.background.workmanager.util.id";
     static final String NEXT_ID_KEY = "next_id";

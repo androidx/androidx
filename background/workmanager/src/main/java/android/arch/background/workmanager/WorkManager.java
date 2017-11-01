@@ -28,7 +28,7 @@ import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
+import android.support.annotation.RestrictTo;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,7 +61,6 @@ public final class WorkManager {
         return sInstance;
     }
 
-    @VisibleForTesting
     WorkManager(Context context, boolean useTestDatabase) {
         mContext = context.getApplicationContext();
         mWorkDatabase = WorkDatabase.create(mContext, useTestDatabase);
@@ -73,10 +72,10 @@ public final class WorkManager {
 
     /**
      * @return The {@link WorkDatabase} instance associated with this WorkManager.
+     *
+     * @hide
      */
-    // TODO(sumir): Fix public access.  Need it for SystemJobService, but these classes need to be
-    // refactored.
-    // @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkDatabase getWorkDatabase() {
         return mWorkDatabase;
     }
@@ -84,7 +83,10 @@ public final class WorkManager {
     /**
      * @return The {@link Scheduler} associated with this WorkManager based on the device's
      * capabilities, SDK version, etc.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public Scheduler getScheduler() {
         return mScheduler;
     }

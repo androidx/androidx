@@ -21,14 +21,17 @@ import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkerWrapper;
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 
 import java.util.concurrent.Executors;
 
 /**
  * A {@link Processor} that handles execution for work coming via
  * {@link com.firebase.jobdispatcher.FirebaseJobDispatcher}.
+ *
+ * @hide
  */
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FirebaseJobProcessor extends Processor {
 
     private ExecutionListener mOuterListener;
