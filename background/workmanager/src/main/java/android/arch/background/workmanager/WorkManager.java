@@ -28,6 +28,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
@@ -179,7 +180,37 @@ public final class WorkManager {
     }
 
     /**
-     * Clears all work regardless of the current state.
+     * Clears all work with the given tag prefix, regardless of the current state of the work.
+     *
+     * @param tagPrefix The tag prefix used to identify the work
+     */
+    public void clearAllWorkWithTagPrefix(@NonNull final String tagPrefix) {
+        mEnqueueExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mWorkDatabase.workSpecDao().clearAllWithTagPrefix(tagPrefix + "%");
+            }
+        });
+    }
+
+    /**
+     * Clears all work with the given tag, regardless of the current state of the work.
+     *
+     * @param tag The tag used to identify the work
+     */
+    public void clearAllWorkWithTag(@NonNull final String tag) {
+        mEnqueueExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mWorkDatabase.workSpecDao().clearAllWithTag(tag);
+            }
+        });
+    }
+
+    /**
+     * Clears all work regardless of the current state of the work.  This is dangerous to use if you
+     * have multiple modules/libraries that reference WorkManager.  Consider using
+     * {@link #clearAllWorkWithTag(String)} or {@link #clearAllWorkWithTagPrefix(String)} instead.
      */
     public void clearAllWork() {
         mEnqueueExecutor.execute(new Runnable() {

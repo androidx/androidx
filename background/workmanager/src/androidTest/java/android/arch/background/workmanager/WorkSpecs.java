@@ -63,6 +63,20 @@ public class WorkSpecs {
         return work.getWorkSpec();
     }
 
+    /**
+     * Creates a {@link WorkSpec} from a {@link Worker} class for testing.  Used to overcome the
+     * fact that Work.getWorkSpec is not public (nor should it be).  This version also sets the
+     * tag.
+     *
+     * @param clazz The {@link Worker} class
+     * @param tag The tag to set
+     * @return A {@link WorkSpec}
+     */
+    public static WorkSpec getWorkSpecWithTag(Class<? extends Worker> clazz, String tag) {
+        Work work = new Work.Builder(clazz).withTag(tag).build();
+        return work.getWorkSpec();
+    }
+
     private WorkSpecs() {
         // Do nothing.
     }

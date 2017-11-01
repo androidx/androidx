@@ -58,6 +58,7 @@ public class WorkSpec {
 
     Arguments mArguments = new Arguments();
 
+    @ColumnInfo(name = "tag")
     String mTag;
 
     @ColumnInfo(name = "run_attempt_count")

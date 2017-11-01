@@ -18,6 +18,7 @@ package android.arch.background.workmanager;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
@@ -253,6 +254,77 @@ public class WorkManagerTest {
         assertThat(workSpec.isPeriodic(), is(true));
         assertThat(workSpec.getIntervalDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION));
         assertThat(workSpec.getFlexDuration(), is(0L));
+    }
+
+    @Test
+    public void testClearAllWork() throws InterruptedException {
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        WorkSpec workSpec1 = WorkSpecs.getWorkSpec(TestWorker.class);
+        WorkSpec workSpec2 = WorkSpecs.getWorkSpec(TestWorker.class);
+        workSpecDao.insertWorkSpec(workSpec1);
+        workSpecDao.insertWorkSpec(workSpec2);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
+
+        mWorkManager.clearAllWork();
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
+
+        assertThat(workSpecDao.getWorkSpec(workSpec1.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(workSpec2.getId()), is(nullValue()));
+    }
+
+    @Test
+    public void testClearAllWorkByTag() throws InterruptedException {
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        final String tagToClear = "tag_to_clear";
+        final String tagNotToClear = "tag_not_to_clear";
+
+        WorkSpec workSpec1 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, tagToClear);
+        WorkSpec workSpec2 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, tagToClear);
+        WorkSpec workSpec3 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, tagNotToClear);
+        WorkSpec workSpec4 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, tagNotToClear);
+        workSpecDao.insertWorkSpec(workSpec1);
+        workSpecDao.insertWorkSpec(workSpec2);
+        workSpecDao.insertWorkSpec(workSpec3);
+        workSpecDao.insertWorkSpec(workSpec4);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
+
+        mWorkManager.clearAllWorkWithTag(tagToClear);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
+
+        assertThat(workSpecDao.getWorkSpec(workSpec1.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(workSpec2.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(workSpec3.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(workSpec4.getId()), is(notNullValue()));
+    }
+
+    @Test
+    public void testClearAllWorkByTagPrefix() throws InterruptedException {
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        final String clearablePrefix = "clear_";
+        final String unclearablePrefix = "do_not_clear_";
+
+        WorkSpec workSpec1 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, clearablePrefix + "1");
+        WorkSpec workSpec2 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, clearablePrefix + "2");
+        WorkSpec workSpec3 =
+                WorkSpecs.getWorkSpecWithTag(TestWorker.class, unclearablePrefix + "1");
+        WorkSpec workSpec4 =
+                WorkSpecs.getWorkSpecWithTag(TestWorker.class, unclearablePrefix + "2");
+        workSpecDao.insertWorkSpec(workSpec1);
+        workSpecDao.insertWorkSpec(workSpec2);
+        workSpecDao.insertWorkSpec(workSpec3);
+        workSpecDao.insertWorkSpec(workSpec4);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
+
+        mWorkManager.clearAllWorkWithTagPrefix(clearablePrefix);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
+
+        assertThat(workSpecDao.getWorkSpec(workSpec1.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(workSpec2.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(workSpec3.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(workSpec4.getId()), is(notNullValue()));
     }
 
     @Test
