@@ -16,7 +16,7 @@ limitations under the License.
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/app_header_height">
+    android:layout_height="@dimen/car_app_bar_height">
     <android.support.v7.widget.Toolbar
         android:id="@+id/car_toolbar"
         android:layout_width="match_parent"

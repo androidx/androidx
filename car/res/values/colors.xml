@@ -95,6 +95,10 @@
     <color name="car_body4_dark">@android:color/black</color>
     <color name="car_body4">@color/car_body4_dark</color>
 
+    <color name="car_action1_light">@color/car_grey_900</color>
+    <color name="car_action1_dark">@color/car_grey_50</color>
+    <color name="car_action1">@color/car_action1_dark</color>
+
     <!-- The tinting colors to create a light- and dark-colored icon respectively. -->
     <color name="car_tint_light">@color/car_grey_50</color>
     <color name="car_tint_dark">@color/car_grey_900</color>
@@ -148,4 +152,9 @@
     <!-- The inverted color of the scroll bar indicator. This color is always the opposite of
          car_scrollbar_thumb. -->
     <color name="car_scrollbar_thumb_inverse">@color/car_scrollbar_thumb_light</color>
+
+    <!-- Misc colors -->
+    <color name="car_highlight_light">@color/car_teal_700</color>
+    <color name="car_highlight_dark">@color/car_teal_200</color>
+    <color name="car_highlight">@color/car_highlight_light</color>
 </resources>

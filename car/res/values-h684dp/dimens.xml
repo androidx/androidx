@@ -14,14 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <dimen name="car_title_size">32sp</dimen>
-    <dimen name="car_headline1_size">56sp</dimen>
-    <dimen name="car_headline2_size">50sp</dimen>
-    <dimen name="car_body1_size">40sp</dimen>
-    <dimen name="car_body2_size">32sp</dimen>
+    <!-- Car Component Dimensions -->
+    <dimen name="car_app_bar_height">96dp</dimen>
 
-    <dimen name="app_header_height">148dp</dimen>
-
+    <!-- List and Drawer Dimensions -->
     <dimen name="car_drawer_list_item_icon_size">108dp</dimen>
     <dimen name="car_drawer_list_item_small_icon_size">56dp</dimen>
     <dimen name="car_drawer_list_item_end_icon_size">56dp</dimen>

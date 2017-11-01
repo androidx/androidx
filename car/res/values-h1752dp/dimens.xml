@@ -14,5 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <dimen name="app_header_height">112dp</dimen>
+    <!-- Type Sizings -->
+    <dimen name="car_title_size">32sp</dimen>
+    <dimen name="car_title2_size">40sp</dimen>
+    <dimen name="car_headline1_size">56sp</dimen>
+    <dimen name="car_headline2_size">50sp</dimen>
+    <dimen name="car_body1_size">40sp</dimen>
+    <dimen name="car_body2_size">32sp</dimen>
+    <dimen name="car_action1_size">32sp</dimen>
+
+    <!-- Car Component Dimensions -->
+    <!-- Application Bar Height -->
+    <dimen name="car_app_bar_height">112dp</dimen>
+
+    <!-- Icon dimensions -->
+    <dimen name="car_primary_icon_size">56dp</dimen>
+    <dimen name="car_secondary_icon_size">36dp</dimen>
 </resources>

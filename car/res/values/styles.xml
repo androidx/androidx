@@ -105,4 +105,28 @@ limitations under the License.
         <item name="arrowHeadLength">@dimen/car_arrow_head_length</item>
         <item name="drawableSize">@dimen/car_arrow_size</item>
     </style>
+
+    <!-- The styles for the regular and borderless buttons -->
+    <style name="CarButton" parent="android:Widget.Material.Button">
+        <item name="android:layout_height">@dimen/car_button_height</item>
+        <item name="android:minWidth">@dimen/car_button_min_width</item>
+        <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_action1_size</item>
+        <item name="android:textColor">@drawable/car_button_text_color</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:background">@drawable/car_button_background</item>
+    </style>
+
+    <style name="CarBorderlessButton" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:layout_height">@dimen/car_button_height</item>
+        <item name="android:minWidth">@dimen/car_button_min_width</item>
+        <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_action1_size</item>
+        <item name="android:textColor">@drawable/car_button_text_color</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
 </resources>

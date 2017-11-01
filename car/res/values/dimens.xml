@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <!-- Keylines for content. -->
+    <!-- Keylines -->
     <dimen name="car_keyline_1">24dp</dimen>
     <dimen name="car_keyline_2">96dp</dimen>
-    <dimen name="car_keyline_3">24dp</dimen>
-    <dimen name="car_keyline_4">148dp</dimen>
+    <dimen name="car_keyline_3">112dp</dimen>
 
-    <!-- Various text stylings. -->
+    <!-- Type Sizings -->
     <dimen name="car_title_size">26sp</dimen>
+    <dimen name="car_title2_size">32sp</dimen>
     <dimen name="car_headline1_size">45sp</dimen>
     <dimen name="car_headline2_size">36sp</dimen>
     <dimen name="car_headline3_size">24sp</dimen>
@@ -30,7 +30,40 @@ limitations under the License.
     <dimen name="car_body2_size">26sp</dimen>
     <dimen name="car_body3_size">16sp</dimen>
     <dimen name="car_body4_size">14sp</dimen>
+    <dimen name="car_body5_size">18sp</dimen>
+    <dimen name="car_action1_size">26sp</dimen>
 
+    <!-- Paddings -->
+    <dimen name="car_padding_1">4dp</dimen>
+    <dimen name="car_padding_2">10dp</dimen>
+    <dimen name="car_padding_3">16dp</dimen>
+    <dimen name="car_padding_4">28dp</dimen>
+    <dimen name="car_padding_5">32dp</dimen>
+
+    <!-- Radii -->
+    <dimen name="car_radius_1">4dp</dimen>
+    <dimen name="car_radius_2">8dp</dimen>
+    <dimen name="car_radius_3">16dp</dimen>
+    <dimen name="car_radius_5">100dp</dimen>
+
+    <!-- Margin -->
+    <dimen name="car_margin">112dp</dimen>
+
+    <!-- Car Component Dimensions -->
+    <!-- Application Bar Height -->
+    <dimen name="car_app_bar_height">80dp</dimen>
+    
+    <!-- Button Dimensions -->
+    <dimen name="car_button_height">64dp</dimen>
+    <dimen name="car_button_min_width">158dp</dimen>
+    <dimen name="car_button_horizontal_padding">@dimen/car_padding_4</dimen>
+    <dimen name="car_button_radius">@dimen/car_radius_1</dimen>
+
+    <!-- Icon dimensions -->
+    <dimen name="car_primary_icon_size">44dp</dimen>
+    <dimen name="car_secondary_icon_size">24dp</dimen>
+    
+    <!-- List and Drawer Dimensions -->
     <!-- The margin on both sides of the screen before the contents of the PagedListView. -->
     <dimen name="car_card_margin">96dp</dimen>
 
@@ -45,10 +78,6 @@ limitations under the License.
     <!-- The amount of space the LayoutManager will make sure the last item on the screen is
          peeking before scrolling down -->
     <dimen name="car_last_card_peek_amount">16dp</dimen>
-
-    <!-- The margin on both sizes of the screen. This margin limits the amount of space that
-         content can take up on screen. -->
-    <dimen name="car_screen_margin_size">16dp</dimen>
 
     <!-- The spacing between each column that fits on the screen. The number of columns is
          determined by integer/car_screen_num_of_columns. -->
