@@ -26,6 +26,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.support.annotation.NonNull;
 
 import java.util.List;
 
@@ -137,6 +138,22 @@ public interface WorkSpecDao {
     @Query("SELECT id FROM workspec WHERE status=" + STATUS_BLOCKED + " AND id NOT IN "
             + "(SELECT DISTINCT work_spec_id FROM dependency)")
     List<String> getUnblockedWorkIds();
+
+    /**
+     * Clears all work with the given tag prefix.
+     *
+     * @param tagPrefix The tag prefix used to identify some work.
+     */
+    @Query("DELETE FROM workspec WHERE tag LIKE :tagPrefix")
+    void clearAllWithTagPrefix(@NonNull String tagPrefix);
+
+    /**
+     * Clears all work with the given tag.
+     *
+     * @param tag The tag used to identify some work.
+     */
+    @Query("DELETE FROM workspec WHERE tag=:tag")
+    void clearAllWithTag(@NonNull String tag);
 
     /**
      * Clears all work.
