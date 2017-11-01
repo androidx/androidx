@@ -405,6 +405,34 @@ public class TypefaceCompatTest {
     }
 
     @Test
+    public void testCreateFromResourcesFamilyXml_resourceFontWithVariationSettings()
+            throws Exception {
+        // Here we test that specifying variation settings for fonts in XMLs works correctly.
+        // We build typefaces from two families containing one font each, using the same font
+        // resource, but having different values for the 'wdth' tag. Then we measure the painted
+        // text to ensure that the tag affects the text width. The font resource used supports
+        // the 'wdth' axis for the dash (-) character.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            // Variation settings are only supported on O and newer.
+            return;
+        }
+        final FamilyResourceEntry entry1 = FontResourcesParserCompat.parse(
+                mResources.getXml(R.font.variationsettingstestfont1), mResources);
+        Typeface typeface1 = TypefaceCompat.createFromResourcesFamilyXml(mContext, entry1,
+                mResources, R.font.variationsettingstestfont1, Typeface.NORMAL, null /* callback */,
+                null /*handler */, false /* isXmlRequest */);
+        assertNotNull(typeface1);
+        final FamilyResourceEntry entry2 = FontResourcesParserCompat.parse(
+                mResources.getXml(R.font.variationsettingstestfont2), mResources);
+        Typeface typeface2 = TypefaceCompat.createFromResourcesFamilyXml(mContext, entry2,
+                mResources, R.font.variationsettingstestfont2, Typeface.NORMAL, null /* callback */,
+                null /*handler */, false /* isXmlRequest */);
+        assertNotNull(typeface2);
+
+        assertEquals(getLargerTypeface("-", typeface1, typeface2), typeface2);
+    }
+
+    @Test
     public void testCreateFromResourcesFontFile() {
         Typeface typeface = TypefaceCompat.createFromResourcesFontFile(mContext, mResources,
                 R.font.large_a, "res/font/large_a.ttf", Typeface.NORMAL);

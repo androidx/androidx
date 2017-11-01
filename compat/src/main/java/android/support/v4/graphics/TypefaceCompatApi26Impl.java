@@ -134,11 +134,11 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
      *      boolean isAsset, int ttcIndex, int weight, int isItalic, FontVariationAxis[] axes)
      */
     private boolean addFontFromAssetManager(Context context, Object family, String fileName,
-            int ttcIndex, int weight, int style) {
+            int ttcIndex, int weight, int style, @Nullable FontVariationAxis[] axes) {
         try {
             final Boolean result = (Boolean) mAddFontFromAssetManager.invoke(family,
                     context.getAssets(), fileName, 0 /* cookie */, false /* isAsset */, ttcIndex,
-                    weight, style, null /* axes */);
+                    weight, style, axes);
             return result.booleanValue();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -207,9 +207,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
         }
         Object fontFamily = newFamily();
         for (final FontFileResourceEntry fontFile : entry.getEntries()) {
-            // TODO: Add variation font support. (b/37853920)
             if (!addFontFromAssetManager(context, fontFamily, fontFile.getFileName(),
-                    fontFile.getTtcIndex(), fontFile.getWeight(), fontFile.isItalic() ? 1 : 0)) {
+                    fontFile.getTtcIndex(), fontFile.getWeight(), fontFile.isItalic() ? 1 : 0,
+                    FontVariationAxis.fromFontVariationSettings(fontFile.getVariationSettings()))) {
                 abortCreation(fontFamily);
                 return null;
             }
@@ -286,7 +286,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
         Object fontFamily = newFamily();
         if (!addFontFromAssetManager(context, fontFamily, path,
                 0 /* ttcIndex */, RESOLVE_BY_FONT_TABLE /* weight */,
-                RESOLVE_BY_FONT_TABLE /* italic */)) {
+                RESOLVE_BY_FONT_TABLE /* italic */, null /* axes */)) {
             abortCreation(fontFamily);
             return null;
         }
