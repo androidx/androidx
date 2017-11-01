@@ -30,11 +30,11 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Stores a set of {@link ContentUriTrigger}s
+ * Stores a set of {@link Trigger}s
  */
 
-public class ContentUriTriggers implements Iterable<ContentUriTriggers.ContentUriTrigger> {
-    private final Set<ContentUriTrigger> mTriggers = new HashSet<>();
+public class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> {
+    private final Set<Trigger> mTriggers = new HashSet<>();
 
     /**
      * Add a Content {@link Uri} to observe
@@ -43,38 +43,42 @@ public class ContentUriTriggers implements Iterable<ContentUriTriggers.ContentUr
      *                              {@link WorkSpec} to run
      */
     public void add(Uri uri, boolean triggerForDescendants) {
-        ContentUriTrigger trigger = new ContentUriTrigger(uri, triggerForDescendants);
+        Trigger trigger = new Trigger(uri, triggerForDescendants);
         mTriggers.add(trigger);
     }
 
     @NonNull
     @Override
-    public Iterator<ContentUriTrigger> iterator() {
+    public Iterator<Trigger> iterator() {
         return mTriggers.iterator();
     }
 
     /**
-     * @return number of {@link ContentUriTrigger} objects
+     * @return number of {@link Trigger} objects
      */
     public int size() {
         return mTriggers.size();
     }
 
     /**
-     * Converts a list of {@link ContentUriTrigger}s to byte array representation
-     * @param triggers the list of {@link ContentUriTrigger}s to convert
+     * Converts a list of {@link Trigger}s to byte array representation
+     * @param triggers the list of {@link Trigger}s to convert
      * @return corresponding byte array representation
      */
     @TypeConverter
     public static byte[] toByteArray(ContentUriTriggers triggers) {
+        if (triggers.size() == 0) {
+            // Return null for no triggers. Needed for SQL query check in ForegroundProcessor
+            return null;
+        }
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = null;
         try {
             objectOutputStream = new ObjectOutputStream(outputStream);
             objectOutputStream.writeInt(triggers.size());
-            for (ContentUriTrigger trigger : triggers) {
+            for (Trigger trigger : triggers) {
                 objectOutputStream.writeUTF(trigger.getUri().toString());
-                objectOutputStream.writeBoolean(trigger.isTriggerForDescendants());
+                objectOutputStream.writeBoolean(trigger.shouldTriggerForDescendants());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -96,13 +100,17 @@ public class ContentUriTriggers implements Iterable<ContentUriTriggers.ContentUr
     }
 
     /**
-     * Converts a byte array to list of {@link ContentUriTrigger}s
+     * Converts a byte array to list of {@link Trigger}s
      * @param bytes byte array representation to convert
-     * @return list of {@link ContentUriTrigger}s
+     * @return list of {@link Trigger}s
      */
     @TypeConverter
     public static ContentUriTriggers fromByteArray(byte[] bytes) {
         ContentUriTriggers triggers = new ContentUriTriggers();
+        if (bytes == null) {
+            // bytes will be null if there are no Content Uri Triggers
+            return triggers;
+        }
         ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
         ObjectInputStream objectInputStream = null;
         try {
@@ -150,13 +158,13 @@ public class ContentUriTriggers implements Iterable<ContentUriTriggers.ContentUr
      * Defines a content {@link Uri} trigger for a {@link WorkSpec}
      */
 
-    public static class ContentUriTrigger {
+    public static class Trigger {
         @NonNull
         private final Uri mUri;
         private final boolean mTriggerForDescendants;
 
-        public ContentUriTrigger(@NonNull Uri uri,
-                                 boolean triggerForDescendants) {
+        public Trigger(@NonNull Uri uri,
+                       boolean triggerForDescendants) {
             mUri = uri;
             mTriggerForDescendants = triggerForDescendants;
         }
@@ -166,7 +174,10 @@ public class ContentUriTriggers implements Iterable<ContentUriTriggers.ContentUr
             return mUri;
         }
 
-        public boolean isTriggerForDescendants() {
+        /**
+         * @return {@code true} if trigger applies to descendants of {@link Uri} also
+         */
+        public boolean shouldTriggerForDescendants() {
             return mTriggerForDescendants;
         }
 
@@ -175,7 +186,7 @@ public class ContentUriTriggers implements Iterable<ContentUriTriggers.ContentUr
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            ContentUriTrigger trigger = (ContentUriTrigger) o;
+            Trigger trigger = (Trigger) o;
 
             return mTriggerForDescendants == trigger.mTriggerForDescendants
                     && mUri.equals(trigger.mUri);

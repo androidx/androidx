@@ -20,6 +20,7 @@ import static android.arch.background.workmanager.WorkSpecs.getWorkSpec;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,6 +30,7 @@ import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.worker.TestWorker;
+import android.net.Uri;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
@@ -136,6 +138,21 @@ public class SystemJobInfoConverterTest {
                 .setRequiresCharging(expectedRequireCharging).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.isRequireCharging(), is(expectedRequireCharging));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testConvert_requireContentUriTrigger() {
+        final Uri expectedUri = Uri.parse("TEST_URI");
+        final JobInfo.TriggerContentUri expectedTriggerContentUri =
+                new JobInfo.TriggerContentUri(
+                        expectedUri, JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS);
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+                .addContentUriTrigger(expectedUri, true).build());
+        JobInfo jobInfo = mConverter.convert(workSpec);
+
+        JobInfo.TriggerContentUri[] triggerContentUris = jobInfo.getTriggerContentUris();
+        assertThat(triggerContentUris, is(arrayContaining(expectedTriggerContentUri)));
     }
 
     @Test
