@@ -20,6 +20,7 @@ import static android.arch.background.workmanager.WorkSpecs.getWorkSpec;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 
 import android.arch.background.workmanager.Work;
@@ -95,13 +96,9 @@ public class FirebaseJobConverterTest {
         WorkSpec workSpec = new WorkSpec("id");
         workSpec.setInitialDelay(givenInitialDelayDuration);
         Job job = mConverter.convert(workSpec);
-        int expectedInitialDelayDuration = (int) TimeUnit.SECONDS
-                .convert(givenInitialDelayDuration, TimeUnit.MILLISECONDS);
 
-        JobTrigger.ExecutionWindowTrigger trigger =
-                (JobTrigger.ExecutionWindowTrigger) job.getTrigger();
-        assertThat(trigger.getWindowStart(), is(expectedInitialDelayDuration));
-        assertThat(trigger.getWindowEnd(), is(expectedInitialDelayDuration));
+        // Initial delay is handled via an AlarmManager broadcast
+        assertThat(job.getTrigger(), is(instanceOf(JobTrigger.ImmediateTrigger.class)));
     }
 
     @Test

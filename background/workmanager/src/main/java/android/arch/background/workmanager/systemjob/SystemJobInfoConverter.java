@@ -23,6 +23,7 @@ import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.utils.IdGenerator;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
@@ -43,22 +44,22 @@ class SystemJobInfoConverter {
     static final String EXTRA_IS_PERIODIC = "EXTRA_IS_PERIODIC";
 
     private final ComponentName mWorkServiceComponent;
-    private final SystemJobIdGenerator mJobIdGenerator;
+    private final IdGenerator mIdGenerator;
 
     /**
-     * Constructs a {@link SystemJobIdGenerator}.
+     * Constructs a {@link IdGenerator}.
      *
      * @param context A non-null {@link Context}.
      */
     SystemJobInfoConverter(@NonNull Context context) {
-        this(context, new SystemJobIdGenerator(context));
+        this(context, new IdGenerator(context));
     }
 
     @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-    SystemJobInfoConverter(@NonNull Context context, SystemJobIdGenerator jobIdGenerator) {
+    SystemJobInfoConverter(@NonNull Context context, IdGenerator idGenerator) {
         Context appContext = context.getApplicationContext();
         mWorkServiceComponent = new ComponentName(appContext, SystemJobService.class);
-        mJobIdGenerator = jobIdGenerator;
+        mIdGenerator = idGenerator;
     }
 
     /**
@@ -71,7 +72,7 @@ class SystemJobInfoConverter {
      */
     JobInfo convert(WorkSpec workSpec) {
         Constraints constraints = workSpec.getConstraints();
-        int jobId = mJobIdGenerator.nextId();
+        int jobId = mIdGenerator.nextJobSchedulerId();
         // TODO(janclarin): Support newer required network types if unsupported by API version.
         int jobInfoNetworkType = convertNetworkType(constraints.getRequiredNetworkType());
         PersistableBundle extras = new PersistableBundle();
