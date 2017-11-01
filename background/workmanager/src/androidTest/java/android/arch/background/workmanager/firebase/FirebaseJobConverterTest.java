@@ -19,12 +19,14 @@ package android.arch.background.workmanager.firebase;
 import static android.arch.background.workmanager.WorkSpecs.getWorkSpec;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.worker.TestWorker;
+import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -35,6 +37,7 @@ import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.JobTrigger;
 import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.ObservedUri;
 import com.firebase.jobdispatcher.RetryStrategy;
 import com.firebase.jobdispatcher.Trigger;
 
@@ -42,6 +45,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
@@ -98,6 +102,21 @@ public class FirebaseJobConverterTest {
                 (JobTrigger.ExecutionWindowTrigger) job.getTrigger();
         assertThat(trigger.getWindowStart(), is(expectedInitialDelayDuration));
         assertThat(trigger.getWindowEnd(), is(expectedInitialDelayDuration));
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_requireContentUriTrigger() {
+        final Uri expectedUri = Uri.parse("TEST_URI");
+        final ObservedUri expectedObservedUri =
+                new ObservedUri(expectedUri, ObservedUri.Flags.FLAG_NOTIFY_FOR_DESCENDANTS);
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+                .addContentUriTrigger(expectedUri, true).build());
+        Job job = mConverter.convert(workSpec);
+
+        JobTrigger.ContentUriTrigger trigger = (JobTrigger.ContentUriTrigger) job.getTrigger();
+        List<ObservedUri> observedUriList = trigger.getUris();
+        assertThat(observedUriList, contains(expectedObservedUri));
     }
 
     @Test
