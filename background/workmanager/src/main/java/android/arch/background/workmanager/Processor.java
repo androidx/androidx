@@ -68,7 +68,7 @@ public abstract class Processor implements ExecutionListener {
                 .build();
         Future<?> future = mExecutorService.schedule(workWrapper, delay, TimeUnit.MILLISECONDS);
         mEnqueuedWorkMap.put(id, future);
-        Log.d(TAG, "Submitted " + id + " to ExecutorService");
+        Log.d(TAG, getClass().getSimpleName() + " submitted " + id + " to ExecutorService");
     }
 
     /**
@@ -80,7 +80,9 @@ public abstract class Processor implements ExecutionListener {
      * @return {@code true} if the work was cancelled successfully.
      */
     public boolean cancel(String id, boolean mayInterruptIfRunning) {
-        Log.d(TAG, "Canceling " + id + "; mayInterruptIfRunning = " + mayInterruptIfRunning);
+        Log.d(TAG,
+                getClass().getSimpleName() + " canceling " + id
+                        + "; mayInterruptIfRunning = " + mayInterruptIfRunning);
         Future<?> future = mEnqueuedWorkMap.get(id);
         if (future != null) {
             boolean cancelled = future.cancel(mayInterruptIfRunning);
@@ -92,7 +94,7 @@ public abstract class Processor implements ExecutionListener {
             }
             return cancelled;
         } else {
-            Log.d(TAG, "Future not found for " + id);
+            Log.d(TAG, getClass().getSimpleName() + " future not found for " + id);
         }
         return false;
     }
@@ -100,6 +102,8 @@ public abstract class Processor implements ExecutionListener {
     @Override
     public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
         mEnqueuedWorkMap.remove(workSpecId);
-        Log.d(TAG, workSpecId + " executed; result = " + result);
+        Log.d(TAG,
+                getClass().getSimpleName() + " " + workSpecId + " executed; result = "
+                        + result);
     }
 }
