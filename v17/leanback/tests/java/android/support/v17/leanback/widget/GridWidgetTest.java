@@ -23,8 +23,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
@@ -61,6 +63,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -3757,6 +3760,31 @@ public class GridWidgetTest {
         assertEquals(0, mGridView.getSelectedPosition());
         assertEquals(selectedLog.size(), 1);
         assertEquals((int) selectedLog.get(0), 0);
+    }
+
+    @Test
+    public void testNotifyItemChangedSelectionEvent() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 10);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        OnChildViewHolderSelectedListener listener =
+                Mockito.mock(OnChildViewHolderSelectedListener.class);
+        mGridView.setOnChildViewHolderSelectedListener(listener);
+
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getAdapter().notifyItemChanged(0, 1);
+            }
+        });
+        Mockito.verify(listener, times(1)).onChildViewHolderSelected(any(RecyclerView.class),
+                any(RecyclerView.ViewHolder.class), anyInt(), anyInt());
+        assertEquals(0, mGridView.getSelectedPosition());
     }
 
     @Test
