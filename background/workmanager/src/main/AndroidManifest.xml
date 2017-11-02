@@ -21,9 +21,6 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application>
-        <meta-data android:name="android.arch.background.workmanager.VERSION"
-                   android:value="${version}" />
-
         <!-- TODO(xbhatnag): Disable the services by default and enable as needed -->
         <service
             android:name=".systemjob.SystemJobService"
