@@ -61,14 +61,7 @@ class FirebaseJobConverter {
     }
 
     private JobTrigger createTrigger(WorkSpec workSpec) {
-        int initialDelay = (int) TimeUnit.SECONDS
-                .convert(workSpec.getInitialDelay(), TimeUnit.MILLISECONDS);
-        // TODO(xbhatnag): Support Initial Delay + Content URI Triggers
-        if (initialDelay > 0) {
-            // This is a workaround for Firebase/GCM not supporting initial delay.
-            // Execution is not guaranteed at initialDelay.
-            return Trigger.executionWindow(initialDelay, initialDelay);
-        } else if (workSpec.getConstraints().hasContentUriTriggers()) {
+        if (workSpec.getConstraints().hasContentUriTriggers()) {
             List<ObservedUri> observedUris = new ArrayList<>();
             ContentUriTriggers triggers = workSpec.getConstraints().getContentUriTriggers();
             for (ContentUriTriggers.Trigger trigger : triggers) {

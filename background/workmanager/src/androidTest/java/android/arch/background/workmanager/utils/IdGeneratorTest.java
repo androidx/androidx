@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager.systemjob;
+package android.arch.background.workmanager.utils;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,9 +38,9 @@ import org.mockito.stubbing.Answer;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 23)
-public class SystemJobIdGeneratorTest {
+public class IdGeneratorTest {
     private Integer mMockSharedPrefsNextId;
-    private SystemJobIdGenerator mIdGenerator;
+    private IdGenerator mIdGenerator;
 
     @Before
     public void setUp() {
@@ -48,29 +48,29 @@ public class SystemJobIdGeneratorTest {
         SharedPreferences.Editor mockEditor = createMockSharedPreferencesEditor();
         SharedPreferences mockSharedPrefs = createMockSharedPreferences(mockEditor);
         when(mMockContext.getSharedPreferences(
-                eq(SystemJobIdGenerator.PREFERENCE_FILE_KEY), anyInt()))
+                eq(IdGenerator.PREFERENCE_FILE_KEY), anyInt()))
                 .thenReturn(mockSharedPrefs);
-        mIdGenerator = new SystemJobIdGenerator(mMockContext);
+        mIdGenerator = new IdGenerator(mMockContext);
     }
 
     @Test
     public void testNextId_returnsInitialIdWhenNoStoredNextId() {
-        assertThat(mIdGenerator.nextId(), is(SystemJobIdGenerator.INITIAL_ID));
+        assertThat(mIdGenerator.nextJobSchedulerId(), is(IdGenerator.INITIAL_ID));
     }
 
     @Test
     public void testNextId_returnsStoredNextId() {
         int expectedId = 100;
         storeNextIdInSharedPrefs(expectedId);
-        assertThat(mIdGenerator.nextId(), is(expectedId));
+        assertThat(mIdGenerator.nextJobSchedulerId(), is(expectedId));
     }
 
     @Test
     public void testNextId_returnsInitialIdAfterReturningMaxInteger() {
         int expectedId = Integer.MAX_VALUE;
         storeNextIdInSharedPrefs(expectedId);
-        assertThat(mIdGenerator.nextId(), is(expectedId));
-        assertThat(mIdGenerator.nextId(), is(SystemJobIdGenerator.INITIAL_ID));
+        assertThat(mIdGenerator.nextJobSchedulerId(), is(expectedId));
+        assertThat(mIdGenerator.nextJobSchedulerId(), is(IdGenerator.INITIAL_ID));
     }
 
     /**
@@ -85,7 +85,7 @@ public class SystemJobIdGeneratorTest {
     private SharedPreferences createMockSharedPreferences(SharedPreferences.Editor mockEditor) {
         final SharedPreferences mockSharedPreferences = mock(SharedPreferences.class);
         when(mockSharedPreferences.edit()).thenReturn(mockEditor);
-        when(mockSharedPreferences.getInt(eq(SystemJobIdGenerator.NEXT_ID_KEY), anyInt()))
+        when(mockSharedPreferences.getInt(eq(IdGenerator.NEXT_JOB_SCHEDULER_ID_KEY), anyInt()))
                 .thenAnswer(new Answer<Integer>() {
                     @Override
                     public Integer answer(InvocationOnMock invocation) throws Throwable {
@@ -98,7 +98,7 @@ public class SystemJobIdGeneratorTest {
 
     private SharedPreferences.Editor createMockSharedPreferencesEditor() {
         final SharedPreferences.Editor mockEditor = mock(SharedPreferences.Editor.class);
-        when(mockEditor.putInt(eq(SystemJobIdGenerator.NEXT_ID_KEY), anyInt())).thenAnswer(
+        when(mockEditor.putInt(eq(IdGenerator.NEXT_JOB_SCHEDULER_ID_KEY), anyInt())).thenAnswer(
                 new Answer<SharedPreferences.Editor>() {
                     @Override
                     public SharedPreferences.Editor answer(InvocationOnMock invocation)

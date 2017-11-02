@@ -29,6 +29,7 @@ import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.utils.IdGenerator;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.net.Uri;
 import android.os.Build;
@@ -50,22 +51,22 @@ public class SystemJobInfoConverterTest {
             PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION + 1232L;
     private static final long TEST_FLEX_DURATION = PeriodicWork.MIN_PERIODIC_FLEX_DURATION + 112L;
 
-    private SystemJobIdGenerator mMockJobIdGenerator;
+    private IdGenerator mMockIdGenerator;
     private SystemJobInfoConverter mConverter;
 
     @Before
     public void setUp() {
-        mMockJobIdGenerator = mock(SystemJobIdGenerator.class);
+        mMockIdGenerator = mock(IdGenerator.class);
         mConverter = new SystemJobInfoConverter(
                 InstrumentationRegistry.getTargetContext(),
-                mMockJobIdGenerator);
+                mMockIdGenerator);
     }
 
     @Test
     public void testConvert_ids() {
         final String expectedWorkSpecId = "026e3422-9cd1-11e7-abc4-cec278b6b50a";
         final int expectedJobId = 101;
-        when(mMockJobIdGenerator.nextId()).thenReturn(expectedJobId);
+        when(mMockIdGenerator.nextJobSchedulerId()).thenReturn(expectedJobId);
         WorkSpec workSpec = new WorkSpec(expectedWorkSpecId);
         JobInfo jobInfo = mConverter.convert(workSpec);
         String actualWorkSpecId = jobInfo.getExtras().getString(
