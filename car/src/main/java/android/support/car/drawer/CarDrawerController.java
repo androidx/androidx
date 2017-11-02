@@ -19,16 +19,19 @@ package android.support.car.drawer;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.AnimRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.car.R;
 import android.support.car.widget.PagedListView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 
 import java.util.Stack;
@@ -39,13 +42,21 @@ import java.util.Stack;
  * navigation.
  */
 public class CarDrawerController {
+    /** An animation for when a user navigates into a submenu. */
+    @AnimRes
+    private static final int DRILL_DOWN_ANIM = R.anim.fade_in_trans_right_layout_anim;
+
+    /** An animation for when a user navigates up (when the back button is pressed). */
+    @AnimRes
+    private static final int NAVIGATE_UP_ANIM = R.anim.fade_in_trans_left_layout_anim;
+
     /** The amount that the drawer has been opened before its color should be switched. */
     private static final float COLOR_SWITCH_SLIDE_OFFSET = 0.25f;
 
     /**
      * A representation of the hierarchy of navigation being displayed in the list. The ordering of
      * this stack is the order that the user has visited each level. When the user navigates up,
-     * the adapters are poopped from this list.
+     * the adapters are popped from this list.
      */
     private final Stack<CarDrawerAdapter> mAdapterStack = new Stack<>();
 
@@ -78,16 +89,14 @@ public class CarDrawerController {
             ActionBarDrawerToggle drawerToggle) {
         mToolbar = toolbar;
         mContext = drawerLayout.getContext();
-
+        mDrawerToggle = drawerToggle;
         mDrawerLayout = drawerLayout;
 
         mDrawerContent = drawerLayout.findViewById(R.id.drawer_content);
         mDrawerList = drawerLayout.findViewById(R.id.drawer_list);
         mDrawerList.setMaxPages(PagedListView.ItemCap.UNLIMITED);
-
         mProgressBar = drawerLayout.findViewById(R.id.drawer_progress);
 
-        mDrawerToggle = drawerToggle;
         setupDrawerToggling();
     }
 
@@ -124,6 +133,7 @@ public class CarDrawerController {
         mAdapterStack.peek().setTitleChangeListener(null);
         mAdapterStack.push(adapter);
         switchToAdapterInternal(adapter);
+        runLayoutAnimation(DRILL_DOWN_ANIM);
     }
 
     /** Close the drawer. */
@@ -272,7 +282,6 @@ public class CarDrawerController {
         // NOTE: We don't use swapAdapter() since different levels in the Drawer may switch between
         // car_drawer_list_item_normal, car_drawer_list_item_small and car_list_empty layouts.
         mDrawerList.getRecyclerView().setAdapter(adapter);
-        scrollToPosition(0);
     }
 
     /**
@@ -291,6 +300,7 @@ public class CarDrawerController {
         adapter.setTitleChangeListener(null);
         adapter.cleanup();
         switchToAdapterInternal(mAdapterStack.peek());
+        runLayoutAnimation(NAVIGATE_UP_ANIM);
         return true;
     }
 
@@ -302,5 +312,17 @@ public class CarDrawerController {
             adapter.cleanup();
         }
         switchToAdapterInternal(mAdapterStack.peek());
+        runLayoutAnimation(NAVIGATE_UP_ANIM);
+    }
+
+    /**
+     * Runs the given layout animation on the PagedListView. Running this animation will also
+     * refresh the contents of the list.
+     */
+    private void runLayoutAnimation(@AnimRes int animation) {
+        RecyclerView recyclerView = mDrawerList.getRecyclerView();
+        recyclerView.setLayoutAnimation(AnimationUtils.loadLayoutAnimation(mContext, animation));
+        recyclerView.getAdapter().notifyDataSetChanged();
+        recyclerView.scheduleLayoutAnimation();
     }
 }
