@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-annotations')
@@ -36,4 +38,5 @@ supportLibrary {
     publish true
     inceptionYear '2017'
     description 'Library providing support for paging across content exposed via a ContentProvider. Use of this library allows a client to avoid expensive interprocess "cursor window swaps" on the UI thread.'
+    legacySourceLocation true
 }

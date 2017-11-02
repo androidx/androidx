@@ -1,4 +1,6 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-compat')
@@ -18,4 +20,5 @@ supportLibrary {
     publish true
     inceptionYear '2014'
     description 'Android Support Palette v7'
+    legacySourceLocation true
 }

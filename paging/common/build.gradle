@@ -17,8 +17,10 @@
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension;
 
-apply plugin: android.support.SupportJavaLibraryPlugin
-apply plugin: 'kotlin'
+plugins {
+    id("SupportJavaLibraryPlugin")
+    id("kotlin")
+}
 
 dependencies {
     compile libs.support.annotations
