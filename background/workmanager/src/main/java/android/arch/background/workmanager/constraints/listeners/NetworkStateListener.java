@@ -29,7 +29,7 @@ public interface NetworkStateListener extends ConstraintListener {
     /**
      * Called when the network state changes.
      *
-     * @param networkState the state of the network
+     * @param state the state of the network
      */
-    void setNetworkState(@NonNull NetworkState networkState);
+    void setNetworkState(@NonNull NetworkState state);
 }
