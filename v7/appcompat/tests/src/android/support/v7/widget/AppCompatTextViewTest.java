@@ -16,28 +16,38 @@
 package android.support.v7.widget;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.v7.testutils.TestUtilsActions.setEnabled;
 import static android.support.v7.testutils.TestUtilsActions.setTextAppearance;
+import static android.support.v7.testutils.TestUtilsMatchers.isBackground;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.test.R;
+import android.view.View;
 import android.widget.TextView;
 
 import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * In addition to all tinting-related tests done by the base class, this class provides
@@ -49,6 +59,43 @@ public class AppCompatTextViewTest
 
     public AppCompatTextViewTest() {
         super(AppCompatTextViewActivity.class);
+    }
+
+    /**
+     * This method tests that background tinting is applied when the call to
+     * {@link android.support.v4.view.ViewCompat#setBackgroundTintList(View, ColorStateList)}
+     * is done as a deferred event.
+     */
+    @Test
+    @MediumTest
+    public void testDeferredBackgroundTinting() throws Throwable {
+        onView(withId(R.id.view_untinted_deferred))
+                .check(matches(isBackground(0xff000000, true)));
+
+        final @ColorInt int oceanDefault = ResourcesCompat.getColor(
+                mResources, R.color.ocean_default, null);
+
+        final ColorStateList oceanColor = ResourcesCompat.getColorStateList(
+                mResources, R.color.color_state_list_ocean, null);
+
+        // Emulate delay in kicking off the call to ViewCompat.setBackgroundTintList
+        Thread.sleep(200);
+        final CountDownLatch latch = new CountDownLatch(1);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TextView view = mActivity.findViewById(R.id.view_untinted_deferred);
+                ViewCompat.setBackgroundTintList(view, oceanColor);
+                latch.countDown();
+            }
+        });
+
+        assertTrue(latch.await(2, TimeUnit.SECONDS));
+
+        // Check that the background has switched to the matching entry in the newly set
+        // color state list.
+        onView(withId(R.id.view_untinted_deferred))
+                .check(matches(isBackground(oceanDefault, true)));
     }
 
     @Test

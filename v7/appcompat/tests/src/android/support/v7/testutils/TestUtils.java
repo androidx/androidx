@@ -221,7 +221,7 @@ public class TestUtils {
                     + ": expected all drawable colors to be "
                     + formatColorToHex(color)
                     + " but at position (" + centerX + "," + centerY + ") out of ("
-                    + bitmap.getWidth() + "," + bitmap.getHeight() + ") found"
+                    + bitmap.getWidth() + "," + bitmap.getHeight() + ") found "
                     + formatColorToHex(colorAtCenterPixel);
             if (throwExceptionIfFails) {
                 throw new RuntimeException(mismatchDescription);
