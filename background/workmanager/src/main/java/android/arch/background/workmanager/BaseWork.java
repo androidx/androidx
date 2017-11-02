@@ -22,6 +22,7 @@ import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
@@ -74,7 +75,11 @@ public abstract class BaseWork {
         return mWorkSpec.getId();
     }
 
-    WorkSpec getWorkSpec() {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WorkSpec getWorkSpec() {
         return mWorkSpec;
     }
 

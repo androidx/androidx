@@ -16,7 +16,6 @@
 
 package android.arch.background.workmanager.utils;
 
-import android.arch.background.workmanager.firebase.FirebaseDelayedJobAlarmReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.RestrictTo;
@@ -54,7 +53,7 @@ public class IdGenerator {
     }
 
     /**
-     * Generates IDs for {@link FirebaseDelayedJobAlarmReceiver}.
+     * Generates IDs for Firebase Delayed Alarm Receiver jobs.
      */
     public int nextFirebaseAlarmId() {
         synchronized (IdGenerator.class) {
