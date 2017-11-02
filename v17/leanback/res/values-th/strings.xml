@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"ปิดใช้คุณภาพสูง"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"เปิดใช้คำบรรยาย"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"ปิดใช้คำบรรยาย"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"เข้าสู่โหมดการแสดงภาพซ้อนภาพ"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"เข้าสู่โหมดการแสดงผลหลายแหล่งพร้อมกัน"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
     <string name="lb_playback_controls_shown" msgid="6382160135512023238">"แสดงการควบคุมสื่ออยู่"</string>
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"ซ่อนการควบคุมสื่ออยู่ กด d-pad เพื่อแสดง"</string>

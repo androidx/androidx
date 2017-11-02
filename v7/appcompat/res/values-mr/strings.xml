@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_action_mode_done" msgid="4076576682505996667">"पूर्ण झाले"</string>
-    <string name="abc_action_bar_home_description" msgid="4600421777120114993">"होमवर नेव्‍हिगेट करा"</string>
+    <string name="abc_action_bar_home_description" msgid="4600421777120114993">"मुख्‍यपृष्‍ठ नेव्‍हिगेट करा"</string>
     <string name="abc_action_bar_up_description" msgid="1594238315039666878">"वर नेव्‍हिगेट करा"</string>
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"अधिक पर्याय"</string>
     <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"संक्षिप्त करा"</string>
@@ -29,7 +29,7 @@
     <string name="abc_searchview_description_voice" msgid="893419373245838918">"व्हॉइस शोध"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"एक अ‍ॅप निवडा"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"सर्व पहा"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"<xliff:g id="APPLICATION_NAME">%s</xliff:g> सह शेअर करा"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"%s सह सामायिक करा"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"यांच्यासह सामायिक करा"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"चालू"</string>
     <string name="abc_capital_off" msgid="121134116657445385">"बंद"</string>

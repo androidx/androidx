@@ -21,17 +21,17 @@
     <string name="abc_action_bar_up_description" msgid="1594238315039666878">"పైకి నావిగేట్ చేయండి"</string>
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"మరిన్ని ఎంపికలు"</string>
     <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"కుదించండి"</string>
-    <string name="abc_searchview_description_search" msgid="8264924765203268293">"వెతుకు"</string>
-    <string name="abc_search_hint" msgid="7723749260725869598">"వెతుకు..."</string>
+    <string name="abc_searchview_description_search" msgid="8264924765203268293">"శోధించు"</string>
+    <string name="abc_search_hint" msgid="7723749260725869598">"శోధించు..."</string>
     <string name="abc_searchview_description_query" msgid="2550479030709304392">"ప్రశ్న శోధించండి"</string>
     <string name="abc_searchview_description_clear" msgid="3691816814315814921">"ప్రశ్నను క్లియర్ చేయి"</string>
     <string name="abc_searchview_description_submit" msgid="8928215447528550784">"ప్రశ్నని సమర్పించు"</string>
     <string name="abc_searchview_description_voice" msgid="893419373245838918">"వాయిస్ శోధన"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"అనువర్తనాన్ని ఎంచుకోండి"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"అన్నీ చూడండి"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"<xliff:g id="APPLICATION_NAME">%s</xliff:g>తో భాగస్వామ్యం చేయండి"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"%sతో భాగస్వామ్యం చేయి"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"వీరితో భాగస్వామ్యం చేయి"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"ఆన్ చేయి"</string>
     <string name="abc_capital_off" msgid="121134116657445385">"ఆఫ్ చేయి"</string>
-    <string name="search_menu_title" msgid="146198913615257606">"వెతుకు"</string>
+    <string name="search_menu_title" msgid="146198913615257606">"శోధించు"</string>
 </resources>

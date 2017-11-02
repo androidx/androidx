@@ -17,11 +17,11 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"नेविगेशन मेन्यू"</string>
-    <string name="orb_search_action" msgid="5651268540267663887">"सर्च कार्रवाई"</string>
-    <string name="lb_search_bar_hint" msgid="8325490927970116252">"सर्च करें"</string>
+    <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"मार्गदर्शक मेनू"</string>
+    <string name="orb_search_action" msgid="5651268540267663887">"खोज कार्रवाई"</string>
+    <string name="lb_search_bar_hint" msgid="8325490927970116252">"खोजें"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"खोजने के लिए बोलें"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> सर्च करें"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> खोजें"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> खोजने के लिए बोलें"</string>
     <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
     <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
@@ -33,7 +33,7 @@ limitations under the License.
     <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"रिवाइंड %1$dX"</string>
     <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"अगले पर जाएं"</string>
     <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"पिछले पर जाएं"</string>
-    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"ज़्यादा विकल्प"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"अधिक विकल्प"</string>
     <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"पसंदीदा को ना चुनें"</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"पसंदीदा चुनें"</string>
     <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"नापसंद को ना चुनें"</string>
@@ -41,11 +41,11 @@ limitations under the License.
     <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"कुछ भी न दोहराएं"</string>
     <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"सभी को दोहराएं"</string>
     <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"एक दोहराएं"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"शफ़ल करना चालू करें"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"फेर-बदल सक्षम करें"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"फेर-बदल अक्षम करें"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"अच्छी क्वालिटी में चलाएं"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"उच्च गुणवत्ता सक्षम करें"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"उच्च गुणवत्ता अक्षम करें"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"सबटाइटल चालू करें"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"उपशीर्षक सक्षम करें"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"उपशीर्षक अक्षम करें"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"चित्र मोड में चित्र डालें"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
@@ -53,7 +53,7 @@ limitations under the License.
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"मीडिया नियंत्रण छिपे हुए हैं, दिखाने के लिए डी-पैड दबाएं"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"समाप्त करें"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"जारी रखें"</string>
-    <string name="lb_media_player_error" msgid="3650250994187305396">"मीडिया प्लेयर गड़बड़ी कोड %1$d कुछ और %2$d"</string>
-    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"शुरू करें"</string>
-    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"आगे बढ़ें"</string>
+    <string name="lb_media_player_error" msgid="3650250994187305396">"MediaPlayer गड़बड़ी कोड %1$d अतिरिक्त %2$d"</string>
+    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"प्रारंभ करें"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"अगला"</string>
 </resources>

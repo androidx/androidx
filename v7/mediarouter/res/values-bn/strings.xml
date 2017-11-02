@@ -30,7 +30,7 @@
     <string name="mr_controller_play" msgid="683634565969987458">"চালান"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"বিরাম দিন"</string>
     <string name="mr_controller_stop" msgid="735874641921425123">"থামান"</string>
-    <string name="mr_controller_expand_group" msgid="8062427022744266907">"বড় করুন"</string>
+    <string name="mr_controller_expand_group" msgid="8062427022744266907">"প্রসারিত করুন"</string>
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"সঙ্কুচিত করুন"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"অ্যালবাম শৈলি"</string>
     <string name="mr_controller_volume_slider" msgid="2361785992211841709">"ভলিউম স্লাইডার"</string>

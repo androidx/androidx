@@ -31,7 +31,7 @@ limitations under the License.
     <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"%1$dX ఫాస్ట్ ఫార్వార్డ్ చేయి"</string>
     <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"రివైండ్ చేయి"</string>
     <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"%1$dX రివైండ్ చేయి"</string>
-    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"తర్వాత దానికి దాటవేయి"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"తదుపరి దానికి దాటవేయి"</string>
     <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"మునుపటి దానికి దాటవేయి"</string>
     <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"మరిన్ని చర్యలు"</string>
     <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"విజయ సంకేతం ఎంపికను తీసివేయి"</string>
@@ -55,5 +55,5 @@ limitations under the License.
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"కొనసాగించు"</string>
     <string name="lb_media_player_error" msgid="3650250994187305396">"MediaPlayer ఎర్రర్ కోడ్ %1$d అదనంగా %2$d"</string>
     <string name="lb_onboarding_get_started" msgid="6961440391306351139">"ప్రారంభించు"</string>
-    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"తర్వాత"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"తదుపరి"</string>
 </resources>

@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mr_system_route_name" msgid="5441529851481176817">"சிஸ்டம்"</string>
+    <string name="mr_system_route_name" msgid="5441529851481176817">"அமைப்பு"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"சாதனங்கள்"</string>
     <string name="mr_button_content_description" msgid="3698378085901466129">"திரையிடு பட்டன்"</string>
     <string name="mr_cast_button_disconnected" msgid="816305490427819240">"அனுப்புதல் பொத்தான். துண்டிக்கப்பட்டது"</string>

@@ -46,7 +46,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"उच्च गुणवत्ता सक्षम करा"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"उच्च गुणवत्ता अक्षम करा"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"उपशीर्षके सक्षम करा"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"सबटायटल अक्षम करा"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"उपशीर्षके अक्षम करा"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"चित्र मोडमध्ये चित्र प्रविष्ट करा"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
     <string name="lb_playback_controls_shown" msgid="6382160135512023238">"मीडिया नियंत्रणे दर्शवली आहेत"</string>
@@ -54,6 +54,6 @@ limitations under the License.
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"समाप्त"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"सुरू ठेवा"</string>
     <string name="lb_media_player_error" msgid="3650250994187305396">"मीडियाप्लेअर एरर कोड %1$d अतिरिक्त %2$d"</string>
-    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"सुरू करा"</string>
+    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"प्रारंभ करा"</string>
     <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"पुढील"</string>
 </resources>

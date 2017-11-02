@@ -29,7 +29,7 @@
     <string name="abc_searchview_description_voice" msgid="893419373245838918">"Carian suara"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"Pilih apl"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"Lihat semua"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"Kongsi dengan <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"Kongsi dengan %s"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Kongsi dengan"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"HIDUP"</string>
     <string name="abc_capital_off" msgid="121134116657445385">"MATI"</string>

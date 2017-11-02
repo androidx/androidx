@@ -19,7 +19,7 @@ limitations under the License.
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"תפריט ניווט"</string>
     <string name="orb_search_action" msgid="5651268540267663887">"פעולת חיפוש"</string>
-    <string name="lb_search_bar_hint" msgid="8325490927970116252">"חיפוש"</string>
+    <string name="lb_search_bar_hint" msgid="8325490927970116252">"חפש"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"דבר בקול כדי לחפש"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"חפש את <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"דבר בקול כדי לחפש ב-<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
