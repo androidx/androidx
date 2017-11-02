@@ -29,11 +29,11 @@ import java.util.concurrent.Executors;
  * {@link android.app.job.JobScheduler}.
  */
 
-public class SystemJobProcessor extends Processor {
+class SystemJobProcessor extends Processor {
 
     private ExecutionListener mOuterListener;
 
-    public SystemJobProcessor(
+    SystemJobProcessor(
             Context appContext,
             WorkDatabase workDatabase,
             Scheduler scheduler,

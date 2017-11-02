@@ -19,11 +19,14 @@ import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.Worker;
+import android.support.annotation.RestrictTo;
 
 /**
  * A helper class for {@link BaseWork} classes.
+ *
+ * @hide
  */
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BaseWorkHelper {
 
     /**

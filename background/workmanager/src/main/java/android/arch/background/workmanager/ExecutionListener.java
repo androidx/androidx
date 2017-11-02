@@ -16,9 +16,14 @@
 
 package android.arch.background.workmanager;
 
+import android.support.annotation.RestrictTo;
+
 /**
  * Listener that reports the result of a {@link Worker}s execution.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ExecutionListener {
     void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result);
 }

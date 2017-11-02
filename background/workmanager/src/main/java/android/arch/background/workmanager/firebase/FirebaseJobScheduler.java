@@ -19,6 +19,7 @@ package android.arch.background.workmanager.firebase;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
@@ -27,8 +28,10 @@ import com.firebase.jobdispatcher.Job;
 
 /**
  * A class that schedules work using {@link FirebaseJobDispatcher}.
+ *
+ * @hide
  */
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FirebaseJobScheduler implements Scheduler {
     private static final String TAG = "FirebaseJobScheduler";
     private FirebaseJobDispatcher mDispatcher;

@@ -16,10 +16,14 @@
 package android.arch.background.workmanager;
 
 import android.arch.background.workmanager.model.WorkSpec;
+import android.support.annotation.RestrictTo;
 
 /**
  * An interface for classes responsible for scheduling background work.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Scheduler {
 
     /**
