@@ -1134,7 +1134,7 @@ public abstract class BaseGridView extends RecyclerView {
     @Override
     public void scrollToPosition(int position) {
         // dont abort the animateOut() animation, just record the position
-        if (mLayoutManager.mIsSlidingChildViews) {
+        if (mLayoutManager.isSlidingChildViews()) {
             mLayoutManager.setSelectionWithSub(position, 0, 0);
             return;
         }
@@ -1144,7 +1144,7 @@ public abstract class BaseGridView extends RecyclerView {
     @Override
     public void smoothScrollToPosition(int position) {
         // dont abort the animateOut() animation, just record the position
-        if (mLayoutManager.mIsSlidingChildViews) {
+        if (mLayoutManager.isSlidingChildViews()) {
             mLayoutManager.setSelectionWithSub(position, 0, 0);
             return;
         }
