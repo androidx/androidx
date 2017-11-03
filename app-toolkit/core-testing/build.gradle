@@ -39,9 +39,7 @@ android {
 dependencies {
     compile project(":arch:runtime")
     compile libs.support.annotations
-    compile(libs.junit) {
-        exclude module: 'hamcrest-core'
-    }
+    compile(libs.junit)
     compile libs.mockito_core, { exclude group: 'net.bytebuddy' }
 
     testCompile libs.junit
