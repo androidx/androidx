@@ -99,6 +99,9 @@ project(':room:integration-tests:kotlintestapp').projectDir = new File(supportRo
 include ':background:workmanager'
 project(':background:workmanager').projectDir = new File(supportRoot, "background/workmanager")
 
+include ':background:workmanager-firebase'
+project(':background:workmanager-firebase').projectDir = new File(supportRoot, "background/workmanager-firebase")
+
 include ':background:integration-tests:testapp'
 project(':background:integration-tests:testapp').projectDir = new File(supportRoot, "background/integration-tests/testapp")
 

@@ -28,10 +28,13 @@ android {
         targetSdkVersion tools.current_sdk
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
 
-    buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+    buildTypes {
+        release {
+            proguardFiles 'proguard-rules.pro'
+        }
     }
 
     testOptions {
@@ -44,28 +47,32 @@ android {
 }
 
 dependencies {
-    api project(':lifecycle:extensions')
-    api project(':room:runtime')
-    annotationProcessor project(":room:compiler")
-    androidTestImplementation libs.test_runner, { exclude module: 'support-annotations' }
+    api project(":background:workmanager")
+    api libs.firebase_jobdispatcher
+    androidTestImplementation project(":background:workmanager")
     androidTestImplementation libs.espresso_core, { exclude module: 'support-annotations' }
     androidTestImplementation libs.mockito_core, { exclude group: 'net.bytebuddy' }
     // DexMaker has it"s own MockMaker
     androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' }
-    // DexMaker has it"s own MockMaker
-    testImplementation libs.junit
-    androidTestImplementation project(':arch:core-testing')
 }
 
 createAndroidCheckstyle(project)
 
-version = LibraryVersions.WORKMANAGER.toString()
-
-supportLibrary {
-    name 'Android Support Library Background WorkManager'
-    publish true
-    inceptionYear '2017'
-    description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
-    url SupportLibraryExtension.ARCHITECTURE_URL
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+    def suffix = name.capitalize()
+    project.tasks.create(name: "jar${suffix}", type: Jar){
+        dependsOn variant.javaCompile
+        from variant.javaCompile.destinationDir
+        destinationDir new File(project.buildDir, "libJar")
+    }
 }
 
+version = LibraryVersions.WORKMANAGER.toString()
+supportLibrary {
+    name 'Android WorkManager Firebase'
+    publish true
+    inceptionYear '2017'
+    description "Android WorkManager Firebase"
+    url SupportLibraryExtension.ARCHITECTURE_URL
+}

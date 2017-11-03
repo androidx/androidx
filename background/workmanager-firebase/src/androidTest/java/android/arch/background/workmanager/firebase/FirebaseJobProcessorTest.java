@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,8 @@ import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.WorkSpecs;
 import android.arch.background.workmanager.WorkerWrapper;
 import android.arch.background.workmanager.model.WorkSpec;
-import android.arch.background.workmanager.worker.TestWorker;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -65,7 +63,9 @@ public class FirebaseJobProcessorTest {
     @Test
     @SmallTest
     public void testSimpleWorker() throws InterruptedException {
-        WorkSpec workSpec = WorkSpecs.getWorkSpec(TestWorker.class);
+        WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
+                .build()
+                .getWorkSpec();
         mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
         mFirebaseJobProcessor.process(workSpec.getId(), 0L);
         Thread.sleep(1000L);

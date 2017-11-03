@@ -1,0 +1,1 @@
+-keepnames class android.arch.background.workmanager.firebase.FirebaseJobScheduler

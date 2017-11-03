@@ -28,7 +28,9 @@ import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.util.Log;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,7 +40,8 @@ import java.util.concurrent.Executors;
  * constraints are met.
  */
 public final class WorkManager {
-
+    private static final String FIREBASE_SCHEDULER_CLASSNAME =
+            "android.arch.background.workmanager.firebase.FirebaseJobScheduler";
     private static final String TAG = "WorkManager";
 
     private Context mContext;
@@ -64,10 +67,35 @@ public final class WorkManager {
     WorkManager(Context context, boolean useTestDatabase) {
         mContext = context.getApplicationContext();
         mWorkDatabase = WorkDatabase.create(mContext, useTestDatabase);
-        if (Build.VERSION.SDK_INT >= 23) {
-            mScheduler = new SystemJobScheduler(mContext);
-        }
+        mScheduler = createBackgroundScheduler(context);
         new ForegroundProcessor(mContext, mWorkDatabase, mScheduler, ProcessLifecycleOwner.get());
+    }
+
+    @Nullable
+    private Scheduler createBackgroundScheduler(Context context) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            Log.d(TAG, "Created SystemJobScheduler");
+            return new SystemJobScheduler(mContext);
+        }
+        //TODO(sumir): AlarmManagerJobScheduler
+        return tryCreateFirebaseJobScheduler(context);
+    }
+
+    @Nullable
+    private Scheduler tryCreateFirebaseJobScheduler(Context context) {
+        Scheduler scheduler = null;
+        try {
+            Class firebaseSchedulerClass = Class.forName(FIREBASE_SCHEDULER_CLASSNAME);
+            scheduler = (Scheduler) firebaseSchedulerClass
+                    .getConstructor(Context.class)
+                    .newInstance(context);
+            Log.d(TAG, "Created FirebaseJobScheduler");
+        } catch (Exception e) {
+            // Catch all for class cast, invoke, no such method, security exceptions and more.
+            // Also thrown if Play Services was not found on device.
+            Log.e(TAG, "Could not instantiate FirebaseJobScheduler", e);
+        }
+        return scheduler;
     }
 
     /**
