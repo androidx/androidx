@@ -66,6 +66,10 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
     private TooltipPopup mPopup;
     private boolean mFromTouch;
 
+    // The handler currently scheduled to show a tooltip, triggered by a hover
+    // (there can be only one).
+    private static TooltipCompatHandler sPendingHandler;
+
     // The handler currently showing a tooltip (there can be only one).
     private static TooltipCompatHandler sActiveHandler;
 
@@ -76,6 +80,15 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
      * @param tooltipText the tooltip text
      */
     public static void setTooltipText(View view, CharSequence tooltipText) {
+        // The code below is not attempting to update the tooltip text
+        // for a pending or currently active tooltip, because it may lead
+        // to updating the wrong tooltip in in some rare cases (e.g. when
+        // action menu item views are recycled). Instead, the tooltip is
+        // canceled/hidden. This might still be the wrong tooltip,
+        // but hiding a wrong tooltip is less disruptive UX.
+        if (sPendingHandler != null && sPendingHandler.mAnchor == view) {
+            setPendingHandler(null);
+        }
         if (TextUtils.isEmpty(tooltipText)) {
             if (sActiveHandler != null && sActiveHandler.mAnchor == view) {
                 sActiveHandler.hide();
@@ -119,8 +132,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
                 if (mAnchor.isEnabled() && mPopup == null) {
                     mAnchorX = (int) event.getX();
                     mAnchorY = (int) event.getY();
-                    mAnchor.removeCallbacks(mShowRunnable);
-                    mAnchor.postDelayed(mShowRunnable, ViewConfiguration.getLongPressTimeout());
+                    setPendingHandler(this);
                 }
                 break;
             case MotionEvent.ACTION_HOVER_EXIT:
@@ -145,6 +157,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
         if (!ViewCompat.isAttachedToWindow(mAnchor)) {
             return;
         }
+        setPendingHandler(null);
         if (sActiveHandler != null) {
             sActiveHandler.hide();
         }
@@ -180,7 +193,27 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
                 Log.e(TAG, "sActiveHandler.mPopup == null");
             }
         }
-        mAnchor.removeCallbacks(mShowRunnable);
+        if (sPendingHandler == this) {
+            setPendingHandler(null);
+        }
         mAnchor.removeCallbacks(mHideRunnable);
+    }
+
+    private static void setPendingHandler(TooltipCompatHandler handler) {
+        if (sPendingHandler != null) {
+            sPendingHandler.cancelPendingShow();
+        }
+        sPendingHandler = handler;
+        if (sPendingHandler != null) {
+            sPendingHandler.scheduleShow();
+        }
+    }
+
+    private void scheduleShow() {
+        mAnchor.postDelayed(mShowRunnable, ViewConfiguration.getLongPressTimeout());
+    }
+
+    private void cancelPendingShow() {
+        mAnchor.removeCallbacks(mShowRunnable);
     }
 }
