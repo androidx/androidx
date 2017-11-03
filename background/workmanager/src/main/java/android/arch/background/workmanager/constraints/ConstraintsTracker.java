@@ -27,10 +27,8 @@ import android.arch.background.workmanager.constraints.controllers.NetworkStateU
 import android.arch.background.workmanager.constraints.controllers.StorageNotLowController;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,8 +39,8 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
 
     private static final String TAG = "ConstraintsTracker";
 
-    private Processor mProcessor;
-    private List<ConstraintController> mConstraintControllers = new ArrayList<>();
+    private final Processor mProcessor;
+    private final ConstraintController[] mConstraintControllers;
 
     public ConstraintsTracker(
             Context context,
@@ -52,65 +50,22 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
             boolean allowPeriodic) {
         Context appContext = context.getApplicationContext();
         mProcessor = processor;
-
-        mConstraintControllers.add(
+        mConstraintControllers = new ConstraintController[] {
                 new BatteryChargingController(
-                        appContext,
-                        workDatabase,
-                        lifecycleOwner,
-                        this,
-                        allowPeriodic));
-
-        mConstraintControllers.add(
+                        appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
                 new BatteryNotLowController(
-                        appContext,
-                        workDatabase,
-                        lifecycleOwner,
-                        this,
-                        allowPeriodic));
-
-        mConstraintControllers.add(
+                        appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
                 new StorageNotLowController(
-                        appContext,
-                        workDatabase,
-                        lifecycleOwner,
-                        this,
-                        allowPeriodic));
-
-        // TODO(janclarin): Remove check when network state trackers are added for 24-.
-        if (Build.VERSION.SDK_INT >= 24) {
-            mConstraintControllers.add(
-                    new NetworkStateAnyController(
-                            appContext,
-                            workDatabase,
-                            lifecycleOwner,
-                            this,
-                            allowPeriodic));
-
-            mConstraintControllers.add(
-                    new NetworkStateMeteredController(
-                            appContext,
-                            workDatabase,
-                            lifecycleOwner,
-                            this,
-                            allowPeriodic));
-
-            mConstraintControllers.add(
-                    new NetworkStateNotRoamingController(
-                            appContext,
-                            workDatabase,
-                            lifecycleOwner,
-                            this,
-                            allowPeriodic));
-
-            mConstraintControllers.add(
-                    new NetworkStateUnmeteredController(
-                            appContext,
-                            workDatabase,
-                            lifecycleOwner,
-                            this,
-                            allowPeriodic));
-        }
+                        appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
+                new NetworkStateAnyController(
+                        appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
+                new NetworkStateUnmeteredController(
+                        appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
+                new NetworkStateNotRoamingController(
+                        appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
+                new NetworkStateMeteredController(
+                        appContext, workDatabase, lifecycleOwner, this, allowPeriodic)
+        };
     }
 
     private boolean areAllConstraintsMet(String workSpecId) {

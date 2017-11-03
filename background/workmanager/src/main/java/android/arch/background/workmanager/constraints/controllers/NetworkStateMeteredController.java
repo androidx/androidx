@@ -23,19 +23,24 @@ import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 /**
  * A {@link ConstraintController} for monitoring that the network connection is metered.
  */
 
 public class NetworkStateMeteredController extends ConstraintController<NetworkStateListener> {
+    private static final String TAG = "NetworkMeteredCtrlr";
 
-    private boolean mIsConnectedAndMetered;
+    private boolean mIsConnected;
+    private boolean mIsMetered;
     private final NetworkStateListener mNetworkStateMeteredListener = new NetworkStateListener() {
         @Override
         public void setNetworkState(@NonNull NetworkState state) {
-            mIsConnectedAndMetered = state.isConnected() && state.isMetered();
+            mIsConnected = state.isConnected();
+            mIsMetered = state.isMetered();
             updateListener();
         }
     };
@@ -61,8 +66,17 @@ public class NetworkStateMeteredController extends ConstraintController<NetworkS
         return mNetworkStateMeteredListener;
     }
 
+    /**
+     * Check for metered constraint on API 26+, when JobInfo#NETWORK_TYPE_METERED was added, to
+     * be consistent with JobScheduler functionality.
+     */
     @Override
     boolean isConstrained() {
-        return !mIsConnectedAndMetered;
+        if (Build.VERSION.SDK_INT < 26) {
+            Log.d(TAG, "Metered network constraint is not supported before API 26, "
+                    + "only checking for connected state.");
+            return !mIsConnected;
+        }
+        return !mIsConnected || !mIsMetered;
     }
 }

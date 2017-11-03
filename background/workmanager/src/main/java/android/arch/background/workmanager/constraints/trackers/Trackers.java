@@ -15,9 +15,7 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.listeners.NetworkStateListener;
 import android.content.Context;
-import android.os.Build;
 
 /**
  * A singleton class to hold an instance of each {@link ConstraintTracker}.
@@ -42,23 +40,15 @@ public class Trackers {
 
     private BatteryChargingTracker mBatteryChargingTracker;
     private BatteryNotLowTracker mBatteryNotLowTracker;
+    private NetworkStateTracker mNetworkStateTracker;
     private StorageNotLowTracker mStorageNotLowTracker;
-    private ConstraintTracker<NetworkStateListener> mNetworkStateTracker;
 
     private Trackers(Context context) {
         Context appContext = context.getApplicationContext();
         mBatteryChargingTracker = new BatteryChargingTracker(appContext);
         mBatteryNotLowTracker = new BatteryNotLowTracker(appContext);
+        mNetworkStateTracker = new NetworkStateTracker(appContext);
         mStorageNotLowTracker = new StorageNotLowTracker(appContext);
-        mNetworkStateTracker = getApiNetworkStateTracker(appContext);
-    }
-
-    /* TODO(janclarin): Create Network State trackers for the appropriate versions. */
-    private ConstraintTracker<NetworkStateListener> getApiNetworkStateTracker(Context appContext) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            return new ConnectivityManagerNetworkStateTracker(appContext);
-        }
-        return null;
     }
 
     /**
@@ -82,9 +72,9 @@ public class Trackers {
     /**
      * Gets the tracker used to track network state changes.
      *
-     * @return The tracker used to track if the network
+     * @return The tracker used to track state of the network
      */
-    public ConstraintTracker<NetworkStateListener> getNetworkStateTracker() {
+    public NetworkStateTracker getNetworkStateTracker() {
         return mNetworkStateTracker;
     }
 
