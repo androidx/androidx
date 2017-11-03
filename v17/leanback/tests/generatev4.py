@@ -29,20 +29,20 @@ cls = ['BrowseTest', 'Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Erro
       'DetailsTest']
 
 for w in files:
-    print "copy {}Fragment to {}SupportFragment".format(w, w)
+    print "copy {}SupportFragment to {}Fragment".format(w, w)
 
-    file = open('java/android/support/v17/leanback/app/{}Fragment.java'.format(w), 'r')
-    outfile = open('java/android/support/v17/leanback/app/{}SupportFragment.java'.format(w), 'w')
+    file = open('java/android/support/v17/leanback/app/{}SupportFragment.java'.format(w), 'r')
+    outfile = open('java/android/support/v17/leanback/app/{}Fragment.java'.format(w), 'w')
 
     outfile.write("// CHECKSTYLE:OFF Generated code\n")
-    outfile.write("/* This file is auto-generated from {}Fragment.java.  DO NOT MODIFY. */\n\n".format(w))
+    outfile.write("/* This file is auto-generated from {}SupportFragment.java.  DO NOT MODIFY. */\n\n".format(w))
 
     for line in file:
         for w in cls:
-            line = line.replace('{}Fragment'.format(w), '{}SupportFragment'.format(w))
-        line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
-        line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
-        line = line.replace('Activity getActivity()', 'FragmentActivity getActivity()')
+            line = line.replace('{}SupportFragment'.format(w), '{}Fragment'.format(w))
+        line = line.replace('android.support.v4.app.FragmentActivity', 'android.app.Activity')
+        line = line.replace('android.support.v4.app.Fragment', 'android.app.Fragment')
+        line = line.replace('FragmentActivity getActivity()', 'Activity getActivity()')
         outfile.write(line)
     file.close()
     outfile.close()
@@ -52,23 +52,23 @@ for w in files:
 testcls = ['GuidedStep', 'Single']
 
 for w in testcls:
-    print "copy {}FrgamentTestBase to {}SupportFragmentTestBase".format(w, w)
+    print "copy {}SupportFrgamentTestBase to {}FragmentTestBase".format(w, w)
 
-    file = open('java/android/support/v17/leanback/app/{}FragmentTestBase.java'.format(w), 'r')
-    outfile = open('java/android/support/v17/leanback/app/{}SupportFragmentTestBase.java'.format(w), 'w')
+    file = open('java/android/support/v17/leanback/app/{}SupportFragmentTestBase.java'.format(w), 'r')
+    outfile = open('java/android/support/v17/leanback/app/{}FragmentTestBase.java'.format(w), 'w')
 
     outfile.write("// CHECKSTYLE:OFF Generated code\n")
-    outfile.write("/* This file is auto-generated from {}FrgamentTestBase.java.  DO NOT MODIFY. */\n\n".format(w))
+    outfile.write("/* This file is auto-generated from {}SupportFrgamentTestBase.java.  DO NOT MODIFY. */\n\n".format(w))
 
     for line in file:
         for w in cls:
-            line = line.replace('{}Fragment'.format(w), '{}SupportFragment'.format(w))
+            line = line.replace('{}SupportFragment'.format(w), '{}Fragment'.format(w))
         for w in testcls:
-            line = line.replace('{}FragmentTestBase'.format(w), '{}SupportFragmentTestBase'.format(w))
-            line = line.replace('{}FragmentTestActivity'.format(w), '{}SupportFragmentTestActivity'.format(w))
-            line = line.replace('{}TestFragment'.format(w), '{}TestSupportFragment'.format(w))
-        line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
-        line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
+            line = line.replace('{}SupportFragmentTestBase'.format(w), '{}FragmentTestBase'.format(w))
+            line = line.replace('{}SupportFragmentTestActivity'.format(w), '{}FragmentTestActivity'.format(w))
+            line = line.replace('{}TestSupportFragment'.format(w), '{}TestFragment'.format(w))
+        line = line.replace('android.support.v4.app.FragmentActivity', 'android.app.Activity')
+        line = line.replace('android.support.v4.app.Fragment', 'android.app.Fragment')
         outfile.write(line)
     file.close()
     outfile.close()
@@ -78,29 +78,29 @@ for w in testcls:
 testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Playback', 'Video', 'Details', 'Rows', 'Headers']
 
 for w in testcls:
-    print "copy {}FrgamentTest to {}SupportFragmentTest".format(w, w)
+    print "copy {}SupporFrgamentTest to {}tFragmentTest".format(w, w)
 
-    file = open('java/android/support/v17/leanback/app/{}FragmentTest.java'.format(w), 'r')
-    outfile = open('java/android/support/v17/leanback/app/{}SupportFragmentTest.java'.format(w), 'w')
+    file = open('java/android/support/v17/leanback/app/{}SupportFragmentTest.java'.format(w), 'r')
+    outfile = open('java/android/support/v17/leanback/app/{}FragmentTest.java'.format(w), 'w')
 
     outfile.write("// CHECKSTYLE:OFF Generated code\n")
-    outfile.write("/* This file is auto-generated from {}FragmentTest.java.  DO NOT MODIFY. */\n\n".format(w))
+    outfile.write("/* This file is auto-generated from {}SupportFragmentTest.java.  DO NOT MODIFY. */\n\n".format(w))
 
     for line in file:
         for w in cls:
-            line = line.replace('{}Fragment'.format(w), '{}SupportFragment'.format(w))
+            line = line.replace('{}SupportFragment'.format(w), '{}Fragment'.format(w))
         for w in testcls:
-            line = line.replace('SingleFragmentTestBase', 'SingleSupportFragmentTestBase')
-            line = line.replace('SingleFragmentTestActivity', 'SingleSupportFragmentTestActivity')
-            line = line.replace('{}FragmentTestBase'.format(w), '{}SupportFragmentTestBase'.format(w))
-            line = line.replace('{}FragmentTest'.format(w), '{}SupportFragmentTest'.format(w))
-            line = line.replace('{}FragmentTestActivity'.format(w), '{}SupportFragmentTestActivity'.format(w))
-            line = line.replace('{}TestFragment'.format(w), '{}TestSupportFragment'.format(w))
-        line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
-        line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
-	line = line.replace('extends Activity', 'extends FragmentActivity')
-	line = line.replace('Activity.this.getFragmentManager', 'Activity.this.getSupportFragmentManager')
-	line = line.replace('tivity.getFragmentManager', 'tivity.getSupportFragmentManager')
+            line = line.replace('SingleSupportFragmentTestBase', 'SingleFragmentTestBase')
+            line = line.replace('SingleSupportFragmentTestActivity', 'SingleFragmentTestActivity')
+            line = line.replace('{}SupportFragmentTestBase'.format(w), '{}FragmentTestBase'.format(w))
+            line = line.replace('{}SupportFragmentTest'.format(w), '{}FragmentTest'.format(w))
+            line = line.replace('{}SupportFragmentTestActivity'.format(w), '{}FragmentTestActivity'.format(w))
+            line = line.replace('{}TestSupportFragment'.format(w), '{}TestFragment'.format(w))
+        line = line.replace('android.support.v4.app.FragmentActivity', 'android.app.Activity')
+        line = line.replace('android.support.v4.app.Fragment', 'android.app.Fragment')
+	line = line.replace('extends FragmentActivity', 'extends Activity')
+	line = line.replace('Activity.this.getSupportFragmentManager', 'Activity.this.getFragmentManager')
+	line = line.replace('tivity.getSupportFragmentManager', 'tivity.getFragmentManager')
         outfile.write(line)
     file.close()
     outfile.close()
@@ -110,18 +110,18 @@ for w in testcls:
 testcls = ['Browse', 'GuidedStep', 'Single']
 
 for w in testcls:
-    print "copy {}FragmentTestActivity to {}SupportFragmentTestActivity".format(w, w)
-    file = open('java/android/support/v17/leanback/app/{}FragmentTestActivity.java'.format(w), 'r')
-    outfile = open('java/android/support/v17/leanback/app/{}SupportFragmentTestActivity.java'.format(w), 'w')
+    print "copy {}SupportFragmentTestActivity to {}FragmentTestActivity".format(w, w)
+    file = open('java/android/support/v17/leanback/app/{}SupportFragmentTestActivity.java'.format(w), 'r')
+    outfile = open('java/android/support/v17/leanback/app/{}FragmentTestActivity.java'.format(w), 'w')
     outfile.write("// CHECKSTYLE:OFF Generated code\n")
-    outfile.write("/* This file is auto-generated from {}FragmentTestActivity.java.  DO NOT MODIFY. */\n\n".format(w))
+    outfile.write("/* This file is auto-generated from {}SupportFragmentTestActivity.java.  DO NOT MODIFY. */\n\n".format(w))
     for line in file:
-        line = line.replace('{}TestFragment'.format(w), '{}TestSupportFragment'.format(w))
-        line = line.replace('{}FragmentTestActivity'.format(w), '{}SupportFragmentTestActivity'.format(w))
-        line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
-        line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
-        line = line.replace('extends Activity', 'extends FragmentActivity')
-        line = line.replace('getFragmentManager', 'getSupportFragmentManager')
+        line = line.replace('{}TestSupportFragment'.format(w), '{}TestFragment'.format(w))
+        line = line.replace('{}SupportFragmentTestActivity'.format(w), '{}FragmentTestActivity'.format(w))
+        line = line.replace('android.support.v4.app.FragmentActivity', 'android.app.Activity')
+        line = line.replace('android.support.v4.app.Fragment', 'android.app.Fragment')
+        line = line.replace('extends FragmentActivity', 'extends Activity')
+        line = line.replace('getSupportFragmentManager', 'getFragmentManager')
         outfile.write(line)
     file.close()
     outfile.close()

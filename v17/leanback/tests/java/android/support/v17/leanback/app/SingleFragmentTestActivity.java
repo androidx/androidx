@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from SingleSupportFragmentTestActivity.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -15,12 +18,12 @@
  */
 package android.support.v17.leanback.app;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.test.R;
+import android.app.Fragment;
+import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.util.Log;
 
 public class SingleFragmentTestActivity extends Activity {

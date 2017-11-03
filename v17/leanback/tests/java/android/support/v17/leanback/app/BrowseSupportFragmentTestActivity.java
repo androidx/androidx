@@ -1,6 +1,3 @@
-// CHECKSTYLE:OFF Generated code
-/* This file is auto-generated from BrowseFragmentTestActivity.java.  DO NOT MODIFY. */
-
 /*
  * Copyright (C) 2015 The Android Open Source Project
  *
@@ -18,11 +15,11 @@
  */
 package android.support.v17.leanback.app;
 
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.test.R;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 
 public class BrowseSupportFragmentTestActivity extends FragmentActivity {
 

@@ -1,6 +1,3 @@
-// CHECKSTYLE:OFF Generated code
-/* This file is auto-generated from RowsFragmentTest.java.  DO NOT MODIFY. */
-
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -27,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import android.support.v4.app.Fragment;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,6 +49,7 @@ import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SinglePresenterSelector;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;

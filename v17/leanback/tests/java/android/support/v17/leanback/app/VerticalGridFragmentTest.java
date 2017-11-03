@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from VerticalGridSupportFragmentTest.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -16,13 +19,13 @@
 
 package android.support.v17.leanback.app;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.VerticalGridPresenter;
+import android.app.Fragment;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

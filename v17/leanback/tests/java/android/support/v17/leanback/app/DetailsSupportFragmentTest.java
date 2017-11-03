@@ -1,6 +1,3 @@
-// CHECKSTYLE:OFF Generated code
-/* This file is auto-generated from DetailsFragmentTest.java.  DO NOT MODIFY. */
-
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -24,7 +21,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.animation.PropertyValuesHolder;
-import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -50,6 +46,7 @@ import android.support.v17.leanback.widget.DetailsParallaxDrawable;
 import android.support.v17.leanback.widget.ParallaxTarget;
 import android.support.v17.leanback.widget.RecyclerViewParallax;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
 import android.view.View;
 
