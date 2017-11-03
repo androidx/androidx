@@ -30,6 +30,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -157,6 +158,27 @@ public final class WorkManager {
                 new EnqueueRunnable(
                         BaseWorkHelper.convertBuilderArrayToPeriodicWorkArray(periodicWorkBuilders),
                         null));
+    }
+
+    /**
+     * Gets a list of work ids for all work that is unfinished for a given tag.
+     *
+     * @param tag The tag used to identify the work
+     * @return A {@link LiveData} list of all the work ids matching this criteria
+     */
+    public LiveData<List<String>> getAllUnfinishedWorkWithTag(@NonNull final String tag) {
+        return mWorkDatabase.workSpecDao().getUnfinishedWorkWithTag(tag);
+    }
+
+    /**
+     * Gets a list of work ids for all work that is unfinished for a given tag prefix.
+     *
+     * @param tagPrefix The tag prefix used to identify the work
+     * @return A {@link LiveData} list of all the work ids matching this criteria
+     */
+    public LiveData<List<String>> getAllUnfinishedWorkWithTagPrefix(
+            @NonNull final String tagPrefix) {
+        return mWorkDatabase.workSpecDao().getUnfinishedWorkWithTagPrefix(tagPrefix);
     }
 
     /**
