@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 
+import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
@@ -128,6 +129,27 @@ public class FirebaseJobConverterTest {
                 .build().getWorkSpec();
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.DEVICE_CHARGING);
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_periodic() {
+        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION;
+        long testFlex = PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION;
+
+        int expectedWindowEndSeconds =
+                FirebaseJobConverter.convertMillisecondsToSeconds(testInterval);
+        int flexSeconds = FirebaseJobConverter.convertMillisecondsToSeconds(testFlex);
+        int expectedWindowStartSeconds = expectedWindowEndSeconds - flexSeconds;
+
+        WorkSpec workSpec = new WorkSpec("id");
+        workSpec.setPeriodic(testInterval);
+        Job job = mConverter.convert(workSpec);
+
+        JobTrigger.ExecutionWindowTrigger trigger =
+                (JobTrigger.ExecutionWindowTrigger) job.getTrigger();
+        assertThat(trigger.getWindowEnd(), is(expectedWindowEndSeconds));
+        assertThat(trigger.getWindowStart(), is(expectedWindowStartSeconds));
     }
 
     @Test

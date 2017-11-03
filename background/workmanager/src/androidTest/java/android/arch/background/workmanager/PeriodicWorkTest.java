@@ -20,32 +20,56 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.background.workmanager.worker.TestWorker;
 import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-@SmallTest
+@RunWith(AndroidJUnit4.class)
 public class PeriodicWorkTest {
 
-    private static final long TEST_INTERVAL_DURATION =
-            PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION + 123L;
-    private static final long TEST_FLEX_DURATION = PeriodicWork.MIN_PERIODIC_FLEX_DURATION + 321L;
-
     @Test
-    public void testBuild_setPeriodic_onlyIntervalDuration() {
+    @SmallTest
+    public void testBuild_setPeriodic_onlyIntervalDuration_inRange() {
+        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION + 123L;
         PeriodicWork periodicWork =
-                new PeriodicWork.Builder(TestWorker.class, TEST_INTERVAL_DURATION).build();
-        assertThat(periodicWork.getWorkSpec().getIntervalDuration(), is(TEST_INTERVAL_DURATION));
+                new PeriodicWork.Builder(TestWorker.class, testInterval).build();
+        assertThat(periodicWork.getWorkSpec().getIntervalDuration(), is(testInterval));
     }
 
     @Test
-    public void testBuild_setPeriodic_intervalAndFlexDurations() {
+    @SmallTest
+    public void testBuild_setPeriodic_onlyIntervalDuration_outOfRange() {
+        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION - 123L;
         PeriodicWork periodicWork =
-                new PeriodicWork.Builder(
-                        TestWorker.class,
-                        TEST_INTERVAL_DURATION,
-                        TEST_FLEX_DURATION)
-                        .build();
-        assertThat(periodicWork.getWorkSpec().getIntervalDuration(), is(TEST_INTERVAL_DURATION));
-        assertThat(periodicWork.getWorkSpec().getFlexDuration(), is(TEST_FLEX_DURATION));
+                new PeriodicWork.Builder(TestWorker.class, testInterval).build();
+        assertThat(periodicWork.getWorkSpec().getIntervalDuration(),
+                is(PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION));
+        assertThat(periodicWork.getWorkSpec().getFlexDuration(),
+                is(PeriodicWork.MIN_PERIODIC_FLEX_DURATION));
+    }
+
+    @Test
+    @SmallTest
+    public void testBuild_setPeriodic_intervalAndFlexDurations_inRange() {
+        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION + 123L;
+        long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_DURATION + 123L;
+        PeriodicWork periodicWork =
+                new PeriodicWork.Builder(TestWorker.class, testInterval, testFlex).build();
+        assertThat(periodicWork.getWorkSpec().getIntervalDuration(), is(testInterval));
+        assertThat(periodicWork.getWorkSpec().getFlexDuration(), is(testFlex));
+    }
+
+    @Test
+    @SmallTest
+    public void testBuild_setPeriodic_intervalAndFlexDurations_outOfRange() {
+        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION - 123L;
+        long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_DURATION - 123L;
+        PeriodicWork periodicWork =
+                new PeriodicWork.Builder(TestWorker.class, testInterval, testFlex).build();
+        assertThat(periodicWork.getWorkSpec().getIntervalDuration(),
+                is(PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION));
+        assertThat(periodicWork.getWorkSpec().getFlexDuration(),
+                is(PeriodicWork.MIN_PERIODIC_FLEX_DURATION));
     }
 }

@@ -47,30 +47,53 @@ class FirebaseJobConverter {
         mDispatcher = dispatcher;
     }
 
-    // TODO(xbhatnag): Add initial delay and periodic
     Job convert(WorkSpec workSpec) {
-        return mDispatcher.newJobBuilder()
+        Job.Builder builder = mDispatcher.newJobBuilder()
                 .setService(FirebaseJobService.class)
                 .setTag(workSpec.getId())
                 .setLifetime(Lifetime.FOREVER)
                 .setReplaceCurrent(true)
                 .setRetryStrategy(createRetryStrategy(workSpec))
-                .setConstraints(getConstraints(workSpec))
-                .setTrigger(createTrigger(workSpec))
-                .build();
+                .setConstraints(getConstraints(workSpec));
+        setExecutionTrigger(builder, workSpec);
+        return builder.build();
     }
 
-    private JobTrigger createTrigger(WorkSpec workSpec) {
+    private void setExecutionTrigger(Job.Builder builder, WorkSpec workSpec) {
         if (workSpec.getConstraints().hasContentUriTriggers()) {
-            List<ObservedUri> observedUris = new ArrayList<>();
-            ContentUriTriggers triggers = workSpec.getConstraints().getContentUriTriggers();
-            for (ContentUriTriggers.Trigger trigger : triggers) {
-                observedUris.add(convertContentUriTrigger(trigger));
-            }
-            return Trigger.contentUriTrigger(observedUris);
+            builder.setTrigger(createContentUriTriggers(workSpec));
+        } else if (workSpec.isPeriodic()) {
+            builder.setTrigger(createPeriodicTrigger(workSpec));
+            builder.setRecurring(true);
         } else {
-            return Trigger.NOW;
+            builder.setTrigger(Trigger.NOW);
         }
+    }
+
+    private static JobTrigger.ContentUriTrigger createContentUriTriggers(WorkSpec workSpec) {
+        List<ObservedUri> observedUris = new ArrayList<>();
+        ContentUriTriggers triggers = workSpec.getConstraints().getContentUriTriggers();
+        for (ContentUriTriggers.Trigger trigger : triggers) {
+            observedUris.add(convertContentUriTrigger(trigger));
+        }
+        return Trigger.contentUriTrigger(observedUris);
+    }
+
+    /**
+     * Firebase accepts an execution window with a START and END.
+     * Internally, it sets the flex duration to be END-START and interval duration to be END.
+     * {@link com.firebase.jobdispatcher.GooglePlayJobWriter#writeExecutionWindowTriggerToBundle}
+     */
+    private static JobTrigger.ExecutionWindowTrigger createPeriodicTrigger(WorkSpec workSpec) {
+        int windowEndSeconds = convertMillisecondsToSeconds(workSpec.getIntervalDuration());
+        int flexDurationSeconds = convertMillisecondsToSeconds(workSpec.getFlexDuration());
+        int windowStartSeconds = windowEndSeconds - flexDurationSeconds;
+
+        return Trigger.executionWindow(windowStartSeconds, windowEndSeconds);
+    }
+
+    static int convertMillisecondsToSeconds(long milliseconds) {
+        return (int) TimeUnit.SECONDS.convert(milliseconds, TimeUnit.MILLISECONDS);
     }
 
     private RetryStrategy createRetryStrategy(WorkSpec workSpec) {
@@ -91,7 +114,6 @@ class FirebaseJobConverter {
     }
 
     private int[] getConstraints(WorkSpec workSpec) {
-        // TODO(xbhatnag): Do not ignore constraints. Consider fallback to AlarmManager?
         Constraints constraints = workSpec.getConstraints();
         List<Integer> mConstraints = new ArrayList<>();
 

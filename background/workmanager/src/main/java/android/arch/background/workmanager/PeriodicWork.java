@@ -16,6 +16,7 @@
 package android.arch.background.workmanager;
 
 import android.arch.background.workmanager.model.WorkSpec;
+import android.util.Log;
 
 /**
  * A class to create a logical unit of repeating work.
@@ -34,6 +35,8 @@ public class PeriodicWork extends BaseWork {
      * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#113}.
      */
     public static final long MIN_PERIODIC_FLEX_DURATION = 5 * 60 * 1000L; // 5 minutes.
+
+    private static final String TAG = "PeriodicWork";
 
     PeriodicWork(WorkSpec workSpec) {
         super(workSpec);
@@ -85,6 +88,21 @@ public class PeriodicWork extends BaseWork {
                 long intervalDuration,
                 long flexDuration) {
             super(workerClass);
+            if (intervalDuration < MIN_PERIODIC_INTERVAL_DURATION) {
+                Log.w(TAG, "Interval duration lesser than minimum allowed value; "
+                        + "Changed to " + MIN_PERIODIC_INTERVAL_DURATION);
+                intervalDuration = MIN_PERIODIC_INTERVAL_DURATION;
+            }
+            if (flexDuration < MIN_PERIODIC_FLEX_DURATION) {
+                Log.w(TAG, "Flex duration lesser than minimum allowed value; "
+                        + "Changed to " + MIN_PERIODIC_FLEX_DURATION);
+                flexDuration = MIN_PERIODIC_FLEX_DURATION;
+            }
+            if (flexDuration > intervalDuration) {
+                Log.w(TAG, "Flex duration greater than interval duration; "
+                        + "Changed to " + intervalDuration);
+                flexDuration = intervalDuration;
+            }
             mWorkSpec.setPeriodic(intervalDuration, flexDuration);
         }
 
