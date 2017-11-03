@@ -26,7 +26,6 @@ import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.TestLifecycleOwner;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.WorkSpecs;
 import android.arch.background.workmanager.executors.SynchronousExecutorService;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
@@ -49,7 +48,6 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class ForegroundProcessorTest {
 
@@ -84,8 +82,11 @@ public class ForegroundProcessorTest {
     }
 
     @Test
+    @SmallTest
     public void testProcess_singleWorker() throws InterruptedException {
-        WorkSpec workSpec = WorkSpecs.getWorkSpec(TestWorker.class);
+        WorkSpec workSpec = new Work.Builder(TestWorker.class)
+                .build()
+                .getWorkSpec();
         mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
         mForegroundProcessor.process(workSpec.getId(), 0L);
         assertThat(mWorkDatabase.workSpecDao().getWorkSpecStatus(workSpec.getId()),
@@ -95,8 +96,13 @@ public class ForegroundProcessorTest {
     @Test
     @SmallTest
     public void testProcess_dependentWorkers() throws TimeoutException, InterruptedException {
-        WorkSpec prerequisite = WorkSpecs.getWorkSpec(TestWorker.class);
-        WorkSpec workSpec = WorkSpecs.getWorkSpec(TestWorker.class, STATUS_BLOCKED);
+        WorkSpec prerequisite = new Work.Builder(TestWorker.class)
+                .build()
+                .getWorkSpec();
+        WorkSpec workSpec = new Work.Builder(TestWorker.class)
+                .withInitialStatus(STATUS_BLOCKED)
+                .build()
+                .getWorkSpec();
 
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         workSpecDao.insertWorkSpec(prerequisite);
@@ -112,10 +118,13 @@ public class ForegroundProcessorTest {
     }
 
     @Test
+    @SmallTest
     public void testProcess_processorInactive() throws TimeoutException, InterruptedException {
         postLifecycleStopOnMainThread();
         drain();
-        WorkSpec workSpec = WorkSpecs.getWorkSpec(TestWorker.class);
+        WorkSpec workSpec = new Work.Builder(TestWorker.class)
+                .build()
+                .getWorkSpec();
         mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
         mForegroundProcessor.process(workSpec.getId(), 0L);
         drain();

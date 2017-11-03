@@ -45,7 +45,6 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
 public class WorkManagerTest {
     private static final long DEFAULT_SLEEP_TIME_MS = 1000L;
     private WorkDatabase mDatabase;
@@ -63,6 +62,7 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testEnqueue_insertWork() throws InterruptedException {
         final int workCount = 3;
         final Work[] workArray = new Work[workCount];
@@ -83,6 +83,7 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testEnqueue_insertMultipleWork() throws InterruptedException {
         Work work1 = new Work.Builder(TestWorker.class).build();
         Work work2 = new Work.Builder(TestWorker.class).build();
@@ -98,6 +99,7 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testEnqueue_insertWithDependencies() throws InterruptedException {
         Work work1a = new Work.Builder(TestWorker.class).build();
         Work work1b = new Work.Builder(TestWorker.class).build();
@@ -130,6 +132,7 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testEnqueue_insertWorkConstraints() throws InterruptedException {
         Uri testUri1 = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         Uri testUri2 = MediaStore.Images.Media.INTERNAL_CONTENT_URI;
@@ -177,6 +180,7 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testEnqueue_insertWorkInitialDelay() throws InterruptedException {
         final long expectedInitialDelay = 5000L;
         Work work0 = new Work.Builder(TestWorker.class)
@@ -194,6 +198,7 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testEnqueue_insertWorkBackoffPolicy() throws InterruptedException {
         Work work0 = new Work.Builder(TestWorker.class)
                 .withBackoffCriteria(Work.BACKOFF_POLICY_LINEAR, 50000)
@@ -213,6 +218,7 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testEnqueue_insertWorkArguments() throws InterruptedException {
         String key = "key";
         String expectedValue = "value";
@@ -242,6 +248,7 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testEnqueue_insertPeriodicWork() throws InterruptedException {
         PeriodicWork periodicWork =
                 new PeriodicWork.Builder(
@@ -258,11 +265,16 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testClearAllWork() throws InterruptedException {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
-        WorkSpec workSpec1 = WorkSpecs.getWorkSpec(TestWorker.class);
-        WorkSpec workSpec2 = WorkSpecs.getWorkSpec(TestWorker.class);
+        WorkSpec workSpec1 = new Work.Builder(TestWorker.class)
+                .build()
+                .getWorkSpec();
+        WorkSpec workSpec2 = new Work.Builder(TestWorker.class)
+                .build()
+                .getWorkSpec();
         workSpecDao.insertWorkSpec(workSpec1);
         workSpecDao.insertWorkSpec(workSpec2);
         Thread.sleep(DEFAULT_SLEEP_TIME_MS);
@@ -275,16 +287,17 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testClearAllWorkByTag() throws InterruptedException {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         final String tagToClear = "tag_to_clear";
         final String tagNotToClear = "tag_not_to_clear";
 
-        WorkSpec workSpec1 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, tagToClear);
-        WorkSpec workSpec2 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, tagToClear);
-        WorkSpec workSpec3 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, tagNotToClear);
-        WorkSpec workSpec4 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, tagNotToClear);
+        WorkSpec workSpec1 = getTestWorkSpecWithTag(tagToClear);
+        WorkSpec workSpec2 = getTestWorkSpecWithTag(tagToClear);
+        WorkSpec workSpec3 = getTestWorkSpecWithTag(tagNotToClear);
+        WorkSpec workSpec4 = getTestWorkSpecWithTag(tagNotToClear);
         workSpecDao.insertWorkSpec(workSpec1);
         workSpecDao.insertWorkSpec(workSpec2);
         workSpecDao.insertWorkSpec(workSpec3);
@@ -301,18 +314,17 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testClearAllWorkByTagPrefix() throws InterruptedException {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         final String clearablePrefix = "clear_";
         final String unclearablePrefix = "do_not_clear_";
 
-        WorkSpec workSpec1 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, clearablePrefix + "1");
-        WorkSpec workSpec2 = WorkSpecs.getWorkSpecWithTag(TestWorker.class, clearablePrefix + "2");
-        WorkSpec workSpec3 =
-                WorkSpecs.getWorkSpecWithTag(TestWorker.class, unclearablePrefix + "1");
-        WorkSpec workSpec4 =
-                WorkSpecs.getWorkSpecWithTag(TestWorker.class, unclearablePrefix + "2");
+        WorkSpec workSpec1 = getTestWorkSpecWithTag(clearablePrefix + "1");
+        WorkSpec workSpec2 = getTestWorkSpecWithTag(clearablePrefix + "2");
+        WorkSpec workSpec3 = getTestWorkSpecWithTag(unclearablePrefix + "1");
+        WorkSpec workSpec4 = getTestWorkSpecWithTag(unclearablePrefix + "2");
         workSpecDao.insertWorkSpec(workSpec1);
         workSpecDao.insertWorkSpec(workSpec2);
         workSpecDao.insertWorkSpec(workSpec3);
@@ -329,6 +341,7 @@ public class WorkManagerTest {
     }
 
     @Test
+    @SmallTest
     public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
@@ -344,5 +357,12 @@ public class WorkManagerTest {
         WorkDatabase.generateCleanupCallback().onOpen(db);
 
         assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(Work.STATUS_ENQUEUED));
+    }
+
+    private WorkSpec getTestWorkSpecWithTag(String tag) {
+        return new Work.Builder(TestWorker.class)
+                .withTag(tag)
+                .build()
+                .getWorkSpec();
     }
 }

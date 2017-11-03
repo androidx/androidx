@@ -24,7 +24,6 @@ import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.WorkSpecs;
 import android.arch.background.workmanager.WorkerWrapper;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.worker.TestWorker;
@@ -66,7 +65,9 @@ public class SystemJobProcessorTest {
     @Test
     @SmallTest
     public void testSimpleWorker() throws InterruptedException {
-        WorkSpec workSpec = WorkSpecs.getWorkSpec(TestWorker.class);
+        WorkSpec workSpec = new Work.Builder(TestWorker.class)
+                .build()
+                .getWorkSpec();
         mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
         mSystemJobProcessor.process(workSpec.getId(), 0L);
         Thread.sleep(1000L);

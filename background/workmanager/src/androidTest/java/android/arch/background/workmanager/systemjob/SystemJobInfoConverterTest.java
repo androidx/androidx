@@ -16,8 +16,6 @@
 
 package android.arch.background.workmanager.systemjob;
 
-import static android.arch.background.workmanager.WorkSpecs.getWorkSpec;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
@@ -44,7 +42,6 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 23)
-@SmallTest
 public class SystemJobInfoConverterTest {
 
     private static final long TEST_INTERVAL_DURATION =
@@ -63,6 +60,7 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SmallTest
     public void testConvert_ids() {
         final String expectedWorkSpecId = "026e3422-9cd1-11e7-abc4-cec278b6b50a";
         final int expectedJobId = 101;
@@ -76,6 +74,7 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SmallTest
     public void testConvert_setPersistedByDefault() {
         JobInfo jobInfo = mConverter.convert(new WorkSpec("id"));
         assertThat(jobInfo.isPersisted(), is(true));
@@ -89,11 +88,13 @@ public class SystemJobInfoConverterTest {
      * e.g. calling builder.setMinLatencyMillis(0L).
      */
     @Test
+    @SmallTest
     public void testConvert_noConstraints_doesNotThrowException() {
         mConverter.convert(new WorkSpec("id"));
     }
 
     @Test
+    @SmallTest
     public void testConvert_retryPolicy() {
         long expectedBackoffDelayDuration = 50000;
         WorkSpec workSpec = new WorkSpec("id");
@@ -105,6 +106,7 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SmallTest
     public void testConvert_initialDelay() {
         final long expectedInitialDelay = 12123L;
         WorkSpec workSpec = new WorkSpec("id");
@@ -114,6 +116,7 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SmallTest
     public void testConvert_periodicWithNoFlex() {
         WorkSpec workSpec = new WorkSpec("id");
         workSpec.setPeriodic(TEST_INTERVAL_DURATION);
@@ -122,6 +125,7 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     public void testConvert_periodicWithFlex() {
         WorkSpec workSpec = new WorkSpec("id");
@@ -132,23 +136,25 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     public void testConvert_requireCharging() {
         final boolean expectedRequireCharging = true;
-        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+        WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
                 .setRequiresCharging(expectedRequireCharging).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.isRequireCharging(), is(expectedRequireCharging));
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     public void testConvert_requireContentUriTrigger() {
         final Uri expectedUri = Uri.parse("TEST_URI");
         final JobInfo.TriggerContentUri expectedTriggerContentUri =
                 new JobInfo.TriggerContentUri(
                         expectedUri, JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS);
-        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+        WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
                 .addContentUriTrigger(expectedUri, true).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
 
@@ -157,48 +163,54 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     public void testConvert_requireDeviceIdle() {
         final boolean expectedRequireDeviceIdle = true;
-        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+        WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
                 .setRequiresDeviceIdle(expectedRequireDeviceIdle).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.isRequireDeviceIdle(), is(expectedRequireDeviceIdle));
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 26)
     public void testConvert_requireBatteryNotLow() {
         final boolean expectedRequireBatteryNotLow = true;
-        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+        WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
                 .setRequiresBatteryNotLow(expectedRequireBatteryNotLow).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.isRequireBatteryNotLow(), is(expectedRequireBatteryNotLow));
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 26)
     public void testConvert_requireStorageNotLow() {
         final boolean expectedRequireStorageNotLow = true;
-        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+        WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
                 .setRequiresStorageNotLow(expectedRequireStorageNotLow).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.isRequireStorageNotLow(), is(expectedRequireStorageNotLow));
     }
 
     @Test
+    @SmallTest
     public void testConvert_networkTypeUnmeteredRequiresApi21() {
         convertWithRequiredNetworkType(
                 Constraints.NETWORK_TYPE_UNMETERED, JobInfo.NETWORK_TYPE_UNMETERED, 21);
     }
 
     @Test
+    @SmallTest
     public void testConvert_networkTypeNotRoamingRequiresApi24() {
         convertWithRequiredNetworkType(
                 Constraints.NETWORK_TYPE_NOT_ROAMING, JobInfo.NETWORK_TYPE_NOT_ROAMING, 24);
     }
 
     @Test
+    @SmallTest
     public void testConvert_networkTypeMeteredRequiresApi26() {
         convertWithRequiredNetworkType(
                 Constraints.NETWORK_TYPE_METERED, JobInfo.NETWORK_TYPE_METERED, 26);
@@ -207,7 +219,7 @@ public class SystemJobInfoConverterTest {
     private void convertWithRequiredNetworkType(@Constraints.NetworkType int networkType,
                                                 int jobInfoNetworkType,
                                                 int minSdkVersion) {
-        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+        WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
                 .setRequiredNetworkType(networkType).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
         if (Build.VERSION.SDK_INT >= minSdkVersion) {
@@ -218,24 +230,28 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SmallTest
     public void testConvertNetworkType_none() {
         assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_NONE),
                 is(JobInfo.NETWORK_TYPE_NONE));
     }
 
     @Test
+    @SmallTest
     public void testConvertNetworkType_any() {
         assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_ANY),
                 is(JobInfo.NETWORK_TYPE_ANY));
     }
 
     @Test
+    @SmallTest
     public void testConvertNetworkType_unmetered() {
         assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_UNMETERED),
                 is(JobInfo.NETWORK_TYPE_UNMETERED));
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 23)
     public void testConvertNetworkType_notRoaming_returnAnyBeforeApi24() {
         assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_NOT_ROAMING),
@@ -243,6 +259,7 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     public void testConvertNetworkType_notRoaming_returnsNotRoamingAfterApi24() {
         assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_NOT_ROAMING),
@@ -250,6 +267,7 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConvertNetworkType_metered_returnsAnyBeforeApi26() {
         assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_METERED),
@@ -257,9 +275,17 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 26)
     public void testConvertNetworkType_metered_returnsMeteredAfterApi26() {
         assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_METERED),
                 is(JobInfo.NETWORK_TYPE_METERED));
+    }
+
+    private WorkSpec getTestWorkSpecWithConstraints(Constraints constraints) {
+        return new Work.Builder(TestWorker.class)
+                .withConstraints(constraints)
+                .build()
+                .getWorkSpec();
     }
 }
