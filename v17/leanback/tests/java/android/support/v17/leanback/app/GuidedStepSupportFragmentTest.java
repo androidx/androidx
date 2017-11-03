@@ -26,11 +26,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.os.Bundle;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidedActionsStylist;
+import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -447,5 +451,52 @@ public class GuidedStepSupportFragmentTest extends GuidedStepSupportFragmentTest
         assertEquals(View.LAYOUT_DIRECTION_RTL, first.getFragment().getView().getLayoutDirection());
         View firstView = first.getFragment().getActionItemView(0);
         assertTrue(firstView.hasFocus());
+    }
+
+    @Test
+    public void recyclerViewDiffTest() throws Throwable {
+        final String firstFragmentName = generateMethodTestName("first");
+        final GuidedStepTestSupportFragment.Provider first = mockProvider(firstFragmentName);
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) {
+                List actions = (List) invocation.getArguments()[0];
+                actions.add(new GuidedAction.Builder().id(1000).title("action1").build());
+                actions.add(new GuidedAction.Builder().id(1001).title("action2").build());
+                return null;
+            }
+        }).when(first).onCreateActions(any(List.class), nullable(Bundle.class));
+
+        launchTestActivity(firstFragmentName, true);
+
+        final ArrayList<RecyclerView.ViewHolder> changeList = new ArrayList();
+        VerticalGridView rv = first.getFragment().mActionsStylist.getActionsGridView();
+        rv.setItemAnimator(new DefaultItemAnimator() {
+            @Override
+            public void onChangeStarting(RecyclerView.ViewHolder item, boolean oldItem) {
+                if (!oldItem) {
+                    changeList.add(item);
+                }
+                super.onChangeStarting(item, oldItem);
+            }
+        });
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                List actions = new ArrayList();
+                actions.add(new GuidedAction.Builder().id(1001).title("action2x").build());
+                actions.add(new GuidedAction.Builder().id(1000).title("action1x").build());
+                first.getFragment().setActions(actions);
+            }
+        });
+
+        // should causes two change animation.
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return changeList.size() == 2;
+            }
+        });
     }
 }

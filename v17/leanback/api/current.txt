@@ -478,6 +478,7 @@ package android.support.v17.leanback.app {
     method public void openInEditMode(android.support.v17.leanback.widget.GuidedAction);
     method public void popBackStackToGuidedStepFragment(java.lang.Class, int);
     method public void setActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
+    method public void setActionsDiffCallback(android.support.v17.leanback.widget.DiffCallback<android.support.v17.leanback.widget.GuidedAction>);
     method public void setButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
     method public void setSelectedActionPosition(int);
     method public void setSelectedButtonActionPosition(int);
@@ -539,6 +540,7 @@ package android.support.v17.leanback.app {
     method public void openInEditMode(android.support.v17.leanback.widget.GuidedAction);
     method public void popBackStackToGuidedStepSupportFragment(java.lang.Class, int);
     method public void setActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
+    method public void setActionsDiffCallback(android.support.v17.leanback.widget.DiffCallback<android.support.v17.leanback.widget.GuidedAction>);
     method public void setButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
     method public void setSelectedActionPosition(int);
     method public void setSelectedButtonActionPosition(int);
@@ -1911,6 +1913,13 @@ package android.support.v17.leanback.widget {
     method public B subActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
     method public B title(java.lang.CharSequence);
     method public B title(int);
+  }
+
+  public class GuidedActionDiffCallback extends android.support.v17.leanback.widget.DiffCallback {
+    ctor public GuidedActionDiffCallback();
+    method public boolean areContentsTheSame(android.support.v17.leanback.widget.GuidedAction, android.support.v17.leanback.widget.GuidedAction);
+    method public boolean areItemsTheSame(android.support.v17.leanback.widget.GuidedAction, android.support.v17.leanback.widget.GuidedAction);
+    method public static final android.support.v17.leanback.widget.GuidedActionDiffCallback getInstance();
   }
 
   public class GuidedActionEditText extends android.widget.EditText implements android.support.v17.leanback.widget.ImeKeyMonitor {
