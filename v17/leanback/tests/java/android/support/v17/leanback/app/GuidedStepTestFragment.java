@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from GuidedStepTestSupportFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -14,19 +17,17 @@
 
 package android.support.v17.leanback.app;
 
-import android.app.Activity;
-import android.app.FragmentManager;
 import android.os.Bundle;
-import android.view.ViewGroup;
-import android.view.View;
-import android.view.LayoutInflater;
-
-
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
+import android.app.Activity;
+import android.app.FragmentManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @hide from javadoc

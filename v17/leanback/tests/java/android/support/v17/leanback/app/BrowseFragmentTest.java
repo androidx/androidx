@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from BrowseSupportFragmentTest.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2015 The Android Open Source Project
  *
