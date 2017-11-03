@@ -17,6 +17,7 @@
 package android.arch.background.workmanager;
 
 import android.arch.background.workmanager.model.WorkSpec;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
 /**
@@ -39,8 +40,11 @@ public class Work extends BaseWork {
             super(workerClass);
         }
 
-        @VisibleForTesting
-        Builder withInitialStatus(@WorkStatus int status) {
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder withInitialStatus(@WorkStatus int status) {
             mWorkSpec.setStatus(status);
             return this;
         }
