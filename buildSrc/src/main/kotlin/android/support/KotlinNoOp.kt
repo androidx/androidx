@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-buildscript {
-    ext.supportRootFolder = new File(project.projectDir, "../")
-    apply from: 'buildSrc/repos.gradle'
-    apply from: 'init.gradle'
-    apply from: "buildSrc/build_dependencies.gradle"
-    repos.addMavenRepositories(repositories)
-    dependencies {
-        classpath build_libs.jacoco
-        classpath build_libs.gradle
-        classpath build_libs.kotlin.gradle_plugin
+package android.support
+
+class KotlinNoOp {
+
+    fun noOp() {
     }
+
 }
