@@ -15,7 +15,9 @@ package android.support.v17.leanback.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.Log;
@@ -103,6 +105,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
     private ClickListener mClickListener;
     final GuidedActionsStylist mStylist;
     GuidedActionAdapterGroup mGroup;
+    DiffCallback<GuidedAction> mDiffCallback;
 
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
@@ -145,20 +148,78 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
         mActionOnFocusListener = new ActionOnFocusListener(focusListener);
         mActionEditListener = new ActionEditListener();
         mIsSubAdapter = isSubAdapter;
+        if (!isSubAdapter) {
+            mDiffCallback = GuidedActionDiffCallback.getInstance();
+        }
     }
 
     /**
-     * Sets the list of actions managed by this adapter.
+     * Change DiffCallback used in {@link #setActions(List)}. Set to null for firing a
+     * general {@link #notifyDataSetChanged()}.
+     *
+     * @param diffCallback
+     */
+    public void setDiffCallback(DiffCallback<GuidedAction> diffCallback) {
+        mDiffCallback = diffCallback;
+    }
+
+    /**
+     * Sets the list of actions managed by this adapter. Use {@link #setDiffCallback(DiffCallback)}
+     * to change DiffCallback.
      * @param actions The list of actions to be managed.
      */
-    public void setActions(List<GuidedAction> actions) {
+    public void setActions(final List<GuidedAction> actions) {
         if (!mIsSubAdapter) {
             mStylist.collapseAction(false);
         }
         mActionOnFocusListener.unFocus();
-        mActions.clear();
-        mActions.addAll(actions);
-        notifyDataSetChanged();
+        if (mDiffCallback != null) {
+            // temporary variable used for DiffCallback
+            final List<GuidedAction> oldActions = new ArrayList();
+            oldActions.addAll(mActions);
+
+            // update items.
+            mActions.clear();
+            mActions.addAll(actions);
+
+            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return oldActions.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return mActions.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    return mDiffCallback.areItemsTheSame(oldActions.get(oldItemPosition),
+                            mActions.get(newItemPosition));
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    return mDiffCallback.areContentsTheSame(oldActions.get(oldItemPosition),
+                            mActions.get(newItemPosition));
+                }
+
+                @Nullable
+                @Override
+                public Object getChangePayload(int oldItemPosition, int newItemPosition) {
+                    return mDiffCallback.getChangePayload(oldActions.get(oldItemPosition),
+                            mActions.get(newItemPosition));
+                }
+            });
+
+            // dispatch diff result
+            diffResult.dispatchUpdatesTo(this);
+        } else {
+            mActions.clear();
+            mActions.addAll(actions);
+            notifyDataSetChanged();
+        }
     }
 
     /**

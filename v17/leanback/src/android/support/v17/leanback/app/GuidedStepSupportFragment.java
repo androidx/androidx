@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
+import android.support.v17.leanback.widget.DiffCallback;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
@@ -803,6 +804,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
 
     /**
      * Sets the list of GuidedActions that the user may take in this fragment.
+     * Uses DiffCallback set by {@link #setActionsDiffCallback(DiffCallback)}.
+     *
      * @param actions The list of GuidedActions for this fragment.
      */
     public void setActions(List<GuidedAction> actions) {
@@ -810,6 +813,18 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         if (mAdapter != null) {
             mAdapter.setActions(mActions);
         }
+    }
+
+    /**
+     * Sets the RecyclerView DiffCallback used when {@link #setActions(List)} is called. By default
+     * GuidedStepSupportFragment uses
+     * {@link android.support.v17.leanback.widget.GuidedActionDiffCallback}.
+     * Sets it to null if app wants to refresh the whole list.
+     *
+     * @param diffCallback DiffCallback used in {@link #setActions(List)}.
+     */
+    public void setActionsDiffCallback(DiffCallback<GuidedAction> diffCallback) {
+        mAdapter.setDiffCallback(diffCallback);
     }
 
     /**
