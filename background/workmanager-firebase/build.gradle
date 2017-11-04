@@ -44,11 +44,17 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
+    packagingOptions {
+        // This is needed due to a compatibility issue with espresso_core and play_services_base
+        // Being resolved by GMSCore in b/64815250
+        pickFirst 'protobuf.meta'
+    }
 }
 
 dependencies {
     api project(":background:workmanager")
-    api libs.firebase_jobdispatcher
+    api libs.firebase_jobdispatcher, { exclude group: 'com.android.support' }
+    api libs.play_services_base, { exclude group: 'com.android.support' }
     androidTestImplementation project(":background:workmanager")
     androidTestImplementation libs.espresso_core, { exclude module: 'support-annotations' }
     androidTestImplementation libs.mockito_core, { exclude group: 'net.bytebuddy' }
