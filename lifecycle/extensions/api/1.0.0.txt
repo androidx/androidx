@@ -1,0 +1,121 @@
+package android.arch.lifecycle {
+
+  public class AndroidViewModel extends android.arch.lifecycle.ViewModel {
+    ctor public AndroidViewModel(android.app.Application);
+    method public <T extends android.app.Application> T getApplication();
+  }
+
+  public deprecated class LifecycleActivity extends android.support.v4.app.FragmentActivity {
+    ctor public LifecycleActivity();
+  }
+
+  public deprecated class LifecycleFragment extends android.support.v4.app.Fragment {
+    ctor public LifecycleFragment();
+  }
+
+  public class LifecycleService extends android.app.Service implements android.arch.lifecycle.LifecycleOwner {
+    ctor public LifecycleService();
+    method public android.arch.lifecycle.Lifecycle getLifecycle();
+    method public android.os.IBinder onBind(android.content.Intent);
+    method public void onStart(android.content.Intent, int);
+  }
+
+  public abstract class LiveData<T> {
+    ctor public LiveData();
+    method public T getValue();
+    method public boolean hasActiveObservers();
+    method public boolean hasObservers();
+    method public void observe(android.arch.lifecycle.LifecycleOwner, android.arch.lifecycle.Observer<T>);
+    method public void observeForever(android.arch.lifecycle.Observer<T>);
+    method protected void onActive();
+    method protected void onInactive();
+    method protected void postValue(T);
+    method public void removeObserver(android.arch.lifecycle.Observer<T>);
+    method public void removeObservers(android.arch.lifecycle.LifecycleOwner);
+    method protected void setValue(T);
+  }
+
+  public class MediatorLiveData<T> extends android.arch.lifecycle.MutableLiveData {
+    ctor public MediatorLiveData();
+    method public <S> void addSource(android.arch.lifecycle.LiveData<S>, android.arch.lifecycle.Observer<S>);
+    method public <S> void removeSource(android.arch.lifecycle.LiveData<S>);
+  }
+
+  public class MutableLiveData<T> extends android.arch.lifecycle.LiveData {
+    ctor public MutableLiveData();
+    method public void postValue(T);
+    method public void setValue(T);
+  }
+
+  public abstract interface Observer<T> {
+    method public abstract void onChanged(T);
+  }
+
+  public class ProcessLifecycleOwner implements android.arch.lifecycle.LifecycleOwner {
+    method public static android.arch.lifecycle.LifecycleOwner get();
+    method public android.arch.lifecycle.Lifecycle getLifecycle();
+  }
+
+  public class ServiceLifecycleDispatcher {
+    ctor public ServiceLifecycleDispatcher(android.arch.lifecycle.LifecycleOwner);
+    method public android.arch.lifecycle.Lifecycle getLifecycle();
+    method public void onServicePreSuperOnBind();
+    method public void onServicePreSuperOnCreate();
+    method public void onServicePreSuperOnDestroy();
+    method public void onServicePreSuperOnStart();
+  }
+
+  public class Transformations {
+    method public static <X, Y> android.arch.lifecycle.LiveData<Y> map(android.arch.lifecycle.LiveData<X>, android.arch.core.util.Function<X, Y>);
+    method public static <X, Y> android.arch.lifecycle.LiveData<Y> switchMap(android.arch.lifecycle.LiveData<X>, android.arch.core.util.Function<X, android.arch.lifecycle.LiveData<Y>>);
+  }
+
+  public abstract class ViewModel {
+    ctor public ViewModel();
+    method protected void onCleared();
+  }
+
+  public class ViewModelProvider {
+    ctor public ViewModelProvider(android.arch.lifecycle.ViewModelStoreOwner, android.arch.lifecycle.ViewModelProvider.Factory);
+    ctor public ViewModelProvider(android.arch.lifecycle.ViewModelStore, android.arch.lifecycle.ViewModelProvider.Factory);
+    method public <T extends android.arch.lifecycle.ViewModel> T get(java.lang.Class<T>);
+    method public <T extends android.arch.lifecycle.ViewModel> T get(java.lang.String, java.lang.Class<T>);
+  }
+
+  public static abstract interface ViewModelProvider.Factory {
+    method public abstract <T extends android.arch.lifecycle.ViewModel> T create(java.lang.Class<T>);
+  }
+
+  public static class ViewModelProvider.NewInstanceFactory implements android.arch.lifecycle.ViewModelProvider.Factory {
+    ctor public ViewModelProvider.NewInstanceFactory();
+    method public <T extends android.arch.lifecycle.ViewModel> T create(java.lang.Class<T>);
+  }
+
+  public class ViewModelProviders {
+    ctor public ViewModelProviders();
+    method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.Fragment);
+    method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.FragmentActivity);
+    method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.Fragment, android.arch.lifecycle.ViewModelProvider.Factory);
+    method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.FragmentActivity, android.arch.lifecycle.ViewModelProvider.Factory);
+  }
+
+  public static class ViewModelProviders.DefaultFactory extends android.arch.lifecycle.ViewModelProvider.NewInstanceFactory {
+    ctor public ViewModelProviders.DefaultFactory(android.app.Application);
+  }
+
+  public class ViewModelStore {
+    ctor public ViewModelStore();
+    method public final void clear();
+  }
+
+  public abstract interface ViewModelStoreOwner {
+    method public abstract android.arch.lifecycle.ViewModelStore getViewModelStore();
+  }
+
+  public class ViewModelStores {
+    method public static android.arch.lifecycle.ViewModelStore of(android.support.v4.app.FragmentActivity);
+    method public static android.arch.lifecycle.ViewModelStore of(android.support.v4.app.Fragment);
+  }
+
+}
+
