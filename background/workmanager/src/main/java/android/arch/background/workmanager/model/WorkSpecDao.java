@@ -16,6 +16,8 @@
 
 package android.arch.background.workmanager.model;
 
+import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
+import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.Work.STATUS_RUNNING;
@@ -138,6 +140,26 @@ public interface WorkSpecDao {
     @Query("SELECT id FROM workspec WHERE status=" + STATUS_BLOCKED + " AND id NOT IN "
             + "(SELECT DISTINCT work_spec_id FROM dependency)")
     List<String> getUnblockedWorkIds();
+
+    /**
+     * Retrieves work ids for unfinished work with a given tag.
+     *
+     * @param tag The tag used to identify the work.
+     * @return A {@link LiveData} list of work ids.
+     */
+    @Query("SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND status!="
+            + STATUS_FAILED + " AND tag=:tag")
+    LiveData<List<String>> getUnfinishedWorkWithTag(@NonNull String tag);
+
+    /**
+     * Retrieves work ids for unfinished work with a given tag prefix.
+     *
+     * @param tagPrefix The tag prefix used to identify the work.
+     * @return A {@link LiveData} list of work ids.
+     */
+    @Query("SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND status!="
+            + STATUS_FAILED + " AND tag LIKE :tagPrefix")
+    LiveData<List<String>> getUnfinishedWorkWithTagPrefix(@NonNull String tagPrefix);
 
     /**
      * Clears all work with the given tag prefix.
