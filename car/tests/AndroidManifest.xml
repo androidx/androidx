@@ -20,6 +20,7 @@
 
     <application android:supportsRtl="true">
         <activity android:name="android.support.car.widget.ColumnCardViewTestActivity"/>
+        <activity android:name="android.support.car.widget.PagedListViewSavedStateActivity"/>
         <activity android:name="android.support.car.widget.PagedListViewTestActivity"/>
     </application>
 </manifest>
