@@ -19,15 +19,12 @@ package android.arch.background.workmanager.model;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Index;
-import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 /**
  * Database entity that defines a dependency between two {@link WorkSpec}s.
  */
 
-// TODO(xbhatnag): Replace with single foreign key. (b/65681278)
 @Entity(foreignKeys = {
         @ForeignKey(
                 entity = WorkSpec.class,
@@ -39,13 +36,8 @@ import android.support.annotation.NonNull;
                 parentColumns = "id",
                 childColumns = "prerequisite_id",
                 onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE)},
-        indices = {@Index(value = "work_spec_id"), @Index(value = "prerequisite_id")})
+        primaryKeys = {"work_spec_id", "prerequisite_id"})
 public class Dependency {
-    // TODO(janclarin): May want to enforce strict primary key on workSpecId + prerequisiteId.
-    @ColumnInfo(name = "id")
-    @PrimaryKey(autoGenerate = true)
-    long mId;
-
     @NonNull
     @ColumnInfo(name = "work_spec_id")
     String mWorkSpecId;
@@ -57,14 +49,6 @@ public class Dependency {
     public Dependency(@NonNull String workSpecId, @NonNull String prerequisiteId) {
         mWorkSpecId = workSpecId;
         mPrerequisiteId = prerequisiteId;
-    }
-
-    public long getId() {
-        return mId;
-    }
-
-    public void setId(long id) {
-        mId = id;
     }
 
     @NonNull
