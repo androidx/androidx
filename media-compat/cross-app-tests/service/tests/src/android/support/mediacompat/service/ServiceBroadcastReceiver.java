@@ -17,11 +17,6 @@
 package android.support.mediacompat.service;
 
 
-import static android.support.mediacompat.testlib.IntentConstants
-        .ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD;
-import static android.support.mediacompat.testlib.IntentConstants.ACTION_CALL_MEDIA_SESSION_METHOD;
-import static android.support.mediacompat.testlib.IntentConstants.KEY_ARGUMENT;
-import static android.support.mediacompat.testlib.IntentConstants.KEY_METHOD_ID;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.CUSTOM_ACTION_SEND_ERROR;
 import static android.support.mediacompat.testlib.MediaBrowserConstants
         .CUSTOM_ACTION_SEND_PROGRESS_UPDATE;
@@ -47,6 +42,11 @@ import static android.support.mediacompat.testlib.MediaSessionConstants.SET_RATI
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_REPEAT_MODE;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_SESSION_ACTIVITY;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_SHUFFLE_MODE;
+import static android.support.mediacompat.testlib.util.IntentUtil
+        .ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD;
+import static android.support.mediacompat.testlib.util.IntentUtil.ACTION_CALL_MEDIA_SESSION_METHOD;
+import static android.support.mediacompat.testlib.util.IntentUtil.KEY_ARGUMENT;
+import static android.support.mediacompat.testlib.util.IntentUtil.KEY_METHOD_ID;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
