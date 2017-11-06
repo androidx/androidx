@@ -78,9 +78,9 @@ tasks.findByName("compileKotlin").dependsOn(":persistence:db:jarDebug")
 createKotlinCheckstyle(project)
 
 supportLibrary {
-    name 'Android Room Compiler'
-    publish true
-    inceptionYear '2017'
-    description "Android Room annotation processor"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Room Compiler"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android Room annotation processor"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

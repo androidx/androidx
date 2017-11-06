@@ -31,9 +31,9 @@ createAndroidCheckstyle(project)
 
 version = LibraryVersions.LIFECYCLES_CORE.toString()
 supportLibrary {
-    name 'Android Lifecycle-Common'
-    publish true
-    inceptionYear '2017'
-    description "Android Lifecycle-Common"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Lifecycle-Common"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android Lifecycle-Common"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

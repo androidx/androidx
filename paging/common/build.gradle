@@ -38,9 +38,9 @@ createKotlinCheckstyle(project)
 
 version = LibraryVersions.PAGING.toString()
 supportLibrary {
-    name 'Android Paging-Common'
-    publish true
-    inceptionYear '2017'
-    description "Android Paging-Common"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Paging-Common"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android Paging-Common"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

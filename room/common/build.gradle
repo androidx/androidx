@@ -31,9 +31,9 @@ createAndroidCheckstyle(project)
 
 version = LibraryVersions.ROOM.toString()
 supportLibrary {
-    name 'Android Room-Common'
-    publish true
-    inceptionYear '2017'
-    description "Android Room-Common"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Room-Common"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android Room-Common"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }
