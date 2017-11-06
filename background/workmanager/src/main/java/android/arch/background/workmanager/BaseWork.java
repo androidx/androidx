@@ -56,9 +56,14 @@ public abstract class BaseWork {
     public static final long DEFAULT_BACKOFF_DELAY_DURATION = 30000L;
 
     /**
-     * {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#82}
+     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#82}
      */
     public static final long MAX_BACKOFF_DURATION = 5 * 60 * 60 * 1000; // 5 hours.
+
+    /**
+     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#119}
+     */
+    public static final long MIN_BACKOFF_DURATION = 10 * 1000; // 10 seconds.
 
     private static final String TAG = "BaseWork";
 
@@ -121,10 +126,13 @@ public abstract class BaseWork {
          */
         public B withBackoffCriteria(@Work.BackoffPolicy int backoffPolicy,
                                                 long backoffDelayDuration) {
-            // TODO(xbhatnag): Enforce minimum backoff delay to 10 seconds
             if (backoffDelayDuration > MAX_BACKOFF_DURATION) {
                 Log.w(TAG, "Backoff delay duration exceeds maximum value");
                 backoffDelayDuration = MAX_BACKOFF_DURATION;
+            }
+            if (backoffDelayDuration < MIN_BACKOFF_DURATION) {
+                Log.w(TAG, "Backoff delay duration less than minimum value");
+                backoffDelayDuration = MIN_BACKOFF_DURATION;
             }
             mWorkSpec.setBackoffPolicy(backoffPolicy);
             mWorkSpec.setBackoffDelayDuration(backoffDelayDuration);
