@@ -305,4 +305,13 @@ public class AppCompatTextViewTest
 
         assertEquals(Typeface.SERIF, textView.getTypeface());
     }
+
+    @Test
+    @UiThreadTest
+    public void testfontFamilyNamespaceHierarchy() {
+        // This view has fontFamilyset in both the app and android namespace. App should be used.
+        TextView textView = mContainer.findViewById(R.id.textview_app_and_android_fontfamily);
+
+        assertEquals(Typeface.MONOSPACE, textView.getTypeface());
+    }
 }
