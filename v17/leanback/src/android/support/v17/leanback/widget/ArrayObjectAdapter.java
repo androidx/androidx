@@ -225,6 +225,8 @@ public class ArrayObjectAdapter extends ObjectAdapter {
         return true;
     }
 
+    ListUpdateCallback mListUpdateCallback;
+
     /**
      * Set a new item list to adapter. The DiffUtil will compute the difference and dispatch it to
      * specified position.
@@ -280,39 +282,43 @@ public class ArrayObjectAdapter extends ObjectAdapter {
         mItems.addAll(itemList);
 
         // dispatch diff result
-        diffResult.dispatchUpdatesTo(new ListUpdateCallback() {
+        if (mListUpdateCallback == null) {
+            mListUpdateCallback = new ListUpdateCallback() {
 
-            @Override
-            public void onInserted(int position, int count) {
-                if (DEBUG) {
-                    Log.d(TAG, "onInserted");
+                @Override
+                public void onInserted(int position, int count) {
+                    if (DEBUG) {
+                        Log.d(TAG, "onInserted");
+                    }
+                    notifyItemRangeInserted(position, count);
                 }
-                notifyItemRangeInserted(position, count);
-            }
 
-            @Override
-            public void onRemoved(int position, int count) {
-                if (DEBUG) {
-                    Log.d(TAG, "onRemoved");
+                @Override
+                public void onRemoved(int position, int count) {
+                    if (DEBUG) {
+                        Log.d(TAG, "onRemoved");
+                    }
+                    notifyItemRangeRemoved(position, count);
                 }
-                notifyItemRangeRemoved(position, count);
-            }
 
-            @Override
-            public void onMoved(int fromPosition, int toPosition) {
-                if (DEBUG) {
-                    Log.d(TAG, "onMoved");
+                @Override
+                public void onMoved(int fromPosition, int toPosition) {
+                    if (DEBUG) {
+                        Log.d(TAG, "onMoved");
+                    }
+                    notifyItemMoved(fromPosition, toPosition);
                 }
-                notifyItemMoved(fromPosition, toPosition);
-            }
 
-            @Override
-            public void onChanged(int position, int count, Object payload) {
-                if (DEBUG) {
-                    Log.d(TAG, "onChanged");
+                @Override
+                public void onChanged(int position, int count, Object payload) {
+                    if (DEBUG) {
+                        Log.d(TAG, "onChanged");
+                    }
+                    notifyItemRangeChanged(position, count, payload);
                 }
-                notifyItemRangeChanged(position, count, payload);
-            }
-        });
+            };
+        }
+        diffResult.dispatchUpdatesTo(mListUpdateCallback);
+        mOldItems.clear();
     }
 }
