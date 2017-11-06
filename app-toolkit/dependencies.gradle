@@ -42,7 +42,6 @@ ffVersions.jsr250 = "1.2"
 
 ffLibs.kotlin = [
         stdlib : "org.jetbrains.kotlin:kotlin-stdlib:$ffVersions.kotlin",
-        gradle_plugin : "org.jetbrains.kotlin:kotlin-gradle-plugin:$ffVersions.kotlin"
 ]
 ffLibs.auto_common = "com.google.auto:auto-common:$ffVersions.auto_common"
 ffLibs.apache = [
