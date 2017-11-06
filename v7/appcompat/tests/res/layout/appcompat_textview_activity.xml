@@ -241,6 +241,14 @@
             android:textAppearance="@style/TextView_FontResource"
             android:typeface="serif" />
 
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textview_app_and_android_fontfamily"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            app:fontFamily="monospace"/>
+
     </LinearLayout>
 
 </ScrollView>
