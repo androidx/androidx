@@ -14,16 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.mediacompat.client.util;
-
-import static android.support.mediacompat.testlib.IntentConstants
-        .ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD;
-import static android.support.mediacompat.testlib.IntentConstants.ACTION_CALL_MEDIA_SESSION_METHOD;
-import static android.support.mediacompat.testlib.IntentConstants.KEY_ARGUMENT;
-import static android.support.mediacompat.testlib.IntentConstants.KEY_METHOD_ID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+package android.support.mediacompat.testlib.util;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -34,23 +25,34 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 
-public final class TestUtil {
+/**
+ * Methods and constants used for sending intent between client and service apps.
+ */
+public class IntentUtil {
 
     public static final ComponentName SERVICE_RECEIVER_COMPONENT_NAME = new ComponentName(
             "android.support.mediacompat.service.test",
             "android.support.mediacompat.service.ServiceBroadcastReceiver");
+    public static final ComponentName CLIENT_RECEIVER_COMPONENT_NAME = new ComponentName(
+            "android.support.mediacompat.client.test",
+            "android.support.mediacompat.client.ClientBroadcastReceiver");
 
-    public static void assertBundleEquals(Bundle expected, Bundle observed) {
-        if (expected == null || observed == null) {
-            assertTrue(expected == observed);
-            return;
-        }
-        assertEquals(expected.size(), observed.size());
-        for (String key : expected.keySet()) {
-            assertEquals(expected.get(key), observed.get(key));
-        }
-    }
+    public static final String ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD =
+            "android.support.mediacompat.service.action.CALL_MEDIA_BROWSER_SERVICE_METHOD";
+    public static final String ACTION_CALL_MEDIA_SESSION_METHOD =
+            "android.support.mediacompat.service.action.CALL_MEDIA_SESSION_METHOD";
+    public static final String ACTION_CALL_MEDIA_CONTROLLER_METHOD =
+            "android.support.mediacompat.client.action.CALL_MEDIA_CONTROLLER_METHOD";
+    public static final String ACTION_CALL_TRANSPORT_CONTROLS_METHOD =
+            "android.support.mediacompat.client.action.CALL_TRANSPORT_CONTROLS_METHOD";
 
+    public static final String KEY_METHOD_ID = "method_id";
+    public static final String KEY_ARGUMENT = "argument";
+    public static final String KEY_SESSION_TOKEN = "session_token";
+
+    /**
+     * Calls a method of MediaBrowserService. Used by client app.
+     */
     public static void callMediaBrowserServiceMethod(int methodId, Object arg, Context context) {
         Intent intent = createIntent(SERVICE_RECEIVER_COMPONENT_NAME, methodId, arg);
         intent.setAction(ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD);
@@ -60,9 +62,40 @@ public final class TestUtil {
         context.sendBroadcast(intent);
     }
 
+    /**
+     * Calls a method of MediaSession. Used by client app.
+     */
     public static void callMediaSessionMethod(int methodId, Object arg, Context context) {
         Intent intent = createIntent(SERVICE_RECEIVER_COMPONENT_NAME, methodId, arg);
         intent.setAction(ACTION_CALL_MEDIA_SESSION_METHOD);
+        if (Build.VERSION.SDK_INT >= 16) {
+            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        }
+        context.sendBroadcast(intent);
+    }
+
+    /**
+     * Calls a method of MediaController. Used by service app.
+     */
+    public static void callMediaControllerMethod(
+            int methodId, Object arg, Context context, Parcelable token) {
+        Intent intent = createIntent(CLIENT_RECEIVER_COMPONENT_NAME, methodId, arg);
+        intent.setAction(ACTION_CALL_MEDIA_CONTROLLER_METHOD);
+        intent.putExtra(KEY_SESSION_TOKEN, token);
+        if (Build.VERSION.SDK_INT >= 16) {
+            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        }
+        context.sendBroadcast(intent);
+    }
+
+    /**
+     * Calls a method of TransportControls. Used by service app.
+     */
+    public static void callTransportControlsMethod(
+            int methodId, Object arg, Context context, Parcelable token) {
+        Intent intent = createIntent(CLIENT_RECEIVER_COMPONENT_NAME, methodId, arg);
+        intent.setAction(ACTION_CALL_TRANSPORT_CONTROLS_METHOD);
+        intent.putExtra(KEY_SESSION_TOKEN, token);
         if (Build.VERSION.SDK_INT >= 16) {
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         }

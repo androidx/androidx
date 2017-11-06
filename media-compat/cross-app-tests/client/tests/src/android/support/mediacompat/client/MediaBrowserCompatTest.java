@@ -16,7 +16,6 @@
 
 package android.support.mediacompat.client;
 
-import static android.support.mediacompat.client.util.TestUtil.callMediaBrowserServiceMethod;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.CUSTOM_ACTION;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.CUSTOM_ACTION_FOR_ERROR;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.CUSTOM_ACTION_SEND_ERROR;
@@ -48,6 +47,7 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VAL
 import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VALUE_3;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VALUE_4;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
+import static android.support.mediacompat.testlib.util.IntentUtil.callMediaBrowserServiceMethod;
 import static android.support.test.InstrumentationRegistry.getArguments;
 import static android.support.test.InstrumentationRegistry.getContext;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
