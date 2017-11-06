@@ -23,6 +23,7 @@ import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.model.Constraints;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -65,6 +66,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, ImageProcessingActivity.class));
+            }
+        });
+
+        findViewById(R.id.image_uri).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WorkManager.getInstance(MainActivity.this).enqueue(SleepyToastWorker
+                        .createWithArgs(0, "Image URI Updated!")
+                        .withConstraints(new Constraints.Builder()
+                                        .addContentUriTrigger(
+                                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true)
+                                        .build())
+                        .build()
+                );
             }
         });
     }

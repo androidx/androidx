@@ -41,6 +41,7 @@ dependencies {
     compile project(':arch:runtime')
     compile project(':arch:common')
     compile project(':background:workmanager')
+    compile project(':background:workmanager-firebase')
     compile project(':lifecycle:extensions')
     compile project(':lifecycle:runtime')
     compile project(':lifecycle:common')
