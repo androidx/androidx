@@ -23,20 +23,25 @@ import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 /**
  * A {@link ConstraintController} for monitoring that the network connection is not roaming.
  */
 
 public class NetworkStateNotRoamingController extends ConstraintController<NetworkStateListener> {
+    private static final String TAG = "NetworkNotRoamingCtrlr";
 
-    private boolean mIsConnectedAndNotRoaming;
+    private boolean mIsConnected;
+    private boolean mIsNotRoaming;
     private final NetworkStateListener mNetworkStateNotRoamingListener =
             new NetworkStateListener() {
                 @Override
                 public void setNetworkState(@NonNull NetworkState state) {
-                    mIsConnectedAndNotRoaming = state.isConnected() && state.isNotRoaming();
+                    mIsConnected = state.isConnected();
+                    mIsNotRoaming = state.isNotRoaming();
                     updateListener();
                 }
             };
@@ -62,8 +67,17 @@ public class NetworkStateNotRoamingController extends ConstraintController<Netwo
         return mNetworkStateNotRoamingListener;
     }
 
+    /**
+     * Check for not-roaming constraint on API 24+, when JobInfo#NETWORK_TYPE_NOT_ROAMING was added,
+     * to be consistent with JobScheduler functionality.
+     */
     @Override
     boolean isConstrained() {
-        return !mIsConnectedAndNotRoaming;
+        if (Build.VERSION.SDK_INT < 24) {
+            Log.d(TAG, "Not-roaming network constraint is not supported before API 24, "
+                    + "only checking for connected state.");
+            return !mIsConnected;
+        }
+        return !mIsConnected || !mIsNotRoaming;
     }
 }
