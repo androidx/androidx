@@ -40,7 +40,6 @@ ffVersions.gson = "2.8.0"
 ffVersions.guava = "21.0"
 ffVersions.jsr250 = "1.2"
 ffVersions.firebase_jobdispatcher = "0.8.3"
-ffVersions.play_services_base = "11.4.2-public" // TODO(xbhatnag): Change to official version
 
 ffLibs.kotlin = [
         stdlib : "org.jetbrains.kotlin:kotlin-stdlib:$ffVersions.kotlin",
@@ -85,10 +84,9 @@ ffLibs.ij_annotations = "com.intellij:annotations:$ffVersions.intellij_annotatio
 ffLibs.reactive_streams = "org.reactivestreams:reactive-streams:$ffVersions.reactivestreams"
 ffLibs.rx_java = "io.reactivex.rxjava2:rxjava:$ffVersions.rxjava2"
 ffLibs.gson = "com.google.code.gson:gson:$ffVersions.gson"
-ffLibs.guava = "com.google.guava:guava:$ffVersions.guava"
+ffLibs.guava= "com.google.guava:guava:$ffVersions.guava"
 ffLibs.jsr250 = "javax.annotation:javax.annotation-api:$ffVersions.jsr250"
-ffLibs.firebase_jobdispatcher = "com.firebase:firebase-jobdispatcher:$ffVersions.firebase_jobdispatcher"
-ffLibs.play_services_base = "com.google.android.gms:play-services-base:$ffVersions.play_services_base"
+ffLibs.firebase_jobdispatcher= "com.firebase:firebase-jobdispatcher:$ffVersions.firebase_jobdispatcher@aar"
 
 ext.tools = [:]
 ext.tools.current_sdk = gradle.ext.currentSdk
