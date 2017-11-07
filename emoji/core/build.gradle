@@ -1,4 +1,6 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 ext {
     fontDir = project(':noto-emoji-compat').projectDir
@@ -29,13 +31,22 @@ android {
     }
 
     sourceSets {
-        main.res.srcDirs += 'src/main/res-public'
-        main.resources {
-            srcDirs = [fontDir.getAbsolutePath()]
-            includes = ["LICENSE_UNICODE", "LICENSE_OFL"]
+        main {
+            // We use a non-standard manifest path.
+            manifest.srcFile 'AndroidManifest.xml'
+            res.srcDirs += 'src/main/res-public'
+            resources {
+                srcDirs = [fontDir.getAbsolutePath()]
+                includes = ["LICENSE_UNICODE", "LICENSE_OFL"]
+            }
         }
 
         androidTest {
+            // We use a non-standard test directory structure.
+            root 'tests'
+            java.srcDir 'tests/src'
+            res.srcDir 'tests/res'
+            manifest.srcFile 'tests/AndroidManifest.xml'
             assets {
                 srcDirs = [new File(fontDir, "font").getAbsolutePath(),
                            new File(fontDir, "supported-emojis").getAbsolutePath()]

@@ -1,4 +1,6 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-annotations')
@@ -15,4 +17,5 @@ supportLibrary {
     publish true
     inceptionYear '2015'
     description 'Android Support Recommendation'
+    legacySourceLocation true
 }

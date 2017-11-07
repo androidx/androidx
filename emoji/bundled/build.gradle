@@ -1,4 +1,6 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 ext {
     fontDir = project(':noto-emoji-compat').projectDir
@@ -33,4 +35,5 @@ supportLibrary {
         name 'Unicode, Inc. License'
         url 'http://www.unicode.org/copyright.html#License'
     }
+    legacySourceLocation true
 }

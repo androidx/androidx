@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     compile libs.junit
@@ -27,4 +29,8 @@ android {
     lintOptions {
         disable 'InvalidPackage' // Lint is unhappy about junit package
     }
+}
+
+supportLibrary {
+    legacySourceLocation true
 }

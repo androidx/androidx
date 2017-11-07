@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
@@ -33,4 +35,5 @@ supportLibrary {
     publish true
     inceptionYear '2017'
     description 'EmojiCompat Widgets for AppCompat integration'
+    legacySourceLocation true
 }

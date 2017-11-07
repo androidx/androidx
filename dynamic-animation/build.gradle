@@ -1,4 +1,6 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-core-utils')
@@ -20,4 +22,5 @@ supportLibrary {
     publish true
     inceptionYear '2017'
     description "Physics-based animation in support library, where the animations are driven by physics force. You can use this Animation library to create smooth and realistic animations."
+    legacySourceLocation true
 }

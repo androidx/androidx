@@ -1,4 +1,6 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-compat')
@@ -22,4 +24,5 @@ supportLibrary {
     publish true
     inceptionYear '2015'
     description 'Android Percent Support Library'
+    legacySourceLocation true
 }
