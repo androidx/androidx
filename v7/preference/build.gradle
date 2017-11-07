@@ -14,7 +14,9 @@
  * limitations under the License
  */
 
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-v4')
@@ -54,4 +56,5 @@ supportLibrary {
     publish true
     inceptionYear '2015'
     description 'Android Support Preference v7'
+    legacySourceLocation true
 }
