@@ -80,6 +80,8 @@ class SystemJobInfoConverter {
         extras.putBoolean(EXTRA_IS_PERIODIC, workSpec.isPeriodic());
         JobInfo.Builder builder = new JobInfo.Builder(jobId, mWorkServiceComponent)
                 .setRequiredNetworkType(jobInfoNetworkType)
+                .setRequiresCharging(constraints.requiresCharging())
+                .setRequiresDeviceIdle(constraints.requiresDeviceIdle())
                 .setExtras(extras);
 
         if (!constraints.requiresDeviceIdle()) {
@@ -104,12 +106,6 @@ class SystemJobInfoConverter {
         } else {
             // Jobs with Content Uri Triggers cannot be persisted
             builder.setPersisted(true);
-        }
-
-        // TODO(janclarin): Support requiresCharging/requiresDeviceIdle for versions older than 24.
-        if (Build.VERSION.SDK_INT >= 24) {
-            builder.setRequiresCharging(constraints.requiresCharging());
-            builder.setRequiresDeviceIdle(constraints.requiresDeviceIdle());
         }
 
         // TODO(janclarin): Support requires[Battery|Storage]NotLow for versions older than 26.

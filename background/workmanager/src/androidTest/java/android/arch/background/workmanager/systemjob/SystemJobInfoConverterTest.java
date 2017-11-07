@@ -137,7 +137,6 @@ public class SystemJobInfoConverterTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 24)
     public void testConvert_requireCharging() {
         final boolean expectedRequireCharging = true;
         WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
@@ -164,7 +163,6 @@ public class SystemJobInfoConverterTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 24)
     public void testConvert_requireDeviceIdle() {
         final boolean expectedRequireDeviceIdle = true;
         WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
