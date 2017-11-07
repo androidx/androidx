@@ -231,6 +231,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
          * @return an instance of the {@link #getFragmentClass() Fragment class} associated
          * with this destination
          */
+        @SuppressWarnings("ClassNewInstance")
         public Fragment createFragment(@Nullable Bundle args) {
             Class<? extends Fragment> clazz = getFragmentClass();
             if (clazz == null) {
