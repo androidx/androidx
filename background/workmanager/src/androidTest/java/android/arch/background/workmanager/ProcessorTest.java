@@ -37,6 +37,7 @@ import java.util.concurrent.Future;
 
 @RunWith(AndroidJUnit4.class)
 public class ProcessorTest {
+    private static final long ASYNC_WAIT_DURATION = 2000L;
     private WorkDatabase mWorkDatabase;
     private Processor mProcessor;
 
@@ -58,17 +59,16 @@ public class ProcessorTest {
         mProcessor = null;
     }
 
-    /* TODO(xbhatnag): Solve race condition without thread sleeps or drain
     @Test
     @SmallTest
     public void testProcess_noWorkInitialDelay() throws InterruptedException {
         Work work = new Work.Builder(InfiniteTestWorker.class).build();
         mWorkDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
         mProcessor.process(work.getId(), work.getWorkSpec().calculateDelay());
-        // Race condition here
+        Thread.sleep(ASYNC_WAIT_DURATION);
         assertThat(mWorkDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
                 is(Work.STATUS_RUNNING));
-    } */
+    }
 
     @Test
     @SmallTest
