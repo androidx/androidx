@@ -1,4 +1,6 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':appcompat-v7')
@@ -30,4 +32,5 @@ supportLibrary {
     inceptionYear '2017'
     description 'Android Car Support UI'
     java8Library true
+    legacySourceLocation true
 }
