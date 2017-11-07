@@ -26,7 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Custom {@link RecyclerView} that helps {@link CarLayoutManager} properly fling and paginate.
+ * Custom {@link RecyclerView} that helps {@link PagedLayoutManager} properly fling and paginate.
  *
  * <p>It also has the ability to fade children as they scroll off screen that can be set with {@link
  * #setFadeLastItem(boolean)}.
@@ -57,7 +57,7 @@ public class CarRecyclerView extends RecyclerView {
     @Override
     public boolean fling(int velocityX, int velocityY) {
         mWasFlingCalledForGesture = true;
-        return ((CarLayoutManager) getLayoutManager()).settleScrollForFling(this, velocityY);
+        return ((PagedLayoutManager) getLayoutManager()).settleScrollForFling(this, velocityY);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CarRecyclerView extends RecyclerView {
         int action = e.getActionMasked();
         if (action == MotionEvent.ACTION_UP) {
             if (!mWasFlingCalledForGesture) {
-                ((CarLayoutManager) getLayoutManager()).settleScrollForFling(this, 0);
+                ((PagedLayoutManager) getLayoutManager()).settleScrollForFling(this, 0);
             }
             mWasFlingCalledForGesture = false;
         }
@@ -102,7 +102,7 @@ public class CarRecyclerView extends RecyclerView {
      * number of items that fit completely on the screen.
      */
     public void pageUp() {
-        CarLayoutManager lm = (CarLayoutManager) getLayoutManager();
+        PagedLayoutManager lm = (PagedLayoutManager) getLayoutManager();
         int pageUpPosition = lm.getPageUpPosition();
         if (pageUpPosition == -1) {
             return;
@@ -116,7 +116,7 @@ public class CarRecyclerView extends RecyclerView {
      * number of items that fit completely on the screen.
      */
     public void pageDown() {
-        CarLayoutManager lm = (CarLayoutManager) getLayoutManager();
+        PagedLayoutManager lm = (PagedLayoutManager) getLayoutManager();
         int pageDownPosition = lm.getPageDownPosition();
         if (pageDownPosition == -1) {
             return;
