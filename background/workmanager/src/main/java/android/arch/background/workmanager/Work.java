@@ -44,12 +44,14 @@ public class Work extends BaseWork {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Override
         public Builder withInitialStatus(@WorkStatus int status) {
             mWorkSpec.setStatus(status);
             return this;
         }
 
         @VisibleForTesting
+        @Override
         Builder withInitialRunAttemptCount(int runAttemptCount) {
             mWorkSpec.setRunAttemptCount(runAttemptCount);
             return this;
