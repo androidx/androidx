@@ -51,6 +51,7 @@ public abstract class Worker {
         mArguments = arguments;
     }
 
+    @SuppressWarnings("ClassNewInstance")
     static Worker fromWorkSpec(Context context, WorkSpec workSpec) {
         Context appContext = context.getApplicationContext();
         String workerClassName = workSpec.getWorkerClassName();
