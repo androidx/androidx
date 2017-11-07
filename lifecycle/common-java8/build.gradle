@@ -32,10 +32,10 @@ createAndroidCheckstyle(project)
 
 version = LibraryVersions.LIFECYCLES_EXT.toString()
 supportLibrary {
-    name 'Android Lifecycle-Common for Java 8 Language'
-    publish true
-    inceptionYear '2017'
-    description "Android Lifecycle-Common for Java 8 Language"
-    url SupportLibraryExtension.ARCHITECTURE_URL
-    java8Library true
+    name = "Android Lifecycle-Common for Java 8 Language"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android Lifecycle-Common for Java 8 Language"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
+    java8Library = true
 }

@@ -26,9 +26,9 @@ android {
 }
 
 supportLibrary {
-    name 'Android Support Leanback Preference v17'
-    publish true
-    inceptionYear '2015'
-    description 'Android Support Leanback Preference v17'
-    legacySourceLocation true
+    name = "Android Support Leanback Preference v17"
+    publish = true
+    inceptionYear = "2015"
+    description = "Android Support Leanback Preference v17"
+    legacySourceLocation = true
 }

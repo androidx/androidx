@@ -35,9 +35,9 @@ dependencies {
 
 version = LibraryVersions.ROOM.toString()
 supportLibrary {
-    name 'Android Room Migration'
-    publish true
-    inceptionYear '2017'
-    description "Android Room Migration"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Room Migration"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android Room Migration"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

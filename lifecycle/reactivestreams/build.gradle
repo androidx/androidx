@@ -54,9 +54,9 @@ createAndroidCheckstyle(project)
 
 version = LibraryVersions.LIFECYCLES_EXT.toString()
 supportLibrary {
-    name 'Android Lifecycle Reactivestreams'
-    publish true
-    inceptionYear '2017'
-    description "Android Lifecycle Reactivestreams"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Lifecycle Reactivestreams"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android Lifecycle Reactivestreams"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

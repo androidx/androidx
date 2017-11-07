@@ -48,9 +48,9 @@ android.libraryVariants.all { variant ->
 
 version = LibraryVersions.ROOM.toString()
 supportLibrary {
-    name 'Android DB'
-    publish true
-    inceptionYear '2017'
-    description "Android DB"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android DB"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android DB"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }
