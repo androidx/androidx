@@ -130,7 +130,7 @@ public class PagedScrollBarView extends FrameLayout
 
     /** Sets the range, offset and extent of the scroll bar. See {@link View}. */
     public void setParameters(int range, int offset, int extent, boolean animate) {
-        // This method is where we take the computed parameters from the CarLayoutManager and
+        // This method is where we take the computed parameters from the PagedLayoutManager and
         // render it within the specified constraints ({@link #mMaxThumbLength} and
         // {@link #mMinThumbLength}).
         final int size = mFiller.getHeight() - mFiller.getPaddingTop() - mFiller.getPaddingBottom();

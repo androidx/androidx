@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,9 +46,9 @@ import java.util.ArrayList;
  *
  * <ol>
  *   <li>In a normal ListView, when views reach the top of the list, they are clipped. In
- *       CarLayoutManager, views have the option of flying off of the top of the screen as the next
- *       row settles in to place. This functionality can be enabled or disabled with {@link
- *       #setOffsetRows(boolean)}.
+ *       PagedLayoutManager, views have the option of flying off of the top of the screen as the
+ *       next row settles in to place. This functionality can be enabled or disabled with
+ *       {@link #setOffsetRows(boolean)}.
  *   <li>Standard list physics is disabled. Instead, when the user scrolls, it will settle on the
  *       next page.
  *   <li>Items can scroll past the bottom edge of the screen. This helps with pagination so that the
@@ -57,8 +57,8 @@ import java.util.ArrayList;
  *
  * This LayoutManger should be used with {@link CarRecyclerView}.
  */
-public class CarLayoutManager extends RecyclerView.LayoutManager {
-    private static final String TAG = "CarLayoutManager";
+public class PagedLayoutManager extends RecyclerView.LayoutManager {
+    private static final String TAG = "PagedLayoutManager";
 
     /**
      * Any fling below the threshold will just scroll to the top fully visible row. The units is
@@ -166,7 +166,7 @@ public class CarLayoutManager extends RecyclerView.LayoutManager {
     /** Set the anchor to the following position on the next layout pass. */
     private int mPendingScrollPosition = -1;
 
-    public CarLayoutManager(Context context) {
+    public PagedLayoutManager(Context context) {
         mContext = context;
     }
 
