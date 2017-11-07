@@ -127,12 +127,12 @@ class FirebaseJobConverter {
 
         if (constraints.requiresBatteryNotLow()) {
             Log.w(TAG, "Battery Not Low is not a supported constraint "
-                    + "with FirebaseJobDisaptcher");
+                    + "with FirebaseJobDispatcher");
         }
 
         if (constraints.requiresStorageNotLow()) {
             Log.w(TAG, "Storage Not Low is not a supported constraint "
-                    + "with FirebaseJobDisaptcher");
+                    + "with FirebaseJobDispatcher");
         }
 
         switch (constraints.getRequiredNetworkType()) {
