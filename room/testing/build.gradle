@@ -56,9 +56,9 @@ android.libraryVariants.all { variant ->
 
 version = LibraryVersions.ROOM.toString()
 supportLibrary {
-    name 'Android Room Testimg'
-    publish true
-    inceptionYear '2017'
-    description "Android Room Testing"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Room Testing"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android Room Testing"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }
