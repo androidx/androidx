@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: android.support.SupportAndroidLibraryPlugin
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     androidTestImplementation project(':support-annotations')
@@ -30,4 +33,8 @@ android {
     defaultConfig {
         minSdkVersion 14
     }
+}
+
+supportLibrary {
+    legacySourceLocation true
 }
