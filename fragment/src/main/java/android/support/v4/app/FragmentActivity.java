@@ -536,7 +536,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        markState(getSupportFragmentManager(), Lifecycle.State.CREATED);
+        markFragmentsCreated();
         Parcelable p = mFragments.saveAllState();
         if (p != null) {
             outState.putParcelable(FRAGMENTS_TAG, p);
@@ -591,7 +591,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         super.onStop();
 
         mStopped = true;
-        markState(getSupportFragmentManager(), Lifecycle.State.CREATED);
+        markFragmentsCreated();
         mHandler.sendEmptyMessage(MSG_REALLY_STOPPED);
 
         mFragments.dispatchStop();
@@ -970,18 +970,30 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         }
     }
 
-    private static void markState(FragmentManager manager, Lifecycle.State state) {
+    private void markFragmentsCreated() {
+        boolean reiterate;
+        do {
+            reiterate = markState(getSupportFragmentManager(), Lifecycle.State.CREATED);
+        } while (reiterate);
+    }
+
+    private static boolean markState(FragmentManager manager, Lifecycle.State state) {
+        boolean hadNotMarked = false;
         Collection<Fragment> fragments = manager.getFragments();
         for (Fragment fragment : fragments) {
             if (fragment == null) {
                 continue;
             }
-            fragment.mLifecycleRegistry.markState(state);
+            if (fragment.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+                fragment.mLifecycleRegistry.markState(state);
+                hadNotMarked = true;
+            }
 
             FragmentManager childFragmentManager = fragment.peekChildFragmentManager();
             if (childFragmentManager != null) {
-                markState(childFragmentManager, state);
+                hadNotMarked |= markState(childFragmentManager, state);
             }
         }
+        return hadNotMarked;
     }
 }
