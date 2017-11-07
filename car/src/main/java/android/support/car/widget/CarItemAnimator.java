@@ -22,9 +22,9 @@ import android.support.v7.widget.RecyclerView;
 /** {@link DefaultItemAnimator} with a few minor changes where it had undesired behavior. */
 public class CarItemAnimator extends DefaultItemAnimator {
 
-    private final CarLayoutManager mLayoutManager;
+    private final PagedLayoutManager mLayoutManager;
 
-    public CarItemAnimator(CarLayoutManager layoutManager) {
+    public CarItemAnimator(PagedLayoutManager layoutManager) {
         mLayoutManager = layoutManager;
     }
 

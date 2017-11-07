@@ -59,7 +59,7 @@ public class PagedListView extends FrameLayout {
     private static final int INVALID_RESOURCE_ID = -1;
 
     protected final CarRecyclerView mRecyclerView;
-    protected final CarLayoutManager mLayoutManager;
+    protected final PagedLayoutManager mLayoutManager;
     protected final Handler mHandler = new Handler();
     private final boolean mScrollBarEnabled;
     private final PagedScrollBarView mScrollBarView;
@@ -153,7 +153,7 @@ public class PagedListView extends FrameLayout {
 
         mMaxPages = getDefaultMaxPages();
 
-        mLayoutManager = new CarLayoutManager(context);
+        mLayoutManager = new PagedLayoutManager(context);
         mLayoutManager.setOffsetRows(offsetRows);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setOnScrollListener(mRecyclerViewOnScrollListener);
@@ -253,7 +253,7 @@ public class PagedListView extends FrameLayout {
         if (e.getAction() == MotionEvent.ACTION_DOWN) {
             // The user has interacted with the list using touch. All movements will now paginate
             // the list.
-            mLayoutManager.setRowOffsetMode(CarLayoutManager.ROW_OFFSET_MODE_PAGE);
+            mLayoutManager.setRowOffsetMode(PagedLayoutManager.ROW_OFFSET_MODE_PAGE);
         }
         return super.onInterceptTouchEvent(e);
     }
@@ -263,7 +263,7 @@ public class PagedListView extends FrameLayout {
         super.requestChildFocus(child, focused);
         // The user has interacted with the list using the controller. Movements through the list
         // will now be one row at a time.
-        mLayoutManager.setRowOffsetMode(CarLayoutManager.ROW_OFFSET_MODE_INDIVIDUAL);
+        mLayoutManager.setRowOffsetMode(PagedLayoutManager.ROW_OFFSET_MODE_INDIVIDUAL);
     }
 
     /**
@@ -360,7 +360,7 @@ public class PagedListView extends FrameLayout {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @NonNull
-    public CarLayoutManager getLayoutManager() {
+    public PagedLayoutManager getLayoutManager() {
         return mLayoutManager;
     }
 
@@ -397,7 +397,7 @@ public class PagedListView extends FrameLayout {
 
     /**
      * Gets the number of rows per page. Default value of mRowsPerPage is -1. If the first child of
-     * CarLayoutManager is null or the height of the first child is 0, it will return 1.
+     * PagedLayoutManager is null or the height of the first child is 0, it will return 1.
      */
     public int getRowsPerPage() {
         return mRowsPerPage;
