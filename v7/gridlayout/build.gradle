@@ -1,4 +1,6 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-compat')
@@ -23,4 +25,5 @@ supportLibrary {
     publish true
     inceptionYear '2013'
     description 'Android Support Grid Layout'
+    legacySourceLocation true
 }

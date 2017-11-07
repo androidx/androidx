@@ -138,6 +138,7 @@ public class ViewModelProvider {
      */
     public static class NewInstanceFactory implements Factory {
 
+        @SuppressWarnings("ClassNewInstance")
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
