@@ -53,13 +53,13 @@ include ':preference-v14'
 project(':preference-v14').projectDir = new File(rootDir, 'v14/preference')
 
 include ':preference-leanback-v17'
-project(':preference-leanback-v17').projectDir = new File(rootDir, 'v17/preference-leanback')
+project(':preference-leanback-v17').projectDir = new File(rootDir, 'preference-leanback')
 
 include ':support-v13'
 project(':support-v13').projectDir = new File(rootDir, 'v13')
 
 include ':leanback-v17'
-project(':leanback-v17').projectDir = new File(rootDir, 'v17/leanback')
+project(':leanback-v17').projectDir = new File(rootDir, 'leanback')
 
 include ':design'
 project(':design').projectDir = new File(rootDir, 'design')
