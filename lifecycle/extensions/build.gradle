@@ -17,7 +17,9 @@
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
 
-apply plugin: android.support.SupportAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 android {
     defaultConfig {
@@ -52,9 +54,9 @@ createAndroidCheckstyle(project)
 
 version = LibraryVersions.LIFECYCLES_EXT.toString()
 supportLibrary {
-    name 'Android Lifecycle Extensions'
-    publish true
-    inceptionYear '2017'
-    description "Android Lifecycle Extensions"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Lifecycle Extensions"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android Lifecycle Extensions"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

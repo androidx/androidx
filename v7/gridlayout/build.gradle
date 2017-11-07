@@ -21,9 +21,9 @@ android {
 }
 
 supportLibrary {
-    name 'Android Support Grid Layout'
-    publish true
-    inceptionYear '2013'
-    description 'Android Support Grid Layout'
-    legacySourceLocation true
+    name = "Android Support Grid Layout"
+    publish = true
+    inceptionYear = "2013"
+    description = "Android Support Grid Layout"
+    legacySourceLocation = true
 }

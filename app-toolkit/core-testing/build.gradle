@@ -55,9 +55,9 @@ android.libraryVariants.all { variant ->
 
 version = LibraryVersions.ARCH_CORE_TESTING.toString()
 supportLibrary {
-    name 'Android Core-Testing'
-    publish true
-    inceptionYear '2017'
-    description "Android Core-Testing"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Core-Testing"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android Core-Testing"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

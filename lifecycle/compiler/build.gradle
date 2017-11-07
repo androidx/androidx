@@ -40,9 +40,9 @@ task jarTestLibrarySource(type: Jar, dependsOn: compileTestLibrarySource) {
 }
 
 supportLibrary {
-    name 'Android Lifecycles Compiler'
-    publish true
-    inceptionYear '2017'
-    description "Android Lifecycles annotation processor"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Lifecycles Compiler"
+    publish = true
+    inceptionYear = "2017"
+    description = "Android Lifecycles annotation processor"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

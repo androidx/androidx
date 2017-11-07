@@ -27,9 +27,9 @@ android {
 }
 
 supportLibrary {
-    name 'Android Support AnimatedVectorDrawable'
-    publish true
-    inceptionYear '2015'
-    description 'Android Support AnimatedVectorDrawable'
-    legacySourceLocation true
+    name = "Android Support AnimatedVectorDrawable"
+    publish = true
+    inceptionYear = "2015"
+    description = "Android Support AnimatedVectorDrawable"
+    legacySourceLocation = true
 }
