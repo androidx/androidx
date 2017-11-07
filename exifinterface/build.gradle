@@ -15,9 +15,9 @@ android {
 }
 
 supportLibrary {
-    name 'Android Support ExifInterface'
-    publish true
-    inceptionYear '2016'
-    description 'Android Support ExifInterface'
-    legacySourceLocation true
+    name = "Android Support ExifInterface"
+    publish = true
+    inceptionYear = "2016"
+    description = "Android Support ExifInterface"
+    legacySourceLocation = true
 }

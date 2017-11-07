@@ -39,5 +39,5 @@ android {
 }
 
 supportLibrary {
-    legacySourceLocation true
+    legacySourceLocation = true
 }
