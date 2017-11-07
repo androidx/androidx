@@ -45,8 +45,7 @@ android {
 
 dependencies {
     api project(":background:workmanager")
-    api libs.firebase_jobdispatcher, { exclude group: 'com.android.support' }
-    api libs.play_services_base, { exclude group: 'com.android.support' }
+    api libs.firebase_jobdispatcher
     androidTestImplementation project(":background:workmanager")
     androidTestImplementation libs.espresso_core, { exclude module: 'support-annotations' }
     androidTestImplementation libs.mockito_core, { exclude group: 'net.bytebuddy' }
