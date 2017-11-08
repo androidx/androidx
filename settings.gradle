@@ -106,6 +106,9 @@ project(':support-content').projectDir = new File(rootDir, 'content')
 include ':car'
 project(':car').projectDir = new File(rootDir, 'car')
 
+include ':webkit'
+project(':webkit').projectDir = new File(rootDir, 'webkit')
+
 /////////////////////////////
 //
 // Samples
