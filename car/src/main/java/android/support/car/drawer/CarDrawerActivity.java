@@ -46,7 +46,7 @@ import android.view.ViewGroup;
  *
  * <p>The rootAdapter can implement nested-navigation, in its click-handling, by passing the
  * CarDrawerAdapter for the next level to
- * {@link CarDrawerController#switchToAdapter(CarDrawerAdapter)}.
+ * {@link CarDrawerController#pushAdapter(CarDrawerAdapter)}.
  *
  * <p>Any Activity's based on this class need to set their theme to CarDrawerActivityTheme or a
  * derivative.
