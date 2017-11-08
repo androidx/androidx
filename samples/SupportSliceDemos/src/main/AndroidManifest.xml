@@ -20,8 +20,10 @@
 
     <uses-sdk tools:overrideLibrary="androidx.app.slice.view, androidx.app.slice.builders, androidx.app.slice.core" />
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.BIND_SLICE" />
 
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -43,6 +45,14 @@
         <provider android:authorities="com.example.androidx.slice.demos"
                   android:name=".SampleSliceProvider"
                   android:grantUriPermissions="true" />
+
+        <receiver
+            android:name=".SliceBroadcastReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.android.settings.slice.action.WIFI_CHANGED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

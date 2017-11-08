@@ -16,23 +16,25 @@
 
 package androidx.app.slice.widget;
 
+import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.app.slice.Slice;
 import android.app.slice.SliceItem;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.RestrictTo;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import androidx.app.slice.builders.SliceHints;
 import androidx.app.slice.core.SliceQuery;
 import androidx.app.slice.view.R;
 
@@ -43,27 +45,39 @@ import androidx.app.slice.view.R;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SmallTemplateView extends SliceView.SliceModeView implements
-        LargeSliceAdapter.SliceListView {
+        LargeSliceAdapter.SliceListView, View.OnClickListener {
 
     private static final String TAG = "SmallTemplateView";
+
+    // The number of items that fit on the right hand side of a small slice
+    private static final int MAX_END_ITEMS = 3;
+
+    private SliceItem mColorItem;
 
     private int mIconSize;
     private int mPadding;
 
     private LinearLayout mStartContainer;
-    private TextView mTitleText;
+    private LinearLayout mContent;
+    private TextView mPrimaryText;
     private TextView mSecondaryText;
     private LinearLayout mEndContainer;
 
+    private SliceItem mRowAction;
+    private View mDivider;
+    private Switch mToggle;
+
     public SmallTemplateView(Context context) {
         super(context);
-        inflate(context, R.layout.abc_slice_small_template, this);
         mIconSize = getContext().getResources().getDimensionPixelSize(R.dimen.abc_slice_icon_size);
         mPadding = getContext().getResources().getDimensionPixelSize(R.dimen.abc_slice_padding);
+        inflate(context, R.layout.abc_slice_small_template, this);
 
         mStartContainer = (LinearLayout) findViewById(android.R.id.icon_frame);
-        mTitleText = (TextView) findViewById(android.R.id.title);
+        mContent = (LinearLayout) findViewById(android.R.id.content);
+        mPrimaryText = (TextView) findViewById(android.R.id.title);
         mSecondaryText = (TextView) findViewById(android.R.id.summary);
+        mDivider = findViewById(R.id.divider);
         mEndContainer = (LinearLayout) findViewById(android.R.id.widget_frame);
     }
 
@@ -73,50 +87,171 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
     }
 
     @Override
-    public void setSliceItem(SliceItem slice) {
-        resetViews();
-        SliceItem colorItem = SliceQuery.find(slice, SliceItem.TYPE_COLOR);
-        List<SliceItem> titleItems = SliceQuery.findAll(slice, -1, Slice.HINT_TITLE,
-                null);
-        int color = setupContent(colorItem, titleItems);
-
-        if (slice.getType() != SliceItem.TYPE_SLICE) {
-            return;
-        }
-
-        // Deal with remaining items
-        ArrayList<SliceItem> sliceItems = new ArrayList<>(
-                slice.getSlice().getItems());
-        bindItems(color, sliceItems);
+    public void setColor(SliceItem color) {
+        mColorItem = color;
     }
+
 
     @Override
+    public void setSliceItem(SliceItem slice) {
+        populateViews(slice, slice);
+    }
+    @Override
     public void setSlice(Slice slice) {
-        resetViews();
-        SliceItem colorItem = SliceQuery.find(slice, SliceItem.TYPE_COLOR);
-        List<SliceItem> titleItems = SliceQuery.findAll(slice, -1, Slice.HINT_TITLE,
-                null);
-        int color = setupContent(colorItem, titleItems);
-
-        // Deal with remaining items
-        ArrayList<SliceItem> sliceItems = new ArrayList<>(slice.getItems());
-        bindItems(color, sliceItems);
+        Slice.Builder sb = new Slice.Builder(slice.getUri());
+        sb.addSubSlice(slice);
+        Slice parentSlice = sb.build();
+        populateViews(parentSlice.getItems().get(0), getFirstSlice(slice));
     }
 
-    private void bindItems(int color, ArrayList<SliceItem> sliceItems) {
-        int itemCount = 0;
-        boolean hasSummary = false;
-        for (int i = 0; i < sliceItems.size(); i++) {
-            SliceItem item = sliceItems.get(i);
-            if (!hasSummary && item.getType() == SliceItem.TYPE_TEXT
-                    && !item.hasHint(Slice.HINT_TITLE)) {
-                // TODO -- Should combine all text items?
-                mSecondaryText.setText(item.getText());
-                hasSummary = true;
+    private SliceItem getFirstSlice(Slice slice) {
+        List<SliceItem> items = slice.getItems();
+        if (items.size() > 0 && items.get(0).getType() == SliceItem.TYPE_SLICE) {
+            // Check if this slice is appropriate to use to populate small template
+            SliceItem firstSlice = items.get(0);
+            if (firstSlice.hasHint(Slice.HINT_LIST)) {
+                // Check for header, use that if it exists
+                SliceItem header = SliceQuery.find(firstSlice, SliceItem.TYPE_SLICE,
+                        null,
+                        new String[] {
+                                Slice.HINT_LIST_ITEM, Slice.HINT_LIST
+                        });
+                if (header != null) {
+                    return SliceQuery.findFirstSlice(header);
+                } else {
+                    // Otherwise use the first list item
+                    SliceItem newFirst = firstSlice.getSlice().getItems().get(0);
+                    return SliceQuery.findFirstSlice(newFirst);
+                }
+            } else {
+                // Not a list, find first slice with non-slice children
+                return SliceQuery.findFirstSlice(firstSlice);
             }
-            if (itemCount <= 3) {
+        }
+        // Get it as a SliceItem type slice
+        Slice.Builder sb = new Slice.Builder(slice.getUri());
+        Slice s = sb.addSubSlice(slice).build();
+        return s.getItems().get(0);
+    }
+
+    private void populateViews(SliceItem fullSlice, SliceItem sliceItem) {
+        resetViews();
+        ArrayList<SliceItem> items = new ArrayList<>();
+        if (sliceItem.getType() == SliceItem.TYPE_SLICE) {
+            items = new ArrayList<>(sliceItem.getSlice().getItems());
+        } else {
+            items.add(sliceItem);
+        }
+
+        // These are the things that can go in our small template
+        SliceItem startItem = null;
+        SliceItem titleItem = null;
+        SliceItem subTitle = null;
+        ArrayList<SliceItem> endItems = new ArrayList<>();
+
+        // If the first item is an action let's check if it should be used to populate the content
+        // or if it should be in the start position.
+        SliceItem firstSlice = items.size() > 0 ? items.get(0) : null;
+        if (firstSlice != null && firstSlice.getType() == SliceItem.TYPE_ACTION) {
+            if (!SliceQuery.isSimpleAction(firstSlice)) {
+                mRowAction = firstSlice;
+                items.remove(0);
+                // Populating with first action, bias to use slice associated with this action
+                items.addAll(0, mRowAction.getSlice().getItems());
+            } else {
+                // It's simple so maybe it's a start item
+                startItem = items.get(0);
+            }
+        }
+
+        // Look through our items and try to figure out main content
+        for (int i = 0; i < items.size(); i++) {
+            SliceItem item = items.get(i);
+            List<String> hints = item.getHints();
+            int itemType = item.getType();
+            if (hints.contains(Slice.HINT_TITLE)) {
+                // Things with these hints could go in the title / start position
+                if ((startItem == null || !startItem.hasHint(Slice.HINT_TITLE))
+                        && SliceQuery.isStartType(item)) {
+                    startItem = item;
+                } else if ((titleItem == null || !titleItem.hasHint(Slice.HINT_TITLE))
+                        && itemType == SliceItem.TYPE_TEXT) {
+                    titleItem = item;
+                } else {
+                    endItems.add(item);
+                }
+            } else if (item.getType() == SliceItem.TYPE_TEXT) {
+                if (titleItem == null) {
+                    titleItem = item;
+                } else if (subTitle == null) {
+                    subTitle = item;
+                } else {
+                    endItems.add(item);
+                }
+            } else if (item.getType() == SliceItem.TYPE_SLICE) {
+                List<SliceItem> subItems = item.getSlice().getItems();
+                for (int j = 0; j < subItems.size(); j++) {
+                    endItems.add(subItems.get(j));
+                }
+            } else {
+                endItems.add(item);
+            }
+        }
+
+        // Populate main part of the template
+        if (startItem != null) {
+            // TODO - check for icon, timestamp, action with icon
+        }
+        if (titleItem != null) {
+            mPrimaryText.setText(titleItem.getText());
+        }
+        mPrimaryText.setVisibility(titleItem != null ? View.VISIBLE : View.GONE);
+        if (subTitle != null) {
+            mSecondaryText.setText(subTitle.getText());
+        }
+        mSecondaryText.setVisibility(subTitle != null ? View.VISIBLE : View.GONE);
+
+        // Figure out what end items we're showing
+        // If we're showing an action in this row check if it's a toggle
+        if (mRowAction != null && SliceQuery.hasHints(mRowAction.getSlice(), SliceHints.HINT_TOGGLE)
+                && addToggle(mRowAction)) {
+            // Can't show more end actions if we have a toggle so we're done
+            makeClickable(this);
+            return;
+        }
+        // Check if we have a toggle somewhere in our end items
+        SliceItem toggleItem = endItems.stream()
+                .filter(item -> (item.getType() == SliceItem.TYPE_ACTION
+                        && SliceQuery.hasHints(item.getSlice(), SliceHints.HINT_TOGGLE)))
+                .findFirst().orElse(null);
+        if (toggleItem != null) {
+            if (addToggle(toggleItem)) {
+                mDivider.setVisibility(mRowAction != null ? View.VISIBLE : View.GONE);
+                makeClickable(mRowAction != null ? mContent : this);
+                // Can't show more end actions if we have a toggle so we're done
+                return;
+            }
+        }
+        // If we're here we can still show end items
+        SliceItem colorItem = SliceQuery.find(fullSlice, SliceItem.TYPE_COLOR);
+        int color = colorItem != null
+                ? colorItem.getColor()
+                : (mColorItem != null)
+                        ? mColorItem.getColor()
+                        : -1;
+        boolean clickableEndItem = false;
+        int itemCount = 0;
+        for (int i = 0; i < items.size(); i++) {
+            SliceItem item = items.get(i);
+            if (itemCount <= MAX_END_ITEMS) {
                 if (item.getType() == SliceItem.TYPE_ACTION) {
+                    if (SliceQuery.hasHints(item.getSlice(), SliceHints.HINT_TOGGLE)) {
+                        if (addToggle(item)) {
+                            break;
+                        }
+                    }
                     if (addIcon(item, color, mEndContainer)) {
+                        clickableEndItem = true;
                         itemCount++;
                     }
                 } else if (item.getType() == SliceItem.TYPE_IMAGE) {
@@ -124,51 +259,38 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
                     itemCount++;
                 } else if (item.getType() == SliceItem.TYPE_TIMESTAMP) {
                     TextView tv = new TextView(getContext());
-                    tv.setText(convertTimeToString(item.getTimestamp()));
+                    tv.setText(SliceViewUtil.getRelativeTimeString(item.getTimestamp()));
                     mEndContainer.addView(tv);
                     itemCount++;
-                } else if (item.getType() == SliceItem.TYPE_SLICE) {
-                    List<SliceItem> subItems = item.getSlice().getItems();
-                    for (int j = 0; j < subItems.size(); j++) {
-                        sliceItems.add(subItems.get(j));
-                    }
                 }
             }
+        }
+        if (mRowAction != null) {
+            makeClickable(clickableEndItem ? mContent : this);
         }
     }
 
-    private int setupContent(SliceItem colorItem, List<SliceItem> titleItems) {
-        int color = colorItem != null ? colorItem.getColor() : -1;
-
-        // Look for any title elements
-        boolean hasTitleText = false;
-        boolean hasTitleItem = false;
-        for (int i = 0; i < titleItems.size(); i++) {
-            SliceItem item = titleItems.get(i);
-            if (!hasTitleItem) {
-                // icon, action icon, or timestamp
-                if (item.getType() == SliceItem.TYPE_ACTION) {
-                    hasTitleItem = addIcon(item, color, mStartContainer);
-                } else if (item.getType() == SliceItem.TYPE_IMAGE) {
-                    addIcon(item, color, mStartContainer);
-                    hasTitleItem = true;
-                } else if (item.getType() == SliceItem.TYPE_TIMESTAMP) {
-                    TextView tv = new TextView(getContext());
-                    tv.setText(convertTimeToString(item.getTimestamp()));
-                    hasTitleItem = true;
-                }
-            }
-            if (!hasTitleText && item.getType() == SliceItem.TYPE_TEXT) {
-                mTitleText.setText(item.getText());
-                hasTitleText = true;
-            }
-            if (hasTitleText && hasTitleItem) {
-                break;
-            }
+    /**
+     * @return Whether a toggle was added.
+     */
+    private boolean addToggle(SliceItem toggleItem) {
+        if (toggleItem.getType() != SliceItem.TYPE_ACTION
+                || !SliceQuery.hasHints(toggleItem.getSlice(), SliceHints.HINT_TOGGLE)) {
+            return false;
         }
-        mTitleText.setVisibility(hasTitleText ? View.VISIBLE : View.GONE);
-        mStartContainer.setVisibility(hasTitleItem ? View.VISIBLE : View.GONE);
-        return color;
+        mToggle = new Switch(getContext());
+        mEndContainer.addView(mToggle);
+        mToggle.setChecked(SliceQuery.hasHints(toggleItem.getSlice(), Slice.HINT_SELECTED));
+        mToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            try {
+                PendingIntent pi = toggleItem.getAction();
+                Intent i = new Intent().putExtra(SliceHints.EXTRA_TOGGLE_STATE, isChecked);
+                pi.send(getContext(), 0, i, null, null);
+            } catch (CanceledException e) {
+                mToggle.setSelected(!isChecked);
+            }
+        });
+        return true;
     }
 
     /**
@@ -212,17 +334,34 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
         return false;
     }
 
-    private String convertTimeToString(long time) {
-        // TODO -- figure out what format(s) we support
-        Date date = new Date(time);
-        Format format = new SimpleDateFormat("MM dd yyyy HH:mm:ss");
-        return format.format(date);
+    @Override
+    public void onClick(View view) {
+        if (mRowAction != null && mRowAction.getType() == SliceItem.TYPE_ACTION) {
+            if (mToggle != null
+                    && SliceQuery.hasHints(mRowAction.getSlice(), SliceHints.HINT_TOGGLE)) {
+                mToggle.toggle();
+                return;
+            }
+            AsyncTask.execute(() -> {
+                try {
+                    mRowAction.getAction().send();
+                } catch (CanceledException e) {
+                    Log.w(TAG, "PendingIntent for slice cannot be sent", e);
+                }
+            });
+        }
+    }
+
+    private void makeClickable(View layout) {
+        layout.setOnClickListener(this);
+        layout.setBackground(SliceViewUtil.getDrawable(getContext(),
+                android.R.attr.selectableItemBackground));
     }
 
     private void resetViews() {
         mStartContainer.removeAllViews();
         mEndContainer.removeAllViews();
-        mTitleText.setText(null);
+        mPrimaryText.setText(null);
         mSecondaryText.setText(null);
     }
 }
