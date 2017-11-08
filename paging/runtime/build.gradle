@@ -59,10 +59,10 @@ android.libraryVariants.all { variant ->
     }
 }
 
-version = LibraryVersions.PAGING.toString()
 supportLibrary {
     name = "Android Lifecycle Extensions"
     publish = true
+    mavenVersion = LibraryVersions.PAGING
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2017"
     description = "Android Lifecycle Extensions"

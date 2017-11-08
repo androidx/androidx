@@ -15,6 +15,7 @@
  */
 
 import android.support.LibraryGroups
+import android.support.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -35,6 +36,7 @@ android {
 supportLibrary {
     name = "Android Emoji AppCompat"
     publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "EmojiCompat Widgets for AppCompat integration"

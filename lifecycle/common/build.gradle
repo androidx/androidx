@@ -30,10 +30,10 @@ dependencies {
 
 createAndroidCheckstyle(project)
 
-version = LibraryVersions.LIFECYCLES_CORE.toString()
 supportLibrary {
     name = "Android Lifecycle-Common"
     publish = true
+    mavenVersion = LibraryVersions.LIFECYCLES_CORE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle-Common"
