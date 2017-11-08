@@ -47,7 +47,7 @@ import java.util.List;
 public class WorkerWrapper implements Runnable {
     @Retention(SOURCE)
     @IntDef({RESULT_NOT_ENQUEUED, RESULT_PERMANENT_ERROR, RESULT_FAILED, RESULT_INTERRUPTED,
-            RESULT_SUCCEEDED, RESULT_RESCHEDULED})
+            RESULT_SUCCEEDED})
     public @interface ExecutionResult {
     }
 
@@ -56,7 +56,6 @@ public class WorkerWrapper implements Runnable {
     public static final int RESULT_FAILED = 2;
     public static final int RESULT_INTERRUPTED = 3;
     public static final int RESULT_SUCCEEDED = 4;
-    public static final int RESULT_RESCHEDULED = 5;
 
     private static final String TAG = "WorkerWrapper";
     private Context mAppContext;
@@ -115,7 +114,6 @@ public class WorkerWrapper implements Runnable {
             setSuccessAndUpdateDependencies(workSpec.isPeriodic());
             notifyListener(RESULT_SUCCEEDED);
         } catch (InterruptedException e) {
-            // TODO(xbhatnag): Retry Policies
             Log.d(TAG, "Work interrupted for " + mWorkSpecId);
             workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
             notifyListener(RESULT_INTERRUPTED);
