@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-apply plugin: android.support.SupportAndroidLibraryPlugin
-
-dependencies {
-    api project(':support-annotations')
+plugins {
+    id("SupportAndroidLibraryPlugin")
 }
 
 android {

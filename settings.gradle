@@ -180,8 +180,14 @@ project(':support-testutils').projectDir = new File(rootDir, 'testutils')
 include ':support-media-compat-test-client'
 project(':support-media-compat-test-client').projectDir = new File(rootDir, 'media-compat/version-compat-tests/current/client')
 
+include ':support-media-compat-test-client-previous'
+project(':support-media-compat-test-client-previous').projectDir = new File(rootDir, 'media-compat/version-compat-tests/previous/client')
+
 include ':support-media-compat-test-service'
 project(':support-media-compat-test-service').projectDir = new File(rootDir, 'media-compat/version-compat-tests/current/service')
+
+include ':support-media-compat-test-service-previous'
+project(':support-media-compat-test-service-previous').projectDir = new File(rootDir, 'media-compat/version-compat-tests/previous/service')
 
 include ':support-media-compat-test-lib'
 project(':support-media-compat-test-lib').projectDir = new File(rootDir, 'media-compat/version-compat-tests/lib')
