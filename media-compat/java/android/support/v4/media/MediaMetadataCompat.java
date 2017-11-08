@@ -365,10 +365,12 @@ public final class MediaMetadataCompat implements Parcelable {
 
     MediaMetadataCompat(Bundle bundle) {
         mBundle = new Bundle(bundle);
+        mBundle.setClassLoader(MediaMetadataCompat.class.getClassLoader());
     }
 
     MediaMetadataCompat(Parcel in) {
         mBundle = in.readBundle();
+        mBundle.setClassLoader(MediaMetadataCompat.class.getClassLoader());
     }
 
     /**

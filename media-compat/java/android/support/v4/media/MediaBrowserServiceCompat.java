@@ -422,11 +422,15 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
         @Override
         public void notifyChildrenChanged(final String parentId, final Bundle options) {
-            if (options == null) {
-                MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
+            if (mMessenger == null) {
+                if (options == null) {
+                    MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
+                } else {
+                    MediaBrowserServiceCompatApi26.notifyChildrenChanged(mServiceObj, parentId,
+                            options);
+                }
             } else {
-                MediaBrowserServiceCompatApi26.notifyChildrenChanged(mServiceObj, parentId,
-                        options);
+                super.notifyChildrenChanged(parentId, options);
             }
         }
 
