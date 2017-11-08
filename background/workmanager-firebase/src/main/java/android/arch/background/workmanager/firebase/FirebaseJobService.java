@@ -83,8 +83,7 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
     public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
         Log.d(TAG, workSpecId + " executed on FirebaseJobDispatcher");
         JobParameters parameters = mJobParameters.get(workSpecId);
-        boolean needsReschedule = (result == WorkerWrapper.RESULT_INTERRUPTED
-                || result == WorkerWrapper.RESULT_RESCHEDULED);
+        boolean needsReschedule = result == WorkerWrapper.RESULT_INTERRUPTED;
         jobFinished(parameters, needsReschedule);
     }
 }
