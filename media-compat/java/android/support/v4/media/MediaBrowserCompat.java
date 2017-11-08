@@ -676,17 +676,15 @@ public final class MediaBrowserCompat {
         WeakReference<Subscription> mSubscriptionRef;
 
         public SubscriptionCallback() {
+            mToken = new Binder();
             if (Build.VERSION.SDK_INT >= 26) {
                 mSubscriptionCallbackObj =
                         MediaBrowserCompatApi26.createSubscriptionCallback(new StubApi26());
-                mToken = null;
             } else if (Build.VERSION.SDK_INT >= 21) {
                 mSubscriptionCallbackObj =
                         MediaBrowserCompatApi21.createSubscriptionCallback(new StubApi21());
-                mToken = new Binder();
             } else {
                 mSubscriptionCallbackObj = null;
-                mToken = new Binder();
             }
         }
 
@@ -1958,22 +1956,30 @@ public final class MediaBrowserCompat {
         @Override
         public void subscribe(@NonNull String parentId, @Nullable Bundle options,
                 @NonNull SubscriptionCallback callback) {
-            if (options == null) {
-                MediaBrowserCompatApi21.subscribe(
-                        mBrowserObj, parentId, callback.mSubscriptionCallbackObj);
+            if (mServiceBinderWrapper == null) {
+                if (options == null) {
+                    MediaBrowserCompatApi21.subscribe(
+                            mBrowserObj, parentId, callback.mSubscriptionCallbackObj);
+                } else {
+                    MediaBrowserCompatApi26.subscribe(
+                            mBrowserObj, parentId, options, callback.mSubscriptionCallbackObj);
+                }
             } else {
-                MediaBrowserCompatApi26.subscribe(
-                        mBrowserObj, parentId, options, callback.mSubscriptionCallbackObj);
+                super.subscribe(parentId, options, callback);
             }
         }
 
         @Override
         public void unsubscribe(@NonNull String parentId, SubscriptionCallback callback) {
-            if (callback == null) {
-                MediaBrowserCompatApi21.unsubscribe(mBrowserObj, parentId);
+            if (mServiceBinderWrapper == null) {
+                if (callback == null) {
+                    MediaBrowserCompatApi21.unsubscribe(mBrowserObj, parentId);
+                } else {
+                    MediaBrowserCompatApi26.unsubscribe(mBrowserObj, parentId,
+                            callback.mSubscriptionCallbackObj);
+                }
             } else {
-                MediaBrowserCompatApi26.unsubscribe(mBrowserObj, parentId,
-                        callback.mSubscriptionCallbackObj);
+                super.unsubscribe(parentId, callback);
             }
         }
     }
