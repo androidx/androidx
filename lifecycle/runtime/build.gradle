@@ -1,3 +1,4 @@
+import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
 
@@ -38,6 +39,7 @@ version = LibraryVersions.LIFECYCLES_RUNTIME.toString()
 supportLibrary {
     name 'Android Lifecycle Runtime'
     publish true
+    mavenGroup LibraryGroups.LIFECYCLE
     inceptionYear '2017'
     description "Android Lifecycle Runtime"
     url SupportLibraryExtension.ARCHITECTURE_URL

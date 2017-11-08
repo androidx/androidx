@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
 
@@ -80,6 +82,7 @@ createKotlinCheckstyle(project)
 supportLibrary {
     name = "Android Room Compiler"
     publish = true
+    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room annotation processor"
     url = SupportLibraryExtension.ARCHITECTURE_URL
