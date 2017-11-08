@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
 
@@ -57,6 +58,7 @@ version = LibraryVersions.ARCH_CORE_TESTING.toString()
 supportLibrary {
     name = "Android Core-Testing"
     publish = true
+    mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Core-Testing"
     url = SupportLibraryExtension.ARCHITECTURE_URL

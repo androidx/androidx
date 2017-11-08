@@ -1,3 +1,5 @@
+import android.support.LibraryGroups
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -23,6 +25,7 @@ android {
 supportLibrary {
     name = "Android Support Grid Layout"
     publish = true
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2013"
     description = "Android Support Grid Layout"
     legacySourceLocation = true

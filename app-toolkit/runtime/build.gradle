@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import android.support.LibraryGroups
 import android.support.SupportLibraryExtension
 import android.support.LibraryVersions
 
@@ -52,6 +53,7 @@ version = LibraryVersions.ARCH_RUNTIME.toString()
 supportLibrary {
     name = "Android Arch-Runtime"
     publish = true
+    mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Arch-Runtime"
     url = SupportLibraryExtension.ARCHITECTURE_URL
