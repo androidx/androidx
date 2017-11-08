@@ -19,7 +19,26 @@ package android.support.tools.jetifier.core.rules
 /**
  * Wrapper for Java type declaration.
  */
-data class JavaType(val fullName : String) {
+data class JavaType(val fullName: String) {
+
+    init {
+        if (fullName.contains('.')) {
+            throw IllegalArgumentException("The type does not support '.' as package separator!")
+        }
+    }
+
+    companion object {
+        /** Creates the type from notation where packages are separated using '.' */
+        fun fromDotVersion(fullName: String) : JavaType {
+            return JavaType(fullName.replace('.', '/'))
+        }
+    }
+
+    /** Returns the type as a string where packages are separated using '.' */
+    fun toDotNotation() : String {
+        return fullName.replace('/', '.')
+    }
+
 
     override fun toString() = fullName
 

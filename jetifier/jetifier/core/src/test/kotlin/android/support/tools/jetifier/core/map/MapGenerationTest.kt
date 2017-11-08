@@ -20,6 +20,7 @@ import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.rules.JavaField
 import android.support.tools.jetifier.core.rules.JavaType
 import android.support.tools.jetifier.core.rules.RewriteRule
+import android.support.tools.jetifier.core.transform.proguard.ProGuardTypesMap
 import com.google.common.truth.Truth
 import org.junit.Test
 
@@ -302,7 +303,8 @@ class MapGenerationTest {
                         restrictToPackagePrefixes = prefixes,
                         rewriteRules = rules,
                         pomRewriteRules = emptyList(),
-                        typesMap = TypesMap.EMPTY)
+                        typesMap = TypesMap.EMPTY,
+                        proGuardMap = ProGuardTypesMap.EMPTY)
                     val scanner = MapGeneratorRemapper(config)
 
                     allTypes.forEach { scanner.rewriteType(it) }
