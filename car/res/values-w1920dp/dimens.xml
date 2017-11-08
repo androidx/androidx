@@ -14,5 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <dimen name="car_keyline_1">48dp</dimen>
+    <dimen name="car_keyline_4">184dp</dimen>
 </resources>
