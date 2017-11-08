@@ -18,6 +18,7 @@ apply plugin: 'com.android.application'
 
 dependencies {
     implementation project(':wear')
+    compile project(path: ':appcompat-v7')
 }
 
 android {
