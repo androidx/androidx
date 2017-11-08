@@ -14,4 +14,14 @@
  * limitations under the License.
  */
 
-apply plugin: 'java'
+apply plugin: android.support.SupportAndroidLibraryPlugin
+
+dependencies {
+    api project(':support-annotations')
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 14
+    }
+}

@@ -40,7 +40,6 @@ public class MediaSessionConstants {
     public static final int SET_RATING_TYPE = 117;
 
     public static final String TEST_SESSION_TAG = "test-session-tag";
-    public static final String SERVICE_PACKAGE_NAME = "android.support.mediacompat.service.test";
     public static final String TEST_KEY = "test-key";
     public static final String TEST_VALUE = "test-val";
     public static final String TEST_SESSION_EVENT = "test-session-event";

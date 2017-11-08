@@ -15,9 +15,6 @@
  */
 package android.support.mediacompat.service;
 
-import static android.support.mediacompat.service.util.TestUtil.assertBundleEquals;
-import static android.support.mediacompat.service.util.TestUtil.callMediaControllerMethod;
-import static android.support.mediacompat.service.util.TestUtil.callTransportControlsMethod;
 import static android.support.mediacompat.testlib.MediaControllerConstants.ADD_QUEUE_ITEM;
 import static android.support.mediacompat.testlib.MediaControllerConstants
         .ADD_QUEUE_ITEM_WITH_INDEX;
@@ -51,6 +48,9 @@ import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_KEY
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_SESSION_TAG;
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_VALUE;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_CLIENT_VERSION;
+import static android.support.mediacompat.testlib.util.IntentUtil.callMediaControllerMethod;
+import static android.support.mediacompat.testlib.util.IntentUtil.callTransportControlsMethod;
+import static android.support.mediacompat.testlib.util.TestUtil.assertBundleEquals;
 import static android.support.test.InstrumentationRegistry.getArguments;
 import static android.support.test.InstrumentationRegistry.getContext;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
