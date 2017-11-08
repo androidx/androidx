@@ -20,9 +20,7 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.model.WorkSpec;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
@@ -41,14 +39,6 @@ public class SystemJobScheduler implements Scheduler {
     public SystemJobScheduler(Context context) {
         mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         mSystemJobInfoConverter = new SystemJobInfoConverter(context);
-        enableJobService(context);
-    }
-
-    private void enableJobService(Context context) {
-        context.getPackageManager().setComponentEnabledSetting(
-                new ComponentName(context, SystemJobService.class),
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                PackageManager.DONT_KILL_APP);
     }
 
     @Override
