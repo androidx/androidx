@@ -113,7 +113,13 @@ public class CarDrawerController {
             return;
         }
 
-        mAdapterStack.push(rootAdapter);
+        // The root adapter is always the last item in the stack.
+        if (mAdapterStack.size() > 0) {
+            mAdapterStack.set(0, rootAdapter);
+        } else {
+            mAdapterStack.push(rootAdapter);
+        }
+
         setToolbarTitleFrom(rootAdapter);
         mDrawerList.setAdapter(rootAdapter);
     }
@@ -129,10 +135,10 @@ public class CarDrawerController {
      *
      * @param adapter Adapter for next level of content in the drawer.
      */
-    public final void switchToAdapter(CarDrawerAdapter adapter) {
+    public final void pushAdapter(CarDrawerAdapter adapter) {
         mAdapterStack.peek().setTitleChangeListener(null);
         mAdapterStack.push(adapter);
-        switchToAdapterInternal(adapter);
+        setDisplayAdapter(adapter);
         runLayoutAnimation(DRILL_DOWN_ANIM);
     }
 
@@ -274,10 +280,11 @@ public class CarDrawerController {
     }
 
     /**
-     * Sets the navigation drawer's title to be the one supplied by the given adapter and updates
-     * the navigation drawer list with the adapter's contents.
+     * Sets the given adapter as the one displaying the current contents of the drawer.
+     *
+     * <p>The drawer's title will also be derived from the given adapter.
      */
-    private void switchToAdapterInternal(CarDrawerAdapter adapter) {
+    private void setDisplayAdapter(CarDrawerAdapter adapter) {
         setToolbarTitleFrom(adapter);
         // NOTE: We don't use swapAdapter() since different levels in the Drawer may switch between
         // car_drawer_list_item_normal, car_drawer_list_item_small and car_list_empty layouts.
@@ -299,7 +306,7 @@ public class CarDrawerController {
         CarDrawerAdapter adapter = mAdapterStack.pop();
         adapter.setTitleChangeListener(null);
         adapter.cleanup();
-        switchToAdapterInternal(mAdapterStack.peek());
+        setDisplayAdapter(mAdapterStack.peek());
         runLayoutAnimation(NAVIGATE_UP_ANIM);
         return true;
     }
@@ -311,7 +318,7 @@ public class CarDrawerController {
             adapter.setTitleChangeListener(null);
             adapter.cleanup();
         }
-        switchToAdapterInternal(mAdapterStack.peek());
+        setDisplayAdapter(mAdapterStack.peek());
         runLayoutAnimation(NAVIGATE_UP_ANIM);
     }
 
