@@ -16,10 +16,14 @@
 
 package android.arch.navigation;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.AnimRes;
 import android.support.annotation.AnimatorRes;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * NavOptions stores special options for navigate actions
@@ -29,11 +33,62 @@ public class NavOptions {
     static final int LAUNCH_DOCUMENT = 0x2;
     static final int LAUNCH_CLEAR_TASK = 0x4;
 
+    private static final String KEY_NAV_OPTIONS = "android-support-nav:navOptions";
     private static final String KEY_LAUNCH_MODE = "launchMode";
     private static final String KEY_POP_UP_TO = "popUpTo";
     private static final String KEY_POP_UP_TO_INCLUSIVE = "popUpToInclusive";
     private static final String KEY_ENTER_ANIM = "enterAnim";
     private static final String KEY_EXIT_ANIM = "exitAnim";
+    private static final String KEY_POP_ENTER_ANIM = "popEnterAnim";
+    private static final String KEY_POP_EXIT_ANIM = "popExitAnim";
+
+    /**
+     * Add the {@link #getPopEnterAnim() pop enter} and {@link #getPopExitAnim() pop exit}
+     * animation to an Intent for later usage with
+     * {@link #applyPopAnimationsToPendingTransition(Activity)}.
+     * <p>
+     * This is automatically called for you by {@link ActivityNavigator}.
+     * </p>
+     *
+     * @param intent Intent being started with the given NavOptions
+     * @param navOptions NavOptions containing the pop animations.
+     * @see #applyPopAnimationsToPendingTransition(Activity)
+     * @see #getPopEnterAnim()
+     * @see #getPopExitAnim()
+     */
+    public static void addPopAnimationsToIntent(@NonNull Intent intent,
+            @Nullable NavOptions navOptions) {
+        if (navOptions != null) {
+            intent.putExtra(KEY_NAV_OPTIONS, navOptions.toBundle());
+        }
+    }
+
+    /**
+     * Apply any pop animations in the Intent of the given Activity to a pending transition.
+     * This should be used in place of  {@link Activity#overridePendingTransition(int, int)}
+     * to get the appropriate pop animations.
+     * @param activity An activity started from the {@link ActivityNavigator}.
+     * @see #addPopAnimationsToIntent(Intent, NavOptions)
+     * @see #getPopEnterAnim()
+     * @see #getPopExitAnim()
+     */
+    public static void applyPopAnimationsToPendingTransition(@NonNull Activity activity) {
+        Intent intent = activity.getIntent();
+        if (intent == null) {
+            return;
+        }
+        Bundle bundle = intent.getBundleExtra(KEY_NAV_OPTIONS);
+        if (bundle != null) {
+            NavOptions navOptions = NavOptions.fromBundle(bundle);
+            int popEnterAnim = navOptions.getPopEnterAnim();
+            int popExitAnim = navOptions.getPopExitAnim();
+            if (popEnterAnim != -1 || popExitAnim != -1) {
+                popEnterAnim = popEnterAnim != -1 ? popEnterAnim : 0;
+                popExitAnim = popExitAnim != -1 ? popExitAnim : 0;
+                activity.overridePendingTransition(popEnterAnim, popExitAnim);
+            }
+        }
+    }
 
     private int mLaunchMode;
     @IdRes
@@ -43,14 +98,21 @@ public class NavOptions {
     private int mEnterAnim;
     @AnimRes @AnimatorRes
     private int mExitAnim;
+    @AnimRes @AnimatorRes
+    private int mPopEnterAnim;
+    @AnimRes @AnimatorRes
+    private int mPopExitAnim;
 
     NavOptions(int launchMode, @IdRes int popUpTo, boolean popUpToInclusive,
-            @AnimRes @AnimatorRes int enterAnim, @AnimRes @AnimatorRes int exitAnim) {
+            @AnimRes @AnimatorRes int enterAnim, @AnimRes @AnimatorRes int exitAnim,
+            @AnimRes @AnimatorRes int popEnterAnim, @AnimRes @AnimatorRes int popExitAnim) {
         mLaunchMode = launchMode;
         mPopUpTo = popUpTo;
         mPopUpToInclusive = popUpToInclusive;
         mEnterAnim = enterAnim;
         mExitAnim = exitAnim;
+        mPopEnterAnim = popEnterAnim;
+        mPopExitAnim = popExitAnim;
     }
 
     /**
@@ -123,20 +185,47 @@ public class NavOptions {
         return mExitAnim;
     }
 
-    Bundle toBundle() {
+    /**
+     * The custom enter Animation/Animator that should be run when this destination is
+     * popped from the back stack.
+     * @return the resource id of a Animation or Animator or -1 if none.
+     * @see #applyPopAnimationsToPendingTransition(Activity)
+     */
+    @AnimRes @AnimatorRes
+    public int getPopEnterAnim() {
+        return mPopEnterAnim;
+    }
+
+    /**
+     * The custom exit Animation/Animator that should be run when this destination is
+     * popped from the back stack.
+     * @return the resource id of a Animation or Animator or -1 if none.
+     * @see #applyPopAnimationsToPendingTransition(Activity)
+     */
+    @AnimRes @AnimatorRes
+    public int getPopExitAnim() {
+        return mPopExitAnim;
+    }
+
+    @NonNull
+    private Bundle toBundle() {
         Bundle b = new Bundle();
         b.putInt(KEY_LAUNCH_MODE, mLaunchMode);
         b.putInt(KEY_POP_UP_TO, mPopUpTo);
         b.putBoolean(KEY_POP_UP_TO_INCLUSIVE, mPopUpToInclusive);
         b.putInt(KEY_ENTER_ANIM, mEnterAnim);
         b.putInt(KEY_EXIT_ANIM, mExitAnim);
+        b.putInt(KEY_POP_ENTER_ANIM, mPopEnterAnim);
+        b.putInt(KEY_POP_EXIT_ANIM, mPopExitAnim);
         return b;
     }
 
-    static NavOptions fromBundle(Bundle b) {
+    @NonNull
+    private static NavOptions fromBundle(@NonNull Bundle b) {
         return new NavOptions(b.getInt(KEY_LAUNCH_MODE, 0),
                 b.getInt(KEY_POP_UP_TO, 0), b.getBoolean(KEY_POP_UP_TO_INCLUSIVE, false),
-                b.getInt(KEY_ENTER_ANIM, -1), b.getInt(KEY_EXIT_ANIM, -1));
+                b.getInt(KEY_ENTER_ANIM, -1), b.getInt(KEY_EXIT_ANIM, -1),
+                b.getInt(KEY_POP_ENTER_ANIM, -1), b.getInt(KEY_POP_EXIT_ANIM, -1));
     }
 
     /**
@@ -151,6 +240,10 @@ public class NavOptions {
         int mEnterAnim = -1;
         @AnimRes @AnimatorRes
         int mExitAnim = -1;
+        @AnimRes @AnimatorRes
+        int mPopEnterAnim = -1;
+        @AnimRes @AnimatorRes
+        int mPopExitAnim = -1;
 
         public Builder() {
         }
@@ -251,10 +344,39 @@ public class NavOptions {
         }
 
         /**
+         * Sets a custom Animation or Animator resource for the enter animation
+         * when popping off the back stack.
+         *
+         * <p>Note: Animator resources are not supported for navigating to a new Activity</p>
+         * @param popEnterAnim Custom animation to run
+         * @return this Builder
+         * @see NavOptions#getPopEnterAnim()
+         */
+        public Builder setPopEnterAnim(@AnimRes @AnimatorRes int popEnterAnim) {
+            mPopEnterAnim = popEnterAnim;
+            return this;
+        }
+
+        /**
+         * Sets a custom Animation or Animator resource for the exit animation
+         * when popping off the back stack.
+         *
+         * <p>Note: Animator resources are not supported for navigating to a new Activity</p>
+         * @param popExitAnim Custom animation to run
+         * @return this Builder
+         * @see NavOptions#getPopExitAnim()
+         */
+        public Builder setPopExitAnim(@AnimRes @AnimatorRes int popExitAnim) {
+            mPopExitAnim = popExitAnim;
+            return this;
+        }
+
+        /**
          * @return a constructed NavOptions
          */
         public NavOptions build() {
-            return new NavOptions(mLaunchMode, mPopUpTo, mPopUpToInclusive, mEnterAnim, mExitAnim);
+            return new NavOptions(mLaunchMode, mPopUpTo, mPopUpToInclusive,
+                    mEnterAnim, mExitAnim, mPopEnterAnim, mPopExitAnim);
         }
     }
 }

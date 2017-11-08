@@ -129,6 +129,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         }
         final int destId = destination.getId();
         intent.putExtra(EXTRA_NAV_CURRENT, destId);
+        NavOptions.addPopAnimationsToIntent(intent, navOptions);
         mContext.startActivity(intent);
         if (navOptions != null && mHostActivity != null) {
             int enterAnim = navOptions.getEnterAnim();

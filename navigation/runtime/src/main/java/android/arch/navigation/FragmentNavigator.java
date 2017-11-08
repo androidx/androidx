@@ -100,10 +100,14 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
 
         int enterAnim = navOptions != null ? navOptions.getEnterAnim() : -1;
         int exitAnim = navOptions != null ? navOptions.getExitAnim() : -1;
-        if (enterAnim != -1 || exitAnim != -1) {
+        int popEnterAnim = navOptions != null ? navOptions.getPopEnterAnim() : -1;
+        int popExitAnim = navOptions != null ? navOptions.getPopExitAnim() : -1;
+        if (enterAnim != -1 || exitAnim != -1 || popEnterAnim != -1 || popExitAnim != -1) {
             enterAnim = enterAnim != -1 ? enterAnim : 0;
             exitAnim = exitAnim != -1 ? exitAnim : 0;
-            ft.setCustomAnimations(enterAnim, exitAnim);
+            popEnterAnim = popEnterAnim != -1 ? popEnterAnim : 0;
+            popExitAnim = popExitAnim != -1 ? popExitAnim : 0;
+            ft.setCustomAnimations(enterAnim, exitAnim, popEnterAnim, popExitAnim);
         }
 
         ft.replace(mContainerId, frag);

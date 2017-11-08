@@ -52,6 +52,8 @@
         <attr name="popUpToInclusive" format="boolean" />
         <attr name="enterAnim" format="reference" />
         <attr name="exitAnim" format="reference" />
+        <attr name="popEnterAnim" format="reference" />
+        <attr name="popExitAnim" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="NavInclude">
