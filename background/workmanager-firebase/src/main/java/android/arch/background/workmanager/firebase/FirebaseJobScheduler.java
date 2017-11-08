@@ -23,6 +23,7 @@ import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.utils.IdGenerator;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
@@ -72,7 +73,6 @@ public class FirebaseJobScheduler implements Scheduler {
     }
 
     private void scheduleLater(WorkSpec workSpec) {
-        // TODO(xbhatnag): Exact or Inexact Initial Delay?
         if (mAlarmManager == null) {
             mAlarmManager = (AlarmManager) mAppContext.getSystemService(Context.ALARM_SERVICE);
         }
@@ -82,13 +82,14 @@ public class FirebaseJobScheduler implements Scheduler {
         Log.d(TAG, "Scheduling work later, ID: " + workSpec.getId());
         PendingIntent pendingIntent = createScheduleLaterPendingIntent(workSpec);
 
-        // This sets an alarm to wake up the device at System Current Time + Calculated Delay.
-        // The wakeup is inexact for API 19+ and exact for API 14 - 18. A wakeup is necessary
-        // because the device could be sleeping when this alarm is fired.
-        mAlarmManager.set(
-                AlarmManager.RTC_WAKEUP,
-                System.currentTimeMillis() + workSpec.calculateDelay(),
-                pendingIntent);
+        // This wakes up the device at exactly System Current Time + Calculated Delay.
+        // A wakeup is necessary because the device could be sleeping when this alarm is fired.
+        long triggerAtMillis = System.currentTimeMillis() + workSpec.calculateDelay();
+        if (Build.VERSION.SDK_INT >= 19) {
+            mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        } else {
+            mAlarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        }
     }
 
     private PendingIntent createScheduleLaterPendingIntent(WorkSpec workSpec) {
