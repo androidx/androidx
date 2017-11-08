@@ -16,13 +16,6 @@
 
 package android.support.mediacompat.client;
 
-import static android.support.mediacompat.testlib.IntentConstants
-        .ACTION_CALL_MEDIA_CONTROLLER_METHOD;
-import static android.support.mediacompat.testlib.IntentConstants
-        .ACTION_CALL_TRANSPORT_CONTROLS_METHOD;
-import static android.support.mediacompat.testlib.IntentConstants.KEY_ARGUMENT;
-import static android.support.mediacompat.testlib.IntentConstants.KEY_METHOD_ID;
-import static android.support.mediacompat.testlib.IntentConstants.KEY_SESSION_TOKEN;
 import static android.support.mediacompat.testlib.MediaControllerConstants.ADD_QUEUE_ITEM;
 import static android.support.mediacompat.testlib.MediaControllerConstants
         .ADD_QUEUE_ITEM_WITH_INDEX;
@@ -51,6 +44,13 @@ import static android.support.mediacompat.testlib.MediaControllerConstants.SKIP_
 import static android.support.mediacompat.testlib.MediaControllerConstants.SKIP_TO_PREVIOUS;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SKIP_TO_QUEUE_ITEM;
 import static android.support.mediacompat.testlib.MediaControllerConstants.STOP;
+import static android.support.mediacompat.testlib.util.IntentUtil
+        .ACTION_CALL_MEDIA_CONTROLLER_METHOD;
+import static android.support.mediacompat.testlib.util.IntentUtil
+        .ACTION_CALL_TRANSPORT_CONTROLS_METHOD;
+import static android.support.mediacompat.testlib.util.IntentUtil.KEY_ARGUMENT;
+import static android.support.mediacompat.testlib.util.IntentUtil.KEY_METHOD_ID;
+import static android.support.mediacompat.testlib.util.IntentUtil.KEY_SESSION_TOKEN;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

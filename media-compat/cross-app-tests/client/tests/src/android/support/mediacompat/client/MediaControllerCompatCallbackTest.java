@@ -17,8 +17,6 @@
 package android.support.mediacompat.client;
 
 import static android.media.AudioManager.STREAM_MUSIC;
-import static android.support.mediacompat.client.util.TestUtil.assertBundleEquals;
-import static android.support.mediacompat.client.util.TestUtil.callMediaSessionMethod;
 import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SEND_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_CAPTIONING_ENABLED;
@@ -48,6 +46,8 @@ import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_QUE
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_VALUE;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
+import static android.support.mediacompat.testlib.util.IntentUtil.callMediaSessionMethod;
+import static android.support.mediacompat.testlib.util.TestUtil.assertBundleEquals;
 import static android.support.test.InstrumentationRegistry.getArguments;
 import static android.support.test.InstrumentationRegistry.getContext;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
