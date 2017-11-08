@@ -28,7 +28,7 @@
          scroll buttons. -->
     <android.support.car.widget.PagedScrollBarView
         android:id="@+id/paged_scroll_view"
-        android:layout_width="@dimen/car_screen_margin_size"
+        android:layout_width="@dimen/car_margin"
         android:layout_height="match_parent"
         android:paddingBottom="@dimen/car_scroll_bar_padding"
         android:paddingTop="@dimen/car_scroll_bar_padding"
