@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
 
@@ -54,10 +55,10 @@ createAndroidCheckstyle(project)
 version = LibraryVersions.WORKMANAGER.toString()
 
 supportLibrary {
-    name 'Android Support Library Background WorkManager'
-    publish true
-    inceptionYear '2017'
-    description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Support Library Background WorkManager"
+    publish = true
+    mavenGroup = LibraryGroups.WORKMANAGER
+    inceptionYear = "2017"
+    description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }
-

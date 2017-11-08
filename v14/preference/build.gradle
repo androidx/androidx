@@ -14,6 +14,8 @@
  * limitations under the License
  */
 
+import android.support.LibraryGroups
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -38,6 +40,7 @@ android {
 supportLibrary {
     name = "Android Support Preference v14"
     publish = true
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2015"
     description = "Android Support Preference v14"
     legacySourceLocation = true

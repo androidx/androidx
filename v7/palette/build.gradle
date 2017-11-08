@@ -1,3 +1,5 @@
+import android.support.LibraryGroups
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -18,6 +20,7 @@ android {
 supportLibrary {
     name = "Android Support Palette v7"
     publish = true
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2014"
     description = "Android Support Palette v7"
     legacySourceLocation = true

@@ -1,3 +1,5 @@
+import android.support.LibraryGroups
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -22,6 +24,7 @@ android {
 supportLibrary {
     name = "Android Percent Support Library"
     publish = true
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2015"
     description = "Android Percent Support Library"
     legacySourceLocation = true
