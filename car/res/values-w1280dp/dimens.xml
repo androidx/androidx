@@ -14,7 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <dimen name="car_keyline_4">182dp</dimen>
     <dimen name="car_screen_margin_size">148dp</dimen>
     <dimen name="car_scroll_bar_button_size">76dp</dimen>
+    
+    <dimen name="car_keyline_1">32dp</dimen>
+    <dimen name="car_keyline_2">108dp</dimen>
+    <dimen name="car_keyline_3">128dp</dimen>
+    <dimen name="car_keyline_4">168dp</dimen>
+    <dimen name="car_keyline_1_neg">32dp</dimen>
+    <dimen name="car_keyline_2_neg">108dp</dimen>
+    <dimen name="car_keyline_3_neg">128dp</dimen>
 </resources>
