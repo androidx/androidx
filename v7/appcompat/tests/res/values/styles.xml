@@ -31,6 +31,18 @@
         <item name="android:textColorLink">@color/color_state_list_link</item>
     </style>
 
+    <style name="Theme.CustomInflater" parent="@style/Theme.AppCompat.Light">
+        <item name="viewInflaterClass">android.support.v7.app.inflater.CustomViewInflater</item>
+    </style>
+
+    <style name="Theme.CustomInflaterBadClassName" parent="@style/Theme.AppCompat.Light">
+        <item name="viewInflaterClass">invalid.class.name</item>
+    </style>
+
+    <style name="Theme.CustomInflaterNull" parent="@style/Theme.AppCompat.Light">
+        <item name="viewInflaterClass">@null</item>
+    </style>
+
     <style name="TextStyleAllCapsOn" parent="@android:style/TextAppearance.Medium">
         <item name="textAllCaps">true</item>
     </style>
