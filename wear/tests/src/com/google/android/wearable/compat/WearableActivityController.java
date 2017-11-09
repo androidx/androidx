@@ -33,7 +33,7 @@ public class WearableActivityController {
 
     private AmbientCallback mCallback;
     private boolean mAmbientEnabled = false;
-    private boolean mAutoResumeEnabled = false;
+    private boolean mAutoResumeEnabled = true;
     private boolean mAmbient = false;
 
     public WearableActivityController(String tag, Activity activity, AmbientCallback callback) {
