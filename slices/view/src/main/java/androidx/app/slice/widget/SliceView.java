@@ -163,22 +163,29 @@ public class SliceView extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int mode = MeasureSpec.getMode(widthMeasureSpec);
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        if (MODE_SHORTCUT == mMode) {
+            width = mShortcutSize;
+        }
+        if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.UNSPECIFIED) {
+            widthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
+        }
         measureChildren(widthMeasureSpec, heightMeasureSpec);
         int actionHeight = mActions.getVisibility() != View.GONE
                 ? mActions.getMeasuredHeight()
                 : 0;
         int newHeightSpec = MeasureSpec.makeMeasureSpec(
                 mCurrentView.getMeasuredHeight() + actionHeight, MeasureSpec.EXACTLY);
-        int width = MeasureSpec.getSize(widthMeasureSpec);
         setMeasuredDimension(width, newHeightSpec);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        mCurrentView.layout(l, t, l + mCurrentView.getMeasuredWidth(),
-                t + mCurrentView.getMeasuredHeight());
+        mCurrentView.layout(0, 0, mCurrentView.getMeasuredWidth(),
+                mCurrentView.getMeasuredHeight());
         if (mActions.getVisibility() != View.GONE) {
-            mActions.layout(l, mCurrentView.getMeasuredHeight(), l + mActions.getMeasuredWidth(),
+            mActions.layout(0, mCurrentView.getMeasuredHeight(), mActions.getMeasuredWidth(),
                     mCurrentView.getMeasuredHeight() + mActions.getMeasuredHeight());
         }
     }
@@ -214,11 +221,15 @@ public class SliceView extends ViewGroup {
         validate(sliceUri);
         Slice s = Slice.bindSlice(getContext().getContentResolver(), sliceUri);
         if (s != null) {
+            if (mObserver != null) {
+                getContext().getContentResolver().unregisterContentObserver(mObserver);
+            }
             mObserver = new SliceObserver(new Handler(Looper.getMainLooper()));
             if (isAttachedToWindow()) {
                 registerSlice(sliceUri);
             }
-            showSlice(s);
+            mCurrentSlice = s;
+            reinflate();
         }
         return s != null;
     }
