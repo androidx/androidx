@@ -27,6 +27,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.support.annotation.AttrRes;
@@ -130,6 +131,20 @@ public class SliceViewUtil {
         Drawable drawable = ta.getDrawable(0);
         ta.recycle();
         return drawable;
+    }
+
+    /**
+     */
+    public static Icon createIconFromDrawable(Drawable d) {
+        if (d instanceof BitmapDrawable) {
+            return Icon.createWithBitmap(((BitmapDrawable) d).getBitmap());
+        }
+        Bitmap b = Bitmap.createBitmap(d.getIntrinsicWidth(), d.getIntrinsicHeight(),
+                Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(b);
+        d.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        d.draw(canvas);
+        return Icon.createWithBitmap(b);
     }
 
     /**
