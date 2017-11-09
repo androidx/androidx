@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,44 +24,32 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- *  A {@link Worker} that sleeps for a given amount of time and then shows a given Toast.
+ *  A {@link Worker} that shows a given Toast.
  */
-public class SleepyToastWorker extends Worker {
-
-    private static final String ARG_TIMER = "timer";
+public class ToastWorker extends Worker {
     private static final String ARG_MESSAGE = "message";
 
     /**
-     * Create a {@link Work.Builder} with the given arguments.
+     * Create a {@link Work.Builder} with the given message.
      *
-     * @param sleepTimer How long to sleep in the {@link Worker}
      * @param message The toast message to display
      * @return A {@link Work.Builder}
      */
-    public static Work.Builder createWithArgs(long sleepTimer, String message) {
+    public static Work.Builder create(String message) {
         Arguments args = new Arguments();
-        args.putLong(ARG_TIMER, sleepTimer);
         args.putString(ARG_MESSAGE, message);
 
-        return new Work.Builder(SleepyToastWorker.class).withArguments(args);
+        return new Work.Builder(ToastWorker.class).withArguments(args);
     }
 
     @Override
     public void doWork() {
         Arguments args = getArguments();
-        long sleepTimer = args.getLong(ARG_TIMER, 1000L);
         final String message = args.getString(ARG_MESSAGE, "completed!");
-
-        try {
-            Thread.sleep(sleepTimer);
-        } catch (InterruptedException e) {
-            // Do nothing.
-        }
-
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                Log.d("SleepyToast", message);
+                Log.d("ToastWorker", message);
                 Toast.makeText(getAppContext(), message, Toast.LENGTH_SHORT).show();
             }
         });

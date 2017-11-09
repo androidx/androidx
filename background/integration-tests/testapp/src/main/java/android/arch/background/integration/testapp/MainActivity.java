@@ -25,12 +25,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 
 /**
  * Main Activity
  */
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,14 +75,27 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.image_uri).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WorkManager.getInstance(MainActivity.this).enqueue(SleepyToastWorker
-                        .createWithArgs(0, "Image URI Updated!")
+                WorkManager.getInstance(MainActivity.this).enqueue(ToastWorker
+                        .create("Image URI Updated!")
                         .withConstraints(new Constraints.Builder()
                                         .addContentUriTrigger(
                                                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true)
                                         .build())
                         .build()
                 );
+            }
+        });
+        final EditText delayInMs = findViewById(R.id.delay_in_ms);
+        findViewById(R.id.schedule_delay).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String delayString = delayInMs.getText().toString();
+                long delay = Long.parseLong(delayString);
+                Log.d(TAG, "Enqueuing job with delay of " + delay + " ms");
+                WorkManager.getInstance(MainActivity.this).enqueue(ToastWorker
+                        .create("Delayed Job Ran!")
+                        .withInitialDelay(delay)
+                        .build());
             }
         });
     }
