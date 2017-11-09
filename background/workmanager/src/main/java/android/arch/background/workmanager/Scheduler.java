@@ -16,6 +16,7 @@
 package android.arch.background.workmanager;
 
 import android.arch.background.workmanager.model.WorkSpec;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 /**
@@ -33,4 +34,11 @@ public interface Scheduler {
      * @param workSpecs The array of {@link WorkSpec}s to schedule.
      */
     void schedule(WorkSpec... workSpecs);
+
+    /**
+     * Cancel the work identified by the given {@link WorkSpec} id.
+     *
+     * @param workSpecId The id of the work to cancel.
+     */
+    void cancel(@NonNull String workSpecId);
 }

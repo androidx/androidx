@@ -37,13 +37,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        findViewById(R.id.clear_all).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WorkManager.getInstance(MainActivity.this).clearAllWork();
-            }
-        });
-
         findViewById(R.id.enqueue_infinite_work).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
