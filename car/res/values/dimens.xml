@@ -14,10 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <!-- Keylines -->
-    <dimen name="car_keyline_1">24dp</dimen>
-    <dimen name="car_keyline_2">96dp</dimen>
-    <dimen name="car_keyline_3">112dp</dimen>
+    <!-- Keylines for content. -->
+    <dimen name="car_keyline_1">48dp</dimen>
+    <dimen name="car_keyline_2">108dp</dimen>
+    <dimen name="car_keyline_3">152dp</dimen>
+    <dimen name="car_keyline_4">182dp</dimen>
+    <dimen name="car_keyline_1_neg">-48dp</dimen>
+    <dimen name="car_keyline_2_neg">-108dp</dimen>
+    <dimen name="car_keyline_3_neg">-152dp</dimen> 
 
     <!-- Type Sizings -->
     <dimen name="car_title_size">26sp</dimen>
