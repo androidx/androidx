@@ -42,47 +42,76 @@ final class MediaRouterThemeHelper {
     private MediaRouterThemeHelper() {
     }
 
-    /**
-     * Creates a themed context based on the explicit style resource or the parent context's default
-     * theme.
-     * <p>
-     * The theme which will be applied on top of the parent {@code context}'s theme is determined
-     * by the primary color defined in the given {@code style}, or in the parent {@code context}.
+    static Context createThemedButtonContext(Context context) {
+        // Apply base Media Router theme.
+        context = new ContextThemeWrapper(context, getRouterThemeId(context));
+
+        // Apply custom Media Router theme.
+        int style = getThemeResource(context, R.attr.mediaRouteTheme);
+        if (style != 0) {
+            context = new ContextThemeWrapper(context, style);
+        }
+
+        return context;
+    }
+
+    /*
+     * The following two methods are to be used in conjunction. They should be used to prepare
+     * the context and theme for a super class constructor (the latter method relies on the
+     * former method to properly prepare the context):
+     *   super(context = createThemedDialogContext(context, theme),
+     *           createThemedDialogStyle(context));
      *
-     * @param context the parent context
-     * @param style the resource ID of the style against which to inflate this context, or
-     *              {@code 0} to use the parent {@code context}'s default theme.
-     * @return The themed context.
+     * It will apply theme in the following order (style lookups will be done in reverse):
+     *   1) Current theme
+     *   2) Supplied theme
+     *   3) Base Media Router theme
+     *   4) Custom Media Router theme, if provided
      */
-    static Context createThemedContext(Context context, int style) {
-        // First, apply dialog property overlay.
-        Context themedContext =
-                new ContextThemeWrapper(context, getStyledRouterThemeId(context, style));
-        int customizedThemeId = getThemeResource(context, R.attr.mediaRouteTheme);
-        return customizedThemeId == 0 ? themedContext
-                : new ContextThemeWrapper(themedContext, customizedThemeId);
-    }
+    static Context createThemedDialogContext(Context context, int theme, boolean alertDialog) {
+        // 1) Current theme is already applied to the context
 
-    /**
-     * Creates the theme resource ID intended to be used by dialogs.
-     */
-    static int createThemeForDialog(Context context, int style) {
-        int customizedThemeId = getThemeResource(context, R.attr.mediaRouteTheme);
-        return customizedThemeId != 0 ? customizedThemeId : getStyledRouterThemeId(context, style);
-    }
+        // 2) If no theme is supplied, look it up from the context (dialogTheme/alertDialogTheme)
+        if (theme == 0) {
+            theme = getThemeResource(context, !alertDialog
+                    ? android.support.v7.appcompat.R.attr.dialogTheme
+                    : android.support.v7.appcompat.R.attr.alertDialogTheme);
+        }
+        //    Apply it
+        context = new ContextThemeWrapper(context, theme);
 
-    public static int getThemeResource(Context context, int attr) {
+        // 3) If a custom Media Router theme is provided then apply the base theme
+        if (getThemeResource(context, R.attr.mediaRouteTheme) != 0) {
+            context = new ContextThemeWrapper(context, getRouterThemeId(context));
+        }
+
+        return context;
+    }
+    // This method should be used in conjunction with the previous method.
+    static int createThemedDialogStyle(Context context) {
+        // 4) Apply the custom Media Router theme
+        int theme = getThemeResource(context, R.attr.mediaRouteTheme);
+        if (theme == 0) {
+            // 3) No custom MediaRouther theme was provided so apply the base theme instead
+            theme = getRouterThemeId(context);
+        }
+
+        return theme;
+    }
+    // END. Previous two methods should be used in conjunction.
+
+    static int getThemeResource(Context context, int attr) {
         TypedValue value = new TypedValue();
         return context.getTheme().resolveAttribute(attr, value, true) ? value.resourceId : 0;
     }
 
-    public static float getDisabledAlpha(Context context) {
+    static float getDisabledAlpha(Context context) {
         TypedValue value = new TypedValue();
         return context.getTheme().resolveAttribute(android.R.attr.disabledAlpha, value, true)
                 ? value.getFloat() : 0.5f;
     }
 
-    public static @ControllerColorType int getControllerColor(Context context, int style) {
+    static @ControllerColorType int getControllerColor(Context context, int style) {
         int primaryColor = getThemeColor(context, style,
                 android.support.v7.appcompat.R.attr.colorPrimary);
         if (ColorUtils.calculateContrast(COLOR_WHITE_ON_DARK_BACKGROUND, primaryColor)
@@ -92,7 +121,7 @@ final class MediaRouterThemeHelper {
         return COLOR_DARK_ON_LIGHT_BACKGROUND;
     }
 
-    public static int getButtonTextColor(Context context) {
+    static int getButtonTextColor(Context context) {
         int primaryColor = getThemeColor(context, 0,
                 android.support.v7.appcompat.R.attr.colorPrimary);
         int backgroundColor = getThemeColor(context, 0, android.R.attr.colorBackground);
@@ -104,7 +133,7 @@ final class MediaRouterThemeHelper {
         return primaryColor;
     }
 
-    public static void setMediaControlsBackgroundColor(
+    static void setMediaControlsBackgroundColor(
             Context context, View mainControls, View groupControls, boolean hasGroup) {
         int primaryColor = getThemeColor(context, 0,
                 android.support.v7.appcompat.R.attr.colorPrimary);
@@ -124,7 +153,7 @@ final class MediaRouterThemeHelper {
         groupControls.setTag(primaryDarkColor);
     }
 
-    public static void setVolumeSliderColor(
+    static void setVolumeSliderColor(
             Context context, MediaRouteVolumeSlider volumeSlider, View backgroundView) {
         int controllerColor = getControllerColor(context, 0);
         if (Color.alpha(controllerColor) != 0xFF) {
@@ -136,23 +165,10 @@ final class MediaRouterThemeHelper {
         volumeSlider.setColor(controllerColor);
     }
 
-    // This is copied from {@link AlertDialog#resolveDialogTheme} to pre-evaluate theme in advance.
-    public static int getAlertDialogResolvedTheme(Context context, int themeResId) {
-        if (themeResId >= 0x01000000) {   // start of real resource IDs.
-            return themeResId;
-        } else {
-            TypedValue outValue = new TypedValue();
-            context.getTheme().resolveAttribute(
-                    android.support.v7.appcompat.R.attr.alertDialogTheme, outValue, true);
-            return outValue.resourceId;
-        }
-    }
-
     private static boolean isLightTheme(Context context) {
         TypedValue value = new TypedValue();
-        return context.getTheme().resolveAttribute(
-                android.support.v7.appcompat.R.attr.isLightTheme, value, true)
-                && value.data != 0;
+        return context.getTheme().resolveAttribute(android.support.v7.appcompat.R.attr.isLightTheme,
+                value, true) && value.data != 0;
     }
 
     private static int getThemeColor(Context context, int style, int attr) {
@@ -173,16 +189,16 @@ final class MediaRouterThemeHelper {
         return value.data;
     }
 
-    private static int getStyledRouterThemeId(Context context, int style) {
+    private static int getRouterThemeId(Context context) {
         int themeId;
         if (isLightTheme(context)) {
-            if (getControllerColor(context, style) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
+            if (getControllerColor(context, 0) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
                 themeId = R.style.Theme_MediaRouter_Light;
             } else {
                 themeId = R.style.Theme_MediaRouter_Light_DarkControlPanel;
             }
         } else {
-            if (getControllerColor(context, style) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
+            if (getControllerColor(context, 0) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
                 themeId = R.style.Theme_MediaRouter_LightControlPanel;
             } else {
                 themeId = R.style.Theme_MediaRouter;
