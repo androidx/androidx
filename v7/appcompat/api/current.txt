@@ -303,6 +303,24 @@ package android.support.v7.app {
     ctor public AppCompatDialogFragment();
   }
 
+  public class AppCompatViewInflater {
+    ctor public AppCompatViewInflater();
+    method protected android.support.v7.widget.AppCompatAutoCompleteTextView createAutoCompleteTextView(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatButton createButton(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatCheckBox createCheckBox(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatCheckedTextView createCheckedTextView(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatEditText createEditText(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatImageButton createImageButton(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatImageView createImageView(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatMultiAutoCompleteTextView createMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatRadioButton createRadioButton(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatRatingBar createRatingBar(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatSeekBar createSeekBar(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatSpinner createSpinner(android.content.Context, android.util.AttributeSet);
+    method protected android.support.v7.widget.AppCompatTextView createTextView(android.content.Context, android.util.AttributeSet);
+    method protected android.view.View createView(android.content.Context, java.lang.String, android.util.AttributeSet);
+  }
+
 }
 
 package android.support.v7.content.res {

@@ -407,6 +407,8 @@
         <!-- Color used for error states and things that need to be drawn to
              the user's attention. -->
         <attr name="colorError" format="reference|color" />
+
+        <attr name="viewInflaterClass" format="string" />
     </declare-styleable>
 
 

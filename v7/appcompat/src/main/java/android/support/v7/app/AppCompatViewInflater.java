@@ -51,14 +51,12 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
- * This class is responsible for manually inflating our tinted widgets which are used on devices
- * running {@link android.os.Build.VERSION_CODES#KITKAT KITKAT} or below. As such, this class
- * should only be used when running on those devices.
+ * This class is responsible for manually inflating our tinted widgets.
  * <p>This class two main responsibilities: the first is to 'inject' our tinted views in place of
  * the framework versions in layout inflation; the second is backport the {@code android:theme}
  * functionality for any inflated widgets. This include theme inheritance from its parent.
  */
-class AppCompatViewInflater {
+public class AppCompatViewInflater {
 
     private static final Class<?>[] sConstructorSignature = new Class[]{
             Context.class, AttributeSet.class};
@@ -77,7 +75,7 @@ class AppCompatViewInflater {
 
     private final Object[] mConstructorArgs = new Object[2];
 
-    public final View createView(View parent, final String name, @NonNull Context context,
+    final View createView(View parent, final String name, @NonNull Context context,
             @NonNull AttributeSet attrs, boolean inheritContext,
             boolean readAndroidTheme, boolean readAppTheme, boolean wrapContext) {
         final Context originalContext = context;
@@ -100,44 +98,63 @@ class AppCompatViewInflater {
         // We need to 'inject' our tint aware Views in place of the standard framework versions
         switch (name) {
             case "TextView":
-                view = new AppCompatTextView(context, attrs);
+                view = createTextView(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "ImageView":
-                view = new AppCompatImageView(context, attrs);
+                view = createImageView(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "Button":
-                view = new AppCompatButton(context, attrs);
+                view = createButton(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "EditText":
-                view = new AppCompatEditText(context, attrs);
+                view = createEditText(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "Spinner":
-                view = new AppCompatSpinner(context, attrs);
+                view = createSpinner(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "ImageButton":
-                view = new AppCompatImageButton(context, attrs);
+                view = createImageButton(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "CheckBox":
-                view = new AppCompatCheckBox(context, attrs);
+                view = createCheckBox(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "RadioButton":
-                view = new AppCompatRadioButton(context, attrs);
+                view = createRadioButton(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "CheckedTextView":
-                view = new AppCompatCheckedTextView(context, attrs);
+                view = createCheckedTextView(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "AutoCompleteTextView":
-                view = new AppCompatAutoCompleteTextView(context, attrs);
+                view = createAutoCompleteTextView(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "MultiAutoCompleteTextView":
-                view = new AppCompatMultiAutoCompleteTextView(context, attrs);
+                view = createMultiAutoCompleteTextView(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "RatingBar":
-                view = new AppCompatRatingBar(context, attrs);
+                view = createRatingBar(context, attrs);
+                verifyNotNull(view, name);
                 break;
             case "SeekBar":
-                view = new AppCompatSeekBar(context, attrs);
+                view = createSeekBar(context, attrs);
+                verifyNotNull(view, name);
                 break;
+            default:
+                // The fallback that allows extending class to take over view inflation
+                // for other tags. Note that we don't check that the result is not-null.
+                // That allows the custom inflater path to fall back on the default one
+                // later in this method.
+                view = createView(context, name, attrs);
         }
 
         if (view == null && originalContext != context) {
@@ -154,6 +171,85 @@ class AppCompatViewInflater {
         return view;
     }
 
+    @NonNull
+    protected AppCompatTextView createTextView(Context context, AttributeSet attrs) {
+        return new AppCompatTextView(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatImageView createImageView(Context context, AttributeSet attrs) {
+        return new AppCompatImageView(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatButton createButton(Context context, AttributeSet attrs) {
+        return new AppCompatButton(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatEditText createEditText(Context context, AttributeSet attrs) {
+        return new AppCompatEditText(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatSpinner createSpinner(Context context, AttributeSet attrs) {
+        return new AppCompatSpinner(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatImageButton createImageButton(Context context, AttributeSet attrs) {
+        return new AppCompatImageButton(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatCheckBox createCheckBox(Context context, AttributeSet attrs) {
+        return new AppCompatCheckBox(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatRadioButton createRadioButton(Context context, AttributeSet attrs) {
+        return new AppCompatRadioButton(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatCheckedTextView createCheckedTextView(Context context, AttributeSet attrs) {
+        return new AppCompatCheckedTextView(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatAutoCompleteTextView createAutoCompleteTextView(Context context,
+            AttributeSet attrs) {
+        return new AppCompatAutoCompleteTextView(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatMultiAutoCompleteTextView createMultiAutoCompleteTextView(Context context,
+            AttributeSet attrs) {
+        return new AppCompatMultiAutoCompleteTextView(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatRatingBar createRatingBar(Context context, AttributeSet attrs) {
+        return new AppCompatRatingBar(context, attrs);
+    }
+
+    @NonNull
+    protected AppCompatSeekBar createSeekBar(Context context, AttributeSet attrs) {
+        return new AppCompatSeekBar(context, attrs);
+    }
+
+    private void verifyNotNull(View view, String name) {
+        if (view == null) {
+            throw new IllegalStateException(this.getClass().getName()
+                    + " asked to inflate view for <" + name + ">, but returned null");
+        }
+    }
+
+    @Nullable
+    protected View createView(Context context, String name, AttributeSet attrs) {
+        return null;
+    }
+
     private View createViewFromTag(Context context, String name, AttributeSet attrs) {
         if (name.equals("view")) {
             name = attrs.getAttributeValue(null, "class");
@@ -165,14 +261,14 @@ class AppCompatViewInflater {
 
             if (-1 == name.indexOf('.')) {
                 for (int i = 0; i < sClassPrefixList.length; i++) {
-                    final View view = createView(context, name, sClassPrefixList[i]);
+                    final View view = createViewByPrefix(context, name, sClassPrefixList[i]);
                     if (view != null) {
                         return view;
                     }
                 }
                 return null;
             } else {
-                return createView(context, name, null);
+                return createViewByPrefix(context, name, null);
             }
         } catch (Exception e) {
             // We do not want to catch these, lets return null and let the actual LayoutInflater
@@ -209,7 +305,7 @@ class AppCompatViewInflater {
         a.recycle();
     }
 
-    private View createView(Context context, String name, String prefix)
+    private View createViewByPrefix(Context context, String name, String prefix)
             throws ClassNotFoundException, InflateException {
         Constructor<? extends View> constructor = sConstructorMap.get(name);
 
