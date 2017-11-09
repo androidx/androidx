@@ -101,6 +101,10 @@ project(':navigation:runtime').projectDir = new File(supportRoot, "navigation/ru
 
 include ':navigation:integration-tests:testapp'
 project(':navigation:integration-tests:testapp').projectDir = new File(supportRoot, "navigation/integration-tests/testapp")
+
+include ':navigation:safe-args-generator'
+project (':navigation:safe-args-generator').projectDir = new File(supportRoot, "navigation/safe-args-generator")
+
 /////////////////////////////
 //
 // SupportLib
