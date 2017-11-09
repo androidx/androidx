@@ -21,7 +21,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application>
-        <!-- TODO(xbhatnag): Disable the services by default and enable as needed -->
+        <service android:name=".systemalarm.SystemAlarmService" />
         <service
             android:name=".systemjob.SystemJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
