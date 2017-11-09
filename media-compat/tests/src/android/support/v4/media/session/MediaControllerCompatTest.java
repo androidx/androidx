@@ -438,7 +438,7 @@ public class MediaControllerCompatTest {
         final long expectedUpdateTime = waitDuration + stateSetTime;
         final long expectedPosition = (long) (TEST_PLAYBACK_SPEED * waitDuration) + TEST_POSITION;
 
-        final double updateTimeTolerance = 30L;
+        final double updateTimeTolerance = 50L;
         final double positionTolerance = updateTimeTolerance * TEST_PLAYBACK_SPEED;
 
         PlaybackStateCompat stateOut = mSession.getController().getPlaybackState();
