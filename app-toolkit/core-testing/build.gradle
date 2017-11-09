@@ -29,30 +29,20 @@ android {
 }
 
 dependencies {
-    compile project(":arch:runtime")
-    compile libs.support.annotations
-    compile(libs.junit)
-    compile libs.mockito_core, { exclude group: 'net.bytebuddy' }
+    api project(":arch:runtime")
+    api libs.support.annotations
+    api libs.junit
+    api libs.mockito_core, { exclude group: 'net.bytebuddy' }
 
-    testCompile libs.junit
-    testCompile libs.support.annotations
+    testImplementation libs.junit
+    testImplementation libs.support.annotations
 
-    androidTestCompile libs.junit
+    androidTestImplementation libs.junit
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
 }
 
 createAndroidCheckstyle(project)
-
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-    def suffix = name.capitalize()
-    project.tasks.create(name: "jar${suffix}", type: Jar) {
-        dependsOn variant.javaCompile
-        from variant.javaCompile.destinationDir
-        destinationDir new File(project.buildDir, "libJar")
-    }
-}
 
 supportLibrary {
     name = "Android Core-Testing"

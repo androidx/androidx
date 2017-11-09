@@ -333,7 +333,8 @@ class PojoProcessor(baseContext: Context,
                                      relationElement: VariableElement)
             : android.arch.persistence.room.vo.Relation? {
 
-        val asTypeElement = MoreTypes.asTypeElement(MoreElements.asVariable(relationElement).asType())
+        val asTypeElement = MoreTypes.asTypeElement(
+                MoreElements.asVariable(relationElement).asType())
 
         if (detectReferenceRecursion(asTypeElement)) {
             return null
