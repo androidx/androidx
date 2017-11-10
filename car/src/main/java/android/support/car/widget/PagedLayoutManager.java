@@ -18,6 +18,8 @@ package android.support.car.widget;
 
 import android.content.Context;
 import android.graphics.PointF;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
@@ -917,6 +919,55 @@ public class PagedLayoutManager extends RecyclerView.LayoutManager {
     /** @return The position that paging down from the current position would settle at. */
     public int getPageDownPosition() {
         return mLowerPageBreakPosition;
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        SavedState savedState = new SavedState();
+        savedState.mFirstChildPosition = getFirstFullyVisibleChildPosition();
+        return savedState;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof SavedState) {
+            scrollToPosition(((SavedState) state).mFirstChildPosition);
+        }
+    }
+
+    /** The state that will be saved across configuration changes. */
+    static class SavedState implements Parcelable {
+        /** The position of the first visible child view in the list. */
+        int mFirstChildPosition;
+
+        SavedState() {}
+
+        private SavedState(Parcel in) {
+            mFirstChildPosition = in.readInt();
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(mFirstChildPosition);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
     }
 
     /**
