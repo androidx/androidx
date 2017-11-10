@@ -28,12 +28,12 @@ import android.support.annotation.RestrictTo;
 @RestrictTo(LIBRARY_GROUP)
 public class SliceHints {
     /**
-     * Hint to indicate that this content has a toggle action associated with it. To indicate that
-     * the toggle is on, use {@link Slice#HINT_SELECTED}. When the toggle state changes, the intent
-     * associated with it will be sent along with an extra {@link #EXTRA_TOGGLE_STATE} which can be
-     * retrieved to see the new state of the toggle.
+     * Subtype to indicate that this content has a toggle action associated with it. To indicate
+     * that the toggle is on, use {@link Slice#HINT_SELECTED}. When the toggle state changes, the
+     * intent associated with it will be sent along with an extra {@link #EXTRA_TOGGLE_STATE}
+     * which can be retrieved to see the new state of the toggle.
      */
-    public static final String HINT_TOGGLE = "toggle";
+    public static final String SUBTYPE_TOGGLE = "toggle";
 
     /**
      * Key to retrieve an extra added to an intent when a control is changed.

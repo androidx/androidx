@@ -59,7 +59,7 @@
             android:name=".SliceBroadcastReceiver"
             android:exported="true" >
             <intent-filter>
-                <action android:name="com.android.settings.slice.action.WIFI_CHANGED"/>
+                <action android:name="com.example.androidx.slice.action.*"/>
             </intent-filter>
         </receiver>
     </application>

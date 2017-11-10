@@ -16,6 +16,7 @@
 
 package androidx.app.slice.builders;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.net.Uri;
 import android.support.annotation.RestrictTo;
@@ -36,7 +37,15 @@ public abstract class TemplateSliceBuilder {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(LIBRARY)
+    protected TemplateSliceBuilder(Slice.Builder b) {
+        mSliceBuilder = b;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
     public Slice.Builder getBuilder() {
         return mSliceBuilder;
     }
@@ -44,7 +53,7 @@ public abstract class TemplateSliceBuilder {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(LIBRARY)
     public Slice.Builder createChildBuilder() {
         return new Slice.Builder(mSliceBuilder);
     }
@@ -60,69 +69,6 @@ public abstract class TemplateSliceBuilder {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(LIBRARY)
     public abstract void apply(Slice.Builder builder);
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public abstract void add(SubTemplateSliceBuilder builder);
-
-    /**
-     * Base class of builders for sub-slices of {@link TemplateSliceBuilder}s.
-     * @param <T> Type of parent
-     */
-    public abstract static class SubTemplateSliceBuilder<T extends TemplateSliceBuilder> {
-
-        private final Slice.Builder mBuilder;
-        private final T mParent;
-
-        /**
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public SubTemplateSliceBuilder(Slice.Builder builder, T parent) {
-            mBuilder = builder;
-            mParent = parent;
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public SubTemplateSliceBuilder(Slice.Builder builder) {
-            mBuilder = builder;
-            mParent = null;
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public Slice.Builder getBuilder() {
-            return mBuilder;
-        }
-
-        /**
-         * Construct the slice.
-         */
-        public Slice build() {
-            return mBuilder.build();
-        }
-
-        /**
-         * Construct the slice and return to the parent object. If this object was not
-         * created from a {@link TemplateSliceBuilder} it will return null.
-         * @return parent builder
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public T finish() {
-            if (mParent != null) {
-                mParent.add(this);
-            }
-            return mParent;
-        }
-    }
 }

@@ -256,7 +256,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
             case MODE_SHORTCUT:
                 return new ShortcutView(getContext());
             case MODE_SMALL:
-                return new SmallTemplateView(getContext());
+                return new RowView(getContext());
         }
         return new LargeTemplateView(getContext());
     }

@@ -76,7 +76,7 @@ public final class Slice {
     @RestrictTo(Scope.LIBRARY)
     @StringDef({HINT_TITLE, HINT_LIST, HINT_LIST_ITEM, HINT_LARGE, HINT_ACTIONS, HINT_SELECTED,
             HINT_HORIZONTAL, HINT_NO_TINT, HINT_PARTIAL,
-            SliceHints.HINT_HIDDEN, SliceHints.HINT_TOGGLE})
+            SliceHints.HINT_HIDDEN, SliceHints.SUBTYPE_TOGGLE})
     public @interface SliceHint{ }
 
     private final SliceItem[] mItems;
@@ -328,6 +328,16 @@ public final class Slice {
         public Slice.Builder addTimestamp(long time, @Nullable String subType,
                 @SliceHint List<String> hints) {
             return addTimestamp(time, subType, hints.toArray(new String[hints.size()]));
+        }
+
+        /**
+         * Add a SliceItem to the slice being constructed.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY)
+        public Slice.Builder addItem(SliceItem item) {
+            mItems.add(item);
+            return this;
         }
 
         /**

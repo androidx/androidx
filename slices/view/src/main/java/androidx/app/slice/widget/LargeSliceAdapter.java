@@ -24,6 +24,7 @@ import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import android.annotation.TargetApi;
+import android.app.slice.Slice;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v7.widget.RecyclerView;
@@ -51,7 +52,7 @@ import androidx.app.slice.view.R;
 public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.SliceViewHolder> {
 
     public static final int TYPE_DEFAULT       = 1;
-    public static final int TYPE_HEADER        = 2;
+    public static final int TYPE_HEADER        = 2; // TODO headers shouldn't scroll off
     public static final int TYPE_GRID          = 3;
     public static final int TYPE_MESSAGE       = 4;
     public static final int TYPE_MESSAGE_LOCAL = 5;
@@ -108,7 +109,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         SliceWrapper slice = mSlices.get(position);
         if (holder.mSliceView != null) {
             holder.mSliceView.setColor(mColor);
-            holder.mSliceView.setSliceItem(slice.mItem);
+            holder.mSliceView.setSliceItem(slice.mItem, position == 0 /* isHeader */);
         }
     }
 
@@ -122,7 +123,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
                 return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message_local,
                         null);
         }
-        return new SmallTemplateView(mContext);
+        return new RowView(mContext);
     }
 
     protected static class SliceWrapper {
@@ -148,6 +149,9 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             if (item.hasHint(HINT_HORIZONTAL)) {
                 return TYPE_GRID;
             }
+            if (!item.hasHint(Slice.HINT_LIST_ITEM)) {
+                return TYPE_HEADER;
+            }
             return TYPE_DEFAULT;
         }
     }
@@ -171,7 +175,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         /**
          * Set the slice item for this view.
          */
-        void setSliceItem(SliceItem slice);
+        void setSliceItem(SliceItem slice, boolean isHeader);
 
         /**
          * Set the color for the items in this view.

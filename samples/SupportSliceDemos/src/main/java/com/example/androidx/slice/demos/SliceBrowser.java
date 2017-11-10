@@ -16,6 +16,9 @@
 
 package com.example.androidx.slice.demos;
 
+import static com.example.androidx.slice.demos.SampleSliceProvider.URI_PATHS;
+import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
+
 import android.arch.lifecycle.LiveData;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -58,7 +61,7 @@ public class SliceBrowser extends AppCompatActivity {
     private static final String TAG = "SlicePresenter";
 
     private static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
-    private static final boolean TEST_INTENT = true;
+    private static final boolean TEST_INTENT = false;
 
     private ArrayList<Uri> mSliceUris = new ArrayList<Uri>();
     private int mSelectedMode;
@@ -186,7 +189,9 @@ public class SliceBrowser extends AppCompatActivity {
                 }
             }
         }
-        mSliceUris.add(SampleSliceProvider.MESSAGE);
+        for (int i = 0; i < URI_PATHS.length; i++) {
+            mSliceUris.add(getUri(URI_PATHS[i], getApplicationContext()));
+        }
         populateAdapter(String.valueOf(mSearchView.getQuery()));
     }
 

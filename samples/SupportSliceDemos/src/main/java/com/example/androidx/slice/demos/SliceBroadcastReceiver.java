@@ -16,11 +16,14 @@
 
 package com.example.androidx.slice.demos;
 
+import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
+import android.widget.Toast;
 
 import androidx.app.slice.core.SliceHints;
 
@@ -41,8 +44,13 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
                 // Wait a bit for wifi to update (TODO: is there a better way to do this?)
                 Handler h = new Handler();
                 h.postDelayed(() -> {
-                    context.getContentResolver().notifyChange(SampleSliceProvider.WIFI, null);
+                    context.getContentResolver().notifyChange(getUri("wifi", context), null);
                 }, 1000);
+                break;
+            case SampleSliceProvider.ACTION_TOAST:
+                String message = i.getExtras().getString(SampleSliceProvider.EXTRA_TOAST_MESSAGE,
+                        "no message");
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                 break;
         }
     }

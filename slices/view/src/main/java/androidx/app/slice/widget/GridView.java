@@ -80,7 +80,7 @@ public class GridView extends LinearLayout implements LargeSliceAdapter.SliceLis
     }
 
     @Override
-    public void setSliceItem(SliceItem slice) {
+    public void setSliceItem(SliceItem slice, boolean isHeader) {
         mIsAllImages = true;
         removeAllViews();
         int total = 1;

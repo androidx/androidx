@@ -16,10 +16,8 @@
 
 package com.example.androidx.slice.demos;
 
-import static android.app.slice.Slice.HINT_SELECTED;
-import static android.app.slice.Slice.HINT_TITLE;
-
 import android.app.PendingIntent;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
@@ -31,20 +29,32 @@ import android.text.format.DateUtils;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceProvider;
+import androidx.app.slice.builders.ListBuilder;
 import androidx.app.slice.builders.MessagingSliceBuilder;
-import androidx.app.slice.core.SliceHints;
 
 /**
  * Examples of using slice template builders.
  */
 public class SampleSliceProvider extends SliceProvider {
-    public static final Uri MESSAGE =
-            Uri.parse("content://com.example.androidx.slice.demos/message");
-    public static final Uri WIFI =
-            Uri.parse("content://com.example.androidx.slice.demos/wifi");
 
     public static final String ACTION_WIFI_CHANGED =
-            "com.android.settings.slice.action.WIFI_CHANGED";
+            "com.example.androidx.slice.action.WIFI_CHANGED";
+    public static final String ACTION_TOAST =
+            "com.example.androidx.slice.action.TOAST";
+    public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
+
+    public static final String[] URI_PATHS = { "message", "wifi", "note", "ride", "toggle"};
+
+    /**
+     * @return Uri with the provided path
+     */
+    public static Uri getUri(String path, Context context) {
+        return new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_CONTENT)
+                .authority(context.getPackageName())
+                .appendPath(path)
+                .build();
+    }
 
     @Override
     public boolean onCreateSliceProvider() {
@@ -54,7 +64,7 @@ public class SampleSliceProvider extends SliceProvider {
     @NonNull
     @Override
     public Uri onMapIntentToUri(Intent intent) {
-        return WIFI;
+        return getUri("wifi", getContext());
     }
 
     @Override
@@ -64,7 +74,13 @@ public class SampleSliceProvider extends SliceProvider {
             case "/message":
                 return createMessagingSlice(sliceUri);
             case "/wifi":
-                return createSettingsSlice(sliceUri);
+                return createWifiSlice(sliceUri);
+            case "/note":
+                return createNoteSlice(sliceUri);
+            case "/ride":
+                return createRideSlice(sliceUri);
+            case "/toggle":
+                return createCustomToggleSlice(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -72,29 +88,72 @@ public class SampleSliceProvider extends SliceProvider {
     private Slice createMessagingSlice(Uri sliceUri) {
         // TODO: Remote input.
         return new MessagingSliceBuilder(sliceUri)
-                .startMessage()
+                .add(b -> b
                         .addText("yo home \uD83C\uDF55, I emailed you the info")
                         .addTimestamp(System.currentTimeMillis() - 20 * DateUtils.MINUTE_IN_MILLIS)
-                        .addSource(Icon.createWithResource(getContext(), R.drawable.mady))
-                        .endMessage()
-                .startMessage()
+                        .addSource(Icon.createWithResource(getContext(), R.drawable.mady)))
+                .add(b -> b
                         .addText("just bought my tickets")
-                        .addTimestamp(System.currentTimeMillis() - 10 * DateUtils.MINUTE_IN_MILLIS)
-                        .endMessage()
-                .startMessage()
+                        .addTimestamp(System.currentTimeMillis() - 10 * DateUtils.MINUTE_IN_MILLIS))
+                .add(b -> b
                         .addText("yay! can't wait for getContext() weekend!\n"
                                 + "\uD83D\uDE00")
                         .addTimestamp(System.currentTimeMillis() - 5 * DateUtils.MINUTE_IN_MILLIS)
-                        .addSource(Icon.createWithResource(getContext(), R.drawable.mady))
-                        .endMessage()
+                        .addSource(Icon.createWithResource(getContext(), R.drawable.mady)))
                 .build();
 
     }
 
-    private Slice createSettingsSlice(Uri sliceUri) {
-        // TODO: Create a proper template builder for toggles
+    private Slice createNoteSlice(Uri sliceUri) {
+        return new ListBuilder(sliceUri)
+                .setColor(0xfff4b400)
+                .add(b -> b
+                    .setTitle("Create new note")
+                    .setSubtitle("with this note taking app")
+                    .addEndItem(getBroadcastIntent(ACTION_TOAST, "create note"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_create))
+                    .addEndItem(getBroadcastIntent(ACTION_TOAST, "voice note"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_voice))
+                    .addEndItem(getIntent("android.media.action.IMAGE_CAPTURE"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_camera)))
+                .build();
+    }
+
+    private Slice createRideSlice(Uri sliceUri) {
+        return new ListBuilder(sliceUri)
+                .setColor(0xff1b5e20)
+                .add(b -> b
+                    .setContentIntent(getBroadcastIntent(ACTION_TOAST, "work"))
+                    .setTitle("Work")
+                    .setSubtitle("2 min")
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_work)))
+                .add(b -> b
+                    .setContentIntent(getBroadcastIntent(ACTION_TOAST, "home"))
+                    .setTitle("Home")
+                    .setSubtitle("2 hours 33 min via 101")
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_home))
+                    .setIsHeader(true))
+                .add(b -> b
+                    .setContentIntent(getBroadcastIntent(ACTION_TOAST, "book ride"))
+                    .setTitle("Book ride")
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_car)))
+                .build();
+    }
+
+    private Slice createCustomToggleSlice(Uri sliceUri) {
+        return new ListBuilder(sliceUri)
+                .setColor(0xffff4081)
+                .add(b -> b
+                    .setTitle("Custom toggle")
+                    .setSubtitle("It can support two states")
+                    .addToggle(getBroadcastIntent(ACTION_TOAST, "start toggled"),
+                            Icon.createWithResource(getContext(), R.drawable.toggle_star),
+                            true /* isChecked */))
+                .build();
+    }
+
+    private Slice createWifiSlice(Uri sliceUri) {
         // Get wifi state
-        String[] toggleHints;
         WifiManager wifiManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
         int wifiState = wifiManager.getWifiState();
         boolean wifiEnabled = false;
@@ -114,28 +173,16 @@ public class SampleSliceProvider extends SliceProvider {
                 state = ""; // just don't show anything?
                 break;
         }
-        if (wifiEnabled) {
-            toggleHints = new String[] {SliceHints.HINT_TOGGLE, HINT_SELECTED};
-        } else {
-            toggleHints = new String[] {SliceHints.HINT_TOGGLE};
-        }
-        // Construct the slice
-        Slice.Builder b = new Slice.Builder(sliceUri);
-        b.addSubSlice(new Slice.Builder(b)
-                .addAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
-                        new Slice.Builder(b)
-                                .addText("Wi-fi", null)
-                                .addText(state, null)
-                                .addIcon(Icon.createWithResource(getContext(),
-                                        R.drawable.ic_settings_wifi), null, SliceHints.HINT_HIDDEN)
-                                .addHints(HINT_TITLE)
-                                .build(), null)
-                .addAction(getBroadcastIntent(ACTION_WIFI_CHANGED),
-                        new Slice.Builder(b)
-                                .addHints(toggleHints)
-                                .build(), null)
-                .build());
-        return b.build();
+        boolean finalWifiEnabled = wifiEnabled;
+        return new ListBuilder(sliceUri)
+                .setColor(0xff4285f4)
+                .add(b -> b
+                    .setTitle("Wi-fi")
+                    .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_wifi))
+                    .setSubtitle(state)
+                    .addToggle(getBroadcastIntent(ACTION_WIFI_CHANGED, null), finalWifiEnabled)
+                    .setContentIntent(getIntent(Settings.ACTION_WIFI_SETTINGS)))
+            .build();
     }
 
     private PendingIntent getIntent(String action) {
@@ -144,8 +191,11 @@ public class SampleSliceProvider extends SliceProvider {
         return pi;
     }
 
-    private PendingIntent getBroadcastIntent(String action) {
+    private PendingIntent getBroadcastIntent(String action, String message) {
         Intent intent = new Intent(action);
+        if (message != null) {
+            intent.putExtra(EXTRA_TOAST_MESSAGE, message);
+        }
         intent.setClass(getContext(), SliceBroadcastReceiver.class);
         return PendingIntent.getBroadcast(getContext(), 0, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);

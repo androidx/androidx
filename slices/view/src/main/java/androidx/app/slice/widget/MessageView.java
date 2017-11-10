@@ -60,7 +60,7 @@ public class MessageView extends LinearLayout implements LargeSliceAdapter.Slice
     }
 
     @Override
-    public void setSliceItem(SliceItem slice) {
+    public void setSliceItem(SliceItem slice, boolean isHeader) {
         SliceItem source = SliceQuery.findSubtype(slice, FORMAT_IMAGE, SUBTYPE_SOURCE);
         if (source != null) {
             final int iconSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,

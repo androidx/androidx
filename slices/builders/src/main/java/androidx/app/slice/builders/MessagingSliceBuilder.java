@@ -20,8 +20,12 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+
+import java.util.function.Consumer;
 
 import androidx.app.slice.Slice;
 
@@ -41,38 +45,42 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Create a {@link MessageBuilder} that will be added to this slice when
-     * {@link MessageBuilder#endMessage()} is called.
-     * @return a new message builder
-     */
-    public MessageBuilder startMessage() {
-        return new MessageBuilder(this);
-    }
-
-    /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @Override
-    public void apply(Slice.Builder builder) {
+    public void apply(androidx.app.slice.Slice.Builder builder) {
+
     }
 
-    @Override
-    public void add(SubTemplateSliceBuilder builder) {
-        getBuilder().addSubSlice(builder.build(), android.app.slice.Slice.SUBTYPE_MESSAGE);
+    /**
+     * Add a subslice to this builder.
+     */
+    public MessagingSliceBuilder add(MessageBuilder builder) {
+        getBuilder().addSubSlice(builder.build());
+        return this;
+    }
+
+    /**
+     * Add a subslice to this builder.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public MessagingSliceBuilder add(Consumer<MessageBuilder> c) {
+        MessageBuilder b = new MessageBuilder(this);
+        c.accept(b);
+        return add(b);
     }
 
     /**
      * Builder for adding a message to {@link MessagingSliceBuilder}.
      */
-    public static final class MessageBuilder
-            extends SubTemplateSliceBuilder<MessagingSliceBuilder> {
+    public static final class MessageBuilder extends TemplateSliceBuilder {
         /**
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public MessageBuilder(MessagingSliceBuilder parent) {
-            super(parent.createChildBuilder(), parent);
+            super(parent.createChildBuilder());
         }
 
         /**
@@ -99,12 +107,8 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
             return this;
         }
 
-        /**
-         * Complete the construction of this message and add it to the parent builder.
-         * @return the parent builder so construction can continue.
-         */
-        public MessagingSliceBuilder endMessage() {
-            return finish();
+        @Override
+        public void apply(Slice.Builder builder) {
         }
     }
 }

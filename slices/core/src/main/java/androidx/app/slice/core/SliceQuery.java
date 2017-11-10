@@ -57,7 +57,7 @@ public class SliceQuery {
      */
     public static boolean isStartType(SliceItem item) {
         final String type = item.getFormat();
-        return (!item.hasHint(SliceHints.HINT_TOGGLE)
+        return (!item.hasHint(SliceHints.SUBTYPE_TOGGLE)
                 && (FORMAT_ACTION.equals(type) && (find(item, FORMAT_IMAGE) != null)))
                 || FORMAT_IMAGE.equals(type)
                 || FORMAT_TIMESTAMP.equals(type);
@@ -101,6 +101,7 @@ public class SliceQuery {
                     return false;
                 }
             }
+            return hasImage;
         }
         return false;
     }
