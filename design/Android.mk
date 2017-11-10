@@ -34,6 +34,8 @@ LOCAL_SRC_FILES := \
     $(call all-java-files-under,lollipop) \
     $(call all-java-files-under,src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_JAVA_LIBRARIES := \
+    android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-transition \
     android-support-v7-appcompat \
@@ -42,8 +44,7 @@ LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-media-compat \
     android-support-core-utils \
     android-support-core-ui \
-    android-support-fragment \
-    android-support-annotations
+    android-support-fragment
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := \
     --no-version-vectors \

@@ -29,8 +29,9 @@ LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-emoji-bundled
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, src/main/java)
+LOCAL_JAVA_LIBRARIES := \
+    android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
-    android-support-annotations \
     android-support-emoji \
     android-support-compat
 LOCAL_JAR_EXCLUDE_FILES := none
