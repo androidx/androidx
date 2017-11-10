@@ -26,6 +26,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,6 +37,7 @@ import android.support.car.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,7 +46,7 @@ import android.widget.FrameLayout;
 /**
  * Custom {@link android.support.v7.widget.RecyclerView} that displays a list of items that
  * resembles a {@link android.widget.ListView} but also has page up and page down arrows on the
- * right side.
+ * left side.
  */
 public class PagedListView extends FrameLayout {
     /** Default maximum number of clicks allowed on a list */
@@ -734,6 +737,78 @@ public class PagedListView extends FrameLayout {
         } else {
             mRowsPerPage = Math.max(1, (getHeight() - getPaddingTop()) / firstChild.getHeight());
         }
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        SavedState savedState = new SavedState(super.onSaveInstanceState());
+        savedState.mLayoutManagerState = mLayoutManager.onSaveInstanceState();
+        return savedState;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        SavedState savedState = (SavedState) state;
+        mLayoutManager.onRestoreInstanceState(savedState.mLayoutManagerState);
+        super.onRestoreInstanceState(savedState.getSuperState());
+    }
+
+    @Override
+    protected void dispatchSaveInstanceState(SparseArray<Parcelable> container) {
+        // There is the possibility of multiple PagedListViews on a page. This means that the ids
+        // of the child Views of PagedListView are no longer unique, and onSaveInstanceState()
+        // cannot be used. As a result, PagedListViews needs to manually dispatch the instance
+        // states. Call dispatchFreezeSelfOnly() so that no child views have onSaveInstanceState()
+        // called by the system.
+        dispatchFreezeSelfOnly(container);
+    }
+
+    @Override
+    protected void dispatchRestoreInstanceState(SparseArray<Parcelable> container) {
+        // Prevent onRestoreInstanceState() from being called on child Views. Instead, PagedListView
+        // will manually handle passing the state. See the comment in dispatchSaveInstanceState()
+        // for more information.
+        dispatchThawSelfOnly(container);
+    }
+
+    /** The state that will be saved across configuration changes. */
+    private static class SavedState extends BaseSavedState {
+        /** The state of the {@link #mLayoutManager} of this PagedListView. */
+        Parcelable mLayoutManagerState;
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        private SavedState(Parcel in) {
+            super(in);
+            mLayoutManagerState =
+                    in.readParcelable(PagedLayoutManager.SavedState.class.getClassLoader());
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeParcelable(mLayoutManagerState, flags);
+        }
+
+        public static final ClassLoaderCreator<SavedState> CREATOR =
+                new ClassLoaderCreator<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel source, ClassLoader loader) {
+                        return new SavedState(source);
+                    }
+
+                    @Override
+                    public SavedState createFromParcel(Parcel source) {
+                        return createFromParcel(source, null /* loader */);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
     }
 
     private final RecyclerView.OnScrollListener mRecyclerViewOnScrollListener =
