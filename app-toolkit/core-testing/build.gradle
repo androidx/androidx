@@ -54,10 +54,10 @@ android.libraryVariants.all { variant ->
     }
 }
 
-version = LibraryVersions.ARCH_CORE_TESTING.toString()
 supportLibrary {
     name = "Android Core-Testing"
     publish = true
+    mavenVersion = LibraryVersions.ARCH_CORE_TESTING
     mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Core-Testing"

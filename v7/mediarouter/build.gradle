@@ -1,4 +1,5 @@
 import android.support.LibraryGroups
+import android.support.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -34,6 +35,7 @@ android {
 supportLibrary {
     name = "Android MediaRouter Support Library"
     publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"

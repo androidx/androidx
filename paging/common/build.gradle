@@ -37,10 +37,10 @@ dependencies {
 createAndroidCheckstyle(project)
 createKotlinCheckstyle(project)
 
-version = LibraryVersions.PAGING.toString()
 supportLibrary {
     name = "Android Paging-Common"
     publish = true
+    mavenVersion = LibraryVersions.PAGING
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2017"
     description = "Android Paging-Common"
