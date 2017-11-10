@@ -16,7 +16,8 @@
 
 package com.example.androidx.slice.demos;
 
-import android.app.Activity;
+import android.app.slice.Slice;
+import android.arch.lifecycle.LiveData;
 import android.content.ContentResolver;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
@@ -27,6 +28,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.annotation.RequiresApi;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.view.Menu;
@@ -36,12 +39,12 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import androidx.app.slice.widget.SliceLiveData;
 import androidx.app.slice.widget.SliceView;
 
 /**
@@ -49,7 +52,7 @@ import androidx.app.slice.widget.SliceView;
  * then displayed in the selected mode with SliceView.
  */
 @RequiresApi(api = 28)
-public class SliceBrowser extends Activity {
+public class SliceBrowser extends AppCompatActivity {
 
     private static final String TAG = "SlicePresenter";
 
@@ -61,6 +64,7 @@ public class SliceBrowser extends Activity {
     private SearchView mSearchView;
     private SimpleCursorAdapter mAdapter;
     private SubMenu mTypeMenu;
+    private LiveData<Slice> mSliceLiveData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,7 +72,7 @@ public class SliceBrowser extends Activity {
         setContentView(R.layout.activity_layout);
 
         Toolbar toolbar = findViewById(R.id.search_toolbar);
-        setActionBar(toolbar);
+        setSupportActionBar(toolbar);
 
         // Shows the slice
         mContainer = findViewById(R.id.slice_preview);
@@ -155,6 +159,7 @@ public class SliceBrowser extends Activity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putInt("SELECTED_MODE", mSelectedMode);
         outState.putString("SELECTED_QUERY", mSearchView.getQuery().toString());
     }
@@ -184,10 +189,14 @@ public class SliceBrowser extends Activity {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
             SliceView v = new SliceView(getApplicationContext());
             v.setTag(uri);
+            if (mSliceLiveData != null) {
+                mSliceLiveData.removeObservers(this);
+            }
             mContainer.removeAllViews();
             mContainer.addView(v);
+            mSliceLiveData = SliceLiveData.fromUri(this, uri);
             v.setMode(mSelectedMode);
-            v.setSlice(uri);
+            mSliceLiveData.observe(this, v);
         } else {
             Log.w(TAG, "Invalid uri, skipping slice: " + uri);
         }

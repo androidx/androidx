@@ -21,6 +21,7 @@ plugins {
 dependencies {
     implementation project(":slices-core")
     implementation libs.support.recyclerview, libs.support_exclude_config
+    implementation project(':lifecycle:extensions')
 }
 
 android {

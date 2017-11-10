@@ -18,19 +18,14 @@ package androidx.app.slice.widget;
 
 import android.app.slice.Slice;
 import android.app.slice.SliceItem;
+import android.arch.lifecycle.Observer;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
-import android.database.ContentObserver;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.v4.util.Preconditions;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -62,20 +57,17 @@ import androidx.app.slice.view.R;
  * {@link Slice#HINT_TITLE} would be placed in the title position of a template. A slice annotated
  * with {@link Slice#HINT_LIST} would present the child items of that slice in a list.
  * <p>
- * SliceView can be provided a slice via a uri {@link #setSlice(Uri)} in which case a content
- * observer will be set for that uri and the view will update if there are any changes to the slice.
- * To use this the app must have a special permission to bind to the slice (see
- * {@link android.Manifest.permission#BIND_SLICE}).
- * <p>
  * Example usage:
  *
  * <pre class="prettyprint">
  * SliceView v = new SliceView(getContext());
  * v.setMode(desiredMode);
- * v.setSlice(sliceUri);
+ * LiveData<Slice> liveData = SliceLiveData.fromUri(sliceUri);
+ * liveData.observe(lifecycleOwner, v);
  * </pre>
+ * @see SliceLiveData
  */
-public class SliceView extends ViewGroup {
+public class SliceView extends ViewGroup implements Observer<Slice> {
 
     private static final String TAG = "SliceView";
 
@@ -136,7 +128,6 @@ public class SliceView extends ViewGroup {
     private Slice mCurrentSlice;
     private boolean mShowActions = true;
     private boolean mIsScrollable;
-    private SliceObserver mObserver;
     private final int mShortcutSize;
 
     public SliceView(Context context) {
@@ -153,7 +144,6 @@ public class SliceView extends ViewGroup {
 
     public SliceView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        mObserver = new SliceObserver(new Handler(Looper.getMainLooper()));
         mActions = new ActionRow(getContext(), true);
         mActions.setBackground(new ColorDrawable(0xffeeeeee));
         mCurrentView = new LargeTemplateView(getContext());
@@ -192,78 +182,20 @@ public class SliceView extends ViewGroup {
         }
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void showSlice(Intent intent) {
-        // TODO
-    }
-
-    /**
-     * Populates this view with the {@link Slice} associated with the provided {@link Uri}. To use
-     * this method your app must have the permission
-     * {@link android.Manifest.permission#BIND_SLICE}).
-     * <p>
-     * Setting a slice differs from {@link #showSlice(Slice)} because it will ensure the view is
-     * updated when the slice identified by the provided URI changes. The lifecycle of this observer
-     * is handled by SliceView in {@link #onAttachedToWindow()} and {@link #onDetachedFromWindow()}.
-     * To unregister this observer outside of that you can call {@link #clearSlice}.
-     *
-     * @return true if the a slice was found for the provided uri.
-     * @see #clearSlice
-     */
-    public boolean setSlice(@NonNull Uri sliceUri) {
-        Preconditions.checkNotNull(sliceUri,
-                "Uri cannot be null, to remove the slice use clearSlice()");
-        if (sliceUri == null) {
-            clearSlice();
-            return false;
-        }
-        validate(sliceUri);
-        Slice s = Slice.bindSlice(getContext().getContentResolver(), sliceUri);
-        if (s != null) {
-            if (mObserver != null) {
-                getContext().getContentResolver().unregisterContentObserver(mObserver);
-            }
-            mObserver = new SliceObserver(new Handler(Looper.getMainLooper()));
-            if (isAttachedToWindow()) {
-                registerSlice(sliceUri);
-            }
-            mCurrentSlice = s;
-            reinflate();
-        }
-        return s != null;
+    @Override
+    public void onChanged(@Nullable Slice slice) {
+        setSlice(slice);
     }
 
     /**
      * Populates this view to the provided {@link Slice}.
-     * <p>
-     * This does not register a content observer on the URI that the slice is backed by so it will
-     * not update if the content changes. To have the view update when the content changes use
-     * {@link #setSlice(Uri)} instead. Unlike {@link #setSlice(Uri)}, this method does not require
-     * any special permissions.
+     *
+     * This will not update automatically if the slice content changes, for live
+     * content see {@link SliceLiveData}.
      */
-    public void showSlice(@NonNull Slice slice) {
-        Preconditions.checkNotNull(slice,
-                "Slice cannot be null, to remove the slice use clearSlice()");
-        clearSlice();
+    public void setSlice(@Nullable Slice slice) {
         mCurrentSlice = slice;
         reinflate();
-    }
-
-    /**
-     * Unregisters the change observer that is set when using {@link #setSlice}. Normally this is
-     * done automatically during {@link #onDetachedFromWindow()}.
-     * <p>
-     * It is safe to call this method multiple times.
-     */
-    public void clearSlice() {
-        mCurrentSlice = null;
-        if (mObserver != null) {
-            getContext().getContentResolver().unregisterContentObserver(mObserver);
-            mObserver = null;
-        }
     }
 
     /**
@@ -324,29 +256,6 @@ public class SliceView extends ViewGroup {
         return new LargeTemplateView(getContext());
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        registerSlice(mCurrentSlice != null ? mCurrentSlice.getUri() : null);
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (mObserver != null) {
-            getContext().getContentResolver().unregisterContentObserver(mObserver);
-            mObserver = null;
-        }
-    }
-
-    private void registerSlice(Uri sliceUri) {
-        if (sliceUri == null || mObserver == null) {
-            return;
-        }
-        getContext().getContentResolver().registerContentObserver(sliceUri,
-                false /* notifyForDescendants */, mObserver);
-    }
-
     private void reinflate() {
         if (mCurrentSlice == null) {
             return;
@@ -398,24 +307,6 @@ public class SliceView extends ViewGroup {
         }
         if (sliceUri.getPathSegments().size() == 0) {
             throw new RuntimeException("Invalid uri " + sliceUri);
-        }
-    }
-
-    private class SliceObserver extends ContentObserver {
-        SliceObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            this.onChange(selfChange, null);
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            Slice s = Slice.bindSlice(getContext().getContentResolver(), uri);
-            mCurrentSlice = s;
-            reinflate();
         }
     }
 }
