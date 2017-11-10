@@ -66,7 +66,8 @@ ffLibs.support = [
         fragments : getSupportLib(':support-fragment', ffVersions.support_lib),
         app_compat : getSupportLib(':appcompat-v7', ffVersions.support_lib),
         design : getSupportLib(':design', ffVersions.support_lib),
-        recyclerview : getSupportLib(':recyclerview-v7', ffVersions.support_lib)
+        recyclerview : getSupportLib(':recyclerview-v7', ffVersions.support_lib),
+        cardview : getSupportLib(':cardview-v7', ffVersions.support_lib)
 ]
 
 ffLibs.support_exclude_config = {

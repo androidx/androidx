@@ -20,7 +20,7 @@ plugins {
 
 dependencies {
     implementation project(":slices-core")
-    implementation project(":recyclerview-v7")
+    implementation libs.support.recyclerview, libs.support_exclude_config
 }
 
 android {

@@ -19,9 +19,9 @@ apply plugin: 'com.android.application'
 dependencies {
     implementation project(':slices-view')
     implementation project(':slices-builders')
-    implementation project(':design')
-    implementation project(':appcompat-v7')
-    implementation project(':cardview-v7')
+    implementation libs.support.design, libs.support_exclude_config
+    implementation libs.support.app_compat, libs.support_exclude_config
+    implementation libs.support.cardview, libs.support_exclude_config
 }
 
 android {
