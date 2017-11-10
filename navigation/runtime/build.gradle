@@ -63,10 +63,10 @@ android.libraryVariants.all { variant ->
     }
 }
 
-version = LibraryVersions.NAVIGATION.toString()
 supportLibrary {
     name = "Android Navigation Runtime"
     publish = true
+    mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation-Runtime"
