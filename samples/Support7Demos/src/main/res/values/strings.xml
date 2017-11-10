@@ -233,9 +233,11 @@
     <string name="popup_menu_print">Print</string>
 
     <string name="list_view_activity">AppCompat/ListView styling</string>
-
     <string name="appcompat_vector_disabled">AnimatedVectorDrawableCompat does not work on devices running API v10 or below</string>
     <string name="appcompat_vector_title">AppCompat/Integrations/AnimatedVectorDrawable</string>
+
+    <string name="simple_selection_demo_activity">RecyclerView Selection</string>
+    <string name="fancy_selection_demo_activity">RecyclerView: Gesture+Pointer Selection</string>
 
     <string name="night_mode">DAY</string>
 
@@ -246,4 +248,3 @@
 
     <string name="menu_item_icon_tinting">AppCompat/Menu Item Icons</string>
 </resources>
-
