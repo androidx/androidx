@@ -40,6 +40,9 @@ project(':palette-v7').projectDir = new File(rootDir, 'v7/palette')
 include ':recyclerview-v7'
 project(':recyclerview-v7').projectDir = new File(rootDir, 'v7/recyclerview')
 
+include ':recyclerview-selection'
+project(':recyclerview-selection').projectDir = new File(rootDir, 'recyclerview-selection')
+
 include ':cardview-v7'
 project(':cardview-v7').projectDir = new File(rootDir, 'v7/cardview')
 
