@@ -66,10 +66,10 @@ android.libraryVariants.all { variant ->
     }
 }
 
-version = LibraryVersions.WORKMANAGER.toString()
 supportLibrary {
     name = "Android WorkManager Firebase"
     publish = true
+    mavenVersion = LibraryVersions.WORKMANAGER
     mavenGroup = LibraryGroups.WORKMANAGER
     inceptionYear = "2017"
     description = "Android WorkManager Firebase"
