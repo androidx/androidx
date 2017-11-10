@@ -67,20 +67,21 @@ public class BatteryChargingTracker
             intentFilter.addAction(BatteryManager.ACTION_CHARGING);
             intentFilter.addAction(BatteryManager.ACTION_DISCHARGING);
         } else {
-            intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+            intentFilter.addAction(Intent.ACTION_POWER_CONNECTED);
+            intentFilter.addAction(Intent.ACTION_POWER_DISCONNECTED);
         }
         return intentFilter;
     }
 
     @Override
     public void onBroadcastReceive(Context context, @NonNull Intent intent) {
-        if (intent.getAction() == null) {
+        String action = intent.getAction();
+        if (action == null) {
             return;
         }
 
-        Log.d(TAG, "Received " + intent.getAction());
-
-        switch (intent.getAction()) {
+        Log.d(TAG, "Received " + action);
+        switch (action) {
             case BatteryManager.ACTION_CHARGING:
                 setIsChargingAndNotify(true);
                 break;
@@ -89,10 +90,13 @@ public class BatteryChargingTracker
                 setIsChargingAndNotify(false);
                 break;
 
-            case Intent.ACTION_BATTERY_CHANGED: {
-                setIsChargingAndNotify(isBatteryChangedIntentCharging(intent));
+            case Intent.ACTION_POWER_CONNECTED:
+                setIsChargingAndNotify(true);
                 break;
-            }
+
+            case Intent.ACTION_POWER_DISCONNECTED:
+                setIsChargingAndNotify(false);
+                break;
         }
     }
 
