@@ -19,14 +19,10 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation project(':support-annotations')
     androidTestImplementation project(':support-media-compat')
     androidTestImplementation project(':support-media-compat-test-lib')
-    androidTestImplementation project(':support-testutils')
 
-    androidTestImplementation(libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
+    androidTestImplementation(libs.test_runner)
 }
 
 android {
