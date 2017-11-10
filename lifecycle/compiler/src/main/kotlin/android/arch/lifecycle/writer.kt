@@ -149,11 +149,9 @@ private fun generateKeepRule(type: TypeElement, processingEnv: ProcessingEnviron
     val adapterClass = type.getPackageQName() + "." + getAdapterName(type)
     val observerClass = type.toString()
     val keepRule = """# Generated keep rule for Lifecycle observer adapter.
-        |-keep class $adapterClass {
-        |   ifused class $observerClass {
-        |       <init>(...);
-        |   };
-        |}
+        |-if class $observerClass {
+        |    <init>(...);
+        |} -keep class $adapterClass
         |""".trimMargin()
 
     // Write the keep rule to the META-INF/proguard directory of the Jar file. The file name
