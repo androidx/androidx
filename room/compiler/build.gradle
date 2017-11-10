@@ -82,6 +82,7 @@ createKotlinCheckstyle(project)
 supportLibrary {
     name = "Android Room Compiler"
     publish = true
+    mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room annotation processor"

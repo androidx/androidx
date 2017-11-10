@@ -34,10 +34,10 @@ dependencies {
     testCompile libs.mockito_core
 }
 
-version = LibraryVersions.ROOM.toString()
 supportLibrary {
     name = "Android Room Migration"
     publish = true
+    mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room Migration"

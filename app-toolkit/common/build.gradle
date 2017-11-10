@@ -31,10 +31,10 @@ dependencies {
 
 createAndroidCheckstyle(project)
 
-version = LibraryVersions.ARCH_CORE.toString()
 supportLibrary {
     name = "Android Arch-Common"
     publish = true
+    mavenVersion = LibraryVersions.ARCH_CORE
     mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Arch-Common"

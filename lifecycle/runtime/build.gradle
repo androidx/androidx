@@ -35,10 +35,10 @@ dependencies {
 
 createAndroidCheckstyle(project)
 
-version = LibraryVersions.LIFECYCLES_RUNTIME.toString()
 supportLibrary {
     name 'Android Lifecycle Runtime'
     publish true
+    mavenVersion = LibraryVersions.LIFECYCLES_RUNTIME
     mavenGroup LibraryGroups.LIFECYCLE
     inceptionYear '2017'
     description "Android Lifecycle Runtime"
