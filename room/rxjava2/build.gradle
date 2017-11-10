@@ -55,10 +55,10 @@ android.libraryVariants.all { variant ->
     }
 }
 
-version = LibraryVersions.ROOM.toString()
 supportLibrary {
     name = "Android Room RXJava2"
     publish = true
+    mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room RXJava2"

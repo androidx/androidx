@@ -47,10 +47,10 @@ android.libraryVariants.all { variant ->
     }
 }
 
-version = LibraryVersions.ROOM.toString()
 supportLibrary {
     name = "Android DB"
     publish = true
+    mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.PERSISTENCE
     inceptionYear = "2017"
     description = "Android DB"

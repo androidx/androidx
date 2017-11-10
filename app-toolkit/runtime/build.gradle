@@ -49,10 +49,10 @@ android.libraryVariants.all { variant ->
     }
 }
 
-version = LibraryVersions.ARCH_RUNTIME.toString()
 supportLibrary {
     name = "Android Arch-Runtime"
     publish = true
+    mavenVersion = LibraryVersions.ARCH_RUNTIME
     mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Arch-Runtime"

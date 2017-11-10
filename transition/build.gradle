@@ -1,4 +1,5 @@
 import android.support.LibraryGroups
+import android.support.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -41,6 +42,7 @@ android {
 supportLibrary {
     name = "Android Transition Support Library"
     publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2016"
     description = "Android Transition Support Library"

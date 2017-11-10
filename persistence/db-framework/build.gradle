@@ -48,10 +48,10 @@ android.libraryVariants.all { variant ->
     }
 }
 
-version = LibraryVersions.ROOM.toString()
 supportLibrary {
     name = "Android Support SQLite - Framework Implementation"
     publish = true
+    mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.PERSISTENCE
     inceptionYear = "2017"
     description = "The implementation of Support SQLite library using the framework code."

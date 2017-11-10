@@ -53,10 +53,10 @@ allprojects {
 
 createAndroidCheckstyle(project)
 
-version = LibraryVersions.LIFECYCLES_EXT.toString()
 supportLibrary {
     name = "Android Lifecycle Reactivestreams"
     publish = true
+    mavenVersion = LibraryVersions.LIFECYCLES_EXT
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle Reactivestreams"
