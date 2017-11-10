@@ -54,8 +54,9 @@ public class BatteryChargingTrackerTest {
     @SdkSuppress(maxSdkVersion = 22)
     public void testGetIntentFilter_beforeApi23() {
         IntentFilter intentFilter = mTracker.getIntentFilter();
-        assertThat(intentFilter.hasAction(Intent.ACTION_BATTERY_CHANGED), is(true));
-        assertThat(intentFilter.countActions(), is(1));
+        assertThat(intentFilter.hasAction(Intent.ACTION_POWER_CONNECTED), is(true));
+        assertThat(intentFilter.hasAction(Intent.ACTION_POWER_DISCONNECTED), is(true));
+        assertThat(intentFilter.countActions(), is(2));
     }
 
     @Test
@@ -102,9 +103,8 @@ public class BatteryChargingTrackerTest {
     }
 
     private Intent createBatteryChangedIntent(boolean plugged) {
-        Intent intent = new Intent(Intent.ACTION_BATTERY_CHANGED);
-        intent.putExtra(BatteryManager.EXTRA_PLUGGED, plugged ? 1 : 0);
-        return intent;
+        return new Intent(
+                plugged ? Intent.ACTION_POWER_CONNECTED : Intent.ACTION_POWER_DISCONNECTED);
     }
 
     @TargetApi(23)
