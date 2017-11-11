@@ -41,10 +41,12 @@ import static android.support.v4.media.MediaBrowserProtocol.DATA_SEARCH_EXTRAS;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_SEARCH_QUERY;
 import static android.support.v4.media.MediaBrowserProtocol.EXTRA_CLIENT_VERSION;
 import static android.support.v4.media.MediaBrowserProtocol.EXTRA_MESSENGER_BINDER;
+import static android.support.v4.media.MediaBrowserProtocol.EXTRA_SERVICE_VERSION;
 import static android.support.v4.media.MediaBrowserProtocol.EXTRA_SESSION_BINDER;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT_FAILED;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
+import static android.support.v4.media.MediaBrowserProtocol.SERVICE_VERSION_2;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -1581,6 +1583,7 @@ public final class MediaBrowserCompat {
         protected final CallbackHandler mHandler = new CallbackHandler(this);
         private final ArrayMap<String, Subscription> mSubscriptions = new ArrayMap<>();
 
+        protected int mServiceVersion;
         protected ServiceBinderWrapper mServiceBinderWrapper;
         protected Messenger mCallbacksMessenger;
         private MediaSessionCompat.Token mMediaSessionToken;
@@ -1850,6 +1853,7 @@ public final class MediaBrowserCompat {
             if (extras == null) {
                 return;
             }
+            mServiceVersion = extras.getInt(EXTRA_SERVICE_VERSION, 0);
             IBinder serviceBinder = BundleCompat.getBinder(extras, EXTRA_MESSENGER_BINDER);
             if (serviceBinder != null) {
                 mServiceBinderWrapper = new ServiceBinderWrapper(serviceBinder, mRootHints);
@@ -1956,7 +1960,9 @@ public final class MediaBrowserCompat {
         @Override
         public void subscribe(@NonNull String parentId, @Nullable Bundle options,
                 @NonNull SubscriptionCallback callback) {
-            if (mServiceBinderWrapper == null) {
+            // From service v2, we use compat code when subscribing.
+            // This is to prevent ClassNotFoundException when options has Parcelable in it.
+            if (mServiceBinderWrapper == null || mServiceVersion < SERVICE_VERSION_2) {
                 if (options == null) {
                     MediaBrowserCompatApi21.subscribe(
                             mBrowserObj, parentId, callback.mSubscriptionCallbackObj);
@@ -1971,7 +1977,9 @@ public final class MediaBrowserCompat {
 
         @Override
         public void unsubscribe(@NonNull String parentId, SubscriptionCallback callback) {
-            if (mServiceBinderWrapper == null) {
+            // From service v2, we use compat code when subscribing.
+            // This is to prevent ClassNotFoundException when options has Parcelable in it.
+            if (mServiceBinderWrapper == null || mServiceVersion < SERVICE_VERSION_2) {
                 if (callback == null) {
                     MediaBrowserCompatApi21.unsubscribe(mBrowserObj, parentId);
                 } else {
