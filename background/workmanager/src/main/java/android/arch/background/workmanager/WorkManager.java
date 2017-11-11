@@ -86,7 +86,7 @@ public final class WorkManager {
     private Scheduler tryCreateFirebaseJobScheduler(Context context) {
         Scheduler scheduler = null;
         try {
-            Class firebaseSchedulerClass = Class.forName(FIREBASE_SCHEDULER_CLASSNAME);
+            Class<?> firebaseSchedulerClass = Class.forName(FIREBASE_SCHEDULER_CLASSNAME);
             scheduler = (Scheduler) firebaseSchedulerClass
                     .getConstructor(Context.class)
                     .newInstance(context);
