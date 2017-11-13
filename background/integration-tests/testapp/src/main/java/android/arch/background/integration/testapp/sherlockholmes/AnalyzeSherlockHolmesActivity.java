@@ -85,11 +85,11 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
         workManager
                 .enqueue(TextStartupWorker.class)
                 .then(
-                        TextMappingWorker.create("advs.txt", "advs_out.txt"),
-                        TextMappingWorker.create("case.txt", "case_out.txt"),
-                        TextMappingWorker.create("lstb.txt", "lstb_out.txt"),
-                        TextMappingWorker.create("mems.txt", "mems_out.txt"),
-                        TextMappingWorker.create("retn.txt", "retn_out.txt"))
+                        TextMappingWorker.create("advs.txt", "advs_out.txt").build(),
+                        TextMappingWorker.create("case.txt", "case_out.txt").build(),
+                        TextMappingWorker.create("lstb.txt", "lstb_out.txt").build(),
+                        TextMappingWorker.create("mems.txt", "mems_out.txt").build(),
+                        TextMappingWorker.create("retn.txt", "retn_out.txt").build())
                 .then(textReducingWork);
 
         workManager.getWorkStatus(textReducingWork.getId()).observe(

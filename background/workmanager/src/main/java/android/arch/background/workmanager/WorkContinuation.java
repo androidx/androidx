@@ -48,20 +48,6 @@ public class WorkContinuation {
     /**
      * Add new {@link Work} items that depend on the items added in the previous step.
      *
-     * @param workBuilders One or more {@link Work.Builder} to enqueue; internally {@code build} is
-     *                     called on each of them
-     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
-     *         input workBuilders
-     */
-    public final WorkContinuation then(Work.Builder... workBuilders) {
-        return mWorkManager.enqueue(
-                BaseWorkHelper.convertBuilderArrayToWorkArray(workBuilders),
-                mPrerequisiteIds);
-    }
-
-    /**
-     * Add new {@link Work} items that depend on the items added in the previous step.
-     *
      * @param workerClasses One or more {@link Worker}s to enqueue; this is a convenience method
      *                      that makes a {@link Work} object with default arguments for each Worker
      * @return A {@link WorkContinuation} that allows further chaining, depending on all of the

@@ -150,18 +150,6 @@ public final class WorkManager {
     /**
      * Enqueues one or more items for background processing.
      *
-     * @param workBuilders One or more {@link Work.Builder} to enqueue; internally {@code build} is
-     *                     called on each of them
-     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
-     *         input workBuilders
-     */
-    public WorkContinuation enqueue(Work.Builder... workBuilders) {
-        return enqueue(BaseWorkHelper.convertBuilderArrayToWorkArray(workBuilders), null);
-    }
-
-    /**
-     * Enqueues one or more items for background processing.
-     *
      * @param workerClasses One or more {@link Worker}s to enqueue; this is a convenience method
      *                      that makes a {@link Work} object with default arguments for each Worker
      * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
@@ -179,19 +167,6 @@ public final class WorkManager {
      */
     public void enqueue(PeriodicWork... periodicWork) {
         mEnqueueExecutor.execute(new EnqueueRunnable(periodicWork, null));
-    }
-
-    /**
-     * Enqueues one or more periodic work items for background processing.
-     *
-     * @param periodicWorkBuilders One or more {@link PeriodicWork.Builder} to enqueue; internally
-     *                             {@code build} is called on each of them
-     */
-    public void enqueue(PeriodicWork.Builder... periodicWorkBuilders) {
-        mEnqueueExecutor.execute(
-                new EnqueueRunnable(
-                        BaseWorkHelper.convertBuilderArrayToPeriodicWorkArray(periodicWorkBuilders),
-                        null));
     }
 
     /**

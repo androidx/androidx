@@ -45,9 +45,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 WorkManager.getInstance(MainActivity.this).enqueue(
                         new Work.Builder(InfiniteWorker.class)
-                                .withConstraints(
-                                        new Constraints.Builder()
-                                                .setRequiresCharging(true).build()));
+                                .withConstraints(new Constraints.Builder()
+                                        .setRequiresCharging(true)
+                                        .build())
+                                .build());
             }
         });
 

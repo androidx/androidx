@@ -16,7 +16,6 @@
 package android.arch.background.workmanager.utils;
 
 import android.arch.background.workmanager.BaseWork;
-import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.Worker;
 import android.support.annotation.RestrictTo;
@@ -28,20 +27,6 @@ import android.support.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BaseWorkHelper {
-
-    /**
-     * Converts the given {@link Work.Builder} items to an array of {@link Work}.
-     *
-     * @param builders An array of {@link Work.Builder}s
-     * @return An array of {@link Work} created by building each builder
-     */
-    public static Work[] convertBuilderArrayToWorkArray(Work.Builder[] builders) {
-        Work[] workArray = new Work[builders.length];
-        for (int i = 0; i < builders.length; ++i) {
-            workArray[i] = builders[i].build();
-        }
-        return workArray;
-    }
 
     /**
      * Converts the given {@link Worker} classes to an array of {@link Work}.
@@ -56,21 +41,6 @@ public class BaseWorkHelper {
             workArray[i] = new Work.Builder(workerClasses[i]).build();
         }
         return workArray;
-    }
-
-    /**
-     * Converts the given {@link PeriodicWork.Builder} classes to an array of {@link PeriodicWork}.
-     *
-     * @param builders An array of {@link PeriodicWork.Builder}s
-     * @return An array of {@link PeriodicWork} created by building each builder
-     */
-    public static PeriodicWork[] convertBuilderArrayToPeriodicWorkArray(
-            PeriodicWork.Builder[] builders) {
-        PeriodicWork[] periodicWorkArray = new PeriodicWork[builders.length];
-        for (int i = 0; i < builders.length; ++i) {
-            periodicWorkArray[i] = builders[i].build();
-        }
-        return periodicWorkArray;
     }
 
     private BaseWorkHelper() {
