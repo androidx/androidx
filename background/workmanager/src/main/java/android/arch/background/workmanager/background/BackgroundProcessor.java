@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.arch.background.workmanager.firebase;
+
+package android.arch.background.workmanager.background;
 
 import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.Processor;
@@ -26,23 +27,22 @@ import android.support.annotation.RestrictTo;
 import java.util.concurrent.Executors;
 
 /**
- * A {@link Processor} that handles execution for work coming via
- * {@link com.firebase.jobdispatcher.FirebaseJobDispatcher}.
+ * A {@link Processor} that handles execution of work in the background.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FirebaseJobProcessor extends Processor {
+public class BackgroundProcessor extends Processor {
 
-    private ExecutionListener mOuterListener;
+    private final ExecutionListener mOuterListener;
 
-    public FirebaseJobProcessor(
+    public BackgroundProcessor(
             Context appContext,
             WorkDatabase workDatabase,
             Scheduler scheduler,
             ExecutionListener outerListener) {
         // TODO(sumir): Be more intelligent about the executor.
-        super(appContext, workDatabase, scheduler, Executors.newScheduledThreadPool(1));
+        super(appContext, workDatabase, scheduler, Executors.newSingleThreadScheduledExecutor());
         mOuterListener = outerListener;
     }
 

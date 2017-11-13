@@ -23,6 +23,7 @@ import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.WorkerWrapper;
+import android.arch.background.workmanager.background.BackgroundProcessor;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
@@ -40,7 +41,7 @@ import java.util.Map;
 @TargetApi(23)
 public class SystemJobService extends JobService implements ExecutionListener {
     private static final String TAG = "SystemJobService";
-    private SystemJobProcessor mSystemJobProcessor;
+    private BackgroundProcessor mProcessor;
     private Map<String, JobParameters> mJobParameters = new HashMap<>();
 
     @Override
@@ -49,8 +50,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
         Context context = getApplicationContext();
         WorkManager workManager = WorkManager.getInstance(context);
         WorkDatabase database = workManager.getWorkDatabase();
-        mSystemJobProcessor =
-                new SystemJobProcessor(context, database, workManager.getScheduler(), this);
+        mProcessor = new BackgroundProcessor(context, database, workManager.getScheduler(), this);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
         mJobParameters.put(workSpecId, params);
 
         // Delay has already occurred via JobScheduler.
-        mSystemJobProcessor.process(workSpecId, 0L);
+        mProcessor.process(workSpecId, 0L);
         return true;
     }
 
@@ -86,7 +86,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
             Log.e(TAG, "WorkSpec id not found!");
             return false;
         }
-        boolean cancelled = mSystemJobProcessor.cancel(workSpecId, true);
+        boolean cancelled = mProcessor.cancel(workSpecId, true);
         Log.d(TAG, workSpecId + "; cancel = " + cancelled);
         return cancelled;
     }

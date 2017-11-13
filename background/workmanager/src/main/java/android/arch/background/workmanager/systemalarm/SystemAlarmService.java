@@ -20,6 +20,7 @@ import android.app.Service;
 import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkManager;
+import android.arch.background.workmanager.background.BackgroundProcessor;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
@@ -36,7 +37,7 @@ import android.util.Log;
 public class SystemAlarmService extends Service implements ExecutionListener {
     private static final String TAG = "SystemAlarmService";
 
-    private SystemAlarmProcessor mSystemAlarmProcessor;
+    private BackgroundProcessor mProcessor;
 
     @Override
     public void onCreate() {
@@ -44,8 +45,7 @@ public class SystemAlarmService extends Service implements ExecutionListener {
         Context context = getApplicationContext();
         WorkManager workManager = WorkManager.getInstance(context);
         WorkDatabase database = workManager.getWorkDatabase();
-        mSystemAlarmProcessor =
-                new SystemAlarmProcessor(context, database, workManager.getScheduler(), this);
+        mProcessor = new BackgroundProcessor(context, database, workManager.getScheduler(), this);
     }
 
     @Override

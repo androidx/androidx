@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package android.arch.background.workmanager.firebase;
+package android.arch.background.workmanager.background;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,6 +26,8 @@ import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkerWrapper;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.model.WorkSpecDao;
+import android.arch.background.workmanager.worker.TestWorker;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -38,12 +39,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class FirebaseJobProcessorTest {
+public class BackgroundProcessorTest {
 
     private WorkDatabase mWorkDatabase;
     private ExecutionListener mMockListener;
     private Scheduler mMockScheduler;
-    private FirebaseJobProcessor mFirebaseJobProcessor;
+    private BackgroundProcessor mProcessor;
 
     @Before
     public void setUp() {
@@ -51,8 +52,8 @@ public class FirebaseJobProcessorTest {
         mWorkDatabase = WorkDatabase.create(appContext, true);
         mMockListener = mock(ExecutionListener.class);
         mMockScheduler = mock(Scheduler.class);
-        mFirebaseJobProcessor =
-                new FirebaseJobProcessor(appContext, mWorkDatabase, mMockScheduler, mMockListener);
+        mProcessor =
+                new BackgroundProcessor(appContext, mWorkDatabase, mMockScheduler, mMockListener);
     }
 
     @After
@@ -62,17 +63,17 @@ public class FirebaseJobProcessorTest {
 
     @Test
     @SmallTest
-    public void testSimpleWorker() throws InterruptedException {
-        WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
-                .build()
-                .getWorkSpec();
-        mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
-        mFirebaseJobProcessor.process(workSpec.getId(), 0L);
+    public void testProcess_testWorker() throws InterruptedException {
+        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+        WorkSpec workSpec = new Work.Builder(TestWorker.class).build().getWorkSpec();
+        String workSpecId = workSpec.getId();
+
+        workSpecDao.insertWorkSpec(workSpec);
+        mProcessor.process(workSpecId, 0L);
+
         Thread.sleep(1000L);
-        verify(mMockListener).onExecuted(workSpec.getId(), WorkerWrapper.RESULT_SUCCEEDED);
-        assertThat(mWorkDatabase.workSpecDao().getWorkSpecStatus(workSpec.getId()),
-                is(Work.STATUS_SUCCEEDED));
-        verify(mMockScheduler).schedule();
+
+        assertThat(workSpecDao.getWorkSpecStatus(workSpecId), is(Work.STATUS_SUCCEEDED));
+        verify(mMockListener).onExecuted(workSpecId, WorkerWrapper.RESULT_SUCCEEDED);
     }
 }
-
