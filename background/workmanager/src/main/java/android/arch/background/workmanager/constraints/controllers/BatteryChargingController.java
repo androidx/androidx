@@ -40,13 +40,13 @@ public class BatteryChargingController extends ConstraintController<BatteryCharg
             Context context,
             WorkDatabase workDatabase,
             LifecycleOwner lifecycleOwner,
-            OnConstraintUpdatedListener onConstraintUpdatedListener,
+            OnConstraintUpdatedCallback onConstraintUpdatedCallback,
             boolean allowPeriodic) {
         super(
                 workDatabase.workSpecDao().getIdsForBatteryChargingController(allowPeriodic),
                 lifecycleOwner,
                 Trackers.getInstance(context).getBatteryChargingTracker(),
-                onConstraintUpdatedListener);
+                onConstraintUpdatedCallback);
     }
 
     @Override

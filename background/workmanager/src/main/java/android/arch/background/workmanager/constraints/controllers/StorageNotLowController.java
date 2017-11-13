@@ -40,13 +40,13 @@ public class StorageNotLowController extends ConstraintController<StorageNotLowL
             Context context,
             WorkDatabase workDatabase,
             LifecycleOwner lifecycleOwner,
-            OnConstraintUpdatedListener onConstraintUpdatedListener,
+            OnConstraintUpdatedCallback onConstraintUpdatedCallback,
             boolean allowPeriodic) {
         super(
                 workDatabase.workSpecDao().getIdsForStorageNotLowController(allowPeriodic),
                 lifecycleOwner,
                 Trackers.getInstance(context).getStorageNotLowTracker(),
-                onConstraintUpdatedListener);
+                onConstraintUpdatedCallback);
     }
 
     @Override

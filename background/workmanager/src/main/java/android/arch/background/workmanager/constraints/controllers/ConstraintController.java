@@ -38,9 +38,9 @@ public abstract class ConstraintController<T extends ConstraintListener>
         implements LifecycleObserver {
 
     /**
-     * An listener for when a constraint changes.
+     * A callback for when a constraint changes.
      */
-    public interface OnConstraintUpdatedListener {
+    public interface OnConstraintUpdatedCallback {
 
         /**
          * Called when a constraint is met.
@@ -63,19 +63,19 @@ public abstract class ConstraintController<T extends ConstraintListener>
     private LifecycleOwner mLifecycleOwner;
     private ConstraintTracker<T> mTracker;
     private Observer<List<String>> mConstraintObserver;
-    private OnConstraintUpdatedListener mOnConstraintUpdatedListener;
+    private OnConstraintUpdatedCallback mOnConstraintUpdatedCallback;
     private List<String> mMatchingWorkSpecIds;
 
     ConstraintController(
             LiveData<List<String>> constraintLiveData,
             LifecycleOwner lifecycleOwner,
             ConstraintTracker<T> tracker,
-            OnConstraintUpdatedListener onConstraintUpdatedListener) {
+            OnConstraintUpdatedCallback onConstraintUpdatedCallback) {
 
         mConstraintLiveData = constraintLiveData;
         mLifecycleOwner = lifecycleOwner;
         mTracker = tracker;
-        mOnConstraintUpdatedListener = onConstraintUpdatedListener;
+        mOnConstraintUpdatedCallback = onConstraintUpdatedCallback;
 
         mConstraintObserver = new Observer<List<String>>() {
             @Override
@@ -139,9 +139,9 @@ public abstract class ConstraintController<T extends ConstraintListener>
 
         Log.d(TAG, getClass().getSimpleName() + ": updateListener");
         if (isConstrained()) {
-            mOnConstraintUpdatedListener.onConstraintNotMet(mMatchingWorkSpecIds);
+            mOnConstraintUpdatedCallback.onConstraintNotMet(mMatchingWorkSpecIds);
         } else {
-            mOnConstraintUpdatedListener.onConstraintMet(mMatchingWorkSpecIds);
+            mOnConstraintUpdatedCallback.onConstraintMet(mMatchingWorkSpecIds);
         }
     }
 

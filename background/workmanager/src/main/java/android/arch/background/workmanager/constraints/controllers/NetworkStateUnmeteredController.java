@@ -44,7 +44,7 @@ public class NetworkStateUnmeteredController extends ConstraintController<Networ
             Context context,
             WorkDatabase workDatabase,
             LifecycleOwner lifecycleOwner,
-            OnConstraintUpdatedListener onConstraintUpdatedListener,
+            OnConstraintUpdatedCallback onConstraintUpdatedCallback,
             boolean allowPeriodic) {
         super(
                 workDatabase.workSpecDao().getIdsForNetworkTypeController(
@@ -52,7 +52,7 @@ public class NetworkStateUnmeteredController extends ConstraintController<Networ
                         allowPeriodic),
                 lifecycleOwner,
                 Trackers.getInstance(context).getNetworkStateTracker(),
-                onConstraintUpdatedListener
+                onConstraintUpdatedCallback
         );
     }
 

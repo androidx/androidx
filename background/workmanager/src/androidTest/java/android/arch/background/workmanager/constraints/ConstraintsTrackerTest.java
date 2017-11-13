@@ -99,14 +99,14 @@ public class ConstraintsTrackerTest {
     }
 
     @Test
-    public void testConstraintsMet_startsProcessing()
+    public void testOnConstraintMet_startsProcessing()
             throws TimeoutException, InterruptedException  {
         mConstraintsTracker.onConstraintMet(TEST_IDS);
         assertThat(mProcessingIds, containsInAnyOrder(TEST_IDS.toArray()));
     }
 
     @Test
-    public void testConstraintsNotMet_stopsProcessing()
+    public void testOnConstraintNotMet_stopsProcessing()
             throws TimeoutException, InterruptedException {
         mConstraintsTracker.onConstraintNotMet(TEST_IDS);
         assertThat(mProcessingIds, not(containsInAnyOrder(TEST_IDS.toArray())));
