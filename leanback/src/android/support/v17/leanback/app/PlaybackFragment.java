@@ -81,7 +81,9 @@ import android.view.animation.AccelerateInterpolator;
  * {@link #setControlsOverlayAutoHideEnabled(boolean)} upon play/pause. The auto hiding timer will
  * be cancelled upon {@link #tickle()} triggered by input event.
  * </p>
+ * @deprecated use {@link PlaybackSupportFragment}
  */
+@Deprecated
 public class PlaybackFragment extends Fragment {
     static final String BUNDLE_CONTROL_VISIBLE_ON_CREATEVIEW = "controlvisible_oncreateview";
 
@@ -181,7 +183,9 @@ public class PlaybackFragment extends Fragment {
      * Listener allowing the application to receive notification of fade in and/or fade out
      * completion events.
      * @hide
+     * @deprecated use {@link PlaybackSupportFragment}
      */
+    @Deprecated
     public static class OnFadeCompleteListener {
         public void onFadeInComplete() {
         }

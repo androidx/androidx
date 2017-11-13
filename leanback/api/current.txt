@@ -20,7 +20,7 @@ package android.support.v17.leanback.app {
     method public void setThemeDrawableResourceId(int);
   }
 
-  public class BaseFragment extends android.support.v17.leanback.app.BrandedFragment {
+  public deprecated class BaseFragment extends android.support.v17.leanback.app.BrandedFragment {
     method protected java.lang.Object createEntranceTransition();
     method public final android.support.v17.leanback.app.ProgressBarManager getProgressBarManager();
     method protected void onEntranceTransitionEnd();
@@ -31,7 +31,7 @@ package android.support.v17.leanback.app {
     method public void startEntranceTransition();
   }
 
-   abstract class BaseRowFragment extends android.app.Fragment {
+   abstract deprecated class BaseRowFragment extends android.app.Fragment {
     method public final android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public final android.support.v17.leanback.widget.ItemBridgeAdapter getBridgeAdapter();
     method public final android.support.v17.leanback.widget.PresenterSelector getPresenterSelector();
@@ -74,7 +74,7 @@ package android.support.v17.leanback.app {
     method public void startEntranceTransition();
   }
 
-  public class BrandedFragment extends android.app.Fragment {
+  public deprecated class BrandedFragment extends android.app.Fragment {
     ctor public BrandedFragment();
     method public android.graphics.drawable.Drawable getBadgeDrawable();
     method public int getSearchAffordanceColor();
@@ -116,7 +116,7 @@ package android.support.v17.leanback.app {
     method public void showTitle(int);
   }
 
-  public class BrowseFragment extends android.support.v17.leanback.app.BaseFragment {
+  public deprecated class BrowseFragment extends android.support.v17.leanback.app.BaseFragment {
     ctor public BrowseFragment();
     method public static android.os.Bundle createArgs(android.os.Bundle, java.lang.String, int);
     method public void enableMainFragmentScaling(boolean);
@@ -153,29 +153,29 @@ package android.support.v17.leanback.app {
     field public static final int HEADERS_HIDDEN = 2; // 0x2
   }
 
-  public static class BrowseFragment.BrowseTransitionListener {
+  public static deprecated class BrowseFragment.BrowseTransitionListener {
     ctor public BrowseFragment.BrowseTransitionListener();
     method public void onHeadersTransitionStart(boolean);
     method public void onHeadersTransitionStop(boolean);
   }
 
-  public static abstract class BrowseFragment.FragmentFactory<T extends android.app.Fragment> {
+  public static abstract deprecated class BrowseFragment.FragmentFactory<T extends android.app.Fragment> {
     ctor public BrowseFragment.FragmentFactory();
     method public abstract T createFragment(java.lang.Object);
   }
 
-  public static abstract interface BrowseFragment.FragmentHost {
+  public static abstract deprecated interface BrowseFragment.FragmentHost {
     method public abstract void notifyDataReady(android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapter);
     method public abstract void notifyViewCreated(android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapter);
     method public abstract void showTitleView(boolean);
   }
 
-  public static class BrowseFragment.ListRowFragmentFactory extends android.support.v17.leanback.app.BrowseFragment.FragmentFactory {
+  public static deprecated class BrowseFragment.ListRowFragmentFactory extends android.support.v17.leanback.app.BrowseFragment.FragmentFactory {
     ctor public BrowseFragment.ListRowFragmentFactory();
     method public android.support.v17.leanback.app.RowsFragment createFragment(java.lang.Object);
   }
 
-  public static class BrowseFragment.MainFragmentAdapter<T extends android.app.Fragment> {
+  public static deprecated class BrowseFragment.MainFragmentAdapter<T extends android.app.Fragment> {
     ctor public BrowseFragment.MainFragmentAdapter(T);
     method public final T getFragment();
     method public final android.support.v17.leanback.app.BrowseFragment.FragmentHost getFragmentHost();
@@ -190,17 +190,17 @@ package android.support.v17.leanback.app {
     method public void setScalingEnabled(boolean);
   }
 
-  public static abstract interface BrowseFragment.MainFragmentAdapterProvider {
+  public static abstract deprecated interface BrowseFragment.MainFragmentAdapterProvider {
     method public abstract android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapter getMainFragmentAdapter();
   }
 
-  public static final class BrowseFragment.MainFragmentAdapterRegistry {
+  public static final deprecated class BrowseFragment.MainFragmentAdapterRegistry {
     ctor public BrowseFragment.MainFragmentAdapterRegistry();
     method public android.app.Fragment createFragment(java.lang.Object);
     method public void registerFragment(java.lang.Class, android.support.v17.leanback.app.BrowseFragment.FragmentFactory);
   }
 
-  public static class BrowseFragment.MainFragmentRowsAdapter<T extends android.app.Fragment> {
+  public static deprecated class BrowseFragment.MainFragmentRowsAdapter<T extends android.app.Fragment> {
     ctor public BrowseFragment.MainFragmentRowsAdapter(T);
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder findRowViewHolderByPosition(int);
     method public final T getFragment();
@@ -212,7 +212,7 @@ package android.support.v17.leanback.app {
     method public void setSelectedPosition(int, boolean);
   }
 
-  public static abstract interface BrowseFragment.MainFragmentRowsAdapterProvider {
+  public static abstract deprecated interface BrowseFragment.MainFragmentRowsAdapterProvider {
     method public abstract android.support.v17.leanback.app.BrowseFragment.MainFragmentRowsAdapter getMainFragmentRowsAdapter();
   }
 
@@ -316,7 +316,7 @@ package android.support.v17.leanback.app {
     method public abstract android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentRowsAdapter getMainFragmentRowsAdapter();
   }
 
-  public class DetailsFragment extends android.support.v17.leanback.app.BaseFragment {
+  public deprecated class DetailsFragment extends android.support.v17.leanback.app.BaseFragment {
     ctor public DetailsFragment();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
@@ -334,7 +334,7 @@ package android.support.v17.leanback.app {
     method protected void setupPresenter(android.support.v17.leanback.widget.Presenter);
   }
 
-  public class DetailsFragmentBackgroundController {
+  public deprecated class DetailsFragmentBackgroundController {
     ctor public DetailsFragmentBackgroundController(android.support.v17.leanback.app.DetailsFragment);
     method public boolean canNavigateToVideoFragment();
     method public void enableParallax();
@@ -396,7 +396,7 @@ package android.support.v17.leanback.app {
     method public final void switchToVideo();
   }
 
-  public class ErrorFragment extends android.support.v17.leanback.app.BrandedFragment {
+  public deprecated class ErrorFragment extends android.support.v17.leanback.app.BrandedFragment {
     ctor public ErrorFragment();
     method public android.graphics.drawable.Drawable getBackgroundDrawable();
     method public android.view.View.OnClickListener getButtonClickListener();
@@ -428,7 +428,7 @@ package android.support.v17.leanback.app {
     method public void setMessage(java.lang.CharSequence);
   }
 
-  public class GuidedStepFragment extends android.app.Fragment {
+  public deprecated class GuidedStepFragment extends android.app.Fragment {
     ctor public GuidedStepFragment();
     method public static int add(android.app.FragmentManager, android.support.v17.leanback.app.GuidedStepFragment);
     method public static int add(android.app.FragmentManager, android.support.v17.leanback.app.GuidedStepFragment, int);
@@ -552,18 +552,18 @@ package android.support.v17.leanback.app {
     field public static final int UI_STYLE_REPLACE = 0; // 0x0
   }
 
-  public class HeadersFragment extends android.support.v17.leanback.app.BaseRowFragment {
+  public deprecated class HeadersFragment extends android.support.v17.leanback.app.BaseRowFragment {
     ctor public HeadersFragment();
     method public boolean isScrolling();
     method public void setOnHeaderClickedListener(android.support.v17.leanback.app.HeadersFragment.OnHeaderClickedListener);
     method public void setOnHeaderViewSelectedListener(android.support.v17.leanback.app.HeadersFragment.OnHeaderViewSelectedListener);
   }
 
-  public static abstract interface HeadersFragment.OnHeaderClickedListener {
+  public static abstract deprecated interface HeadersFragment.OnHeaderClickedListener {
     method public abstract void onHeaderClicked(android.support.v17.leanback.widget.RowHeaderPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
   }
 
-  public static abstract interface HeadersFragment.OnHeaderViewSelectedListener {
+  public static abstract deprecated interface HeadersFragment.OnHeaderViewSelectedListener {
     method public abstract void onHeaderSelected(android.support.v17.leanback.widget.RowHeaderPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
   }
 
@@ -582,7 +582,7 @@ package android.support.v17.leanback.app {
     method public abstract void onHeaderSelected(android.support.v17.leanback.widget.RowHeaderPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
   }
 
-  public abstract class OnboardingFragment extends android.app.Fragment {
+  public abstract deprecated class OnboardingFragment extends android.app.Fragment {
     ctor public OnboardingFragment();
     method public final int getArrowBackgroundColor();
     method public final int getArrowColor();
@@ -660,7 +660,7 @@ package android.support.v17.leanback.app {
     method protected final void startEnterAnimation(boolean);
   }
 
-  public class PlaybackFragment extends android.app.Fragment {
+  public deprecated class PlaybackFragment extends android.app.Fragment {
     ctor public PlaybackFragment();
     method public deprecated void fadeOut();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
@@ -695,7 +695,7 @@ package android.support.v17.leanback.app {
     field public static final int BG_NONE = 0; // 0x0
   }
 
-  public class PlaybackFragmentGlueHost extends android.support.v17.leanback.media.PlaybackGlueHost implements android.support.v17.leanback.widget.PlaybackSeekUi {
+  public deprecated class PlaybackFragmentGlueHost extends android.support.v17.leanback.media.PlaybackGlueHost implements android.support.v17.leanback.widget.PlaybackSeekUi {
     ctor public PlaybackFragmentGlueHost(android.support.v17.leanback.app.PlaybackFragment);
     method public void fadeOut();
     method public void setPlaybackSeekUiClient(android.support.v17.leanback.widget.PlaybackSeekUi.Client);
@@ -754,7 +754,7 @@ package android.support.v17.leanback.app {
     method public void show();
   }
 
-  public class RowsFragment extends android.support.v17.leanback.app.BaseRowFragment implements android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapterProvider android.support.v17.leanback.app.BrowseFragment.MainFragmentRowsAdapterProvider {
+  public deprecated class RowsFragment extends android.support.v17.leanback.app.BaseRowFragment implements android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapterProvider android.support.v17.leanback.app.BrowseFragment.MainFragmentRowsAdapterProvider {
     ctor public RowsFragment();
     method public deprecated void enableRowScaling(boolean);
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
@@ -776,7 +776,7 @@ package android.support.v17.leanback.app {
     ctor public RowsFragment.MainFragmentAdapter(android.support.v17.leanback.app.RowsFragment);
   }
 
-  public static class RowsFragment.MainFragmentRowsAdapter extends android.support.v17.leanback.app.BrowseFragment.MainFragmentRowsAdapter {
+  public static deprecated class RowsFragment.MainFragmentRowsAdapter extends android.support.v17.leanback.app.BrowseFragment.MainFragmentRowsAdapter {
     ctor public RowsFragment.MainFragmentRowsAdapter(android.support.v17.leanback.app.RowsFragment);
   }
 
@@ -806,7 +806,7 @@ package android.support.v17.leanback.app {
     ctor public RowsSupportFragment.MainFragmentRowsAdapter(android.support.v17.leanback.app.RowsSupportFragment);
   }
 
-  public class SearchFragment extends android.app.Fragment {
+  public deprecated class SearchFragment extends android.app.Fragment {
     ctor public SearchFragment();
     method public static android.os.Bundle createArgs(android.os.Bundle, java.lang.String);
     method public static android.os.Bundle createArgs(android.os.Bundle, java.lang.String, java.lang.String);
@@ -866,7 +866,7 @@ package android.support.v17.leanback.app {
     method public abstract boolean onQueryTextSubmit(java.lang.String);
   }
 
-  public class VerticalGridFragment extends android.support.v17.leanback.app.BaseFragment {
+  public deprecated class VerticalGridFragment extends android.support.v17.leanback.app.BaseFragment {
     ctor public VerticalGridFragment();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.VerticalGridPresenter getGridPresenter();
@@ -890,13 +890,13 @@ package android.support.v17.leanback.app {
     method public void setSelectedPosition(int);
   }
 
-  public class VideoFragment extends android.support.v17.leanback.app.PlaybackFragment {
+  public deprecated class VideoFragment extends android.support.v17.leanback.app.PlaybackFragment {
     ctor public VideoFragment();
     method public android.view.SurfaceView getSurfaceView();
     method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
   }
 
-  public class VideoFragmentGlueHost extends android.support.v17.leanback.app.PlaybackFragmentGlueHost implements android.support.v17.leanback.media.SurfaceHolderGlueHost {
+  public deprecated class VideoFragmentGlueHost extends android.support.v17.leanback.app.PlaybackFragmentGlueHost implements android.support.v17.leanback.media.SurfaceHolderGlueHost {
     ctor public VideoFragmentGlueHost(android.support.v17.leanback.app.VideoFragment);
     method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback);
   }

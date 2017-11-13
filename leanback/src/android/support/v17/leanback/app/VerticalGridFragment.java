@@ -39,7 +39,9 @@ import android.view.ViewGroup;
  *
  * <p>Renders a vertical grid of objects given a {@link VerticalGridPresenter} and
  * an {@link ObjectAdapter}.
+ * @deprecated use {@link VerticalGridSupportFragment}
  */
+@Deprecated
 public class VerticalGridFragment extends BaseFragment {
     static final String TAG = "VerticalGF";
     static boolean DEBUG = false;

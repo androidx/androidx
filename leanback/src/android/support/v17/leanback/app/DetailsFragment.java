@@ -91,7 +91,9 @@ import java.lang.ref.WeakReference;
  * DetailsFragment can use {@link DetailsFragmentBackgroundController} to add a parallax drawable
  * background and embedded video playing fragment.
  * </p>
+ * @deprecated use {@link DetailsSupportFragment}
  */
+@Deprecated
 public class DetailsFragment extends BaseFragment {
     static final String TAG = "DetailsFragment";
     static boolean DEBUG = false;

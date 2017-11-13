@@ -141,7 +141,9 @@ import java.util.List;
  * @see GuidanceStylist.Guidance
  * @see GuidedAction
  * @see GuidedActionsStylist
+ * @deprecated use {@link GuidedStepSupportFragment}
  */
+@Deprecated
 public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.FocusListener {
 
     private static final String TAG_LEAN_BACK_ACTIONS_FRAGMENT = "leanBackGuidedStepFragment";
