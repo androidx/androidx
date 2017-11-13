@@ -25,6 +25,7 @@ import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.WorkerWrapper;
 import android.arch.background.workmanager.background.BackgroundProcessor;
 import android.content.Context;
+import android.os.PersistableBundle;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.util.Log;
@@ -55,18 +56,16 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        String workSpecId = params.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
+        PersistableBundle extras = params.getExtras();
+        String workSpecId = extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
             Log.e(TAG, "WorkSpec id not found!");
             return false;
         }
 
-        boolean isPeriodic = params.getExtras().getBoolean(SystemJobInfoConverter.EXTRA_IS_PERIODIC,
-                false);
+        boolean isPeriodic = extras.getBoolean(SystemJobInfoConverter.EXTRA_IS_PERIODIC, false);
         if (isPeriodic && params.isOverrideDeadlineExpired()) {
-            Log.d(TAG,
-                    "Override deadling expired for id " + workSpecId
-                            + "; asking system to retry");
+            Log.d(TAG, "Override deadline expired for id " + workSpecId + ". Retry requested");
             jobFinished(params, true);
             return false;
         }
