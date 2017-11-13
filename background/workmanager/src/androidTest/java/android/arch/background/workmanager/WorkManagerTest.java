@@ -266,29 +266,7 @@ public class WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testClearAllWork() throws InterruptedException {
-        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-
-        WorkSpec workSpec1 = new Work.Builder(TestWorker.class)
-                .build()
-                .getWorkSpec();
-        WorkSpec workSpec2 = new Work.Builder(TestWorker.class)
-                .build()
-                .getWorkSpec();
-        workSpecDao.insertWorkSpec(workSpec1);
-        workSpecDao.insertWorkSpec(workSpec2);
-        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
-
-        mWorkManager.clearAllWork();
-        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
-
-        assertThat(workSpecDao.getWorkSpec(workSpec1.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(workSpec2.getId()), is(nullValue()));
-    }
-
-    @Test
-    @SmallTest
-    public void testClearAllWorkByTag() throws InterruptedException {
+    public void testCancelAllWorkWithTag() throws InterruptedException {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         final String tagToClear = "tag_to_clear";
@@ -304,7 +282,7 @@ public class WorkManagerTest {
         workSpecDao.insertWorkSpec(workSpec4);
         Thread.sleep(DEFAULT_SLEEP_TIME_MS);
 
-        mWorkManager.clearAllWorkWithTag(tagToClear);
+        mWorkManager.cancelAllWorkWithTag(tagToClear);
         Thread.sleep(DEFAULT_SLEEP_TIME_MS);
 
         assertThat(workSpecDao.getWorkSpec(workSpec1.getId()), is(nullValue()));
@@ -315,7 +293,7 @@ public class WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testClearAllWorkByTagPrefix() throws InterruptedException {
+    public void testCancelAllWorkWithTagPrefix() throws InterruptedException {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         final String clearablePrefix = "clear_";
@@ -331,7 +309,7 @@ public class WorkManagerTest {
         workSpecDao.insertWorkSpec(workSpec4);
         Thread.sleep(DEFAULT_SLEEP_TIME_MS);
 
-        mWorkManager.clearAllWorkWithTagPrefix(clearablePrefix);
+        mWorkManager.cancelAllWorkWithTagPrefix(clearablePrefix);
         Thread.sleep(DEFAULT_SLEEP_TIME_MS);
 
         assertThat(workSpecDao.getWorkSpec(workSpec1.getId()), is(nullValue()));

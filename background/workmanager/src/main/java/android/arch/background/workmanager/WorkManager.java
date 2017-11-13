@@ -21,6 +21,7 @@ import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.systemjob.SystemJobScheduler;
 import android.arch.background.workmanager.utils.BaseWorkHelper;
 import android.arch.lifecycle.LiveData;
@@ -48,7 +49,8 @@ public final class WorkManager {
     private Context mContext;
     private WorkDatabase mWorkDatabase;
     private ExecutorService mEnqueueExecutor = Executors.newSingleThreadExecutor();
-    private Scheduler mScheduler;
+    private Processor mForegroundProcessor;
+    private Scheduler mBackgroundScheduler;
 
     private static WorkManager sInstance = null;
 
@@ -68,8 +70,12 @@ public final class WorkManager {
     WorkManager(Context context, boolean useTestDatabase) {
         mContext = context.getApplicationContext();
         mWorkDatabase = WorkDatabase.create(mContext, useTestDatabase);
-        mScheduler = createBackgroundScheduler(context);
-        new ForegroundProcessor(mContext, mWorkDatabase, mScheduler, ProcessLifecycleOwner.get());
+        mForegroundProcessor = new ForegroundProcessor(
+                mContext,
+                mWorkDatabase,
+                mBackgroundScheduler,
+                ProcessLifecycleOwner.get());
+        mBackgroundScheduler = createBackgroundScheduler(context);
     }
 
     @Nullable
@@ -117,7 +123,7 @@ public final class WorkManager {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public Scheduler getScheduler() {
-        return mScheduler;
+        return mBackgroundScheduler;
     }
 
     /**
@@ -189,66 +195,25 @@ public final class WorkManager {
     }
 
     /**
-     * Gets a list of work ids for all work that is unfinished for a given tag.
-     *
-     * @param tag The tag used to identify the work
-     * @return A {@link LiveData} list of all the work ids matching this criteria
-     */
-    public LiveData<List<String>> getAllUnfinishedWorkWithTag(@NonNull final String tag) {
-        return mWorkDatabase.workSpecDao().getUnfinishedWorkWithTag(tag);
-    }
-
-    /**
-     * Gets a list of work ids for all work that is unfinished for a given tag prefix.
-     *
-     * @param tagPrefix The tag prefix used to identify the work
-     * @return A {@link LiveData} list of all the work ids matching this criteria
-     */
-    public LiveData<List<String>> getAllUnfinishedWorkWithTagPrefix(
-            @NonNull final String tagPrefix) {
-        return mWorkDatabase.workSpecDao().getUnfinishedWorkWithTagPrefix(tagPrefix);
-    }
-
-    /**
-     * Clears all work with the given tag prefix, regardless of the current state of the work.
-     *
-     * @param tagPrefix The tag prefix used to identify the work
-     */
-    public void clearAllWorkWithTagPrefix(@NonNull final String tagPrefix) {
-        mEnqueueExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mWorkDatabase.workSpecDao().clearAllWithTagPrefix(tagPrefix + "%");
-            }
-        });
-    }
-
-    /**
-     * Clears all work with the given tag, regardless of the current state of the work.
+     * Cancels all work with the given tag, regardless of the current state of the work.
+     * Note that cancellation is a best-effort policy and work that is already executing may
+     * continue to run.
      *
      * @param tag The tag used to identify the work
      */
-    public void clearAllWorkWithTag(@NonNull final String tag) {
-        mEnqueueExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mWorkDatabase.workSpecDao().clearAllWithTag(tag);
-            }
-        });
+    public void cancelAllWorkWithTag(@NonNull final String tag) {
+        mEnqueueExecutor.execute(new CancelWorkWithTagRunnable(tag, false));
     }
 
     /**
-     * Clears all work regardless of the current state of the work.  This is dangerous to use if you
-     * have multiple modules/libraries that reference WorkManager.  Consider using
-     * {@link #clearAllWorkWithTag(String)} or {@link #clearAllWorkWithTagPrefix(String)} instead.
+     * Cancels all work with the given tag prefix, regardless of the current state of the work.
+     * Note that cancellation is a best-effort policy and work that is already executing may
+     * continue to run.
+     *
+     * @param tagPrefix The tag prefix used to identify the work
      */
-    public void clearAllWork() {
-        mEnqueueExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mWorkDatabase.workSpecDao().clearAll();
-            }
-        });
+    public void cancelAllWorkWithTagPrefix(@NonNull final String tagPrefix) {
+        mEnqueueExecutor.execute(new CancelWorkWithTagRunnable(tagPrefix, true));
     }
 
     WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {
@@ -292,12 +257,51 @@ public final class WorkManager {
 
                 // Schedule in the background if there are no prerequisites.  Foreground scheduling
                 // happens automatically because we instantiated ForegroundProcessor earlier.
-                // TODO(janclarin): Remove mScheduler != null check when Scheduler added for 23-.
-                if (mScheduler != null && !hasPrerequisite) {
+                // TODO(janclarin): Remove mBackgroundScheduler != null check when Scheduler added
+                // for 23-.
+                if (mBackgroundScheduler != null && !hasPrerequisite) {
                     for (BaseWork work : mWorkArray) {
-                        mScheduler.schedule(work.getWorkSpec());
+                        mBackgroundScheduler.schedule(work.getWorkSpec());
                     }
                 }
+            } finally {
+                mWorkDatabase.endTransaction();
+            }
+        }
+    }
+
+    /**
+     * A Runnable to cancel work with a given tag.
+     */
+    private class CancelWorkWithTagRunnable implements Runnable {
+
+        private String mTag;
+        private boolean mIsPrefix;
+
+        CancelWorkWithTagRunnable(@NonNull String tag, boolean isPrefix) {
+            mTag = tag;
+            mIsPrefix = isPrefix;
+        }
+
+        @Override
+        public void run() {
+            mWorkDatabase.beginTransaction();
+            try {
+                WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+
+                List<String> workSpecIds =
+                        mIsPrefix
+                                ? workSpecDao.getUnfinishedWorkWithTagPrefix(mTag)
+                                : workSpecDao.getUnfinishedWorkWithTag(mTag);
+                for (String workSpecId : workSpecIds) {
+                    mForegroundProcessor.cancel(workSpecId, true);
+                    if (mBackgroundScheduler != null) {
+                        mBackgroundScheduler.cancel(workSpecId);
+                    }
+                    workSpecDao.delete(workSpecId);
+                }
+
+                mWorkDatabase.setTransactionSuccessful();
             } finally {
                 mWorkDatabase.endTransaction();
             }

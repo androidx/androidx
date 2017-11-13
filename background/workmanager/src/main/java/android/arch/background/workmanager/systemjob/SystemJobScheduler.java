@@ -21,8 +21,11 @@ import android.app.job.JobScheduler;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
+
+import java.util.List;
 
 /**
  * A class that schedules work using {@link android.app.job.JobScheduler}.
@@ -47,6 +50,21 @@ public class SystemJobScheduler implements Scheduler {
             JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec);
             Log.d(TAG, "Scheduling work, ID: " + workSpec.getId() + " Job ID: " + jobInfo.getId());
             mJobScheduler.schedule(jobInfo);
+        }
+    }
+
+    @Override
+    public void cancel(@NonNull String workSpecId) {
+        // Note: despite what the word "pending" and the associated Javadoc might imply, this is
+        // actually a list of all unfinished jobs that JobScheduler knows about for the current
+        // process.
+        List<JobInfo> allJobInfos = mJobScheduler.getAllPendingJobs();
+        for (JobInfo jobInfo : allJobInfos) {
+            if (workSpecId.equals(
+                    jobInfo.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID))) {
+                mJobScheduler.cancel(jobInfo.getId());
+                return;
+            }
         }
     }
 }

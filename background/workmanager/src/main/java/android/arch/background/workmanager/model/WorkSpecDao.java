@@ -47,6 +47,14 @@ public interface WorkSpecDao {
     void insertWorkSpec(WorkSpec workSpec);
 
     /**
+     * Deletes a {@link WorkSpec} with the given id.
+     *
+     * @param id The WorkSpec id
+     */
+    @Query("DELETE FROM workspec WHERE id=:id")
+    void delete(String id);
+
+    /**
      * @param id The identifier
      * @return The WorkSpec associated with that id
      */
@@ -145,37 +153,21 @@ public interface WorkSpecDao {
      * Retrieves work ids for unfinished work with a given tag.
      *
      * @param tag The tag used to identify the work.
-     * @return A {@link LiveData} list of work ids.
+     * @return A list of work ids.
      */
     @Query("SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND status!="
             + STATUS_FAILED + " AND tag=:tag")
-    LiveData<List<String>> getUnfinishedWorkWithTag(@NonNull String tag);
+    List<String> getUnfinishedWorkWithTag(@NonNull String tag);
 
     /**
      * Retrieves work ids for unfinished work with a given tag prefix.
      *
      * @param tagPrefix The tag prefix used to identify the work.
-     * @return A {@link LiveData} list of work ids.
+     * @return A list of work ids.
      */
     @Query("SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND status!="
-            + STATUS_FAILED + " AND tag LIKE :tagPrefix")
-    LiveData<List<String>> getUnfinishedWorkWithTagPrefix(@NonNull String tagPrefix);
-
-    /**
-     * Clears all work with the given tag prefix.
-     *
-     * @param tagPrefix The tag prefix used to identify some work.
-     */
-    @Query("DELETE FROM workspec WHERE tag LIKE :tagPrefix")
-    void clearAllWithTagPrefix(@NonNull String tagPrefix);
-
-    /**
-     * Clears all work with the given tag.
-     *
-     * @param tag The tag used to identify some work.
-     */
-    @Query("DELETE FROM workspec WHERE tag=:tag")
-    void clearAllWithTag(@NonNull String tag);
+            + STATUS_FAILED + " AND tag LIKE :tagPrefix || '%'")
+    List<String> getUnfinishedWorkWithTagPrefix(@NonNull String tagPrefix);
 
     /**
      * Clears all work.

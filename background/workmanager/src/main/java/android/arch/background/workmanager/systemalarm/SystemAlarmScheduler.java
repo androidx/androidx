@@ -20,6 +20,7 @@ import android.app.AlarmManager;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 /**
@@ -40,5 +41,10 @@ public class SystemAlarmScheduler implements Scheduler {
     @Override
     public void schedule(WorkSpec... workSpecs) {
         // TODO(janclarin): Schedule with AlarmManager and pass Work info to SystemAlarmService.
+    }
+
+    @Override
+    public void cancel(@NonNull String workSpecId) {
+        // TODO(janclarin)
     }
 }

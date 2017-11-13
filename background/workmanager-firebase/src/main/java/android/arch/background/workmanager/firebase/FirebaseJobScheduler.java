@@ -24,6 +24,7 @@ import android.arch.background.workmanager.utils.IdGenerator;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
@@ -61,6 +62,11 @@ public class FirebaseJobScheduler implements Scheduler {
                 scheduleNow(workSpec);
             }
         }
+    }
+
+    @Override
+    public void cancel(@NonNull String workSpecId) {
+        mDispatcher.cancel(workSpecId);
     }
 
     void scheduleNow(WorkSpec workSpec) {

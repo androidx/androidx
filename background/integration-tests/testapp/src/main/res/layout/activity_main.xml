@@ -23,16 +23,6 @@
     tools:context="android.arch.background.integration.testapp.MainActivity">
 
     <Button
-        android:id="@+id/clear_all"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Clear all jobs"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
         android:id="@+id/enqueue_infinite_work"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
