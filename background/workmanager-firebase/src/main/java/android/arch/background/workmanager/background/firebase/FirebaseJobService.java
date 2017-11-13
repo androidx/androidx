@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,32 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager.systemjob;
+package android.arch.background.workmanager.background.firebase;
 
-import android.annotation.TargetApi;
-import android.app.job.JobParameters;
-import android.app.job.JobService;
 import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.WorkerWrapper;
 import android.arch.background.workmanager.background.BackgroundProcessor;
 import android.content.Context;
-import android.os.PersistableBundle;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.firebase.jobdispatcher.JobParameters;
+import com.firebase.jobdispatcher.JobService;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Service invoked by {@link android.app.job.JobScheduler} to run work tasks.
+ * Service invoked by {@link com.firebase.jobdispatcher.FirebaseJobDispatcher} to run work tasks.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@TargetApi(23)
-public class SystemJobService extends JobService implements ExecutionListener {
-    private static final String TAG = "SystemJobService";
+public class FirebaseJobService extends JobService implements ExecutionListener {
+    private static final String TAG = "FirebaseJobService";
     private BackgroundProcessor mProcessor;
     private Map<String, JobParameters> mJobParameters = new HashMap<>();
 
@@ -56,31 +54,22 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        PersistableBundle extras = params.getExtras();
-        String workSpecId = extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
+        String workSpecId = params.getTag();
         if (TextUtils.isEmpty(workSpecId)) {
             Log.e(TAG, "WorkSpec id not found!");
             return false;
         }
-
-        boolean isPeriodic = extras.getBoolean(SystemJobInfoConverter.EXTRA_IS_PERIODIC, false);
-        if (isPeriodic && params.isOverrideDeadlineExpired()) {
-            Log.d(TAG, "Override deadline expired for id " + workSpecId + ". Retry requested");
-            jobFinished(params, true);
-            return false;
-        }
-
-        Log.d(TAG, workSpecId + " started on JobScheduler");
+        Log.d(TAG, workSpecId + " started on FirebaseJobDispatcher");
         mJobParameters.put(workSpecId, params);
 
-        // Delay has already occurred via JobScheduler.
+        // Delay has already occurred via FirebaseJobDispatcher.
         mProcessor.process(workSpecId, 0L);
         return true;
     }
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        String workSpecId = params.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
+        String workSpecId = params.getTag();
         if (TextUtils.isEmpty(workSpecId)) {
             Log.e(TAG, "WorkSpec id not found!");
             return false;
@@ -92,7 +81,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
     @Override
     public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
-        Log.d(TAG, workSpecId + " executed on JobScheduler");
+        Log.d(TAG, workSpecId + " executed on FirebaseJobDispatcher");
         JobParameters parameters = mJobParameters.get(workSpecId);
         boolean needsReschedule = result == WorkerWrapper.RESULT_INTERRUPTED;
         jobFinished(parameters, needsReschedule);

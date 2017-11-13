@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager.firebase;
+package android.arch.background.workmanager.worker;
 
 import android.arch.background.workmanager.Worker;
 import android.util.Log;

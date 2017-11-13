@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager.firebase;
+package android.arch.background.workmanager.background.firebase;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

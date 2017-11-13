@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager.systemalarm;
+package android.arch.background.workmanager.background.systemalarm;
 
 import android.app.AlarmManager;
 import android.arch.background.workmanager.Scheduler;
