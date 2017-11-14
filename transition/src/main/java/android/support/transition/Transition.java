@@ -1017,7 +1017,7 @@ public abstract class Transition implements Cloneable {
      */
     @NonNull
     public Transition addTarget(@IdRes int targetId) {
-        if (targetId > 0) {
+        if (targetId != 0) {
             mTargetIds.add(targetId);
         }
         return this;
@@ -1107,7 +1107,7 @@ public abstract class Transition implements Cloneable {
      */
     @NonNull
     public Transition removeTarget(@IdRes int targetId) {
-        if (targetId > 0) {
+        if (targetId != 0) {
             mTargetIds.remove((Integer) targetId);
         }
         return this;
