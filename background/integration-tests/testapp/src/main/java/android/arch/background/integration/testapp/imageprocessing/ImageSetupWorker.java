@@ -32,19 +32,20 @@ public class ImageSetupWorker extends Worker {
     private static final String URI_KEY = "uri";
 
     @Override
-    public void doWork() throws Exception {
+    public @WorkerResult int doWork() {
         Log.d(TAG, "Started");
 
         String uriString = getArguments().getString(URI_KEY, null);
         if (TextUtils.isEmpty(uriString)) {
             Log.e(TAG, "Invalid URI!");
-            return;
+            return WORKER_RESULT_FAILURE;
         }
 
         Image image = new Image();
         image.mOriginalAssetName = uriString;
         image.mIsProcessed = false;
         TestDatabase.getInstance(getAppContext()).getImageDao().insert(image);
+        return WORKER_RESULT_SUCCESS;
     }
 
     static Work createWork(String uriString) {

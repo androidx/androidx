@@ -24,6 +24,7 @@ import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class TextMappingWorker extends Worker {
     }
 
     @Override
-    public void doWork() throws Exception {
+    public @WorkerResult int doWork() {
         Arguments args = getArguments();
         String inputFileName = args.getString(INPUT_FILE, null);
         String outputFileName = args.getString(OUTPUT_FILE, null);
@@ -75,12 +76,18 @@ public class TextMappingWorker extends Worker {
                     mWordCount.put(word, count);
                 }
             }
+        } catch (IOException e) {
+            return WORKER_RESULT_FAILURE;
         } finally {
             if (scanner != null) {
                 scanner.close();
             }
             if (inputStream != null) {
-                inputStream.close();
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    // Do nothing.
+                }
             }
         }
 
@@ -93,15 +100,26 @@ public class TextMappingWorker extends Worker {
                 dataOutputStream.writeUTF(entry.getKey());
                 dataOutputStream.writeInt(entry.getValue());
             }
+        } catch (IOException e) {
+            return WORKER_RESULT_FAILURE;
         } finally {
             if (dataOutputStream != null) {
-                dataOutputStream.close();
+                try {
+                    dataOutputStream.close();
+                } catch (IOException e) {
+                    // Do nothing.
+                }
             }
             if (fileOutputStream != null) {
-                fileOutputStream.close();
+                try {
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                    // Do nothing.
+                }
             }
         }
 
         Log.d("Map", "Mapping finished for " + inputFileName);
+        return WORKER_RESULT_SUCCESS;
     }
 }

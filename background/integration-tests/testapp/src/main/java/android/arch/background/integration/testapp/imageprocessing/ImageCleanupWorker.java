@@ -32,7 +32,7 @@ public class ImageCleanupWorker extends Worker {
     private static final String TAG = "ImageProcessingWorker";
 
     @Override
-    public void doWork() {
+    public @WorkerResult int doWork() {
         Log.d(TAG, "Started");
         List<Image> images = TestDatabase.getInstance(getAppContext()).getImageDao().getImages();
         for (Image image : images) {
@@ -48,5 +48,6 @@ public class ImageCleanupWorker extends Worker {
         }
         TestDatabase.getInstance(getAppContext()).getImageDao().clear();
         Log.d(TAG, "Cleanup Complete!");
+        return WORKER_RESULT_SUCCESS;
     }
 }

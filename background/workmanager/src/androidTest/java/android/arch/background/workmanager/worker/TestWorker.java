@@ -26,7 +26,8 @@ import android.util.Log;
 public class TestWorker extends Worker {
 
     @Override
-    public void doWork() {
+    public @WorkerResult int doWork() {
         Log.d("TestWorker", "TestWorker Ran!");
+        return WORKER_RESULT_SUCCESS;
     }
 }

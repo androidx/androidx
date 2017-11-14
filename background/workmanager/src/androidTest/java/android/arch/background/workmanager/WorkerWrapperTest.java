@@ -29,7 +29,7 @@ import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
-import android.arch.background.workmanager.worker.ExceptionTestWorker;
+import android.arch.background.workmanager.worker.FailureWorker;
 import android.arch.background.workmanager.worker.SleepTestWorker;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.content.Context;
@@ -81,7 +81,7 @@ public class WorkerWrapperTest {
                 .build()
                 .run();
         Thread.sleep(LISTENER_SLEEP_DURATION);
-        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
+        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.EXECUTION_RESULT_SUCCESS);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_SUCCEEDED));
     }
 
@@ -101,7 +101,7 @@ public class WorkerWrapperTest {
     @Test
     @SmallTest
     public void testRunAttemptCountIncremented_failedExecution() {
-        Work work = new Work.Builder(ExceptionTestWorker.class).build();
+        Work work = new Work.Builder(FailureWorker.class).build();
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -115,7 +115,7 @@ public class WorkerWrapperTest {
     @SmallTest
     public void testRunAttemptCountIncremented_periodic_failedExecution() {
         PeriodicWork work = new PeriodicWork.Builder(
-                ExceptionTestWorker.class,
+                FailureWorker.class,
                 PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION)
                 .build();
 
@@ -138,7 +138,7 @@ public class WorkerWrapperTest {
                 .run();
         Thread.sleep(LISTENER_SLEEP_DURATION);
         verify(mMockListener)
-                .onExecuted(invalidWorkSpecId, WorkerWrapper.RESULT_PERMANENT_ERROR);
+                .onExecuted(invalidWorkSpecId, WorkerWrapper.EXECUTION_RESULT_PERMANENT_ERROR);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class WorkerWrapperTest {
                 .run();
         Thread.sleep(LISTENER_SLEEP_DURATION);
         verify(mMockListener)
-                .onExecuted(work.getId(), WorkerWrapper.RESULT_NOT_ENQUEUED);
+                .onExecuted(work.getId(), WorkerWrapper.EXECUTION_RESULT_RESCHEDULE);
     }
 
     @Test
@@ -167,21 +167,22 @@ public class WorkerWrapperTest {
                 .build()
                 .run();
         Thread.sleep(LISTENER_SLEEP_DURATION);
-        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_PERMANENT_ERROR);
+        verify(mMockListener)
+                .onExecuted(work.getId(), WorkerWrapper.EXECUTION_RESULT_PERMANENT_ERROR);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_FAILED));
     }
 
     @Test
     @LargeTest
     public void testFailed() throws InterruptedException {
-        Work work = new Work.Builder(ExceptionTestWorker.class).build();
+        Work work = new Work.Builder(FailureWorker.class).build();
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
                 .build()
                 .run();
         Thread.sleep(LISTENER_SLEEP_DURATION);
-        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_FAILED);
+        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.EXECUTION_RESULT_FAILURE);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_FAILED));
     }
 
@@ -197,7 +198,7 @@ public class WorkerWrapperTest {
         Thread.sleep(LISTENER_SLEEP_DURATION);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_RUNNING));
         Thread.sleep(SleepTestWorker.SLEEP_DURATION);
-        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
+        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.EXECUTION_RESULT_SUCCESS);
     }
 
     @Test
@@ -254,7 +255,7 @@ public class WorkerWrapperTest {
         Thread.sleep(LISTENER_SLEEP_DURATION);
 
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
-        verify(mMockListener).onExecuted(periodicWorkId, WorkerWrapper.RESULT_SUCCEEDED);
+        verify(mMockListener).onExecuted(periodicWorkId, WorkerWrapper.EXECUTION_RESULT_SUCCESS);
         assertThat(periodicWorkSpecAfterFirstRun.getRunAttemptCount(), is(0));
         assertThat(periodicWorkSpecAfterFirstRun.getStatus(), is(Work.STATUS_ENQUEUED));
     }

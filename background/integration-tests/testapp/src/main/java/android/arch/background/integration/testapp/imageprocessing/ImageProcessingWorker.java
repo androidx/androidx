@@ -42,20 +42,20 @@ public class ImageProcessingWorker extends Worker {
     private static final String TAG = "ImageProcessingWorker";
 
     @Override
-    public void doWork() throws IOException {
+    public @WorkerResult int doWork() {
         Log.d(TAG, "Started");
 
         String uriString = getArguments().getString(URI_KEY, null);
         if (TextUtils.isEmpty(uriString)) {
             Log.e(TAG, "Invalid URI!");
-            return;
+            return WORKER_RESULT_FAILURE;
         }
 
         Bitmap image = retrieveImage(uriString);
 
         if (image == null) {
             Log.e(TAG, "Could not retrieve image!");
-            return;
+            return WORKER_RESULT_FAILURE;
         }
 
         invertColors(image);
@@ -63,7 +63,7 @@ public class ImageProcessingWorker extends Worker {
 
         if (TextUtils.isEmpty(filePath)) {
             Log.e(TAG, "Could not compress image!");
-            return;
+            return WORKER_RESULT_FAILURE;
         }
 
         int processed = TestDatabase.getInstance(getAppContext())
@@ -72,10 +72,11 @@ public class ImageProcessingWorker extends Worker {
 
         if (processed != 1) {
             Log.e(TAG, "Database was not updated!");
-            return;
+            return WORKER_RESULT_FAILURE;
         }
 
         Log.d(TAG, "Image Processing Complete!");
+        return WORKER_RESULT_SUCCESS;
     }
 
     private Bitmap retrieveImage(String uriString) {
