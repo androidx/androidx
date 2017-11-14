@@ -34,7 +34,6 @@ import javax.lang.model.element.Element
 /**
  * The annotation processor for Room.
  */
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
 class RoomProcessor : BasicAnnotationProcessor() {
     override fun initSteps(): MutableIterable<ProcessingStep>? {
         val context = Context(processingEnv)
@@ -43,6 +42,10 @@ class RoomProcessor : BasicAnnotationProcessor() {
 
     override fun getSupportedOptions(): MutableSet<String> {
         return Context.ARG_OPTIONS.toMutableSet()
+    }
+
+    override fun getSupportedSourceVersion(): SourceVersion {
+        return SourceVersion.latest()
     }
 
     class DatabaseProcessingStep(context: Context) : ContextBoundProcessingStep(context) {
