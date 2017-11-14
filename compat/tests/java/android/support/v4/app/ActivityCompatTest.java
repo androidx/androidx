@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.Manifest;
 import android.app.Activity;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -40,6 +41,7 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestSupportA
         super(TestSupportActivity.class);
     }
 
+    @SdkSuppress(minSdkVersion = 24)
     @SmallTest
     @Test
     public void testPermissionDelegate() {
