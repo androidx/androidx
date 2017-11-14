@@ -31,7 +31,9 @@ import android.view.ViewTreeObserver;
 
 /**
  * Base class for leanback Fragments. This class is not intended to be subclassed by apps.
+ * @deprecated use {@link BaseSupportFragment}
  */
+@Deprecated
 @SuppressWarnings("FragmentNotInstantiable")
 public class BaseFragment extends BrandedFragment {
 

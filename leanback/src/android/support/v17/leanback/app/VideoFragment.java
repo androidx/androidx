@@ -27,7 +27,9 @@ import android.view.ViewGroup;
 /**
  * Subclass of {@link PlaybackFragment} that is responsible for providing a {@link SurfaceView}
  * and rendering video.
+ * @deprecated use {@link VideoSupportFragment}
  */
+@Deprecated
 public class VideoFragment extends PlaybackFragment {
     static final int SURFACE_NOT_CREATED = 0;
     static final int SURFACE_CREATED = 1;

@@ -45,8 +45,8 @@ for w in cls:
         content = content + line
     file.close()
     # add deprecated tag to fragment class and inner classes/interfaces
-    # content = re.sub(r'\*\/\n(@.*\n|)(public |abstract public |abstract |)class', '* @deprecated use {@link ' + w + 'SupportFragment}\n */\n@Deprecated\n\\1\\2class', content)
-    # content = re.sub(r'\*\/\n    public (static class|interface|final static class|abstract static class)', '* @deprecated use {@link ' + w + 'SupportFragment}\n     */\n    @Deprecated\n    public \\1', content)
+    content = re.sub(r'\*\/\n(@.*\n|)(public |abstract public |abstract |)class', '* @deprecated use {@link ' + w + 'SupportFragment}\n */\n@Deprecated\n\\1\\2class', content)
+    content = re.sub(r'\*\/\n    public (static class|interface|final static class|abstract static class)', '* @deprecated use {@link ' + w + 'SupportFragment}\n     */\n    @Deprecated\n    public \\1', content)
     outfile = open('src/android/support/v17/leanback/app/{}Fragment.java'.format(w), 'w')
     outfile.write(content)
     outfile.close()
@@ -64,7 +64,7 @@ for line in file:
     content = content + line
 file.close()
 # add deprecated tag to class
-# content = re.sub(r'\*\/\npublic class', '* @deprecated use {@link VideoSupportFragmentGlueHost}\n */\n@Deprecated\npublic class', content)
+content = re.sub(r'\*\/\npublic class', '* @deprecated use {@link VideoSupportFragmentGlueHost}\n */\n@Deprecated\npublic class', content)
 outfile = open('src/android/support/v17/leanback/app/VideoFragmentGlueHost.java', 'w')
 outfile.write(content)
 outfile.close()
@@ -82,7 +82,7 @@ for line in file:
     content = content + line
 file.close()
 # add deprecated tag to class
-# content = re.sub(r'\*\/\npublic class', '* @deprecated use {@link PlaybackSupportFragmentGlueHost}\n */\n@Deprecated\npublic class', content)
+content = re.sub(r'\*\/\npublic class', '* @deprecated use {@link PlaybackSupportFragmentGlueHost}\n */\n@Deprecated\npublic class', content)
 outfile = open('src/android/support/v17/leanback/app/PlaybackFragmentGlueHost.java', 'w')
 outfile.write(content)
 outfile.close()
@@ -102,7 +102,7 @@ for line in file:
     content = content + line
 file.close()
 # add deprecated tag to class
-# content = re.sub(r'\*\/\npublic class', '* @deprecated use {@link DetailsSupportFragmentBackgroundController}\n */\n@Deprecated\npublic class', content)
+content = re.sub(r'\*\/\npublic class', '* @deprecated use {@link DetailsSupportFragmentBackgroundController}\n */\n@Deprecated\npublic class', content)
 outfile = open('src/android/support/v17/leanback/app/DetailsFragmentBackgroundController.java', 'w')
 outfile.write(content)
 outfile.close()

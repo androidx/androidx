@@ -32,7 +32,9 @@ import android.widget.TextView;
 
 /**
  * A fragment for displaying an error indication.
+ * @deprecated use {@link ErrorSupportFragment}
  */
+@Deprecated
 public class ErrorFragment extends BrandedFragment {
 
     private ViewGroup mErrorFrame;

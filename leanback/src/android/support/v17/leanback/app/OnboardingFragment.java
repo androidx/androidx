@@ -154,7 +154,9 @@ import java.util.List;
  * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingPageIndicatorStyle
  * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingStartButtonStyle
  * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingLogoStyle
+ * @deprecated use {@link OnboardingSupportFragment}
  */
+@Deprecated
 abstract public class OnboardingFragment extends Fragment {
     private static final String TAG = "OnboardingF";
     private static final boolean DEBUG = false;

@@ -107,7 +107,9 @@ import android.app.Fragment;
  * {@link #onCreateGlueHost()}.
  * </p>
  *
+ * @deprecated use {@link DetailsSupportFragmentBackgroundController}
  */
+@Deprecated
 public class DetailsFragmentBackgroundController {
 
     final DetailsFragment mFragment;

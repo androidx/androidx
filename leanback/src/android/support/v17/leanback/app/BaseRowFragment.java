@@ -34,7 +34,9 @@ import android.view.ViewGroup;
 
 /**
  * An internal base class for a fragment containing a list of rows.
+ * @deprecated use {@link BaseRowSupportFragment}
  */
+@Deprecated
 abstract class BaseRowFragment extends Fragment {
     private static final String CURRENT_SELECTED_POSITION = "currentSelectedPosition";
     private ObjectAdapter mAdapter;

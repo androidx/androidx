@@ -81,7 +81,9 @@ import java.util.Map;
  * The recommended theme to use with a BrowseFragment is
  * {@link android.support.v17.leanback.R.style#Theme_Leanback_Browse}.
  * </p>
+ * @deprecated use {@link BrowseSupportFragment}
  */
+@Deprecated
 public class BrowseFragment extends BaseFragment {
 
     // BUNDLE attribute for saving header show/hide status when backstack is used:
@@ -203,7 +205,9 @@ public class BrowseFragment extends BaseFragment {
 
     /**
      * Listener for transitions between browse headers and rows.
+     * @deprecated use {@link BrowseSupportFragment}
      */
+    @Deprecated
     public static class BrowseTransitionListener {
         /**
          * Callback when headers transition starts.
@@ -267,7 +271,9 @@ public class BrowseFragment extends BaseFragment {
     /**
      * Possible set of actions that {@link BrowseFragment} exposes to clients. Custom
      * fragments can interact with {@link BrowseFragment} using this interface.
+     * @deprecated use {@link BrowseSupportFragment}
      */
+    @Deprecated
     public interface FragmentHost {
         /**
          * Fragments are required to invoke this callback once their view is created
@@ -376,7 +382,9 @@ public class BrowseFragment extends BaseFragment {
      * and provide that through {@link MainFragmentAdapterRegistry}.
      * {@link MainFragmentAdapter} implementation can supply any fragment and override
      * just those interactions that makes sense.
+     * @deprecated use {@link BrowseSupportFragment}
      */
+    @Deprecated
     public static class MainFragmentAdapter<T extends Fragment> {
         private boolean mScalingEnabled;
         private final T mFragment;
@@ -466,7 +474,9 @@ public class BrowseFragment extends BaseFragment {
      * Interface to be implemented by all fragments for providing an instance of
      * {@link MainFragmentAdapter}. Both {@link RowsFragment} and custom fragment provided
      * against {@link PageRow} will need to implement this interface.
+     * @deprecated use {@link BrowseSupportFragment}
      */
+    @Deprecated
     public interface MainFragmentAdapterProvider {
         /**
          * Returns an instance of {@link MainFragmentAdapter} that {@link BrowseFragment}
@@ -478,7 +488,9 @@ public class BrowseFragment extends BaseFragment {
     /**
      * Interface to be implemented by {@link RowsFragment} and its subclasses for providing
      * an instance of {@link MainFragmentRowsAdapter}.
+     * @deprecated use {@link BrowseSupportFragment}
      */
+    @Deprecated
     public interface MainFragmentRowsAdapterProvider {
         /**
          * Returns an instance of {@link MainFragmentRowsAdapter} that {@link BrowseFragment}
@@ -491,7 +503,9 @@ public class BrowseFragment extends BaseFragment {
      * This is used to pass information to {@link RowsFragment} or its subclasses.
      * {@link BrowseFragment} uses this interface to pass row based interaction events to
      * the target fragment.
+     * @deprecated use {@link BrowseSupportFragment}
      */
+    @Deprecated
     public static class MainFragmentRowsAdapter<T extends Fragment> {
         private final T mFragment;
 
@@ -630,14 +644,18 @@ public class BrowseFragment extends BaseFragment {
      * Factory class responsible for creating fragment given the current item. {@link ListRow}
      * should return {@link RowsFragment} or its subclass whereas {@link PageRow}
      * can return any fragment class.
+     * @deprecated use {@link BrowseSupportFragment}
      */
+    @Deprecated
     public abstract static class FragmentFactory<T extends Fragment> {
         public abstract T createFragment(Object row);
     }
 
     /**
      * FragmentFactory implementation for {@link ListRow}.
+     * @deprecated use {@link BrowseSupportFragment}
      */
+    @Deprecated
     public static class ListRowFragmentFactory extends FragmentFactory<RowsFragment> {
         @Override
         public RowsFragment createFragment(Object row) {
@@ -651,7 +669,9 @@ public class BrowseFragment extends BaseFragment {
      * handling {@link ListRow}. Developers can override that and also if they want to
      * use custom fragment, they can register a custom {@link FragmentFactory}
      * against {@link PageRow}.
+     * @deprecated use {@link BrowseSupportFragment}
      */
+    @Deprecated
     public final static class MainFragmentAdapterRegistry {
         private final Map<Class, FragmentFactory> mItemToFragmentFactoryMapping = new HashMap<>();
         private final static FragmentFactory sDefaultFragmentFactory = new ListRowFragmentFactory();

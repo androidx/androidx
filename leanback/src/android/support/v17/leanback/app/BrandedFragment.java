@@ -33,7 +33,9 @@ import android.view.ViewGroup;
 /**
  * Fragment class for managing search and branding using a view that implements
  * {@link TitleViewAdapter.Provider}.
+ * @deprecated use {@link BrandedSupportFragment}
  */
+@Deprecated
 public class BrandedFragment extends Fragment {
 
     // BUNDLE attribute for title is showing
