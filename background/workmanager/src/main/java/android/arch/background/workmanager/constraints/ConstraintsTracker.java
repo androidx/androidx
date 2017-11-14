@@ -35,7 +35,7 @@ import java.util.List;
  * A class to track the current status of various constraints.
  */
 
-public class ConstraintsTracker implements ConstraintController.OnConstraintUpdatedListener {
+public class ConstraintsTracker implements ConstraintController.OnConstraintUpdatedCallback {
 
     private static final String TAG = "ConstraintsTracker";
 
