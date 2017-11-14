@@ -69,6 +69,7 @@
     <string name="form_username">Username</string>
     <string name="form_email">Email address</string>
     <string name="form_description">Description</string>
+    <string name="form_auto_complete">Auto complete</string>
     <string name="form_password">Password field</string>
     <string name="show_error">Show error</string>
     <string name="toggle_enabled">Toggle enabled</string>
