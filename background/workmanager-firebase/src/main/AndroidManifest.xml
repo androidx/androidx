@@ -15,7 +15,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.arch.background.workmanager.firebase">
+          package="android.arch.background.workmanager.background.firebase">
     <application>
         <service
             android:exported="false"

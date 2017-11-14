@@ -18,11 +18,11 @@ package android.arch.background.workmanager;
 
 import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 
+import android.arch.background.workmanager.background.systemjob.SystemJobScheduler;
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
-import android.arch.background.workmanager.systemjob.SystemJobScheduler;
 import android.arch.background.workmanager.utils.BaseWorkHelper;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ProcessLifecycleOwner;
@@ -43,7 +43,7 @@ import java.util.concurrent.Executors;
  */
 public final class WorkManager {
     private static final String FIREBASE_SCHEDULER_CLASSNAME =
-            "android.arch.background.workmanager.firebase.FirebaseJobScheduler";
+            "android.arch.background.workmanager.background.firebase.FirebaseJobScheduler";
     private static final String TAG = "WorkManager";
 
     private Context mContext;
