@@ -52,12 +52,16 @@ import android.widget.FrameLayout;
  * </ul>
  * Use {@link #setPresenterSelector(PresenterSelector)} in subclass constructor to customize
  * Presenters. App may override {@link BrowseFragment#onCreateHeadersFragment()}.
+ * @deprecated use {@link HeadersSupportFragment}
  */
+@Deprecated
 public class HeadersFragment extends BaseRowFragment {
 
     /**
      * Interface definition for a callback to be invoked when a header item is clicked.
+     * @deprecated use {@link HeadersSupportFragment}
      */
+    @Deprecated
     public interface OnHeaderClickedListener {
         /**
          * Called when a header item has been clicked.
@@ -70,7 +74,9 @@ public class HeadersFragment extends BaseRowFragment {
 
     /**
      * Interface definition for a callback to be invoked when a header item is selected.
+     * @deprecated use {@link HeadersSupportFragment}
      */
+    @Deprecated
     public interface OnHeaderViewSelectedListener {
         /**
          * Called when a header item has been selected.
