@@ -20,6 +20,8 @@ import android.content.Context;
 import android.support.annotation.DrawableRes;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.widget.CheckedTextView;
 
 /**
@@ -78,5 +80,11 @@ public class AppCompatCheckedTextView extends CheckedTextView {
         if (mTextHelper != null) {
             mTextHelper.applyCompoundDrawablesTints();
         }
+    }
+
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        return AppCompatHintHelper.onCreateInputConnection(super.onCreateInputConnection(outAttrs),
+                outAttrs, this);
     }
 }
