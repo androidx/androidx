@@ -69,21 +69,4 @@ public interface DependencyDao {
      */
     @Query("SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id")
     List<String> getPrerequisites(String id);
-
-    /**
-     * Retrieves the IDs of all {@link WorkSpec} that
-     * <ol>
-     * <li>Have exactly one {@link Dependency} and,</li>
-     * <li>2. That {@link Dependency}'s prerequisite ID matches the specified one.</li>
-     * </ol>
-     *
-     * {@link WorkSpec}s with 0 prerequisites will not have any {@link Dependency}s.
-     *
-     * @param prerequisiteId The {@link WorkSpec} ID to find {@link Dependency}s for.
-     * @return List of {@link WorkSpec} IDs with exactly one {@link Dependency} with prerequisiteId.
-     */
-    @Query("SELECT work_spec_id FROM dependency NATURAL JOIN "
-            + "(SELECT work_spec_id FROM dependency WHERE prerequisite_id=:prerequisiteId) "
-            + "GROUP BY work_spec_id HAVING COUNT(work_spec_id)=1")
-    List<String> getWorkSpecIdsWithSinglePrerequisite(String prerequisiteId);
 }
