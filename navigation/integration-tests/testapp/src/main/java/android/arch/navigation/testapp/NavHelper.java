@@ -67,6 +67,8 @@ public class NavHelper {
                             .setLaunchSingleTop(true)
                             .setEnterAnim(R.anim.fade_in)
                             .setExitAnim(R.anim.fade_out)
+                            .setPopEnterAnim(R.anim.fade_in)
+                            .setPopExitAnim(R.anim.fade_out)
                             .build());
             return true;
         } catch (IllegalArgumentException e) {

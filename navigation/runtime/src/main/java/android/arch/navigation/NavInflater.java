@@ -247,6 +247,8 @@ public class NavInflater {
                 a.getBoolean(R.styleable.NavAction_popUpToInclusive, false));
         builder.setEnterAnim(a.getResourceId(R.styleable.NavAction_enterAnim, -1));
         builder.setExitAnim(a.getResourceId(R.styleable.NavAction_exitAnim, -1));
+        builder.setPopEnterAnim(a.getResourceId(R.styleable.NavAction_popEnterAnim, -1));
+        builder.setPopExitAnim(a.getResourceId(R.styleable.NavAction_popExitAnim, -1));
         action.setNavOptions(builder.build());
 
         dest.putAction(id, action);
