@@ -66,7 +66,9 @@ import java.util.List;
  * not when fragment is restored from an instance state.  Activity may manually
  * call {@link #startRecognition()}, typically in onNewIntent().
  * </p>
+ * @deprecated use {@link SearchSupportFragment}
  */
+@Deprecated
 public class SearchFragment extends Fragment {
     static final String TAG = SearchFragment.class.getSimpleName();
     static final boolean DEBUG = false;

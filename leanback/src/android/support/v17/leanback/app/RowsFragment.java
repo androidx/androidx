@@ -53,7 +53,9 @@ import java.util.ArrayList;
  * of rows in a vertical list. The Adapter's {@link PresenterSelector} must maintain subclasses
  * of {@link RowPresenter}.
  * </p>
+ * @deprecated use {@link RowsSupportFragment}
  */
+@Deprecated
 public class RowsFragment extends BaseRowFragment implements
         BrowseFragment.MainFragmentRowsAdapterProvider,
         BrowseFragment.MainFragmentAdapterProvider {
@@ -634,7 +636,9 @@ public class RowsFragment extends BaseRowFragment implements
      * The adapter that RowsFragment implements
      * BrowseFragment.MainFragmentRowsAdapter.
      * @see #getMainFragmentRowsAdapter().
+     * @deprecated use {@link RowsSupportFragment}
      */
+    @Deprecated
     public static class MainFragmentRowsAdapter
             extends BrowseFragment.MainFragmentRowsAdapter<RowsFragment> {
 

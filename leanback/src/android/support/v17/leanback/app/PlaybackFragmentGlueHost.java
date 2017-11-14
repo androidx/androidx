@@ -30,7 +30,9 @@ import android.view.View;
 /**
  * {@link PlaybackGlueHost} implementation
  * the interaction between this class and {@link PlaybackFragment}.
+ * @deprecated use {@link PlaybackSupportFragmentGlueHost}
  */
+@Deprecated
 public class PlaybackFragmentGlueHost extends PlaybackGlueHost implements PlaybackSeekUi {
     private final PlaybackFragment mFragment;
 
