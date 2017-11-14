@@ -166,7 +166,7 @@ final class CollapsiblePreferenceGroupController
             CharSequence summary = null;
             for (int i = collapsedIndex; i < flattenedPreferenceList.size(); i++) {
                 final Preference preference = flattenedPreferenceList.get(i);
-                if (preference instanceof PreferenceGroup) {
+                if (preference instanceof PreferenceGroup || !preference.isVisible()) {
                     continue;
                 }
                 final CharSequence title = preference.getTitle();
