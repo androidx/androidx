@@ -18,6 +18,7 @@ package android.arch.background.workmanager.foreground;
 import android.arch.background.workmanager.Processor;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.WorkDatabase;
+import android.arch.background.workmanager.constraints.ConstraintsMetCallback;
 import android.arch.background.workmanager.constraints.ConstraintsTracker;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.lifecycle.Lifecycle;
@@ -44,7 +45,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ForegroundProcessor extends Processor
-        implements Observer<List<WorkSpec>>, LifecycleObserver {
+        implements Observer<List<WorkSpec>>, LifecycleObserver, ConstraintsMetCallback {
 
     private static final String TAG = "ForegroundProcessor";
 
@@ -128,6 +129,21 @@ public class ForegroundProcessor extends Processor
             } else {
                 Log.d(TAG, "Cannot cancel " + entry.getKey());
             }
+        }
+    }
+
+    @Override
+    public void onAllConstraintsMet(List<String> workSpecIds) {
+        // TODO(sumir): Delay for these WorkSpecs?
+        for (String workSpecId : workSpecIds) {
+            process(workSpecId, 0L);
+        }
+    }
+
+    @Override
+    public void onAllConstraintsNotMet(List<String> workSpecIds) {
+        for (String workSpecId : workSpecIds) {
+            cancel(workSpecId, true);
         }
     }
 }
