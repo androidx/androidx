@@ -44,18 +44,14 @@ import android.support.v7.widget.RecyclerView;
  * {@literal @}Dao
  * interface UserDao {
  *     {@literal @}Query("SELECT * FROM user ORDER BY lastName ASC")
- *     public abstract LivePagedListProvider&lt;Integer, User> usersByLastName();
+ *     public abstract DataSource.Factory&lt;Integer, User> usersByLastName();
  * }
  *
  * class MyViewModel extends ViewModel {
  *     public final LiveData&lt;PagedList&lt;User>> usersList;
  *     public MyViewModel(UserDao userDao) {
- *         usersList = userDao.usersByLastName().create(
- *                 /* initial load position {@literal *}/ 0,
- *                 new PagedList.Config.Builder()
- *                         .setPageSize(50)
- *                         .setPrefetchDistance(50)
- *                         .build());
+ *         usersList = LivePagedListBuilder&lt;>(
+ *                 userDao.usersByLastName(), /* page size {@literal *}/ 20).build();
  *     }
  * }
  *

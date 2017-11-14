@@ -190,8 +190,12 @@ public abstract class UserDao {
     @Query("SELECT * FROM user where mAge > :age")
     public abstract LivePagedListProvider<Integer, User> loadPagedByAge_legacy(int age);
 
+    // TODO: switch to PositionalDataSource once Room supports it
     @Query("SELECT * FROM user ORDER BY mAge DESC")
-    public abstract TiledDataSource<User> loadUsersByAgeDesc();
+    public abstract DataSource.Factory<Integer, User> loadUsersByAgeDesc();
+
+    @Query("SELECT * FROM user ORDER BY mAge DESC")
+    public abstract TiledDataSource<User> loadUsersByAgeDesc_legacy();
 
     @Query("DELETE FROM User WHERE mId IN (:ids) AND mAge == :age")
     public abstract int deleteByAgeAndIds(int age, List<Integer> ids);
