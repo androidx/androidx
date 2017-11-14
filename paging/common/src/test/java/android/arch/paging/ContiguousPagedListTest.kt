@@ -18,17 +18,16 @@ package android.arch.paging
 
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import org.mockito.ArgumentCaptor
-import org.mockito.Mockito.any
-import org.mockito.Mockito.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.verifyZeroInteractions
-import java.util.Collections
+
 
 @RunWith(Parameterized::class)
 class ContiguousPagedListTest(private val mCounted: Boolean) {
@@ -44,33 +43,46 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
     }
 
     private inner class TestSource(val listData: List<Item> = ITEMS)
-            : PositionalDataSource<Item>() {
-        override fun countItems(): Int {
-            return if (mCounted) {
-                listData.size
+            : ContiguousDataSource<Int, Item>() {
+        override fun loadInitial(key: Int?, initialLoadSize: Int,
+                enablePlaceholders: Boolean, callback: InitialLoadCallback<Item>) {
+
+            val convertPosition = key ?: 0
+            val loadPosition = Math.max(0, (convertPosition - initialLoadSize / 2))
+
+            val data = getClampedRange(loadPosition, loadPosition + initialLoadSize)
+
+
+            if (enablePlaceholders && mCounted) {
+                callback.onResult(data, loadPosition, listData.size)
             } else {
-                DataSource.COUNT_UNDEFINED
+                // still must pass offset, even if not counted
+                callback.onResult(data, loadPosition)
             }
         }
 
-        private fun getClampedRange(startInc: Int, endExc: Int, reverse: Boolean): List<Item> {
-            val list = listData.subList(Math.max(0, startInc), Math.min(listData.size, endExc))
-            if (reverse) {
-                Collections.reverse(list)
-            }
-            return list
+        override fun loadAfter(currentEndIndex: Int, currentEndItem: Item, pageSize: Int,
+                callback: LoadCallback<Item>) {
+            val startIndex = currentEndIndex + 1
+            callback.onResult(getClampedRange(startIndex, startIndex + pageSize))
         }
 
-        override fun loadAfter(startIndex: Int, pageSize: Int): List<Item>? {
-            return getClampedRange(startIndex, startIndex + pageSize, false)
+        override fun loadBefore(currentBeginIndex: Int, currentBeginItem: Item, pageSize: Int,
+                callback: LoadCallback<Item>) {
+            val startIndex = currentBeginIndex - 1
+            callback.onResult(getClampedRange(startIndex - pageSize + 1, startIndex + 1))
         }
 
-        override fun loadBefore(startIndex: Int, pageSize: Int): List<Item>? {
-            return getClampedRange(startIndex - pageSize + 1, startIndex + 1, true)
+        override fun getKey(position: Int, item: Item?): Int {
+            return 0
+        }
+
+        private fun getClampedRange(startInc: Int, endExc: Int): List<Item> {
+            return listData.subList(Math.max(0, startInc), Math.min(listData.size, endExc))
         }
     }
 
-    private fun verifyRange(start: Int, count: Int, actual: PagedStorage<*, Item>) {
+    private fun verifyRange(start: Int, count: Int, actual: PagedStorage<Item>) {
         if (mCounted) {
             // assert nulls + content
             val expected = arrayOfNulls<Item>(ITEMS.size)
@@ -96,41 +108,6 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
 
     private fun verifyRange(start: Int, count: Int, actual: PagedList<Item>) {
         verifyRange(start, count, actual.mStorage)
-    }
-
-    private fun verifyRange(start: Int, count: Int, actual: PageResult<Int, Item>) {
-        if (mCounted) {
-            assertEquals(start, actual.leadingNulls)
-            assertEquals(ITEMS.size - start - count, actual.trailingNulls)
-            assertEquals(0, actual.positionOffset)
-        } else {
-            assertEquals(0, actual.leadingNulls)
-            assertEquals(0, actual.trailingNulls)
-            assertEquals(start, actual.positionOffset)
-        }
-        assertEquals(ITEMS.subList(start, start + count), actual.page.items)
-    }
-
-    private fun verifyInitialLoad(start: Int, count : Int, initialPosition: Int, initialLoadSize: Int) {
-        @Suppress("UNCHECKED_CAST")
-        val receiver = mock(PageResult.Receiver::class.java) as PageResult.Receiver<Int, Item>
-
-        @Suppress("UNCHECKED_CAST")
-        val captor = ArgumentCaptor.forClass(PageResult::class.java)
-                as ArgumentCaptor<PageResult<Int, Item>>
-
-        TestSource().loadInitial(initialPosition, initialLoadSize, true, receiver)
-
-        verify(receiver).onPageResult(captor.capture())
-        verifyNoMoreInteractions(receiver)
-        verifyRange(start, count, captor.value)
-    }
-
-    @Test
-    fun initialLoad() {
-        verifyInitialLoad(30, 40, 50, 40)
-        verifyInitialLoad(0, 10, 5, 10)
-        verifyInitialLoad(90, 10, 95, 10)
     }
 
     private fun createCountedPagedList(
@@ -181,7 +158,6 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         verifyCallback(callback, 40, 40)
         verifyNoMoreInteractions(callback)
     }
-
 
     @Test
     fun prepend() {
@@ -311,6 +287,60 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
     }
 
     @Test
+    fun initialLoadAsync() {
+        // Note: ignores Parameterized param
+        val asyncDataSource = AsyncListDataSource(ITEMS)
+        val dataSource = asyncDataSource.wrapAsContiguousWithoutPlaceholders()
+        val pagedList = ContiguousPagedList(
+                dataSource, mMainThread, mBackgroundThread, null,
+                PagedList.Config.Builder().setPageSize(10).build(), null)
+
+        assertTrue(pagedList.isEmpty())
+        drain()
+        assertTrue(pagedList.isEmpty())
+        asyncDataSource.flush()
+        assertTrue(pagedList.isEmpty())
+        mBackgroundThread.executeAll()
+        assertTrue(pagedList.isEmpty())
+
+        // Data source defers callbacks until flush, which posts result to main thread
+        mMainThread.executeAll()
+        assertFalse(pagedList.isEmpty())
+
+    }
+
+    @Test
+    fun addWeakCallbackEmpty() {
+        // Note: ignores Parameterized param
+        val asyncDataSource = AsyncListDataSource(ITEMS)
+        val dataSource = asyncDataSource.wrapAsContiguousWithoutPlaceholders()
+        val pagedList = ContiguousPagedList(
+                dataSource, mMainThread, mBackgroundThread, null,
+                PagedList.Config.Builder().setPageSize(10).build(), null)
+        val callback = mock(PagedList.Callback::class.java)
+
+        // capture empty snapshot
+        val emptySnapshot = pagedList.snapshot()
+        assertTrue(pagedList.isEmpty())
+        assertTrue(emptySnapshot.isEmpty())
+
+        // verify that adding callback notifies nothing going from empty -> empty
+        pagedList.addWeakCallback(emptySnapshot, callback)
+        verifyZeroInteractions(callback)
+        pagedList.removeWeakCallback(callback)
+
+        // data added in asynchronously
+        asyncDataSource.flush()
+        drain()
+        assertFalse(pagedList.isEmpty())
+
+        // verify that adding callback notifies insert going from empty -> content
+        pagedList.addWeakCallback(emptySnapshot, callback)
+        verify(callback).onInserted(0, pagedList.size)
+        verifyNoMoreInteractions(callback)
+    }
+
+    @Test
     fun boundaryCallback_empty() {
         @Suppress("UNCHECKED_CAST")
         val boundaryCallback =
@@ -347,8 +377,7 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         pagedList.loadAround(if (mCounted) 99 else 19)
         drain()
         verifyRange(80, 20, pagedList)
-        verify(boundaryCallback).onItemAtEndLoaded(
-                any(), eq(ITEMS.last()), eq(if (mCounted) 100 else 20))
+        verify(boundaryCallback).onItemAtEndLoaded(ITEMS.last())
         verifyNoMoreInteractions(boundaryCallback)
 
 
@@ -371,7 +400,7 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         // ... finally try prepend, see 0 items, which will dispatch front callback
         pagedList.loadAround(0)
         drain()
-        verify(boundaryCallback).onItemAtFrontLoaded(any(), eq(ITEMS.first()), eq(100))
+        verify(boundaryCallback).onItemAtFrontLoaded(ITEMS.first())
         verifyNoMoreInteractions(boundaryCallback)
     }
 

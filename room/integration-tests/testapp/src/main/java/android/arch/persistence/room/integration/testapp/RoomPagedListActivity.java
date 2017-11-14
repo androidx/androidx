@@ -16,7 +16,6 @@
 
 package android.arch.persistence.room.integration.testapp;
 
-import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -75,7 +74,7 @@ public class RoomPagedListActivity extends AppCompatActivity {
                 mAdapter.setList(items);
             }
         });
-        final Button button = findViewById(R.id.button);
+        final Button button = findViewById(R.id.addButton);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,12 +112,5 @@ public class RoomPagedListActivity extends AppCompatActivity {
 
     protected boolean useKeyedQuery() {
         return false;
-    }
-
-    private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
-
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return mLifecycleRegistry;
     }
 }

@@ -45,8 +45,17 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
         mUserDao.deleteEverything();
     }
 
+    // TODO: delete this and factory abstraction when LivePagedListProvider is removed
+    @Test
+    public void limitOffsetDataSource_legacyTiledDataSource() {
+        // Simple verification that loading a TiledDataSource still works.
+        LimitOffsetDataSource<User> dataSource =
+                (LimitOffsetDataSource<User>) mUserDao.loadUsersByAgeDesc_legacy();
+        assertThat(dataSource.countItems(), is(0));
+    }
+
     private LimitOffsetDataSource<User> loadUsersByAgeDesc() {
-        return (LimitOffsetDataSource<User>) mUserDao.loadUsersByAgeDesc();
+        return (LimitOffsetDataSource<User>) mUserDao.loadUsersByAgeDesc().create();
     }
 
     @Test
