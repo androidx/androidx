@@ -35,7 +35,6 @@ import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
-import java.util.List;
 
 /**
  * A runnable that looks up the {@link WorkSpec} from the database for a given id, instantiates
@@ -91,14 +90,14 @@ public class WorkerWrapper implements Runnable {
         Worker worker = Worker.fromWorkSpec(mAppContext, workSpec);
         if (worker == null) {
             Log.e(TAG, "Could not create Worker " + workSpec.getWorkerClassName());
-            workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_FAILED);
+            workSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
             notifyListener(RESULT_PERMANENT_ERROR);
             return;
         }
 
         mWorkDatabase.beginTransaction();
         try {
-            workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_RUNNING);
+            workSpecDao.setStatus(STATUS_RUNNING, mWorkSpecId);
             workSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);
             mWorkDatabase.setTransactionSuccessful();
         } finally {
@@ -115,11 +114,11 @@ public class WorkerWrapper implements Runnable {
             notifyListener(RESULT_SUCCEEDED);
         } catch (InterruptedException e) {
             Log.d(TAG, "Work interrupted for " + mWorkSpecId);
-            workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
+            workSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);
             notifyListener(RESULT_INTERRUPTED);
         } catch (Exception e) {
             Log.d(TAG, "Work failed for " + mWorkSpecId, e);
-            workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_FAILED);
+            workSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
             notifyListener(RESULT_FAILED);
         }
     }
@@ -149,18 +148,18 @@ public class WorkerWrapper implements Runnable {
         mWorkDatabase.beginTransaction();
         try {
             if (isPeriodicWork) { // For periodic jobs a success means to be set back to enqueued.
-                workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
+                workSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);
                 workSpecDao.resetWorkSpecRunAttemptCount(mWorkSpecId);
             } else {
-                workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_SUCCEEDED);
+                workSpecDao.setStatus(STATUS_SUCCEEDED, mWorkSpecId);
             }
             dependencyDao.deleteDependenciesWithPrerequisite(mWorkSpecId);
-            List<String> unblockedWorkIds = workSpecDao.getUnblockedWorkIds();
-            int unblockedWorkCount = unblockedWorkIds.size();
+            String[] unblockedWorkIds = workSpecDao.getUnblockedWorkIds();
+            int unblockedWorkCount = unblockedWorkIds.length;
             if (unblockedWorkCount > 0) {
                 Log.d(TAG, "Setting status to enqueued for " + unblockedWorkCount + " Works "
                         + "that were dependent on Work ID " + mWorkSpecId);
-                workSpecDao.setWorkSpecStatus(unblockedWorkIds, Work.STATUS_ENQUEUED);
+                workSpecDao.setStatus(STATUS_ENQUEUED, unblockedWorkIds);
             }
             mWorkDatabase.setTransactionSuccessful();
 

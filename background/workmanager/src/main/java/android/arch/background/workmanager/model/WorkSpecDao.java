@@ -68,17 +68,17 @@ public interface WorkSpecDao {
      * @return The {@link WorkSpec}s with the requested IDs.
      */
     @Query("SELECT * FROM workspec WHERE id IN (:ids)")
-    WorkSpec[] getWorkSpecs(List<String> ids);
+    WorkSpec[] getWorkSpecs(String... ids);
 
     /**
-     * Updates the status of a {@link WorkSpec}.
+     * Updates the status of at least one {@link WorkSpec} by ID.
      *
-     * @param id The identifier for the {@link WorkSpec}
      * @param status The new status
-     * @return The number of rows that were updated (should be 0 or 1)
+     * @param ids The IDs for the {@link WorkSpec}s to update
+     * @return The number of rows that were updated
      */
-    @Query("UPDATE workspec SET status=:status WHERE id=:id")
-    int setWorkSpecStatus(String id, @Work.WorkStatus int status);
+    @Query("UPDATE workspec SET status=:status WHERE id IN (:ids)")
+    int setStatus(@Work.WorkStatus int status, String... ids);
 
     /**
      * Increment run attempt count of a {@link WorkSpec}.
@@ -97,16 +97,6 @@ public interface WorkSpecDao {
      */
     @Query("UPDATE workspec SET run_attempt_count=0 WHERE id=:id")
     int resetWorkSpecRunAttemptCount(String id);
-
-    /**
-     * Updates the status of multiple {@link WorkSpec}s.
-     *
-     * @param ids A list of identifiers for {@link WorkSpec}s
-     * @param status The new status
-     * @return The number of rows that were updated
-     */
-    @Query("UPDATE workspec SET status=:status WHERE id IN (:ids)")
-    int setWorkSpecStatus(List<String> ids, @Work.WorkStatus int status);
 
     /**
      * Retrieves the status of a {@link WorkSpec}.
@@ -143,11 +133,11 @@ public interface WorkSpecDao {
      * Retrieves work ids for items that are no longer considered blocked (items that are currently
      * {@code STATUS_BLOCKED} but aren't in the {@link Dependency} table).
      *
-     * @return A list of work ids.
+     * @return An array of work ids.
      */
     @Query("SELECT id FROM workspec WHERE status=" + STATUS_BLOCKED + " AND id NOT IN "
             + "(SELECT DISTINCT work_spec_id FROM dependency)")
-    List<String> getUnblockedWorkIds();
+    String[] getUnblockedWorkIds();
 
     /**
      * Retrieves work ids for unfinished work with a given tag.
