@@ -22,11 +22,10 @@ buildscript {
     init.setSdkInLocalPropertiesFile()
     repos.addMavenRepositories(repositories)
 
-    apply from: 'app-toolkit/dependencies.gradle'
     dependencies {
         classpath build_libs.gradle
         classpath build_libs.jacoco
-        classpath libs.kotlin.gradle_plugin
+        classpath build_libs.kotlin.gradle_plugin
     }
 }
 
