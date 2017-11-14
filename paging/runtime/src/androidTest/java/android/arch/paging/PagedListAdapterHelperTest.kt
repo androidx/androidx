@@ -54,12 +54,10 @@ class PagedListAdapterHelperTest {
 
     private fun <V> createPagedListFromListAndPos(
             config: PagedList.Config, data: List<V>, initialKey: Int): PagedList<V> {
-        return PagedList.Builder<Int, V>()
+        return PagedList.Builder<Int, V>(ListDataSource(data), config)
                 .setInitialKey(initialKey)
-                .setConfig(config)
                 .setMainThreadExecutor(mMainThread)
                 .setBackgroundThreadExecutor(mPageLoadingThread)
-                .setDataSource(ListDataSource(data))
                 .build()
     }
 
