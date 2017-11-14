@@ -36,6 +36,14 @@ android {
             }
         }
     }
+
+    signingConfigs {
+        debug {
+            // Use a local debug keystore to avoid build server issues.
+            storeFile project.rootProject.init.debugKeystore
+        }
+    }
+
     testOptions {
         unitTests.returnDefaultValues = true
     }
