@@ -17,14 +17,13 @@
 package android.arch.paging
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.any
-import org.mockito.Mockito.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
@@ -43,12 +42,12 @@ class TiledPagedListTest {
         }
     }
 
-    private fun verifyLoadedPages(list: List<Item>, vararg loadedPages: Int, expected: List<Item> = ITEMS) {
+    private fun verifyLoadedPages(list: List<Item>, vararg loadedPages: Int) {
         val loadedPageList = loadedPages.asList()
-        assertEquals(expected.size, list.size)
+        assertEquals(ITEMS.size, list.size)
         for (i in list.indices) {
             if (loadedPageList.contains(i / PAGE_SIZE)) {
-                assertSame("Index $i", expected[i], list[i])
+                assertSame("Index $i", ITEMS[i], list[i])
             } else {
                 assertNull("Index $i", list[i])
             }
@@ -67,21 +66,6 @@ class TiledPagedListTest {
                         .setPrefetchDistance(prefetchDistance)
                         .build(),
                 loadPosition)
-    }
-
-    @Test
-    fun computeFirstLoadPosition_zero() {
-        assertEquals(0, TiledPagedList.computeFirstLoadPosition(0, 30, 10, 100))
-    }
-
-    @Test
-    fun computeFirstLoadPosition_requestedPositionIncluded() {
-        assertEquals(0, TiledPagedList.computeFirstLoadPosition(10, 10, 10, 100))
-    }
-
-    @Test
-    fun computeFirstLoadPosition_endAdjusted() {
-        assertEquals(70, TiledPagedList.computeFirstLoadPosition(99, 30, 10, 100))
     }
 
     @Test
@@ -118,6 +102,56 @@ class TiledPagedListTest {
     fun initialLoad_offset() {
         val pagedList = createTiledPagedList(loadPosition = 41, initPageCount = 2)
         verifyLoadedPages(pagedList, 3, 4)
+    }
+
+    @Test
+    fun initialLoad_initializesLastKey() {
+        val pagedList = createTiledPagedList(loadPosition = 44, initPageCount = 2)
+        assertEquals(44, pagedList.lastKey)
+    }
+
+    @Test
+    fun initialLoadAsync() {
+        val dataSource = AsyncListDataSource(ITEMS)
+        val pagedList = TiledPagedList(
+                dataSource, mMainThread, mBackgroundThread, null,
+                PagedList.Config.Builder().setPageSize(10).build(), 0)
+
+        assertTrue(pagedList.isEmpty())
+        drain()
+        assertTrue(pagedList.isEmpty())
+        dataSource.flush()
+        assertTrue(pagedList.isEmpty())
+        mBackgroundThread.executeAll()
+        assertTrue(pagedList.isEmpty())
+
+        // Data source defers callbacks until flush, which posts result to main thread
+        mMainThread.executeAll()
+        assertFalse(pagedList.isEmpty())
+    }
+
+    @Test
+    fun addWeakCallbackEmpty() {
+        val dataSource = AsyncListDataSource(ITEMS)
+        val pagedList = TiledPagedList(
+                dataSource, mMainThread, mBackgroundThread, null,
+                PagedList.Config.Builder().setPageSize(10).build(), 0)
+
+        // capture empty snapshot
+        val emptySnapshot = pagedList.snapshot()
+        assertTrue(pagedList.isEmpty())
+        assertTrue(emptySnapshot.isEmpty())
+
+        // data added in asynchronously
+        dataSource.flush()
+        drain()
+        assertFalse(pagedList.isEmpty())
+
+        // verify that adding callback works with empty start point
+        val callback = mock(PagedList.Callback::class.java)
+        pagedList.addWeakCallback(emptySnapshot, callback)
+        verify(callback).onInserted(0, pagedList.size)
+        verifyNoMoreInteractions(callback)
     }
 
     @Test
@@ -305,8 +339,8 @@ class TiledPagedListTest {
 
         // callbacks posted, since creation often happens on BG thread
         drain()
-        verify(boundaryCallback).onItemAtFrontLoaded(any(), eq(ITEMS[0]), eq(2))
-        verify(boundaryCallback).onItemAtEndLoaded(any(), eq(ITEMS[1]), eq(2))
+        verify(boundaryCallback).onItemAtFrontLoaded(ITEMS[0])
+        verify(boundaryCallback).onItemAtEndLoaded(ITEMS[1])
         verifyNoMoreInteractions(boundaryCallback)
     }
 
@@ -332,8 +366,8 @@ class TiledPagedListTest {
 
         drain()
         // first/last items loaded now, so callbacks dispatched
-        verify(boundaryCallback).onItemAtFrontLoaded(any(), eq(ITEMS.first()), eq(45))
-        verify(boundaryCallback).onItemAtEndLoaded(any(), eq(ITEMS.last()), eq(45))
+        verify(boundaryCallback).onItemAtFrontLoaded(ITEMS.first())
+        verify(boundaryCallback).onItemAtEndLoaded(ITEMS.last())
         verifyNoMoreInteractions(boundaryCallback)
     }
 
@@ -360,8 +394,8 @@ class TiledPagedListTest {
         drain()
 
         // items accessed, so now posted callbacks are run
-        verify(boundaryCallback).onItemAtFrontLoaded(any(), eq(ITEMS.first()), eq(45))
-        verify(boundaryCallback).onItemAtEndLoaded(any(), eq(ITEMS.last()), eq(45))
+        verify(boundaryCallback).onItemAtFrontLoaded(ITEMS.first())
+        verify(boundaryCallback).onItemAtEndLoaded(ITEMS.last())
         verifyNoMoreInteractions(boundaryCallback)
     }
 

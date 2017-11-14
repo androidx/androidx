@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,115 +20,139 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
-import java.util.List;
+import java.util.Collections;
 
 /**
- * Incremental data loader for paging positional content, where content can be loaded based on its
- * integer position.
+ * Position-based data loader for a fixed-size, countable data set, supporting loads at arbitrary
+ * positions.
  * <p>
- * Use PositionalDataSource if you only need position as input for item loading - if for example,
- * you're asking the backend for items at positions 10 through 20, or using a limit/offset database
- * query to load items at query position 10 through 20.
+ * Extend PositionalDataSource if you can support counting your data set, and loading based on
+ * position information.
  * <p>
- * Implement a DataSource using PositionalDataSource if position is the only information you need to
- * load items.
+ * Note that unless {@link PagedList.Config#enablePlaceholders placeholders are disabled}
+ * PositionalDataSource requires counting the size of the dataset. This allows pages to be tiled in
+ * at arbitrary, non-contiguous locations based upon what the user observes in a {@link PagedList}.
  * <p>
- * Note that {@link BoundedDataSource} provides a simpler API for positional loading, if your
- * backend or data store doesn't require
- * <p>
- * @param <Value> Value type of items being loaded by the DataSource.
+ * Room can generate a Factory of PositionalDataSources for you:
+ * <pre>
+ * {@literal @}Dao
+ * interface UserDao {
+ *     {@literal @}Query("SELECT * FROM user ORDER BY mAge DESC")
+ *     public abstract DataSource.Factory&lt;Integer, User> loadUsersByAgeDesc();
+ * }</pre>
+ *
+ * @param <T> Type of items being loaded by the PositionalDataSource.
  */
-abstract class PositionalDataSource<Value> extends ContiguousDataSource<Integer, Value> {
+public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
 
     /**
-     * Number of items that this DataSource can provide in total, or COUNT_UNDEFINED.
-     *
-     * @return number of items that this DataSource can provide in total, or COUNT_UNDEFINED
-     * if difficult or undesired to compute.
-     */
-    public int countItems() {
-        return COUNT_UNDEFINED;
-    }
-
-    @Nullable
-    @Override
-    List<Value> loadAfterImpl(int currentEndIndex, @NonNull Value currentEndItem, int pageSize) {
-        return loadAfter(currentEndIndex + 1, pageSize);
-    }
-
-    @Nullable
-    @Override
-    List<Value> loadBeforeImpl(int currentBeginIndex, @NonNull Value currentBeginItem,
-            int pageSize) {
-        return loadBefore(currentBeginIndex - 1, pageSize);
-    }
-
-    @Override
-    void loadInitial(Integer position, int initialLoadSize, boolean enablePlaceholders,
-            @NonNull PageResult.Receiver<Integer, Value> receiver) {
-
-        final int convertPosition = position == null ? 0 : position;
-        final int loadPosition = Math.max(0, (convertPosition - initialLoadSize / 2));
-
-        int count = COUNT_UNDEFINED;
-        if (enablePlaceholders) {
-            count = countItems();
-        }
-        List<Value> data = loadAfter(loadPosition, initialLoadSize);
-
-        if (data == null) {
-            receiver.onPageResult(new PageResult<Integer, Value>(PageResult.INIT));
-            return;
-        }
-
-        final boolean uncounted = count == COUNT_UNDEFINED;
-        int leadingNullCount = uncounted ? 0 : loadPosition;
-        int trailingNullCount = uncounted ? 0 : count - leadingNullCount - data.size();
-        int positionOffset = uncounted ? loadPosition : 0;
-
-        receiver.onPageResult(new PageResult<>(
-                PageResult.INIT,
-                new Page<Integer, Value>(data),
-                leadingNullCount,
-                trailingNullCount,
-                positionOffset));
-    }
-
-    /**
-     * Load data after currently loaded content, starting at the provided index.
+     * Load initial list data.
      * <p>
-     * It's valid to return a different list size than the page size, if it's easier for this data
-     * source. It is generally safer to increase the number loaded than reduce.
+     * This method is called to load the initial page(s) from the DataSource.
+     * <p>
+     * Result list must be a multiple of pageSize to enable efficient tiling.
      *
-     * @param startIndex Load items starting at this index.
-     * @param pageSize Suggested number of items to load.
-     * @return List of items, starting at position currentEndIndex + 1. Null if the data source is
-     *         no longer valid, and should not be queried again.
+     * @param requestedStartPosition Initial load position requested. Note that this may not be
+     *                               within the bounds of your data set, it should be corrected
+     *                               before you make your query.
+     * @param requestedLoadSize Requested number of items to load. Note that this may be larger than
+     *                          available data.
+     * @param pageSize Defines page size acceptable for return values. List of items passed to the
+     *                 callback must be an integer multiple of page size.
+     * @param callback DataSource.InitialLoadCallback that receives initial load data, including
+     *                 position and total data set size.
      */
     @WorkerThread
-    @Nullable
-    public abstract List<Value> loadAfter(int startIndex, int pageSize);
+    public abstract void loadInitial(int requestedStartPosition, int requestedLoadSize,
+            int pageSize, @NonNull InitialLoadCallback<T> callback);
 
     /**
-     * Load data before the currently loaded content, starting at the provided index.
+     * Called to load a range of data from the DataSource.
      * <p>
-     * It's valid to return a different list size than the page size, if it's easier for this data
-     * source. It is generally safer to increase the number loaded than reduce.
+     * This method is called to load additional pages from the DataSource after the
+     * InitialLoadCallback passed to loadInitial has initialized a PagedList.
+     * <p>
+     * Unlike {@link #loadInitial(int, int, int, InitialLoadCallback)}, this method must return the
+     * number of items requested, at the position requested.
      *
-     * @param startIndex Load items, starting at this index.
-     * @param pageSize Suggested number of items to load.
-     * @return List of items, in descending order, starting at position currentBeginIndex - 1. Null
-     *         if the data source is no longer valid, and should not be queried again.
+     * @param startPosition Initial load position.
+     * @param count Number of items to load.
+     * @param callback DataSource.LoadCallback that receives loaded data.
      */
     @WorkerThread
-    @Nullable
-    public abstract List<Value> loadBefore(int startIndex, int pageSize);
+    public abstract void loadRange(int startPosition, int count,
+            @NonNull LoadCallback<T> callback);
 
     @Override
-    Integer getKey(int position, Value item) {
-        if (position < 0) {
-            return null;
+    boolean isContiguous() {
+        return false;
+    }
+
+    @NonNull
+    ContiguousDataSource<Integer, T> wrapAsContiguousWithoutPlaceholders() {
+        return new ContiguousWithoutPlaceholdersWrapper<>(this);
+    }
+
+    static int computeFirstLoadPosition(int position, int firstLoadSize, int pageSize, int size) {
+        int roundedPageStart = Math.round(position / pageSize) * pageSize;
+
+        // maximum start pos is that which will encompass end of list
+        int maximumLoadPage = ((size - firstLoadSize + pageSize - 1) / pageSize) * pageSize;
+        roundedPageStart = Math.min(maximumLoadPage, roundedPageStart);
+
+        // minimum start position is 0
+        roundedPageStart = Math.max(0, roundedPageStart);
+
+        return roundedPageStart;
+    }
+
+    @SuppressWarnings("deprecation")
+    static class ContiguousWithoutPlaceholdersWrapper<Value>
+            extends ContiguousDataSource<Integer, Value> {
+
+        @NonNull
+        final PositionalDataSource<Value> mPositionalDataSource;
+
+        ContiguousWithoutPlaceholdersWrapper(
+                @NonNull PositionalDataSource<Value> positionalDataSource) {
+            mPositionalDataSource = positionalDataSource;
         }
-        return position;
+
+        @Override
+        public void loadInitial(@Nullable Integer position, int initialLoadSize,
+                boolean enablePlaceholders, @NonNull InitialLoadCallback<Value> callback) {
+            final int convertPosition = position == null ? 0 : position;
+
+            // Note enablePlaceholders will be false here, but we don't have a way to communicate
+            // this to PositionalDataSource. This is fine, because only the list and its position
+            // offset will be consumed by the InitialLoadCallback.
+            mPositionalDataSource.loadInitial(
+                    convertPosition, initialLoadSize, initialLoadSize, callback);
+        }
+
+        @Override
+        void loadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize,
+                @NonNull LoadCallback<Value> callback) {
+            int startIndex = currentEndIndex + 1;
+            mPositionalDataSource.loadRange(startIndex, pageSize, callback);
+        }
+
+        @Override
+        void loadBefore(int currentBeginIndex, @NonNull Value currentBeginItem, int pageSize,
+                @NonNull LoadCallback<Value> callback) {
+            int startIndex = currentBeginIndex - 1;
+            if (startIndex < 0) {
+                callback.onResult(Collections.<Value>emptyList());
+            } else {
+                int loadSize = Math.min(pageSize, startIndex + 1);
+                startIndex = startIndex - loadSize + 1;
+                mPositionalDataSource.loadRange(startIndex, loadSize, callback);
+            }
+        }
+
+        @Override
+        Integer getKey(int position, Value item) {
+            return position;
+        }
     }
 }

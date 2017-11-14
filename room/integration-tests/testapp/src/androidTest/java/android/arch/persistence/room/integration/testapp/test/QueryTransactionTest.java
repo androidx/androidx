@@ -203,10 +203,8 @@ public class QueryTransactionTest {
 
     @Test
     public void pagedList() {
-        LiveData<PagedList<Entity1>> pagedList = new LivePagedListBuilder<Integer, Entity1>()
-                .setDataSourceFactory(mDao.pagedList())
-                .setPagingConfig(10)
-                .build();
+        LiveData<PagedList<Entity1>> pagedList =
+                new LivePagedListBuilder<>(mDao.pagedList(), 10).build();
         observeForever(pagedList);
         drain();
         assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 0 : 0));
@@ -228,6 +226,7 @@ public class QueryTransactionTest {
         mDao.insert(new Entity1(2, "bar"));
         drain();
         resetTransactionCount();
+        @SuppressWarnings("deprecation")
         TiledDataSource<Entity1> dataSource = mDao.dataSource();
         dataSource.loadRange(0, 10);
         assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 1 : 0));
