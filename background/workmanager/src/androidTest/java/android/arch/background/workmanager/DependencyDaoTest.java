@@ -22,14 +22,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
 
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
-import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -53,48 +50,7 @@ public class DependencyDaoTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void getWorkSpecIdsWithSinglePrerequisite() {
-        final String expectedWorkSpecId = "a";
-        final Dependency[] dependencies = new Dependency[] {
-                new Dependency(expectedWorkSpecId, TEST_PREREQUISITE_ID),
-                new Dependency("b", TEST_PREREQUISITE_ID),
-                new Dependency("b", "y"),
-                new Dependency("c", "z")
-        };
-
-        insertDependenciesWithWorkSpecs(dependencies);
-        List<String> resultWorkSpecIds =
-                mDependencyDao.getWorkSpecIdsWithSinglePrerequisite(TEST_PREREQUISITE_ID);
-        assertThat(resultWorkSpecIds, hasSize(1));
-        assertThat(resultWorkSpecIds.get(0), is(expectedWorkSpecId));
-    }
-
-    @Test
-    @LargeTest
-    public void getWorkSpecIdsWithSinglePrerequisite_BigDb() {
-        final int numDependencies = 100; // Can be changed to test against a larger table.
-        final Dependency[] dependencies = new Dependency[numDependencies];
-        final Dependency expectedDep1 = new Dependency("expected" + 0, TEST_PREREQUISITE_ID);
-        final Dependency expectedDep2 = new Dependency("expected" + 1, TEST_PREREQUISITE_ID);
-
-        dependencies[0] = expectedDep1;
-        dependencies[1] = expectedDep2;
-        for (int i = 2; i < numDependencies; i += 2) {
-            String otherWorkSpecId = "other" + i;
-            dependencies[i] = new Dependency(otherWorkSpecId, TEST_PREREQUISITE_ID);
-            dependencies[i + 1] = new Dependency(otherWorkSpecId, "otherPrerequisite" + i);
-        }
-        insertDependenciesWithWorkSpecs(dependencies);
-        List<String> resultWorkSpecIds =
-                    mDependencyDao.getWorkSpecIdsWithSinglePrerequisite(TEST_PREREQUISITE_ID);
-        assertThat(resultWorkSpecIds, hasSize(2));
-        assertThat(resultWorkSpecIds,
-                containsInAnyOrder(expectedDep1.getWorkSpecId(), expectedDep2.getWorkSpecId()));
-    }
-
-    @Test
-    @SmallTest
-    public void deleteDependenciesWithPrerequisite() {
+    public void testDeleteDependenciesWithPrerequisite() {
         final Dependency[] dependencies = new Dependency[] {
                 new Dependency("a", TEST_PREREQUISITE_ID),
                 new Dependency("b", TEST_PREREQUISITE_ID),
