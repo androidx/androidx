@@ -173,6 +173,10 @@ import java.util.Stack;
  * <dd>Sets the lineJoin for a stroked path: miter,round,bevel. Default is miter.</dd>
  * <dt><code>android:strokeMiterLimit</code></dt>
  * <dd>Sets the Miter limit for a stroked path. Default is 4.</dd>
+ * <dt><code>android:fillType</code></dt>
+ * <dd>Sets the fillType for a path. The types can be either "evenOdd" or "nonZero". They behave the
+ * same as SVG's "fill-rule" properties. Default is nonZero. For more details, see
+ * <a href="https://www.w3.org/TR/SVG/painting.html#FillRuleProperty">FillRuleProperty</a></dd>
  * </dl></dd>
  * </dl>
  *
