@@ -20,7 +20,7 @@ plugins {
 
 dependencies {
     androidTestImplementation project(':support-media-compat-test-lib')
-    androidTestImplementation "com.android.support:support-media-compat:27.0.0"
+    androidTestImplementation "com.android.support:support-media-compat:27.0.1"
 
     androidTestImplementation(libs.test_runner)
 }
