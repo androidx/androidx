@@ -89,7 +89,7 @@ public class DependencyDaoTest extends DatabaseTest {
                 workSpecDao.insertWorkSpec(new WorkSpec(workSpecId));
             }
             for (Dependency dependency : dependencies) {
-                workSpecDao.setWorkSpecStatus(dependency.getWorkSpecId(), STATUS_BLOCKED);
+                workSpecDao.setStatus(STATUS_BLOCKED, dependency.getWorkSpecId());
                 mDependencyDao.insertDependency(dependency);
             }
             mDatabase.setTransactionSuccessful();
