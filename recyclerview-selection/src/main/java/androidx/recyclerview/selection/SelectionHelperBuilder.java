@@ -88,8 +88,7 @@ public final class SelectionHelperBuilder<K> {
     };
 
     private int[] mBandToolTypes = new int[] {
-        MotionEvent.TOOL_TYPE_MOUSE,
-        MotionEvent.TOOL_TYPE_STYLUS
+        MotionEvent.TOOL_TYPE_MOUSE
     };
 
     public SelectionHelperBuilder(
@@ -296,7 +295,7 @@ public final class SelectionHelperBuilder<K> {
             eventRouter.register(toolType, gestureHelper);
         }
 
-        // Provides high level glue for binding mouse/stylus events and gestures
+        // Provides high level glue for binding mouse events and gestures
         // to selection framework.
         MouseInputHandler<K> mouseHandler = new MouseInputHandler<>(
                 selectionHelper,

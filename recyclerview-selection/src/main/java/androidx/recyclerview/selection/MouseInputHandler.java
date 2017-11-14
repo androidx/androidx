@@ -30,9 +30,9 @@ import android.view.MotionEvent;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 
 /**
- * A MotionInputHandler that provides the high-level glue for mouse/stylus driven selection. This
+ * A MotionInputHandler that provides the high-level glue for mouse driven selection. This
  * class works with {@link RecyclerView}, {@link GestureRouter}, and {@link GestureSelectionHelper}
- * to provide robust user drive selection support.
+ * to provide robust user driven selection support.
  */
 final class MouseInputHandler<K> extends MotionInputHandler<K> {
 
