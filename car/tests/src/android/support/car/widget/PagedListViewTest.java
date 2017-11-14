@@ -42,6 +42,7 @@ import android.support.test.espresso.IdlingRegistry;
 import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.filters.SmallTest;
+import android.support.test.filters.Suppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.RecyclerView;
@@ -217,6 +218,7 @@ public final class PagedListViewTest {
         verifyItemSnappedToListTop();
     }
 
+    @Suppress
     @Test
     public void swipeUpKeepsItemSnappedToTopOfList() {
         setUpPagedListView(ITEMS_PER_PAGE * 2 /* itemCount */);
