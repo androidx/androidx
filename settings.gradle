@@ -198,5 +198,5 @@ include ':noto-emoji-compat'
 project(':noto-emoji-compat').projectDir = new File(externalRoot, 'noto-fonts/emoji-compat')
 
 ///// FLATFOOT START
-apply from: "app-toolkit/settings.gradle"
+
 ///// FLATFOOT END

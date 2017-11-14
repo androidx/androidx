@@ -25,7 +25,6 @@ buildscript {
     dependencies {
         classpath build_libs.gradle
         classpath build_libs.jacoco
-        classpath build_libs.kotlin.gradle_plugin
     }
 }
 
@@ -43,5 +42,4 @@ init.enableDoclavaAndJDiff(this)
 
 ///// FLATFOOT START
 
-apply from: "app-toolkit/init.gradle"
 ///// FLATFOOT END
