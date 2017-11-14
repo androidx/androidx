@@ -4654,7 +4654,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
         @Override
         public void onNestedPreScroll(@NonNull View target, int dx, int dy,
-                @Nullable int[] consumed, @ViewCompat.NestedScrollType int type) {
+                @NonNull int[] consumed, @ViewCompat.NestedScrollType int type) {
             // Consume everything!
             consumed[0] = dx;
             consumed[1] = dy;
