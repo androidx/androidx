@@ -22,6 +22,7 @@ import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.app.RemoteInput;
@@ -40,6 +41,8 @@ import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.function.Consumer;
+
 import androidx.app.slice.SliceItem;
 import androidx.app.slice.core.SliceQuery;
 
@@ -47,6 +50,7 @@ import androidx.app.slice.core.SliceQuery;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@TargetApi(24)
 public class ActionRow extends FrameLayout {
 
     private static final int MAX_ACTIONS = 5;
@@ -112,29 +116,47 @@ public class ActionRow extends FrameLayout {
         if (color != null) {
             setColor(color.getColor());
         }
-        SliceQuery.findAll(actionRow, FORMAT_ACTION).forEach(action -> {
-            if (mActionsGroup.getChildCount() >= MAX_ACTIONS) {
-                return;
-            }
-            SliceItem image = SliceQuery.find(action, FORMAT_IMAGE);
-            if (image == null) {
-                return;
-            }
-            boolean tint = !image.hasHint(HINT_NO_TINT);
-            SliceItem input = SliceQuery.find(action, FORMAT_REMOTE_INPUT);
-            if (input != null && input.getRemoteInput().getAllowFreeFormInput()) {
-                addAction(image.getIcon(), tint, image).setOnClickListener(
-                        v -> handleRemoteInputClick(v, action.getAction(), input.getRemoteInput()));
-                createRemoteInputView(mColor, getContext());
-            } else {
-                addAction(image.getIcon(), tint, image).setOnClickListener(v -> AsyncTask.execute(
-                        () -> {
-                            try {
-                                action.getAction().send();
-                            } catch (CanceledException e) {
-                                e.printStackTrace();
-                            }
-                        }));
+        SliceQuery.findAll(actionRow, FORMAT_ACTION).forEach(new Consumer<SliceItem>() {
+            @Override
+            public void accept(final SliceItem action) {
+                if (mActionsGroup.getChildCount() >= MAX_ACTIONS) {
+                    return;
+                }
+                SliceItem image = SliceQuery.find(action, FORMAT_IMAGE);
+                if (image == null) {
+                    return;
+                }
+                boolean tint = !image.hasHint(HINT_NO_TINT);
+                final SliceItem input = SliceQuery.find(action, FORMAT_REMOTE_INPUT);
+                if (input != null && input.getRemoteInput().getAllowFreeFormInput()) {
+                    addAction(image.getIcon(), tint, image).setOnClickListener(
+                            new OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    handleRemoteInputClick(v, action.getAction(),
+                                            input.getRemoteInput());
+                                }
+                            });
+                    createRemoteInputView(mColor, getContext());
+                } else {
+                    addAction(image.getIcon(), tint, image).setOnClickListener(
+                            new OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    AsyncTask.execute(new Runnable() {
+                                        @Override
+                                        public void run() {
+
+                                            try {
+                                                action.getAction().send();
+                                            } catch (CanceledException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                }
             }
         });
         setVisibility(getChildCount() != 0 ? View.VISIBLE : View.GONE);

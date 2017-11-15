@@ -27,7 +27,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 28
+        minSdkVersion 19
     }
 }
 
@@ -36,5 +36,5 @@ supportLibrary {
     publish false
     inceptionYear '2017'
     description "A library that handles rendering of slice content into supported templates"
-    java8Library true
+    java8Library false
 }

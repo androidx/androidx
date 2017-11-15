@@ -30,6 +30,7 @@ import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.RestrictTo.Scope;
 import android.support.annotation.StringDef;
@@ -169,6 +170,7 @@ public class SliceItem {
     /**
      * @return The icon held by this {@link android.app.slice.SliceItem#FORMAT_IMAGE} SliceItem
      */
+    @RequiresApi(23)
     public Icon getIcon() {
         return (Icon) mObj;
     }
@@ -185,6 +187,7 @@ public class SliceItem {
      * @return The remote input held by this {@link android.app.slice.SliceItem#FORMAT_REMOTE_INPUT}
      * SliceItem
      */
+    @RequiresApi(20)
     public RemoteInput getRemoteInput() {
         return (RemoteInput) mObj;
     }
@@ -307,12 +310,12 @@ public class SliceItem {
             case FORMAT_REMOTE_INPUT:
                 return in.getParcelable(OBJ);
             case FORMAT_SLICE:
-                return new Slice(in.getParcelable(OBJ));
+                return new Slice(in.getBundle(OBJ));
             case FORMAT_TEXT:
                 return in.getCharSequence(OBJ);
             case FORMAT_ACTION:
-                return new Pair<PendingIntent, Slice>(
-                        in.getParcelable(OBJ),
+                return new Pair<>(
+                        (PendingIntent) in.getParcelable(OBJ),
                         new Slice(in.getBundle(OBJ_2)));
             case FORMAT_COLOR:
                 return in.getInt(OBJ);

@@ -16,6 +16,7 @@
 
 package androidx.app.slice.widget;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -48,6 +49,7 @@ import java.util.Calendar;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@TargetApi(23)
 public class SliceViewUtil {
 
     /**
@@ -152,6 +154,7 @@ public class SliceViewUtil {
 
     /**
      */
+    @TargetApi(28)
     public static void createCircledIcon(@NonNull Context context, int color, int iconSizePx,
             Icon icon, boolean isLarge, ViewGroup parent) {
         ImageView v = new ImageView(context);

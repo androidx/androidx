@@ -220,7 +220,12 @@ public class SliceBrowser extends AppCompatActivity {
                 suggestions.add(uriString);
             }
         });
-        suggestions.sort(Comparator.comparingInt(ranking::get));
+        suggestions.sort(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return Integer.compare(ranking.get(o1), ranking.get(o2));
+            }
+        });
         for (int i = 0; i < suggestions.size(); i++) {
             c.addRow(new Object[]{i, suggestions.get(i)});
         }

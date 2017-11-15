@@ -152,15 +152,18 @@ public class SliceProviderCompat extends ContentProvider {
         return super.call(method, arg, extras);
     }
 
-    private Slice handleBindSlice(Uri sliceUri) {
+    private Slice handleBindSlice(final Uri sliceUri) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             return onBindSliceStrict(sliceUri);
         } else {
-            CountDownLatch latch = new CountDownLatch(1);
-            Slice[] output = new Slice[1];
-            mHandler.post(() -> {
-                output[0] = onBindSliceStrict(sliceUri);
-                latch.countDown();
+            final CountDownLatch latch = new CountDownLatch(1);
+            final Slice[] output = new Slice[1];
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    output[0] = onBindSliceStrict(sliceUri);
+                    latch.countDown();
+                }
             });
             try {
                 latch.await();

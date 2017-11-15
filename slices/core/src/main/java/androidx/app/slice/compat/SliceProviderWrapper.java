@@ -15,6 +15,7 @@
  */
 package androidx.app.slice.compat;
 
+import android.annotation.TargetApi;
 import android.app.slice.Slice;
 import android.app.slice.SliceProvider;
 import android.app.slice.SliceSpec;
@@ -32,6 +33,7 @@ import androidx.app.slice.SliceConvert;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
+@TargetApi(28)
 public class SliceProviderWrapper extends SliceProvider {
 
     private androidx.app.slice.SliceProvider mSliceProvider;

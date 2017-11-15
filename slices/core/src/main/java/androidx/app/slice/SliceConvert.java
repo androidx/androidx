@@ -24,9 +24,12 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
+import android.support.annotation.RequiresApi;
+
 /**
  * Convert between {@link androidx.app.slice.Slice} and {@link android.app.slice.Slice}
  */
+@RequiresApi(28)
 public class SliceConvert {
 
     /**

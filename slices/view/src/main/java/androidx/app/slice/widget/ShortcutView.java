@@ -24,6 +24,7 @@ import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
@@ -48,6 +49,7 @@ import androidx.app.slice.view.R;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@TargetApi(23)
 public class ShortcutView extends androidx.app.slice.widget.SliceView.SliceModeView {
 
     private static final String TAG = "ShortcutView";

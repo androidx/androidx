@@ -23,6 +23,7 @@ import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v7.widget.RecyclerView;
@@ -34,6 +35,8 @@ import android.view.ViewGroup.LayoutParams;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import androidx.app.slice.SliceItem;
@@ -44,6 +47,7 @@ import androidx.app.slice.view.R;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@TargetApi(24)
 public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.SliceViewHolder> {
 
     public static final int TYPE_DEFAULT       = 1;
@@ -68,8 +72,12 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     public void setSliceItems(List<SliceItem> slices, SliceItem color) {
         mColor = color;
         mIdGen.resetUsage();
-        mSlices = slices.stream().map(s -> new SliceWrapper(s, mIdGen))
-                .collect(Collectors.toList());
+        mSlices = slices.stream().map(new Function<SliceItem, SliceWrapper>() {
+            @Override
+            public SliceWrapper apply(SliceItem s) {
+                return new SliceWrapper(s, mIdGen);
+            }
+        }).collect(Collectors.<SliceWrapper>toList());
         notifyDataSetChanged();
     }
 
@@ -168,9 +176,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         /**
          * Set the color for the items in this view.
          */
-        default void setColor(SliceItem color) {
-
-        }
+        void setColor(SliceItem color);
     }
 
     private static class IdGenerator {
@@ -190,21 +196,24 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         }
 
         private String genString(SliceItem item) {
-            StringBuilder builder = new StringBuilder();
-            SliceQuery.stream(item).forEach(i -> {
-                builder.append(i.getFormat());
-                //i.removeHint(Slice.HINT_SELECTED);
-                builder.append(i.getHints());
-                switch (i.getFormat()) {
-                    case FORMAT_IMAGE:
-                        builder.append(i.getIcon());
-                        break;
-                    case FORMAT_TEXT:
-                        builder.append(i.getText());
-                        break;
-                    case FORMAT_COLOR:
-                        builder.append(i.getColor());
-                        break;
+            final StringBuilder builder = new StringBuilder();
+            SliceQuery.stream(item).forEach(new Consumer<SliceItem>() {
+                @Override
+                public void accept(SliceItem i) {
+                    builder.append(i.getFormat());
+                    //i.removeHint(Slice.HINT_SELECTED);
+                    builder.append(i.getHints());
+                    switch (i.getFormat()) {
+                        case FORMAT_IMAGE:
+                            builder.append(i.getIcon());
+                            break;
+                        case FORMAT_TEXT:
+                            builder.append(i.getText());
+                            break;
+                        case FORMAT_COLOR:
+                            builder.append(i.getColor());
+                            break;
+                    }
                 }
             });
             return builder.toString();

@@ -24,6 +24,7 @@ import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,6 +33,7 @@ import android.util.TypedValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
@@ -41,6 +43,7 @@ import androidx.app.slice.core.SliceQuery;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@TargetApi(24)
 public class LargeTemplateView extends SliceView.SliceModeView {
 
     private final LargeSliceAdapter mAdapter;
@@ -86,26 +89,29 @@ public class LargeTemplateView extends SliceView.SliceModeView {
     public void setSlice(Slice slice) {
         SliceItem color = SliceQuery.find(slice, FORMAT_COLOR);
         mSlice = slice;
-        List<SliceItem> items = new ArrayList<>();
-        boolean[] hasHeader = new boolean[1];
+        final List<SliceItem> items = new ArrayList<>();
+        final boolean[] hasHeader = new boolean[1];
         if (SliceQuery.hasHints(slice, HINT_LIST)) {
             addList(slice, items);
         } else {
-            slice.getItems().forEach(item -> {
-                if (item.hasHint(HINT_ACTIONS)) {
-                    return;
-                } else if (FORMAT_COLOR.equals(item.getFormat())) {
-                    return;
-                } else if (FORMAT_SLICE.equals(item.getFormat())
-                        && item.hasHint(HINT_LIST)) {
-                    addList(item.getSlice(), items);
-                } else if (item.hasHint(HINT_LIST_ITEM)) {
-                    items.add(item);
-                } else if (!hasHeader[0]) {
-                    hasHeader[0] = true;
-                    items.add(0, item);
-                } else {
-                    items.add(item);
+            slice.getItems().forEach(new Consumer<SliceItem>() {
+                @Override
+                public void accept(SliceItem item) {
+                    if (item.hasHint(HINT_ACTIONS)) {
+                        return;
+                    } else if (FORMAT_COLOR.equals(item.getFormat())) {
+                        return;
+                    } else if (FORMAT_SLICE.equals(item.getFormat())
+                            && item.hasHint(HINT_LIST)) {
+                        addList(item.getSlice(), items);
+                    } else if (item.hasHint(HINT_LIST_ITEM)) {
+                        items.add(item);
+                    } else if (!hasHeader[0]) {
+                        hasHeader[0] = true;
+                        items.add(0, item);
+                    } else {
+                        items.add(item);
+                    }
                 }
             });
         }

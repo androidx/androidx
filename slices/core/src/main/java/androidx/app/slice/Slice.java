@@ -33,6 +33,7 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.ContentProvider;
@@ -374,14 +375,21 @@ public final class Slice {
      * @return The Slice provided by the app or null if none is given.
      * @see Slice
      */
+    @SuppressWarnings("NewApi")
     public static @Nullable Slice bindSlice(Context context, @NonNull Uri uri) {
         if (BuildCompat.isAtLeastP()) {
-            return SliceConvert.wrap(android.app.slice.Slice.bindSlice(
-                    context.getContentResolver(), uri, SliceSpecs.SUPPORTED_SPECS));
+            return callBindSlice(context, uri);
         } else {
             return SliceProviderCompat.bindSlice(context, uri);
         }
     }
+
+    @TargetApi(28)
+    private static Slice callBindSlice(Context context, Uri uri) {
+        return SliceConvert.wrap(android.app.slice.Slice.bindSlice(
+                context.getContentResolver(), uri, SliceSpecs.SUPPORTED_SPECS));
+    }
+
 
     /**
      * Turns a slice intent into slice content. Expects an explicit intent. If there is no
@@ -395,12 +403,18 @@ public final class Slice {
      * @see SliceProvider#onMapIntentToUri(Intent)
      * @see Intent
      */
+    @SuppressWarnings("NewApi")
     public static @Nullable Slice bindSlice(Context context, @NonNull Intent intent) {
         if (BuildCompat.isAtLeastP()) {
-            return SliceConvert.wrap(android.app.slice.Slice.bindSlice(
-                    context, intent, SliceSpecs.SUPPORTED_SPECS));
+            return callBindSlice(context, intent);
         } else {
             return SliceProviderCompat.bindSlice(context, intent);
         }
+    }
+
+    @TargetApi(28)
+    private static Slice callBindSlice(Context context, Intent intent) {
+        return SliceConvert.wrap(android.app.slice.Slice.bindSlice(
+                context, intent, SliceSpecs.SUPPORTED_SPECS));
     }
 }
