@@ -285,16 +285,15 @@ class TiledPagedListTest {
     @Test
     fun placeholdersDisabled() {
         // disable placeholders with config, so we create a contiguous version of the pagedlist
-        val pagedList = PagedList.Builder<Int, Item>()
-                .setDataSource(ListDataSource(ITEMS))
+        val config = PagedList.Config.Builder()
+                .setPageSize(PAGE_SIZE)
+                .setPrefetchDistance(PAGE_SIZE)
+                .setInitialLoadSizeHint(PAGE_SIZE)
+                .setEnablePlaceholders(false)
+                .build()
+        val pagedList = PagedList.Builder<Int, Item>(ListDataSource(ITEMS), config)
                 .setMainThreadExecutor(mMainThread)
                 .setBackgroundThreadExecutor(mBackgroundThread)
-                .setConfig(PagedList.Config.Builder()
-                        .setPageSize(PAGE_SIZE)
-                        .setPrefetchDistance(PAGE_SIZE)
-                        .setInitialLoadSizeHint(PAGE_SIZE)
-                        .setEnablePlaceholders(false)
-                        .build())
                 .setInitialKey(20)
                 .build()
 

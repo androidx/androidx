@@ -58,14 +58,14 @@ public class LivePagedListBuilder<Key, Value> {
     /**
      * Creates a LivePagedListBuilder with required parameters.
      * <p>
-     * This method is a convenience for
+     * This method is a convenience for:
      * <pre>
      * LivePagedListBuilder(dataSourceFactory,
-     *         PagedList.Config.Builder().setPageSize(pageSize)).build()}
+     *         new PagedList.Config.Builder().setPageSize(pageSize).build())
      * </pre>
      *
-     * @param dataSourceFactory
-     * @param pageSize
+     * @param dataSourceFactory DataSource.Factory providing DataSource generations.
+     * @param pageSize Size of pages to load.
      */
     public LivePagedListBuilder(@NonNull DataSource.Factory<Key, Value> dataSourceFactory,
             int pageSize) {
@@ -183,12 +183,10 @@ public class LivePagedListBuilder<Key, Value> {
                     mDataSource = dataSourceFactory.create();
                     mDataSource.addInvalidatedCallback(mCallback);
 
-                    mList = new PagedList.Builder<Key, Value>()
-                            .setDataSource(mDataSource)
+                    mList = new PagedList.Builder<>(mDataSource, config)
                             .setMainThreadExecutor(mainThreadExecutor)
                             .setBackgroundThreadExecutor(backgroundThreadExecutor)
                             .setBoundaryCallback(boundaryCallback)
-                            .setConfig(config)
                             .setInitialKey(initializeKey)
                             .build();
                 } while (mList.isDetached());
