@@ -1,0 +1,24 @@
+package androidx.app.slice.widget {
+
+  public final class SliceLiveData {
+    ctor public SliceLiveData();
+    method public static android.arch.lifecycle.LiveData<androidx.app.slice.Slice> fromUri(android.content.Context, android.net.Uri);
+  }
+
+  public class SliceView extends android.view.ViewGroup implements android.arch.lifecycle.Observer {
+    ctor public SliceView(android.content.Context);
+    ctor public SliceView(android.content.Context, android.util.AttributeSet);
+    ctor public SliceView(android.content.Context, android.util.AttributeSet, int);
+    ctor public SliceView(android.content.Context, android.util.AttributeSet, int, int);
+    method public int getMode();
+    method public void onChanged(androidx.app.slice.Slice);
+    method public void setMode(int);
+    method public void setScrollable(boolean);
+    method public void setSlice(androidx.app.slice.Slice);
+    field public static final int MODE_LARGE = 2; // 0x2
+    field public static final int MODE_SHORTCUT = 3; // 0x3
+    field public static final int MODE_SMALL = 1; // 0x1
+  }
+
+}
+

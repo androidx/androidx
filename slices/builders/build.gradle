@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import android.support.LibraryVersions
+import android.support.LibraryGroups
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -31,7 +34,9 @@ android {
 
 supportLibrary {
     name 'Slice builders'
-    publish false
+    publish true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SLICES
     inceptionYear '2017'
     description "A set of builders to create templates using SliceProvider APIs"
     java8Library false
