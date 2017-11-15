@@ -18,55 +18,44 @@ package android.arch.paging;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.WorkerThread;
 
 import java.util.List;
 
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, Value> {
+abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, Value> {
     @Override
     boolean isContiguous() {
         return true;
     }
 
-    void loadInitial(Key key, int pageSize, boolean enablePlaceholders,
-            PageResult.Receiver<Key, Value> receiver) {
-        NullPaddedList<Value> initial = loadInitial(key, pageSize, enablePlaceholders);
-        if (initial != null) {
-            receiver.onPageResult(new PageResult<>(
-                    PageResult.INIT,
-                    new Page<Key, Value>(initial.mList),
-                    initial.getLeadingNullCount(),
-                    initial.getTrailingNullCount(),
-                    initial.getPositionOffset()));
-        } else {
-            receiver.onPageResult(new PageResult<Key, Value>(
-                    PageResult.INIT, null, 0, 0, 0));
-        }
-    }
+    abstract void loadInitial(Key key, int initialLoadSize, boolean enablePlaceholders,
+            @NonNull PageResult.Receiver<Key, Value> receiver);
 
     void loadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize,
-            PageResult.Receiver<Key, Value> receiver) {
-        List<Value> list = loadAfter(currentEndIndex, currentEndItem, pageSize);
+            @NonNull PageResult.Receiver<Key, Value> receiver) {
+        if (!isInvalid()) {
+            List<Value> list = loadAfterImpl(currentEndIndex, currentEndItem, pageSize);
 
-        Page<Key, Value> page = list != null
-                ? new Page<Key, Value>(list) : null;
-
-        receiver.postOnPageResult(new PageResult<>(
-                PageResult.APPEND, page, 0, 0, 0));
+            if (list != null && !isInvalid()) {
+                receiver.postOnPageResult(new PageResult<>(
+                        PageResult.APPEND, new Page<Key, Value>(list), 0, 0, 0));
+                return;
+            }
+        }
+        receiver.postOnPageResult(new PageResult<Key, Value>(PageResult.APPEND));
     }
 
     void loadBefore(int currentBeginIndex, @NonNull Value currentBeginItem, int pageSize,
-            PageResult.Receiver<Key, Value> receiver) {
-        List<Value> list = loadBefore(currentBeginIndex, currentBeginItem, pageSize);
+            @NonNull PageResult.Receiver<Key, Value> receiver) {
+        if (!isInvalid()) {
+            List<Value> list = loadBeforeImpl(currentBeginIndex, currentBeginItem, pageSize);
 
-        Page<Key, Value> page = list != null
-                ? new Page<Key, Value>(list) : null;
-
-        receiver.postOnPageResult(new PageResult<>(
-                PageResult.PREPEND, page, 0, 0, 0));
+            if (list != null && !isInvalid()) {
+                receiver.postOnPageResult(new PageResult<>(
+                        PageResult.PREPEND, new Page<Key, Value>(list), 0, 0, 0));
+                return;
+            }
+        }
+        receiver.postOnPageResult(new PageResult<Key, Value>(PageResult.PREPEND));
     }
 
     /**
@@ -84,44 +73,4 @@ public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, V
     @Nullable
     abstract List<Value> loadBeforeImpl(int currentBeginIndex,
             @NonNull Value currentBeginItem, int pageSize);
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @WorkerThread
-    @Nullable
-    public abstract NullPaddedList<Value> loadInitial(
-            Key key, int initialLoadSize, boolean enablePlaceholders);
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @WorkerThread
-    @Nullable
-    public final List<Value> loadAfter(int currentEndIndex,
-            @NonNull Value currentEndItem, int pageSize) {
-        if (isInvalid()) {
-            return null;
-        }
-        List<Value> list = loadAfterImpl(currentEndIndex, currentEndItem, pageSize);
-        if (isInvalid()) {
-            return null;
-        }
-        return list;
-    }
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @WorkerThread
-    @Nullable
-    public final List<Value> loadBefore(int currentBeginIndex,
-            @NonNull Value currentBeginItem, int pageSize) {
-        if (isInvalid()) {
-            return null;
-        }
-        List<Value> list = loadBeforeImpl(currentBeginIndex, currentBeginItem, pageSize);
-        if (isInvalid()) {
-            return null;
-        }
-        return list;
-
-    }
 }

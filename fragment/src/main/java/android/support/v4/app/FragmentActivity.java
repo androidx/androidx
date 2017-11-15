@@ -977,7 +977,11 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
                 continue;
             }
             fragment.mLifecycleRegistry.markState(state);
-            markState(fragment.getChildFragmentManager(), state);
+
+            FragmentManager childFragmentManager = fragment.peekChildFragmentManager();
+            if (childFragmentManager != null) {
+                markState(childFragmentManager, state);
+            }
         }
     }
 }

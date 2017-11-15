@@ -29,6 +29,7 @@ import static android.arch.lifecycle.Lifecycle.State.RESUMED;
 import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
 import android.arch.core.internal.FastSafeIterableMap;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -99,14 +100,14 @@ public class LifecycleRegistry extends Lifecycle {
     }
 
     /**
-     * Only marks the current state as the given value. It doesn't dispatch any event to its
-     * listeners.
+     * Moves the Lifecycle to the given state and dispatches necessary events to the observers.
      *
      * @param state new state
      */
     @SuppressWarnings("WeakerAccess")
+    @MainThread
     public void markState(@NonNull State state) {
-        mState = state;
+        moveToState(state);
     }
 
     /**
@@ -118,7 +119,15 @@ public class LifecycleRegistry extends Lifecycle {
      * @param event The event that was received
      */
     public void handleLifecycleEvent(@NonNull Lifecycle.Event event) {
-        mState = getStateAfter(event);
+        State next = getStateAfter(event);
+        moveToState(next);
+    }
+
+    private void moveToState(State next) {
+        if (mState == next) {
+            return;
+        }
+        mState = next;
         if (mHandlingEvent || mAddingObserverCounter != 0) {
             mNewEventOccurred = true;
             // we will figure out what to do on upper level.

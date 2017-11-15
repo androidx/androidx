@@ -21,6 +21,7 @@ import android.os.Build;
 import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
 import android.support.text.emoji.EmojiCompat;
+import android.text.method.KeyListener;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -73,8 +74,11 @@ public class EmojiEditText extends EditText {
     }
 
     @Override
-    public void setKeyListener(android.text.method.KeyListener keyListener) {
-        super.setKeyListener(getEmojiEditTextHelper().getKeyListener(keyListener));
+    public void setKeyListener(@Nullable KeyListener keyListener) {
+        if (keyListener != null) {
+            keyListener = getEmojiEditTextHelper().getKeyListener(keyListener);
+        }
+        super.setKeyListener(keyListener);
     }
 
     @Override

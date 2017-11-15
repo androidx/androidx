@@ -1,0 +1,13 @@
+package android.arch.lifecycle {
+
+  public abstract interface DefaultLifecycleObserver {
+    method public default void onCreate(android.arch.lifecycle.LifecycleOwner);
+    method public default void onDestroy(android.arch.lifecycle.LifecycleOwner);
+    method public default void onPause(android.arch.lifecycle.LifecycleOwner);
+    method public default void onResume(android.arch.lifecycle.LifecycleOwner);
+    method public default void onStart(android.arch.lifecycle.LifecycleOwner);
+    method public default void onStop(android.arch.lifecycle.LifecycleOwner);
+  }
+
+}
+

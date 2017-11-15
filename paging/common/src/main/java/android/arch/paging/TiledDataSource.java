@@ -87,6 +87,8 @@ import java.util.List;
  */
 public abstract class TiledDataSource<Type> extends DataSource<Integer, Type> {
 
+    private int mItemCount;
+
     /**
      * Number of items that this DataSource can provide in total.
      *
@@ -123,6 +125,7 @@ public abstract class TiledDataSource<Type> extends DataSource<Integer, Type> {
      */
     void loadRangeInitial(int startPosition, int count, int pageSize, int itemCount,
             PageResult.Receiver<Integer, Type> receiver) {
+        mItemCount = itemCount;
 
         if (itemCount == 0) {
             // no data to load, just immediately return empty
@@ -131,7 +134,6 @@ public abstract class TiledDataSource<Type> extends DataSource<Integer, Type> {
                     0, 0, startPosition));
             return;
         }
-
 
         List<Type> list = loadRangeWrapper(startPosition, count);
 
@@ -167,9 +169,15 @@ public abstract class TiledDataSource<Type> extends DataSource<Integer, Type> {
     void loadRange(int startPosition, int count, PageResult.Receiver<Integer, Type> receiver) {
         List<Type> list = loadRangeWrapper(startPosition, count);
 
-        Page<Integer, Type> page = list != null ? new Page<Integer, Type>(list) : null;
+        Page<Integer, Type> page = null;
+        int trailingNulls = mItemCount - startPosition;
+
+        if (list != null) {
+            page = new Page<Integer, Type>(list);
+            trailingNulls -= list.size();
+        }
         receiver.postOnPageResult(new PageResult<>(
-                PageResult.TILE, page, startPosition, 0, 0));
+                PageResult.TILE, page, startPosition, trailingNulls, 0));
     }
 
     private List<Type> loadRangeWrapper(int startPosition, int count) {

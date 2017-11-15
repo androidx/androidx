@@ -19,7 +19,6 @@ package android.arch.paging;
 import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import java.util.ArrayList;
@@ -124,9 +123,33 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
         return list;
     }
 
+
+    @Override
+    void loadInitial(Key key, int initialLoadSize, boolean enablePlaceholders,
+            @NonNull PageResult.Receiver<Key, Value> receiver) {
+
+        PageResult<Key, Value> pageResult =
+                loadInitialInternal(key, initialLoadSize, enablePlaceholders);
+        if (pageResult == null) {
+            // loading failed, return empty page
+            receiver.onPageResult(new PageResult<Key, Value>(PageResult.INIT));
+        } else {
+            receiver.onPageResult(pageResult);
+        }
+    }
+
+    /**
+     * Try initial load, and either return the successful initial load to the receiver,
+     * or null if unsuccessful.
+     */
     @Nullable
-    private NullPaddedList<Value> loadInitialInternal(
+    private PageResult<Key, Value> loadInitialInternal(
             @Nullable Key key, int initialLoadSize, boolean enablePlaceholders) {
+        // check if invalid at beginning, and before returning a valid list
+        if (isInvalid()) {
+            return null;
+        }
+
         List<Value> list;
         if (key == null) {
             // no key, so load initial.
@@ -171,9 +194,14 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
             }
         }
 
+        final Page<Key, Value> page = new Page<>(list);
+
         if (list.isEmpty()) {
-            // wasn't able to load any items, so publish an unpadded empty list.
-            return new NullPaddedList<>(0, Collections.<Value>emptyList());
+            if (isInvalid()) {
+                return null;
+            }
+            // wasn't able to load any items, but not invalid - return an empty page.
+            return new PageResult<>(PageResult.INIT, page, 0, 0, 0);
         }
 
         int itemsBefore = COUNT_UNDEFINED;
@@ -181,31 +209,21 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
         if (enablePlaceholders) {
             itemsBefore = countItemsBefore(getKey(list.get(0)));
             itemsAfter = countItemsAfter(getKey(list.get(list.size() - 1)));
-            if (isInvalid()) {
-                return null;
-            }
         }
-        if (itemsBefore == COUNT_UNDEFINED || itemsAfter == COUNT_UNDEFINED) {
-            return new NullPaddedList<>(0, list, 0);
-        } else {
-            return new NullPaddedList<>(itemsBefore, list, itemsAfter);
-        }
-    }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @WorkerThread
-    @Override
-    public NullPaddedList<Value> loadInitial(
-            @Nullable Key key, int initialLoadSize, boolean enablePlaceholders) {
         if (isInvalid()) {
             return null;
         }
-        NullPaddedList<Value> list = loadInitialInternal(key, initialLoadSize, enablePlaceholders);
-        if (list == null || isInvalid()) {
-            return null;
+        if (itemsBefore == COUNT_UNDEFINED || itemsAfter == COUNT_UNDEFINED) {
+            itemsBefore = 0;
+            itemsAfter = 0;
         }
-        return list;
+        return new PageResult<>(
+                PageResult.INIT,
+                page,
+                itemsBefore,
+                itemsAfter,
+                0);
     }
 
     /**

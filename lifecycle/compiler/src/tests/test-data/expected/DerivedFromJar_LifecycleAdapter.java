@@ -22,6 +22,7 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.MethodCallsLogger;
 import java.lang.Override;
 import javax.annotation.Generated;
+import test.library.LibraryBaseObserver_LifecycleAdapter;
 
 @Generated("android.arch.lifecycle.LifecycleProcessor")
 public class DerivedFromJar_LifecycleAdapter implements GeneratedAdapter {
@@ -33,7 +34,7 @@ public class DerivedFromJar_LifecycleAdapter implements GeneratedAdapter {
 
   @Override
   public void callMethods(LifecycleOwner owner, Lifecycle.Event event, boolean onAny,
-      MethodCallsLogger logger) {
+          MethodCallsLogger logger) {
     boolean hasLogger = logger != null;
     if (onAny) {
       return;
@@ -44,6 +45,12 @@ public class DerivedFromJar_LifecycleAdapter implements GeneratedAdapter {
       }
       if (!hasLogger || logger.approveCall("doAnother", 1)) {
         mReceiver.doAnother();
+      }
+      return;
+    }
+    if (event == Lifecycle.Event.ON_PAUSE) {
+      if (!hasLogger || logger.approveCall("doOnPause", 2)) {
+        LibraryBaseObserver_LifecycleAdapter.__synthetic_doOnPause(mReceiver,owner);
       }
       return;
     }
