@@ -38,7 +38,7 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.support.car.test.R;
 import android.support.test.annotation.UiThreadTest;
-import android.support.test.espresso.IdlingRegistry;
+import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.filters.SmallTest;
@@ -85,12 +85,17 @@ public final class PagedListViewTest {
     public void setUp() {
         mActivity = mActivityRule.getActivity();
         mPagedListView = mActivity.findViewById(R.id.paged_list_view);
+
+        // Using deprecated Espresso methods instead of calling it on the IdlingRegistry because
+        // the latter does not seem to work as reliably. Specifically, on the latter, it does
+        // not always register and unregister.
+        Espresso.registerIdlingResources(new PagedListViewScrollingIdlingResource(mPagedListView));
     }
 
     @After
     public void tearDown() {
-        for (IdlingResource idlingResource : IdlingRegistry.getInstance().getResources()) {
-            IdlingRegistry.getInstance().unregister(idlingResource);
+        for (IdlingResource idlingResource : Espresso.getIdlingResources()) {
+            Espresso.unregisterIdlingResources(idlingResource);
         }
     }
 
@@ -105,12 +110,25 @@ public final class PagedListViewTest {
 
     private void setUpPagedListView(int itemCount, int maxPages) {
         try {
-            mActivityRule.runOnUiThread(
-                    () -> {
-                        mPagedListView.setMaxPages(maxPages);
-                        mPagedListView.setAdapter(
-                                new TestAdapter(itemCount, mPagedListView.getMeasuredHeight()));
-                    });
+            mActivityRule.runOnUiThread(() -> {
+                mPagedListView.setMaxPages(maxPages);
+                mPagedListView.setAdapter(
+                        new TestAdapter(itemCount, mPagedListView.getMeasuredHeight()));
+            });
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            throw new RuntimeException(throwable);
+        }
+    }
+
+    /** Initializes {@link #mPagedListView} with an adapter that does not implement ItemCap. */
+    public void setUpNonItemCapPagedListView(int itemCount, int maxPages) {
+        try {
+            mActivityRule.runOnUiThread(() -> {
+                mPagedListView.setMaxPages(maxPages);
+                mPagedListView.setAdapter(
+                        new NoItemCapAdapter(itemCount, mPagedListView.getMeasuredHeight()));
+            });
         } catch (Throwable throwable) {
             throwable.printStackTrace();
             throw new RuntimeException(throwable);
@@ -166,11 +184,33 @@ public final class PagedListViewTest {
             return;
         }
 
-        IdlingRegistry.getInstance()
-                .register(new PagedListViewScrollingIdlingResource(mPagedListView));
         setUpPagedListView(ITEMS_PER_PAGE * 3 /* itemCount */, 2 /* maxPages */);
 
         onView(withId(R.id.page_down)).perform(click());
+        onView(withId(R.id.page_down)).check(matches(not(isEnabled())));
+    }
+
+    @Test
+    public void testMaxPagesDoesNothingIfAdapterDoesNotImplementItemCap() {
+        if (!isAutoDevice()) {
+            return;
+        }
+
+        int numOfPages = 20;
+        int maxPages = 2;
+
+        setUpNonItemCapPagedListView(ITEMS_PER_PAGE * numOfPages, maxPages);
+
+        // There should be no limit on the scroll even though a max number of pages was set.
+        for (int i = 0; i < maxPages; i++) {
+            onView(withId(R.id.page_down)).perform(click());
+        }
+        onView(withId(R.id.page_down)).check(matches(isEnabled()));
+
+        // Next scroll all the way to bottom and check this is possible.
+        for (int i = 0; i < numOfPages - maxPages; i++) {
+            onView(withId(R.id.page_down)).perform(click());
+        }
         onView(withId(R.id.page_down)).check(matches(not(isEnabled())));
     }
 
@@ -180,8 +220,6 @@ public final class PagedListViewTest {
             return;
         }
 
-        IdlingRegistry.getInstance()
-                .register(new PagedListViewScrollingIdlingResource(mPagedListView));
         final int itemCount = ITEMS_PER_PAGE * 4;
         setUpPagedListView(itemCount, 2 /* maxPages */);
 
@@ -204,8 +242,6 @@ public final class PagedListViewTest {
             return;
         }
 
-        IdlingRegistry.getInstance()
-                .register(new PagedListViewScrollingIdlingResource(mPagedListView));
         // 2.5 so last page is not full
         setUpPagedListView((int) (ITEMS_PER_PAGE * 2.5 /* itemCount */));
 
@@ -247,8 +283,6 @@ public final class PagedListViewTest {
             return;
         }
 
-        IdlingRegistry.getInstance()
-                .register(new PagedListViewScrollingIdlingResource(mPagedListView));
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
         // Move down one page so there will be sufficient pages for up and downs.
@@ -343,24 +377,17 @@ public final class PagedListViewTest {
         }
     }
 
-    private class TestAdapter extends RecyclerView.Adapter<TestViewHolder>
-            implements PagedListView.ItemCap {
+    /** A base adapter that will handle inflating the test view and binding data to it. */
+    private abstract class BaseTestAdapter extends RecyclerView.Adapter<TestViewHolder> {
+        protected List<String> mData;
+        protected int mParentHeight;
 
-        private List<String> mData;
-        private int mMaxItems;
-        private int mParentHeight;
-
-        TestAdapter(int itemCount, int parentHeight) {
+        BaseTestAdapter(int itemCount, int parentHeight) {
             mData = new ArrayList<>();
             for (int i = 0; i < itemCount; i++) {
                 mData.add(itemText(i));
             }
             mParentHeight = parentHeight;
-        }
-
-        @Override
-        public void setMaxItems(int maxItems) {
-            mMaxItems = maxItems;
         }
 
         @Override
@@ -376,6 +403,19 @@ public final class PagedListViewTest {
             holder.itemView.setMinimumHeight(height);
             holder.bind(mData.get(position));
         }
+    }
+
+    private class TestAdapter extends BaseTestAdapter implements PagedListView.ItemCap {
+        private int mMaxItems;
+
+        TestAdapter(int itemCount, int parentHeight) {
+            super(itemCount, parentHeight);
+        }
+
+        @Override
+        public void setMaxItems(int maxItems) {
+            mMaxItems = maxItems;
+        }
 
         @Override
         public int getItemCount() {
@@ -383,8 +423,21 @@ public final class PagedListViewTest {
         }
     }
 
-    private class TestViewHolder extends RecyclerView.ViewHolder {
+    /**
+     * A variant of a {@link BaseTestAdapter} that does not implement {@link PagedListView.ItemCap}.
+     */
+    private class NoItemCapAdapter extends BaseTestAdapter {
+        NoItemCapAdapter(int itemCount, int parentHeight) {
+            super(itemCount, parentHeight);
+        }
 
+        @Override
+        public int getItemCount() {
+            return mData.size();
+        }
+    }
+
+    private class TestViewHolder extends RecyclerView.ViewHolder {
         private TextView mTextView;
 
         TestViewHolder(LayoutInflater inflater, ViewGroup parent) {
@@ -397,9 +450,6 @@ public final class PagedListViewTest {
         }
     }
 
-    // Registering IdlingResource in @Before method does not work - espresso doesn't actually wait
-    // for ViewAction to finish. Shamefully I don't understand the reason. So each method that
-    // clicks on button will need to register their own IdlingResource.
     private class PagedListViewScrollingIdlingResource implements IdlingResource {
 
         private boolean mIdle = true;
