@@ -1083,11 +1083,16 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             });
         }
 
-        public void clearOnUIThread() {
+        void changeAllItemsAndNotifyDataSetChanged(int count) {
             assertEquals("clearOnUIThread called from a wrong thread",
                     Looper.getMainLooper(), Looper.myLooper());
-            mItems = new ArrayList<Item>();
+            mItems = new ArrayList<>();
+            addItems(0, count, DEFAULT_ITEM_PREFIX);
             notifyDataSetChanged();
+        }
+
+        public void clearOnUIThread() {
+            changeAllItemsAndNotifyDataSetChanged(0);
         }
 
         protected void moveInUIThread(int from, int to) {
