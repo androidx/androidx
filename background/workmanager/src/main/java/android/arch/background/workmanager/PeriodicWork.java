@@ -60,7 +60,13 @@ public class PeriodicWork extends BaseWork {
          * @param intervalDuration Duration in milliseconds for which {@link Work} will repeat.
          */
         public Builder(Class<? extends Worker> workerClass, long intervalDuration) {
-            this(workerClass, intervalDuration, 0L);
+            super(workerClass);
+            if (intervalDuration < MIN_PERIODIC_INTERVAL_DURATION) {
+                Log.w(TAG, "Interval duration lesser than minimum allowed value; "
+                        + "Changed to " + MIN_PERIODIC_INTERVAL_DURATION);
+                intervalDuration = MIN_PERIODIC_INTERVAL_DURATION;
+            }
+            mWorkSpec.setPeriodic(intervalDuration, intervalDuration);
         }
 
         /**
