@@ -184,7 +184,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         final int spanCount = 3;
         final int itemCount = 100;
 
-        imeCleanUp.setContainerView(getActivity().getContainer());
+        imeCleanUp.setup(getActivity(), getInstrumentation());
         RecyclerView recyclerView = new WrappedRecyclerView(getActivity());
         GridEditTextAdapter editTextAdapter = new GridEditTextAdapter(itemCount) {
             @Override
