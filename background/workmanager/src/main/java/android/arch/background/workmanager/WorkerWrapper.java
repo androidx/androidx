@@ -30,9 +30,8 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
+import android.arch.background.workmanager.utils.taskexecutor.WorkManagerTaskExecutor;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -179,7 +178,7 @@ public class WorkerWrapper implements Runnable {
         if (mListener == null) {
             return;
         }
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        WorkManagerTaskExecutor.getInstance().postToMainThread(new Runnable() {
             @Override
             public void run() {
                 mListener.onExecuted(mWorkSpecId, result);
