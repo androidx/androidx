@@ -16,13 +16,17 @@
 
 package android.arch.paging
 
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.ArgumentCaptor
-import org.mockito.Mockito
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
 
 @RunWith(JUnit4::class)
 class KeyedDataSourceTest {
@@ -43,17 +47,30 @@ class KeyedDataSourceTest {
         assertEquals(ITEMS_BY_NAME_ID, dataSource.loadInitial(ITEMS_BY_NAME_ID.size + 10))
     }
 
+    private fun loadInitial(dataSource: ItemDataSource, key: Key?, initialLoadSize: Int,
+            enablePlaceholders: Boolean): PageResult<Key, Item> {
+        @Suppress("UNCHECKED_CAST")
+        val receiver = mock(PageResult.Receiver::class.java) as PageResult.Receiver<Key, Item>
+        @Suppress("UNCHECKED_CAST")
+        val captor = ArgumentCaptor.forClass(PageResult::class.java)
+                as ArgumentCaptor<PageResult<Key, Item>>
+
+        dataSource.loadInitial(key, initialLoadSize, enablePlaceholders, receiver)
+
+        verify(receiver).onPageResult(captor.capture())
+        verifyNoMoreInteractions(receiver)
+        assertNotNull(captor.value)
+        return captor.value
+    }
+
     @Test
     fun loadInitial() {
         val dataSource = ItemDataSource()
+        val result = loadInitial(dataSource, dataSource.getKey(ITEMS_BY_NAME_ID[49]), 10, true)
 
-        // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
-        val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
-        val initialLoad = dataSource.loadInitial(key, 10, true)!!
-
-        assertEquals(45, initialLoad.leadingNullCount)
-        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), initialLoad.mList)
-        assertEquals(45, initialLoad.trailingNullCount)
+        assertEquals(45, result.leadingNulls)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page.items)
+        assertEquals(45, result.trailingNulls)
     }
 
     @Test
@@ -61,11 +78,11 @@ class KeyedDataSourceTest {
         val dataSource = ItemDataSource(items = ITEMS_BY_NAME_ID.subList(0, 1))
 
         // this is tricky, since load after and load before with the passed key will fail
-        val initialLoad = dataSource.loadInitial(dataSource.getKey(ITEMS_BY_NAME_ID[0]), 20, true)!!
+        val result = loadInitial(dataSource, dataSource.getKey(ITEMS_BY_NAME_ID[0]), 20, true)
 
-        assertEquals(0, initialLoad.leadingNullCount)
-        assertEquals(ITEMS_BY_NAME_ID.subList(0, 1), initialLoad.mList)
-        assertEquals(0, initialLoad.trailingNullCount)
+        assertEquals(0, result.leadingNulls)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 1), result.page.items)
+        assertEquals(0, result.trailingNulls)
     }
 
     @Test
@@ -74,11 +91,11 @@ class KeyedDataSourceTest {
 
         // tricky, because load after key is empty, so another load before and load after required
         val key = dataSource.getKey(ITEMS_BY_NAME_ID.last())
-        val initialLoad = dataSource.loadInitial(key, 20, true)!!
+        val result = loadInitial(dataSource, key, 20, true)
 
-        assertEquals(89, initialLoad.leadingNullCount)
-        assertEquals(ITEMS_BY_NAME_ID.subList(89, 100), initialLoad.mList)
-        assertEquals(0, initialLoad.trailingNullCount)
+        assertEquals(89, result.leadingNulls)
+        assertEquals(ITEMS_BY_NAME_ID.subList(89, 100), result.page.items)
+        assertEquals(0, result.trailingNulls)
     }
 
     @Test
@@ -86,11 +103,11 @@ class KeyedDataSourceTest {
         val dataSource = ItemDataSource()
 
         // loadInitial(null, count) == loadInitial(count)
-        val initialLoad = dataSource.loadInitial(null, 10, true)!!
+        val result = loadInitial(dataSource, null, 10, true)
 
-        assertEquals(0, initialLoad.leadingNullCount)
-        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), initialLoad.mList)
-        assertEquals(90, initialLoad.trailingNullCount)
+        assertEquals(0, result.leadingNulls)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.page.items)
+        assertEquals(90, result.trailingNulls)
     }
 
     @Test
@@ -99,14 +116,14 @@ class KeyedDataSourceTest {
 
         // if key is past entire data set, should return last items in data set
         val key = Key("fz", 0)
-        val initialLoad = dataSource.loadInitial(key, 10, true)!!
+        val result = loadInitial(dataSource, key, 10, true)
 
         // NOTE: ideally we'd load 10 items here, but it adds complexity and unpredictability to
         // do: load after was empty, so pass full size to load before, since this can incur larger
         // loads than requested (see keyMatchesLastItem test)
-        assertEquals(95, initialLoad.leadingNullCount)
-        assertEquals(ITEMS_BY_NAME_ID.subList(95, 100), initialLoad.mList)
-        assertEquals(0, initialLoad.trailingNullCount)
+        assertEquals(95, result.leadingNulls)
+        assertEquals(ITEMS_BY_NAME_ID.subList(95, 100), result.page.items)
+        assertEquals(0, result.trailingNulls)
     }
 
     // ----- UNCOUNTED -----
@@ -117,11 +134,11 @@ class KeyedDataSourceTest {
 
         // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
         val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
-        val initialLoad = dataSource.loadInitial(key, 10, false)!!
+        val result = loadInitial(dataSource, key, 10, false)
 
-        assertEquals(0, initialLoad.leadingNullCount)
-        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), initialLoad.mList)
-        assertEquals(0, initialLoad.trailingNullCount)
+        assertEquals(0, result.leadingNulls)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page.items)
+        assertEquals(0, result.trailingNulls)
     }
 
     @Test
@@ -130,11 +147,11 @@ class KeyedDataSourceTest {
 
         // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
         val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
-        val initialLoad = dataSource.loadInitial(key, 10, true)!!
+        val result = loadInitial(dataSource, key, 10, true)
 
-        assertEquals(0, initialLoad.leadingNullCount)
-        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), initialLoad.mList)
-        assertEquals(0, initialLoad.trailingNullCount)
+        assertEquals(0, result.leadingNulls)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page.items)
+        assertEquals(0, result.trailingNulls)
     }
 
     @Test
@@ -142,11 +159,11 @@ class KeyedDataSourceTest {
         val dataSource = ItemDataSource(counted = false)
 
         // loadInitial(null, count) == loadInitial(count)
-        val initialLoad = dataSource.loadInitial(null, 10, true)!!
+        val result = loadInitial(dataSource, null, 10, true)
 
-        assertEquals(0, initialLoad.leadingNullCount)
-        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), initialLoad.mList)
-        assertEquals(0, initialLoad.trailingNullCount)
+        assertEquals(0, result.leadingNulls)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.page.items)
+        assertEquals(0, result.trailingNulls)
     }
 
     // ----- EMPTY -----
@@ -157,21 +174,21 @@ class KeyedDataSourceTest {
 
         // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
         val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
-        val initialLoad = dataSource.loadInitial(key, 10, true)!!
+        val result = loadInitial(dataSource, key, 10, true)
 
-        assertEquals(0, initialLoad.leadingNullCount)
-        assertTrue(initialLoad.mList.isEmpty())
-        assertEquals(0, initialLoad.trailingNullCount)
+        assertEquals(0, result.leadingNulls)
+        assertTrue(result.page.items.isEmpty())
+        assertEquals(0, result.trailingNulls)
     }
 
     @Test
     fun loadInitial_nullKey_empty() {
         val dataSource = ItemDataSource(items = ArrayList())
-        val initialLoad = dataSource.loadInitial(null, 10, true)!!
+        val result = loadInitial(dataSource, null, 10, true)
 
-        assertEquals(0, initialLoad.leadingNullCount)
-        assertTrue(initialLoad.mList.isEmpty())
-        assertEquals(0, initialLoad.trailingNullCount)
+        assertEquals(0, result.leadingNulls)
+        assertTrue(result.page.items.isEmpty())
+        assertEquals(0, result.trailingNulls)
     }
 
     // ----- Other behavior -----
@@ -180,7 +197,7 @@ class KeyedDataSourceTest {
     fun loadBefore() {
         val dataSource = ItemDataSource()
         @Suppress("UNCHECKED_CAST")
-        val receiver = Mockito.mock(PageResult.Receiver::class.java)
+        val receiver = mock(PageResult.Receiver::class.java)
                 as PageResult.Receiver<Key, Item>
 
         dataSource.loadBefore(5, ITEMS_BY_NAME_ID[5], 5, receiver)
@@ -188,8 +205,8 @@ class KeyedDataSourceTest {
         @Suppress("UNCHECKED_CAST")
         val argument = ArgumentCaptor.forClass(PageResult::class.java)
                 as ArgumentCaptor<PageResult<Key, Item>>
-        Mockito.verify(receiver).postOnPageResult(argument.capture())
-        Mockito.verifyNoMoreInteractions(receiver)
+        verify(receiver).postOnPageResult(argument.capture())
+        verifyNoMoreInteractions(receiver)
 
         val observed = argument.value
 
@@ -264,14 +281,12 @@ class KeyedDataSourceTest {
         private val ITEM_COMPARATOR = compareBy<Item>( {it.name} ).thenByDescending( {it.id} )
         private val KEY_COMPARATOR = compareBy<Key>( {it.name} ).thenByDescending( {it.id} )
 
-        private val ITEMS_BY_NAME_ID = List(size = 100, init = {
-            val names = Array(size = 10, init = {
-                "f" + ('a' + it)
-            })
+        private val ITEMS_BY_NAME_ID = List(100) {
+            val names = Array(10) { "f" + ('a' + it) }
             Item(names[it % 10],
                  it,
                  Math.random() * 1000,
                  (Math.random() * 200).toInt().toString() + " fake st.")
-        }).sortedWith(ITEM_COMPARATOR)
+        }.sortedWith(ITEM_COMPARATOR)
     }
 }

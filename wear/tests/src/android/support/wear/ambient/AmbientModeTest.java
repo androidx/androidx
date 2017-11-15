@@ -76,17 +76,6 @@ public class AmbientModeTest {
     }
 
     @Test
-    public void testControllerSetAutoResumeEnabled() {
-        AmbientModeTestActivity activity = mActivityRule.getActivity();
-
-        activity.getAmbientController().setAutoResumeEnabled(true);
-        assertTrue(WearableActivityController.getLastInstance().isAutoResumeEnabled());
-
-        activity.getAmbientController().setAutoResumeEnabled(false);
-        assertFalse(WearableActivityController.getLastInstance().isAutoResumeEnabled());
-    }
-
-    @Test
     public void testCallsControllerIsAmbient() {
         AmbientModeTestActivity activity = mActivityRule.getActivity();
 

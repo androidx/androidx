@@ -32,8 +32,10 @@ public class LibraryBaseObserver_LifecycleAdapter implements GenericLifecycleObs
 
     @Override
     public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
-        if (event == Lifecycle.Event.ON_START) {
-            mReceiver.doOnStart();
-        }
+        // fake adapter
+    }
+
+    public static void __synthetic_doOnPause(LibraryBaseObserver receiver, LifecycleOwner owner) {
+        receiver.doOnPause(owner);
     }
 }

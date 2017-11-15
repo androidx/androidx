@@ -17,6 +17,7 @@
 package android.arch.lifecycle
 
 import android.arch.lifecycle.model.EventMethod
+import android.arch.lifecycle.model.InputModel
 import android.arch.lifecycle.model.LifecycleObserverInfo
 import android.arch.lifecycle.model.getAdapterName
 import com.google.auto.common.MoreElements
@@ -30,26 +31,34 @@ import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
-import javax.lang.model.util.ElementFilter
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic
 
 fun collectAndVerifyInput(processingEnv: ProcessingEnvironment,
-                          roundEnv: RoundEnvironment): Map<TypeElement, LifecycleObserverInfo> {
+                          roundEnv: RoundEnvironment): InputModel {
     val validator = Validator(processingEnv)
     val worldCollector = ObserversCollector(processingEnv)
-    roundEnv.getElementsAnnotatedWith(OnLifecycleEvent::class.java).forEach { elem ->
+    val roots = roundEnv.getElementsAnnotatedWith(OnLifecycleEvent::class.java).map { elem ->
         if (elem.kind != ElementKind.METHOD) {
             validator.printErrorMessage(ErrorMessages.INVALID_ANNOTATED_ELEMENT, elem)
+            null
         } else {
             val enclosingElement = elem.enclosingElement
             if (validator.validateClass(enclosingElement)) {
-                worldCollector.collect(MoreElements.asType(enclosingElement))
+                MoreElements.asType(enclosingElement)
+            } else {
+                null
             }
         }
-    }
-    return worldCollector.observers
+    }.filterNotNull().toSet()
+    roots.forEach { worldCollector.collect(it) }
+    val observersInfo = worldCollector.observers
+    val generatedAdapters = worldCollector.observers.keys
+            .mapNotNull { type ->
+                worldCollector.generatedAdapterInfoFor(type)?.let { type to it }
+            }.toMap()
+    return InputModel(roots, observersInfo, generatedAdapters)
 }
 
 class ObserversCollector(processingEnv: ProcessingEnvironment) {
@@ -76,9 +85,11 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
         return info
     }
 
-    private fun hasAdapter(type: TypeElement): Boolean {
+    fun generatedAdapterInfoFor(type: TypeElement): List<ExecutableElement>? {
         val packageName = if (type.getPackageQName().isEmpty()) "" else "${type.getPackageQName()}."
-        return elementUtils.getTypeElement(packageName + getAdapterName(type)) != null
+        val adapterType = elementUtils.getTypeElement(packageName + getAdapterName(type))
+        return adapterType?.methods()
+                ?.filter { executable -> isSyntheticMethod(executable) }
     }
 
     private fun createObserverInfo(typeElement: TypeElement,
@@ -86,7 +97,7 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
         if (!validator.validateClass(typeElement)) {
             return null
         }
-        val methods = ElementFilter.methodsIn(typeElement.enclosedElements).filter { executable ->
+        val methods = typeElement.methods().filter { executable ->
             MoreElements.isAnnotationPresent(executable, OnLifecycleEvent::class.java)
         }.map { executable ->
             val onState = executable.getAnnotation(OnLifecycleEvent::class.java)
@@ -96,7 +107,7 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
                 null
             }
         }.filterNotNull()
-        return LifecycleObserverInfo(typeElement, methods, hasAdapter(typeElement), parents)
+        return LifecycleObserverInfo(typeElement, methods, parents)
     }
 }
 

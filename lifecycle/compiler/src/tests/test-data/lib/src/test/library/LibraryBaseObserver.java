@@ -17,7 +17,7 @@
 package test.library;
 
 import static android.arch.lifecycle.Lifecycle.Event.ON_START;
-import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
 
 import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.LifecycleObserver;
@@ -27,5 +27,9 @@ import android.arch.lifecycle.OnLifecycleEvent;
 public class LibraryBaseObserver implements LifecycleObserver {
     @OnLifecycleEvent(ON_START)
     public void doOnStart() {
+    }
+
+    @OnLifecycleEvent(ON_PAUSE)
+    protected void doOnPause(LifecycleOwner owner) {
     }
 }

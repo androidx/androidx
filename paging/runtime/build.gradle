@@ -18,6 +18,7 @@ import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
 
 apply plugin: android.support.FlatfootAndroidLibraryPlugin
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion tools.current_sdk
@@ -49,10 +50,12 @@ dependencies {
     androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation libs.kotlin.stdlib
 
 }
 
 createAndroidCheckstyle(project)
+createKotlinCheckstyle(project)
 
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name

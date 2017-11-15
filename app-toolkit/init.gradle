@@ -147,35 +147,6 @@ subprojects {
         }
     }
 
-    project.plugins.whenPluginAdded { plugin ->
-        def isAndroidLibrary = "com.android.build.gradle.LibraryPlugin"
-                .equals(plugin.class.name)
-        def isJavaLibrary = "org.gradle.api.plugins.JavaPlugin".equals(plugin.class.name)
-        if (isAndroidLibrary) {
-            // it is an android lib, enable sources.
-            def sourcesTask = project.tasks.create(name: "sourcesJar", type : Jar) {
-                classifier = 'sources'
-                from android.sourceSets.main.getJava().getSrcDirs()
-            }
-            project.artifacts {
-                archives sourcesTask
-            }
-            project.android.defaultConfig {
-                // Update the version meta-data in each Manifest.
-                addManifestPlaceholders(["version" : project.version])
-            }
-        } else if(isJavaLibrary && project.name == "common") {
-            // it is a shared lib, enable sources.
-            def sourcesTask = project.tasks.create(name: "sourcesJar", type : Jar) {
-                classifier = 'sources'
-                from sourceSets.main.allSource
-            }
-            project.artifacts {
-                archives sourcesTask
-            }
-        }
-    }
-
     project.tasks.whenTaskAdded { task ->
         if (task.name.startsWith("assembleAndroidTest")) {
             buildServerAnchorTask.dependsOn task
