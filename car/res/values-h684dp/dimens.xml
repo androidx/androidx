@@ -22,6 +22,6 @@ limitations under the License.
     <dimen name="car_drawer_list_item_small_icon_size">56dp</dimen>
     <dimen name="car_drawer_list_item_end_icon_size">56dp</dimen>
 
-    <dimen name="car_drawer_list_item_height">128dp</dimen>
-    <dimen name="car_drawer_list_item_height_small">128dp</dimen>
+    <!-- Line heights -->
+    <dimen name="car_double_line_list_item_height">116dp</dimen>
 </resources>
