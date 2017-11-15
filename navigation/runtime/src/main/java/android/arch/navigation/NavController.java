@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NavigationRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.util.Pair;
 
@@ -612,6 +613,18 @@ public class NavController {
             }
         }
         node.navigate(args, navOptions);
+    }
+
+    /**
+     * @hide Not ready for public
+     *
+     * Navigate via the given {@link NavDirections}
+     *
+     * @param directions directions that describe this navigation operation
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void navigate(NavDirections directions) {
+        navigate(directions.getDestinationId(), directions.getArguments(), directions.getOptions());
     }
 
     /**
