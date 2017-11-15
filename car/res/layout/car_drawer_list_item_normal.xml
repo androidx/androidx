@@ -16,7 +16,7 @@ limitations under the License.
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/car_drawer_list_item_height"
+    android:layout_height="@dimen/car_double_line_list_item_height"
     android:focusable="true"
     android:orientation="horizontal"
     android:background="@drawable/car_drawer_list_item_background" >

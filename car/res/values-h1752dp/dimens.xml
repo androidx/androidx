@@ -27,7 +27,12 @@ limitations under the License.
     <!-- Application Bar Height -->
     <dimen name="car_app_bar_height">112dp</dimen>
 
+    <dimen name="car_touch_target">96dp</dimen>
+
     <!-- Icon dimensions -->
     <dimen name="car_primary_icon_size">56dp</dimen>
     <dimen name="car_secondary_icon_size">36dp</dimen>
+
+    <!-- Line heights -->
+    <dimen name="car_double_line_list_item_height">128dp</dimen>
 </resources>
