@@ -261,7 +261,7 @@ public class WorkManagerTest {
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.isPeriodic(), is(true));
         assertThat(workSpec.getIntervalDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION));
-        assertThat(workSpec.getFlexDuration(), is(PeriodicWork.MIN_PERIODIC_FLEX_DURATION));
+        assertThat(workSpec.getFlexDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION));
     }
 
     @Test
