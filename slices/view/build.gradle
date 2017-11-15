@@ -20,6 +20,7 @@ plugins {
 
 dependencies {
     implementation project(":slices-core")
+    implementation project(":slices-builders")
     implementation libs.support.recyclerview, libs.support_exclude_config
     implementation project(':lifecycle:extensions')
 }

@@ -34,10 +34,13 @@ import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.text.format.DateUtils;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
+import java.util.Calendar;
 
 /**
  * A bunch of utilities for slice UI.
@@ -99,7 +102,7 @@ public class SliceViewUtil {
                 Color.blue(inputColor));
     }
 
-    /**:%s
+    /**
      */
     @ColorInt
     public static int getColorAttr(@NonNull Context context, @AttrRes int attr) {
@@ -185,5 +188,12 @@ public class SliceViewUtil {
         paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
         canvas.drawBitmap(bitmap, rect, rect, paint);
         return output;
+    }
+
+    /**
+     */
+    public static CharSequence getRelativeTimeString(long time) {
+        return DateUtils.getRelativeTimeSpanString(time, Calendar.getInstance().getTimeInMillis(),
+                DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
     }
 }

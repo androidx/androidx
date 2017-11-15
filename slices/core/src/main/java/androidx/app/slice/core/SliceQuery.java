@@ -30,12 +30,68 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import androidx.app.slice.builders.SliceHints;
+
 /**
  * Utilities for finding content within a Slice.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SliceQuery {
+
+    /**
+     * @return Whether this item is appropriate to be considered a "start" item, i.e. go in the
+     *         front slot of a small slice.
+     */
+    public static boolean isStartType(SliceItem item) {
+        final int type = item.getType();
+        return !item.hasHint(SliceHints.HINT_TOGGLE)
+                && ((type == SliceItem.TYPE_ACTION && (find(item, SliceItem.TYPE_IMAGE) != null))
+                || type == SliceItem.TYPE_IMAGE
+                || type == SliceItem.TYPE_TIMESTAMP);
+    }
+
+    /**
+     * @return Finds the first slice that has non-slice children.
+     */
+    public static SliceItem findFirstSlice(SliceItem slice) {
+        if (slice.getType() != SliceItem.TYPE_SLICE) {
+            return slice;
+        }
+        List<SliceItem> items = slice.getSlice().getItems();
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getType() == SliceItem.TYPE_SLICE) {
+                SliceItem childSlice = items.get(i);
+                return findFirstSlice(childSlice);
+            } else {
+                // Doesn't have slice children so return it
+                return slice;
+            }
+        }
+        // Slices all the way down, just return it
+        return slice;
+    }
+
+    /**
+     * @return Whether this item is a simple action, i.e. an action that only has an icon.
+     */
+    public static boolean isSimpleAction(SliceItem item) {
+        if (item.getType() == SliceItem.TYPE_ACTION) {
+            List<SliceItem> items = item.getSlice().getItems();
+            boolean hasImage = false;
+            for (int i = 0; i < items.size(); i++) {
+                SliceItem child = items.get(i);
+                if (child.getType() == SliceItem.TYPE_IMAGE && !hasImage) {
+                    hasImage = true;
+                } else if (child.getType() == SliceItem.TYPE_COLOR) {
+                    continue;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
 
     /**
      */
