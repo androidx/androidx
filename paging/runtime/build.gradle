@@ -30,12 +30,12 @@ android {
 }
 
 dependencies {
-    compile project(":arch:runtime")
-    compile project(":paging:common")
-    compile project(":lifecycle:runtime")
-    compile project(':lifecycle:extensions')
+    api project(":arch:runtime")
+    api project(":paging:common")
+    api project(":lifecycle:runtime")
+    api project(':lifecycle:extensions')
 
-    compile libs.support.recyclerview, libs.support_exclude_config
+    api libs.support.recyclerview, libs.support_exclude_config
 
     androidTestImplementation libs.junit
     androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
@@ -48,16 +48,6 @@ dependencies {
 
 createAndroidCheckstyle(project)
 createKotlinCheckstyle(project)
-
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-    def suffix = name.capitalize()
-    project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompile
-        from variant.javaCompile.destinationDir
-        destinationDir new File(project.buildDir, "libJar")
-    }
-}
 
 supportLibrary {
     name = "Android Lifecycle Extensions"

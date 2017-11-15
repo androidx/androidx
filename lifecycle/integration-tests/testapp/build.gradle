@@ -60,19 +60,21 @@ android {
 
 dependencies {
     // IJ canont figure out transitive dependencies so need to declare them.
-    compile project(":lifecycle:common")
-    compile project(":lifecycle:runtime")
-    compile project(":lifecycle:extensions")
+    implementation project(":lifecycle:common")
+    implementation project(":lifecycle:runtime")
+    implementation project(":lifecycle:extensions")
     annotationProcessor project(":lifecycle:compiler")
+
     androidTestAnnotationProcessor project(":lifecycle:compiler")
-    androidTestCompile(libs.test_runner) {
+    androidTestImplementation(libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile(libs.espresso_core, {
+    androidTestImplementation(libs.espresso_core, {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testCompile libs.junit
-    testCompile libs.mockito_core
+
+    testImplementation libs.junit
+    testImplementation libs.mockito_core
     testAnnotationProcessor project(":lifecycle:compiler")
 }
 createAndroidCheckstyle(project)

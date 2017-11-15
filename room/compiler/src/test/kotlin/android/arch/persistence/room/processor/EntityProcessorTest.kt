@@ -1808,7 +1808,9 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @Embedded
                 MyEntity myEntity;
                 """){ _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyEntity -> foo.bar.MyEntity"))
     }
 
     @Test
@@ -1825,7 +1827,9 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     MyEntity myEntity;
                 }
                 """){ _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
     }
 
     @Test
@@ -1840,7 +1844,9 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     MyEntity myEntity;
                 }
                 """){ _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
     }
 
     @Test
@@ -1856,7 +1862,9 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     MyEntity myEntity;
                 }
                 """) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
     }
     fun okTableName() {
         val annotation = mapOf("tableName" to "\"foo bar\"")

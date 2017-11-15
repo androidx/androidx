@@ -31,10 +31,6 @@ android {
         main.res.srcDirs 'res', 'res-public'
     }
 
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }

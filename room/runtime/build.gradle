@@ -30,10 +30,6 @@ android {
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
 }
 
 dependencies {
@@ -41,15 +37,15 @@ dependencies {
     api project(":persistence:db-framework")
     api project(":persistence:db")
     api project(":arch:runtime")
-    provided project(":paging:common")
-    provided project(":lifecycle:runtime")
-    provided project(":lifecycle:extensions")
-    compile libs.support.core_utils, libs.support_exclude_config
+    compileOnly project(":paging:common")
+    compileOnly project(":lifecycle:runtime")
+    compileOnly project(":lifecycle:extensions")
+    api libs.support.core_utils, libs.support_exclude_config
 
-    testCompile project(":arch:core-testing")
-    testCompile libs.junit
-    testCompile libs.mockito_core
-    testCompile libs.support.annotations
+    testImplementation project(":arch:core-testing")
+    testImplementation libs.junit
+    testImplementation libs.mockito_core
+    testImplementation libs.support.annotations
 
     androidTestImplementation libs.junit
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
@@ -58,6 +54,7 @@ dependencies {
 
 createAndroidCheckstyle(project)
 
+// Used by testCompile in room-compiler
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
     def suffix = name.capitalize()
