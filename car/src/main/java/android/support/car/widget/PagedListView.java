@@ -286,38 +286,6 @@ public class PagedListView extends FrameLayout {
         return mLayoutManager.getPosition(v);
     }
 
-    private void scroll(int direction) {
-        View focusedView = mRecyclerView.getFocusedChild();
-        if (focusedView != null) {
-            int position = mLayoutManager.getPosition(focusedView);
-            int newPosition =
-                    Math.max(Math.min(position + direction, mLayoutManager.getItemCount() - 1), 0);
-            if (newPosition != position) {
-                // newPosition/position are adapter positions.
-                // Convert to layout position by subtracting adapter position of view at layout
-                // position 0.
-                View childAt = mRecyclerView.getChildAt(
-                        newPosition - mLayoutManager.getPosition(mLayoutManager.getChildAt(0)));
-                if (childAt != null) {
-                    childAt.requestFocus();
-                }
-            }
-        }
-    }
-
-    private boolean canScroll(int direction) {
-        View focusedView = mRecyclerView.getFocusedChild();
-        if (focusedView != null) {
-            int position = mLayoutManager.getPosition(focusedView);
-            int newPosition =
-                    Math.max(Math.min(position + direction, mLayoutManager.getItemCount() - 1), 0);
-            if (newPosition != position) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @NonNull
     public CarRecyclerView getRecyclerView() {
         return mRecyclerView;
