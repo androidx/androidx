@@ -43,7 +43,7 @@ public class SystemAlarmService extends Service implements ExecutionListener {
     public void onCreate() {
         super.onCreate();
         Context context = getApplicationContext();
-        WorkManager workManager = WorkManager.getInstance(context);
+        WorkManager workManager = WorkManager.getInstance();
         WorkDatabase database = workManager.getWorkDatabase();
         mProcessor = new BackgroundProcessor(context, database, workManager.getScheduler(), this);
     }

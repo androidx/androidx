@@ -54,15 +54,22 @@ public final class WorkManager {
 
     private static WorkManager sInstance = null;
 
+    static synchronized void init(Context context) {
+        if (sInstance != null) {
+            throw new IllegalStateException("Trying to initialize WorkManager twice!");
+        }
+        sInstance = new WorkManager(context.getApplicationContext(), false);
+    }
+
     /**
-     * Creates/Retrieves the static instance of {@link WorkManager}
+     * Retrieves the singleton instance of {@link WorkManager}.
      *
-     * @param context {@link Context} used to create static instance
-     * @return {@link WorkManager} object
+     * @return The singleton instance of {@link WorkManager}
      */
-    public static synchronized WorkManager getInstance(Context context) {
+    public static synchronized WorkManager getInstance() {
         if (sInstance == null) {
-            sInstance = new WorkManager(context, false);
+            throw new IllegalStateException(
+                    "Accessing WorkManager before it has been initialized!");
         }
         return sInstance;
     }

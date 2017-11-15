@@ -72,7 +72,7 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
     }
 
     private void enqueueWork() {
-        WorkManager workManager = WorkManager.getInstance(AnalyzeSherlockHolmesActivity.this);
+        WorkManager workManager = WorkManager.getInstance();
 
         Work textReducingWork = TextReducingWorker.create(
                 "advs_out.txt",

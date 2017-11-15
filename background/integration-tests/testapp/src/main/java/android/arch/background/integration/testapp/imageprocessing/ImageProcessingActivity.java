@@ -79,8 +79,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
         findViewById(R.id.clear_all).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WorkManager.getInstance(ImageProcessingActivity.this)
-                        .enqueue(ImageCleanupWorker.class);
+                WorkManager.getInstance().enqueue(ImageCleanupWorker.class);
             }
         });
     }
@@ -98,7 +97,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
                 setupWork[i] = ImageSetupWorker.createWork(uriString);
                 processingWork[i] = ImageProcessingWorker.createWork(uriString);
             }
-            WorkManager.getInstance(this)
+            WorkManager.getInstance()
                     .enqueue(setupWork)
                     .then(processingWork);
         } else if (requestCode == IMAGE_REQUEST_CODE && resultCode == RESULT_OK
@@ -107,7 +106,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
             String uriString = data.getData().toString();
             Work setupWork = ImageSetupWorker.createWork(uriString);
             Work processingWork = ImageProcessingWorker.createWork(uriString);
-            WorkManager.getInstance(this)
+            WorkManager.getInstance()
                     .enqueue(setupWork)
                     .then(processingWork);
         } else if (requestCode == IMAGE_REQUEST_CODE && resultCode == RESULT_CANCELED) {

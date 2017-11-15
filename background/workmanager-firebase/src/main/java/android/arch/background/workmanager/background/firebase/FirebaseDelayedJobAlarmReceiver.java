@@ -39,7 +39,7 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
         // TODO(xbhatnag): Avoid using getWorkDatabase() from WorkManager
         final PendingResult pendingResult = goAsync();
         final String workSpecId = intent.getStringExtra(WORKSPEC_ID_KEY);
-        final WorkManager workManager = WorkManager.getInstance(context);
+        final WorkManager workManager = WorkManager.getInstance();
         final FirebaseJobScheduler scheduler = (FirebaseJobScheduler) workManager.getScheduler();
         final WorkDatabase database = workManager.getWorkDatabase();
         new Thread(new Runnable() {
