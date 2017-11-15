@@ -24,6 +24,7 @@ import android.util.Log;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,7 +54,7 @@ public class TextReducingWorker extends Worker {
     }
 
     @Override
-    public void doWork() throws Exception {
+    public @WorkerResult int doWork() {
         Arguments args = getArguments();
         String[] inputFiles = args.getStringArray(INPUT_FILES);
         if (inputFiles == null) {
@@ -74,12 +75,22 @@ public class TextReducingWorker extends Worker {
                     }
                     mWordCount.put(word, count);
                 }
+            } catch (IOException e) {
+                return WORKER_RESULT_FAILURE;
             } finally {
                 if (dataInputStream != null) {
-                    dataInputStream.close();
+                    try {
+                        dataInputStream.close();
+                    } catch (IOException e) {
+                        // Do nothing.
+                    }
                 }
                 if (fileInputStream != null) {
-                    fileInputStream.close();
+                    try {
+                        fileInputStream.close();
+                    } catch (IOException e) {
+                        // Do nothing.
+                    }
                 }
             }
         }
@@ -108,5 +119,6 @@ public class TextReducingWorker extends Worker {
         }
 
         Log.d("Reduce", "Reduction finished");
+        return WORKER_RESULT_SUCCESS;
     }
 }

@@ -16,15 +16,29 @@
 
 package android.arch.background.workmanager;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
+import android.support.annotation.IntDef;
 import android.util.Log;
+
+import java.lang.annotation.Retention;
 
 /**
  * The basic unit of work.
  */
 public abstract class Worker {
+
+    @Retention(SOURCE)
+    @IntDef({WORKER_RESULT_SUCCESS, WORKER_RESULT_FAILURE, WORKER_RESULT_RETRY})
+    public @interface WorkerResult {
+    }
+
+    public static final int WORKER_RESULT_SUCCESS = 0;
+    public static final int WORKER_RESULT_FAILURE = 1;
+    public static final int WORKER_RESULT_RETRY = 2;
 
     private static final String TAG = "Worker";
 
@@ -42,9 +56,10 @@ public abstract class Worker {
     /**
      * Override this method to do your actual background processing.
      *
-     * @throws Exception An {@link Exception} if the work failed
+     * @return The result of the work, corresponding to a {@link WorkerResult} value.  If a
+     * different value is returned, the result shall be defaulted to {@code WORKER_RESULT_FAILURE}.
      */
-    public abstract void doWork() throws Exception;
+    public abstract @WorkerResult int doWork();
 
     private void internalInit(Context appContext, Arguments arguments) {
         mAppContext = appContext;

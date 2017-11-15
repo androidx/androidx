@@ -25,9 +25,10 @@ import android.util.Log;
 public class TextStartupWorker extends Worker {
 
     @Override
-    public void doWork() throws Exception {
+    public @WorkerResult int doWork() {
         TestDatabase db = TestDatabase.getInstance(getAppContext());
         db.getWordCountDao().clear();
         Log.d("Startup", "Database cleared");
+        return WORKER_RESULT_SUCCESS;
     }
 }

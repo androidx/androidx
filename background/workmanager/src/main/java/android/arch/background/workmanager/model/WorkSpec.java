@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.model;
 
-import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
@@ -38,8 +38,8 @@ public class WorkSpec {
     String mId;
 
     @ColumnInfo(name = "status")
-    @Work.WorkStatus
-    int mStatus = Work.STATUS_ENQUEUED;
+    @BaseWork.WorkStatus
+    int mStatus = BaseWork.STATUS_ENQUEUED;
 
     @ColumnInfo(name = "worker_class_name")
     String mWorkerClassName;
@@ -66,11 +66,11 @@ public class WorkSpec {
 
     // TODO(sumir): Should Backoff be disabled by default?
     @ColumnInfo(name = "backoff_policy")
-    @Work.BackoffPolicy
-    int mBackoffPolicy = Work.BACKOFF_POLICY_EXPONENTIAL;
+    @BaseWork.BackoffPolicy
+    int mBackoffPolicy = BaseWork.BACKOFF_POLICY_EXPONENTIAL;
 
     @ColumnInfo(name = "backoff_delay_duration")
-    long mBackoffDelayDuration = Work.DEFAULT_BACKOFF_DELAY_DURATION;
+    long mBackoffDelayDuration = BaseWork.DEFAULT_BACKOFF_DELAY_DURATION;
 
     public WorkSpec(@NonNull String id) {
         mId = id;
@@ -189,17 +189,20 @@ public class WorkSpec {
     /**
      * Calculates delay with which this Work item should be executed.
      *
-     * if the run attempt count is 0, the initial delay is returned.
+     * If the run attempt count is 0, the initial delay is returned.
      *
-     * if Backoff Policy is set to {@link Work#BACKOFF_POLICY_EXPONENTIAL}, then delay
+     * If Backoff Policy is set to {@link BaseWork#BACKOFF_POLICY_EXPONENTIAL}, then delay
      * increases at an exponential rate with respect to the run attempt count and is capped at
-     * {@link Work#MAX_BACKOFF_DURATION}
+     * {@link BaseWork#MAX_BACKOFF_DURATION}.
      *
-     * if Backoff Policy is set to {@link Work#BACKOFF_POLICY_LINEAR}, then delay
+     * if Backoff Policy is set to {@link BaseWork#BACKOFF_POLICY_LINEAR}, then delay
      * increases at an linear rate with respect to the run attempt count and is capped at
-     * {@link Work#MAX_BACKOFF_DURATION}
+     * {@link BaseWork#MAX_BACKOFF_DURATION}.
      *
      * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/services/core/java/com/android/server/job/JobSchedulerService.java#1125}
+     *
+     * Note that this delay is for WorkManager internal use and may not match what the OS considers
+     * to be the current delay.
      *
      * @return non-negative delay to execute this item with (in milliseconds)
      */
@@ -208,13 +211,13 @@ public class WorkSpec {
             return mInitialDelay;
         }
         long delay;
-        if (mBackoffPolicy == Work.BACKOFF_POLICY_LINEAR) {
+        if (mBackoffPolicy == BaseWork.BACKOFF_POLICY_LINEAR) {
             delay = mBackoffDelayDuration * mRunAttemptCount;
         } else {
             // default to exponential backoff policy
             delay = (long) Math.scalb(mBackoffDelayDuration, mRunAttemptCount - 1);
         }
-        return Math.min(Work.MAX_BACKOFF_DURATION, delay);
+        return Math.min(BaseWork.MAX_BACKOFF_DURATION, delay);
     }
 
     @Override

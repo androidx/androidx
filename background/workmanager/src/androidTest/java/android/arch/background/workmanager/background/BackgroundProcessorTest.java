@@ -72,8 +72,8 @@ public class BackgroundProcessorTest {
         mProcessor.process(workSpecId, 0L);
 
         Thread.sleep(1000L);
-
         assertThat(workSpecDao.getWorkSpecStatus(workSpecId), is(Work.STATUS_SUCCEEDED));
-        verify(mMockListener).onExecuted(workSpecId, WorkerWrapper.RESULT_SUCCEEDED);
+        verify(mMockListener).onExecuted(workSpecId, WorkerWrapper.EXECUTION_RESULT_SUCCESS);
+        verify(mMockScheduler).schedule();
     }
 }

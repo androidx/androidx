@@ -27,11 +27,11 @@ public class InfiniteTestWorker extends Worker {
     private static final String TAG = "InfiniteTestWorker";
 
     @Override
-    public void doWork() throws Exception {
+    public @WorkerResult int doWork() {
         while (true) {
             if (Thread.currentThread().isInterrupted()) {
                 Log.e(TAG, "Interrupted");
-                return;
+                return WORKER_RESULT_RETRY;
             }
         }
     }

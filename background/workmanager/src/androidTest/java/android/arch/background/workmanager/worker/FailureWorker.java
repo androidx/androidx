@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@ import android.arch.background.workmanager.Worker;
 import android.util.Log;
 
 /**
- * Worker that immediately throws Unhandled Exception.
+ * Worker that fails.
  */
 
-public class ExceptionTestWorker extends Worker {
+public class FailureWorker extends Worker {
     @Override
-    public void doWork() {
-        Log.d("ExceptionTestWorker", "Throwing Exception");
-        throw new RuntimeException();
+    public @WorkerResult int doWork() {
+        Log.d("FailureWorker", "Returning FAILURE");
+        return WORKER_RESULT_FAILURE;
     }
 }

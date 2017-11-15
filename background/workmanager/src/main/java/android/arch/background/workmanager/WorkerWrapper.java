@@ -16,10 +16,14 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.Work.STATUS_FAILED;
-import static android.arch.background.workmanager.Work.STATUS_RUNNING;
-import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.STATUS_BLOCKED;
+import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
+import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
+import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.Worker.WORKER_RESULT_FAILURE;
+import static android.arch.background.workmanager.Worker.WORKER_RESULT_RETRY;
+import static android.arch.background.workmanager.Worker.WORKER_RESULT_SUCCESS;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -45,16 +49,17 @@ import java.lang.annotation.Retention;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkerWrapper implements Runnable {
     @Retention(SOURCE)
-    @IntDef({RESULT_NOT_ENQUEUED, RESULT_PERMANENT_ERROR, RESULT_FAILED, RESULT_INTERRUPTED,
-            RESULT_SUCCEEDED})
+    @IntDef({EXECUTION_RESULT_PERMANENT_ERROR,
+            EXECUTION_RESULT_RESCHEDULE,
+            EXECUTION_RESULT_FAILURE,
+            EXECUTION_RESULT_SUCCESS})
     public @interface ExecutionResult {
     }
 
-    public static final int RESULT_NOT_ENQUEUED = 0;
-    public static final int RESULT_PERMANENT_ERROR = 1;
-    public static final int RESULT_FAILED = 2;
-    public static final int RESULT_INTERRUPTED = 3;
-    public static final int RESULT_SUCCEEDED = 4;
+    public static final int EXECUTION_RESULT_PERMANENT_ERROR = 0;
+    public static final int EXECUTION_RESULT_RESCHEDULE = 1;
+    public static final int EXECUTION_RESULT_FAILURE = 2;
+    public static final int EXECUTION_RESULT_SUCCESS = 3;
 
     private static final String TAG = "WorkerWrapper";
     private Context mAppContext;
@@ -77,21 +82,46 @@ public class WorkerWrapper implements Runnable {
         WorkSpec workSpec = workSpecDao.getWorkSpec(mWorkSpecId);
         if (workSpec == null) {
             Log.e(TAG, "Didn't find WorkSpec for id " + mWorkSpecId);
-            notifyListener(RESULT_PERMANENT_ERROR);
+            notifyListener(EXECUTION_RESULT_PERMANENT_ERROR);
             return;
         }
 
-        if (workSpec.getStatus() != STATUS_ENQUEUED) {
-            Log.d(TAG, "Status for " + mWorkSpecId + " is not enqueued; not doing any work");
-            notifyListener(RESULT_NOT_ENQUEUED);
-            return;
+        switch (workSpec.getStatus()) {
+            case STATUS_BLOCKED: {
+                Log.e(TAG,
+                        "Status for " + mWorkSpecId + " is BLOCKED - why is it trying to "
+                                + "be executed?  This is a recoverable error, so not doing any "
+                                + "work and rescheduling for later execution",
+                        new Exception());
+                notifyListener(EXECUTION_RESULT_RESCHEDULE);
+                return;
+            }
+
+            case STATUS_RUNNING: {
+                Log.d(TAG, "Status for " + mWorkSpecId + " is BLOCKED or RUNNING; "
+                        + "not doing any work and rescheduling for later execution");
+                notifyListener(EXECUTION_RESULT_RESCHEDULE);
+                return;
+            }
+
+            case STATUS_SUCCEEDED: {
+                Log.d(TAG, "Status for " + mWorkSpecId + " is succeeded; not doing any work");
+                notifyListener(EXECUTION_RESULT_SUCCESS);
+                return;
+            }
+
+            case STATUS_FAILED: {
+                Log.d(TAG, "Status for " + mWorkSpecId + " is failed; not doing any work");
+                notifyListener(EXECUTION_RESULT_FAILURE);
+                return;
+            }
         }
 
         Worker worker = Worker.fromWorkSpec(mAppContext, workSpec);
         if (worker == null) {
             Log.e(TAG, "Could not create Worker " + workSpec.getWorkerClassName());
             workSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
-            notifyListener(RESULT_PERMANENT_ERROR);
+            notifyListener(EXECUTION_RESULT_PERMANENT_ERROR);
             return;
         }
 
@@ -106,20 +136,36 @@ public class WorkerWrapper implements Runnable {
 
         try {
             checkForInterruption();
-            worker.doWork();
+            int result = worker.doWork();
             checkForInterruption();
 
-            Log.d(TAG, "Work succeeded for " + mWorkSpecId);
-            setSuccessAndUpdateDependencies(workSpec.isPeriodic());
-            notifyListener(RESULT_SUCCEEDED);
+            switch (result) {
+                case WORKER_RESULT_SUCCESS: {
+                    Log.d(TAG, "Worker result SUCCESS for " + mWorkSpecId);
+                    setSuccessAndUpdateDependencies(workSpec.isPeriodic());
+                    notifyListener(EXECUTION_RESULT_SUCCESS);
+                    break;
+                }
+
+                case WORKER_RESULT_RETRY: {
+                    Log.d(TAG, "Worker result RETRY for " + mWorkSpecId);
+                    workSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);
+                    notifyListener(EXECUTION_RESULT_RESCHEDULE);
+                    break;
+                }
+
+                case WORKER_RESULT_FAILURE:
+                default: {
+                    Log.d(TAG, "Worker result FAILURE for " + mWorkSpecId);
+                    workSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
+                    notifyListener(EXECUTION_RESULT_FAILURE);
+                    break;
+                }
+            }
         } catch (InterruptedException e) {
             Log.d(TAG, "Work interrupted for " + mWorkSpecId);
             workSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);
-            notifyListener(RESULT_INTERRUPTED);
-        } catch (Exception e) {
-            Log.d(TAG, "Work failed for " + mWorkSpecId, e);
-            workSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
-            notifyListener(RESULT_FAILED);
+            notifyListener(EXECUTION_RESULT_RESCHEDULE);
         }
     }
 

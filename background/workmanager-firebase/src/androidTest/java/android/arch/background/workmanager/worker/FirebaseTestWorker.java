@@ -26,7 +26,8 @@ import android.util.Log;
 public class FirebaseTestWorker extends Worker {
 
     @Override
-    public void doWork() {
+    public @WorkerResult int doWork() {
         Log.d("FirebaseTestWorker", "FirebaseTestWorker Ran!");
+        return WORKER_RESULT_SUCCESS;
     }
 }

@@ -25,12 +25,12 @@ import android.util.Log;
 public class InfiniteWorker extends Worker {
 
     @Override
-    public void doWork() throws Exception {
+    public @WorkerResult int doWork() {
         while (true) {
             try {
                 Thread.sleep(5000L);
             } catch (InterruptedException e) {
-                // Do nothing.
+                return WORKER_RESULT_RETRY;
             } finally {
                 Log.e("InfiniteWorker", "work work");
             }
