@@ -53,6 +53,12 @@ public class PagedListView extends FrameLayout {
     public static final int DEFAULT_MAX_CLICKS = 6;
 
     /**
+     * Value to pass to {@link #setMaxPages(int)} to indicate there is no restriction on the
+     * maximum number of pages to show.
+     */
+    public static final int UNLIMITED_PAGES = -1;
+
+    /**
      * The amount of time after settling to wait before autoscrolling to the next page when the user
      * holds down a pagination button.
      */
@@ -70,8 +76,8 @@ public class PagedListView extends FrameLayout {
     private int mRowsPerPage = -1;
     protected RecyclerView.Adapter<? extends RecyclerView.ViewHolder> mAdapter;
 
-    /** Maximum number of pages to show. Values < 0 show all pages. */
-    private int mMaxPages = -1;
+    /** Maximum number of pages to show. */
+    private int mMaxPages;
 
     protected OnScrollListener mOnScrollListener;
 
@@ -120,8 +126,6 @@ public class PagedListView extends FrameLayout {
      * the item in position 20 instead, for position 1 it will show the item in position 21 instead
      * and so on.
      */
-    // TODO(b/28003781): ItemPositionOffset and ItemCap interfaces should be merged once
-    // we enable AlphaJump outside drawer.
     public interface ItemPositionOffset {
         /** Sets the position offset for the adapter. */
         void setPositionOffset(int positionOffset);
@@ -345,16 +349,12 @@ public class PagedListView extends FrameLayout {
     /**
      * Sets the adapter for the list.
      *
-     * <p>It <em>must</em> implement {@link ItemCap}, otherwise, will throw an {@link
-     * IllegalArgumentException}.
+     * <p>The given Adapter can implement {@link ItemCap} if it wishes to control the behavior of
+     * a max number of items. Otherwise, methods in the PagedListView to limit the content, such as
+     * {@link #setMaxPages(int)}, will do nothing.
      */
     public void setAdapter(
             @NonNull RecyclerView.Adapter<? extends RecyclerView.ViewHolder> adapter) {
-        if (!(adapter instanceof ItemCap)) {
-            throw new IllegalArgumentException("ERROR: adapter ["
-                    + adapter.getClass().getCanonicalName() + "] MUST implement ItemCap");
-        }
-
         mAdapter = adapter;
         mRecyclerView.setAdapter(adapter);
         updateMaxItems();
@@ -375,15 +375,19 @@ public class PagedListView extends FrameLayout {
 
     /**
      * Sets the maximum number of the pages that can be shown in the PagedListView. The size of a
-     * page is  defined as the number of items that fit completely on the screen at once.
+     * page is defined as the number of items that fit completely on the screen at once.
      *
-     * @param maxPages The maximum number of pages that fit on the screen. Should be positive.
+     * <p>Passing {@link #UNLIMITED_PAGES} will remove any restrictions on a maximum number
+     * of pages.
+     *
+     * <p>Note that for any restriction on maximum pages to work, the adapter passed to this
+     * PagedListView needs to implement {@link ItemCap}.
+     *
+     * @param maxPages The maximum number of pages that fit on the screen. Should be positive or
+     * {@link #UNLIMITED_PAGES}.
      */
     public void setMaxPages(int maxPages) {
-        if (maxPages < 0) {
-            return;
-        }
-        mMaxPages = maxPages;
+        mMaxPages = Math.max(UNLIMITED_PAGES, maxPages);
         updateMaxItems();
     }
 
@@ -392,7 +396,8 @@ public class PagedListView extends FrameLayout {
      * {@link #setMaxPages(int)}. If that method has not been called, then this value should match
      * the default value.
      *
-     * @return The maximum number of pages to be shown.
+     * @return The maximum number of pages to be shown or {@link #UNLIMITED_PAGES} if there is
+     * no limit.
      */
     public int getMaxPages() {
         return mMaxPages;
@@ -576,6 +581,7 @@ public class PagedListView extends FrameLayout {
             return;
         }
         mDefaultMaxPages = newDefault;
+        resetMaxPages();
     }
 
     /** Returns the default number of pages the list should have */
@@ -702,8 +708,15 @@ public class PagedListView extends FrameLayout {
             return;
         }
 
-        final int originalCount = mAdapter.getItemCount();
+        // Ensure mRowsPerPage regardless of if the adapter implements ItemCap.
         updateRowsPerPage();
+
+        // If the adapter does not implement ItemCap, then the max items on it cannot be updated.
+        if (!(mAdapter instanceof ItemCap)) {
+            return;
+        }
+
+        final int originalCount = mAdapter.getItemCount();
         ((ItemCap) mAdapter).setMaxItems(calculateMaxItemCount());
         final int newCount = mAdapter.getItemCount();
         if (newCount == originalCount) {
