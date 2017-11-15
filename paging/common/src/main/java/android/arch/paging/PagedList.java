@@ -185,16 +185,12 @@ public abstract class PagedList<T> extends AbstractList<T> {
     /**
      * Builder class for PagedList.
      * <p>
-     * DataSource, main thread and background executor, and Config must all be provided.
+     * DataSource, Config, main thread and background executor must all be provided.
      * <p>
-     * A valid PagedList may not be constructed without data, so building a PagedList queries
-     * initial data from the data source. This is done because it's generally undesired to present a
-     * PagedList with no data in it to the UI. It's better to present initial data, so that the UI
-     * doesn't show an empty list, or placeholders for a few frames, just before showing initial
-     * content.
-     * <p>
-     * Because PagedLists are initialized with data, PagedLists must be built on a background
-     * thread.
+     * A PagedList queries initial data from its DataSource during construction, to avoid empty
+     * PagedLists being presented to the UI when possible. It's preferred to present initial data,
+     * so that the UI doesn't show an empty list, or placeholders for a few frames, just before
+     * showing initial content.
      * <p>
      * {@link LivePagedListBuilder} does this creation on a background thread automatically, if you
      * want to receive a {@code LiveData<PagedList<...>>}.
@@ -204,25 +200,47 @@ public abstract class PagedList<T> extends AbstractList<T> {
      */
     @SuppressWarnings("WeakerAccess")
     public static class Builder<Key, Value> {
-        private DataSource<Key, Value> mDataSource;
+        private final DataSource<Key, Value> mDataSource;
+        private final Config mConfig;
         private Executor mMainThreadExecutor;
         private Executor mBackgroundThreadExecutor;
         private BoundaryCallback mBoundaryCallback;
-        private Config mConfig;
         private Key mInitialKey;
 
         /**
-         * The source of data that the PagedList will load from.
+         * Create a PagedList.Builder with the provided {@link DataSource} and {@link Config}.
          *
-         * @param dataSource Source of data for the PagedList.
-         * @return this
+         * @param dataSource DataSource the PagedList will load from.
+         * @param config Config that defines how the PagedList loads data from its DataSource.
          */
-        @NonNull
-        public Builder<Key, Value> setDataSource(@NonNull DataSource<Key, Value> dataSource) {
+        public Builder(@NonNull DataSource<Key, Value> dataSource, @NonNull Config config) {
+            //noinspection ConstantConditions
+            if (dataSource == null) {
+                throw new IllegalArgumentException("DataSource may not be null");
+            }
+            //noinspection ConstantConditions
+            if (config == null) {
+                throw new IllegalArgumentException("Config may not be null");
+            }
             mDataSource = dataSource;
-            return this;
+            mConfig = config;
         }
 
+        /**
+         * Create a PagedList.Builder with the provided {@link DataSource} and page size.
+         * <p>
+         * This method is a convenience for:
+         * <pre>
+         * PagedList.Builder(dataSource,
+         *         new PagedList.Config.Builder().setPageSize(pageSize).build());
+         * </pre>
+         *
+         * @param dataSource DataSource the PagedList will load from.
+         * @param pageSize Config that defines how the PagedList loads data from its DataSource.
+         */
+        public Builder(@NonNull DataSource<Key, Value> dataSource, int pageSize) {
+            this(dataSource, new PagedList.Config.Builder().setPageSize(pageSize).build());
+        }
         /**
          * The executor defining where main/UI thread for page loading updates.
          *
@@ -251,24 +269,19 @@ public abstract class PagedList<T> extends AbstractList<T> {
             return this;
         }
 
+        /**
+         * The BoundaryCallback for out of data events.
+         * <p>
+         * Pass a BoundaryCallback to listen to when the PagedList runs out of data to load.
+         *
+         * @param boundaryCallback BoundaryCallback for listening to out-of-data events.
+         * @return this
+         */
+        @SuppressWarnings("unused")
         @NonNull
         public Builder<Key, Value> setBoundaryCallback(
                 @Nullable BoundaryCallback boundaryCallback) {
             mBoundaryCallback = boundaryCallback;
-            return this;
-        }
-
-
-        /**
-         * The Config defining how the PagedList should load from the DataSource.
-         *
-         * @param config The config that will define how the PagedList loads from the DataSource.
-         *
-         * @return this
-         */
-        @NonNull
-        public Builder<Key, Value> setConfig(@NonNull Config config) {
-            mConfig = config;
             return this;
         }
 
@@ -314,17 +327,12 @@ public abstract class PagedList<T> extends AbstractList<T> {
         @WorkerThread
         @NonNull
         public PagedList<Value> build() {
-            if (mDataSource == null) {
-                throw new IllegalArgumentException("DataSource required");
-            }
+            // TODO: define defaults, once they can be used in module without android dependency
             if (mMainThreadExecutor == null) {
                 throw new IllegalArgumentException("MainThreadExecutor required");
             }
             if (mBackgroundThreadExecutor == null) {
                 throw new IllegalArgumentException("BackgroundThreadExecutor required");
-            }
-            if (mConfig == null) {
-                throw new IllegalArgumentException("Config required");
             }
 
             //noinspection unchecked
