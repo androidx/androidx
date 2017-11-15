@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.enqueue_infinite_work).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WorkManager.getInstance(MainActivity.this).enqueue(
+                WorkManager.getInstance().enqueue(
                         new Work.Builder(InfiniteWorker.class)
                                 .withConstraints(new Constraints.Builder()
                                         .setRequiresCharging(true)
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.image_uri).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WorkManager.getInstance(MainActivity.this).enqueue(ToastWorker
+                WorkManager.getInstance().enqueue(ToastWorker
                         .create("Image URI Updated!")
                         .withConstraints(new Constraints.Builder()
                                         .addContentUriTrigger(
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 String delayString = delayInMs.getText().toString();
                 long delay = Long.parseLong(delayString);
                 Log.d(TAG, "Enqueuing job with delay of " + delay + " ms");
-                WorkManager.getInstance(MainActivity.this).enqueue(ToastWorker
+                WorkManager.getInstance().enqueue(ToastWorker
                         .create("Delayed Job Ran!")
                         .withInitialDelay(delay)
                         .build());
