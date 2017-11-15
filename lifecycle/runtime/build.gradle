@@ -14,20 +14,16 @@ android {
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
 }
 
 dependencies {
-    compile project(":lifecycle:common")
-    compile project(":arch:common")
+    api project(":lifecycle:common")
+    api project(":arch:common")
     // necessary for IJ to resolve dependencies.
-    compile libs.support.annotations
+    api libs.support.annotations
 
-    testCompile libs.junit
-    testCompile libs.mockito_core
+    testImplementation libs.junit
+    testImplementation libs.mockito_core
 
     androidTestImplementation libs.junit
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
