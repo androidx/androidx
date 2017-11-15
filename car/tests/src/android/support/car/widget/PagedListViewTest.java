@@ -228,6 +228,7 @@ public final class PagedListViewTest {
         verifyItemSnappedToListTop();
     }
 
+    @Suppress
     @Test
     public void swipeDownKeepsItemSnappedToTopOfList() throws Throwable {
         setUpPagedListView(ITEMS_PER_PAGE * 2 /* itemCount */);
