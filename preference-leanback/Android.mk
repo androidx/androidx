@@ -35,14 +35,15 @@ LOCAL_SRC_FILES := \
     $(call all-java-files-under,api21) \
     $(call all-java-files-under,src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_JAVA_LIBRARIES := \
+    android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-v17-leanback \
     android-support-v14-preference \
     android-support-v7-preference \
     android-support-v7-appcompat \
     android-support-v7-recyclerview \
-    android-support-v4 \
-    android-support-annotations
+    android-support-v4
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
