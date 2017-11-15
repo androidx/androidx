@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.app.slice.builders;
+package androidx.app.slice.core;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.slice.Slice;
 import android.support.annotation.RestrictTo;
-
 
 /**
  * Temporary class to contain hint constants for slices to be used.

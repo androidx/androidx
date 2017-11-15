@@ -41,7 +41,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.app.slice.builders.SliceHints;
+import androidx.app.slice.core.SliceHints;
 import androidx.app.slice.core.SliceQuery;
 import androidx.app.slice.view.R;
 

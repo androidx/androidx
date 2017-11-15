@@ -36,8 +36,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import androidx.app.slice.builders.SliceHints;
-
 /**
  * Utilities for finding content within a Slice.
  * @hide

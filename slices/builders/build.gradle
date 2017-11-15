@@ -19,6 +19,7 @@ plugins {
 }
 
 dependencies {
+    compile project(path: ':slices-core')
     implementation libs.support.annotations, libs.support_exclude_config
 }
 

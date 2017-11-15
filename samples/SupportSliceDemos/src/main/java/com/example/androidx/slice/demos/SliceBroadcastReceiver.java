@@ -22,7 +22,7 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 
-import androidx.app.slice.builders.SliceHints;
+import androidx.app.slice.core.SliceHints;
 
 /**
  * Responds to actions performed on slices and notifies slices of updates in state changes.

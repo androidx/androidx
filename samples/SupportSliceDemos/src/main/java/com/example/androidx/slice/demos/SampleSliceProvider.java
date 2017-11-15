@@ -29,7 +29,7 @@ import android.support.annotation.RequiresApi;
 import android.text.format.DateUtils;
 
 import androidx.app.slice.builders.MessagingSliceBuilder;
-import androidx.app.slice.builders.SliceHints;
+import androidx.app.slice.core.SliceHints;
 
 /**
  * Examples of using slice template builders.
