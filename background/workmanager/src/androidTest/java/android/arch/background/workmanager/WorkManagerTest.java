@@ -221,8 +221,7 @@ public class WorkManagerTest {
         String key = "key";
         String expectedValue = "value";
 
-        Arguments args = new Arguments();
-        args.putString(key, expectedValue);
+        Arguments args = new Arguments.Builder().putString(key, expectedValue).build();
 
         Work work0 = new Work.Builder(TestWorker.class)
                 .withArguments(args)

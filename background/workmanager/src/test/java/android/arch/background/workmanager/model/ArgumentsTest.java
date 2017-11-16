@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.model;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.arch.background.workmanager.model.Arguments;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
@@ -35,7 +34,7 @@ public class ArgumentsTest {
 
     @Test
     public void empty() throws IOException, ClassNotFoundException {
-        Arguments args = new Arguments();
+        Arguments args = new Arguments.Builder().build();
 
         byte[] byteArray = Arguments.toByteArray(args);
         Arguments restoredArgs = Arguments.fromByteArray(byteArray);
@@ -46,11 +45,12 @@ public class ArgumentsTest {
 
     @Test
     public void serializeString() throws IOException, ClassNotFoundException {
-        Arguments args = new Arguments();
         String expectedValue1 = "value1";
         String expectedValue2 = "value2";
-        args.putString(KEY1, expectedValue1);
-        args.putString(KEY2, expectedValue2);
+        Arguments args = new Arguments.Builder()
+                .putString(KEY1, expectedValue1)
+                .putString(KEY2, expectedValue2)
+                .build();
 
         byte[] byteArray = Arguments.toByteArray(args);
         Arguments restoredArgs = Arguments.fromByteArray(byteArray);
@@ -69,11 +69,12 @@ public class ArgumentsTest {
 
     @Test
     public void serializeIntArray() throws IOException, ClassNotFoundException {
-        Arguments args = new Arguments();
         int[] expectedValue1 = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         int[] expectedValue2 = new int[]{10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-        args.putIntArray(KEY1, expectedValue1);
-        args.putIntArray(KEY2, expectedValue2);
+        Arguments args = new Arguments.Builder()
+                .putIntArray(KEY1, expectedValue1)
+                .putIntArray(KEY2, expectedValue2)
+                .build();
 
         byte[] byteArray = Arguments.toByteArray(args);
         Arguments restoredArgs = Arguments.fromByteArray(byteArray);

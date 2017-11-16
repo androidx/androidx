@@ -48,8 +48,7 @@ public class TextReducingWorker extends Worker {
      * @return A {@link Work.Builder} with these arguments
      */
     public static Work.Builder create(String... inputFiles) {
-        Arguments args = new Arguments();
-        args.putStringArray(INPUT_FILES, inputFiles);
+        Arguments args = new Arguments.Builder().putStringArray(INPUT_FILES, inputFiles).build();
         return new Work.Builder(TextReducingWorker.class).withArguments(args);
     }
 

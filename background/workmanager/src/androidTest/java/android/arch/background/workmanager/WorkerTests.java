@@ -53,10 +53,9 @@ public class WorkerTests {
 
     @Test
     public void arguments() throws InterruptedException {
-        Arguments arguments = new Arguments();
         String key = "KEY";
         String expectedValue = "VALUE";
-        arguments.putString(key, expectedValue);
+        Arguments arguments = new Arguments.Builder().putString(key, expectedValue).build();
 
         Work work = new Work.Builder(TestWorker.class).withArguments(arguments).build();
         Worker worker = Worker.fromWorkSpec(mContext, work.getWorkSpec());
@@ -68,6 +67,6 @@ public class WorkerTests {
         worker = Worker.fromWorkSpec(mContext, work.getWorkSpec());
 
         assertThat(worker, is(notNullValue()));
-        assertThat(worker.getArguments().isEmpty(), is(true));
+        assertThat(worker.getArguments().size(), is(0));
     }
 }

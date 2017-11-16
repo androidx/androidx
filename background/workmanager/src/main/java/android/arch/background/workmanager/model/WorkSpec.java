@@ -56,7 +56,7 @@ public class WorkSpec {
     @Embedded
     Constraints mConstraints = new Constraints.Builder().build();
 
-    Arguments mArguments = new Arguments();
+    Arguments mArguments = new Arguments.Builder().build();
 
     @ColumnInfo(name = "tag")
     String mTag;

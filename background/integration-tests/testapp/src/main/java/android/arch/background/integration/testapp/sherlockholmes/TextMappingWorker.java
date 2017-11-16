@@ -48,9 +48,10 @@ public class TextMappingWorker extends Worker {
      * @return A {@link Work.Builder} with these arguments
      */
     public static Work.Builder create(String inputFile, String outputFile) {
-        Arguments args = new Arguments();
-        args.putString(INPUT_FILE, inputFile);
-        args.putString(OUTPUT_FILE, outputFile);
+        Arguments args = new Arguments.Builder()
+                .putString(INPUT_FILE, inputFile)
+                .putString(OUTPUT_FILE, outputFile)
+                .build();
         return new Work.Builder(TextMappingWorker.class).withArguments(args);
     }
 
