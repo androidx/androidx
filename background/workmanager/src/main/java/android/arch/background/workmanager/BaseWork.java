@@ -53,17 +53,17 @@ public abstract class BaseWork {
 
     public static final int BACKOFF_POLICY_EXPONENTIAL = 0;
     public static final int BACKOFF_POLICY_LINEAR = 1;
-    public static final long DEFAULT_BACKOFF_DELAY_DURATION = 30000L;
+    public static final long DEFAULT_BACKOFF_DELAY_MILLIS = 30000L;
 
     /**
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#82}
      */
-    public static final long MAX_BACKOFF_DURATION = 5 * 60 * 60 * 1000; // 5 hours.
+    public static final long MAX_BACKOFF_MILLIS = 5 * 60 * 60 * 1000; // 5 hours.
 
     /**
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#119}
      */
-    public static final long MIN_BACKOFF_DURATION = 10 * 1000; // 10 seconds.
+    public static final long MIN_BACKOFF_MILLIS = 10 * 1000; // 10 seconds.
 
     private static final String TAG = "BaseWork";
 
@@ -117,25 +117,25 @@ public abstract class BaseWork {
         /**
          * Change backoff policy and delay for the {@link BaseWork}.
          * Default is {@value Work#BACKOFF_POLICY_EXPONENTIAL} and 30 seconds.
-         * Maximum backoff delay duration is {@value #MAX_BACKOFF_DURATION}.
+         * Maximum backoff delay duration is {@value #MAX_BACKOFF_MILLIS}.
          *
          * @param backoffPolicy        Backoff Policy to use for {@link BaseWork}
-         * @param backoffDelayDuration Time to wait before restarting {@link Worker}
+         * @param backoffDelayMillis Time to wait before restarting {@link Worker}
          *                             (in milliseconds)
          * @return The current {@link Builder}.
          */
         public B withBackoffCriteria(@Work.BackoffPolicy int backoffPolicy,
-                                                long backoffDelayDuration) {
-            if (backoffDelayDuration > MAX_BACKOFF_DURATION) {
+                                                long backoffDelayMillis) {
+            if (backoffDelayMillis > MAX_BACKOFF_MILLIS) {
                 Log.w(TAG, "Backoff delay duration exceeds maximum value");
-                backoffDelayDuration = MAX_BACKOFF_DURATION;
+                backoffDelayMillis = MAX_BACKOFF_MILLIS;
             }
-            if (backoffDelayDuration < MIN_BACKOFF_DURATION) {
+            if (backoffDelayMillis < MIN_BACKOFF_MILLIS) {
                 Log.w(TAG, "Backoff delay duration less than minimum value");
-                backoffDelayDuration = MIN_BACKOFF_DURATION;
+                backoffDelayMillis = MIN_BACKOFF_MILLIS;
             }
             mWorkSpec.setBackoffPolicy(backoffPolicy);
-            mWorkSpec.setBackoffDelayDuration(backoffDelayDuration);
+            mWorkSpec.setBackoffDelayDuration(backoffDelayMillis);
             return getThis();
         }
 

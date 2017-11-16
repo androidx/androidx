@@ -135,8 +135,8 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_periodic() {
-        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION;
-        long testFlex = PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION;
+        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
+        long testFlex = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
 
         int expectedWindowEndSeconds =
                 FirebaseJobConverter.convertMillisecondsToSeconds(testInterval);
