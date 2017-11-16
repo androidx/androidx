@@ -52,11 +52,6 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
             if (type == PageResult.INIT) {
                 mStorage.init(pageResult.leadingNulls, page, pageResult.trailingNulls,
                         pageResult.positionOffset, ContiguousPagedList.this);
-
-                // notifyInserted is safe here, since if we're not on main thread, we won't have any
-                // Callbacks registered to listen to the notify.
-                notifyInserted(0, mStorage.size());
-
                 mLastLoad = pageResult.leadingNulls + pageResult.positionOffset + page.size() / 2;
             } else if (type == PageResult.APPEND) {
                 mStorage.appendPage(page, ContiguousPagedList.this);
