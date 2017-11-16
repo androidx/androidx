@@ -16,10 +16,14 @@
 
 package android.arch.paging;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.support.annotation.AnyThread;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
+import java.lang.annotation.Retention;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
@@ -146,9 +150,15 @@ public abstract class DataSource<Key, Value> {
      * @param <T> Type of items being loaded.
      */
     public static class InitialLoadCallback<T> extends LoadCallback<T> {
-        InitialLoadCallback(boolean acceptCount,
+        private final int mPageSize;
+
+        InitialLoadCallback(@LoadCountType int countType, int pageSize,
                 DataSource dataSource, PageResult.Receiver<T> receiver) {
-            super(PageResult.INIT, acceptCount, dataSource, receiver);
+            super(PageResult.INIT, countType, dataSource, receiver);
+            mPageSize = pageSize;
+            if (mPageSize < 1) {
+                throw new IllegalArgumentException("Page size must be non-negative");
+            }
         }
 
         /**
@@ -170,8 +180,26 @@ public abstract class DataSource<Key, Value> {
          *                   {@code data}.
          */
         public void onResult(@NonNull List<T> data, int position, int totalCount) {
+            if (position < 0) {
+                throw new IllegalArgumentException("Position must be non-negative");
+            }
+            if (data.size() + position > totalCount) {
+                throw new IllegalArgumentException(
+                        "List size + position too large; last item in list beyond totalCount");
+            }
+            if (data.size() == 0 && totalCount > 0) {
+                throw new IllegalArgumentException(
+                        "Initial result cannot be empty if items are present in data set.");
+            }
+            if (mCountType == LOAD_COUNT_REQUIRED_TILED
+                    && position + data.size() != totalCount
+                    && data.size() % mPageSize != 0) {
+                throw new IllegalArgumentException("PositionalDataSource requires initial load size"
+                        + " to be a multiple of page size to support internal tiling.");
+            }
+
             int trailingUnloadedCount = totalCount - position - data.size();
-            if (mAcceptCount) {
+            if (mCountType == LOAD_COUNT_REQUIRED_TILED || mCountType == LOAD_COUNT_ACCEPTED) {
                 dispatchResultToReceiver(new PageResult<>(
                         data, position, trailingUnloadedCount, 0));
             } else {
@@ -199,6 +227,13 @@ public abstract class DataSource<Key, Value> {
         }
     }
 
+    @Retention(SOURCE)
+    @IntDef({LOAD_COUNT_PREVENTED, LOAD_COUNT_ACCEPTED, LOAD_COUNT_REQUIRED_TILED})
+    @interface LoadCountType {}
+    static final int LOAD_COUNT_PREVENTED = 0;
+    static final int LOAD_COUNT_ACCEPTED = 1;
+    static final int LOAD_COUNT_REQUIRED_TILED = 2;
+
     /**
      * Callback for DataSource loading methods to return data.
      * <p>
@@ -211,8 +246,10 @@ public abstract class DataSource<Key, Value> {
      * @param <T> Type of items being loaded.
      */
     public static class LoadCallback<T> {
-        final boolean mAcceptCount;
-        final int mType;
+        @PageResult.ResultType
+        final int mResultType;
+        @LoadCountType
+        final int mCountType;
         private final DataSource mDataSource;
         private final PageResult.Receiver<T> mReceiver;
 
@@ -223,18 +260,18 @@ public abstract class DataSource<Key, Value> {
         private Executor mPostExecutor = null;
         private boolean mHasSignalled = false;
 
-        private LoadCallback(int type, boolean acceptCount,
+        private LoadCallback(@PageResult.ResultType int resultType, @LoadCountType int countType,
                 DataSource dataSource, PageResult.Receiver<T> receiver) {
-            mType = type;
-            mAcceptCount = acceptCount;
+            mResultType = resultType;
+            mCountType = countType;
             mDataSource = dataSource;
             mReceiver = receiver;
         }
 
         LoadCallback(int type, Executor mainThreadExecutor,
                 DataSource dataSource, PageResult.Receiver<T> receiver) {
-            mType = type;
-            mAcceptCount = false;
+            mResultType = type;
+            mCountType = LOAD_COUNT_PREVENTED;
             mPostExecutor = mainThreadExecutor;
             mDataSource = dataSource;
             mReceiver = receiver;
@@ -258,6 +295,11 @@ public abstract class DataSource<Key, Value> {
          * @param data List of items loaded from the DataSource.
          */
         public void onResult(@NonNull List<T> data) {
+            if (mCountType == LOAD_COUNT_REQUIRED_TILED && !data.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "PositionalDataSource requires calling the three argument version of"
+                                + " InitialLoadCallback.onResult() to pass position information");
+            }
             dispatchResultToReceiver(new PageResult<>(
                     data, 0, 0, mPositionOffset));
         }
@@ -280,11 +322,11 @@ public abstract class DataSource<Key, Value> {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        mReceiver.onPageResult(mType, result);
+                        mReceiver.onPageResult(mResultType, result);
                     }
                 });
             } else {
-                mReceiver.onPageResult(mType, result);
+                mReceiver.onPageResult(mResultType, result);
             }
         }
     }

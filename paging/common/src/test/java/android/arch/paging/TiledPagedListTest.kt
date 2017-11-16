@@ -21,6 +21,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -396,6 +397,74 @@ class TiledPagedListTest {
         verify(boundaryCallback).onItemAtFrontLoaded(ITEMS.first())
         verify(boundaryCallback).onItemAtEndLoaded(ITEMS.last())
         verifyNoMoreInteractions(boundaryCallback)
+    }
+
+    private fun performInitialLoad(
+            callbackInvoker: (callback: DataSource.InitialLoadCallback<String>) -> Unit) {
+        val dataSource = object: PositionalDataSource<String>() {
+            override fun loadInitial(requestedStartPosition: Int, requestedLoadSize: Int,
+                    pageSize: Int, callback: InitialLoadCallback<String>) {
+                callbackInvoker(callback)
+            }
+            override fun loadRange(startPosition: Int, count: Int, callback: LoadCallback<String>) {
+                fail("loadRange not expected")
+            }
+        }
+        TiledPagedList(
+                dataSource, mMainThread, mBackgroundThread, null,
+                PagedList.Config.Builder()
+                        .setPageSize(PAGE_SIZE)
+                        .build(),
+                0)
+    }
+
+    @Test
+    fun initialLoadCallbackSuccess() = performInitialLoad {
+        // InitialLoadCallback correct usage
+        it.onResult(listOf("a", "b"), 0, 2)
+    }
+
+    @Test
+    fun initialLoadCallbackEmptySuccess() = performInitialLoad {
+        // InitialLoadCallback correct usage - empty special case
+        it.onResult(emptyList())
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackNotPageSizeMultiple() = performInitialLoad {
+        // Positional InitialLoadCallback can't accept result that's not a multiple of page size
+        val elevenLetterList = List(11) { "" + 'a' + it }
+        it.onResult(elevenLetterList, 0, 12)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackMissingPlaceholders() = performInitialLoad {
+        // Positional InitialLoadCallback can't accept list-only call
+        it.onResult(listOf("a", "b"))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackListTooBig() = performInitialLoad {
+        // InitialLoadCallback can't accept pos + list > totalCount
+        it.onResult(listOf("a", "b", "c"), 0, 2)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackPositionTooLarge() = performInitialLoad {
+        // InitialLoadCallback can't accept pos + list > totalCount
+        it.onResult(listOf("a", "b"), 1, 2)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackPositionNegative() = performInitialLoad {
+        // InitialLoadCallback can't accept negative position
+        it.onResult(listOf("a", "b", "c"), -1, 2)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackEmptyCannotHavePlaceholders() = performInitialLoad {
+        // Positional InitialLoadCallback can't accept empty result unless data set is empty
+        it.onResult(emptyList(), 0, 2)
     }
 
     private fun drain() {

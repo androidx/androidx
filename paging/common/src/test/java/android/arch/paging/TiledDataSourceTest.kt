@@ -16,7 +16,7 @@
 
 package android.arch.paging
 
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -36,7 +36,8 @@ class TiledDataSourceTest {
         @Suppress("UNCHECKED_CAST")
         val receiver = mock(PageResult.Receiver::class.java) as PageResult.Receiver<String>
 
-        val callback = DataSource.InitialLoadCallback(true, this, receiver)
+        val callback = DataSource.InitialLoadCallback(
+                DataSource.LOAD_COUNT_REQUIRED_TILED, pageSize, this, receiver)
 
         this.loadInitial(startPosition, count, pageSize, callback)
 
@@ -80,7 +81,6 @@ class TiledDataSourceTest {
         }
         // baseline behavior
         assertEquals(list, AlphabetDataSource().loadInitial(0, 26, 10))
-        assertEquals(emptyList<String>(), AlphabetDataSource().loadInitial(0, 0, 10))
         assertEquals(list, AlphabetDataSource().loadInitial(50, 26, 10))
     }
 }
