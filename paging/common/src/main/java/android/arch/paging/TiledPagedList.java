@@ -32,7 +32,8 @@ class TiledPagedList<T> extends PagedList<T>
         // Safe to access main thread only state - no other thread has reference during construction
         @AnyThread
         @Override
-        public void onPageResult(int type, @NonNull PageResult<T> pageResult) {
+        public void onPageResult(@PageResult.ResultType int type,
+                @NonNull PageResult<T> pageResult) {
             if (pageResult.isInvalid()) {
                 detach();
                 return;
@@ -91,8 +92,9 @@ class TiledPagedList<T> extends PagedList<T>
             final int idealStart = position - firstLoadSize / 2;
             final int roundedPageStart = Math.max(0, Math.round(idealStart / pageSize) * pageSize);
 
-            DataSource.InitialLoadCallback<T> callback =
-                    new DataSource.InitialLoadCallback<>(true, mDataSource, mReceiver);
+            DataSource.InitialLoadCallback<T> callback = new DataSource.InitialLoadCallback<>(
+                            DataSource.LOAD_COUNT_REQUIRED_TILED,
+                    mConfig.pageSize, mDataSource, mReceiver);
             mDataSource.loadInitial(roundedPageStart, firstLoadSize, pageSize, callback);
 
             // If initialLoad's callback is not called within the body, we force any following calls

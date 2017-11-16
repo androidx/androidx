@@ -41,7 +41,8 @@ class KeyedDataSourceTest {
         val captor = ArgumentCaptor.forClass(PageResult::class.java)
                 as ArgumentCaptor<PageResult<Item>>
 
-        val callback = DataSource.InitialLoadCallback(true, dataSource, receiver)
+        val callback = DataSource.InitialLoadCallback(
+                DataSource.LOAD_COUNT_ACCEPTED, /* ignored page size */ 10, dataSource, receiver)
 
         dataSource.loadInitial(key, initialLoadSize, enablePlaceholders, callback)
 
