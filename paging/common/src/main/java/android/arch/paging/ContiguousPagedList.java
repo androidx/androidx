@@ -37,7 +37,8 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         // Safe to access main thread only state - no other thread has reference during construction
         @AnyThread
         @Override
-        public void onPageResult(int type, @NonNull PageResult<V> pageResult) {
+        public void onPageResult(@PageResult.ResultType int resultType,
+                @NonNull PageResult<V> pageResult) {
             if (pageResult.isInvalid()) {
                 detach();
                 return;
@@ -49,7 +50,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
             }
 
             List<V> page = pageResult.page;
-            if (type == PageResult.INIT) {
+            if (resultType == PageResult.INIT) {
                 mStorage.init(pageResult.leadingNulls, page, pageResult.trailingNulls,
                         pageResult.positionOffset, ContiguousPagedList.this);
 
@@ -58,19 +59,19 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 notifyInserted(0, mStorage.size());
 
                 mLastLoad = pageResult.leadingNulls + pageResult.positionOffset + page.size() / 2;
-            } else if (type == PageResult.APPEND) {
+            } else if (resultType == PageResult.APPEND) {
                 mStorage.appendPage(page, ContiguousPagedList.this);
-            } else if (type == PageResult.PREPEND) {
+            } else if (resultType == PageResult.PREPEND) {
                 mStorage.prependPage(page, ContiguousPagedList.this);
             }
 
             if (mBoundaryCallback != null) {
                 boolean deferEmpty = mStorage.size() == 0;
                 boolean deferBegin = !deferEmpty
-                        && type == PageResult.PREPEND
+                        && resultType == PageResult.PREPEND
                         && pageResult.page.size() == 0;
                 boolean deferEnd = !deferEmpty
-                        && type == PageResult.APPEND
+                        && resultType == PageResult.APPEND
                         && pageResult.page.size() == 0;
                 deferBoundaryCallbacks(deferEmpty, deferBegin, deferEnd);
             }
@@ -91,8 +92,12 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         if (mDataSource.isInvalid()) {
             detach();
         } else {
+            @DataSource.LoadCountType int type = mConfig.enablePlaceholders
+                    ? DataSource.LOAD_COUNT_ACCEPTED
+                    : DataSource.LOAD_COUNT_PREVENTED;
+
             DataSource.InitialLoadCallback<V> callback = new DataSource.InitialLoadCallback<>(
-                    mConfig.enablePlaceholders, mDataSource, mReceiver);
+                    type, mConfig.pageSize, mDataSource, mReceiver);
             mDataSource.loadInitial(key,
                     mConfig.initialLoadSizeHint,
                     mConfig.enablePlaceholders,
