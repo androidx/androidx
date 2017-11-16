@@ -15,8 +15,6 @@
  */
 package android.arch.background.workmanager.background;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -25,8 +23,9 @@ import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkerWrapper;
+import android.arch.background.workmanager.executors.SynchronousExecutorService;
 import android.arch.background.workmanager.model.WorkSpec;
-import android.arch.background.workmanager.model.WorkSpecDao;
+import android.arch.background.workmanager.utils.taskexecutor.InstantTaskExecutorRule;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -35,25 +34,30 @@ import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class BackgroundProcessorTest {
-
     private WorkDatabase mWorkDatabase;
     private ExecutionListener mMockListener;
-    private Scheduler mMockScheduler;
     private BackgroundProcessor mProcessor;
+
+    @Rule
+    public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
 
     @Before
     public void setUp() {
         Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
         mWorkDatabase = WorkDatabase.create(appContext, true);
         mMockListener = mock(ExecutionListener.class);
-        mMockScheduler = mock(Scheduler.class);
-        mProcessor =
-                new BackgroundProcessor(appContext, mWorkDatabase, mMockScheduler, mMockListener);
+        mProcessor = new BackgroundProcessor(
+                appContext,
+                mWorkDatabase,
+                mock(Scheduler.class),
+                mMockListener,
+                new SynchronousExecutorService());
     }
 
     @After
@@ -63,17 +67,13 @@ public class BackgroundProcessorTest {
 
     @Test
     @SmallTest
-    public void testProcess_testWorker() throws InterruptedException {
-        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+    public void testOnExecuted() throws InterruptedException {
         WorkSpec workSpec = new Work.Builder(TestWorker.class).build().getWorkSpec();
         String workSpecId = workSpec.getId();
 
-        workSpecDao.insertWorkSpec(workSpec);
+        mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
         mProcessor.process(workSpecId, 0L);
 
-        Thread.sleep(1000L);
-        assertThat(workSpecDao.getWorkSpecStatus(workSpecId), is(Work.STATUS_SUCCEEDED));
         verify(mMockListener).onExecuted(workSpecId, WorkerWrapper.EXECUTION_RESULT_SUCCESS);
-        verify(mMockScheduler).schedule();
     }
 }
