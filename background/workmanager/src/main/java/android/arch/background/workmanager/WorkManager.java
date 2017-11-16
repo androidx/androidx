@@ -24,6 +24,8 @@ import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.utils.BaseWorkHelper;
+import android.arch.background.workmanager.utils.taskexecutor.TaskExecutor;
+import android.arch.background.workmanager.utils.taskexecutor.WorkManagerTaskExecutor;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
@@ -34,8 +36,6 @@ import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * WorkManager is a class used to enqueue persisted work that is guaranteed to run after its
@@ -48,7 +48,7 @@ public final class WorkManager {
 
     private Context mContext;
     private WorkDatabase mWorkDatabase;
-    private ExecutorService mEnqueueExecutor = Executors.newSingleThreadExecutor();
+    private TaskExecutor mTaskExecutor;
     private Processor mForegroundProcessor;
     private Scheduler mBackgroundScheduler;
 
@@ -83,6 +83,7 @@ public final class WorkManager {
                 mBackgroundScheduler,
                 ProcessLifecycleOwner.get());
         mBackgroundScheduler = createBackgroundScheduler(context);
+        mTaskExecutor = WorkManagerTaskExecutor.getInstance();
     }
 
     @Nullable
@@ -173,7 +174,7 @@ public final class WorkManager {
      * @param periodicWork One or more {@link PeriodicWork} to enqueue
      */
     public void enqueue(PeriodicWork... periodicWork) {
-        mEnqueueExecutor.execute(new EnqueueRunnable(periodicWork, null));
+        mTaskExecutor.executeOnBackgroundThread(new EnqueueRunnable(periodicWork, null));
     }
 
     /**
@@ -184,7 +185,7 @@ public final class WorkManager {
      * @param tag The tag used to identify the work
      */
     public void cancelAllWorkWithTag(@NonNull final String tag) {
-        mEnqueueExecutor.execute(new CancelWorkWithTagRunnable(tag, false));
+        mTaskExecutor.executeOnBackgroundThread(new CancelWorkWithTagRunnable(tag, false));
     }
 
     /**
@@ -195,12 +196,12 @@ public final class WorkManager {
      * @param tagPrefix The tag prefix used to identify the work
      */
     public void cancelAllWorkWithTagPrefix(@NonNull final String tagPrefix) {
-        mEnqueueExecutor.execute(new CancelWorkWithTagRunnable(tagPrefix, true));
+        mTaskExecutor.executeOnBackgroundThread(new CancelWorkWithTagRunnable(tagPrefix, true));
     }
 
     WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {
         WorkContinuation workContinuation = new WorkContinuation(this, work);
-        mEnqueueExecutor.execute(new EnqueueRunnable(work, prerequisiteIds));
+        mTaskExecutor.executeOnBackgroundThread(new EnqueueRunnable(work, prerequisiteIds));
         return workContinuation;
     }
 
