@@ -24,6 +24,7 @@ import android.arch.background.workmanager.constraints.controllers.NetworkStateM
 import android.arch.background.workmanager.constraints.controllers.NetworkStateNotRoamingController;
 import android.arch.background.workmanager.constraints.controllers.NetworkStateUnmeteredController;
 import android.arch.background.workmanager.constraints.controllers.StorageNotLowController;
+import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.support.annotation.VisibleForTesting;
@@ -77,10 +78,10 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
         mConstraintControllers = constraintControllers;
     }
 
-    private boolean areAllConstraintsMet(String workSpecId) {
+    private boolean areAllConstraintsMet(WorkSpec workSpec) {
         for (ConstraintController constraintController : mConstraintControllers) {
-            if (constraintController.isWorkSpecConstrained(workSpecId)) {
-                Log.d(TAG, "Work " + workSpecId + " constrained by "
+            if (constraintController.isWorkSpecConstrained(workSpec)) {
+                Log.d(TAG, "Work " + workSpec + " constrained by "
                         + constraintController.getClass().getSimpleName());
                 return false;
             }
@@ -89,19 +90,19 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
     }
 
     @Override
-    public void onConstraintMet(List<String> workSpecIds) {
-        List<String> unconstrainedWorkSpecIds = new ArrayList<>();
-        for (String workSpecId : workSpecIds) {
-            if (areAllConstraintsMet(workSpecId)) {
-                Log.d(TAG, "Constraints met for " + workSpecId);
-                unconstrainedWorkSpecIds.add(workSpecId);
+    public void onConstraintMet(List<WorkSpec> workSpecs) {
+        List<WorkSpec> unconstrainedWorkSpecs = new ArrayList<>();
+        for (WorkSpec workSpec : workSpecs) {
+            if (areAllConstraintsMet(workSpec)) {
+                Log.d(TAG, "Constraints met for " + workSpec);
+                unconstrainedWorkSpecs.add(workSpec);
             }
         }
-        mCallback.onAllConstraintsMet(unconstrainedWorkSpecIds);
+        mCallback.onAllConstraintsMet(unconstrainedWorkSpecs);
     }
 
     @Override
-    public void onConstraintNotMet(List<String> workSpecIds) {
-        mCallback.onAllConstraintsNotMet(workSpecIds);
+    public void onConstraintNotMet(List<WorkSpec> workSpecs) {
+        mCallback.onAllConstraintsNotMet(workSpecs);
     }
 }

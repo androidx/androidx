@@ -17,6 +17,7 @@ package android.arch.background.workmanager.constraints.controllers;
 
 import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
 import android.arch.background.workmanager.constraints.trackers.ConstraintTracker;
+import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
@@ -45,29 +46,29 @@ public abstract class ConstraintController<T extends ConstraintListener>
         /**
          * Called when a constraint is met.
          *
-         * @param workSpecIds The list of work ids that may have become eligible to run
+         * @param workSpecs The list of {@link WorkSpec}s that may have become eligible to run
          */
-        void onConstraintMet(List<String> workSpecIds);
+        void onConstraintMet(List<WorkSpec> workSpecs);
 
         /**
          * Called when a constraint is not met.
          *
-         * @param workSpecIds The list of work ids that have become ineligible to run
+         * @param workSpecs The list of {@link WorkSpec}s that have become ineligible to run
          */
-        void onConstraintNotMet(List<String> workSpecIds);
+        void onConstraintNotMet(List<WorkSpec> workSpecs);
     }
 
     private static final String TAG = "ConstraintCtrlr";
 
-    private LiveData<List<String>> mConstraintLiveData;
+    private LiveData<List<WorkSpec>> mConstraintLiveData;
     private LifecycleOwner mLifecycleOwner;
     private ConstraintTracker<T> mTracker;
-    private Observer<List<String>> mConstraintObserver;
+    private Observer<List<WorkSpec>> mConstraintObserver;
     private OnConstraintUpdatedCallback mOnConstraintUpdatedCallback;
-    private List<String> mMatchingWorkSpecIds;
+    private List<WorkSpec> mMatchingWorkSpecs;
 
     ConstraintController(
-            LiveData<List<String>> constraintLiveData,
+            LiveData<List<WorkSpec>> constraintLiveData,
             LifecycleOwner lifecycleOwner,
             ConstraintTracker<T> tracker,
             OnConstraintUpdatedCallback onConstraintUpdatedCallback) {
@@ -77,15 +78,15 @@ public abstract class ConstraintController<T extends ConstraintListener>
         mTracker = tracker;
         mOnConstraintUpdatedCallback = onConstraintUpdatedCallback;
 
-        mConstraintObserver = new Observer<List<String>>() {
+        mConstraintObserver = new Observer<List<WorkSpec>>() {
             @Override
-            public void onChanged(@Nullable List<String> matchingWorkSpecIds) {
+            public void onChanged(@Nullable List<WorkSpec> matchingWorkSpecs) {
                 Log.d(
                         TAG,
                         ConstraintController.this.getClass().getSimpleName() + ": "
-                                + matchingWorkSpecIds);
-                mMatchingWorkSpecIds = matchingWorkSpecIds;
-                if (matchingWorkSpecIds != null && matchingWorkSpecIds.size() > 0) {
+                                + matchingWorkSpecs);
+                mMatchingWorkSpecs = matchingWorkSpecs;
+                if (matchingWorkSpecs != null && matchingWorkSpecs.size() > 0) {
                     mTracker.addListener(getListener());
                     updateListener();
                 } else {
@@ -120,28 +121,28 @@ public abstract class ConstraintController<T extends ConstraintListener>
      * the constraint for this controller is not met.  Note that if this controller has not yet
      * received a list of matching WorkSpec ids, *everything* is considered constrained.
      *
-     * @param id The WorkSpec id
+     * @param workSpec the {@link WorkSpec} to check
      * @return {@code true} if the WorkSpec is considered constrained
      */
-    public boolean isWorkSpecConstrained(String id) {
-        if (mMatchingWorkSpecIds == null) {
+    public boolean isWorkSpecConstrained(WorkSpec workSpec) {
+        if (mMatchingWorkSpecs == null) {
             Log.d(TAG, getClass().getSimpleName() + ": null matching workspecs");
             return true;
         }
-        return isConstrained() && mMatchingWorkSpecIds.contains(id);
+        return isConstrained() && mMatchingWorkSpecs.contains(workSpec);
     }
 
     protected void updateListener() {
-        if (mMatchingWorkSpecIds == null) {
+        if (mMatchingWorkSpecs == null) {
             Log.d(TAG, getClass().getSimpleName() + ": updateListener - no workspecs!");
             return;
         }
 
         Log.d(TAG, getClass().getSimpleName() + ": updateListener");
         if (isConstrained()) {
-            mOnConstraintUpdatedCallback.onConstraintNotMet(mMatchingWorkSpecIds);
+            mOnConstraintUpdatedCallback.onConstraintNotMet(mMatchingWorkSpecs);
         } else {
-            mOnConstraintUpdatedCallback.onConstraintMet(mMatchingWorkSpecIds);
+            mOnConstraintUpdatedCallback.onConstraintMet(mMatchingWorkSpecs);
         }
     }
 

@@ -15,6 +15,8 @@
  */
 package android.arch.background.workmanager.constraints;
 
+import android.arch.background.workmanager.model.WorkSpec;
+
 import java.util.List;
 
 /**
@@ -25,14 +27,14 @@ public interface ConstraintsMetCallback {
     /**
      * Called when all constraints are met.
      *
-     * @param workSpecIds The list of work ids that are eligible to run
+     * @param workSpecs The list of {@link WorkSpec}s that are eligible to run
      */
-    void onAllConstraintsMet(List<String> workSpecIds);
+    void onAllConstraintsMet(List<WorkSpec> workSpecs);
 
     /**
      * Called when all constraints are not met.
      *
-     * @param workSpecIds The list of work ids that are not eligible to run
+     * @param workSpecs The list of {@link WorkSpec}s that are not eligible to run
      */
-    void onAllConstraintsNotMet(List<String> workSpecIds);
+    void onAllConstraintsNotMet(List<WorkSpec> workSpecs);
 }

@@ -265,4 +265,9 @@ public class WorkSpec {
         result = 31 * result + (int) (mBackoffDelayDuration ^ (mBackoffDelayDuration >>> 32));
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "{WorkSpec: " + mId + "}";
+    }
 }
