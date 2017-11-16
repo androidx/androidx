@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package android.support.design.widget;
+package android.support.v4.widget;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.support.annotation.RestrictTo;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
-class ViewGroupUtils {
+/**
+ * @hide
+ */
+@RestrictTo(LIBRARY)
+public class ViewGroupUtils {
     private static final ThreadLocal<Matrix> sMatrix = new ThreadLocal<>();
     private static final ThreadLocal<RectF> sRectF = new ThreadLocal<>();
 
@@ -65,7 +72,7 @@ class ViewGroupUtils {
      * @param descendant descendant view to reference
      * @param out rect to set to the bounds of the descendant view
      */
-    static void getDescendantRect(ViewGroup parent, View descendant, Rect out) {
+    public static void getDescendantRect(ViewGroup parent, View descendant, Rect out) {
         out.set(0, 0, descendant.getWidth(), descendant.getHeight());
         offsetDescendantRect(parent, descendant, out);
     }

@@ -36,6 +36,7 @@ import android.support.annotation.VisibleForTesting;
 import android.support.design.R;
 import android.support.design.widget.FloatingActionButtonImpl.InternalVisibilityChangedListener;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.ViewGroupUtils;
 import android.support.v7.widget.AppCompatImageHelper;
 import android.util.AttributeSet;
 import android.util.Log;
