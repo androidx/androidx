@@ -24,6 +24,7 @@ import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.utils.BaseWorkHelper;
+import android.arch.background.workmanager.utils.LiveDataUtils;
 import android.arch.background.workmanager.utils.taskexecutor.TaskExecutor;
 import android.arch.background.workmanager.utils.taskexecutor.WorkManagerTaskExecutor;
 import android.arch.lifecycle.LiveData;
@@ -141,7 +142,8 @@ public final class WorkManager {
      * @return A {@link LiveData} of the status.
      */
     public LiveData<Integer> getWorkStatus(String id) {
-        return mWorkDatabase.workSpecDao().getWorkSpecLiveDataStatus(id);
+        return LiveDataUtils.dedupedLiveDataFor(
+                mWorkDatabase.workSpecDao().getWorkSpecLiveDataStatus(id));
     }
 
     /**

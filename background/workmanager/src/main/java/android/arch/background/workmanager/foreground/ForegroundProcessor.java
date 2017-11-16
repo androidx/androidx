@@ -21,6 +21,7 @@ import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.ConstraintsMetCallback;
 import android.arch.background.workmanager.constraints.ConstraintsTracker;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.utils.LiveDataUtils;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
@@ -83,7 +84,9 @@ public class ForegroundProcessor extends Processor
                 mWorkDatabase,
                 this,
                 false);
-        mWorkDatabase.workSpecDao().getForegroundEligibleWorkSpecs().observe(mLifecycleOwner, this);
+        LiveDataUtils.dedupedLiveDataFor(
+                mWorkDatabase.workSpecDao().getForegroundEligibleWorkSpecs())
+                .observe(mLifecycleOwner, this);
     }
 
     private boolean isActive() {

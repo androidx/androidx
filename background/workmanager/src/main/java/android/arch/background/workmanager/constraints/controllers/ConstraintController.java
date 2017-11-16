@@ -18,6 +18,7 @@ package android.arch.background.workmanager.constraints.controllers;
 import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
 import android.arch.background.workmanager.constraints.trackers.ConstraintTracker;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.utils.LiveDataUtils;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
@@ -73,7 +74,7 @@ public abstract class ConstraintController<T extends ConstraintListener>
             ConstraintTracker<T> tracker,
             OnConstraintUpdatedCallback onConstraintUpdatedCallback) {
 
-        mConstraintLiveData = constraintLiveData;
+        mConstraintLiveData = LiveDataUtils.dedupedLiveDataFor(constraintLiveData);
         mLifecycleOwner = lifecycleOwner;
         mTracker = tracker;
         mOnConstraintUpdatedCallback = onConstraintUpdatedCallback;
