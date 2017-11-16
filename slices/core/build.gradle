@@ -20,11 +20,18 @@ plugins {
 
 dependencies {
     implementation libs.support.annotations, libs.support_exclude_config
+    implementation libs.support.app_compat, libs.support_exclude_config
 }
 
 android {
     defaultConfig {
         minSdkVersion 28
+    }
+    sourceSets {
+        main.res.srcDirs = [
+                'res',
+                'res-public'
+        ]
     }
 }
 

@@ -16,7 +16,6 @@
 
 package com.example.androidx.slice.demos;
 
-import android.app.slice.Slice;
 import android.arch.lifecycle.LiveData;
 import android.content.ContentResolver;
 import android.content.pm.ActivityInfo;
@@ -44,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import androidx.app.slice.Slice;
 import androidx.app.slice.widget.SliceLiveData;
 import androidx.app.slice.widget.SliceView;
 

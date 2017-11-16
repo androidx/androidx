@@ -44,7 +44,8 @@
 
         <provider android:authorities="com.example.androidx.slice.demos"
                   android:name=".SampleSliceProvider"
-                  android:grantUriPermissions="true" />
+                  android:grantUriPermissions="true">
+        </provider>
 
         <receiver
             android:name=".SliceBroadcastReceiver"

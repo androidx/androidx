@@ -16,6 +16,11 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.HINT_LIST;
+import static android.app.slice.Slice.HINT_LIST_ITEM;
+import static android.app.slice.Slice.HINT_NO_TINT;
+import static android.app.slice.Slice.HINT_SELECTED;
+import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -25,8 +30,6 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
-import android.app.slice.Slice;
-import android.app.slice.SliceItem;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -41,6 +44,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.app.slice.Slice;
+import androidx.app.slice.SliceItem;
 import androidx.app.slice.core.SliceHints;
 import androidx.app.slice.core.SliceQuery;
 import androidx.app.slice.view.R;
@@ -116,12 +121,12 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
         if (items.size() > 0 && FORMAT_SLICE.equals(items.get(0).getFormat())) {
             // Check if this slice is appropriate to use to populate small template
             SliceItem firstSlice = items.get(0);
-            if (firstSlice.hasHint(Slice.HINT_LIST)) {
+            if (firstSlice.hasHint(HINT_LIST)) {
                 // Check for header, use that if it exists
                 SliceItem header = SliceQuery.find(firstSlice, FORMAT_SLICE,
                         null,
                         new String[] {
-                                Slice.HINT_LIST_ITEM, Slice.HINT_LIST
+                                HINT_LIST_ITEM, HINT_LIST
                         });
                 if (header != null) {
                     return SliceQuery.findFirstSlice(header);
@@ -176,12 +181,12 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
             SliceItem item = items.get(i);
             List<String> hints = item.getHints();
             String itemType = item.getFormat();
-            if (hints.contains(Slice.HINT_TITLE)) {
+            if (hints.contains(HINT_TITLE)) {
                 // Things with these hints could go in the title / start position
-                if ((startItem == null || !startItem.hasHint(Slice.HINT_TITLE))
+                if ((startItem == null || !startItem.hasHint(HINT_TITLE))
                         && SliceQuery.isStartType(item)) {
                     startItem = item;
-                } else if ((titleItem == null || !titleItem.hasHint(Slice.HINT_TITLE))
+                } else if ((titleItem == null || !titleItem.hasHint(HINT_TITLE))
                         && FORMAT_TEXT.equals(itemType)) {
                     titleItem = item;
                 } else {
@@ -287,7 +292,7 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
         }
         mToggle = new Switch(getContext());
         mEndContainer.addView(mToggle);
-        mToggle.setChecked(SliceQuery.hasHints(toggleItem.getSlice(), Slice.HINT_SELECTED));
+        mToggle.setChecked(SliceQuery.hasHints(toggleItem.getSlice(), HINT_SELECTED));
         mToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             try {
                 PendingIntent pi = toggleItem.getAction();
@@ -328,7 +333,7 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
                 iv.setBackground(SliceViewUtil.getDrawable(getContext(),
                         android.R.attr.selectableItemBackground));
             }
-            if (color != -1 && !sliceItem.hasHint(Slice.HINT_NO_TINT)) {
+            if (color != -1 && !sliceItem.hasHint(HINT_NO_TINT)) {
                 iv.setColorFilter(color);
             }
             container.addView(iv);

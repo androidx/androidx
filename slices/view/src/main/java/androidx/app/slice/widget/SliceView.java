@@ -16,11 +16,10 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 
-import android.app.slice.Slice;
-import android.app.slice.SliceItem;
 import android.arch.lifecycle.Observer;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -37,6 +36,8 @@ import android.widget.FrameLayout;
 
 import java.util.List;
 
+import androidx.app.slice.Slice;
+import androidx.app.slice.SliceItem;
 import androidx.app.slice.core.SliceQuery;
 import androidx.app.slice.view.R;
 
@@ -57,8 +58,9 @@ import androidx.app.slice.view.R;
  * <p>
  * When constructing a slice, the contents of it can be annotated with hints, these provide the OS
  * with some information on how the content should be displayed. For example, text annotated with
- * {@link Slice#HINT_TITLE} would be placed in the title position of a template. A slice annotated
- * with {@link Slice#HINT_LIST} would present the child items of that slice in a list.
+ * {@link android.app.slice.Slice#HINT_TITLE} would be placed in the title position of a template.
+ * A slice annotated with {@link android.app.slice.Slice#HINT_LIST} would present the child items
+ * of that slice in a list.
  * <p>
  * Example usage:
  *
@@ -114,8 +116,8 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     public static final int MODE_LARGE       = 2;
     /**
      * Mode indicating this slice should be presented as an icon. A shortcut requires an intent,
-     * icon, and label. This can be indicated by using {@link Slice#HINT_TITLE} on an action in a
-     * slice.
+     * icon, and label. This can be indicated by using {@link android.app.slice.Slice#HINT_TITLE}
+     * on an action in a slice.
      */
     public static final int MODE_SHORTCUT    = 3;
 
@@ -267,7 +269,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         SliceItem color = SliceQuery.find(mCurrentSlice, FORMAT_COLOR);
         List<SliceItem> items = mCurrentSlice.getItems();
         SliceItem actionRow = SliceQuery.find(mCurrentSlice, FORMAT_SLICE,
-                Slice.HINT_ACTIONS,
+                HINT_ACTIONS,
                 null);
         int mode = getMode();
         if (mode != mCurrentView.getMode()) {

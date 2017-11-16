@@ -15,7 +15,6 @@
  */
 package androidx.app.slice.widget;
 
-import android.app.slice.Slice;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.database.ContentObserver;
@@ -23,7 +22,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 
-import androidx.app.slice.core.SliceSpecs;
+import androidx.app.slice.Slice;
 
 /**
  * Class with factory methods for creating LiveData that observes slices.
@@ -65,8 +64,7 @@ public final class SliceLiveData {
         }
 
         private void updateSlice() {
-            postValue(Slice.bindSlice(mContext.getContentResolver(), mUri,
-                    SliceSpecs.SUPPORTED_SPECS));
+            postValue(Slice.bindSlice(mContext, mUri));
         }
 
         private final ContentObserver mObserver = new ContentObserver(new Handler()) {

@@ -16,14 +16,13 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.SUBTYPE_MESSAGE;
 import static android.app.slice.Slice.SUBTYPE_SOURCE;
 import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import android.app.slice.Slice;
-import android.app.slice.SliceItem;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v7.widget.RecyclerView;
@@ -37,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import androidx.app.slice.SliceItem;
 import androidx.app.slice.core.SliceQuery;
 import androidx.app.slice.view.R;
 
@@ -137,7 +137,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
                     return TYPE_MESSAGE_LOCAL;
                 }
             }
-            if (item.hasHint(Slice.HINT_HORIZONTAL)) {
+            if (item.hasHint(HINT_HORIZONTAL)) {
                 return TYPE_GRID;
             }
             return TYPE_DEFAULT;

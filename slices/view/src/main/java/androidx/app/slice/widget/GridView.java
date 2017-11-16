@@ -16,6 +16,8 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.HINT_LARGE;
+import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
@@ -23,8 +25,6 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-import android.app.slice.Slice;
-import android.app.slice.SliceItem;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.RestrictTo;
@@ -42,6 +42,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.app.slice.SliceItem;
 import androidx.app.slice.core.SliceQuery;
 import androidx.app.slice.view.R;
 
@@ -155,7 +156,7 @@ public class GridView extends LinearLayout implements LargeSliceAdapter.SliceLis
                     case FORMAT_TEXT:
                         boolean title = false;
                         if ((SliceQuery.hasAnyHints(item, new String[] {
-                                Slice.HINT_LARGE, Slice.HINT_TITLE
+                                HINT_LARGE, HINT_TITLE
                         }))) {
                             title = true;
                         }
@@ -168,7 +169,7 @@ public class GridView extends LinearLayout implements LargeSliceAdapter.SliceLis
                     case FORMAT_IMAGE:
                         ImageView iv = new ImageView(context);
                         iv.setImageIcon(i.getIcon());
-                        if (item.hasHint(Slice.HINT_LARGE)) {
+                        if (item.hasHint(HINT_LARGE)) {
                             iv.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
                         } else {
                             int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,

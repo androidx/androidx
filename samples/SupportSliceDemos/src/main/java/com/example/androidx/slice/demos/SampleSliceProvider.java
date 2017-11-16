@@ -16,25 +16,26 @@
 
 package com.example.androidx.slice.demos;
 
+import static android.app.slice.Slice.HINT_SELECTED;
+import static android.app.slice.Slice.HINT_TITLE;
+
 import android.app.PendingIntent;
-import android.app.slice.Slice;
-import android.app.slice.SliceProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
-import android.support.annotation.RequiresApi;
 import android.text.format.DateUtils;
 
+import androidx.app.slice.Slice;
+import androidx.app.slice.SliceProvider;
 import androidx.app.slice.builders.MessagingSliceBuilder;
 import androidx.app.slice.core.SliceHints;
 
 /**
  * Examples of using slice template builders.
  */
-@RequiresApi(api = 28)
 public class SampleSliceProvider extends SliceProvider {
     public static final Uri MESSAGE =
             Uri.parse("content://com.example.androidx.slice.demos/message");
@@ -45,7 +46,7 @@ public class SampleSliceProvider extends SliceProvider {
             "com.android.settings.slice.action.WIFI_CHANGED";
 
     @Override
-    public boolean onCreate() {
+    public boolean onCreateSliceProvider() {
         return true;
     }
 
@@ -107,7 +108,7 @@ public class SampleSliceProvider extends SliceProvider {
                 break;
         }
         if (wifiEnabled) {
-            toggleHints = new String[] {SliceHints.HINT_TOGGLE, Slice.HINT_SELECTED};
+            toggleHints = new String[] {SliceHints.HINT_TOGGLE, HINT_SELECTED};
         } else {
             toggleHints = new String[] {SliceHints.HINT_TOGGLE};
         }
@@ -120,12 +121,12 @@ public class SampleSliceProvider extends SliceProvider {
                                 .addText(state, null)
                                 .addIcon(Icon.createWithResource(getContext(),
                                         R.drawable.ic_settings_wifi), null, SliceHints.HINT_HIDDEN)
-                                .addHints(Slice.HINT_TITLE)
-                                .build())
+                                .addHints(HINT_TITLE)
+                                .build(), null)
                 .addAction(getBroadcastIntent(ACTION_WIFI_CHANGED),
                         new Slice.Builder(b)
                                 .addHints(toggleHints)
-                                .build())
+                                .build(), null)
                 .build());
         return b.build();
     }

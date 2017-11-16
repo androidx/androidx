@@ -16,11 +16,11 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.SUBTYPE_SOURCE;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import android.app.slice.Slice;
-import android.app.slice.SliceItem;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -33,6 +33,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.app.slice.SliceItem;
 import androidx.app.slice.core.SliceQuery;
 
 /**
@@ -57,7 +58,7 @@ public class MessageView extends LinearLayout implements LargeSliceAdapter.Slice
 
     @Override
     public void setSliceItem(SliceItem slice) {
-        SliceItem source = SliceQuery.findSubtype(slice, FORMAT_IMAGE, Slice.SUBTYPE_SOURCE);
+        SliceItem source = SliceQuery.findSubtype(slice, FORMAT_IMAGE, SUBTYPE_SOURCE);
         if (source != null) {
             final int iconSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     24, getContext().getResources().getDisplayMetrics());

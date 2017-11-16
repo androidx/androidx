@@ -16,14 +16,15 @@
 
 package androidx.app.slice.core;
 
+import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_LIST;
+import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
-import android.app.slice.Slice;
-import android.app.slice.SliceItem;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
@@ -35,6 +36,9 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import androidx.app.slice.Slice;
+import androidx.app.slice.SliceItem;
 
 /**
  * Utilities for finding content within a Slice.
@@ -143,9 +147,9 @@ public class SliceQuery {
             if (FORMAT_IMAGE.equals(item.getFormat())) {
                 return item;
             }
-            if (!(FORMAT_SLICE.equals(item.getFormat()) && item.hasHint(Slice.HINT_LIST))
-                    && !item.hasHint(Slice.HINT_ACTIONS)
-                    && !item.hasHint(Slice.HINT_LIST_ITEM)
+            if (!(FORMAT_SLICE.equals(item.getFormat()) && item.hasHint(HINT_LIST))
+                    && !item.hasHint(HINT_ACTIONS)
+                    && !item.hasHint(HINT_LIST_ITEM)
                     && !FORMAT_ACTION.equals(item.getFormat())) {
                 SliceItem icon = SliceQuery.find(item, FORMAT_IMAGE);
                 if (icon != null) {

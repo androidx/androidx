@@ -16,6 +16,7 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -24,8 +25,6 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.app.RemoteInput;
-import android.app.slice.Slice;
-import android.app.slice.SliceItem;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -41,6 +40,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.app.slice.SliceItem;
 import androidx.app.slice.core.SliceQuery;
 
 /**
@@ -75,7 +75,7 @@ public class ActionRow extends FrameLayout {
         for (int i = 0; i < mActionsGroup.getChildCount(); i++) {
             View view = mActionsGroup.getChildAt(i);
             SliceItem item = (SliceItem) view.getTag();
-            boolean tint = !item.hasHint(Slice.HINT_NO_TINT);
+            boolean tint = !item.hasHint(HINT_NO_TINT);
             if (tint) {
                 ((ImageView) view).setImageTintList(ColorStateList.valueOf(mColor));
             }
@@ -120,7 +120,7 @@ public class ActionRow extends FrameLayout {
             if (image == null) {
                 return;
             }
-            boolean tint = !image.hasHint(Slice.HINT_NO_TINT);
+            boolean tint = !image.hasHint(HINT_NO_TINT);
             SliceItem input = SliceQuery.find(action, FORMAT_REMOTE_INPUT);
             if (input != null && input.getRemoteInput().getAllowFreeFormInput()) {
                 addAction(image.getIcon(), tint, image).setOnClickListener(
