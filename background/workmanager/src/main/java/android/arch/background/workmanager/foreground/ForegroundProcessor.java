@@ -133,17 +133,16 @@ public class ForegroundProcessor extends Processor
     }
 
     @Override
-    public void onAllConstraintsMet(List<String> workSpecIds) {
-        // TODO(sumir): Delay for these WorkSpecs?
-        for (String workSpecId : workSpecIds) {
-            process(workSpecId, 0L);
+    public void onAllConstraintsMet(List<WorkSpec> workSpecs) {
+        for (WorkSpec workSpec : workSpecs) {
+            process(workSpec.getId(), workSpec.calculateDelay());
         }
     }
 
     @Override
-    public void onAllConstraintsNotMet(List<String> workSpecIds) {
-        for (String workSpecId : workSpecIds) {
-            cancel(workSpecId, true);
+    public void onAllConstraintsNotMet(List<WorkSpec> workSpecs) {
+        for (WorkSpec workSpec : workSpecs) {
+            cancel(workSpec.getId(), true);
         }
     }
 }

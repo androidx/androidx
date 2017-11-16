@@ -170,40 +170,40 @@ public interface WorkSpecDao {
             + "(interval_duration=0 OR (:allowPeriodic AND interval_duration>0))";
 
     /**
-     * Returns ids for work items that have a battery charging constraint.
+     * Returns work items that have a battery charging constraint.
      *
      * @param allowPeriodic {@code true} to allow periodic jobs to be returned
-     * @return A list of {@link WorkSpec} ids that have a battery charging constraint.
+     * @return A list of {@link WorkSpec}s that have a battery charging constraint.
      */
-    @Query("SELECT id FROM workspec WHERE requires_charging=1" + CONSTRAINT_SUFFIX)
-    LiveData<List<String>> getIdsForBatteryChargingController(boolean allowPeriodic);
+    @Query("SELECT * FROM workspec WHERE requires_charging=1" + CONSTRAINT_SUFFIX)
+    LiveData<List<WorkSpec>> getIdsForBatteryChargingController(boolean allowPeriodic);
 
     /**
-     * Returns ids for work items that have a battery not low constraint.
+     * Returns work items that have a battery not low constraint.
      *
      * @param allowPeriodic {@code true} to allow periodic jobs to be returned
-     * @return A list of {@link WorkSpec} ids that have a battery not low constraint.
+     * @return A list of {@link WorkSpec}s that have a battery not low constraint.
      */
-    @Query("SELECT id FROM workspec WHERE requires_battery_not_low=1" + CONSTRAINT_SUFFIX)
-    LiveData<List<String>> getIdsForBatteryNotLowController(boolean allowPeriodic);
+    @Query("SELECT * FROM workspec WHERE requires_battery_not_low=1" + CONSTRAINT_SUFFIX)
+    LiveData<List<WorkSpec>> getIdsForBatteryNotLowController(boolean allowPeriodic);
 
     /**
-     * Returns ids for work items that have a storage not low constraint.
+     * Returns work items that have a storage not low constraint.
      *
      * @param allowPeriodic {@code true} to allow periodic jobs to be returned
-     * @return A list of {@link WorkSpec} ids that have a storage not low constraint.
+     * @return A list of {@link WorkSpec}s that have a storage not low constraint.
      */
-    @Query("SELECT id FROM workspec WHERE requires_storage_not_low=1" + CONSTRAINT_SUFFIX)
-    LiveData<List<String>> getIdsForStorageNotLowController(boolean allowPeriodic);
+    @Query("SELECT * FROM workspec WHERE requires_storage_not_low=1" + CONSTRAINT_SUFFIX)
+    LiveData<List<WorkSpec>> getIdsForStorageNotLowController(boolean allowPeriodic);
 
     /**
-     * Returns ids for enqueued work items that have the required {@code networkType} constraint.
+     * Returns work items that have the required {@code networkType} constraint.
      *
      * @param networkType The {@link Constraints.NetworkType} network type
      * @param allowPeriodic {@code true} to allow periodic jobs to be returned
-     * @return A list of {@link WorkSpec} ids that have the {@code networkType} constraint.
+     * @return A list of {@link WorkSpec}s that have the {@code networkType} constraint.
      */
-    @Query("SELECT id FROM workspec WHERE required_network_type=:networkType" + CONSTRAINT_SUFFIX)
-    LiveData<List<String>> getIdsForNetworkTypeController(
+    @Query("SELECT * FROM workspec WHERE required_network_type=:networkType" + CONSTRAINT_SUFFIX)
+    LiveData<List<WorkSpec>> getIdsForNetworkTypeController(
             @Constraints.NetworkType int networkType, boolean allowPeriodic);
 }

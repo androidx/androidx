@@ -19,12 +19,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.arch.background.workmanager.constraints.controllers.ConstraintController;
+import android.arch.background.workmanager.model.WorkSpec;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -38,23 +39,25 @@ import java.util.List;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class ConstraintsTrackerTest {
-    private static final List<String> TEST_IDS = Arrays.asList("a", "b", "c");
+    private static final List<WorkSpec> TEST_WORKSPECS = Arrays.asList(
+            new WorkSpec("A"), new WorkSpec("B"), new WorkSpec("C")
+    );
 
     private ConstraintsMetCallback mCallback = new ConstraintsMetCallback() {
         @Override
-        public void onAllConstraintsMet(List<String> workSpecIds) {
-            mUnconstrainedWorkSpecIds = workSpecIds;
+        public void onAllConstraintsMet(List<WorkSpec> workSpecs) {
+            mUnconstrainedWorkSpecs = workSpecs;
         }
 
         @Override
-        public void onAllConstraintsNotMet(List<String> workSpecIds) {
-            mConstrainedWorkSpecIds = workSpecIds;
+        public void onAllConstraintsNotMet(List<WorkSpec> workSpecs) {
+            mConstrainedWorkSpecs = workSpecs;
         }
     };
 
     private ConstraintController mMockController = mock(ConstraintController.class);
-    private List<String> mUnconstrainedWorkSpecIds;
-    private List<String> mConstrainedWorkSpecIds;
+    private List<WorkSpec> mUnconstrainedWorkSpecs;
+    private List<WorkSpec> mConstrainedWorkSpecs;
     private ConstraintsTracker mConstraintsTracker;
 
     @Before
@@ -65,38 +68,39 @@ public class ConstraintsTrackerTest {
 
     @Test
     public void testOnConstraintMet_controllerInvoked() {
-        mConstraintsTracker.onConstraintMet(TEST_IDS);
-        verify(mMockController).isWorkSpecConstrained(TEST_IDS.get(0));
-        verify(mMockController).isWorkSpecConstrained(TEST_IDS.get(1));
-        verify(mMockController).isWorkSpecConstrained(TEST_IDS.get(2));
+        mConstraintsTracker.onConstraintMet(TEST_WORKSPECS);
+        verify(mMockController).isWorkSpecConstrained(TEST_WORKSPECS.get(0));
+        verify(mMockController).isWorkSpecConstrained(TEST_WORKSPECS.get(1));
+        verify(mMockController).isWorkSpecConstrained(TEST_WORKSPECS.get(2));
     }
 
     @Test
     public void testOnConstraintMet_allConstraintsMet() {
-        when(mMockController.isWorkSpecConstrained(anyString())).thenReturn(false);
-        mConstraintsTracker.onConstraintMet(TEST_IDS);
-        assertThat(mUnconstrainedWorkSpecIds, is(TEST_IDS));
+        when(mMockController.isWorkSpecConstrained(any(WorkSpec.class))).thenReturn(false);
+        mConstraintsTracker.onConstraintMet(TEST_WORKSPECS);
+        assertThat(mUnconstrainedWorkSpecs, is(TEST_WORKSPECS));
     }
 
     @Test
     public void testOnConstraintMet_allConstraintsMet_subList() {
-        when(mMockController.isWorkSpecConstrained(TEST_IDS.get(0))).thenReturn(true);
-        when(mMockController.isWorkSpecConstrained(TEST_IDS.get(1))).thenReturn(false);
-        when(mMockController.isWorkSpecConstrained(TEST_IDS.get(2))).thenReturn(false);
-        mConstraintsTracker.onConstraintMet(TEST_IDS);
-        assertThat(mUnconstrainedWorkSpecIds, containsInAnyOrder(TEST_IDS.get(1), TEST_IDS.get(2)));
+        when(mMockController.isWorkSpecConstrained(TEST_WORKSPECS.get(0))).thenReturn(true);
+        when(mMockController.isWorkSpecConstrained(TEST_WORKSPECS.get(1))).thenReturn(false);
+        when(mMockController.isWorkSpecConstrained(TEST_WORKSPECS.get(2))).thenReturn(false);
+        mConstraintsTracker.onConstraintMet(TEST_WORKSPECS);
+        assertThat(mUnconstrainedWorkSpecs,
+                containsInAnyOrder(TEST_WORKSPECS.get(1), TEST_WORKSPECS.get(2)));
     }
 
     @Test
     public void testOnConstraintMet_allConstraintsNotMet() {
-        when(mMockController.isWorkSpecConstrained(anyString())).thenReturn(true);
-        mConstraintsTracker.onConstraintMet(TEST_IDS);
-        assertThat(mUnconstrainedWorkSpecIds, is(empty()));
+        when(mMockController.isWorkSpecConstrained(any(WorkSpec.class))).thenReturn(true);
+        mConstraintsTracker.onConstraintMet(TEST_WORKSPECS);
+        assertThat(mUnconstrainedWorkSpecs, is(empty()));
     }
 
     @Test
     public void testOnConstraintNotMet() {
-        mConstraintsTracker.onConstraintNotMet(TEST_IDS);
-        assertThat(mConstrainedWorkSpecIds, is(TEST_IDS));
+        mConstraintsTracker.onConstraintNotMet(TEST_WORKSPECS);
+        assertThat(mConstrainedWorkSpecs, is(TEST_WORKSPECS));
     }
 }
