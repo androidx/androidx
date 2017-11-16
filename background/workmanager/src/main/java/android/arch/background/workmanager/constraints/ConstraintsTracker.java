@@ -15,7 +15,6 @@
  */
 package android.arch.background.workmanager.constraints;
 
-import android.arch.background.workmanager.Processor;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.controllers.BatteryChargingController;
 import android.arch.background.workmanager.constraints.controllers.BatteryNotLowController;
@@ -27,8 +26,10 @@ import android.arch.background.workmanager.constraints.controllers.NetworkStateU
 import android.arch.background.workmanager.constraints.controllers.StorageNotLowController;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,18 +40,18 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
 
     private static final String TAG = "ConstraintsTracker";
 
-    private final Processor mProcessor;
+    private final ConstraintsMetCallback mCallback;
     private final ConstraintController[] mConstraintControllers;
 
     public ConstraintsTracker(
             Context context,
             LifecycleOwner lifecycleOwner,
             WorkDatabase workDatabase,
-            Processor processor,
+            ConstraintsMetCallback callback,
             boolean allowPeriodic) {
         Context appContext = context.getApplicationContext();
-        mProcessor = processor;
-        mConstraintControllers = new ConstraintController[] {
+        mCallback = callback;
+        mConstraintControllers = new ConstraintController[]{
                 new BatteryChargingController(
                         appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
                 new BatteryNotLowController(
@@ -68,6 +69,14 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
         };
     }
 
+    @VisibleForTesting
+    ConstraintsTracker(
+            ConstraintsMetCallback callback,
+            ConstraintController[] constraintControllers) {
+        mCallback = callback;
+        mConstraintControllers = constraintControllers;
+    }
+
     private boolean areAllConstraintsMet(String workSpecId) {
         for (ConstraintController constraintController : mConstraintControllers) {
             if (constraintController.isWorkSpecConstrained(workSpecId)) {
@@ -81,20 +90,18 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
 
     @Override
     public void onConstraintMet(List<String> workSpecIds) {
-        for (String id : workSpecIds) {
-            if (areAllConstraintsMet(id)) {
-                Log.d(TAG, "Constraints met for " + id + "; trying to process");
-                // TODO(sumir): Figure out what we want to do about constrained jobs with delays.
-                mProcessor.process(id, 0L);
+        List<String> unconstrainedWorkSpecIds = new ArrayList<>();
+        for (String workSpecId : workSpecIds) {
+            if (areAllConstraintsMet(workSpecId)) {
+                Log.d(TAG, "Constraints met for " + workSpecId);
+                unconstrainedWorkSpecIds.add(workSpecId);
             }
         }
+        mCallback.onAllConstraintsMet(unconstrainedWorkSpecIds);
     }
 
     @Override
     public void onConstraintNotMet(List<String> workSpecIds) {
-        for (String id : workSpecIds) {
-            Log.d(TAG, "Constraints not met for " + id + "; trying to cancel");
-            mProcessor.cancel(id, true);
-        }
+        mCallback.onAllConstraintsNotMet(workSpecIds);
     }
 }
