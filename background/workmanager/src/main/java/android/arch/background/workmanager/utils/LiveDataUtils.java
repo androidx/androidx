@@ -40,13 +40,12 @@ public class LiveDataUtils {
         final MediatorLiveData<T> dedupedLiveData = new MediatorLiveData<>();
         dedupedLiveData.addSource(inputLiveData, new Observer<T>() {
             @Override
-            public void onChanged(@Nullable T t) {
-                if (dedupedLiveData.getValue() == null) {
-                    if (t != null) {
-                        dedupedLiveData.setValue(t);
-                    }
-                } else if (!dedupedLiveData.getValue().equals(t)) {
-                    dedupedLiveData.setValue(t);
+            public void onChanged(@Nullable T updatedValue) {
+                T dedupedValue = dedupedLiveData.getValue();
+                boolean valueNotSet = (dedupedValue == null && updatedValue != null);
+                boolean valueChanged = (dedupedValue != null && !dedupedValue.equals(updatedValue));
+                if (valueNotSet || valueChanged) {
+                    dedupedLiveData.setValue(updatedValue);
                 }
             }
         });
