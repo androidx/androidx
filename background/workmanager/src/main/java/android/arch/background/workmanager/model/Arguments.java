@@ -18,6 +18,7 @@ package android.arch.background.workmanager.model;
 
 import android.arch.background.workmanager.Worker;
 import android.arch.persistence.room.TypeConverter;
+import android.support.annotation.VisibleForTesting;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,38 +27,24 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * Persistable set of Key/Value pairs which are passed to each {@link Worker}.
+ * Persistable set of key/value pairs which are passed to {@link Worker}s.
  */
 
 public final class Arguments {
     private Map<String, Object> mValues;
-
-    public Arguments() {
-        mValues = new HashMap<>();
-    }
 
     Arguments(Map<? extends String, ?> values) {
         mValues = new HashMap<>(values);
     }
 
     /**
-     * Insert boolean into arguments.
+     * Get the boolean value for the given key.
      *
-     * @param key   String
-     * @param value boolean
-     */
-    public void putBoolean(String key, boolean value) {
-        mValues.put(key, value);
-    }
-
-    /**
-     * Get boolean matching key from arguments. If not found, use default value specified.
-     *
-     * @param key String
-     * @return boolean
+     * @param key The key for the argument
+     * @param defaultValue The default value to return if the key is not found
+     * @return The value specified by the key if it exists; the default value otherwise
      */
     public boolean getBoolean(String key, boolean defaultValue) {
         Object value = mValues.get(key);
@@ -69,20 +56,11 @@ public final class Arguments {
     }
 
     /**
-     * Insert int into arguments.
+     * Get the integer value for the given key.
      *
-     * @param key   String
-     * @param value int
-     */
-    public void putInt(String key, int value) {
-        mValues.put(key, value);
-    }
-
-    /**
-     * Get int matching key from arguments. If not found, use default value specified.
-     *
-     * @param key String
-     * @return int
+     * @param key The key for the argument
+     * @param defaultValue The default value to return if the key is not found
+     * @return The value specified by the key if it exists; the default value otherwise
      */
     public int getInt(String key, int defaultValue) {
         Object value = mValues.get(key);
@@ -94,20 +72,10 @@ public final class Arguments {
     }
 
     /**
-     * Insert int array into arguments.
+     * Get the integer array value for the given key.
      *
-     * @param key   String
-     * @param value int array
-     */
-    public void putIntArray(String key, int[] value) {
-        mValues.put(key, value);
-    }
-
-    /**
-     * Get int array matching key from arguments. If not found, return null.
-     *
-     * @param key String
-     * @return int array
+     * @param key The key for the argument
+     * @return The value specified by the key if it exists; {@code null} otherwise
      */
     public int[] getIntArray(String key) {
         Object value = mValues.get(key);
@@ -119,20 +87,11 @@ public final class Arguments {
     }
 
     /**
-     * Insert long into arguments.
+     * Get the long value for the given key.
      *
-     * @param key   String
-     * @param value long
-     */
-    public void putLong(String key, long value) {
-        mValues.put(key, value);
-    }
-
-    /**
-     * Get long matching key from arguments. If not found, use default value specified.
-     *
-     * @param key String
-     * @return long
+     * @param key The key for the argument
+     * @param defaultValue The default value to return if the key is not found
+     * @return The value specified by the key if it exists; the default value otherwise
      */
     public long getLong(String key, long defaultValue) {
         Object value = mValues.get(key);
@@ -144,20 +103,10 @@ public final class Arguments {
     }
 
     /**
-     * Insert long array into arguments.
+     * Get the long array value for the given key.
      *
-     * @param key   String
-     * @param value long array
-     */
-    public void putLongArray(String key, long[] value) {
-        mValues.put(key, value);
-    }
-
-    /**
-     * Get long array matching key from arguments. If not found, return null.
-     *
-     * @param key String
-     * @return long array
+     * @param key The key for the argument
+     * @return The value specified by the key if it exists; {@code null} otherwise
      */
     public long[] getLongArray(String key) {
         Object value = mValues.get(key);
@@ -169,20 +118,11 @@ public final class Arguments {
     }
 
     /**
-     * Insert double into arguments.
+     * Get the double value for the given key.
      *
-     * @param key   String
-     * @param value double
-     */
-    public void putDouble(String key, double value) {
-        mValues.put(key, value);
-    }
-
-    /**
-     * Get double matching key from arguments. If not found, use default value specified.
-     *
-     * @param key String
-     * @return long array
+     * @param key The key for the argument
+     * @param defaultValue The default value to return if the key is not found
+     * @return The value specified by the key if it exists; the default value otherwise
      */
     public double getDouble(String key, double defaultValue) {
         Object value = mValues.get(key);
@@ -194,20 +134,10 @@ public final class Arguments {
     }
 
     /**
-     * Insert double array into arguments.
+     * Get the double array value for the given key.
      *
-     * @param key   String
-     * @param value double array
-     */
-    public void putDoubleArray(String key, double[] value) {
-        mValues.put(key, value);
-    }
-
-    /**
-     * Get double array matching key from arguments. If not found, return null.
-     *
-     * @param key String
-     * @return double array
+     * @param key The key for the argument
+     * @return The value specified by the key if it exists; {@code null} otherwise
      */
     public double[] getDoubleArray(String key) {
         Object value = mValues.get(key);
@@ -219,20 +149,11 @@ public final class Arguments {
     }
 
     /**
-     * Insert String into arguments.
+     * Get the String value for the given key.
      *
-     * @param key   String
-     * @param value String
-     */
-    public void putString(String key, String value) {
-        mValues.put(key, value);
-    }
-
-    /**
-     * Get String matching key from arguments. If not found, use default value specified.
-     *
-     * @param key String
-     * @return String
+     * @param key The key for the argument
+     * @param defaultValue The default value to return if the key is not found
+     * @return The value specified by the key if it exists; the default value otherwise
      */
     public String getString(String key, String defaultValue) {
         Object value = mValues.get(key);
@@ -244,20 +165,10 @@ public final class Arguments {
     }
 
     /**
-     * Insert String array into arguments.
+     * Get the String array value for the given key.
      *
-     * @param key   String
-     * @param value String array
-     */
-    public void putStringArray(String key, String[] value) {
-        mValues.put(key, value);
-    }
-
-    /**
-     * Get String array matching key from arguments. If not found, return null.
-     *
-     * @param key String
-     * @return String
+     * @param key The key for the argument
+     * @return The value specified by the key if it exists; {@code null} otherwise
      */
     public String[] getStringArray(String key) {
         Object value = mValues.get(key);
@@ -269,72 +180,20 @@ public final class Arguments {
     }
 
     /**
-     * Clears all arguments.
-     */
-    public void clear() {
-        mValues.clear();
-    }
-
-    /**
-     * Determine if key is present in arguments.
-     *
-     * @param key String
-     * @return true if key is present, false otherwise
-     */
-    public boolean containsKey(String key) {
-        return mValues.containsKey(key);
-    }
-
-    /**
-     * Determine if arguments are empty.
-     *
-     * @return true if arguments are empty, false otherwise
-     */
-    public boolean isEmpty() {
-        return mValues.isEmpty();
-    }
-
-    /**
-     * Get set of keys for arguments.
-     *
-     * @return Set<String> of keys
-     */
-    public Set<String> keySet() {
-        return mValues.keySet();
-    }
-
-    /**
-     * Removes a key/value pair from arguments.
-     *
-     * @param key String
-     */
-    public void remove(String key) {
-        mValues.remove(key);
-    }
-
-    /**
      * Get number of arguments.
      *
-     * @return int
+     * @return The number of arguments
      */
+    @VisibleForTesting
     public int size() {
         return mValues.size();
     }
 
     /**
-     * Get set of key/value pairs for arguments.
+     * Converts {@link Arguments} to a byte array for persistent storage.
      *
-     * @return Set<Entry> of keys
-     */
-    public Set<Map.Entry<String, Object>> entrySet() {
-        return mValues.entrySet();
-    }
-
-    /**
-     * Converts {@link Arguments} to Byte Array for persistent storage.
-     *
-     * @param arguments {@link Arguments} object to convert
-     * @return byte array representation
+     * @param arguments The {@link Arguments} object to convert
+     * @return The byte array representation of the input
      */
     @TypeConverter
     public static byte[] toByteArray(Arguments arguments) {
@@ -343,7 +202,7 @@ public final class Arguments {
         try {
             objectOutputStream = new ObjectOutputStream(outputStream);
             objectOutputStream.writeInt(arguments.size());
-            for (Map.Entry<String, Object> entry : arguments.entrySet()) {
+            for (Map.Entry<String, Object> entry : arguments.mValues.entrySet()) {
                 objectOutputStream.writeUTF(entry.getKey());
                 objectOutputStream.writeObject(entry.getValue());
             }
@@ -367,10 +226,10 @@ public final class Arguments {
     }
 
     /**
-     * Converts Byte Array to {@link Arguments}.
+     * Converts a byte array to {@link Arguments}.
      *
-     * @param bytes byte array representation to convert
-     * @return {@link Arguments} object
+     * @param bytes The byte array representation to convert
+     * @return An {@link Arguments} object built from the input
      */
     @TypeConverter
     public static Arguments fromByteArray(byte[] bytes) {
@@ -415,6 +274,134 @@ public final class Arguments {
 
     @Override
     public int hashCode() {
-        return mValues.hashCode();
+        return 31 * mValues.hashCode();
+    }
+
+    /**
+     * A builder for {@link Arguments}.
+     */
+    public static class Builder {
+
+        private Map<String, Object> mValues = new HashMap<>();
+
+        /**
+         * Puts a boolean into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putBoolean(String key, boolean value) {
+            mValues.put(key, value);
+            return this;
+        }
+
+        /**
+         * Puts an integer into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putInt(String key, int value) {
+            mValues.put(key, value);
+            return this;
+        }
+
+
+        /**
+         * Puts an integer array into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putIntArray(String key, int[] value) {
+            mValues.put(key, value);
+            return this;
+        }
+
+
+        /**
+         * Puts a long into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putLong(String key, long value) {
+            mValues.put(key, value);
+            return this;
+        }
+
+        /**
+         * Puts a long array into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putLongArray(String key, long[] value) {
+            mValues.put(key, value);
+            return this;
+        }
+
+        /**
+         * Puts a double into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putDouble(String key, double value) {
+            mValues.put(key, value);
+            return this;
+        }
+
+        /**
+         * Puts a double array into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putDoubleArray(String key, double[] value) {
+            mValues.put(key, value);
+            return this;
+        }
+
+        /**
+         * Puts a String into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putString(String key, String value) {
+            mValues.put(key, value);
+            return this;
+        }
+
+        /**
+         * Puts a String array into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putStringArray(String key, String[] value) {
+            mValues.put(key, value);
+            return this;
+        }
+
+        /**
+         * Builds an {@link Arguments} object.
+         *
+         * @return The {@link Arguments} object containing all key-value pairs specified by this
+         *         {@link Builder}.
+         */
+        public Arguments build() {
+            return new Arguments(mValues);
+        }
     }
 }
