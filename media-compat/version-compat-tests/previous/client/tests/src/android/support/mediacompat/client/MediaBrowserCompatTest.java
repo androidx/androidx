@@ -112,6 +112,8 @@ public class MediaBrowserCompatTest {
                     "android.support.mediacompat.service.test",
                     "android.support.mediacompat.service"
                             + ".StubMediaBrowserServiceCompatWithDelayedMediaSession");
+    private static final ComponentName TEST_INVALID_BROWSER_SERVICE = new ComponentName(
+            "invalid.package", "invalid.ServiceClassName");
 
     private String mServiceVersion;
     private MediaBrowserCompat mMediaBrowser;
@@ -157,6 +159,21 @@ public class MediaBrowserCompatTest {
 
     @Test
     @SmallTest
+    public void testBrowserRoot() {
+        final String id = "test-id";
+        final String key = "test-key";
+        final String val = "test-val";
+        final Bundle extras = new Bundle();
+        extras.putString(key, val);
+
+        MediaBrowserServiceCompat.BrowserRoot browserRoot =
+                new MediaBrowserServiceCompat.BrowserRoot(id, extras);
+        assertEquals(id, browserRoot.getRootId());
+        assertEquals(val, browserRoot.getExtras().getString(key));
+    }
+
+    @Test
+    @SmallTest
     public void testMediaBrowser() throws Exception {
         assertFalse(mMediaBrowser.isConnected());
 
@@ -174,6 +191,37 @@ public class MediaBrowserCompatTest {
                 return !mMediaBrowser.isConnected();
             }
         }.run();
+    }
+
+    @Test
+    @SmallTest
+    public void testGetServiceComponentBeforeConnection() {
+        try {
+            ComponentName serviceComponent = mMediaBrowser.getServiceComponent();
+            fail();
+        } catch (IllegalStateException e) {
+            // expected
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void testConnectionFailed() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mMediaBrowser = new MediaBrowserCompat(getInstrumentation().getTargetContext(),
+                        TEST_INVALID_BROWSER_SERVICE, mConnectionCallback, mRootHints);
+            }
+        });
+
+        synchronized (mConnectionCallback.mWaitLock) {
+            mMediaBrowser.connect();
+            mConnectionCallback.mWaitLock.wait(TIME_OUT_MS);
+        }
+        assertTrue(mConnectionCallback.mConnectionFailedCount > 0);
+        assertEquals(0, mConnectionCallback.mConnectedCount);
+        assertEquals(0, mConnectionCallback.mConnectionSuspendedCount);
     }
 
     @Test

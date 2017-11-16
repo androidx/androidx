@@ -55,9 +55,11 @@ import static android.support.test.InstrumentationRegistry.getTargetContext;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_RATING;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -83,8 +85,6 @@ import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.ParcelableVolumeInfo;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
-
-import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
@@ -119,6 +119,7 @@ public class MediaControllerCompatCallbackTest {
     private MediaBrowserCompat mMediaBrowser;
     private ConnectionCallback mConnectionCallback = new ConnectionCallback();
 
+    private MediaSessionCompat.Token mSessionToken;
     private MediaControllerCompat mController;
     private MediaControllerCallback mMediaControllerCallback = new MediaControllerCallback();
 
@@ -140,11 +141,11 @@ public class MediaControllerCompatCallbackTest {
             mMediaBrowser.connect();
             mConnectionCallback.mWaitLock.wait(TIME_OUT_MS);
             if (!mMediaBrowser.isConnected()) {
-                Assert.fail("Browser failed to connect!");
+                fail("Browser failed to connect!");
             }
         }
-        mController =
-                new MediaControllerCompat(getTargetContext(), mMediaBrowser.getSessionToken());
+        mSessionToken = mMediaBrowser.getSessionToken();
+        mController = new MediaControllerCompat(getTargetContext(), mSessionToken);
         mController.registerCallback(mMediaControllerCallback, mHandler);
     }
 
@@ -541,6 +542,36 @@ public class MediaControllerCompatCallbackTest {
         }.run();
     }
 
+    @Test
+    @SmallTest
+    public void testSessionReady() throws Exception {
+        if (android.os.Build.VERSION.SDK_INT < 21) {
+            return;
+        }
+
+        final MediaSessionCompat.Token tokenWithoutExtraBinder =
+                MediaSessionCompat.Token.fromToken(mSessionToken.getToken());
+
+        final MediaControllerCallback callback = new MediaControllerCallback();
+        synchronized (mWaitLock) {
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        MediaControllerCompat controller = new MediaControllerCompat(
+                                getInstrumentation().getTargetContext(), tokenWithoutExtraBinder);
+                        controller.registerCallback(callback, new Handler());
+                        assertFalse(controller.isSessionReady());
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(callback.mOnSessionReadyCalled);
+        }
+    }
+
     private void assertQueueEquals(List<QueueItem> expected, List<QueueItem> observed) {
         if (expected == null || observed == null) {
             assertTrue(expected == observed);
@@ -570,6 +601,7 @@ public class MediaControllerCompatCallbackTest {
         private volatile boolean mOnCaptioningEnabledChangedCalled;
         private volatile boolean mOnRepeatModeChangedCalled;
         private volatile boolean mOnShuffleModeChangedCalled;
+        private volatile boolean mOnSessionReadyCalled;
 
         private volatile PlaybackStateCompat mPlaybackState;
         private volatile MediaMetadataCompat mMediaMetadata;
@@ -700,6 +732,14 @@ public class MediaControllerCompatCallbackTest {
             synchronized (mWaitLock) {
                 mOnShuffleModeChangedCalled = true;
                 mShuffleMode = shuffleMode;
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
+        public void onSessionReady() {
+            synchronized (mWaitLock) {
+                mOnSessionReadyCalled = true;
                 mWaitLock.notify();
             }
         }
