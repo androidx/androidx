@@ -69,8 +69,11 @@ public abstract class BaseWork {
 
     private WorkSpec mWorkSpec;
 
-    BaseWork(WorkSpec workSpec) {
-        mWorkSpec = workSpec;
+    BaseWork(Builder builder) {
+        mWorkSpec = builder.mWorkSpec;
+        if (builder.mBackoffCriteriaSet && mWorkSpec.getConstraints().requiresDeviceIdle()) {
+            throw new IllegalArgumentException("Cannot set backoff criteria on an idle mode job");
+        }
     }
 
     /**
@@ -95,7 +98,7 @@ public abstract class BaseWork {
      * @param <B> The concrete implementation of this builder
      */
     public abstract static class Builder<W extends BaseWork, B extends Builder<W, B>> {
-
+        private boolean mBackoffCriteriaSet = false;
         WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
 
         protected Builder(Class<? extends Worker> workerClass) {
@@ -126,6 +129,7 @@ public abstract class BaseWork {
          */
         public B withBackoffCriteria(@Work.BackoffPolicy int backoffPolicy,
                                                 long backoffDelayMillis) {
+            mBackoffCriteriaSet = true;
             if (backoffDelayMillis > MAX_BACKOFF_MILLIS) {
                 Log.w(TAG, "Backoff delay duration exceeds maximum value");
                 backoffDelayMillis = MAX_BACKOFF_MILLIS;

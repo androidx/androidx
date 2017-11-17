@@ -15,7 +15,6 @@
  */
 package android.arch.background.workmanager;
 
-import android.arch.background.workmanager.model.WorkSpec;
 import android.util.Log;
 
 /**
@@ -38,8 +37,8 @@ public class PeriodicWork extends BaseWork {
 
     private static final String TAG = "PeriodicWork";
 
-    PeriodicWork(WorkSpec workSpec) {
-        super(workSpec);
+    PeriodicWork(Builder builder) {
+        super(builder);
     }
 
     /**
@@ -119,7 +118,7 @@ public class PeriodicWork extends BaseWork {
 
         @Override
         public PeriodicWork build() {
-            return new PeriodicWork(mWorkSpec);
+            return new PeriodicWork(this);
         }
     }
 }
