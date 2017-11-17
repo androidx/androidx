@@ -22,6 +22,7 @@ import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.IntDef;
+import android.support.annotation.WorkerThread;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
@@ -59,6 +60,7 @@ public abstract class Worker {
      * @return The result of the work, corresponding to a {@link WorkerResult} value.  If a
      * different value is returned, the result shall be defaulted to {@code WORKER_RESULT_FAILURE}.
      */
+    @WorkerThread
     public abstract @WorkerResult int doWork();
 
     private void internalInit(Context appContext, Arguments arguments) {
