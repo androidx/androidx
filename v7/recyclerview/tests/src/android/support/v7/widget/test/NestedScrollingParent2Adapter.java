@@ -17,7 +17,6 @@
 package android.support.v7.widget.test;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.view.NestedScrollingParent2;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
@@ -46,7 +45,7 @@ public class NestedScrollingParent2Adapter implements NestedScrollingParent2 {
 
     @Override
     public void onNestedPreScroll(@NonNull View target, int dx, int dy,
-            @Nullable int[] consumed, @ViewCompat.NestedScrollType int type) {
+            @NonNull int[] consumed, @ViewCompat.NestedScrollType int type) {
     }
 
     @Override
