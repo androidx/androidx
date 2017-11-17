@@ -52,8 +52,6 @@ dependencies {
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
 }
 
-createAndroidCheckstyle(project)
-
 // Used by testCompile in room-compiler
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
