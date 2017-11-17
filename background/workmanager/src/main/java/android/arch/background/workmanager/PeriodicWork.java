@@ -28,13 +28,13 @@ public class PeriodicWork extends BaseWork {
      * The minimum interval duration for periodic {@link Work}, in milliseconds.
      * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#110}.
      */
-    public static final long MIN_PERIODIC_INTERVAL_DURATION = 15 * 60 * 1000L; // 15 minutes.
+    public static final long MIN_PERIODIC_INTERVAL_MILLIS = 15 * 60 * 1000L; // 15 minutes.
 
     /**
      * The minimum flex duration for periodic {@link Work}, in milliseconds.
      * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#113}.
      */
-    public static final long MIN_PERIODIC_FLEX_DURATION = 5 * 60 * 1000L; // 5 minutes.
+    public static final long MIN_PERIODIC_FLEX_MILLIS = 5 * 60 * 1000L; // 5 minutes.
 
     private static final String TAG = "PeriodicWork";
 
@@ -50,32 +50,32 @@ public class PeriodicWork extends BaseWork {
         /**
          * Creates a {@link PeriodicWork} to run periodically once every interval period. The
          * {@link PeriodicWork} is guaranteed to run exactly one time during this interval. The
-         * {@code intervalDuration} must be greater than or equal to
-         * {@link PeriodicWork#MIN_PERIODIC_INTERVAL_DURATION}. It may run
+         * {@code intervalMillis} must be greater than or equal to
+         * {@link PeriodicWork#MIN_PERIODIC_INTERVAL_MILLIS}. It may run
          * immediately, at the end of the period, or any time in between so long as the other
          * conditions are satisfied at the time. The run time of the {@link PeriodicWork} can be
          * restricted to a flex period within an interval.
          *
-         * @param workerClass      The {@link Worker} class to run with this job.
-         * @param intervalDuration Duration in milliseconds for which {@link Work} will repeat.
+         * @param workerClass    The {@link Worker} class to run with this job.
+         * @param intervalMillis Duration in milliseconds for which {@link Work} repeats.
          */
-        public Builder(Class<? extends Worker> workerClass, long intervalDuration) {
+        public Builder(Class<? extends Worker> workerClass, long intervalMillis) {
             super(workerClass);
-            if (intervalDuration < MIN_PERIODIC_INTERVAL_DURATION) {
+            if (intervalMillis < MIN_PERIODIC_INTERVAL_MILLIS) {
                 Log.w(TAG, "Interval duration lesser than minimum allowed value; "
-                        + "Changed to " + MIN_PERIODIC_INTERVAL_DURATION);
-                intervalDuration = MIN_PERIODIC_INTERVAL_DURATION;
+                        + "Changed to " + MIN_PERIODIC_INTERVAL_MILLIS);
+                intervalMillis = MIN_PERIODIC_INTERVAL_MILLIS;
             }
-            mWorkSpec.setPeriodic(intervalDuration, intervalDuration);
+            mWorkSpec.setPeriodic(intervalMillis, intervalMillis);
         }
 
         /**
          * Creates a {@link PeriodicWork} to run periodically once within the
          * <strong>flex period</strong> of every interval period. See diagram below. The flex period
-         * begins at {@code intervalDuration - flexDuration} to the end of the interval.
-         * {@code intervalDuration} must be greater than or equal to
-         * {@link PeriodicWork#MIN_PERIODIC_INTERVAL_DURATION} and {@code flexDuration} must be
-         * greater than or equal to {@link PeriodicWork#MIN_PERIODIC_FLEX_DURATION}.
+         * begins at {@code intervalMillis - flexMillis} to the end of the interval.
+         * {@code intervalMillis} must be greater than or equal to
+         * {@link PeriodicWork#MIN_PERIODIC_INTERVAL_MILLIS} and {@code flexMillis} must
+         * be greater than or equal to {@link PeriodicWork#MIN_PERIODIC_FLEX_MILLIS}.
          *
          * <p><pre>
          * [     before flex     |     flex     ][     before flex     |     flex     ]...
@@ -84,32 +84,32 @@ public class PeriodicWork extends BaseWork {
          *                interval 1                            interval 2             ...(repeat)
          * </pre></p>
          *
-         * @param workerClass      The {@link Worker} class to run with this job.
-         * @param intervalDuration Duration in milliseconds of the interval.
-         * @param flexDuration     Duration in millisecond for which {@link Work} will repeat from
-         *                         the end of the interval.
+         * @param workerClass    The {@link Worker} class to run with this job.
+         * @param intervalMillis Duration in milliseconds of the interval.
+         * @param flexMillis     Duration in milliseconds for which {@link Work} repeats from
+         *                       the end of the interval.
          */
         public Builder(
                 Class<? extends Worker> workerClass,
-                long intervalDuration,
-                long flexDuration) {
+                long intervalMillis,
+                long flexMillis) {
             super(workerClass);
-            if (intervalDuration < MIN_PERIODIC_INTERVAL_DURATION) {
+            if (intervalMillis < MIN_PERIODIC_INTERVAL_MILLIS) {
                 Log.w(TAG, "Interval duration lesser than minimum allowed value; "
-                        + "Changed to " + MIN_PERIODIC_INTERVAL_DURATION);
-                intervalDuration = MIN_PERIODIC_INTERVAL_DURATION;
+                        + "Changed to " + MIN_PERIODIC_INTERVAL_MILLIS);
+                intervalMillis = MIN_PERIODIC_INTERVAL_MILLIS;
             }
-            if (flexDuration < MIN_PERIODIC_FLEX_DURATION) {
+            if (flexMillis < MIN_PERIODIC_FLEX_MILLIS) {
                 Log.w(TAG, "Flex duration lesser than minimum allowed value; "
-                        + "Changed to " + MIN_PERIODIC_FLEX_DURATION);
-                flexDuration = MIN_PERIODIC_FLEX_DURATION;
+                        + "Changed to " + MIN_PERIODIC_FLEX_MILLIS);
+                flexMillis = MIN_PERIODIC_FLEX_MILLIS;
             }
-            if (flexDuration > intervalDuration) {
+            if (flexMillis > intervalMillis) {
                 Log.w(TAG, "Flex duration greater than interval duration; "
-                        + "Changed to " + intervalDuration);
-                flexDuration = intervalDuration;
+                        + "Changed to " + intervalMillis);
+                flexMillis = intervalMillis;
             }
-            mWorkSpec.setPeriodic(intervalDuration, flexDuration);
+            mWorkSpec.setPeriodic(intervalMillis, flexMillis);
         }
 
         @Override

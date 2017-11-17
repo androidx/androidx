@@ -45,8 +45,8 @@ import org.junit.runner.RunWith;
 public class SystemJobInfoConverterTest {
 
     private static final long TEST_INTERVAL_DURATION =
-            PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION + 1232L;
-    private static final long TEST_FLEX_DURATION = PeriodicWork.MIN_PERIODIC_FLEX_DURATION + 112L;
+            PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 1232L;
+    private static final long TEST_FLEX_DURATION = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 112L;
 
     private IdGenerator mMockIdGenerator;
     private SystemJobInfoConverter mConverter;

@@ -98,19 +98,19 @@ public class WorkSpecTest {
     @SmallTest
     public void testCalculateDelay_rerunAttempt_linear_upperBound() {
         Work work = new Work.Builder(InfiniteTestWorker.class)
-                .withBackoffCriteria(Work.BACKOFF_POLICY_LINEAR, Work.MAX_BACKOFF_DURATION + 1)
+                .withBackoffCriteria(Work.BACKOFF_POLICY_LINEAR, Work.MAX_BACKOFF_MILLIS + 1)
                 .withInitialRunAttemptCount(1)
                 .build();
-        assertThat(work.getWorkSpec().calculateDelay(), is(Work.MAX_BACKOFF_DURATION));
+        assertThat(work.getWorkSpec().calculateDelay(), is(Work.MAX_BACKOFF_MILLIS));
     }
 
     @Test
     @SmallTest
     public void testCalculateDelay_rerunAttempt_exponential_upperBound() {
         Work work = new Work.Builder(InfiniteTestWorker.class)
-                .withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, Work.MAX_BACKOFF_DURATION + 1)
+                .withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, Work.MAX_BACKOFF_MILLIS + 1)
                 .withInitialRunAttemptCount(1)
                 .build();
-        assertThat(work.getWorkSpec().calculateDelay(), is(Work.MAX_BACKOFF_DURATION));
+        assertThat(work.getWorkSpec().calculateDelay(), is(Work.MAX_BACKOFF_MILLIS));
     }
 }

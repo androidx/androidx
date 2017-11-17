@@ -60,9 +60,9 @@ public class Work extends BaseWork {
         @Override
         public Builder withBackoffCriteria(
                 @BackoffPolicy int backoffPolicy,
-                long backoffDelayDuration) {
+                long backoffDelayMillis) {
             mBackoffCriteriaSet = true;
-            return super.withBackoffCriteria(backoffPolicy, backoffDelayDuration);
+            return super.withBackoffCriteria(backoffPolicy, backoffDelayMillis);
         }
 
         /**

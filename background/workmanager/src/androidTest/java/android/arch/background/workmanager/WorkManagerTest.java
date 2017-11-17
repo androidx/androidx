@@ -212,7 +212,7 @@ public class WorkManagerTest {
         assertThat(workSpec0.getBackoffDelayDuration(), is(50000L));
 
         assertThat(workSpec1.getBackoffPolicy(), is(Work.BACKOFF_POLICY_EXPONENTIAL));
-        assertThat(workSpec1.getBackoffDelayDuration(), is(Work.DEFAULT_BACKOFF_DELAY_DURATION));
+        assertThat(workSpec1.getBackoffDelayDuration(), is(Work.DEFAULT_BACKOFF_DELAY_MILLIS));
     }
 
     @Test
@@ -249,14 +249,14 @@ public class WorkManagerTest {
         PeriodicWork periodicWork =
                 new PeriodicWork.Builder(
                         TestWorker.class,
-                        PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION)
+                        PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
                         .build();
         mWorkManager.enqueue(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.isPeriodic(), is(true));
-        assertThat(workSpec.getIntervalDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION));
-        assertThat(workSpec.getFlexDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION));
+        assertThat(workSpec.getIntervalDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
+        assertThat(workSpec.getFlexDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
     }
 
     @Test

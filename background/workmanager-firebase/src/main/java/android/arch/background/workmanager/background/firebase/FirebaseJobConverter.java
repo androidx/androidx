@@ -102,7 +102,7 @@ class FirebaseJobConverter {
         int initialBackoff = (int) TimeUnit.SECONDS
                 .convert(workSpec.getBackoffDelayDuration(), TimeUnit.MILLISECONDS);
         int maxBackoff = (int) TimeUnit.SECONDS
-                .convert(Work.MAX_BACKOFF_DURATION, TimeUnit.MILLISECONDS);
+                .convert(Work.MAX_BACKOFF_MILLIS, TimeUnit.MILLISECONDS);
         return mDispatcher.newRetryStrategy(policy, initialBackoff, maxBackoff);
     }
 

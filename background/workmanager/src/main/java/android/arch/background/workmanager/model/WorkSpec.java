@@ -70,7 +70,7 @@ public class WorkSpec {
     int mBackoffPolicy = BaseWork.BACKOFF_POLICY_EXPONENTIAL;
 
     @ColumnInfo(name = "backoff_delay_duration")
-    long mBackoffDelayDuration = BaseWork.DEFAULT_BACKOFF_DELAY_DURATION;
+    long mBackoffDelayDuration = BaseWork.DEFAULT_BACKOFF_DELAY_MILLIS;
 
     public WorkSpec(@NonNull String id) {
         mId = id;
@@ -193,11 +193,11 @@ public class WorkSpec {
      *
      * If Backoff Policy is set to {@link BaseWork#BACKOFF_POLICY_EXPONENTIAL}, then delay
      * increases at an exponential rate with respect to the run attempt count and is capped at
-     * {@link BaseWork#MAX_BACKOFF_DURATION}.
+     * {@link BaseWork#MAX_BACKOFF_MILLIS}.
      *
      * if Backoff Policy is set to {@link BaseWork#BACKOFF_POLICY_LINEAR}, then delay
      * increases at an linear rate with respect to the run attempt count and is capped at
-     * {@link BaseWork#MAX_BACKOFF_DURATION}.
+     * {@link BaseWork#MAX_BACKOFF_MILLIS}.
      *
      * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/services/core/java/com/android/server/job/JobSchedulerService.java#1125}
      *
@@ -217,7 +217,7 @@ public class WorkSpec {
             // default to exponential backoff policy
             delay = (long) Math.scalb(mBackoffDelayDuration, mRunAttemptCount - 1);
         }
-        return Math.min(BaseWork.MAX_BACKOFF_DURATION, delay);
+        return Math.min(BaseWork.MAX_BACKOFF_MILLIS, delay);
     }
 
     @Override

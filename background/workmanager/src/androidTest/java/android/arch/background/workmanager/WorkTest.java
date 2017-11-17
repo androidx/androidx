@@ -49,20 +49,20 @@ public class WorkTest {
 
     @Test
     public void testBuild_setBackoffCriteria_exceedMaxBackoffDuration() {
-        final long backoffDuration = Work.MAX_BACKOFF_DURATION + 123L;
+        final long backoffDuration = Work.MAX_BACKOFF_MILLIS + 123L;
         Work work = mBuilder
                 .withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, backoffDuration)
                 .build();
-        assertThat(work.getWorkSpec().getBackoffDelayDuration(), is(Work.MAX_BACKOFF_DURATION));
+        assertThat(work.getWorkSpec().getBackoffDelayDuration(), is(Work.MAX_BACKOFF_MILLIS));
     }
 
     @Test
     public void testBuild_setBackoffCriteria_lessThanMinBackoffDuration() {
-        final long backoffDuration = Work.MIN_BACKOFF_DURATION - 123L;
+        final long backoffDuration = Work.MIN_BACKOFF_MILLIS - 123L;
         Work work = mBuilder
                 .withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, backoffDuration)
                 .build();
-        assertThat(work.getWorkSpec().getBackoffDelayDuration(), is(Work.MIN_BACKOFF_DURATION));
+        assertThat(work.getWorkSpec().getBackoffDelayDuration(), is(Work.MIN_BACKOFF_MILLIS));
     }
 
     @Test
