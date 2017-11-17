@@ -16,8 +16,12 @@
 
 package android.support.v7.util;
 
+import android.app.Instrumentation;
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.testutils.PollingCheck;
+import android.support.v7.widget.TestActivity;
+import android.view.KeyEvent;
 import android.view.View;
 
 import org.junit.rules.TestRule;
@@ -25,13 +29,22 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 /**
- * A JUnit rule that ensures that IME is closed after a test is finished (or exception thrown).
- * A test that triggers IME open/close should call setContainerView with the activity's container
- * view in order to trigger this cleanup at the end of the test. Otherwise, no cleanup happens.
+ * A JUnit rule that ensures that IME is closed after a test is finished by determining if the
+ * keyboard is open, and if it is closing it.  If the rules determines the keyboard is open and is
+ * unable to close it within a timeout (see source), an exception will be thrown.
+ *
+ * A test that wants to benefit from this functionality must call
+ * {@link #setup(TestActivity, Instrumentation)} with the {@link TestActivity} under test and the
+ * test's {@link Instrumentation}, or this rule does nothing.
  */
 public class ImeCleanUpTestRule implements TestRule {
 
+    // We consider the keyboard open if its height is at least this percentage of the available
+    // screen height.
+    private static final float KEYBOARD_HEIGHT_TO_SCREEN_RATIO = .15f;
+
     private View mContainerView;
+    private Instrumentation mInstrumentation;
 
     @Override
     public Statement apply(final Statement base, Description description) {
@@ -48,39 +61,41 @@ public class ImeCleanUpTestRule implements TestRule {
     }
 
     /**
-     * Sets the container view used to calculate the total screen height and the height available
-     * to the test activity.
+     * Call to enable the functionality of this TestRule.
+     * @param testActivity The {@link TestActivity} under test.
+     * @param instrumentation The test's {@link Instrumentation}.
      */
-    public void setContainerView(View containerView) {
-        mContainerView = containerView;
+    public void setup(@NonNull TestActivity testActivity,
+            @NonNull Instrumentation instrumentation) {
+        mContainerView = testActivity.getContainer();
+        mInstrumentation = instrumentation;
     }
 
     private void closeImeIfOpen() {
-        if (mContainerView == null) {
+        if (mContainerView == null || mInstrumentation == null) {
             return;
         }
-        // Ensuring that IME is closed after starting each test.
+
         final Rect r = new Rect();
         mContainerView.getWindowVisibleDisplayFrame(r);
+
         // This is the entire height of the screen available to both the view and IME
-        final int screenHeight = mContainerView.getRootView().getHeight();
+        final int screenHeight = mContainerView.getHeight();
 
         // r.bottom is the position above IME if it's open or device button.
         // if IME is shown, r.bottom is smaller than screenHeight.
         int imeHeight = screenHeight - r.bottom;
 
-        // Picking a threshold to detect when IME is open
-        if (imeHeight > screenHeight * 0.15) {
-            // Soft keyboard is shown, will wait for it to close after running the test. Note that
-            // we don't press back button here as the IME should close by itself when a test
-            // finishes. If the wait isn't done here, the IME can mess up with the layout of the
-            // next test.
+        if (imeHeight > screenHeight * KEYBOARD_HEIGHT_TO_SCREEN_RATIO) {
+            // Soft keyboard is shown, therefore we click the back button to close it and wait for
+            // it to be closed.
+            mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
             PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
                 @Override
                 public boolean canProceed() {
                     mContainerView.getWindowVisibleDisplayFrame(r);
                     int imeHeight = screenHeight - r.bottom;
-                    return imeHeight < screenHeight * 0.15;
+                    return imeHeight < screenHeight * KEYBOARD_HEIGHT_TO_SCREEN_RATIO;
                 }
             });
         }
