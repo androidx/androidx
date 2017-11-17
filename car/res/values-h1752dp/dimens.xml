@@ -34,5 +34,6 @@ limitations under the License.
     <dimen name="car_secondary_icon_size">36dp</dimen>
 
     <!-- Line heights -->
+    <dimen name="car_single_line_list_item_height">128dp</dimen>
     <dimen name="car_double_line_list_item_height">128dp</dimen>
 </resources>
