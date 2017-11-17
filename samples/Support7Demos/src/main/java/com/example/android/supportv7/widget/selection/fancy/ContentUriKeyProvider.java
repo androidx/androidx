@@ -22,7 +22,7 @@ import android.support.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.widget.recyclerview.selection.ItemKeyProvider;
 
 class ContentUriKeyProvider extends ItemKeyProvider<Uri> {
 
