@@ -54,6 +54,7 @@ import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.TintTypedArray;
+import android.support.v7.widget.WithHint;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -114,7 +115,7 @@ import android.widget.TextView;
  * may not return the TextInputLayout itself, but rather an intermediate View. If you need
  * to access a View directly, set an {@code android:id} and use {@link View#findViewById(int)}.
  */
-public class TextInputLayout extends LinearLayout {
+public class TextInputLayout extends LinearLayout implements WithHint {
 
     private static final int ANIMATION_DURATION = 200;
     private static final int INVALID_MAX_LENGTH = -1;
@@ -498,6 +499,7 @@ public class TextInputLayout extends LinearLayout {
      *
      * @attr ref android.support.design.R.styleable#TextInputLayout_android_hint
      */
+    @Override
     @Nullable
     public CharSequence getHint() {
         return mHintEnabled ? mHint : null;

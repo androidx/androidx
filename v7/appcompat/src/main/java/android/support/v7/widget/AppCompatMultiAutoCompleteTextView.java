@@ -29,6 +29,8 @@ import android.support.v4.view.TintableBackgroundView;
 import android.support.v7.appcompat.R;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.widget.MultiAutoCompleteTextView;
 
 /**
@@ -176,5 +178,11 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
         if (mTextHelper != null) {
             mTextHelper.onSetTextAppearance(context, resId);
         }
+    }
+
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        return AppCompatHintHelper.onCreateInputConnection(super.onCreateInputConnection(outAttrs),
+                outAttrs, this);
     }
 }
