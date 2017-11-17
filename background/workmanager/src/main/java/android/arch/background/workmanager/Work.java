@@ -16,7 +16,6 @@
 
 package android.arch.background.workmanager;
 
-import android.arch.background.workmanager.model.WorkSpec;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
@@ -26,16 +25,14 @@ import android.support.annotation.VisibleForTesting;
 
 public class Work extends BaseWork {
 
-    Work(WorkSpec workSpec) {
-        super(workSpec);
+    Work(Builder builder) {
+        super(builder);
     }
 
     /**
      * Builder for {@link Work} class.
      */
     public static class Builder extends BaseWork.Builder<Work, Work.Builder> {
-        private boolean mBackoffCriteriaSet = false;
-
         public Builder(Class<? extends Worker> workerClass) {
             super(workerClass);
         }
@@ -55,14 +52,6 @@ public class Work extends BaseWork {
         Builder withInitialRunAttemptCount(int runAttemptCount) {
             mWorkSpec.setRunAttemptCount(runAttemptCount);
             return this;
-        }
-
-        @Override
-        public Builder withBackoffCriteria(
-                @BackoffPolicy int backoffPolicy,
-                long backoffDelayMillis) {
-            mBackoffCriteriaSet = true;
-            return super.withBackoffCriteria(backoffPolicy, backoffDelayMillis);
         }
 
         /**
@@ -88,11 +77,7 @@ public class Work extends BaseWork {
          */
         @Override
         public Work build() {
-            if (mBackoffCriteriaSet && mWorkSpec.getConstraints().requiresDeviceIdle()) {
-                throw new IllegalArgumentException(
-                        "Cannot set backoff criteria on an idle mode job");
-            }
-            return new Work(mWorkSpec);
+            return new Work(this);
         }
     }
 }

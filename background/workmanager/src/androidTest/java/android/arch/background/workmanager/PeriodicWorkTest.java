@@ -18,15 +18,33 @@ package android.arch.background.workmanager;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class PeriodicWorkTest {
+
+    @Rule
+    public ExpectedException mThrown = ExpectedException.none();
+
+    @Test
+    @SmallTest
+    public void testBuild_backoffAndIdleMode_throwsIllegalArgumentException() {
+        mThrown.expect(IllegalArgumentException.class);
+        new PeriodicWork.Builder(TestWorker.class, PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
+                .withBackoffCriteria(BaseWork.BACKOFF_POLICY_EXPONENTIAL, 20000)
+                .withConstraints(new Constraints.Builder()
+                        .setRequiresDeviceIdle(true)
+                        .build())
+                .build();
+    }
 
     @Test
     @SmallTest
