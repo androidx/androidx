@@ -16,6 +16,7 @@
 
 package android.arch.background.workmanager;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 /**
@@ -25,5 +26,11 @@ import android.support.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ExecutionListener {
-    void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result);
+    /**
+     * Called when a {@link Worker} has executed.
+     * @param workSpecId work id corresponding to the {@link Worker}
+     * @param needsReschedule {@code true} if work should be rescheduled
+     *                        according to backoff policy.
+     */
+    void onExecuted(@NonNull String workSpecId, boolean needsReschedule);
 }

@@ -84,7 +84,7 @@ public class WorkerWrapperTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.EXECUTION_RESULT_SUCCESS);
+        verify(mMockListener).onExecuted(work.getId(), false);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_SUCCEEDED));
     }
 
@@ -139,8 +139,7 @@ public class WorkerWrapperTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener)
-                .onExecuted(invalidWorkSpecId, WorkerWrapper.EXECUTION_RESULT_PERMANENT_ERROR);
+        verify(mMockListener).onExecuted(invalidWorkSpecId, false);
     }
 
     @Test
@@ -153,8 +152,7 @@ public class WorkerWrapperTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener)
-                .onExecuted(work.getId(), WorkerWrapper.EXECUTION_RESULT_RESCHEDULE);
+        verify(mMockListener).onExecuted(work.getId(), true);
     }
 
     @Test
@@ -167,8 +165,7 @@ public class WorkerWrapperTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener)
-                .onExecuted(work.getId(), WorkerWrapper.EXECUTION_RESULT_PERMANENT_ERROR);
+        verify(mMockListener).onExecuted(work.getId(), false);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_FAILED));
     }
 
@@ -181,7 +178,7 @@ public class WorkerWrapperTest {
                 .withListener(mMockListener)
                 .build()
                 .run();
-        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.EXECUTION_RESULT_FAILURE);
+        verify(mMockListener).onExecuted(work.getId(), false);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_FAILED));
     }
 
@@ -197,7 +194,7 @@ public class WorkerWrapperTest {
         Thread.sleep(2000L); // Async wait duration.
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_RUNNING));
         Thread.sleep(SleepTestWorker.SLEEP_DURATION);
-        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.EXECUTION_RESULT_SUCCESS);
+        verify(mMockListener).onExecuted(work.getId(), false);
     }
 
     @Test
@@ -252,7 +249,7 @@ public class WorkerWrapperTest {
                 .run();
 
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
-        verify(mMockListener).onExecuted(periodicWorkId, WorkerWrapper.EXECUTION_RESULT_SUCCESS);
+        verify(mMockListener).onExecuted(periodicWorkId, false);
         assertThat(periodicWorkSpecAfterFirstRun.getRunAttemptCount(), is(0));
         assertThat(periodicWorkSpecAfterFirstRun.getStatus(), is(Work.STATUS_ENQUEUED));
     }

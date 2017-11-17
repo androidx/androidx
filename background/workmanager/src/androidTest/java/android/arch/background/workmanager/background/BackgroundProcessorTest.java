@@ -22,7 +22,6 @@ import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.WorkerWrapper;
 import android.arch.background.workmanager.executors.SynchronousExecutorService;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.utils.taskexecutor.InstantTaskExecutorRule;
@@ -74,6 +73,6 @@ public class BackgroundProcessorTest {
         mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
         mProcessor.process(workSpecId, 0L);
 
-        verify(mMockListener).onExecuted(workSpecId, WorkerWrapper.EXECUTION_RESULT_SUCCESS);
+        verify(mMockListener).onExecuted(workSpecId, false);
     }
 }

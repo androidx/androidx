@@ -16,6 +16,7 @@
 package android.arch.background.workmanager;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
@@ -103,10 +104,10 @@ public abstract class Processor implements ExecutionListener {
     }
 
     @Override
-    public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
+    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         mEnqueuedWorkMap.remove(workSpecId);
         Log.d(TAG,
-                getClass().getSimpleName() + " " + workSpecId + " executed; result = "
-                        + result);
+                getClass().getSimpleName() + " " + workSpecId + " executed; reschedule = "
+                        + needsReschedule);
     }
 }

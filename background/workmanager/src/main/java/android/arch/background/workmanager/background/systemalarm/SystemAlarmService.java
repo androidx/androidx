@@ -24,6 +24,7 @@ import android.arch.background.workmanager.background.BackgroundProcessor;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
@@ -57,7 +58,7 @@ public class SystemAlarmService extends Service implements ExecutionListener {
     }
 
     @Override
-    public void onExecuted(String workSpecId, int result) {
+    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         Log.d(TAG, workSpecId + " executed on AlarmManager");
         // TODO(janclarin): Handle rescheduling or stopping service when there is no more work.
     }
