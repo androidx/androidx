@@ -20,8 +20,11 @@ limitations under the License.
     <dimen name="car_keyline_1">32dp</dimen>
     <dimen name="car_keyline_2">108dp</dimen>
     <dimen name="car_keyline_3">128dp</dimen>
-    <dimen name="car_keyline_4">168dp</dimen>
+    <dimen name="car_keyline_4">182dp</dimen>
     <dimen name="car_keyline_1_neg">32dp</dimen>
     <dimen name="car_keyline_2_neg">108dp</dimen>
     <dimen name="car_keyline_3_neg">128dp</dimen>
+
+    <!-- Margin -->
+    <dimen name="car_margin">148dp</dimen>
 </resources>
