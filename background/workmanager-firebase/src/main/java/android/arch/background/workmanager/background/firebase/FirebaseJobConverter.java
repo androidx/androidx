@@ -136,20 +136,20 @@ class FirebaseJobConverter {
         }
 
         switch (constraints.getRequiredNetworkType()) {
-            case Constraints.NETWORK_TYPE_METERED:
+            case Constraints.NETWORK_METERED:
                 Log.w(TAG, "Metered Network is not a supported constraint with "
                         + "FirebaseJobDispatcher. Falling back to Any Network constraint.");
                 mConstraints.add(Constraint.ON_ANY_NETWORK);
                 break;
-            case Constraints.NETWORK_TYPE_NOT_ROAMING:
+            case Constraints.NETWORK_NOT_ROAMING:
                 Log.w(TAG, "Not Roaming Network is not a supported constraint with "
                         + "FirebaseJobDispatcher. Falling back to Any Network constraint.");
                 mConstraints.add(Constraint.ON_ANY_NETWORK);
                 break;
-            case Constraints.NETWORK_TYPE_ANY:
+            case Constraints.NETWORK_CONNECTED:
                 mConstraints.add(Constraint.ON_ANY_NETWORK);
                 break;
-            case Constraints.NETWORK_TYPE_UNMETERED:
+            case Constraints.NETWORK_UNMETERED:
                 mConstraints.add(Constraint.ON_UNMETERED_NETWORK);
                 break;
         }

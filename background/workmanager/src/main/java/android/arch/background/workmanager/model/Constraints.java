@@ -30,16 +30,16 @@ import java.lang.annotation.Retention;
 
 public class Constraints {
     @Retention(SOURCE)
-    @IntDef({NETWORK_TYPE_NONE, NETWORK_TYPE_ANY, NETWORK_TYPE_UNMETERED, NETWORK_TYPE_NOT_ROAMING,
-            NETWORK_TYPE_METERED})
+    @IntDef({NETWORK_NOT_REQUIRED, NETWORK_CONNECTED, NETWORK_UNMETERED, NETWORK_NOT_ROAMING,
+            NETWORK_METERED})
     public @interface NetworkType {
     }
 
-    public static final int NETWORK_TYPE_NONE = 0;
-    public static final int NETWORK_TYPE_ANY = 1;
-    public static final int NETWORK_TYPE_UNMETERED = 2;
-    public static final int NETWORK_TYPE_NOT_ROAMING = 3;
-    public static final int NETWORK_TYPE_METERED = 4;
+    public static final int NETWORK_NOT_REQUIRED = 0;
+    public static final int NETWORK_CONNECTED = 1;
+    public static final int NETWORK_UNMETERED = 2;
+    public static final int NETWORK_NOT_ROAMING = 3;
+    public static final int NETWORK_METERED = 4;
 
     @NetworkType
     @ColumnInfo(name = "required_network_type")
@@ -174,7 +174,7 @@ public class Constraints {
     public static class Builder {
         private boolean mRequiresCharging = false;
         private boolean mRequiresDeviceIdle = false;
-        private int mRequiredNetworkType = NETWORK_TYPE_NONE;
+        private int mRequiredNetworkType = NETWORK_NOT_REQUIRED;
         private boolean mRequiresBatteryNotLow = false;
         private boolean mRequiresStorageNotLow = false;
         private ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
@@ -204,7 +204,7 @@ public class Constraints {
 
         /**
          * Specify whether device should have a particular {@link NetworkType} for {@link WorkSpec}
-         * to run. Default is {@value #NETWORK_TYPE_NONE}
+         * to run. Default is {@value #NETWORK_NOT_REQUIRED}
          *
          * @param networkType type of network required
          * @return current builder

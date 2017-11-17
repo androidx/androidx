@@ -197,21 +197,21 @@ public class SystemJobInfoConverterTest {
     @SmallTest
     public void testConvert_networkTypeUnmeteredRequiresApi21() {
         convertWithRequiredNetworkType(
-                Constraints.NETWORK_TYPE_UNMETERED, JobInfo.NETWORK_TYPE_UNMETERED, 21);
+                Constraints.NETWORK_UNMETERED, JobInfo.NETWORK_TYPE_UNMETERED, 21);
     }
 
     @Test
     @SmallTest
     public void testConvert_networkTypeNotRoamingRequiresApi24() {
         convertWithRequiredNetworkType(
-                Constraints.NETWORK_TYPE_NOT_ROAMING, JobInfo.NETWORK_TYPE_NOT_ROAMING, 24);
+                Constraints.NETWORK_NOT_ROAMING, JobInfo.NETWORK_TYPE_NOT_ROAMING, 24);
     }
 
     @Test
     @SmallTest
     public void testConvert_networkTypeMeteredRequiresApi26() {
         convertWithRequiredNetworkType(
-                Constraints.NETWORK_TYPE_METERED, JobInfo.NETWORK_TYPE_METERED, 26);
+                Constraints.NETWORK_METERED, JobInfo.NETWORK_TYPE_METERED, 26);
     }
 
     private void convertWithRequiredNetworkType(@Constraints.NetworkType int networkType,
@@ -230,21 +230,21 @@ public class SystemJobInfoConverterTest {
     @Test
     @SmallTest
     public void testConvertNetworkType_none() {
-        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_NONE),
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_NOT_REQUIRED),
                 is(JobInfo.NETWORK_TYPE_NONE));
     }
 
     @Test
     @SmallTest
     public void testConvertNetworkType_any() {
-        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_ANY),
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_CONNECTED),
                 is(JobInfo.NETWORK_TYPE_ANY));
     }
 
     @Test
     @SmallTest
     public void testConvertNetworkType_unmetered() {
-        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_UNMETERED),
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_UNMETERED),
                 is(JobInfo.NETWORK_TYPE_UNMETERED));
     }
 
@@ -252,7 +252,7 @@ public class SystemJobInfoConverterTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 23)
     public void testConvertNetworkType_notRoaming_returnAnyBeforeApi24() {
-        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_NOT_ROAMING),
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_NOT_ROAMING),
                 is(JobInfo.NETWORK_TYPE_ANY));
     }
 
@@ -260,7 +260,7 @@ public class SystemJobInfoConverterTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     public void testConvertNetworkType_notRoaming_returnsNotRoamingAfterApi24() {
-        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_NOT_ROAMING),
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_NOT_ROAMING),
                 is(JobInfo.NETWORK_TYPE_NOT_ROAMING));
     }
 
@@ -268,7 +268,7 @@ public class SystemJobInfoConverterTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConvertNetworkType_metered_returnsAnyBeforeApi26() {
-        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_METERED),
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_METERED),
                 is(JobInfo.NETWORK_TYPE_ANY));
     }
 
@@ -276,7 +276,7 @@ public class SystemJobInfoConverterTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 26)
     public void testConvertNetworkType_metered_returnsMeteredAfterApi26() {
-        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_METERED),
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_METERED),
                 is(JobInfo.NETWORK_TYPE_METERED));
     }
 

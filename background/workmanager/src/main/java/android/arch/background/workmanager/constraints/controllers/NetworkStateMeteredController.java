@@ -53,7 +53,7 @@ public class NetworkStateMeteredController extends ConstraintController<NetworkS
             boolean allowPeriodic) {
         super(
                 workDatabase.workSpecDao().getIdsForNetworkTypeController(
-                        Constraints.NETWORK_TYPE_METERED,
+                        Constraints.NETWORK_METERED,
                         allowPeriodic),
                 lifecycleOwner,
                 Trackers.getInstance(context).getNetworkStateTracker(),
@@ -67,7 +67,7 @@ public class NetworkStateMeteredController extends ConstraintController<NetworkS
     }
 
     /**
-     * Check for metered constraint on API 26+, when JobInfo#NETWORK_TYPE_METERED was added, to
+     * Check for metered constraint on API 26+, when JobInfo#NETWORK_METERED was added, to
      * be consistent with JobScheduler functionality.
      */
     @Override

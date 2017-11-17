@@ -171,7 +171,7 @@ public class FirebaseJobConverterTest {
     public void testConvert_requiresNetworkAny() {
         WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(Constraints.NETWORK_TYPE_ANY)
+                        .setRequiredNetworkType(Constraints.NETWORK_CONNECTED)
                         .build())
                 .build()
                 .getWorkSpec();
@@ -184,7 +184,7 @@ public class FirebaseJobConverterTest {
     public void testConvert_requiresNetworkMetered_unsupported() {
         WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(Constraints.NETWORK_TYPE_METERED)
+                        .setRequiredNetworkType(Constraints.NETWORK_METERED)
                         .build())
                 .build()
                 .getWorkSpec();
@@ -197,7 +197,7 @@ public class FirebaseJobConverterTest {
     public void testConvert_requiresNetworkNotRoaming_unsupported() {
         WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(Constraints.NETWORK_TYPE_NOT_ROAMING)
+                        .setRequiredNetworkType(Constraints.NETWORK_NOT_ROAMING)
                         .build())
                 .build()
                 .getWorkSpec();
@@ -210,7 +210,7 @@ public class FirebaseJobConverterTest {
     public void testConvert_requiresNetworkUnmetered() {
         WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(Constraints.NETWORK_TYPE_UNMETERED)
+                        .setRequiredNetworkType(Constraints.NETWORK_UNMETERED)
                         .build())
                 .build()
                 .getWorkSpec();

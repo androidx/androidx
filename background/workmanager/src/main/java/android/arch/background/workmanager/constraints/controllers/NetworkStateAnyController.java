@@ -58,7 +58,7 @@ public class NetworkStateAnyController extends ConstraintController<NetworkState
             boolean allowPeriodic) {
         super(
                 workDatabase.workSpecDao().getIdsForNetworkTypeController(
-                        Constraints.NETWORK_TYPE_ANY,
+                        Constraints.NETWORK_CONNECTED,
                         allowPeriodic),
                 lifecycleOwner,
                 Trackers.getInstance(context).getNetworkStateTracker(),

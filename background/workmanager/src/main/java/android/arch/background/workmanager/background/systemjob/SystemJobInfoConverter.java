@@ -132,18 +132,18 @@ class SystemJobInfoConverter {
      */
     static int convertNetworkType(@Constraints.NetworkType int networkType) {
         switch(networkType) {
-            case Constraints.NETWORK_TYPE_NONE:
+            case Constraints.NETWORK_NOT_REQUIRED:
                 return JobInfo.NETWORK_TYPE_NONE;
-            case Constraints.NETWORK_TYPE_ANY:
+            case Constraints.NETWORK_CONNECTED:
                 return JobInfo.NETWORK_TYPE_ANY;
-            case Constraints.NETWORK_TYPE_UNMETERED:
+            case Constraints.NETWORK_UNMETERED:
                 return JobInfo.NETWORK_TYPE_UNMETERED;
-            case Constraints.NETWORK_TYPE_NOT_ROAMING:
+            case Constraints.NETWORK_NOT_ROAMING:
                 if (Build.VERSION.SDK_INT >= 24) {
                     return JobInfo.NETWORK_TYPE_NOT_ROAMING;
                 }
                 break;
-            case Constraints.NETWORK_TYPE_METERED:
+            case Constraints.NETWORK_METERED:
                 if (Build.VERSION.SDK_INT >= 26) {
                     return JobInfo.NETWORK_TYPE_METERED;
                 }

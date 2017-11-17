@@ -143,7 +143,7 @@ public class WorkManagerTest {
                         new Constraints.Builder()
                                 .setRequiresCharging(true)
                                 .setRequiresDeviceIdle(true)
-                                .setRequiredNetworkType(Constraints.NETWORK_TYPE_METERED)
+                                .setRequiredNetworkType(Constraints.NETWORK_METERED)
                                 .setRequiresBatteryNotLow(true)
                                 .setRequiresStorageNotLow(true)
                                 .addContentUriTrigger(testUri1, true)
@@ -166,7 +166,7 @@ public class WorkManagerTest {
         assertThat(constraints.requiresDeviceIdle(), is(true));
         assertThat(constraints.requiresBatteryNotLow(), is(true));
         assertThat(constraints.requiresStorageNotLow(), is(true));
-        assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_TYPE_METERED));
+        assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_METERED));
         assertThat(constraints.getContentUriTriggers(), is(expectedTriggers));
 
         constraints = workSpec1.getConstraints();
@@ -175,7 +175,7 @@ public class WorkManagerTest {
         assertThat(constraints.requiresDeviceIdle(), is(false));
         assertThat(constraints.requiresBatteryNotLow(), is(false));
         assertThat(constraints.requiresStorageNotLow(), is(false));
-        assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_TYPE_NONE));
+        assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_NOT_REQUIRED));
         assertThat(constraints.getContentUriTriggers().size(), is(0));
     }
 
