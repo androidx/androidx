@@ -95,11 +95,7 @@ public abstract class BaseWork {
         return mWorkSpec;
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public Set<String> getTags() {
+    Set<String> getTags() {
         return mTags;
     }
 
