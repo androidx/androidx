@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,24 +23,29 @@ import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 /**
- * A {@link ConstraintController} for monitoring that the network connection is unmetered.
+ * A {@link ConstraintController} for monitoring that the network connection is metered.
  */
 
-public class NetworkStateUnmeteredController extends ConstraintController<NetworkStateListener> {
+public class NetworkMeteredController extends ConstraintController<NetworkStateListener> {
+    private static final String TAG = "NetworkMeteredCtrlr";
 
-    private boolean mIsConnectedAndUnmetered;
-    private final NetworkStateListener mNetworkStateUnmeteredListener = new NetworkStateListener() {
+    private boolean mIsConnected;
+    private boolean mIsMetered;
+    private final NetworkStateListener mNetworkStateMeteredListener = new NetworkStateListener() {
         @Override
         public void setNetworkState(@NonNull NetworkState state) {
-            mIsConnectedAndUnmetered = state.isConnected() && !state.isMetered();
+            mIsConnected = state.isConnected();
+            mIsMetered = state.isMetered();
             updateListener();
         }
     };
 
-    public NetworkStateUnmeteredController(
+    public NetworkMeteredController(
             Context context,
             WorkDatabase workDatabase,
             LifecycleOwner lifecycleOwner,
@@ -48,7 +53,7 @@ public class NetworkStateUnmeteredController extends ConstraintController<Networ
             boolean allowPeriodic) {
         super(
                 workDatabase.workSpecDao().getIdsForNetworkTypeController(
-                        Constraints.NETWORK_UNMETERED,
+                        Constraints.NETWORK_METERED,
                         allowPeriodic),
                 lifecycleOwner,
                 Trackers.getInstance(context).getNetworkStateTracker(),
@@ -58,11 +63,20 @@ public class NetworkStateUnmeteredController extends ConstraintController<Networ
 
     @Override
     NetworkStateListener getListener() {
-        return mNetworkStateUnmeteredListener;
+        return mNetworkStateMeteredListener;
     }
 
+    /**
+     * Check for metered constraint on API 26+, when JobInfo#NETWORK_METERED was added, to
+     * be consistent with JobScheduler functionality.
+     */
     @Override
     boolean isConstrained() {
-        return !mIsConnectedAndUnmetered;
+        if (Build.VERSION.SDK_INT < 26) {
+            Log.d(TAG, "Metered network constraint is not supported before API 26, "
+                    + "only checking for connected state.");
+            return !mIsConnected;
+        }
+        return !mIsConnected || !mIsMetered;
     }
 }

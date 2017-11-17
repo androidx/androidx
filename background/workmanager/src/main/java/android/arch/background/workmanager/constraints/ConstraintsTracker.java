@@ -19,10 +19,10 @@ import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.controllers.BatteryChargingController;
 import android.arch.background.workmanager.constraints.controllers.BatteryNotLowController;
 import android.arch.background.workmanager.constraints.controllers.ConstraintController;
-import android.arch.background.workmanager.constraints.controllers.NetworkStateAnyController;
-import android.arch.background.workmanager.constraints.controllers.NetworkStateMeteredController;
-import android.arch.background.workmanager.constraints.controllers.NetworkStateNotRoamingController;
-import android.arch.background.workmanager.constraints.controllers.NetworkStateUnmeteredController;
+import android.arch.background.workmanager.constraints.controllers.NetworkConnectedController;
+import android.arch.background.workmanager.constraints.controllers.NetworkMeteredController;
+import android.arch.background.workmanager.constraints.controllers.NetworkNotRoamingController;
+import android.arch.background.workmanager.constraints.controllers.NetworkUnmeteredController;
 import android.arch.background.workmanager.constraints.controllers.StorageNotLowController;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.lifecycle.LifecycleOwner;
@@ -59,13 +59,13 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
                         appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
                 new StorageNotLowController(
                         appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
-                new NetworkStateAnyController(
+                new NetworkConnectedController(
                         appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
-                new NetworkStateUnmeteredController(
+                new NetworkUnmeteredController(
                         appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
-                new NetworkStateNotRoamingController(
+                new NetworkNotRoamingController(
                         appContext, workDatabase, lifecycleOwner, this, allowPeriodic),
-                new NetworkStateMeteredController(
+                new NetworkMeteredController(
                         appContext, workDatabase, lifecycleOwner, this, allowPeriodic)
         };
     }

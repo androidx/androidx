@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,27 +25,32 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 /**
- * A {@link ConstraintController} for monitoring that the network connection is metered.
+ * A {@link ConstraintController} for monitoring that any usable network connection is available.
+ * <p>
+ * For API 26 and above, usable means that the {@link NetworkState} is validated, i.e.
+ * it has a working internet connection.
+ * <p>
+ * For API 25 and below, usable simply means that {@link NetworkState} is connected.
  */
 
-public class NetworkStateMeteredController extends ConstraintController<NetworkStateListener> {
-    private static final String TAG = "NetworkMeteredCtrlr";
+public class NetworkConnectedController extends ConstraintController<NetworkStateListener> {
 
-    private boolean mIsConnected;
-    private boolean mIsMetered;
-    private final NetworkStateListener mNetworkStateMeteredListener = new NetworkStateListener() {
+    private boolean mIsConnectedAndUsable;
+    private final NetworkStateListener mNetworkStateAnyListener = new NetworkStateListener() {
         @Override
         public void setNetworkState(@NonNull NetworkState state) {
-            mIsConnected = state.isConnected();
-            mIsMetered = state.isMetered();
+            if (Build.VERSION.SDK_INT >= 26) {
+                mIsConnectedAndUsable = state.isConnected() && state.isValidated();
+            } else {
+                mIsConnectedAndUsable = state.isConnected();
+            }
             updateListener();
         }
     };
 
-    public NetworkStateMeteredController(
+    public NetworkConnectedController(
             Context context,
             WorkDatabase workDatabase,
             LifecycleOwner lifecycleOwner,
@@ -53,7 +58,7 @@ public class NetworkStateMeteredController extends ConstraintController<NetworkS
             boolean allowPeriodic) {
         super(
                 workDatabase.workSpecDao().getIdsForNetworkTypeController(
-                        Constraints.NETWORK_METERED,
+                        Constraints.NETWORK_CONNECTED,
                         allowPeriodic),
                 lifecycleOwner,
                 Trackers.getInstance(context).getNetworkStateTracker(),
@@ -63,20 +68,11 @@ public class NetworkStateMeteredController extends ConstraintController<NetworkS
 
     @Override
     NetworkStateListener getListener() {
-        return mNetworkStateMeteredListener;
+        return mNetworkStateAnyListener;
     }
 
-    /**
-     * Check for metered constraint on API 26+, when JobInfo#NETWORK_METERED was added, to
-     * be consistent with JobScheduler functionality.
-     */
     @Override
     boolean isConstrained() {
-        if (Build.VERSION.SDK_INT < 26) {
-            Log.d(TAG, "Metered network constraint is not supported before API 26, "
-                    + "only checking for connected state.");
-            return !mIsConnected;
-        }
-        return !mIsConnected || !mIsMetered;
+        return !mIsConnectedAndUsable;
     }
 }

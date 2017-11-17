@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import android.util.Log;
  * A {@link ConstraintController} for monitoring that the network connection is not roaming.
  */
 
-public class NetworkStateNotRoamingController extends ConstraintController<NetworkStateListener> {
+public class NetworkNotRoamingController extends ConstraintController<NetworkStateListener> {
     private static final String TAG = "NetworkNotRoamingCtrlr";
 
     private boolean mIsConnected;
@@ -46,7 +46,7 @@ public class NetworkStateNotRoamingController extends ConstraintController<Netwo
                 }
             };
 
-    public NetworkStateNotRoamingController(
+    public NetworkNotRoamingController(
             Context context,
             WorkDatabase workDatabase,
             LifecycleOwner lifecycleOwner,
