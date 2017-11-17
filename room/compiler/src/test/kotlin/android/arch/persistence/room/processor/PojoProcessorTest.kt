@@ -523,7 +523,7 @@ class PojoProcessorTest {
                     affinity = SQLTypeAffinity.TEXT,
                     columnName = "foo",
                     parent = null,
-                    indexed =  false
+                    indexed = false
             )
             val fakeEmbedded = EmbeddedField(fakeField, "", null)
 
@@ -562,7 +562,7 @@ class PojoProcessorTest {
         singleRun(pojoCode) { pojo ->
             val param = pojo.constructor?.params?.first()
             assertThat(param, instanceOf(Constructor.FieldParam::class.java))
-            assertThat((param as Constructor.FieldParam).field.name,  `is`("mName"))
+            assertThat((param as Constructor.FieldParam).field.name, `is`("mName"))
             assertThat(pojo.fields.find { it.name == "mName" }?.setter?.callType,
                     `is`(CallType.CONSTRUCTOR))
         }.compilesWithoutError()
@@ -579,7 +579,7 @@ class PojoProcessorTest {
         singleRun(pojoCode) { pojo ->
             val param = pojo.constructor?.params?.first()
             assertThat(param, instanceOf(Constructor.FieldParam::class.java))
-            assertThat((param as Constructor.FieldParam).field.name,  `is`("mName"))
+            assertThat((param as Constructor.FieldParam).field.name, `is`("mName"))
             assertThat(pojo.fields.find { it.name == "mName" }?.setter?.callType,
                     `is`(CallType.CONSTRUCTOR))
         }.compilesWithoutError()
@@ -714,7 +714,7 @@ class PojoProcessorTest {
                 """
                 @Embedded
                 MyPojo myPojo;
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyPojo -> foo.bar.MyPojo"))
@@ -736,7 +736,7 @@ class PojoProcessorTest {
                     @Embedded
                     MyPojo myPojo;
                 }
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyPojo -> foo.bar.MyPojo.MyEntity -> foo.bar.MyPojo"))
@@ -754,7 +754,7 @@ class PojoProcessorTest {
                     @Embedded
                     MyPojo myPojo;
                 }
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
@@ -770,7 +770,7 @@ class PojoProcessorTest {
                     @Embedded
                     MyPojo myPojo;
                 }
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
@@ -790,7 +790,7 @@ class PojoProcessorTest {
                     @Embedded
                     MyPojo myPojo;
                 }
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo.B -> foo.bar.MyPojo"))
@@ -810,7 +810,7 @@ class PojoProcessorTest {
                     @Embedded
                     A a;
                 }
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyPojo.A -> foo.bar.MyPojo.B -> foo.bar.MyPojo.A"))
@@ -836,7 +836,7 @@ class PojoProcessorTest {
                     @Embedded
                     MyPojo myPojo;
                 }
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyPojo -> foo.bar.MyPojo.C -> foo.bar.MyPojo"))
@@ -862,20 +862,20 @@ class PojoProcessorTest {
                 }
                 static class C {
                 }
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
     }
 
-    fun singleRun(code: String, vararg jfos:JavaFileObject, handler: (Pojo) -> Unit)
-            : CompileTester {
+    fun singleRun(
+            code: String, vararg jfos: JavaFileObject, handler: (Pojo) -> Unit): CompileTester {
         return singleRun(code, *jfos) { pojo, _ ->
             handler(pojo)
         }
     }
 
-    fun singleRun(code: String, vararg jfos:JavaFileObject,
+    fun singleRun(code: String, vararg jfos: JavaFileObject,
                   handler: (Pojo, TestInvocation) -> Unit): CompileTester {
         val pojoJFO = """
                 $HEADER

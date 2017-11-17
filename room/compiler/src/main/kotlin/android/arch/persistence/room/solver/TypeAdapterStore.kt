@@ -62,7 +62,7 @@ import android.arch.persistence.room.solver.types.TypeConverter
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
-import java.util.LinkedList;
+import java.util.LinkedList
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
@@ -72,16 +72,16 @@ import javax.lang.model.type.TypeMirror
  * Holds all type adapters and can create on demand composite type adapters to convert a type into a
  * database column.
  */
-class TypeAdapterStore private constructor(val context: Context,
-                                           /**
-                                            * first type adapter has the highest priority
-                                            */
-                                           private val columnTypeAdapters: List<ColumnTypeAdapter>,
-                                           /**
-                                            * first converter has the highest priority
-                                            */
-                                           private val typeConverters: List<TypeConverter>) {
-
+class TypeAdapterStore private constructor(
+        val context: Context,
+        /**
+         * first type adapter has the highest priority
+         */
+        private val columnTypeAdapters: List<ColumnTypeAdapter>,
+        /**
+         * first converter has the highest priority
+         */
+        private val typeConverters: List<TypeConverter>) {
 
     companion object {
         fun copy(context: Context, store: TypeAdapterStore): TypeAdapterStore {
@@ -147,8 +147,10 @@ class TypeAdapterStore private constructor(val context: Context,
     /**
      * Searches 1 way to bind a value into a statement.
      */
-    fun findStatementValueBinder(input: TypeMirror, affinity: SQLTypeAffinity?)
-            : StatementValueBinder? {
+    fun findStatementValueBinder(
+            input: TypeMirror,
+            affinity: SQLTypeAffinity?
+    ): StatementValueBinder? {
         if (input.kind == TypeKind.ERROR) {
             return null
         }
@@ -218,8 +220,7 @@ class TypeAdapterStore private constructor(val context: Context,
      * Finds a two way converter, if you need 1 way, use findStatementValueBinder or
      * findCursorValueReader.
      */
-    fun findColumnTypeAdapter(out: TypeMirror, affinity: SQLTypeAffinity?)
-            : ColumnTypeAdapter? {
+    fun findColumnTypeAdapter(out: TypeMirror, affinity: SQLTypeAffinity?): ColumnTypeAdapter? {
         if (out.kind == TypeKind.ERROR) {
             return null
         }
@@ -236,8 +237,8 @@ class TypeAdapterStore private constructor(val context: Context,
                 fromCursor)
     }
 
-    private fun findDirectAdapterFor(out: TypeMirror, affinity: SQLTypeAffinity?)
-            : ColumnTypeAdapter? {
+    private fun findDirectAdapterFor(
+            out: TypeMirror, affinity: SQLTypeAffinity?): ColumnTypeAdapter? {
         val adapter = getAllColumnAdapters(out).firstOrNull {
             affinity == null || it.typeAffinity == affinity
         }
@@ -259,8 +260,7 @@ class TypeAdapterStore private constructor(val context: Context,
         }
     }
 
-    fun findQueryResultAdapter(typeMirror: TypeMirror, query: ParsedQuery)
-            : QueryResultAdapter? {
+    fun findQueryResultAdapter(typeMirror: TypeMirror, query: ParsedQuery): QueryResultAdapter? {
         if (typeMirror.kind == TypeKind.ERROR) {
             return null
         }
@@ -382,8 +382,8 @@ class TypeAdapterStore private constructor(val context: Context,
         return findTypeConverter(input, listOf(output))
     }
 
-    private fun findTypeConverter(inputs: List<TypeMirror>, outputs: List<TypeMirror>)
-            : TypeConverter? {
+    private fun findTypeConverter(
+            inputs: List<TypeMirror>, outputs: List<TypeMirror>): TypeConverter? {
         if (inputs.isEmpty()) {
             return null
         }
@@ -397,8 +397,7 @@ class TypeAdapterStore private constructor(val context: Context,
         val excludes = arrayListOf<TypeMirror>()
 
         val queue = LinkedList<TypeConverter>()
-        fun exactMatch(candidates: List<TypeConverter>)
-                : TypeConverter? {
+        fun exactMatch(candidates: List<TypeConverter>): TypeConverter? {
             return candidates.firstOrNull {
                 outputs.any { output -> types.isSameType(output, it.to) }
             }

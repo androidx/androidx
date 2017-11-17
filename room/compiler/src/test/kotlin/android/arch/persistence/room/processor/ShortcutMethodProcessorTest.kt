@@ -55,7 +55,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """
         const val DAO_SUFFIX = "}"
         val USER_TYPE_NAME: TypeName = COMMON.USER_TYPE_NAME
-        val BOOK_TYPE_NAME : TypeName = ClassName.get("foo.bar", "Book")
+        val BOOK_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Book")
     }
 
     @Test

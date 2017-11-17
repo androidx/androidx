@@ -26,7 +26,7 @@ data class TestInvocation(val processingEnv: ProcessingEnvironment,
                           val roundEnv: RoundEnvironment) {
     val context = Context(processingEnv)
 
-    fun typeElement(qName: String) : TypeElement {
+    fun typeElement(qName: String): TypeElement {
         return processingEnv.elementUtils.getTypeElement(qName)
     }
 }

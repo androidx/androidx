@@ -19,19 +19,19 @@ package android.arch.persistence.room.verifier
 import java.sql.SQLException
 
 object DatabaseVerificaitonErrors {
-    private val CANNOT_CREATE_TABLE : String = "Create table statement had an error: %s"
-    fun cannotCreateTable(exception: SQLException) : String {
+    private val CANNOT_CREATE_TABLE: String = "Create table statement had an error: %s"
+    fun cannotCreateTable(exception: SQLException): String {
         return CANNOT_CREATE_TABLE.format(exception.message)
     }
 
-    private val CANNOT_VERIFY_QUERY : String = "There is a problem with the query: %s"
-    fun cannotVerifyQuery(exception: SQLException) : String {
+    private val CANNOT_VERIFY_QUERY: String = "There is a problem with the query: %s"
+    fun cannotVerifyQuery(exception: SQLException): String {
         return CANNOT_VERIFY_QUERY.format(exception.message)
     }
 
-    private val CANNOT_CREATE_SQLITE_CONNECTION : String = "Room cannot create an SQLite" +
+    private val CANNOT_CREATE_SQLITE_CONNECTION: String = "Room cannot create an SQLite" +
             " connection to verify the queries. Query verification will be disabled. Error: %s"
-    fun cannotCreateConnection(exception: Exception) : String {
+    fun cannotCreateConnection(exception: Exception): String {
         return CANNOT_CREATE_SQLITE_CONNECTION.format(exception.message)
     }
 

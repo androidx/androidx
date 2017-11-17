@@ -26,7 +26,7 @@ data class ShortcutQueryParameter(val name: String, val type: TypeMirror,
     /**
      * Method name in entity insertion or update adapter.
      */
-    fun handleMethodName() : String {
+    fun handleMethodName(): String {
         return if (isMultiple) {
             "handleMultiple"
         } else {

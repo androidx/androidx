@@ -25,7 +25,7 @@ import android.arch.persistence.room.solver.query.result.QueryResultBinder
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
-class LiveDataQueryResultBinderProvider(context : Context)
+class LiveDataQueryResultBinderProvider(context: Context)
     : ObservableQueryResultBinderProvider(context) {
     private val liveDataTypeMirror: TypeMirror? by lazy {
         context.processingEnv.elementUtils

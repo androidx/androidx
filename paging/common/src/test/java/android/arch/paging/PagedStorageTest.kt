@@ -48,7 +48,6 @@ class PagedStorageTest {
         val storage = PagedStorage(2, createPage("a", "b"), 2)
         storage.appendPage(createPage("c", "d"), callback)
 
-
         assertArrayEquals(arrayOf(null, null, "a", "b", "c", "d"), storage.toArray())
         verify(callback).onPageAppended(4, 2, 0)
         verifyNoMoreInteractions(callback)
@@ -105,7 +104,6 @@ class PagedStorageTest {
 
         val storage = PagedStorage(0, createPage("c", "d"), 2)
         storage.prependPage(createPage("a", "b"), callback)
-
 
         assertArrayEquals(arrayOf("a", "b", "c", "d", null, null), storage.toArray())
         verify(callback).onPagePrepended(0, 0, 2)
@@ -360,7 +358,6 @@ class PagedStorageTest {
 
         storage.allocatePlaceholders(0, 2, 1, callback)
     }
-
 
     @Test(expected = IllegalArgumentException::class)
     fun allocatePlaceholders_cannotAdoptPageSize() {

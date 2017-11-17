@@ -44,8 +44,8 @@ object SuppressWarningProcessor {
     }
 
     private object VISITOR : SimpleAnnotationValueVisitor6<Set<Warning>, String>() {
-        override fun visitArray(values: List<AnnotationValue>?, elementName: String?)
-                : Set<Warning> {
+        override fun visitArray(values: List<AnnotationValue>?, elementName: String?
+        ): Set<Warning> {
             return values?.map {
                 Warning.fromPublicKey(it.value.toString())
             }?.filterNotNull()?.toSet() ?: emptySet()

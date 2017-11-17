@@ -134,7 +134,7 @@ class InsertionMethodProcessor(baseContext: Context,
             setOf(Type.INSERT_VOID, Type.INSERT_ID_ARRAY, Type.INSERT_ID_ARRAY_BOX,
                     Type.INSERT_ID_LIST)
         }
-        fun acceptableTypes(params : List<ShortcutQueryParameter>) : Set<InsertionMethod.Type> {
+        fun acceptableTypes(params: List<ShortcutQueryParameter>): Set<InsertionMethod.Type> {
             if (params.isEmpty()) {
                 return VOID_SET
             }

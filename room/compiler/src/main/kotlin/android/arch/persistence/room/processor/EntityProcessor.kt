@@ -57,7 +57,7 @@ class EntityProcessor(baseContext: Context,
             doProcess()
         })
     }
-    private fun doProcess() : Entity {
+    private fun doProcess(): Entity {
         context.checker.hasAnnotation(element, android.arch.persistence.room.Entity::class,
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
         val pojo = PojoProcessor(
@@ -151,7 +151,7 @@ class EntityProcessor(baseContext: Context,
     private fun checkIndicesForForeignKeys(entityForeignKeys: List<ForeignKey>,
                                            primaryKey: PrimaryKey,
                                            indices: List<Index>) {
-        fun covers(columnNames: List<String>, fields : List<Field>) : Boolean =
+        fun covers(columnNames: List<String>, fields: List<Field>): Boolean =
             fields.size >= columnNames.size && columnNames.withIndex().all {
                 fields[it.index].columnName == it.value
             }
@@ -238,8 +238,8 @@ class EntityProcessor(baseContext: Context,
         }.filterNotNull()
     }
 
-    private fun findAndValidatePrimaryKey(fields: List<Field>, embeddedFields: List<EmbeddedField>)
-            : PrimaryKey {
+    private fun findAndValidatePrimaryKey(
+            fields: List<Field>, embeddedFields: List<EmbeddedField>): PrimaryKey {
         val candidates = collectPrimaryKeysFromEntityAnnotations(element, fields) +
                 collectPrimaryKeysFromPrimaryKeyAnnotations(fields) +
                 collectPrimaryKeysFromEmbeddedFields(embeddedFields)
@@ -311,9 +311,8 @@ class EntityProcessor(baseContext: Context,
     /**
      * Check classes for @Entity(primaryKeys = ?).
      */
-    private fun collectPrimaryKeysFromEntityAnnotations(typeElement: TypeElement,
-                                                        availableFields: List<Field>)
-            : List<PrimaryKey> {
+    private fun collectPrimaryKeysFromEntityAnnotations(
+            typeElement: TypeElement, availableFields: List<Field>): List<PrimaryKey> {
         val myPkeys = MoreElements.getAnnotationMirror(typeElement,
                 android.arch.persistence.room.Entity::class.java).orNull()?.let {
             val primaryKeyColumns = AnnotationMirrors.getAnnotationValue(it, "primaryKeys")
@@ -348,8 +347,8 @@ class EntityProcessor(baseContext: Context,
         return superPKeys + myPkeys
     }
 
-    private fun collectPrimaryKeysFromEmbeddedFields(embeddedFields: List<EmbeddedField>)
-            : List<PrimaryKey> {
+    private fun collectPrimaryKeysFromEmbeddedFields(
+            embeddedFields: List<EmbeddedField>): List<PrimaryKey> {
         return embeddedFields.map { embeddedField ->
             MoreElements.getAnnotationMirror(embeddedField.field.element,
                     android.arch.persistence.room.PrimaryKey::class.java).orNull()?.let {
@@ -367,8 +366,8 @@ class EntityProcessor(baseContext: Context,
 
     // start from my element and check if anywhere in the list we can find the only well defined
     // pkey, if so, use it.
-    private fun choosePrimaryKey(candidates: List<PrimaryKey>, typeElement: TypeElement)
-            : PrimaryKey {
+    private fun choosePrimaryKey(
+            candidates: List<PrimaryKey>, typeElement: TypeElement): PrimaryKey {
         // If 1 of these primary keys is declared in this class, then it is the winner. Just print
         //    a note for the others.
         // If 0 is declared, check the parent.
@@ -398,7 +397,8 @@ class EntityProcessor(baseContext: Context,
         }
     }
 
-    private fun validateAndCreateIndices(inputs: List<IndexInput>, pojo: Pojo): List<Index> {
+    private fun validateAndCreateIndices(
+            inputs: List<IndexInput>, pojo: Pojo): List<Index> {
         // check for columns
         val indices = inputs.map { input ->
             context.checker.check(input.columnNames.isNotEmpty(), element,
@@ -448,8 +448,8 @@ class EntityProcessor(baseContext: Context,
     }
 
     // check if parent is an Entity, if so, report its annotation indices
-    private fun loadSuperIndices(typeMirror: TypeMirror?, tableName: String, inherit: Boolean)
-            : List<IndexInput> {
+    private fun loadSuperIndices(
+            typeMirror: TypeMirror?, tableName: String, inherit: Boolean): List<IndexInput> {
         if (typeMirror == null || typeMirror.kind == TypeKind.NONE) {
             return emptyList()
         }
@@ -480,8 +480,7 @@ class EntityProcessor(baseContext: Context,
     }
 
     companion object {
-        private fun extractTableName(element: TypeElement, annotation: AnnotationMirror)
-                : String {
+        private fun extractTableName(element: TypeElement, annotation: AnnotationMirror): String {
             val annotationValue = AnnotationMirrors
                     .getAnnotationValue(annotation, "tableName").value.toString()
             return if (annotationValue == "") {
@@ -491,8 +490,8 @@ class EntityProcessor(baseContext: Context,
             }
         }
 
-        private fun extractIndices(annotation: AnnotationMirror, tableName: String)
-                : List<IndexInput> {
+        private fun extractIndices(
+                annotation: AnnotationMirror, tableName: String): List<IndexInput> {
             val arrayOfIndexAnnotations = AnnotationMirrors.getAnnotationValue(annotation,
                     "indices")
             return INDEX_LIST_VISITOR.visit(arrayOfIndexAnnotations, tableName)
@@ -500,8 +499,10 @@ class EntityProcessor(baseContext: Context,
 
         private val INDEX_LIST_VISITOR = object
             : SimpleAnnotationValueVisitor6<List<IndexInput>, String>() {
-            override fun visitArray(values: MutableList<out AnnotationValue>?, tableName: String)
-                    : List<IndexInput> {
+            override fun visitArray(
+                    values: MutableList<out AnnotationValue>?,
+                    tableName: String
+            ): List<IndexInput> {
                 return values?.map {
                     INDEX_VISITOR.visit(it, tableName)
                 }?.filterNotNull() ?: emptyList<IndexInput>()
@@ -534,8 +535,10 @@ class EntityProcessor(baseContext: Context,
 
         private val FOREIGN_KEY_LIST_VISITOR = object
             : SimpleAnnotationValueVisitor6<List<ForeignKeyInput>, Void?>() {
-            override fun visitArray(values: MutableList<out AnnotationValue>?, void: Void?)
-                    : List<ForeignKeyInput> {
+            override fun visitArray(
+                    values: MutableList<out AnnotationValue>?,
+                    void: Void?
+            ): List<ForeignKeyInput> {
                 return values?.map {
                     FOREIGN_KEY_VISITOR.visit(it)
                 }?.filterNotNull() ?: emptyList<ForeignKeyInput>()
@@ -576,7 +579,11 @@ class EntityProcessor(baseContext: Context,
     /**
      * ForeignKey, before it is processed in the context of a database.
      */
-    data class ForeignKeyInput(val parent : TypeMirror, val parentColumns : List<String>,
-                     val childColumns : List<String>, val onDelete : ForeignKeyAction?,
-                     val onUpdate : ForeignKeyAction?, val deferred : Boolean)
+    data class ForeignKeyInput(
+            val parent: TypeMirror,
+            val parentColumns: List<String>,
+            val childColumns: List<String>,
+            val onDelete: ForeignKeyAction?,
+            val onUpdate: ForeignKeyAction?,
+            val deferred: Boolean)
 }

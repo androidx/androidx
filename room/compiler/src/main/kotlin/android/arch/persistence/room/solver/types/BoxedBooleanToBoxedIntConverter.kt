@@ -43,7 +43,6 @@ object BoxedBooleanToBoxedIntConverter {
                         scope.builder().addStatement("$L = $L == null ? null : $L != 0",
                                 outputVarName, inputVarName, inputVarName)
                     }
-
                 }
         )
     }
