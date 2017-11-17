@@ -110,21 +110,6 @@ subprojects {
                 task.enabled = false
             }
         }
-    } else {
-        def checkApi = project.tasks.create("checkVersion") {
-            doFirst {
-                if (project.version == null
-                        || project.version == LibraryVersions.SUPPORT_LIBRARY.toString()) {
-                    throw new GradleException("bad version for $project with $project.version")
-                }
-            }
-        }
-
-        project.tasks.whenTaskAdded { task ->
-            if (task instanceof Upload) {
-                task.dependsOn checkApi
-            }
-        }
     }
 
     project.tasks.whenTaskAdded { task ->
