@@ -29,7 +29,7 @@ public class InfiniteTestWorker extends Worker {
     @Override
     public @WorkerResult int doWork() {
         while (true) {
-            if (Thread.currentThread().isInterrupted()) {
+            if (isInterrupted()) {
                 Log.e(TAG, "Interrupted");
                 return WORKER_RESULT_RETRY;
             }
