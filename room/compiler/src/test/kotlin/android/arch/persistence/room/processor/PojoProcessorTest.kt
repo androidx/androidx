@@ -715,7 +715,9 @@ class PojoProcessorTest {
                 @Embedded
                 MyPojo myPojo;
                 """){ _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyPojo -> foo.bar.MyPojo"))
     }
 
     @Test
@@ -735,7 +737,9 @@ class PojoProcessorTest {
                     MyPojo myPojo;
                 }
                 """){ _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.MyEntity -> foo.bar.MyPojo"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyPojo -> foo.bar.MyPojo.MyEntity -> foo.bar.MyPojo"))
     }
 
     @Test
@@ -751,7 +755,9 @@ class PojoProcessorTest {
                     MyPojo myPojo;
                 }
                 """){ _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
     }
 
     @Test
@@ -765,7 +771,9 @@ class PojoProcessorTest {
                     MyPojo myPojo;
                 }
                 """){ _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
     }
 
     @Test
@@ -783,7 +791,9 @@ class PojoProcessorTest {
                     MyPojo myPojo;
                 }
                 """){ _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo.B -> foo.bar.MyPojo"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo.B -> foo.bar.MyPojo"))
     }
 
     @Test
@@ -801,7 +811,9 @@ class PojoProcessorTest {
                     A a;
                 }
                 """){ _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo.A -> foo.bar.MyPojo.B -> foo.bar.MyPojo.A"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyPojo.A -> foo.bar.MyPojo.B -> foo.bar.MyPojo.A"))
     }
 
     @Test
@@ -825,7 +837,9 @@ class PojoProcessorTest {
                     MyPojo myPojo;
                 }
                 """){ _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.C -> foo.bar.MyPojo"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyPojo -> foo.bar.MyPojo.C -> foo.bar.MyPojo"))
     }
 
     @Test
@@ -849,7 +863,9 @@ class PojoProcessorTest {
                 static class C {
                 }
                 """){ _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyPojo -> foo.bar.MyPojo.A -> foo.bar.MyPojo"))
     }
 
     fun singleRun(code: String, vararg jfos:JavaFileObject, handler: (Pojo) -> Unit)

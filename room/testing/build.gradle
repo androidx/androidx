@@ -26,34 +26,20 @@ android {
     defaultConfig {
         minSdkVersion flatfoot.min_sdk
     }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
 }
 
 dependencies {
-    compile project(":room:common")
-    compile project(":room:runtime")
-    compile project(":persistence:db")
-    compile project(":persistence:db-framework")
-    compile project(":room:migration")
-    compile project(":arch:runtime")
-    compile libs.support.core_utils, libs.support_exclude_config
-    compile libs.junit
+    api project(":room:common")
+    api project(":room:runtime")
+    api project(":persistence:db")
+    api project(":persistence:db-framework")
+    api project(":room:migration")
+    api project(":arch:runtime")
+    api libs.support.core_utils, libs.support_exclude_config
+    api libs.junit
 }
 
 createAndroidCheckstyle(project)
-
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-    def suffix = name.capitalize()
-    project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompile
-        from variant.javaCompile.destinationDir
-        destinationDir new File(project.buildDir, "libJar")
-    }
-}
 
 supportLibrary {
     name = "Android Room Testing"
