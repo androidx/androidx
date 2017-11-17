@@ -26,27 +26,14 @@ android {
     defaultConfig {
         minSdkVersion flatfoot.min_sdk
     }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
 }
 
 dependencies {
-    compile libs.support.annotations
-    compile project(":persistence:db")
+    api libs.support.annotations
+    api project(":persistence:db")
 }
-createAndroidCheckstyle(project)
 
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-    def suffix = name.capitalize()
-    def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompile
-        from variant.javaCompile.destinationDir
-        destinationDir new File(project.buildDir, "libJar")
-    }
-}
+createAndroidCheckstyle(project)
 
 supportLibrary {
     name = "Android Support SQLite - Framework Implementation"

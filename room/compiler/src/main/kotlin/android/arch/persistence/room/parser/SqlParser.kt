@@ -85,7 +85,8 @@ class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
                 syntaxErrors)
     }
 
-    override fun visitCommon_table_expression(ctx: SQLiteParser.Common_table_expressionContext): Void? {
+    override fun visitCommon_table_expression(
+            ctx: SQLiteParser.Common_table_expressionContext): Void? {
         val tableName = ctx.table_name()?.text
         if (tableName != null) {
             withClauseNames.add(unescapeIdentifier(tableName))

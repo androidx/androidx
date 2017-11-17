@@ -55,42 +55,42 @@ android {
 }
 
 dependencies {
-    compile project(":room:common")
-    compile project(":persistence:db")
-    compile project(":persistence:db-framework")
-    compile project(':room:runtime')
-    compile project(':arch:runtime')
-    compile project(':arch:common')
-    compile project(':paging:common')
-    compile project(':lifecycle:extensions')
-    compile project(':lifecycle:runtime')
-    compile project(':lifecycle:common')
-    compile project(':room:rxjava2')
-    compile project(':paging:runtime')
+    implementation project(":room:common")
+    implementation project(":persistence:db")
+    implementation project(":persistence:db-framework")
+    implementation project(':room:runtime')
+    implementation project(':arch:runtime')
+    implementation project(':arch:common')
+    implementation project(':paging:common')
+    implementation project(':lifecycle:extensions')
+    implementation project(':lifecycle:runtime')
+    implementation project(':lifecycle:common')
+    implementation project(':room:rxjava2')
+    implementation project(':paging:runtime')
 
-    compile libs.support.recyclerview, libs.support_exclude_config
-    compile libs.support.app_compat, libs.support_exclude_config
+    implementation libs.support.recyclerview, libs.support_exclude_config
+    implementation libs.support.app_compat, libs.support_exclude_config
     annotationProcessor project(":room:compiler")
     androidTestAnnotationProcessor project(":room:compiler")
 
     // IJ's gradle integration just cannot figure this out ...
-    androidTestCompile project(':lifecycle:extensions')
-    androidTestCompile project(':lifecycle:common')
-    androidTestCompile project(':lifecycle:runtime')
-    androidTestCompile project(':room:testing')
-    androidTestCompile project(':room:rxjava2')
-    androidTestCompile project(':arch:core-testing')
-    androidTestCompile libs.rx_java
-    androidTestCompile(libs.test_runner) {
+    androidTestImplementation project(':lifecycle:extensions')
+    androidTestImplementation project(':lifecycle:common')
+    androidTestImplementation project(':lifecycle:runtime')
+    androidTestImplementation project(':room:testing')
+    androidTestImplementation project(':room:rxjava2')
+    androidTestImplementation project(':arch:core-testing')
+    androidTestImplementation libs.rx_java
+    androidTestImplementation(libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile(libs.espresso_core, {
+    androidTestImplementation(libs.espresso_core, {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it's own MockMaker
     androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it's own MockMaker
 
-    testCompile libs.junit
+    testImplementation libs.junit
 }
 
 createAndroidCheckstyle(project)

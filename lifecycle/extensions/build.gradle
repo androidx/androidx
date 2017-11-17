@@ -30,21 +30,18 @@ android {
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
 }
-dependencies {
-    compile project(":lifecycle:runtime")
-    compile project(":arch:common")
-    compile project(":arch:runtime")
-    compile libs.support.fragments, libs.support_exclude_config
-    compile project(":lifecycle:common")
 
-    testCompile project(":arch:core-testing")
-    testCompile libs.junit
-    testCompile libs.mockito_core
+dependencies {
+    api project(":lifecycle:runtime")
+    api project(":arch:common")
+    api project(":arch:runtime")
+    api libs.support.fragments, libs.support_exclude_config
+    api project(":lifecycle:common")
+
+    testImplementation project(":arch:core-testing")
+    testImplementation libs.junit
+    testImplementation libs.mockito_core
 
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }

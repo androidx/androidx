@@ -26,28 +26,24 @@ android {
     defaultConfig {
         minSdkVersion flatfoot.min_sdk
     }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
 }
 
 allprojects {
     dependencies {
-        compile project(":arch:common")
-        compile project(":lifecycle:common")
-        compile project(":lifecycle:extensions")
-        compile project(":lifecycle:runtime")
-        compile libs.support.annotations
-        compile libs.reactive_streams
+        api project(":arch:common")
+        api project(":lifecycle:common")
+        api project(":lifecycle:extensions")
+        api project(":lifecycle:runtime")
+        api libs.support.annotations
+        api libs.reactive_streams
 
-        testCompile libs.junit
-        testCompile libs.rx_java
+        testImplementation libs.junit
+        testImplementation libs.rx_java
 
-        testCompile(libs.test_runner) {
+        testImplementation(libs.test_runner) {
             exclude module: 'support-annotations'
         }
-        androidTestCompile libs.support.app_compat, libs.support_exclude_config
+        androidTestImplementation libs.support.app_compat, libs.support_exclude_config
     }
 }
 

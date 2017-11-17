@@ -26,17 +26,15 @@ android {
     defaultConfig {
         minSdkVersion flatfoot.min_sdk
     }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
 }
 
 dependencies {
-    compile libs.support.annotations
+    api libs.support.annotations
 }
+
 createAndroidCheckstyle(project)
 
+// Used by testCompile in room-compiler
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
     def suffix = name.capitalize()
