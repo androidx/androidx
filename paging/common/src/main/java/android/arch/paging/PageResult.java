@@ -16,9 +16,13 @@
 
 package android.arch.paging;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
+import android.support.annotation.IntDef;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
+import java.lang.annotation.Retention;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,6 +35,11 @@ class PageResult<T> {
     static <T> PageResult<T> getInvalidResult() {
         return INVALID_RESULT;
     }
+
+
+    @Retention(SOURCE)
+    @IntDef({INIT, APPEND, PREPEND, TILE})
+    @interface ResultType {}
 
     static final int INIT = 0;
 
@@ -78,6 +87,6 @@ class PageResult<T> {
 
     abstract static class Receiver<T> {
         @MainThread
-        public abstract void onPageResult(int type, @NonNull PageResult<T> pageResult);
+        public abstract void onPageResult(@ResultType int type, @NonNull PageResult<T> pageResult);
     }
 }
