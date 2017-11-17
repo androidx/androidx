@@ -487,10 +487,18 @@ public class RecyclerViewBasicTest {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         measure();
         layout();
-        assertSame(focusAdapter.mBottomLeft,
-                focusAdapter.mTopRight.focusSearch(View.FOCUS_FORWARD));
-        assertSame(focusAdapter.mBottomRight,
-                focusAdapter.mBottomLeft.focusSearch(View.FOCUS_FORWARD));
+
+        boolean isIcsOrLower = Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1;
+
+        // On API 15 and lower, focus forward get's translated to focus down.
+        View expected = isIcsOrLower ? focusAdapter.mBottomRight : focusAdapter.mBottomLeft;
+        assertEquals(expected, focusAdapter.mTopRight.focusSearch(View.FOCUS_FORWARD));
+
+        // On API 15 and lower, focus forward get's translated to focus down, which in this case
+        // runs out of the RecyclerView, thus returning null.
+        expected = isIcsOrLower ? null : focusAdapter.mBottomRight;
+        assertSame(expected, focusAdapter.mBottomLeft.focusSearch(View.FOCUS_FORWARD));
+
         // we don't want looping within RecyclerView
         assertNull(focusAdapter.mBottomRight.focusSearch(View.FOCUS_FORWARD));
         assertNull(focusAdapter.mTopLeft.focusSearch(View.FOCUS_BACKWARD));
