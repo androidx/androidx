@@ -45,7 +45,15 @@ class MediaBrowserProtocol {
      * MediaBrowserServiceCompat.
      */
     public static final int SERVICE_VERSION_1 = 1;
-    public static final int SERVICE_VERSION_CURRENT = SERVICE_VERSION_1;
+
+    /**
+     * To prevent ClassNotFoundException from Parcelables, MediaBrowser(Service)Compat tries to
+     * avoid using framework code as much as possible (b/62648808). For backward compatibility,
+     * service v2 is introduced so that the browser can distinguish whether the service supports
+     * subscribing through compat code.
+     */
+    public static final int SERVICE_VERSION_2 = 2;
+    public static final int SERVICE_VERSION_CURRENT = SERVICE_VERSION_2;
 
     /*
      * Messages sent from the media browser service compat to the media browser compat.
