@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package android.support.design.widget;
+package android.support.v4.widget;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.util.Pools;
 import android.support.v4.util.SimpleArrayMap;
 
@@ -27,8 +30,13 @@ import java.util.List;
 
 /**
  * A class which represents a simple directed acyclic graph.
+ *
+ * @param <T> Class for the data objects of this graph.
+ *
+ * @hide
  */
-final class DirectedAcyclicGraph<T> {
+@RestrictTo(LIBRARY)
+public final class DirectedAcyclicGraph<T> {
     private final Pools.Pool<ArrayList<T>> mListPool = new Pools.SimplePool<>(10);
     private final SimpleArrayMap<T, ArrayList<T>> mGraph = new SimpleArrayMap<>();
 
@@ -42,7 +50,7 @@ final class DirectedAcyclicGraph<T> {
      *
      * @param node the node to add
      */
-    void addNode(@NonNull T node) {
+    public void addNode(@NonNull T node) {
         if (!mGraph.containsKey(node)) {
             mGraph.put(node, null);
         }
@@ -51,7 +59,7 @@ final class DirectedAcyclicGraph<T> {
     /**
      * Returns true if the node is already present in the graph, false otherwise.
      */
-    boolean contains(@NonNull T node) {
+    public boolean contains(@NonNull T node) {
         return mGraph.containsKey(node);
     }
 
@@ -64,7 +72,7 @@ final class DirectedAcyclicGraph<T> {
      * @param node the parent node
      * @param incomingEdge the node which has is an incoming edge to {@code node}
      */
-    void addEdge(@NonNull T node, @NonNull T incomingEdge) {
+    public void addEdge(@NonNull T node, @NonNull T incomingEdge) {
         if (!mGraph.containsKey(node) || !mGraph.containsKey(incomingEdge)) {
             throw new IllegalArgumentException("All nodes must be present in the graph before"
                     + " being added as an edge");
@@ -86,7 +94,7 @@ final class DirectedAcyclicGraph<T> {
      * @return a list containing any incoming edges, or null if there are none.
      */
     @Nullable
-    List getIncomingEdges(@NonNull T node) {
+    public List getIncomingEdges(@NonNull T node) {
         return mGraph.get(node);
     }
 
@@ -97,7 +105,7 @@ final class DirectedAcyclicGraph<T> {
      * @return a list containing any outgoing edges, or null if there are none.
      */
     @Nullable
-    List<T> getOutgoingEdges(@NonNull T node) {
+    public List<T> getOutgoingEdges(@NonNull T node) {
         ArrayList<T> result = null;
         for (int i = 0, size = mGraph.size(); i < size; i++) {
             ArrayList<T> edges = mGraph.valueAt(i);
@@ -111,7 +119,14 @@ final class DirectedAcyclicGraph<T> {
         return result;
     }
 
-    boolean hasOutgoingEdges(@NonNull T node) {
+    /**
+     * Checks whether we have any outgoing edges for the given node (i.e. nodes which have
+     * an incoming edge from the given node).
+     *
+     * @return <code>true</code> if the node has any outgoing edges, <code>false</code>
+     * otherwise.
+     */
+    public boolean hasOutgoingEdges(@NonNull T node) {
         for (int i = 0, size = mGraph.size(); i < size; i++) {
             ArrayList<T> edges = mGraph.valueAt(i);
             if (edges != null && edges.contains(node)) {
@@ -124,7 +139,7 @@ final class DirectedAcyclicGraph<T> {
     /**
      * Clears the internal graph, and releases resources to pools.
      */
-    void clear() {
+    public void clear() {
         for (int i = 0, size = mGraph.size(); i < size; i++) {
             ArrayList<T> edges = mGraph.valueAt(i);
             if (edges != null) {
@@ -143,7 +158,7 @@ final class DirectedAcyclicGraph<T> {
      * of the graph. The node at the end of the list will have no dependencies on other nodes.</p>
      */
     @NonNull
-    ArrayList<T> getSortedList() {
+    public ArrayList<T> getSortedList() {
         mSortResult.clear();
         mSortTmpMarked.clear();
 
