@@ -18,7 +18,6 @@ package android.arch.background.workmanager;
 
 import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 
-import android.arch.background.workmanager.background.systemjob.SystemJobScheduler;
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
@@ -30,12 +29,9 @@ import android.arch.background.workmanager.utils.taskexecutor.WorkManagerTaskExe
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
-import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
-import android.util.Log;
 
 import java.util.List;
 
@@ -44,8 +40,6 @@ import java.util.List;
  * constraints are met.
  */
 public final class WorkManager {
-    private static final String FIREBASE_SCHEDULER_CLASSNAME =
-            "android.arch.background.workmanager.background.firebase.FirebaseJobScheduler";
     private static final String TAG = "WorkManager";
 
     private Context mContext;
@@ -84,35 +78,8 @@ public final class WorkManager {
                 mWorkDatabase,
                 mBackgroundScheduler,
                 ProcessLifecycleOwner.get());
-        mBackgroundScheduler = createBackgroundScheduler(context);
+        mBackgroundScheduler = SchedulerHelper.getBackgroundScheduler(mContext);
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
-    }
-
-    @Nullable
-    private Scheduler createBackgroundScheduler(Context context) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            Log.d(TAG, "Created SystemJobScheduler");
-            return new SystemJobScheduler(mContext);
-        }
-        //TODO(sumir): AlarmManagerJobScheduler
-        return tryCreateFirebaseJobScheduler(context);
-    }
-
-    @Nullable
-    private Scheduler tryCreateFirebaseJobScheduler(Context context) {
-        Scheduler scheduler = null;
-        try {
-            Class<?> firebaseSchedulerClass = Class.forName(FIREBASE_SCHEDULER_CLASSNAME);
-            scheduler = (Scheduler) firebaseSchedulerClass
-                    .getConstructor(Context.class)
-                    .newInstance(context);
-            Log.d(TAG, "Created FirebaseJobScheduler");
-        } catch (Exception e) {
-            // Catch all for class cast, invoke, no such method, security exceptions and more.
-            // Also thrown if Play Services was not found on device.
-            Log.e(TAG, "Could not instantiate FirebaseJobScheduler", e);
-        }
-        return scheduler;
     }
 
     /**
