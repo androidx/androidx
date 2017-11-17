@@ -27,9 +27,23 @@ import android.arch.paging.PagedList;
  */
 @SuppressWarnings("WeakerAccess")
 public class PagedListItemViewModel extends ViewModel {
-    private LiveData<PagedList<Item>> mLivePagedList;
     private ItemDataSource mDataSource;
     private final Object mDataSourceLock = new Object();
+
+    private final DataSource.Factory<Integer, Item> mFactory =
+            new DataSource.Factory<Integer, Item>() {
+        @Override
+        public DataSource<Integer, Item> create() {
+            ItemDataSource newDataSource = new ItemDataSource();
+            synchronized (mDataSourceLock) {
+                mDataSource = newDataSource;
+                return mDataSource;
+            }
+        }
+    };
+
+    private LiveData<PagedList<Item>> mLivePagedList =
+            new LivePagedListBuilder<>(mFactory, 20).build();
 
     void invalidateList() {
         synchronized (mDataSourceLock) {
@@ -40,22 +54,6 @@ public class PagedListItemViewModel extends ViewModel {
     }
 
     LiveData<PagedList<Item>> getLivePagedList() {
-        if (mLivePagedList == null) {
-            mLivePagedList = new LivePagedListBuilder<Integer, Item>()
-                    .setPagingConfig(20)
-                    .setDataSourceFactory(new DataSource.Factory<Integer, Item>() {
-                        @Override
-                        public DataSource<Integer, Item> create() {
-                            ItemDataSource newDataSource = new ItemDataSource();
-                            synchronized (mDataSourceLock) {
-                                mDataSource = newDataSource;
-                                return mDataSource;
-                            }
-                        }
-                    })
-                    .build();
-        }
-
         return mLivePagedList;
     }
 }

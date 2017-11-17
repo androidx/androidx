@@ -25,32 +25,15 @@ import java.util.concurrent.Executor;
 
 class TiledPagedList<T> extends PagedList<T>
         implements PagedStorage.Callback {
+    private final PositionalDataSource<T> mDataSource;
 
-    private final TiledDataSource<T> mDataSource;
-
-    @SuppressWarnings("unchecked")
-    private final PagedStorage<Integer, T> mKeyedStorage = (PagedStorage<Integer, T>) mStorage;
-
-    private final PageResult.Receiver<Integer, T> mReceiver =
-            new PageResult.Receiver<Integer, T>() {
-        @AnyThread
-        @Override
-        public void postOnPageResult(@NonNull final PageResult<Integer, T> pageResult) {
-            // NOTE: if we're already on main thread, this can delay page receive by a frame
-            mMainThreadExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    onPageResult(pageResult);
-                }
-            });
-        }
-
+    private PageResult.Receiver<T> mReceiver = new PageResult.Receiver<T>() {
         // Creation thread for initial synchronous load, otherwise main thread
         // Safe to access main thread only state - no other thread has reference during construction
         @AnyThread
         @Override
-        public void onPageResult(@NonNull PageResult<Integer, T> pageResult) {
-            if (pageResult.page == null) {
+        public void onPageResult(int type, @NonNull PageResult<T> pageResult) {
+            if (pageResult.isInvalid()) {
                 detach();
                 return;
             }
@@ -61,60 +44,62 @@ class TiledPagedList<T> extends PagedList<T>
             }
 
             if (mStorage.getPageCount() == 0) {
-                mKeyedStorage.init(
+                mStorage.initAndSplit(
                         pageResult.leadingNulls, pageResult.page, pageResult.trailingNulls,
-                        pageResult.positionOffset, TiledPagedList.this);
+                        pageResult.positionOffset, mConfig.pageSize, TiledPagedList.this);
             } else {
-                mKeyedStorage.insertPage(pageResult.leadingNulls, pageResult.page,
+                mStorage.insertPage(pageResult.positionOffset, pageResult.page,
                         TiledPagedList.this);
             }
 
             if (mBoundaryCallback != null) {
                 boolean deferEmpty = mStorage.size() == 0;
-                boolean deferBegin = !deferEmpty && pageResult.leadingNulls == 0;
-                boolean deferEnd = !deferEmpty && pageResult.trailingNulls == 0;
+                boolean deferBegin = !deferEmpty
+                        && pageResult.leadingNulls == 0
+                        && pageResult.positionOffset == 0;
+                int size = size();
+                boolean deferEnd = !deferEmpty
+                        && ((type == PageResult.INIT && pageResult.trailingNulls == 0)
+                                || (type == PageResult.TILE
+                                        && pageResult.positionOffset
+                                                == (size - size % mConfig.pageSize)));
                 deferBoundaryCallbacks(deferEmpty, deferBegin, deferEnd);
             }
         }
     };
 
     @WorkerThread
-    TiledPagedList(@NonNull TiledDataSource<T> dataSource,
+    TiledPagedList(@NonNull PositionalDataSource<T> dataSource,
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
             @Nullable BoundaryCallback<T> boundaryCallback,
             @NonNull Config config,
             int position) {
-        super(new PagedStorage<Integer, T>(), mainThreadExecutor, backgroundThreadExecutor,
+        super(new PagedStorage<T>(), mainThreadExecutor, backgroundThreadExecutor,
                 boundaryCallback, config);
         mDataSource = dataSource;
 
         final int pageSize = mConfig.pageSize;
+        mLastLoad = position;
 
-        final int itemCount = mDataSource.countItems();
+        if (mDataSource.isInvalid()) {
+            detach();
+        } else {
+            final int firstLoadSize =
+                    (Math.max(Math.round(mConfig.initialLoadSizeHint / pageSize), 2)) * pageSize;
 
-        final int firstLoadSize = Math.min(itemCount,
-                (Math.max(mConfig.initialLoadSizeHint / pageSize, 2)) * pageSize);
-        final int firstLoadPosition = computeFirstLoadPosition(
-                position, firstLoadSize, pageSize, itemCount);
+            final int idealStart = position - firstLoadSize / 2;
+            final int roundedPageStart = Math.max(0, Math.round(idealStart / pageSize) * pageSize);
 
-        mDataSource.loadRangeInitial(firstLoadPosition, firstLoadSize, pageSize,
-                itemCount, mReceiver);
-    }
+            DataSource.InitialLoadCallback<T> callback =
+                    new DataSource.InitialLoadCallback<>(true, mDataSource, mReceiver);
+            mDataSource.loadInitial(roundedPageStart, firstLoadSize, pageSize, callback);
 
-    static int computeFirstLoadPosition(int position, int firstLoadSize, int pageSize, int size) {
-        int idealStart = position - firstLoadSize / 2;
-
-        int roundedPageStart = Math.round(idealStart / pageSize) * pageSize;
-
-        // minimum start position is 0
-        roundedPageStart = Math.max(0, roundedPageStart);
-
-        // maximum start pos is that which will encompass end of list
-        int maximumLoadPage = ((size - firstLoadSize + pageSize - 1) / pageSize) * pageSize;
-        roundedPageStart = Math.min(maximumLoadPage, roundedPageStart);
-
-        return roundedPageStart;
+            // If initialLoad's callback is not called within the body, we force any following calls
+            // to post to the UI thread. This constructor may be run on a background thread, but
+            // after constructor, mutation must happen on UI thread.
+            callback.setPostExecutor(mMainThreadExecutor);
+        }
     }
 
     @Override
@@ -132,7 +117,13 @@ class TiledPagedList<T> extends PagedList<T>
     protected void dispatchUpdatesSinceSnapshot(@NonNull PagedList<T> pagedListSnapshot,
             @NonNull Callback callback) {
         //noinspection UnnecessaryLocalVariable
-        final PagedStorage<?, T> snapshot = pagedListSnapshot.mStorage;
+        final PagedStorage<T> snapshot = pagedListSnapshot.mStorage;
+
+        if (snapshot.isEmpty()
+                || mStorage.size() != snapshot.size()) {
+            throw new IllegalArgumentException("Invalid snapshot provided - doesn't appear"
+                    + " to be a snapshot of this PagedList");
+        }
 
         // loop through each page and signal the callback for any pages that are present now,
         // but not in the snapshot.
@@ -186,7 +177,17 @@ class TiledPagedList<T> extends PagedList<T>
                     return;
                 }
                 final int pageSize = mConfig.pageSize;
-                mDataSource.loadRange(pageIndex * pageSize, pageSize, mReceiver);
+
+                if (mDataSource.isInvalid()) {
+                    detach();
+                } else {
+                    int startPosition = pageIndex * pageSize;
+                    int count = Math.min(pageSize, mStorage.size() - startPosition);
+                    DataSource.LoadCallback<T> callback = new DataSource.LoadCallback<>(
+                            PageResult.TILE, mMainThreadExecutor, mDataSource, mReceiver);
+                    callback.setPositionOffset(startPosition);
+                    mDataSource.loadRange(startPosition, count, callback);
+                }
             }
         });
     }

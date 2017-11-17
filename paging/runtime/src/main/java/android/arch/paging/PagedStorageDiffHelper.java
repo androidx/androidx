@@ -26,8 +26,8 @@ class PagedStorageDiffHelper {
     }
 
     static <T> DiffUtil.DiffResult computeDiff(
-            final PagedStorage<?, T> oldList,
-            final PagedStorage<?, T> newList,
+            final PagedStorage<T> oldList,
+            final PagedStorage<T> newList,
             final DiffCallback<T> diffCallback) {
         final int oldOffset = oldList.computeLeadingNulls();
         final int newOffset = newList.computeLeadingNulls();
@@ -131,8 +131,8 @@ class PagedStorageDiffHelper {
      * immediately after dispatching this diff.
      */
     static <T> void dispatchDiff(ListUpdateCallback callback,
-            final PagedStorage<?, T> oldList,
-            final PagedStorage<?, T> newList,
+            final PagedStorage<T> oldList,
+            final PagedStorage<T> newList,
             final DiffUtil.DiffResult diffResult) {
 
         final int trailingOld = oldList.computeTrailingNulls();
