@@ -23,6 +23,7 @@ import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
+import android.arch.background.workmanager.model.WorkTag;
 import android.arch.background.workmanager.utils.BaseWorkHelper;
 import android.arch.background.workmanager.utils.LiveDataUtils;
 import android.arch.background.workmanager.utils.taskexecutor.TaskExecutor;
@@ -38,6 +39,7 @@ import android.support.annotation.WorkerThread;
 import android.util.Log;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * WorkManager is a class used to enqueue persisted work that is guaranteed to run after its
@@ -188,18 +190,7 @@ public final class WorkManager {
      * @param tag The tag used to identify the work
      */
     public void cancelAllWorkWithTag(@NonNull final String tag) {
-        mTaskExecutor.executeOnBackgroundThread(new CancelWorkWithTagRunnable(tag, false));
-    }
-
-    /**
-     * Cancels all work with the given tag prefix, regardless of the current state of the work.
-     * Note that cancellation is a best-effort policy and work that is already executing may
-     * continue to run.
-     *
-     * @param tagPrefix The tag prefix used to identify the work
-     */
-    public void cancelAllWorkWithTagPrefix(@NonNull final String tagPrefix) {
-        mTaskExecutor.executeOnBackgroundThread(new CancelWorkWithTagRunnable(tagPrefix, true));
+        mTaskExecutor.executeOnBackgroundThread(new CancelWorkWithTagRunnable(tag));
     }
 
     WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {
@@ -239,6 +230,11 @@ public final class WorkManager {
                             mWorkDatabase.dependencyDao().insertDependency(dep);
                         }
                     }
+
+                    Set<String> tags = work.getTags();
+                    for (String tag : tags) {
+                        mWorkDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
+                    }
                 }
                 mWorkDatabase.setTransactionSuccessful();
 
@@ -263,11 +259,9 @@ public final class WorkManager {
     private class CancelWorkWithTagRunnable implements Runnable {
 
         private String mTag;
-        private boolean mIsPrefix;
 
-        CancelWorkWithTagRunnable(@NonNull String tag, boolean isPrefix) {
+        CancelWorkWithTagRunnable(@NonNull String tag) {
             mTag = tag;
-            mIsPrefix = isPrefix;
         }
 
         @WorkerThread
@@ -276,11 +270,7 @@ public final class WorkManager {
             mWorkDatabase.beginTransaction();
             try {
                 WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-
-                List<String> workSpecIds =
-                        mIsPrefix
-                                ? workSpecDao.getUnfinishedWorkWithTagPrefix(mTag)
-                                : workSpecDao.getUnfinishedWorkWithTag(mTag);
+                List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithTag(mTag);
                 for (String workSpecId : workSpecIds) {
                     mForegroundProcessor.cancel(workSpecId, true);
                     if (mBackgroundScheduler != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import android.arch.persistence.room.ForeignKey;
 import android.support.annotation.NonNull;
 
 /**
- * Database entity that defines a dependency between two {@link WorkSpec}s.
+ * Database entity that defines a mapping from a tag to a {@link WorkSpec} id.
  */
 
 @Entity(foreignKeys = {
@@ -31,26 +31,30 @@ import android.support.annotation.NonNull;
                 parentColumns = "id",
                 childColumns = "work_spec_id",
                 onDelete = ForeignKey.CASCADE,
-                onUpdate = ForeignKey.CASCADE),
-        @ForeignKey(
-                entity = WorkSpec.class,
-                parentColumns = "id",
-                childColumns = "prerequisite_id",
-                onDelete = ForeignKey.CASCADE,
                 onUpdate = ForeignKey.CASCADE)},
-        primaryKeys = {"work_spec_id", "prerequisite_id"})
-public class Dependency {
+        primaryKeys = {"tag", "work_spec_id"})
+public class WorkTag {
+
+    @NonNull
+    @ColumnInfo(name = "tag")
+    String mTag;
+
     @NonNull
     @ColumnInfo(name = "work_spec_id")
     String mWorkSpecId;
 
-    @NonNull
-    @ColumnInfo(name = "prerequisite_id")
-    String mPrerequisiteId;
-
-    public Dependency(@NonNull String workSpecId, @NonNull String prerequisiteId) {
+    public WorkTag(@NonNull String tag, @NonNull String workSpecId) {
+        mTag = tag;
         mWorkSpecId = workSpecId;
-        mPrerequisiteId = prerequisiteId;
+    }
+
+    @NonNull
+    public String getTag() {
+        return mTag;
+    }
+
+    public void setTag(@NonNull String mTag) {
+        this.mTag = mTag;
     }
 
     @NonNull
@@ -58,16 +62,7 @@ public class Dependency {
         return mWorkSpecId;
     }
 
-    public void setWorkSpecId(@NonNull String workSpecId) {
-        mWorkSpecId = workSpecId;
-    }
-
-    @NonNull
-    public String getPrerequisiteId() {
-        return mPrerequisiteId;
-    }
-
-    public void setPrerequisiteId(@NonNull String prerequisiteId) {
-        mPrerequisiteId = prerequisiteId;
+    public void setWorkSpecId(@NonNull String mWorkSpecId) {
+        this.mWorkSpecId = mWorkSpecId;
     }
 }

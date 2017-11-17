@@ -27,6 +27,8 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -68,9 +70,11 @@ public abstract class BaseWork {
     private static final String TAG = "BaseWork";
 
     private WorkSpec mWorkSpec;
+    private Set<String> mTags;
 
     BaseWork(Builder builder) {
         mWorkSpec = builder.mWorkSpec;
+        mTags = builder.mTags;
         if (builder.mBackoffCriteriaSet && mWorkSpec.getConstraints().requiresDeviceIdle()) {
             throw new IllegalArgumentException("Cannot set backoff criteria on an idle mode job");
         }
@@ -92,6 +96,14 @@ public abstract class BaseWork {
     }
 
     /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public Set<String> getTags() {
+        return mTags;
+    }
+
+    /**
      * A builder for {@link BaseWork}.
      *
      * @param <W> The {@link BaseWork} class being created by this builder
@@ -100,6 +112,7 @@ public abstract class BaseWork {
     public abstract static class Builder<W extends BaseWork, B extends Builder<W, B>> {
         private boolean mBackoffCriteriaSet = false;
         WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
+        Set<String> mTags = new HashSet<>();
 
         protected Builder(Class<? extends Worker> workerClass) {
             mWorkSpec.setWorkerClassName(workerClass.getName());
@@ -172,8 +185,8 @@ public abstract class BaseWork {
          * @param tag A tag for identifying the {@link BaseWork} in queries.
          * @return The current {@link Builder}.
          */
-        public B withTag(String tag) {
-            mWorkSpec.setTag(tag);
+        public B addTag(String tag) {
+            mTags.add(tag);
             return getThis();
         }
 

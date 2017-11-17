@@ -146,18 +146,8 @@ public interface WorkSpecDao {
      * @return A list of work ids.
      */
     @Query("SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND status!="
-            + STATUS_FAILED + " AND tag=:tag")
+            + STATUS_FAILED + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
     List<String> getUnfinishedWorkWithTag(@NonNull String tag);
-
-    /**
-     * Retrieves work ids for unfinished work with a given tag prefix.
-     *
-     * @param tagPrefix The tag prefix used to identify the work.
-     * @return A list of work ids.
-     */
-    @Query("SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND status!="
-            + STATUS_FAILED + " AND tag LIKE :tagPrefix || '%'")
-    List<String> getUnfinishedWorkWithTagPrefix(@NonNull String tagPrefix);
 
     /**
      * Clears all work.

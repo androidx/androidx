@@ -21,6 +21,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.emptyCollectionOf;
 
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Constraints;
@@ -28,6 +29,8 @@ import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
+import android.arch.background.workmanager.model.WorkTag;
+import android.arch.background.workmanager.model.WorkTagDao;
 import android.arch.background.workmanager.utils.taskexecutor.InstantTaskExecutorRule;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.arch.persistence.db.SupportSQLiteDatabase;
@@ -245,6 +248,25 @@ public class WorkManagerTest {
 
     @Test
     @SmallTest
+    public void testEnqueue_insertWorkTags() throws InterruptedException {
+        final String firstTag = "first_tag";
+        final String secondTag = "second_tag";
+        final String thirdTag = "third_tag";
+
+        Work work0 = new Work.Builder(TestWorker.class).addTag(firstTag).addTag(secondTag).build();
+        Work work1 = new Work.Builder(TestWorker.class).addTag(firstTag).build();
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        mWorkManager.enqueue(work0).then(work1).then(work2);
+
+        WorkTagDao workTagDao = mDatabase.workTagDao();
+        assertThat(workTagDao.getWorkSpecsWithTag(firstTag),
+                containsInAnyOrder(work0.getId(), work1.getId()));
+        assertThat(workTagDao.getWorkSpecsWithTag(secondTag), containsInAnyOrder(work0.getId()));
+        assertThat(workTagDao.getWorkSpecsWithTag(thirdTag), emptyCollectionOf(String.class));
+    }
+
+    @Test
+    @SmallTest
     public void testEnqueue_insertPeriodicWork() throws InterruptedException {
         PeriodicWork periodicWork =
                 new PeriodicWork.Builder(
@@ -267,46 +289,21 @@ public class WorkManagerTest {
         final String tagToClear = "tag_to_clear";
         final String tagNotToClear = "tag_not_to_clear";
 
-        WorkSpec workSpec1 = getTestWorkSpecWithTag(tagToClear);
-        WorkSpec workSpec2 = getTestWorkSpecWithTag(tagToClear);
-        WorkSpec workSpec3 = getTestWorkSpecWithTag(tagNotToClear);
-        WorkSpec workSpec4 = getTestWorkSpecWithTag(tagNotToClear);
-        workSpecDao.insertWorkSpec(workSpec1);
-        workSpecDao.insertWorkSpec(workSpec2);
-        workSpecDao.insertWorkSpec(workSpec3);
-        workSpecDao.insertWorkSpec(workSpec4);
+        Work work0 = new Work.Builder(TestWorker.class).addTag(tagToClear).build();
+        Work work1 = new Work.Builder(TestWorker.class).addTag(tagToClear).build();
+        Work work2 = new Work.Builder(TestWorker.class).addTag(tagNotToClear).build();
+        Work work3 = new Work.Builder(TestWorker.class).addTag(tagNotToClear).build();
+        insertWorkSpecAndTags(work0);
+        insertWorkSpecAndTags(work1);
+        insertWorkSpecAndTags(work2);
+        insertWorkSpecAndTags(work3);
 
         mWorkManager.cancelAllWorkWithTag(tagToClear);
 
-        assertThat(workSpecDao.getWorkSpec(workSpec1.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(workSpec2.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(workSpec3.getId()), is(notNullValue()));
-        assertThat(workSpecDao.getWorkSpec(workSpec4.getId()), is(notNullValue()));
-    }
-
-    @Test
-    @SmallTest
-    public void testCancelAllWorkWithTagPrefix() throws InterruptedException {
-        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-
-        final String clearablePrefix = "clear_";
-        final String unclearablePrefix = "do_not_clear_";
-
-        WorkSpec workSpec1 = getTestWorkSpecWithTag(clearablePrefix + "1");
-        WorkSpec workSpec2 = getTestWorkSpecWithTag(clearablePrefix + "2");
-        WorkSpec workSpec3 = getTestWorkSpecWithTag(unclearablePrefix + "1");
-        WorkSpec workSpec4 = getTestWorkSpecWithTag(unclearablePrefix + "2");
-        workSpecDao.insertWorkSpec(workSpec1);
-        workSpecDao.insertWorkSpec(workSpec2);
-        workSpecDao.insertWorkSpec(workSpec3);
-        workSpecDao.insertWorkSpec(workSpec4);
-
-        mWorkManager.cancelAllWorkWithTagPrefix(clearablePrefix);
-
-        assertThat(workSpecDao.getWorkSpec(workSpec1.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(workSpec2.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(workSpec3.getId()), is(notNullValue()));
-        assertThat(workSpecDao.getWorkSpec(workSpec4.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(work0.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(work1.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(work2.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(work3.getId()), is(notNullValue()));
     }
 
     @Test
@@ -328,10 +325,10 @@ public class WorkManagerTest {
         assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(Work.STATUS_ENQUEUED));
     }
 
-    private WorkSpec getTestWorkSpecWithTag(String tag) {
-        return new Work.Builder(TestWorker.class)
-                .withTag(tag)
-                .build()
-                .getWorkSpec();
+    private void insertWorkSpecAndTags(Work work) {
+        mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
+        for (String tag : work.getTags()) {
+            mDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
+        }
     }
 }

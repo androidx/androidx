@@ -23,6 +23,8 @@ import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
+import android.arch.background.workmanager.model.WorkTag;
+import android.arch.background.workmanager.model.WorkTagDao;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
@@ -37,7 +39,7 @@ import android.support.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Database(entities = {WorkSpec.class, Dependency.class}, version = 1)
+@Database(entities = {WorkSpec.class, Dependency.class, WorkTag.class}, version = 1)
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "android.arch.background.workmanager.work";
@@ -85,4 +87,9 @@ public abstract class WorkDatabase extends RoomDatabase {
      * @return The Data Access Object for {@link Dependency}s.
      */
     public abstract DependencyDao dependencyDao();
+
+    /**
+     * @return The Data Access Object for {@link WorkTag}s.
+     */
+    public abstract WorkTagDao workTagDao();
 }
