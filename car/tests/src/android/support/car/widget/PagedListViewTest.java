@@ -297,6 +297,7 @@ public final class PagedListViewTest {
         assertThat(mPagedListView.getFirstFullyVisibleChildPosition(), is(equalTo(topPosition)));
     }
 
+    @Suppress
     @Test
     public void setItemSpacing() throws Throwable {
         final int itemCount = 3;
