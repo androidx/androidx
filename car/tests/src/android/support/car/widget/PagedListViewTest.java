@@ -214,6 +214,7 @@ public final class PagedListViewTest {
         onView(withId(R.id.page_down)).check(matches(not(isEnabled())));
     }
 
+    @Suppress
     @Test
     public void resetMaxPagesToDefaultUnlimitedExtendsList() throws Throwable {
         if (!isAutoDevice()) {

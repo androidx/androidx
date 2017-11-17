@@ -30,6 +30,7 @@ import android.support.car.test.R;
 import android.support.test.espresso.IdlingRegistry;
 import android.support.test.espresso.IdlingResource;
 import android.support.test.filters.SmallTest;
+import android.support.test.filters.Suppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.RecyclerView;
@@ -115,6 +116,7 @@ public final class PagedListViewSavedStateTest {
         }
     }
 
+    @Suppress
     @Test
     public void testPagePositionRememberedOnRotation() {
         if (!isAutoDevice()) {
