@@ -20,7 +20,7 @@
        android:insetRight="16dp"
        android:insetBottom="16dp">
     <shape android:shape="rectangle">
-        <corners android:radius="2dp" />
+        <corners android:radius="?attr/dialogCornerRadius" />
         <solid android:color="@android:color/white" />
     </shape>
 </inset>
