@@ -19,9 +19,9 @@ package android.arch.background.workmanager.background.firebase;
 import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkManager;
-import android.arch.background.workmanager.WorkerWrapper;
 import android.arch.background.workmanager.background.BackgroundProcessor;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.util.Log;
@@ -80,10 +80,9 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
     }
 
     @Override
-    public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
+    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         Log.d(TAG, workSpecId + " executed on FirebaseJobDispatcher");
         JobParameters parameters = mJobParameters.get(workSpecId);
-        boolean needsReschedule = result == WorkerWrapper.EXECUTION_RESULT_RESCHEDULE;
         jobFinished(parameters, needsReschedule);
     }
 }

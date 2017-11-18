@@ -20,8 +20,8 @@ import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.Processor;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.WorkerWrapper;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
@@ -64,10 +64,10 @@ public class BackgroundProcessor extends Processor {
     }
 
     @Override
-    public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
-        super.onExecuted(workSpecId, result);
+    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
+        super.onExecuted(workSpecId, needsReschedule);
         if (mOuterListener != null) {
-            mOuterListener.onExecuted(workSpecId, result);
+            mOuterListener.onExecuted(workSpecId, needsReschedule);
         }
     }
 }

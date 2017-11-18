@@ -25,20 +25,15 @@ import static android.arch.background.workmanager.Worker.WORKER_RESULT_FAILURE;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_RETRY;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_SUCCESS;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.utils.taskexecutor.WorkManagerTaskExecutor;
 import android.content.Context;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
-
-import java.lang.annotation.Retention;
 
 /**
  * A runnable that looks up the {@link WorkSpec} from the database for a given id, instantiates
@@ -48,18 +43,6 @@ import java.lang.annotation.Retention;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkerWrapper implements Runnable {
-    @Retention(SOURCE)
-    @IntDef({EXECUTION_RESULT_PERMANENT_ERROR,
-            EXECUTION_RESULT_RESCHEDULE,
-            EXECUTION_RESULT_FAILURE,
-            EXECUTION_RESULT_SUCCESS})
-    public @interface ExecutionResult {
-    }
-
-    public static final int EXECUTION_RESULT_PERMANENT_ERROR = 0;
-    public static final int EXECUTION_RESULT_RESCHEDULE = 1;
-    public static final int EXECUTION_RESULT_FAILURE = 2;
-    public static final int EXECUTION_RESULT_SUCCESS = 3;
 
     private static final String TAG = "WorkerWrapper";
     private Context mAppContext;
@@ -83,37 +66,36 @@ public class WorkerWrapper implements Runnable {
         WorkSpec workSpec = workSpecDao.getWorkSpec(mWorkSpecId);
         if (workSpec == null) {
             Log.e(TAG, "Didn't find WorkSpec for id " + mWorkSpecId);
-            notifyListener(EXECUTION_RESULT_PERMANENT_ERROR);
+            notifyListener(false);
             return;
         }
 
         switch (workSpec.getStatus()) {
-            case STATUS_BLOCKED: {
-                Log.e(TAG,
-                        "Status for " + mWorkSpecId + " is BLOCKED - why is it trying to "
-                                + "be executed?  This is a recoverable error, so not doing any "
-                                + "work and rescheduling for later execution",
-                        new Exception());
-                notifyListener(EXECUTION_RESULT_RESCHEDULE);
+            case STATUS_RUNNING: {
+                Log.d(TAG, "Status for " + mWorkSpecId + " is RUNNING; "
+                        + "not doing any work and rescheduling for later execution");
+                notifyListener(true);
                 return;
             }
 
-            case STATUS_RUNNING: {
-                Log.d(TAG, "Status for " + mWorkSpecId + " is BLOCKED or RUNNING; "
-                        + "not doing any work and rescheduling for later execution");
-                notifyListener(EXECUTION_RESULT_RESCHEDULE);
+            case STATUS_BLOCKED: {
+                Log.e(TAG,
+                        "Status for " + mWorkSpecId + " is BLOCKED - why is it trying to be "
+                                + "executed?  This is a recoverable error, so not doing any work",
+                        new Exception());
+                notifyListener(false);
                 return;
             }
 
             case STATUS_SUCCEEDED: {
                 Log.d(TAG, "Status for " + mWorkSpecId + " is succeeded; not doing any work");
-                notifyListener(EXECUTION_RESULT_SUCCESS);
+                notifyListener(false);
                 return;
             }
 
             case STATUS_FAILED: {
                 Log.d(TAG, "Status for " + mWorkSpecId + " is failed; not doing any work");
-                notifyListener(EXECUTION_RESULT_FAILURE);
+                notifyListener(false);
                 return;
             }
         }
@@ -122,7 +104,7 @@ public class WorkerWrapper implements Runnable {
         if (worker == null) {
             Log.e(TAG, "Could not create Worker " + workSpec.getWorkerClassName());
             workSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
-            notifyListener(EXECUTION_RESULT_PERMANENT_ERROR);
+            notifyListener(false);
             return;
         }
 
@@ -144,14 +126,14 @@ public class WorkerWrapper implements Runnable {
                 case WORKER_RESULT_SUCCESS: {
                     Log.d(TAG, "Worker result SUCCESS for " + mWorkSpecId);
                     setSuccessAndUpdateDependencies(workSpec.isPeriodic());
-                    notifyListener(EXECUTION_RESULT_SUCCESS);
+                    notifyListener(false);
                     break;
                 }
 
                 case WORKER_RESULT_RETRY: {
                     Log.d(TAG, "Worker result RETRY for " + mWorkSpecId);
                     workSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);
-                    notifyListener(EXECUTION_RESULT_RESCHEDULE);
+                    notifyListener(true);
                     break;
                 }
 
@@ -159,14 +141,14 @@ public class WorkerWrapper implements Runnable {
                 default: {
                     Log.d(TAG, "Worker result FAILURE for " + mWorkSpecId);
                     workSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
-                    notifyListener(EXECUTION_RESULT_FAILURE);
+                    notifyListener(false);
                     break;
                 }
             }
         } catch (InterruptedException e) {
             Log.d(TAG, "Work interrupted for " + mWorkSpecId);
             workSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);
-            notifyListener(EXECUTION_RESULT_RESCHEDULE);
+            notifyListener(true);
         }
     }
 
@@ -176,14 +158,14 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    private void notifyListener(@ExecutionResult final int result) {
+    private void notifyListener(final boolean needsReschedule) {
         if (mListener == null) {
             return;
         }
         WorkManagerTaskExecutor.getInstance().postToMainThread(new Runnable() {
             @Override
             public void run() {
-                mListener.onExecuted(mWorkSpecId, result);
+                mListener.onExecuted(mWorkSpecId, needsReschedule);
             }
         });
     }
