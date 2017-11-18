@@ -180,8 +180,6 @@ public final class Arguments {
     }
 
     /**
-     * Get number of arguments.
-     *
      * @return The number of arguments
      */
     @VisibleForTesting
