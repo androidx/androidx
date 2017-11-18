@@ -58,9 +58,6 @@ public class WorkSpec {
 
     Arguments mArguments = new Arguments.Builder().build();
 
-    @ColumnInfo(name = "tag")
-    String mTag;
-
     @ColumnInfo(name = "run_attempt_count")
     int mRunAttemptCount;
 
@@ -115,14 +112,6 @@ public class WorkSpec {
 
     public void setArguments(Arguments arguments) {
         mArguments = arguments;
-    }
-
-    public String getTag() {
-        return mTag;
-    }
-
-    public void setTag(String tag) {
-        mTag = tag;
     }
 
     public int getBackoffPolicy() {
@@ -245,8 +234,7 @@ public class WorkSpec {
                         : other.mConstraints == null)
                 && (mArguments != null
                         ? mArguments.equals(other.mArguments)
-                        : other.mArguments == null)
-                && (mTag != null ? mTag.equals(other.mTag) : other.mTag == null);
+                        : other.mArguments == null);
     }
 
     @Override
@@ -259,7 +247,6 @@ public class WorkSpec {
         result = 31 * result + (int) (mFlexDuration ^ (mFlexDuration >>> 32));
         result = 31 * result + (mConstraints != null ? mConstraints.hashCode() : 0);
         result = 31 * result + (mArguments != null ? mArguments.hashCode() : 0);
-        result = 31 * result + (mTag != null ? mTag.hashCode() : 0);
         result = 31 * result + mRunAttemptCount;
         result = 31 * result + mBackoffPolicy;
         result = 31 * result + (int) (mBackoffDelayDuration ^ (mBackoffDelayDuration >>> 32));
