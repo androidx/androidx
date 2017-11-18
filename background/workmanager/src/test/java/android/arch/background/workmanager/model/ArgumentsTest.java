@@ -33,18 +33,29 @@ public class ArgumentsTest {
     private static final String KEY2 = "key2";
 
     @Test
-    public void empty() throws IOException, ClassNotFoundException {
+    public void testSize_noArguments() {
+        Arguments args = new Arguments.Builder().build();
+        assertThat(args.size(), is(0));
+    }
+
+    @Test
+    public void testSize_hasArguments() {
+        Arguments args = new Arguments.Builder().putBoolean(KEY1, true).build();
+        assertThat(args.size(), is(1));
+    }
+
+    @Test
+    public void testSerializeEmpty() throws IOException, ClassNotFoundException {
         Arguments args = new Arguments.Builder().build();
 
         byte[] byteArray = Arguments.toByteArray(args);
         Arguments restoredArgs = Arguments.fromByteArray(byteArray);
 
-        assertThat(restoredArgs, is(notNullValue()));
-        assertThat(restoredArgs.size(), is(0));
+        assertThat(restoredArgs, is(args));
     }
 
     @Test
-    public void serializeString() throws IOException, ClassNotFoundException {
+    public void testSerializeString() throws IOException, ClassNotFoundException {
         String expectedValue1 = "value1";
         String expectedValue2 = "value2";
         Arguments args = new Arguments.Builder()
@@ -55,20 +66,11 @@ public class ArgumentsTest {
         byte[] byteArray = Arguments.toByteArray(args);
         Arguments restoredArgs = Arguments.fromByteArray(byteArray);
 
-        assertThat(restoredArgs, is(notNullValue()));
-        assertThat(restoredArgs.size(), is(2));
-
-        String actualValue1 = restoredArgs.getString(KEY1, null);
-        assertThat(actualValue1, is(notNullValue()));
-        assertThat(actualValue1, is(expectedValue1));
-
-        String actualValue2 = restoredArgs.getString(KEY2, null);
-        assertThat(actualValue2, is(notNullValue()));
-        assertThat(actualValue2, is(expectedValue2));
+        assertThat(restoredArgs, is(args));
     }
 
     @Test
-    public void serializeIntArray() throws IOException, ClassNotFoundException {
+    public void testSerializeIntArray() throws IOException, ClassNotFoundException {
         int[] expectedValue1 = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         int[] expectedValue2 = new int[]{10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
         Arguments args = new Arguments.Builder()
@@ -81,11 +83,7 @@ public class ArgumentsTest {
 
         assertThat(restoredArgs, is(notNullValue()));
         assertThat(restoredArgs.size(), is(2));
-
-        int[] actualValue1 = restoredArgs.getIntArray(KEY1);
-        assertThat(actualValue1, is(equalTo(expectedValue1)));
-
-        int[] actualValue2 = restoredArgs.getIntArray(KEY2);
-        assertThat(actualValue2, is(equalTo(expectedValue2)));
+        assertThat(restoredArgs.getIntArray(KEY1), is(equalTo(expectedValue1)));
+        assertThat(restoredArgs.getIntArray(KEY2), is(equalTo(expectedValue2)));
     }
 }
