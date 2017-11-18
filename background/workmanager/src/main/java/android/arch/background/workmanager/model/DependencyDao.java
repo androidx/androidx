@@ -69,4 +69,13 @@ public interface DependencyDao {
      */
     @Query("SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id")
     List<String> getPrerequisites(String id);
+
+    /**
+     * Gets all {@link WorkSpec} id's dependent on a given id
+     *
+     * @param id A {@link WorkSpec} identifier
+     * @return A list of all identifiers that depend on the input
+     */
+    @Query("SELECT work_spec_id FROM dependency WHERE prerequisite_id=:id")
+    List<String> getDependentWorkIds(String id);
 }

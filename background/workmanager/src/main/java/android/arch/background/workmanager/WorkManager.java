@@ -20,6 +20,7 @@ import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
+import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.model.WorkTag;
@@ -243,13 +244,24 @@ public final class WorkManager {
                     if (mBackgroundScheduler != null) {
                         mBackgroundScheduler.cancel(workSpecId);
                     }
-                    workSpecDao.delete(workSpecId);
+                    recursivelyDeleteWorkAndDependencies(workSpecId);
                 }
 
                 mWorkDatabase.setTransactionSuccessful();
             } finally {
                 mWorkDatabase.endTransaction();
             }
+        }
+
+        private void recursivelyDeleteWorkAndDependencies(String workSpecId) {
+            WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+            DependencyDao dependencyDao = mWorkDatabase.dependencyDao();
+
+            List<String> dependentIds = dependencyDao.getDependentWorkIds(workSpecId);
+            for (String id : dependentIds) {
+                recursivelyDeleteWorkAndDependencies(id);
+            }
+            workSpecDao.delete(workSpecId);
         }
     }
 }

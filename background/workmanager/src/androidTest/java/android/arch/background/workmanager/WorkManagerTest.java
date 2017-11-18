@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.emptyCollectionOf;
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.ContentUriTriggers;
+import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
@@ -323,6 +324,55 @@ public class WorkManagerTest {
         WorkDatabase.generateCleanupCallback().onOpen(db);
 
         assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(Work.STATUS_ENQUEUED));
+    }
+
+
+    @Test
+    @SmallTest
+    public void testCancelAllWorkWithTag_deletesDependentWork() throws InterruptedException {
+        String tag = "tag";
+
+        Work work0 = new Work.Builder(TestWorker.class).addTag(tag).build();
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        Work work3 = new Work.Builder(TestWorker.class).build();
+        Work work4 = new Work.Builder(TestWorker.class).build();
+
+        insertWorkSpecAndTags(work0);
+        insertWorkSpecAndTags(work1);
+        insertWorkSpecAndTags(work2);
+        insertWorkSpecAndTags(work3);
+        insertWorkSpecAndTags(work4);
+
+        // Dependency graph:
+        //                             0
+        //                             |
+        //                       |------------|
+        //            3          1            4
+        //            |          |
+        //            ------------
+        //                 |
+        //                 2
+
+        Dependency dependency21 = new Dependency(work2.getId(), work1.getId());
+        Dependency dependency23 = new Dependency(work2.getId(), work3.getId());
+        Dependency dependency10 = new Dependency(work1.getId(), work0.getId());
+        Dependency dependency40 = new Dependency(work4.getId(), work0.getId());
+
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
+        dependencyDao.insertDependency(dependency21);
+        dependencyDao.insertDependency(dependency23);
+        dependencyDao.insertDependency(dependency10);
+        dependencyDao.insertDependency(dependency40);
+
+        mWorkManager.cancelAllWorkWithTag(tag);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(work0.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(work1.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(work2.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(work3.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(work4.getId()), is(nullValue()));
     }
 
     private void insertWorkSpecAndTags(Work work) {
