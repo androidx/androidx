@@ -31,6 +31,7 @@ import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.utils.taskexecutor.InstantTaskExecutorRule;
 import android.arch.background.workmanager.worker.FailureWorker;
+import android.arch.background.workmanager.worker.RetryWorker;
 import android.arch.background.workmanager.worker.SleepTestWorker;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.content.Context;
@@ -105,23 +106,6 @@ public class WorkerWrapperTest {
     @SmallTest
     public void testRunAttemptCountIncremented_failedExecution() {
         Work work = new Work.Builder(FailureWorker.class).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
-        new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
-                .withListener(mMockListener)
-                .build()
-                .run();
-        WorkSpec latestWorkSpec = mWorkSpecDao.getWorkSpec(work.getId());
-        assertThat(latestWorkSpec.getRunAttemptCount(), is(1));
-    }
-
-    @Test
-    @SmallTest
-    public void testRunAttemptCountIncremented_periodic_failedExecution() {
-        PeriodicWork work = new PeriodicWork.Builder(
-                FailureWorker.class,
-                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
-                .build();
-
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -235,7 +219,7 @@ public class WorkerWrapperTest {
 
     @Test
     @SmallTest
-    public void testPeriodicWork() throws InterruptedException {
+    public void testPeriodicWork_success() throws InterruptedException {
         PeriodicWork periodicWork = new PeriodicWork.Builder(
                 TestWorker.class,
                 PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
@@ -251,6 +235,48 @@ public class WorkerWrapperTest {
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
         verify(mMockListener).onExecuted(periodicWorkId, false);
         assertThat(periodicWorkSpecAfterFirstRun.getRunAttemptCount(), is(0));
+        assertThat(periodicWorkSpecAfterFirstRun.getStatus(), is(Work.STATUS_ENQUEUED));
+    }
+
+    @Test
+    @SmallTest
+    public void testPeriodicWork_fail() throws InterruptedException {
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                FailureWorker.class,
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
+                .build();
+
+        final String periodicWorkId = periodicWork.getId();
+        mWorkSpecDao.insertWorkSpec(periodicWork.getWorkSpec());
+        new WorkerWrapper.Builder(mContext, mDatabase, periodicWorkId)
+                .withListener(mMockListener)
+                .build()
+                .run();
+
+        WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
+        verify(mMockListener).onExecuted(periodicWorkId, false);
+        assertThat(periodicWorkSpecAfterFirstRun.getRunAttemptCount(), is(0));
+        assertThat(periodicWorkSpecAfterFirstRun.getStatus(), is(Work.STATUS_ENQUEUED));
+    }
+
+    @Test
+    @SmallTest
+    public void testPeriodicWork_retry() throws InterruptedException {
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                RetryWorker.class,
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
+                .build();
+
+        final String periodicWorkId = periodicWork.getId();
+        mWorkSpecDao.insertWorkSpec(periodicWork.getWorkSpec());
+        new WorkerWrapper.Builder(mContext, mDatabase, periodicWorkId)
+                .withListener(mMockListener)
+                .build()
+                .run();
+
+        WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
+        verify(mMockListener).onExecuted(periodicWorkId, true);
+        assertThat(periodicWorkSpecAfterFirstRun.getRunAttemptCount(), is(1));
         assertThat(periodicWorkSpecAfterFirstRun.getStatus(), is(Work.STATUS_ENQUEUED));
     }
 
