@@ -2519,7 +2519,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (next == null || next == this) {
             return false;
         }
+        // panic, result view is not a child anymore, maybe workaround b/37864393
+        if (findContainingItemView(next) == null) {
+            return false;
+        }
         if (focused == null) {
+            return true;
+        }
+        // panic, focused view is not a child anymore, maybe workaround b/37864393
+        if (findContainingItemView(focused) == null) {
             return true;
         }
 
