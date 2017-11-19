@@ -1,6 +1,6 @@
 package android.support.graphics.drawable {
 
-  public abstract interface Animatable2Compat {
+  public abstract interface Animatable2Compat implements android.graphics.drawable.Animatable {
     method public abstract void clearAnimationCallbacks();
     method public abstract void registerAnimationCallback(android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
     method public abstract boolean unregisterAnimationCallback(android.support.graphics.drawable.Animatable2Compat.AnimationCallback);
@@ -12,7 +12,7 @@ package android.support.graphics.drawable {
     method public void onAnimationStart(android.graphics.drawable.Drawable);
   }
 
-  public class AnimatedVectorDrawableCompat extends android.support.graphics.drawable.VectorDrawableCommon implements android.support.graphics.drawable.Animatable2Compat {
+  public class AnimatedVectorDrawableCompat extends android.graphics.drawable.Drawable implements android.support.graphics.drawable.Animatable2Compat android.support.v4.graphics.drawable.TintAwareDrawable {
     method public void clearAnimationCallbacks();
     method public static void clearAnimationCallbacks(android.graphics.drawable.Drawable);
     method public static android.support.graphics.drawable.AnimatedVectorDrawableCompat create(android.content.Context, int);

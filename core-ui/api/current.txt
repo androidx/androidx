@@ -1,6 +1,6 @@
 package android.support.design.widget {
 
-  public class CoordinatorLayout extends android.view.ViewGroup {
+  public class CoordinatorLayout extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingParent2 {
     ctor public CoordinatorLayout(android.content.Context);
     ctor public CoordinatorLayout(android.content.Context, android.util.AttributeSet);
     ctor public CoordinatorLayout(android.content.Context, android.util.AttributeSet, int);
@@ -16,7 +16,6 @@ package android.support.design.widget {
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
     method public void onDraw(android.graphics.Canvas);
-    method protected void onLayout(boolean, int, int, int, int);
     method public void onLayoutChild(android.view.View, int);
     method public void onMeasureChild(android.view.View, int, int, int, int);
     method public void onNestedPreScroll(android.view.View, int, int, int[], int);
@@ -214,7 +213,6 @@ package android.support.v4.view {
     ctor public PagerTitleStrip(android.content.Context);
     ctor public PagerTitleStrip(android.content.Context, android.util.AttributeSet);
     method public int getTextSpacing();
-    method protected void onLayout(boolean, int, int, int, int);
     method public void setGravity(int);
     method public void setNonPrimaryAlpha(float);
     method public void setTextColor(int);
@@ -239,7 +237,6 @@ package android.support.v4.view {
     method public int getOffscreenPageLimit();
     method public int getPageMargin();
     method public boolean isFakeDragging();
-    method protected void onLayout(boolean, int, int, int, int);
     method protected void onPageScrolled(int, float, int);
     method public void onRestoreInstanceState(android.os.Parcelable);
     method public android.os.Parcelable onSaveInstanceState();
@@ -300,21 +297,16 @@ package android.support.v4.view {
 
 package android.support.v4.view.animation {
 
-  public class FastOutLinearInInterpolator extends android.support.v4.view.animation.LookupTableInterpolator {
+  public class FastOutLinearInInterpolator implements android.view.animation.Interpolator {
     ctor public FastOutLinearInInterpolator();
   }
 
-  public class FastOutSlowInInterpolator extends android.support.v4.view.animation.LookupTableInterpolator {
+  public class FastOutSlowInInterpolator implements android.view.animation.Interpolator {
     ctor public FastOutSlowInInterpolator();
   }
 
-  public class LinearOutSlowInInterpolator extends android.support.v4.view.animation.LookupTableInterpolator {
+  public class LinearOutSlowInInterpolator implements android.view.animation.Interpolator {
     ctor public LinearOutSlowInInterpolator();
-  }
-
-   abstract class LookupTableInterpolator implements android.view.animation.Interpolator {
-    ctor public LookupTableInterpolator(float[]);
-    method public float getInterpolation(float);
   }
 
 }
@@ -348,7 +340,7 @@ package android.support.v4.widget {
     field public static final float RELATIVE_UNSPECIFIED = 0.0f;
   }
 
-  public class CircularProgressDrawable extends android.graphics.drawable.Drawable {
+  public class CircularProgressDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Animatable {
     ctor public CircularProgressDrawable(android.content.Context);
     method public void draw(android.graphics.Canvas);
     method public boolean getArrowEnabled();
@@ -393,7 +385,7 @@ package android.support.v4.widget {
     method public void show();
   }
 
-  public abstract class CursorAdapter extends android.widget.BaseAdapter {
+  public abstract class CursorAdapter extends android.widget.BaseAdapter implements android.widget.Filterable {
     ctor public deprecated CursorAdapter(android.content.Context, android.database.Cursor);
     ctor public CursorAdapter(android.content.Context, android.database.Cursor, boolean);
     ctor public CursorAdapter(android.content.Context, android.database.Cursor, int);
@@ -438,7 +430,6 @@ package android.support.v4.widget {
     method public boolean isDrawerVisible(android.view.View);
     method public boolean isDrawerVisible(int);
     method public void onDraw(android.graphics.Canvas);
-    method protected void onLayout(boolean, int, int, int, int);
     method public void openDrawer(android.view.View);
     method public void openDrawer(android.view.View, boolean);
     method public void openDrawer(int);
@@ -529,12 +520,18 @@ package android.support.v4.widget {
     method public void scrollTargetBy(int, int);
   }
 
-  public class NestedScrollView extends android.widget.FrameLayout {
+  public class NestedScrollView extends android.widget.FrameLayout implements android.support.v4.view.NestedScrollingChild2 android.support.v4.view.NestedScrollingParent android.support.v4.view.ScrollingView {
     ctor public NestedScrollView(android.content.Context);
     ctor public NestedScrollView(android.content.Context, android.util.AttributeSet);
     ctor public NestedScrollView(android.content.Context, android.util.AttributeSet, int);
     method public boolean arrowScroll(int);
+    method public int computeHorizontalScrollExtent();
+    method public int computeHorizontalScrollOffset();
+    method public int computeHorizontalScrollRange();
     method protected int computeScrollDeltaToGetChildRectOnScreen(android.graphics.Rect);
+    method public int computeVerticalScrollExtent();
+    method public int computeVerticalScrollOffset();
+    method public int computeVerticalScrollRange();
     method public boolean dispatchNestedPreScroll(int, int, int[], int[], int);
     method public boolean dispatchNestedScroll(int, int, int, int, int[], int);
     method public boolean executeKeyEvent(android.view.KeyEvent);
@@ -603,7 +600,6 @@ package android.support.v4.widget {
     method public int getSliderFadeColor();
     method public boolean isOpen();
     method public boolean isSlideable();
-    method protected void onLayout(boolean, int, int, int, int);
     method public boolean openPane();
     method public void setCoveredFadeColor(int);
     method public void setPanelSlideListener(android.support.v4.widget.SlidingPaneLayout.PanelSlideListener);
@@ -648,7 +644,7 @@ package android.support.v4.widget {
     ctor public Space(android.content.Context);
   }
 
-  public class SwipeRefreshLayout extends android.view.ViewGroup {
+  public class SwipeRefreshLayout extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingChild android.support.v4.view.NestedScrollingParent {
     ctor public SwipeRefreshLayout(android.content.Context);
     ctor public SwipeRefreshLayout(android.content.Context, android.util.AttributeSet);
     method public boolean canChildScrollUp();
@@ -656,7 +652,6 @@ package android.support.v4.widget {
     method public int getProgressViewEndOffset();
     method public int getProgressViewStartOffset();
     method public boolean isRefreshing();
-    method protected void onLayout(boolean, int, int, int, int);
     method public void onMeasure(int, int);
     method public deprecated void setColorScheme(int...);
     method public void setColorSchemeColors(int...);

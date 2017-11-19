@@ -50,7 +50,7 @@ package android.support.v17.preference {
     method public void setTitle(java.lang.CharSequence);
   }
 
-  public abstract class LeanbackSettingsFragment extends android.app.Fragment {
+  public abstract class LeanbackSettingsFragment extends android.app.Fragment implements android.support.v14.preference.PreferenceFragment.OnPreferenceDisplayDialogCallback android.support.v14.preference.PreferenceFragment.OnPreferenceStartFragmentCallback android.support.v14.preference.PreferenceFragment.OnPreferenceStartScreenCallback {
     ctor public LeanbackSettingsFragment();
     method public boolean onPreferenceDisplayDialog(android.support.v14.preference.PreferenceFragment, android.support.v7.preference.Preference);
     method public abstract void onPreferenceStartInitialScreen();

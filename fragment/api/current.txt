@@ -22,7 +22,7 @@ package android.support.v4.app {
     field public static final int STYLE_NO_TITLE = 1; // 0x1
   }
 
-  public class Fragment implements android.content.ComponentCallbacks android.view.View.OnCreateContextMenuListener {
+  public class Fragment implements android.content.ComponentCallbacks android.arch.lifecycle.LifecycleOwner android.view.View.OnCreateContextMenuListener {
     ctor public Fragment();
     method public void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public final boolean equals(java.lang.Object);
@@ -141,7 +141,7 @@ package android.support.v4.app {
     field public static final android.os.Parcelable.Creator<android.support.v4.app.Fragment.SavedState> CREATOR;
   }
 
-  public class FragmentActivity extends android.support.v4.app.SupportActivity {
+  public class FragmentActivity extends android.support.v4.app.SupportActivity implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback android.support.v4.app.ActivityCompat.RequestPermissionsRequestCodeValidator {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();

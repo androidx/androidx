@@ -495,7 +495,7 @@ package android.support.v4.app {
     field public static final int IMPORTANCE_UNSPECIFIED = -1000; // 0xfffffc18
   }
 
-  public final class RemoteInput extends android.support.v4.app.RemoteInputCompatBase.RemoteInput {
+  public final class RemoteInput {
     method public static void addDataResultToIntent(android.support.v4.app.RemoteInput, android.content.Intent, java.util.Map<java.lang.String, android.net.Uri>);
     method public static void addResultsToIntent(android.support.v4.app.RemoteInput[], android.content.Intent, android.os.Bundle);
     method public boolean getAllowFreeFormInput();
@@ -520,19 +520,6 @@ package android.support.v4.app {
     method public android.support.v4.app.RemoteInput.Builder setAllowFreeFormInput(boolean);
     method public android.support.v4.app.RemoteInput.Builder setChoices(java.lang.CharSequence[]);
     method public android.support.v4.app.RemoteInput.Builder setLabel(java.lang.CharSequence);
-  }
-
-   deprecated class RemoteInputCompatBase {
-  }
-
-  public static abstract deprecated class RemoteInputCompatBase.RemoteInput {
-    ctor public deprecated RemoteInputCompatBase.RemoteInput();
-    method protected abstract deprecated boolean getAllowFreeFormInput();
-    method protected abstract deprecated java.util.Set<java.lang.String> getAllowedDataTypes();
-    method protected abstract deprecated java.lang.CharSequence[] getChoices();
-    method protected abstract deprecated android.os.Bundle getExtras();
-    method protected abstract deprecated java.lang.CharSequence getLabel();
-    method protected abstract deprecated java.lang.String getResultKey();
   }
 
   public final class ServiceCompat {
@@ -937,7 +924,7 @@ package android.support.v4.provider {
     method public static void requestFont(android.content.Context, android.support.v4.provider.FontRequest, android.support.v4.provider.FontsContractCompat.FontRequestCallback, android.os.Handler);
   }
 
-  public static final class FontsContractCompat.Columns {
+  public static final class FontsContractCompat.Columns implements android.provider.BaseColumns {
     ctor public FontsContractCompat.Columns();
     field public static final java.lang.String FILE_ID = "file_id";
     field public static final java.lang.String ITALIC = "font_italic";
@@ -1136,7 +1123,7 @@ package android.support.v4.util {
     method public int size();
   }
 
-  public class LongSparseArray<E> {
+  public class LongSparseArray<E> implements java.lang.Cloneable {
     ctor public LongSparseArray();
     ctor public LongSparseArray(int);
     method public void append(long, E);
@@ -1235,7 +1222,7 @@ package android.support.v4.util {
     method public V valueAt(int);
   }
 
-  public class SparseArrayCompat<E> {
+  public class SparseArrayCompat<E> implements java.lang.Cloneable {
     ctor public SparseArrayCompat();
     ctor public SparseArrayCompat(int);
     method public void append(int, E);
