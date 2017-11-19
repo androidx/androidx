@@ -31,38 +31,6 @@ package android.support.v17.leanback.app {
     method public void startEntranceTransition();
   }
 
-   abstract deprecated class BaseRowFragment extends android.app.Fragment {
-    method public final android.support.v17.leanback.widget.ObjectAdapter getAdapter();
-    method public final android.support.v17.leanback.widget.ItemBridgeAdapter getBridgeAdapter();
-    method public final android.support.v17.leanback.widget.PresenterSelector getPresenterSelector();
-    method public int getSelectedPosition();
-    method public final android.support.v17.leanback.widget.VerticalGridView getVerticalGridView();
-    method public void onTransitionEnd();
-    method public boolean onTransitionPrepare();
-    method public void onTransitionStart();
-    method public final void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
-    method public void setAlignment(int);
-    method public final void setPresenterSelector(android.support.v17.leanback.widget.PresenterSelector);
-    method public void setSelectedPosition(int);
-    method public void setSelectedPosition(int, boolean);
-  }
-
-   abstract class BaseRowSupportFragment extends android.support.v4.app.Fragment {
-    method public final android.support.v17.leanback.widget.ObjectAdapter getAdapter();
-    method public final android.support.v17.leanback.widget.ItemBridgeAdapter getBridgeAdapter();
-    method public final android.support.v17.leanback.widget.PresenterSelector getPresenterSelector();
-    method public int getSelectedPosition();
-    method public final android.support.v17.leanback.widget.VerticalGridView getVerticalGridView();
-    method public void onTransitionEnd();
-    method public boolean onTransitionPrepare();
-    method public void onTransitionStart();
-    method public final void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
-    method public void setAlignment(int);
-    method public final void setPresenterSelector(android.support.v17.leanback.widget.PresenterSelector);
-    method public void setSelectedPosition(int);
-    method public void setSelectedPosition(int, boolean);
-  }
-
   public class BaseSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
     method protected java.lang.Object createEntranceTransition();
     method public final android.support.v17.leanback.app.ProgressBarManager getProgressBarManager();
@@ -552,9 +520,11 @@ package android.support.v17.leanback.app {
     field public static final int UI_STYLE_REPLACE = 0; // 0x0
   }
 
-  public deprecated class HeadersFragment extends android.support.v17.leanback.app.BaseRowFragment {
+  public deprecated class HeadersFragment extends android.app.Fragment {
     ctor public HeadersFragment();
     method public boolean isScrolling();
+    method public void onTransitionEnd();
+    method public void onTransitionStart();
     method public void setOnHeaderClickedListener(android.support.v17.leanback.app.HeadersFragment.OnHeaderClickedListener);
     method public void setOnHeaderViewSelectedListener(android.support.v17.leanback.app.HeadersFragment.OnHeaderViewSelectedListener);
   }
@@ -567,9 +537,11 @@ package android.support.v17.leanback.app {
     method public abstract void onHeaderSelected(android.support.v17.leanback.widget.RowHeaderPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
   }
 
-  public class HeadersSupportFragment extends android.support.v17.leanback.app.BaseRowSupportFragment {
+  public class HeadersSupportFragment extends android.support.v4.app.Fragment {
     ctor public HeadersSupportFragment();
     method public boolean isScrolling();
+    method public void onTransitionEnd();
+    method public void onTransitionStart();
     method public void setOnHeaderClickedListener(android.support.v17.leanback.app.HeadersSupportFragment.OnHeaderClickedListener);
     method public void setOnHeaderViewSelectedListener(android.support.v17.leanback.app.HeadersSupportFragment.OnHeaderViewSelectedListener);
   }
@@ -754,7 +726,7 @@ package android.support.v17.leanback.app {
     method public void show();
   }
 
-  public deprecated class RowsFragment extends android.support.v17.leanback.app.BaseRowFragment implements android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapterProvider android.support.v17.leanback.app.BrowseFragment.MainFragmentRowsAdapterProvider {
+  public deprecated class RowsFragment extends android.app.Fragment implements android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapterProvider android.support.v17.leanback.app.BrowseFragment.MainFragmentRowsAdapterProvider {
     ctor public RowsFragment();
     method public deprecated void enableRowScaling(boolean);
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
@@ -765,6 +737,9 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.BaseOnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getRowViewHolder(int);
     method public boolean isScrolling();
+    method public void onTransitionEnd();
+    method public boolean onTransitionPrepare();
+    method public void setAlignment(int);
     method public void setEntranceTransitionState(boolean);
     method public void setExpand(boolean);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
@@ -780,7 +755,7 @@ package android.support.v17.leanback.app {
     ctor public RowsFragment.MainFragmentRowsAdapter(android.support.v17.leanback.app.RowsFragment);
   }
 
-  public class RowsSupportFragment extends android.support.v17.leanback.app.BaseRowSupportFragment implements android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentAdapterProvider android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentRowsAdapterProvider {
+  public class RowsSupportFragment extends android.support.v4.app.Fragment implements android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentAdapterProvider android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentRowsAdapterProvider {
     ctor public RowsSupportFragment();
     method public deprecated void enableRowScaling(boolean);
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
@@ -791,6 +766,9 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.BaseOnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getRowViewHolder(int);
     method public boolean isScrolling();
+    method public void onTransitionEnd();
+    method public boolean onTransitionPrepare();
+    method public void setAlignment(int);
     method public void setEntranceTransitionState(boolean);
     method public void setExpand(boolean);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
@@ -1104,11 +1082,9 @@ package android.support.v17.leanback.media {
     method public final boolean isPlaying();
     method public final boolean isPrepared();
     method protected static void notifyItemChanged(android.support.v17.leanback.widget.ArrayObjectAdapter, java.lang.Object);
-    method public abstract void onActionClicked(android.support.v17.leanback.widget.Action);
     method protected void onCreatePrimaryActions(android.support.v17.leanback.widget.ArrayObjectAdapter);
     method protected abstract android.support.v17.leanback.widget.PlaybackRowPresenter onCreateRowPresenter();
     method protected void onCreateSecondaryActions(android.support.v17.leanback.widget.ArrayObjectAdapter);
-    method public abstract boolean onKey(android.view.View, int, android.view.KeyEvent);
     method protected void onMetadataChanged();
     method protected void onPlayCompleted();
     method protected void onPlayStateChanged();
@@ -2826,7 +2802,7 @@ package android.support.v17.leanback.widget {
     method public abstract void requestAudioPermission();
   }
 
-  public class SearchEditText extends android.support.v17.leanback.widget.StreamingTextView {
+  public class SearchEditText extends android.widget.EditText {
     ctor public SearchEditText(android.content.Context);
     ctor public SearchEditText(android.content.Context, android.util.AttributeSet);
     ctor public SearchEditText(android.content.Context, android.util.AttributeSet, int);
@@ -2967,16 +2943,6 @@ package android.support.v17.leanback.widget {
 
   public abstract deprecated interface SpeechRecognitionCallback {
     method public abstract void recognizeSpeech();
-  }
-
-   class StreamingTextView extends android.widget.EditText {
-    ctor public StreamingTextView(android.content.Context, android.util.AttributeSet);
-    ctor public StreamingTextView(android.content.Context, android.util.AttributeSet, int);
-    method public static boolean isLayoutRtl(android.view.View);
-    method public void reset();
-    method public void setFinalRecognizedText(java.lang.CharSequence);
-    method public void updateRecognizedText(java.lang.String, java.lang.String);
-    method public void updateRecognizedText(java.lang.String, java.util.List<java.lang.Float>);
   }
 
   public class TitleHelper {

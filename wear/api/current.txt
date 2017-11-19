@@ -48,7 +48,6 @@ package android.support.wear.widget {
     ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet);
     ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet, int);
     method public android.support.wear.widget.BoxInsetLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
-    method protected void onLayout(boolean, int, int, int, int);
   }
 
   public static class BoxInsetLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams {
@@ -182,7 +181,7 @@ package android.support.wear.widget.drawer {
     method public void peekDrawer();
   }
 
-  public class WearableDrawerLayout extends android.widget.FrameLayout implements android.view.View.OnLayoutChangeListener {
+  public class WearableDrawerLayout extends android.widget.FrameLayout implements android.support.v4.view.NestedScrollingParent android.view.View.OnLayoutChangeListener {
     ctor public WearableDrawerLayout(android.content.Context);
     ctor public WearableDrawerLayout(android.content.Context, android.util.AttributeSet);
     ctor public WearableDrawerLayout(android.content.Context, android.util.AttributeSet, int);

@@ -15,7 +15,7 @@ package android.support.design.widget {
     method public deprecated void setTargetElevation(float);
   }
 
-  public static class AppBarLayout.Behavior extends android.support.design.widget.HeaderBehavior {
+  public static class AppBarLayout.Behavior extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public AppBarLayout.Behavior();
     ctor public AppBarLayout.Behavior(android.content.Context, android.util.AttributeSet);
     method public boolean onLayoutChild(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, int);
@@ -63,7 +63,7 @@ package android.support.design.widget {
     method public abstract void onOffsetChanged(android.support.design.widget.AppBarLayout, int);
   }
 
-  public static class AppBarLayout.ScrollingViewBehavior extends android.support.design.widget.HeaderScrollingViewBehavior {
+  public static class AppBarLayout.ScrollingViewBehavior extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public AppBarLayout.ScrollingViewBehavior();
     ctor public AppBarLayout.ScrollingViewBehavior(android.content.Context, android.util.AttributeSet);
     method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, android.view.View, android.view.View);
@@ -183,7 +183,6 @@ package android.support.design.widget {
     ctor public CollapsingToolbarLayout(android.content.Context, android.util.AttributeSet);
     ctor public CollapsingToolbarLayout(android.content.Context, android.util.AttributeSet, int);
     method protected android.support.design.widget.CollapsingToolbarLayout.LayoutParams generateDefaultLayoutParams();
-    method public android.widget.FrameLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
     method protected android.widget.FrameLayout.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
     method public int getCollapsedTitleGravity();
     method public android.graphics.Typeface getCollapsedTitleTypeface();
@@ -244,7 +243,7 @@ package android.support.design.widget {
     field public static final int COLLAPSE_MODE_PIN = 1; // 0x1
   }
 
-  public class FloatingActionButton extends android.support.design.widget.VisibilityAwareImageButton {
+  public class FloatingActionButton extends android.widget.ImageButton {
     ctor public FloatingActionButton(android.content.Context);
     ctor public FloatingActionButton(android.content.Context, android.util.AttributeSet);
     ctor public FloatingActionButton(android.content.Context, android.util.AttributeSet, int);
@@ -285,20 +284,6 @@ package android.support.design.widget {
     ctor public FloatingActionButton.OnVisibilityChangedListener();
     method public void onHidden(android.support.design.widget.FloatingActionButton);
     method public void onShown(android.support.design.widget.FloatingActionButton);
-  }
-
-   abstract class HeaderBehavior<V extends android.view.View> extends android.support.design.widget.ViewOffsetBehavior {
-    ctor public HeaderBehavior();
-    ctor public HeaderBehavior(android.content.Context, android.util.AttributeSet);
-  }
-
-   abstract class HeaderScrollingViewBehavior extends android.support.design.widget.ViewOffsetBehavior {
-    ctor public HeaderScrollingViewBehavior();
-    ctor public HeaderScrollingViewBehavior(android.content.Context, android.util.AttributeSet);
-    method public final int getOverlayTop();
-    method protected void layoutChild(android.support.design.widget.CoordinatorLayout, android.view.View, int);
-    method public boolean onMeasureChild(android.support.design.widget.CoordinatorLayout, android.view.View, int, int, int, int);
-    method public final void setOverlayTop(int);
   }
 
   public class NavigationView extends android.widget.FrameLayout {
@@ -399,7 +384,6 @@ package android.support.design.widget {
     method public void addTab(android.support.design.widget.TabLayout.Tab, boolean);
     method public void addTab(android.support.design.widget.TabLayout.Tab, int, boolean);
     method public void clearOnTabSelectedListeners();
-    method public android.widget.FrameLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
     method public int getSelectedTabPosition();
     method public android.support.design.widget.TabLayout.Tab getTabAt(int);
     method public int getTabCount();
@@ -475,7 +459,7 @@ package android.support.design.widget {
     ctor public TextInputEditText(android.content.Context, android.util.AttributeSet, int);
   }
 
-  public class TextInputLayout extends android.widget.LinearLayout {
+  public class TextInputLayout extends android.widget.LinearLayout implements android.support.v7.widget.WithHint {
     ctor public TextInputLayout(android.content.Context);
     ctor public TextInputLayout(android.content.Context, android.util.AttributeSet);
     ctor public TextInputLayout(android.content.Context, android.util.AttributeSet, int);
@@ -509,22 +493,6 @@ package android.support.design.widget {
     method public void setPasswordVisibilityToggleTintList(android.content.res.ColorStateList);
     method public void setPasswordVisibilityToggleTintMode(android.graphics.PorterDuff.Mode);
     method public void setTypeface(android.graphics.Typeface);
-  }
-
-   class ViewOffsetBehavior<V extends android.view.View> extends android.support.design.widget.CoordinatorLayout.Behavior {
-    ctor public ViewOffsetBehavior();
-    ctor public ViewOffsetBehavior(android.content.Context, android.util.AttributeSet);
-    method public int getLeftAndRightOffset();
-    method public int getTopAndBottomOffset();
-    method protected void layoutChild(android.support.design.widget.CoordinatorLayout, V, int);
-    method public boolean setLeftAndRightOffset(int);
-    method public boolean setTopAndBottomOffset(int);
-  }
-
-   class VisibilityAwareImageButton extends android.widget.ImageButton {
-    ctor public VisibilityAwareImageButton(android.content.Context);
-    ctor public VisibilityAwareImageButton(android.content.Context, android.util.AttributeSet);
-    ctor public VisibilityAwareImageButton(android.content.Context, android.util.AttributeSet, int);
   }
 
 }
