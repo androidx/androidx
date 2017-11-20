@@ -29,8 +29,6 @@ dependencies {
     compile libs.support.annotations
 }
 
-createAndroidCheckstyle(project)
-
 supportLibrary {
     name = "Android Lifecycle-Common for Java 8 Language"
     publish = true

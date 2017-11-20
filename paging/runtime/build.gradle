@@ -43,11 +43,7 @@ dependencies {
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
     androidTestImplementation libs.kotlin.stdlib
-
 }
-
-createAndroidCheckstyle(project)
-createKotlinCheckstyle(project)
 
 supportLibrary {
     name = "Android Lifecycle Extensions"

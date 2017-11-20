@@ -39,8 +39,6 @@ dependencies {
     testImplementation project(":arch:core-testing")
 }
 
-createAndroidCheckstyle(project)
-
 supportLibrary {
     name = "Android Room RXJava2"
     publish = true

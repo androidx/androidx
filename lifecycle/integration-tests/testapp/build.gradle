@@ -77,7 +77,6 @@ dependencies {
     testImplementation libs.mockito_core
     testAnnotationProcessor project(":lifecycle:compiler")
 }
-createAndroidCheckstyle(project)
 
 tasks['check'].dependsOn(tasks['connectedCheck'])
 
