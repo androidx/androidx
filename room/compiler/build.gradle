@@ -27,7 +27,6 @@ sourceSets {
     main.java.srcDirs += antlrOut
 }
 project.ext.noDocs = true
-version = LibraryVersions.ROOM.toString()
 
 // Temporary hack to stop AS to adding two guavas into test's classpath
 configurations.all {
@@ -76,8 +75,6 @@ def generateAntlrTask = task('generateAntlrGrammar', type: JavaExec) {
 tasks.findByName("compileKotlin").dependsOn(generateAntlrTask)
 tasks.findByName("compileKotlin").dependsOn(":room:runtime:jarDebug")
 tasks.findByName("compileKotlin").dependsOn(":persistence:db:jarDebug")
-
-createKotlinCheckstyle(project)
 
 supportLibrary {
     name = "Android Room Compiler"

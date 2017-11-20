@@ -29,8 +29,6 @@ dependencies {
     testCompile libs.mockito_core
 }
 
-createAndroidCheckstyle(project)
-
 supportLibrary {
     name = "Android Arch-Common"
     publish = true

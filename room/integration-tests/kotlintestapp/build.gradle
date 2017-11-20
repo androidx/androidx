@@ -86,8 +86,6 @@ dependencies {
     testImplementation libs.mockito_core
 }
 
-createAndroidCheckstyle(project)
-createKotlinCheckstyle(project)
 tasks['check'].dependsOn(tasks['connectedCheck'])
 
 uploadArchives.enabled = false
