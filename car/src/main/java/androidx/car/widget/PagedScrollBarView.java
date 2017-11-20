@@ -138,6 +138,11 @@ public class PagedScrollBarView extends FrameLayout
 
     /** Sets the range, offset and extent of the scroll bar. See {@link View}. */
     public void setParameters(int range, int offset, int extent, boolean animate) {
+        // If the scroll bars aren't visible, then no need to update.
+        if (getVisibility() == View.GONE || range == 0) {
+            return;
+        }
+
         // This method is where we take the computed parameters from the PagedLayoutManager and
         // render it within the specified constraints ({@link #mMaxThumbLength} and
         // {@link #mMinThumbLength}).
@@ -154,7 +159,8 @@ public class PagedScrollBarView extends FrameLayout
         }
 
         // Sets the size of the thumb and request a redraw if needed.
-        final ViewGroup.LayoutParams lp = mScrollThumb.getLayoutParams();
+        ViewGroup.LayoutParams lp = mScrollThumb.getLayoutParams();
+
         if (lp.height != thumbLength) {
             lp.height = thumbLength;
             mScrollThumb.requestLayout();
