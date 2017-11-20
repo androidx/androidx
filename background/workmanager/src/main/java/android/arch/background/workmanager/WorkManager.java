@@ -81,7 +81,7 @@ public final class WorkManager {
                 mWorkDatabase,
                 mBackgroundScheduler,
                 ProcessLifecycleOwner.get());
-        mBackgroundScheduler = SchedulerHelper.getBackgroundScheduler(mContext);
+        mBackgroundScheduler = new WorkManagerConfiguration(mContext).getBackgroundScheduler();
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
     }
 
@@ -102,14 +102,14 @@ public final class WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public Scheduler getScheduler() {
+    public @NonNull Scheduler getScheduler() {
         return mBackgroundScheduler;
     }
 
     /**
      * Gets the {@link BaseWork.WorkStatus} for a given work id.
      *
-     * @param id The id of the {@link Work}.
+     * @param id The id of the {@link BaseWork}.
      * @return A {@link LiveData} of the status.
      */
     public LiveData<Integer> getWorkStatus(String id) {
@@ -208,9 +208,7 @@ public final class WorkManager {
 
                 // Schedule in the background if there are no prerequisites.  Foreground scheduling
                 // happens automatically because we instantiated ForegroundProcessor earlier.
-                // TODO(janclarin): Remove mBackgroundScheduler != null check when Scheduler added
-                // for 23-.
-                if (mBackgroundScheduler != null && !hasPrerequisite) {
+                if (!hasPrerequisite) {
                     for (BaseWork work : mWorkArray) {
                         mBackgroundScheduler.schedule(work.getWorkSpec());
                     }
@@ -241,9 +239,7 @@ public final class WorkManager {
                 List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithTag(mTag);
                 for (String workSpecId : workSpecIds) {
                     mForegroundProcessor.cancel(workSpecId, true);
-                    if (mBackgroundScheduler != null) {
-                        mBackgroundScheduler.cancel(workSpecId);
-                    }
+                    mBackgroundScheduler.cancel(workSpecId);
                     recursivelyDeleteWorkAndDependencies(workSpecId);
                 }
 

@@ -17,10 +17,10 @@
 package android.arch.background.workmanager;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
+import android.arch.background.workmanager.background.systemalarm.SystemAlarmScheduler;
 import android.arch.background.workmanager.background.systemjob.SystemJobScheduler;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class SchedulerHelperTest {
+public class WorkManagerConfigurationTest {
     private Context mContext;
 
     @Before
@@ -45,16 +45,15 @@ public class SchedulerHelperTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 23)
     public void testGetScheduler_afterApi23_returnsSystemJobScheduler() {
-        Scheduler scheduler = SchedulerHelper.getBackgroundScheduler(mContext);
+        Scheduler scheduler = new WorkManagerConfiguration(mContext).getBackgroundScheduler();
         assertThat(scheduler, is(instanceOf(SystemJobScheduler.class)));
     }
 
     @Test
     @SmallTest
     @SdkSuppress(maxSdkVersion = 22)
-    public void testGetScheduler_beforeApi23_doesNotReturnSystemJobScheduler() {
-        // TODO(janclarin): Change test to check for SystemAlarmScheduler when it is used.
-        Scheduler scheduler = SchedulerHelper.getBackgroundScheduler(mContext);
-        assertThat(scheduler, is(nullValue()));
+    public void testGetScheduler_beforeApi23_returnsSystemAlarmScheduler() {
+        Scheduler scheduler = new WorkManagerConfiguration(mContext).getBackgroundScheduler();
+        assertThat(scheduler, is(instanceOf(SystemAlarmScheduler.class)));
     }
 }
