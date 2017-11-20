@@ -17,6 +17,7 @@ package android.arch.background.workmanager.constraints.trackers;
 
 import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -41,22 +42,22 @@ public abstract class ConstraintTracker<T extends ConstraintListener> {
     /**
      * Add the given listener for tracking.
      *
-     * @param listener The target listener to startTracking
+     * @param listener The target listener to start notifying
      */
     public void addListener(T listener) {
         if (mListeners.add(listener)) {
-            setUpInitialState(listener);
-
             if (mListeners.size() == 1) {
+                initState();
                 startTracking();
             }
+            notifyListener(listener);
         }
     }
 
     /**
      * Remove the given listener from tracking.
      *
-     * @param listener The listener to stopTracking
+     * @param listener The listener to stop notifying.
      */
     public void removeListener(T listener) {
         if (mListeners.remove(listener) && mListeners.isEmpty()) {
@@ -65,11 +66,16 @@ public abstract class ConstraintTracker<T extends ConstraintListener> {
     }
 
     /**
-     * Set up the given listener with the initial state.
-     *
-     * @param listener The listener to update
+     * Determines and stores the initial state of the constraint being tracked.
      */
-    public abstract void setUpInitialState(T listener);
+    protected abstract void initState();
+
+    /**
+     * Notifies the listener about the current state.
+     *
+     * @param listener The listener to notify
+     */
+    protected abstract void notifyListener(@NonNull T listener);
 
     /**
      * Start tracking for constraint state changes.

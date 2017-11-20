@@ -17,6 +17,8 @@ package android.arch.background.workmanager.constraints.trackers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -29,12 +31,10 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class StorageNotLowTrackerTest {
 
@@ -45,15 +45,33 @@ public class StorageNotLowTrackerTest {
     public void setUp() {
         mTracker = new StorageNotLowTracker(InstrumentationRegistry.getTargetContext());
         mListener = mock(StorageNotLowListener.class);
-        mTracker.mListeners.add(mListener);  // Add it silently so no broadcasts trigger.
-    }
-
-    @After
-    public void shutDown() {
-        mTracker.mListeners.remove(mListener);
     }
 
     @Test
+    @SmallTest
+    public void testInitState() {
+        assertThat(mTracker.mIsStorageNotLow, is(nullValue()));
+        mTracker.initState();
+        assertThat(mTracker.mIsStorageNotLow, is(notNullValue()));
+    }
+
+    @Test
+    @SmallTest
+    public void testNotifyListener_stateNotInitialized() {
+        mTracker.notifyListener(mListener);
+        verify(mListener, never()).setStorageNotLow(anyBoolean());
+    }
+
+    @Test
+    @SmallTest
+    public void testNotifyListener_stateInitialized() {
+        mTracker.mIsStorageNotLow = true;
+        mTracker.notifyListener(mListener);
+        verify(mListener).setStorageNotLow(mTracker.mIsStorageNotLow);
+    }
+
+    @Test
+    @SmallTest
     public void testGetIntentFilter() {
         IntentFilter intentFilter = mTracker.getIntentFilter();
         assertThat(intentFilter.hasAction(Intent.ACTION_DEVICE_STORAGE_OK), is(true));
@@ -62,7 +80,9 @@ public class StorageNotLowTrackerTest {
     }
 
     @Test
+    @SmallTest
     public void testOnBroadcastReceive_invalidIntentAction_doesNotNotifyListeners() {
+        mTracker.mListeners.add(mListener);
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 new Intent("INVALID"));
@@ -70,7 +90,9 @@ public class StorageNotLowTrackerTest {
     }
 
     @Test
+    @SmallTest
     public void testOnBroadcastReceive_notifiesListeners() {
+        mTracker.mListeners.add(mListener);
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 new Intent(Intent.ACTION_DEVICE_STORAGE_OK));

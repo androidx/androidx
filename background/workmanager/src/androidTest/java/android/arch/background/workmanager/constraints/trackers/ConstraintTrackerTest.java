@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 
 import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -30,6 +31,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -52,42 +56,28 @@ public class ConstraintTrackerTest {
     }
 
     @Test
-    public void testStartTracking_setsInitialState() {
+    public void testAddListener_firstListener_setsInitialState() {
         ConstraintListener constraintListener = mock(ConstraintListener.class);
         mTracker.addListener(constraintListener);
-        assertThat(mTracker.mSetupInitialState, is(true));
+        assertThat(mTracker.mStateInitialized, is(true));
     }
 
     @Test
-    public void testTracking_registersOnSizeEqualsOne() {
+    public void testAddListener_manyListeners_startsTrackingOnlyAfterFirstAdded() {
         ConstraintListener constraintListener1 = mock(ConstraintListener.class);
+        ConstraintListener constraintListener2 = mock(ConstraintListener.class);
+
         mTracker.addListener(constraintListener1);
         assertThat(mTracker.mIsTracking, is(true));
         assertThat(mTracker.mStartTrackingCount, is(1));
 
-        ConstraintListener constraintListener2 = mock(ConstraintListener.class);
         mTracker.addListener(constraintListener2);
         assertThat(mTracker.mIsTracking, is(true));
         assertThat(mTracker.mStartTrackingCount, is(1));
     }
 
     @Test
-    public void testTracking_unregistersOnSizeEqualsZero() {
-        ConstraintListener constraintListener1 = mock(ConstraintListener.class);
-        mTracker.addListener(constraintListener1);
-        ConstraintListener constraintListener2 = mock(ConstraintListener.class);
-        mTracker.addListener(constraintListener2);
-
-        mTracker.removeListener(constraintListener1);
-        assertThat(mTracker.mIsTracking, is(true));
-        assertThat(mTracker.mStopTrackingCount, is(0));
-        mTracker.removeListener(constraintListener2);
-        assertThat(mTracker.mIsTracking, is(false));
-        assertThat(mTracker.mStopTrackingCount, is(1));
-    }
-
-    @Test
-    public void testTracking_doesNotAddListenerTwice() {
+    public void testAddListener_sameListener_doesNotStartTrackingTwice() {
         ConstraintListener constraintListener = mock(ConstraintListener.class);
         for (int i = 0; i < 2; ++i) {
             mTracker.addListener(constraintListener);
@@ -96,9 +86,56 @@ public class ConstraintTrackerTest {
         }
     }
 
+    @Test
+    public void testAddListener_manyListeners_notifiesAllListeners() {
+        ConstraintListener[] constraintListeners = new ConstraintListener[] {
+                mock(ConstraintListener.class),
+                mock(ConstraintListener.class),
+                mock(ConstraintListener.class)
+        };
+
+        for (ConstraintListener listener : constraintListeners) {
+            assertThat(wasListenerNotified(listener), is(false));
+        }
+
+        for (ConstraintListener listener : constraintListeners) {
+            mTracker.addListener(listener);
+            assertThat(wasListenerNotified(listener), is(true));
+        }
+    }
+
+    private boolean wasListenerNotified(@NonNull ConstraintListener listener) {
+        return mTracker.mNotifiedListeners.contains(listener);
+    }
+
+    @Test
+    public void testRemoveListener_lastListener_stopsTracking() {
+        ConstraintListener constraintListener = mock(ConstraintListener.class);
+        mTracker.addListener(constraintListener);
+
+        mTracker.removeListener(constraintListener);
+        assertThat(mTracker.mIsTracking, is(false));
+        assertThat(mTracker.mStopTrackingCount, is(1));
+    }
+
+    @Test
+    public void testRemoveListener_notLastListener_doesNotStopTracking() {
+        ConstraintListener constraintListener1 = mock(ConstraintListener.class);
+        ConstraintListener constraintListener2 = mock(ConstraintListener.class);
+
+        mTracker.addListener(constraintListener1);
+        mTracker.addListener(constraintListener2);
+
+        mTracker.removeListener(constraintListener1);
+        assertThat(mTracker.mIsTracking, is(true));
+        assertThat(mTracker.mStopTrackingCount, is(0));
+    }
+
     private static class TestConstraintTracker extends ConstraintTracker<ConstraintListener> {
 
-        boolean mSetupInitialState;
+        final Set<ConstraintListener> mNotifiedListeners = new HashSet<>();
+
+        boolean mStateInitialized;
         boolean mIsTracking;
         int mStartTrackingCount;
         int mStopTrackingCount;
@@ -108,8 +145,13 @@ public class ConstraintTrackerTest {
         }
 
         @Override
-        public void setUpInitialState(ConstraintListener constraintListener) {
-            mSetupInitialState = true;
+        public void initState() {
+            mStateInitialized = true;
+        }
+
+        @Override
+        public void notifyListener(@NonNull ConstraintListener listener) {
+            mNotifiedListeners.add(listener);
         }
 
         @Override
