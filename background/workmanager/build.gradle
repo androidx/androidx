@@ -30,10 +30,6 @@ android {
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
 }
 
 dependencies {
@@ -49,8 +45,6 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation project(':arch:core-testing')
 }
-
-createAndroidCheckstyle(project)
 
 supportLibrary {
     name = "Android Support Library Background WorkManager"

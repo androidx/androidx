@@ -33,10 +33,6 @@ android {
         }
     }
 
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
-
     packagingOptions {
         // This is needed due to a compatibility issue with espresso_core and play_services_base
         // Being resolved by GMSCore in b/64815250
@@ -52,18 +48,6 @@ dependencies {
     androidTestImplementation libs.mockito_core, { exclude group: 'net.bytebuddy' }
     // DexMaker has it"s own MockMaker
     androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' }
-}
-
-createAndroidCheckstyle(project)
-
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-    def suffix = name.capitalize()
-    project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompile
-        from variant.javaCompile.destinationDir
-        destinationDir new File(project.buildDir, "libJar")
-    }
 }
 
 supportLibrary {
