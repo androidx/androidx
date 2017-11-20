@@ -1,7 +1,3 @@
-import android.support.LibraryGroups
-import android.support.LibraryVersions
-import android.support.SupportLibraryExtension
-
 /*
  * Copyright (C) 2017 The Android Open Source Project
  *
@@ -18,6 +14,10 @@ import android.support.SupportLibraryExtension
  * limitations under the License.
  */
 
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+import android.support.SupportLibraryExtension
+
 apply plugin: android.support.SupportKotlinLibraryPlugin
 
 
@@ -33,8 +33,6 @@ dependencies {
     testCompile libs.xpp3
     testCompile libs.xmlpull
 }
-
-createKotlinCheckstyle(project)
 
 supportLibrary {
     name = 'Android Navigation TypeSafe Arguments Generator'
