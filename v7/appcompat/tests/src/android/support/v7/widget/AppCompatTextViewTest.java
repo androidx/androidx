@@ -35,6 +35,7 @@ import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
@@ -353,10 +354,11 @@ public class AppCompatTextViewTest
         assertEquals(Typeface.SERIF, textView.getTypeface());
     }
 
+    @SdkSuppress(minSdkVersion = 16)
     @Test
     @UiThreadTest
     public void testfontFamilyNamespaceHierarchy() {
-        // This view has fontFamilyset in both the app and android namespace. App should be used.
+        // This view has fontFamily set in both the app and android namespace. App should be used.
         TextView textView = mContainer.findViewById(R.id.textview_app_and_android_fontfamily);
 
         assertEquals(Typeface.MONOSPACE, textView.getTypeface());
