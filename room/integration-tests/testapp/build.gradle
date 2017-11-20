@@ -93,5 +93,4 @@ dependencies {
     testImplementation libs.junit
 }
 
-createAndroidCheckstyle(project)
 tasks['check'].dependsOn(tasks['connectedCheck'])

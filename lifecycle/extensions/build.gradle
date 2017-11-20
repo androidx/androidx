@@ -48,8 +48,6 @@ dependencies {
     androidTestImplementation libs.support.app_compat, libs.support_exclude_config
 }
 
-createAndroidCheckstyle(project)
-
 supportLibrary {
     name = "Android Lifecycle Extensions"
     publish = true

@@ -47,8 +47,6 @@ allprojects {
     }
 }
 
-createAndroidCheckstyle(project)
-
 supportLibrary {
     name = "Android Lifecycle Reactivestreams"
     publish = true

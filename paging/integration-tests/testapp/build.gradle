@@ -58,7 +58,6 @@ dependencies {
     implementation libs.support.app_compat, libs.support_exclude_config
 }
 
-createAndroidCheckstyle(project)
 tasks['check'].dependsOn(tasks['connectedCheck'])
 
 uploadArchives.enabled = false

@@ -24,9 +24,6 @@ dependencies {
     testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
-version = LibraryVersions.LIFECYCLES_EXT.toString()
-createKotlinCheckstyle(project)
-
 // we actually need to compile :lifecycle:common, but compileJava is easier
 task compileTestLibrarySource(type: JavaCompile, dependsOn: compileJava) {
     source "src/tests/test-data/lib/src"
