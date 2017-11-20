@@ -31,14 +31,16 @@ public class MediaBrowserConstants {
     public static final int SET_SESSION_TOKEN = 7;
 
     public static final String MEDIA_ID_ROOT = "test_media_id_root";
-
-    public static final String EXTRAS_KEY = "test_extras_key";
-    public static final String EXTRAS_VALUE = "test_extras_value";
-
     public static final String MEDIA_ID_INVALID = "test_media_id_invalid";
     public static final String MEDIA_ID_CHILDREN_DELAYED = "test_media_id_children_delayed";
     public static final String MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED =
             "test_media_id_on_load_item_not_implemented";
+    public static final String MEDIA_ID_INCLUDE_METADATA = "test_media_id_include_metadata";
+
+    public static final String EXTRAS_KEY = "test_extras_key";
+    public static final String EXTRAS_VALUE = "test_extras_value";
+
+    public static final String MEDIA_METADATA = "test_media_metadata";
 
     public static final String SEARCH_QUERY = "children_2";
     public static final String SEARCH_QUERY_FOR_NO_RESULT = "query no result";
