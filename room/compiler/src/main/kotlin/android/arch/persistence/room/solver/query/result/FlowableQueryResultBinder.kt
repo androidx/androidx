@@ -39,7 +39,7 @@ class FlowableQueryResultBinder(val typeArg: TypeMirror, val queryTableNames: Se
     : BaseObservableQueryResultBinder(adapter) {
     override fun convertAndReturn(roomSQLiteQueryVar: String,
                                   dbField: FieldSpec,
-                                  inTransaction : Boolean,
+                                  inTransaction: Boolean,
                                   scope: CodeGenScope) {
         val callableImpl = TypeSpec.anonymousClassBuilder("").apply {
             val typeName = typeArg.typeName()

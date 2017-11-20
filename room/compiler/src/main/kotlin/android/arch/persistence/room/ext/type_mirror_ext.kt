@@ -23,8 +23,8 @@ import javax.lang.model.type.TypeKind.LONG
 import javax.lang.model.type.TypeKind.SHORT
 import javax.lang.model.type.TypeMirror
 
-fun TypeMirror.defaultValue() : String {
-    return when(this.kind) {
+fun TypeMirror.defaultValue(): String {
+    return when (this.kind) {
         BOOLEAN -> "false"
         BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE -> "0"
         else -> "null"

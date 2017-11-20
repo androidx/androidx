@@ -27,12 +27,12 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
 
-class Context private constructor(val processingEnv: ProcessingEnvironment,
-                                  val logger: RLog,
-                                  private val typeConverters
-                                        : CustomConverterProcessor.ProcessResult,
-                                  private val inheritedAdapterStore: TypeAdapterStore?,
-                                  val cache: Cache) {
+class Context private constructor(
+        val processingEnv: ProcessingEnvironment,
+        val logger: RLog,
+        private val typeConverters: CustomConverterProcessor.ProcessResult,
+        private val inheritedAdapterStore: TypeAdapterStore?,
+        val cache: Cache) {
     val checker: Checks = Checks(logger)
     val COMMON_TYPES: Context.CommonTypes = Context.CommonTypes(processingEnv)
 

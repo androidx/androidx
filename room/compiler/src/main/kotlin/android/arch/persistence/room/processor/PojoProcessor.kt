@@ -73,13 +73,12 @@ class PojoProcessor(baseContext: Context,
         val PROCESSED_ANNOTATIONS = listOf(ColumnInfo::class, Embedded::class,
                     Relation::class)
     }
-    fun process() : Pojo {
+    fun process(): Pojo {
         return context.cache.pojos.get(Cache.PojoKey(element, bindingScope, parent), {
             referenceStack.add(element.qualifiedName)
             try {
                 doProcess()
-            }
-            finally {
+            } finally {
                 referenceStack.remove(element.qualifiedName)
             }
         })
@@ -198,8 +197,8 @@ class PojoProcessor(baseContext: Context,
                 constructor = constructor)
     }
 
-    private fun chooseConstructor(myFields: List<Field>, embedded: List<EmbeddedField>)
-            : Constructor? {
+    private fun chooseConstructor(
+            myFields: List<Field>, embedded: List<EmbeddedField>): Constructor? {
         val constructors = ElementFilter.constructorsIn(element.enclosedElements)
                 .filterNot { it.hasAnnotation(Ignore::class) || it.hasAnyOf(PRIVATE) }
         val fieldMap = myFields.associateBy { it.name }
@@ -294,8 +293,8 @@ class PojoProcessor(baseContext: Context,
         }
     }
 
-    private fun processEmbeddedField(declaredType: DeclaredType?, variableElement: VariableElement)
-            : EmbeddedField? {
+    private fun processEmbeddedField(
+            declaredType: DeclaredType?, variableElement: VariableElement): EmbeddedField? {
 
         val asTypeElement = MoreTypes.asTypeElement(variableElement.asType())
 
@@ -308,14 +307,15 @@ class PojoProcessor(baseContext: Context,
                 ?.toString()
                 ?: ""
         val inheritedPrefix = parent?.prefix ?: ""
-        val embeddedField = Field(variableElement,
-                                  variableElement.simpleName.toString(),
-                                  type = context
-                                          .processingEnv
-                                          .typeUtils
-                                          .asMemberOf(declaredType, variableElement),
-                                  affinity = null,
-                                  parent = parent)
+        val embeddedField = Field(
+                variableElement,
+                variableElement.simpleName.toString(),
+                type = context
+                        .processingEnv
+                        .typeUtils
+                        .asMemberOf(declaredType, variableElement),
+                affinity = null,
+                parent = parent)
         val subParent = EmbeddedField(
                 field = embeddedField,
                 prefix = inheritedPrefix + fieldPrefix,
@@ -329,10 +329,10 @@ class PojoProcessor(baseContext: Context,
         return subParent
     }
 
-    private fun processRelationField(myFields : List<Field>, container: DeclaredType?,
-                                     relationElement: VariableElement)
-            : android.arch.persistence.room.vo.Relation? {
-
+    private fun processRelationField(
+            myFields: List<Field>, container: DeclaredType?,
+            relationElement: VariableElement
+    ): android.arch.persistence.room.vo.Relation? {
         val asTypeElement = MoreTypes.asTypeElement(
                 MoreElements.asVariable(relationElement).asType())
 
@@ -376,15 +376,15 @@ class PojoProcessor(baseContext: Context,
         val typeArgElement = MoreTypes.asTypeElement(typeArg)
         val entityClassInput = AnnotationMirrors
                 .getAnnotationValue(annotation, "entity").toClassType()
-        val pojo : Pojo
-        val entity : Entity
+        val pojo: Pojo
+        val entity: Entity
         if (entityClassInput == null
                 || MoreTypes.isTypeOf(Any::class.java, entityClassInput)) {
             entity = EntityProcessor(context, typeArgElement, referenceStack).process()
             pojo = entity
         } else {
             entity = EntityProcessor(context, MoreTypes.asTypeElement(entityClassInput),
-                                     referenceStack).process()
+                    referenceStack).process()
             pojo = PojoProcessor(
                     baseContext = context,
                     element = typeArgElement,
@@ -417,7 +417,7 @@ class PojoProcessor(baseContext: Context,
 
         val projection = AnnotationMirrors.getAnnotationValue(annotation, "projection")
                 .getAsStringList()
-        if(projection.isNotEmpty()) {
+        if (projection.isNotEmpty()) {
             val missingColumns = projection.filterNot { columnName ->
                 entity.fields.any { columnName == it.columnName }
             }
@@ -497,7 +497,7 @@ class PojoProcessor(baseContext: Context,
     }
 
     private fun assignSetters(fields: List<Field>, setterCandidates: List<ExecutableElement>,
-                              constructor : Constructor?) {
+                              constructor: Constructor?) {
         fields.forEach { field ->
             assignSetter(field, setterCandidates, constructor)
         }
@@ -580,9 +580,10 @@ class PojoProcessor(baseContext: Context,
         }
     }
 
-    private fun verifyAndChooseOneFrom(candidates: List<ExecutableElement>?,
-                                       reportAmbiguity: (List<String>) -> Unit)
-            : ExecutableElement? {
+    private fun verifyAndChooseOneFrom(
+            candidates: List<ExecutableElement>?,
+            reportAmbiguity: (List<String>) -> Unit
+    ): ExecutableElement? {
         if (candidates == null) {
             return null
         }

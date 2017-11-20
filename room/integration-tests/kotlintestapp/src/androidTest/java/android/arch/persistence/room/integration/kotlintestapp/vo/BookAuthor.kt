@@ -19,7 +19,6 @@ package android.arch.persistence.room.integration.kotlintestapp.vo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey
 
-
 @Entity(foreignKeys = arrayOf(
         ForeignKey(entity = Book::class,
                 parentColumns = arrayOf("bookId"),

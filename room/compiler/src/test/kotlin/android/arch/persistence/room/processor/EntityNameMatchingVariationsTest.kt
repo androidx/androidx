@@ -38,7 +38,7 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() : List<Triple<String, String, String>> {
+        fun params(): List<Triple<String, String, String>> {
             val result = arrayListOf<Triple<String, String, String>>()
             arrayListOf("x", "_x", "mX").forEach { field ->
                 arrayListOf("getX", "x").forEach { getter ->

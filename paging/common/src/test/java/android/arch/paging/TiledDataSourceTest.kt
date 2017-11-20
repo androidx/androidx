@@ -31,8 +31,8 @@ import java.util.Collections
 @RunWith(JUnit4::class)
 class TiledDataSourceTest {
 
-    fun TiledDataSource<String>.loadInitial(startPosition: Int, count: Int, pageSize: Int)
-            : List<String> {
+    fun TiledDataSource<String>.loadInitial(
+            startPosition: Int, count: Int, pageSize: Int): List<String> {
         @Suppress("UNCHECKED_CAST")
         val receiver = mock(PageResult.Receiver::class.java) as PageResult.Receiver<String>
 
@@ -69,7 +69,7 @@ class TiledDataSourceTest {
 
     @Test
     fun loadInitialTooLong() {
-        val list = List(26) { "" + 'a' + it}
+        val list = List(26) { "" + 'a' + it }
         class AlphabetDataSource : TiledDataSource<String>() {
             override fun countItems(): Int {
                 return list.size

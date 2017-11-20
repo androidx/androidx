@@ -26,7 +26,7 @@ import com.squareup.javapoet.TypeName
 /**
  * Binds ARRAY(T) (e.g. int[]) into String[] args of a query.
  */
-class ArrayQueryParameterAdapter(val bindAdapter : StatementValueBinder)
+class ArrayQueryParameterAdapter(val bindAdapter: StatementValueBinder)
             : QueryParameterAdapter(true) {
     override fun bindToStmt(inputVarName: String, stmtVarName: String, startIndexVarName: String,
                             scope: CodeGenScope) {
@@ -41,7 +41,7 @@ class ArrayQueryParameterAdapter(val bindAdapter : StatementValueBinder)
         }
     }
 
-    override fun getArgCount(inputVarName: String, outputVarName : String, scope: CodeGenScope) {
+    override fun getArgCount(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder()
                 .addStatement("final $T $L = $L.length", TypeName.INT, outputVarName, inputVarName)
     }

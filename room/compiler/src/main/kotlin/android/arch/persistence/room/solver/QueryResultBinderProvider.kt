@@ -21,6 +21,6 @@ import android.arch.persistence.room.solver.query.result.QueryResultBinder
 import javax.lang.model.type.DeclaredType
 
 interface QueryResultBinderProvider {
-    fun provide(declared : DeclaredType, query: ParsedQuery) : QueryResultBinder
-    fun matches(declared: DeclaredType) : Boolean
+    fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder
+    fun matches(declared: DeclaredType): Boolean
 }

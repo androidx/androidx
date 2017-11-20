@@ -30,7 +30,7 @@ import javax.lang.model.util.ElementFilter
 /**
  * Processes parameters of methods that are annotated with Insert, Delete.
  */
-class ShortcutParameterProcessor(baseContext : Context,
+class ShortcutParameterProcessor(baseContext: Context,
                                  val containing: DeclaredType,
                                  val element: VariableElement) {
     val context = baseContext.fork(element)
@@ -53,13 +53,12 @@ class ShortcutParameterProcessor(baseContext : Context,
     }
 
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    fun extractEntityType(typeMirror: TypeMirror) : Pair<TypeMirror?, Boolean> {
+    fun extractEntityType(typeMirror: TypeMirror): Pair<TypeMirror?, Boolean> {
 
         val elementUtils = context.processingEnv.elementUtils
         val typeUtils = context.processingEnv.typeUtils
 
-        fun verifyAndPair(entityType: TypeMirror, isMultiple : Boolean)
-                : Pair<TypeMirror?, Boolean> {
+        fun verifyAndPair(entityType: TypeMirror, isMultiple: Boolean): Pair<TypeMirror?, Boolean> {
             if (!MoreTypes.isType(entityType)) {
                 return Pair(null, isMultiple)
             }

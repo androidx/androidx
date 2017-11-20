@@ -39,7 +39,7 @@ import javax.lang.model.element.Modifier.VOLATILE
 /**
  * Writes implementation of classes that were annotated with @Database.
  */
-class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeName) {
+class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName) {
     override fun createTypeSpecBuilder(): TypeSpec.Builder {
         val builder = TypeSpec.classBuilder(database.implTypeName)
         builder.apply {
@@ -64,7 +64,7 @@ class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeNam
         }.build()
     }
 
-    private fun  addDaoImpls(builder: TypeSpec.Builder) {
+    private fun addDaoImpls(builder: TypeSpec.Builder) {
         val scope = CodeGenScope(this)
         builder.apply {
             database.daoMethods.forEach { method ->
@@ -78,7 +78,7 @@ class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeNam
         }
     }
 
-    private fun createDaoGetter(field: FieldSpec, method: DaoMethod) : MethodSpec {
+    private fun createDaoGetter(field: FieldSpec, method: DaoMethod): MethodSpec {
         return MethodSpec.overriding(MoreElements.asExecutable(method.element)).apply {
             beginControlFlow("if ($N != null)", field).apply {
                 addStatement("return $N", field)
@@ -97,7 +97,7 @@ class DatabaseWriter(val database : Database) : ClassWriter(database.implTypeNam
         }.build()
     }
 
-    private fun createCreateOpenHelper() : MethodSpec {
+    private fun createCreateOpenHelper(): MethodSpec {
         val scope = CodeGenScope(this)
         return MethodSpec.methodBuilder("createOpenHelper").apply {
             addModifiers(Modifier.PROTECTED)

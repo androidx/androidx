@@ -25,13 +25,15 @@ import javax.lang.model.type.TypeMirror
 /**
  * Adapters for all boxed primitives that has direct cursor mappings.
  */
-open class BoxedPrimitiveColumnTypeAdapter(boxed : TypeMirror,
-                                           val primitiveAdapter : PrimitiveColumnTypeAdapter)
-            : ColumnTypeAdapter(boxed, primitiveAdapter.typeAffinity) {
+open class BoxedPrimitiveColumnTypeAdapter(
+        boxed: TypeMirror,
+        val primitiveAdapter: PrimitiveColumnTypeAdapter
+) : ColumnTypeAdapter(boxed, primitiveAdapter.typeAffinity) {
     companion object {
-        fun createBoxedPrimitiveAdapters(processingEnvironment: ProcessingEnvironment,
-                                    primitiveAdapters : List<PrimitiveColumnTypeAdapter>)
-                : List<ColumnTypeAdapter> {
+        fun createBoxedPrimitiveAdapters(
+                processingEnvironment: ProcessingEnvironment,
+                primitiveAdapters: List<PrimitiveColumnTypeAdapter>
+        ): List<ColumnTypeAdapter> {
 
             return primitiveAdapters.map {
                 BoxedPrimitiveColumnTypeAdapter(

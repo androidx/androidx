@@ -24,11 +24,11 @@ import javax.lang.model.type.TypeMirror
  * <p>
  * An instance of this is created for each usage so that it can keep local variables.
  */
-abstract class RowAdapter(val out : TypeMirror) {
+abstract class RowAdapter(val out: TypeMirror) {
     /**
      * Called when cursor variable is ready, good place to put initialization code.
      */
-    open fun onCursorReady(cursorVarName: String, scope : CodeGenScope) {}
+    open fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {}
 
     /**
      * Called to convert a single row.
@@ -39,5 +39,5 @@ abstract class RowAdapter(val out : TypeMirror) {
      * Called when the cursor is finished. It is important to return null if no operation is
      * necessary so that caller can understand that we can do lazy loading.
      */
-    open fun onCursorFinished() : ((scope : CodeGenScope) -> Unit)? = null
+    open fun onCursorFinished(): ((scope: CodeGenScope) -> Unit)? = null
 }

@@ -33,59 +33,59 @@ fun TypeMirror.typeName() = TypeName.get(this)
 
 object SupportDbTypeNames {
     val DB: ClassName = ClassName.get("android.arch.persistence.db", "SupportSQLiteDatabase")
-    val SQLITE_STMT : ClassName =
+    val SQLITE_STMT: ClassName =
             ClassName.get("android.arch.persistence.db", "SupportSQLiteStatement")
-    val SQLITE_OPEN_HELPER : ClassName =
+    val SQLITE_OPEN_HELPER: ClassName =
             ClassName.get("android.arch.persistence.db", "SupportSQLiteOpenHelper")
-    val SQLITE_OPEN_HELPER_CALLBACK : ClassName =
+    val SQLITE_OPEN_HELPER_CALLBACK: ClassName =
             ClassName.get("android.arch.persistence.db", "SupportSQLiteOpenHelper.Callback")
-    val SQLITE_OPEN_HELPER_FACTORY : ClassName =
+    val SQLITE_OPEN_HELPER_FACTORY: ClassName =
             ClassName.get("android.arch.persistence.db", "SupportSQLiteOpenHelper.Factory")
-    val SQLITE_OPEN_HELPER_CONFIG : ClassName =
+    val SQLITE_OPEN_HELPER_CONFIG: ClassName =
             ClassName.get("android.arch.persistence.db", "SupportSQLiteOpenHelper.Configuration")
-    val SQLITE_OPEN_HELPER_CONFIG_BUILDER : ClassName =
+    val SQLITE_OPEN_HELPER_CONFIG_BUILDER: ClassName =
             ClassName.get("android.arch.persistence.db",
                     "SupportSQLiteOpenHelper.Configuration.Builder")
 }
 
 object RoomTypeNames {
     val STRING_UTIL: ClassName = ClassName.get("android.arch.persistence.room.util", "StringUtil")
-    val CURSOR_CONVERTER : ClassName =
+    val CURSOR_CONVERTER: ClassName =
             ClassName.get("android.arch.persistence.room", "CursorConverter")
-    val ROOM : ClassName = ClassName.get("android.arch.persistence.room", "Room")
-    val ROOM_DB : ClassName = ClassName.get("android.arch.persistence.room", "RoomDatabase")
-    val ROOM_DB_CONFIG : ClassName = ClassName.get("android.arch.persistence.room",
+    val ROOM: ClassName = ClassName.get("android.arch.persistence.room", "Room")
+    val ROOM_DB: ClassName = ClassName.get("android.arch.persistence.room", "RoomDatabase")
+    val ROOM_DB_CONFIG: ClassName = ClassName.get("android.arch.persistence.room",
             "DatabaseConfiguration")
-    val INSERTION_ADAPTER : ClassName =
+    val INSERTION_ADAPTER: ClassName =
             ClassName.get("android.arch.persistence.room", "EntityInsertionAdapter")
-    val DELETE_OR_UPDATE_ADAPTER : ClassName =
+    val DELETE_OR_UPDATE_ADAPTER: ClassName =
             ClassName.get("android.arch.persistence.room", "EntityDeletionOrUpdateAdapter")
-    val SHARED_SQLITE_STMT : ClassName =
+    val SHARED_SQLITE_STMT: ClassName =
             ClassName.get("android.arch.persistence.room", "SharedSQLiteStatement")
-    val INVALIDATION_TRACKER : ClassName =
+    val INVALIDATION_TRACKER: ClassName =
             ClassName.get("android.arch.persistence.room", "InvalidationTracker")
-    val INVALIDATION_OBSERVER : ClassName =
+    val INVALIDATION_OBSERVER: ClassName =
             ClassName.get("android.arch.persistence.room.InvalidationTracker", "Observer")
-    val ROOM_SQL_QUERY : ClassName =
+    val ROOM_SQL_QUERY: ClassName =
             ClassName.get("android.arch.persistence.room", "RoomSQLiteQuery")
-    val OPEN_HELPER : ClassName =
+    val OPEN_HELPER: ClassName =
             ClassName.get("android.arch.persistence.room", "RoomOpenHelper")
     val OPEN_HELPER_DELEGATE: ClassName =
             ClassName.get("android.arch.persistence.room", "RoomOpenHelper.Delegate")
-    val TABLE_INFO : ClassName =
+    val TABLE_INFO: ClassName =
             ClassName.get("android.arch.persistence.room.util", "TableInfo")
-    val TABLE_INFO_COLUMN : ClassName =
+    val TABLE_INFO_COLUMN: ClassName =
             ClassName.get("android.arch.persistence.room.util", "TableInfo.Column")
-    val TABLE_INFO_FOREIGN_KEY : ClassName =
+    val TABLE_INFO_FOREIGN_KEY: ClassName =
             ClassName.get("android.arch.persistence.room.util", "TableInfo.ForeignKey")
-    val TABLE_INFO_INDEX : ClassName =
+    val TABLE_INFO_INDEX: ClassName =
             ClassName.get("android.arch.persistence.room.util", "TableInfo.Index")
-    val LIMIT_OFFSET_DATA_SOURCE : ClassName =
+    val LIMIT_OFFSET_DATA_SOURCE: ClassName =
             ClassName.get("android.arch.persistence.room.paging", "LimitOffsetDataSource")
 }
 
 object ArchTypeNames {
-    val APP_EXECUTOR : ClassName =
+    val APP_EXECUTOR: ClassName =
             ClassName.get("android.arch.core.executor", "ArchTaskExecutor")
 }
 
@@ -96,18 +96,17 @@ object PagingTypeNames {
             ClassName.get("android.arch.paging", "TiledDataSource")
     val LIVE_PAGED_LIST_PROVIDER: ClassName =
             ClassName.get("android.arch.paging", "LivePagedListProvider")
-
 }
 
 object LifecyclesTypeNames {
     val LIVE_DATA: ClassName = ClassName.get("android.arch.lifecycle", "LiveData")
-    val COMPUTABLE_LIVE_DATA : ClassName = ClassName.get("android.arch.lifecycle",
+    val COMPUTABLE_LIVE_DATA: ClassName = ClassName.get("android.arch.lifecycle",
             "ComputableLiveData")
 }
 
 object AndroidTypeNames {
-    val CURSOR : ClassName = ClassName.get("android.database", "Cursor")
-    val ARRAY_MAP : ClassName = ClassName.get("android.support.v4.util", "ArrayMap")
+    val CURSOR: ClassName = ClassName.get("android.database", "Cursor")
+    val ARRAY_MAP: ClassName = ClassName.get("android.support.v4.util", "ArrayMap")
 }
 
 object CommonTypeNames {
@@ -133,7 +132,7 @@ object RoomRxJava2TypeNames {
             "EmptyResultSetException")
 }
 
-fun TypeName.defaultValue() : String {
+fun TypeName.defaultValue(): String {
     return if (!isPrimitive) {
         "null"
     } else if (this == TypeName.BOOLEAN) {

@@ -27,9 +27,9 @@ import com.squareup.javapoet.FieldSpec
  * Instantly runs and returns the query.
  */
 class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder(adapter) {
-    override fun convertAndReturn(roomSQLiteQueryVar : String,
+    override fun convertAndReturn(roomSQLiteQueryVar: String,
                                   dbField: FieldSpec,
-                                  inTransaction : Boolean,
+                                  inTransaction: Boolean,
                                   scope: CodeGenScope) {
         val transactionWrapper = if (inTransaction) {
             scope.builder().transactionWrapper(dbField)

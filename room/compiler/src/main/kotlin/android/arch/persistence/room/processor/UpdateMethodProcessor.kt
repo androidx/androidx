@@ -25,9 +25,10 @@ import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 
-class UpdateMethodProcessor(baseContext: Context,
-                              val containing: DeclaredType,
-                              val executableElement: ExecutableElement) {
+class UpdateMethodProcessor(
+        baseContext: Context,
+        val containing: DeclaredType,
+        val executableElement: ExecutableElement) {
     val context = baseContext.fork(executableElement)
 
     fun process(): UpdateMethod {

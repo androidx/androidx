@@ -33,8 +33,8 @@ import java.util.Arrays
 import java.util.HashMap
 import java.util.HashSet
 
-class TableInfoValidationWriter(val entity : Entity) {
-    fun write(dbParam : ParameterSpec, scope : CodeGenScope) {
+class TableInfoValidationWriter(val entity: Entity) {
+    fun write(dbParam: ParameterSpec, scope: CodeGenScope) {
         val suffix = entity.tableName.stripNonJava().capitalize()
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
         scope.builder().apply {

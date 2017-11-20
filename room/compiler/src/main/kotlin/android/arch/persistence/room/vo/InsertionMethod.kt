@@ -29,7 +29,7 @@ data class InsertionMethod(val element: ExecutableElement, val name: String,
                            val entities: Map<String, Entity>, val returnType: TypeMirror,
                            val insertionType: Type?,
                            val parameters: List<ShortcutQueryParameter>) {
-    fun insertMethodTypeFor(param : ShortcutQueryParameter) : Type {
+    fun insertMethodTypeFor(param: ShortcutQueryParameter): Type {
         return if (insertionType == Type.INSERT_VOID || insertionType == null) {
             Type.INSERT_VOID
         } else if (!param.isMultiple) {
@@ -41,7 +41,7 @@ data class InsertionMethod(val element: ExecutableElement, val name: String,
 
     enum class Type(
             // methodName matches EntityInsertionAdapter methods
-            val methodName : String, val returnTypeName : TypeName) {
+            val methodName: String, val returnTypeName: TypeName) {
         INSERT_VOID("insert", TypeName.VOID), // return void
         INSERT_SINGLE_ID("insertAndReturnId", TypeName.LONG), // return long
         INSERT_ID_ARRAY("insertAndReturnIdsArray",

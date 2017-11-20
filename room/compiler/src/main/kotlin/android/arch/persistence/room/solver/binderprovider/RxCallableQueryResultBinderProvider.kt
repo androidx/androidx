@@ -22,7 +22,6 @@ import android.arch.persistence.room.parser.ParsedQuery
 import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.processor.ProcessorErrors
 import android.arch.persistence.room.solver.QueryResultBinderProvider
-import android.arch.persistence.room.solver.query.result.InstantQueryResultBinder
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
 import android.arch.persistence.room.solver.query.result.RxCallableQueryResultBinder
 import javax.lang.model.type.DeclaredType

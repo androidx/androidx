@@ -33,7 +33,6 @@ import org.junit.Test
 import java.io.FileNotFoundException
 import java.io.IOException
 
-
 class MigrationKotlinTest {
 
     @get:Rule
@@ -58,7 +57,6 @@ class MigrationKotlinTest {
         } catch (exception: FileNotFoundException) {
             assertThat<String>(exception.message, containsString("Cannot find"))
         }
-
     }
 
     @Test
@@ -243,7 +241,6 @@ class MigrationKotlinTest {
         assertThat<Throwable>(throwable, instanceOf<Throwable>(IllegalStateException::class.java))
         assertThat<String>(throwable!!.message, containsString("Migration failed"))
     }
-
 
     internal val MIGRATION_1_2: Migration = object : Migration(1, 2) {
         override fun migrate(database: SupportSQLiteDatabase) {

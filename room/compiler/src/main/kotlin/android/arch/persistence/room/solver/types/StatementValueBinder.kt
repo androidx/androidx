@@ -24,7 +24,7 @@ import javax.lang.model.type.TypeMirror
  * see: CursorValueReader
  */
 interface StatementValueBinder {
-    fun typeMirror() : TypeMirror
+    fun typeMirror(): TypeMirror
     fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
                             scope: CodeGenScope)
 }

@@ -35,7 +35,7 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
                  * embedded child of the main Pojo*/
                  val parent: EmbeddedField? = null,
                  // index might be removed when being merged into an Entity
-                 var indexed : Boolean = false) {
+                 var indexed: Boolean = false) {
     lateinit var getter: FieldGetter
     lateinit var setter: FieldSetter
     // binds the field into a statement
@@ -50,7 +50,7 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
     /**
      * Used when reporting errors on duplicate names
      */
-    fun getPath() : String {
+    fun getPath(): String {
         return if (parent == null) {
             name
         } else {
@@ -58,7 +58,7 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
         }
     }
 
-    private val pathWithDotNotation : String by lazy {
+    private val pathWithDotNotation: String by lazy {
         if (parent == null) {
             name
         } else {
@@ -111,7 +111,7 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
     /**
      * definition to be used in create query
      */
-    fun databaseDefinition(autoIncrementPKey : Boolean) : String {
+    fun databaseDefinition(autoIncrementPKey: Boolean): String {
         val columnSpec = StringBuilder("")
         if (autoIncrementPKey) {
             columnSpec.append(" PRIMARY KEY AUTOINCREMENT")
