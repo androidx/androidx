@@ -58,7 +58,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
                         ?.toListOfClassTypes()
                         ?.filter {
                             MoreTypes.isType(it)
-                        }?.mapTo(LinkedHashSet(), {it}) ?: LinkedHashSet<TypeMirror>()
+                        }?.mapTo(LinkedHashSet(), { it }) ?: LinkedHashSet<TypeMirror>()
                 val converters = classes
                         .flatMap {
                             CustomConverterProcessor(context, MoreTypes.asTypeElement(it))
@@ -71,7 +71,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
             } ?: ProcessResult.EMPTY
         }
 
-        fun reportDuplicates(context: Context, converters : List<CustomTypeConverter>) {
+        fun reportDuplicates(context: Context, converters: List<CustomTypeConverter>) {
             val groupedByFrom = converters.groupBy { it.from.typeName() }
             groupedByFrom.forEach {
                 it.value.groupBy { it.to.typeName() }.forEach {
@@ -106,8 +106,8 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
         }.filterNotNull()
     }
 
-    private fun processMethod(container: DeclaredType, methodElement: ExecutableElement)
-            : CustomTypeConverter? {
+    private fun processMethod(
+            container: DeclaredType, methodElement: ExecutableElement): CustomTypeConverter? {
         val asMember = context.processingEnv.typeUtils.asMemberOf(container, methodElement)
         val executableType = MoreTypes.asExecutable(asMember)
         val returnType = executableType.returnType
@@ -136,10 +136,12 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
     /**
      * Order of classes is important hence they are a LinkedHashSet not a set.
      */
-    open class ProcessResult(val classes: LinkedHashSet<TypeMirror>,
-                             val converters: List<CustomTypeConverterWrapper>) {
+    open class ProcessResult(
+            val classes: LinkedHashSet<TypeMirror>,
+            val converters: List<CustomTypeConverterWrapper>
+    ) {
         object EMPTY : ProcessResult(LinkedHashSet(), emptyList())
-        operator fun plus(other : ProcessResult) : ProcessResult {
+        operator fun plus(other: ProcessResult): ProcessResult {
             val newClasses = LinkedHashSet<TypeMirror>()
             newClasses.addAll(classes)
             newClasses.addAll(other.classes)

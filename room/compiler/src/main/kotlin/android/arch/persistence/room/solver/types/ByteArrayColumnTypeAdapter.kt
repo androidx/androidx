@@ -22,7 +22,7 @@ import android.arch.persistence.room.solver.CodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeKind
 
-class ByteArrayColumnTypeAdapter(env : ProcessingEnvironment) : ColumnTypeAdapter(
+class ByteArrayColumnTypeAdapter(env: ProcessingEnvironment) : ColumnTypeAdapter(
         out = env.typeUtils.getArrayType(env.typeUtils.getPrimitiveType(TypeKind.BYTE)),
         typeAffinity = SQLTypeAffinity.BLOB) {
     override fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,

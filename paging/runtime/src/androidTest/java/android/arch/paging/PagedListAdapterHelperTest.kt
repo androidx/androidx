@@ -41,7 +41,6 @@ class PagedListAdapterHelperTest {
     private val mDiffThread = TestExecutor()
     private val mPageLoadingThread = TestExecutor()
 
-
     private fun <T> createHelper(listUpdateCallback: ListUpdateCallback,
                                  diffCallback: DiffCallback<T>): PagedListAdapterHelper<T> {
         return PagedListAdapterHelper(listUpdateCallback,

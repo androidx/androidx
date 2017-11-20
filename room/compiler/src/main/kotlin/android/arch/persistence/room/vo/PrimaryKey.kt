@@ -21,13 +21,13 @@ import javax.lang.model.element.Element
 /**
  * Represents a PrimaryKey for an Entity.
  */
-data class PrimaryKey(val declaredIn : Element?, val fields: List<Field>,
+data class PrimaryKey(val declaredIn: Element?, val fields: List<Field>,
                       val autoGenerateId: Boolean) {
     companion object {
         val MISSING = PrimaryKey(null, emptyList(), false)
     }
 
-    val columnNames by lazy { fields.map {it.columnName} }
+    val columnNames by lazy { fields.map { it.columnName } }
 
     fun toHumanReadableString(): String {
         return "PrimaryKey[" +

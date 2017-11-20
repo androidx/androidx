@@ -30,7 +30,7 @@ interface TransactionWrapper {
     fun endTransactionWithControlFlow()
 }
 
-fun MethodSpec.Builder.transactionWrapper(dbField : FieldSpec) = object : TransactionWrapper {
+fun MethodSpec.Builder.transactionWrapper(dbField: FieldSpec) = object : TransactionWrapper {
     override fun beginTransactionWithControlFlow() {
         addStatement("$N.beginTransaction()", dbField)
         beginControlFlow("try")

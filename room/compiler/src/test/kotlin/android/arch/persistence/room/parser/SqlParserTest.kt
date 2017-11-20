@@ -110,7 +110,7 @@ class SqlParserTest {
     }
 
     @Test
-    fun  indexedVariablesError() {
+    fun indexedVariablesError() {
         assertErrors("select * from users where name like ?",
                 ParserErrors.ANONYMOUS_BIND_ARGUMENT)
         assertErrors("select * from users where name like ? or last_name like ?",

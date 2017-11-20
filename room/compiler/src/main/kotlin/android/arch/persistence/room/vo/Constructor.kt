@@ -22,9 +22,9 @@ import javax.lang.model.element.ExecutableElement
  * For each Entity / Pojo we process has a constructor. It might be the empty constructor or a
  * constructor with fields.
  */
-data class Constructor(val element : ExecutableElement, val params : List<Param>) {
+data class Constructor(val element: ExecutableElement, val params: List<Param>) {
 
-    fun hasField(field : Field) : Boolean {
+    fun hasField(field: Field): Boolean {
         return params.any {
             when (it) {
                 is FieldParam -> it.field === field
@@ -34,18 +34,16 @@ data class Constructor(val element : ExecutableElement, val params : List<Param>
         }
     }
 
-    class FieldParam(val field : Field) : Param(ParamType.FIELD) {
+    class FieldParam(val field: Field) : Param(ParamType.FIELD) {
         override fun log(): String = field.getPath()
-
     }
 
     class EmbeddedParam(val embedded: EmbeddedField) : Param(ParamType.EMBEDDED) {
         override fun log(): String = embedded.field.getPath()
-
     }
 
-    abstract class Param(val type : ParamType) {
-        abstract fun log() : String;
+    abstract class Param(val type: ParamType) {
+        abstract fun log(): String
     }
 
     enum class ParamType {

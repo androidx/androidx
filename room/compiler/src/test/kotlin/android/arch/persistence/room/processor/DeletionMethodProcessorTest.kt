@@ -36,5 +36,4 @@ class DeletionMethodProcessorTest : ShortcutMethodProcessorTest<DeletionMethod>(
                          executableElement: ExecutableElement): DeletionMethod {
         return DeletionMethodProcessor(baseContext, containing, executableElement).process()
     }
-
 }

@@ -277,7 +277,6 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public java.util.Date myDate;
                 """) { _, _ ->
-
         }.failsToCompile().withErrorContaining(ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER)
     }
 
@@ -338,7 +337,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
         }.compilesWithoutError()
     }
 
-    private fun fieldsByName(entity : Pojo, vararg fieldNames : String) : List<Field> {
+    private fun fieldsByName(entity: Pojo, vararg fieldNames: String): List<Field> {
         return fieldNames
                 .map { name -> entity.fields.find { it.name == name } }
                 .filterNotNull()
@@ -438,9 +437,10 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """
                 , annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
-                    listOf(Index(name = "index_MyEntity_foo_id",
+                    listOf(Index(
+                            name = "index_MyEntity_foo_id",
                             unique = true,
-                           fields = fieldsByName(entity, "foo", "id")))
+                            fields = fieldsByName(entity, "foo", "id")))
             ))
         }.compilesWithoutError()
     }
@@ -663,7 +663,6 @@ class EntityProcessorTest : BaseEntityParserTest() {
                             unique = false,
                             fields = fieldsByName(entity, "name"))))
         }.compilesWithoutError().withWarningCount(0)
-
     }
 
     @Test
@@ -880,7 +879,6 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 baseClass = "foo.bar.Base",
                 jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("baseId"))
-
         }.compilesWithoutError().withWarningCount(0)
     }
 
@@ -1033,7 +1031,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun primaryKey_embedded(){
+    fun primaryKey_embedded() {
         singleEntity(
                 """
                 public int id;
@@ -1054,7 +1052,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun primaryKey_embeddedInherited(){
+    fun primaryKey_embeddedInherited() {
         val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
                 """
                 package foo.bar;
@@ -1231,7 +1229,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun primaryKey_nullableEmbedded(){
+    fun primaryKey_nullableEmbedded() {
         singleEntity(
                 """
                 public int id;
@@ -1249,7 +1247,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun primaryKey_nullableEmbeddedObject(){
+    fun primaryKey_nullableEmbeddedObject() {
         singleEntity(
                 """
                 public int id;
@@ -1270,7 +1268,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun primaryKey_nullableEmbeddedObject_multipleParents(){
+    fun primaryKey_nullableEmbeddedObject_multipleParents() {
         singleEntity(
                 """
                 public int id;
@@ -1297,7 +1295,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun primaryKey_nullableEmbeddedInherited(){
+    fun primaryKey_nullableEmbeddedInherited() {
         val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
                 """
                 package foo.bar;
@@ -1495,7 +1493,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ _, _ ->
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_FOREIGN_KEY_ACTION)
     }
 
@@ -1515,7 +1513,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ _, _ ->
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining("cannot find symbol")
     }
 
@@ -1535,7 +1533,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.NOT_AN_ENTITY)
-        ){ _, _ ->
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.foreignKeyNotAnEntity(
                 COMMON.NOT_AN_ENTITY_TYPE_NAME.toString()))
     }
@@ -1556,7 +1554,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ _, _ ->
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.foreignKeyChildColumnDoesNotExist(
                 "namex", listOf("id", "name")))
     }
@@ -1577,7 +1575,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ _, _ ->
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.foreignKeyColumnNumberMismatch(
                 listOf("name", "id"), listOf("lastName")))
     }
@@ -1598,7 +1596,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ _, _ ->
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST)
     }
 
@@ -1618,7 +1616,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ _, _ ->
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST)
     }
 
@@ -1641,7 +1639,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, _ ->
+        ) { entity, _ ->
             assertThat(entity.foreignKeys.size, `is`(1))
             val fKey = entity.foreignKeys.first()
             assertThat(fKey.parentTable, `is`("User"))
@@ -1748,7 +1746,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, _ ->
+        ) { entity, _ ->
             assertThat(entity.indices, `is`(emptyList()))
         }.compilesWithoutError().withWarningContaining(
                 ProcessorErrors.foreignKeyMissingIndexInChildColumn("name"))
@@ -1771,7 +1769,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String lName;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, _ ->
+        ) { entity, _ ->
             assertThat(entity.indices, `is`(emptyList()))
         }.compilesWithoutError().withWarningContaining(
                 ProcessorErrors.foreignKeyMissingIndexInChildColumns(listOf("lName", "name")))
@@ -1796,7 +1794,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, _ ->
+        ) { entity, _ ->
             assertThat(entity.indices, `is`(emptyList()))
         }.compilesWithoutWarnings()
     }
@@ -1807,7 +1805,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """
                 @Embedded
                 MyEntity myEntity;
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyEntity -> foo.bar.MyEntity"))
@@ -1826,7 +1824,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     @Relation(parentColumn = "pojoId", entityColumn = "entityId")
                     MyEntity myEntity;
                 }
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
@@ -1843,7 +1841,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     @Embedded
                     MyEntity myEntity;
                 }
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
@@ -1875,7 +1873,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ _, _ ->
+        ) { _, _ ->
         }.compilesWithoutError()
     }
 
@@ -1889,7 +1887,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ _, _ ->
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_TABLE_NAME)
     }
 
@@ -1903,7 +1901,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 jfos = listOf(COMMON.USER)
-        ){ _, _ ->
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_COLUMN_NAME)
     }
 }

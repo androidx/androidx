@@ -42,10 +42,10 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
                 ColumnInfo::class.java)
         val name = element.simpleName.toString()
         val columnName: String
-        val affinity : SQLTypeAffinity?
+        val affinity: SQLTypeAffinity?
         val collate: Collate?
         val fieldPrefix = fieldParent?.prefix ?: ""
-        val indexed : Boolean
+        val indexed: Boolean
         if (columnInfoAnnotation.isPresent) {
             val nameInAnnotation = AnnotationMirrors
                     .getAnnotationValue(columnInfoAnnotation.get(), "name")
@@ -61,7 +61,7 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
                         .getAnnotationValue(columnInfoAnnotation.get(), "typeAffinity")
                         .getAsInt(ColumnInfo.UNDEFINED)!!
                 SQLTypeAffinity.fromAnnotationValue(userDefinedAffinity)
-            } catch (ex : NumberFormatException) {
+            } catch (ex: NumberFormatException) {
                 null
             }
 
@@ -71,7 +71,6 @@ class FieldProcessor(baseContext: Context, val containing: DeclaredType, val ele
             indexed = AnnotationMirrors
                     .getAnnotationValue(columnInfoAnnotation.get(), "index")
                     .getAsBoolean(false)
-
         } else {
             columnName = fieldPrefix + name
             affinity = null

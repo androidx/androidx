@@ -64,9 +64,10 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
          * them. This work is done here instead of parsing because the result may include arbitrary
          * fields.
          */
-        private fun createNodeTree(rootVar: String,
-                           fieldsWithIndices: List<FieldWithIndex>,
-                           scope: CodeGenScope): Node {
+        private fun createNodeTree(
+                rootVar: String,
+                fieldsWithIndices: List<FieldWithIndex>,
+                scope: CodeGenScope): Node {
             val allParents = getAllParents(fieldsWithIndices.map { it.field })
             val rootNode = Node(rootVar, null)
             rootNode.directFields = fieldsWithIndices.filter { it.field.parent == null }
@@ -88,9 +89,12 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
             return rootNode
         }
 
-        fun bindToStatement(ownerVar: String, stmtParamVar: String,
-                            fieldsWithIndices: List<FieldWithIndex>,
-                            scope: CodeGenScope) {
+        fun bindToStatement(
+                ownerVar: String,
+                stmtParamVar: String,
+                fieldsWithIndices: List<FieldWithIndex>,
+                scope: CodeGenScope
+        ) {
             fun visitNode(node: Node) {
                 fun bindWithDescendants() {
                     node.directFields.forEach {
@@ -133,9 +137,13 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
          * reading statement since we may never read if the cursor does not have necessary
          * columns.
          */
-        private fun construct(outVar : String, constructor : Constructor?, typeName : TypeName,
-                              localVariableNames : Map<String, FieldWithIndex>,
-                              localEmbeddeds: List<Node>, scope: CodeGenScope) {
+        private fun construct(
+                outVar: String,
+                constructor: Constructor?,
+                typeName: TypeName,
+                localVariableNames: Map<String, FieldWithIndex>,
+                localEmbeddeds: List<Node>, scope: CodeGenScope
+        ) {
             if (constructor == null) {
                 // best hope code generation
                 scope.builder().apply {
@@ -144,7 +152,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                 return
             }
             val variableNames = constructor.params.map { param ->
-                when(param) {
+                when (param) {
                     is Constructor.FieldParam -> localVariableNames.entries.firstOrNull {
                         it.value.field === param.field
                     }?.key
@@ -154,7 +162,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                     else -> null
                 }
             }
-            val args = variableNames.joinToString(",") { it ?: "null"}
+            val args = variableNames.joinToString(",") { it ?: "null" }
             scope.builder().apply {
                 addStatement("$L = new $T($L)", outVar, typeName, args)
             }
@@ -163,12 +171,14 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
         /**
          * Reads the row into the given variable. It does not declare it but constructs it.
          */
-        fun readFromCursor(outVar: String,
-                           outPojo : Pojo,
-                           cursorVar: String,
-                           fieldsWithIndices: List<FieldWithIndex>,
-                           scope: CodeGenScope,
-                           relationCollectors : List<RelationCollector>) {
+        fun readFromCursor(
+                outVar: String,
+                outPojo: Pojo,
+                cursorVar: String,
+                fieldsWithIndices: List<FieldWithIndex>,
+                scope: CodeGenScope,
+                relationCollectors: List<RelationCollector>
+        ) {
             fun visitNode(node: Node) {
                 val fieldParent = node.fieldParent
                 fun readNode() {
@@ -248,7 +258,6 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                             } else {
                                 "( ${it.indexVar} == -1 || $cursorVar.isNull(${it.indexVar}))"
                             }
-
                         }
                         scope.builder().apply {
                             beginControlFlow("if (! ($L))", allNullCheck).apply {
@@ -326,7 +335,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
     /**
      * Reads the value into a temporary local variable.
      */
-    fun readIntoTmpVar(cursorVar: String, scope: CodeGenScope) : String {
+    fun readIntoTmpVar(cursorVar: String, scope: CodeGenScope): String {
         val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
         val typeName = field.getter.type.typeName()
         scope.builder().apply {
@@ -353,7 +362,8 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
             // root for me
             val varName: String,
             // set if I'm a FieldParent
-            val fieldParent: EmbeddedField?) {
+            val fieldParent: EmbeddedField?
+    ) {
         // whom do i belong
         var parentNode: Node? = null
         // these fields are my direct fields

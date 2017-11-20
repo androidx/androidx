@@ -33,7 +33,7 @@ class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
         createTableQuery(tableName)
     }
 
-    fun createTableQuery(tableName : String) : String {
+    fun createTableQuery(tableName: String): String {
         val definitions = (fields.map {
             val autoIncrement = primaryKey.autoGenerateId && primaryKey.fields.contains(it)
             it.databaseDefinition(autoIncrement)
@@ -41,7 +41,7 @@ class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
         return "CREATE TABLE IF NOT EXISTS `$tableName` (${definitions.joinToString(", ")})"
     }
 
-    private fun createForeignKeyDefinitions() : List<String> {
+    private fun createForeignKeyDefinitions(): List<String> {
         return foreignKeys.map { it.databaseDefinition() }
     }
 
@@ -59,12 +59,12 @@ class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
     fun toBundle(): EntityBundle = EntityBundle(
             tableName,
             createTableQuery(BundleUtil.TABLE_NAME_PLACEHOLDER),
-            fields.map {it.toBundle()},
+            fields.map { it.toBundle() },
             primaryKey.toBundle(),
             indices.map { it.toBundle() },
             foreignKeys.map { it.toBundle() })
 
-    fun isUnique(columns: List<String>) : Boolean {
+    fun isUnique(columns: List<String>): Boolean {
         return if (primaryKey.columnNames.size == columns.size
                 && primaryKey.columnNames.containsAll(columns)) {
             true

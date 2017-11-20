@@ -99,14 +99,15 @@ class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
         if (tableName != null) {
             val tableAlias = ctx.table_alias()?.text
             if (tableName !in withClauseNames) {
-                tableNames.add(Table(unescapeIdentifier(tableName),
-                                     unescapeIdentifier(tableAlias ?: tableName)))
+                tableNames.add(Table(
+                        unescapeIdentifier(tableName),
+                        unescapeIdentifier(tableAlias ?: tableName)))
             }
         }
         return super.visitTable_or_subquery(ctx)
     }
 
-    private fun unescapeIdentifier(text : String) : String {
+    private fun unescapeIdentifier(text: String): String {
         val trimmed = text.trim()
         if (trimmed.startsWith("`") && trimmed.endsWith('`')) {
             return unescapeIdentifier(trimmed.substring(1, trimmed.length - 1))
@@ -155,7 +156,7 @@ class SqlParser {
             }
         }
 
-        fun isValidIdentifier(input : String) : Boolean =
+        fun isValidIdentifier(input: String): Boolean =
                 input.isNotBlank() && INVALID_IDENTIFIER_CHARS.none { input.contains(it) }
     }
 }
@@ -180,9 +181,9 @@ enum class SQLTypeAffinity {
     INTEGER,
     REAL,
     BLOB;
-    fun getTypeMirrors(env : ProcessingEnvironment) : List<TypeMirror>? {
+    fun getTypeMirrors(env: ProcessingEnvironment): List<TypeMirror>? {
         val typeUtils = env.typeUtils
-        return when(this) {
+        return when (this) {
             TEXT -> listOf(env.elementUtils.getTypeElement("java.lang.String").asType())
             INTEGER -> withBoxedTypes(env, TypeKind.INT, TypeKind.BYTE, TypeKind.CHAR,
                     TypeKind.BOOLEAN, TypeKind.LONG, TypeKind.SHORT)
@@ -193,7 +194,7 @@ enum class SQLTypeAffinity {
         }
     }
 
-    private fun withBoxedTypes(env : ProcessingEnvironment, vararg primitives : TypeKind) :
+    private fun withBoxedTypes(env: ProcessingEnvironment, vararg primitives: TypeKind):
             List<TypeMirror> {
         return primitives.flatMap {
             val primitiveType = env.typeUtils.getPrimitiveType(it)
@@ -203,8 +204,8 @@ enum class SQLTypeAffinity {
 
     companion object {
         // converts from ColumnInfo#SQLiteTypeAffinity
-        fun fromAnnotationValue(value : Int) : SQLTypeAffinity? {
-            return when(value) {
+        fun fromAnnotationValue(value: Int): SQLTypeAffinity? {
+            return when (value) {
                 ColumnInfo.BLOB -> BLOB
                 ColumnInfo.INTEGER -> INTEGER
                 ColumnInfo.REAL -> REAL

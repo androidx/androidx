@@ -42,9 +42,9 @@ class DatabaseWriterTest {
         )
     }
 
-    private fun singleDb(vararg jfo : JavaFileObject): CompileTester {
+    private fun singleDb(vararg jfo: JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(jfo.toList() + COMMON.USER +  COMMON.LIVE_DATA + COMMON.COMPUTABLE_LIVE_DATA)
+                .that(jfo.toList() + COMMON.USER + COMMON.LIVE_DATA + COMMON.COMPUTABLE_LIVE_DATA)
                 .processedWith(RoomProcessor())
     }
 }

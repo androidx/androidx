@@ -20,7 +20,6 @@ import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.integration.kotlintestapp.vo.Author
 
-
 @Dao
 interface DerivedDao : BaseDao<Author> {
 

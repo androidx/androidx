@@ -18,7 +18,6 @@ package android.arch.persistence.room.vo
 
 import android.arch.persistence.room.ext.typeName
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
@@ -26,8 +25,8 @@ import javax.lang.model.type.DeclaredType
  * A class is turned into a Pojo if it is used in a query response.
  */
 // TODO make data class when move to kotlin 1.1
-open class Pojo(val element : TypeElement, val type: DeclaredType, val fields : List<Field>,
+open class Pojo(val element: TypeElement, val type: DeclaredType, val fields: List<Field>,
                 val embeddedFields: List<EmbeddedField>, val relations: List<Relation>,
-                val constructor : Constructor? = null) {
+                val constructor: Constructor? = null) {
     val typeName: TypeName by lazy { type.typeName() }
 }

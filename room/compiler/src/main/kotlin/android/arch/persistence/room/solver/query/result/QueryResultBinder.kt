@@ -33,6 +33,6 @@ abstract class QueryResultBinder(val adapter: QueryResultAdapter?) {
      */
     abstract fun convertAndReturn(roomSQLiteQueryVar: String,
                                   dbField: FieldSpec,
-                                  inTransaction : Boolean,
+                                  inTransaction: Boolean,
                                   scope: CodeGenScope)
 }

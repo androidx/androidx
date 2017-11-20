@@ -60,8 +60,7 @@ class CustomConverterProcessorTest {
 
     @Test
     fun validCase() {
-        singleClass(createConverter(TypeName.SHORT.box(), TypeName.CHAR.box()))
-        { converter, _ ->
+        singleClass(createConverter(TypeName.SHORT.box(), TypeName.CHAR.box())) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT.box()))
             assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
         }.compilesWithoutError()
@@ -222,21 +221,24 @@ class CustomConverterProcessorTest {
 
     @Test
     fun checkDuplicates() {
-        singleClass(createConverter(TypeName.SHORT.box(), TypeName.CHAR.box(), duplicate = true))
-        { converter, _ ->
+        singleClass(
+                createConverter(TypeName.SHORT.box(), TypeName.CHAR.box(), duplicate = true)
+        ) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT.box()))
             assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
         }.failsToCompile().withErrorContaining("Multiple methods define the same conversion")
     }
 
-    private fun createConverter(from: TypeName, to: TypeName,
-                                typeVariables: List<TypeVariableName> = emptyList(),
-                                duplicate : Boolean = false)
-            : JavaFileObject {
+    private fun createConverter(
+            from: TypeName,
+            to: TypeName,
+            typeVariables: List<TypeVariableName> = emptyList(),
+            duplicate: Boolean = false
+    ): JavaFileObject {
         val code = TypeSpec.classBuilder(CONVERTER).apply {
             addTypeVariables(typeVariables)
             addModifiers(Modifier.PUBLIC)
-            fun buildMethod(name : String) = MethodSpec.methodBuilder(name).apply {
+            fun buildMethod(name: String) = MethodSpec.methodBuilder(name).apply {
                 addAnnotation(TypeConverter::class.java)
                 addModifiers(Modifier.PUBLIC)
                 returns(to)
@@ -256,9 +258,10 @@ class CustomConverterProcessorTest {
                 "package ${CONVERTER.packageName()};\n$code")
     }
 
-    private fun singleClass(vararg jfo: JavaFileObject,
-                            handler: (CustomTypeConverter?, TestInvocation) -> Unit)
-            : CompileTester {
+    private fun singleClass(
+            vararg jfo: JavaFileObject,
+            handler: (CustomTypeConverter?, TestInvocation) -> Unit
+    ): CompileTester {
         return simpleRun(*((jfo.toList() + CONTAINER).toTypedArray())) { invocation ->
             val processed = CustomConverterProcessor.findConverters(invocation.context,
                     invocation.processingEnv.elementUtils.getTypeElement("foo.bar.Container"))

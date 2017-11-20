@@ -235,6 +235,5 @@ class DatabaseVerifierTest {
                 .filter { it.second > 0 }
                 .sortedBy { it.second }
                 .map { it.first }
-
     }
 }

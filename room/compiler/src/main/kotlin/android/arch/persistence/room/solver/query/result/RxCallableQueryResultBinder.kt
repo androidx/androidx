@@ -42,7 +42,7 @@ class RxCallableQueryResultBinder(val rxType: RxType,
     : QueryResultBinder(adapter) {
     override fun convertAndReturn(roomSQLiteQueryVar: String,
                                   dbField: FieldSpec,
-                                  inTransaction : Boolean,
+                                  inTransaction: Boolean,
                                   scope: CodeGenScope) {
         val callable = TypeSpec.anonymousClassBuilder("").apply {
             val typeName = typeArg.typeName()

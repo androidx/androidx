@@ -78,20 +78,20 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                 """.trimIndent())
     }
 
-    fun generateAndMatch(input: String, output : String,
+    fun generateAndMatch(input: String, output: String,
                          attributes: Map<String, String> = mapOf()) {
         generate(input, attributes)
                 .compilesWithoutError()
                 .and()
                 .generatesSources(JavaFileObjects.forSourceString(
                         "foo.bar.MyEntity_CursorConverter",
-                        listOf(OUT_PREFIX,output,OUT_SUFFIX).joinToString("\n")))
+                        listOf(OUT_PREFIX, output, OUT_SUFFIX).joinToString("\n")))
     }
 
-    fun generate(input: String, attributes: Map<String, String> = mapOf()) : CompileTester {
+    fun generate(input: String, attributes: Map<String, String> = mapOf()): CompileTester {
         return singleEntity(input, attributes) { entity, invocation ->
-            val className = ClassName.get("foo.bar","MyContainerClass")
-            val writer = object : ClassWriter(className){
+            val className = ClassName.get("foo.bar", "MyContainerClass")
+            val writer = object : ClassWriter(className) {
                 override fun createTypeSpecBuilder(): TypeSpec.Builder {
                     getOrCreateMethod(EntityCursorConverterWriter(entity))
                     return TypeSpec.classBuilder(className).apply {

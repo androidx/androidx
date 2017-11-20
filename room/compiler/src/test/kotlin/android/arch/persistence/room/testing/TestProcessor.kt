@@ -27,8 +27,8 @@ import kotlin.reflect.KClass
 class TestProcessor(val handlers: List<(TestInvocation) -> Boolean>,
                     val annotations: MutableSet<String>) : AbstractProcessor() {
     var count = 0
-    override fun process(annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment)
-            : Boolean {
+    override fun process(
+            annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment): Boolean {
         return handlers.getOrNull(count++)?.invoke(
                     TestInvocation(processingEnv, annotations, roundEnv)) ?: true
     }

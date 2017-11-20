@@ -36,8 +36,8 @@ import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
-class DaoProcessor(baseContext : Context, val element: TypeElement, val dbType: DeclaredType,
-                   val dbVerifier : DatabaseVerifier?) {
+class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: DeclaredType,
+                   val dbVerifier: DatabaseVerifier?) {
     val context = baseContext.fork(element)
 
     companion object {
@@ -45,7 +45,7 @@ class DaoProcessor(baseContext : Context, val element: TypeElement, val dbType: 
                 Update::class)
     }
 
-    fun process() : Dao {
+    fun process(): Dao {
         context.checker.hasAnnotation(element, android.arch.persistence.room.Dao::class,
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO)
         context.checker.check(element.hasAnyOf(ABSTRACT) || element.kind == ElementKind.INTERFACE,
