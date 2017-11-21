@@ -35,11 +35,19 @@ class ConfigParserTest {
                 "            from: \"android/support/v14/preferences/(.*)\",\n" +
                 "            to: \"android/jetpack/prefs/main/{0}\",\n" +
                 "            fieldSelectors: [\"dialog_(.*)\"]\n" +
-                "        },\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    pomRules: [\n" +
+                "        {\n" +
+                "            from: {groupId: \"g\", artifactId: \"a\", version: \"1.0\"},\n" +
+                "            to: [\n" +
+                "                {groupId: \"g\", artifactId: \"a\", version: \"2.0\"} \n" +
+                "            ]\n" +
+                "        }\n" +
                 "    ]\n" +
                 "}"
 
-        val config = ConfigParser.parse(confStr)
+        val config = ConfigParser.parseFromString(confStr)
 
         Truth.assertThat(config).isNotNull()
         Truth.assertThat(config!!.restrictToPackagePrefixes[0]).isEqualTo("android/support/")

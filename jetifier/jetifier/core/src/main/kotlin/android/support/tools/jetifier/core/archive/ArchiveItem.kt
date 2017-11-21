@@ -17,7 +17,7 @@
 package android.support.tools.jetifier.core.archive
 
 import java.io.OutputStream
-
+import java.nio.file.Path
 
 /**
  * Abstraction to represent archive and its files as a one thing.
@@ -25,11 +25,17 @@ import java.io.OutputStream
 interface ArchiveItem {
 
     /**
-     * Relative path of the item according to its location in the archive. For instance the root
-     * archive has '/' as a relative path. Files in a nested archive have a path relative to that
-     * archive not to the parent of the archive.
+     * Relative path of the item according to its location in the archive.
+     *
+     * Files in a nested archive have a path relative to that archive not to the parent of
+     * the archive. The root archive has the file system path set as its relative path.
      */
-    val relativePath : String
+    val relativePath : Path
+
+    /**
+     * Name of the file.
+     */
+    val fileName : String
 
     /**
      * Accepts visitor.
@@ -40,5 +46,14 @@ interface ArchiveItem {
      * Writes its internal data (or other nested files) into the given output stream.
      */
     fun writeSelfTo(outputStream: OutputStream)
+
+
+    fun isPomFile() = fileName.equals("pom.xml", ignoreCase = true)
+
+    fun isClassFile() = fileName.endsWith(".class", ignoreCase = true)
+
+    fun isXmlFile() = fileName.endsWith(".xml", ignoreCase = true)
+
+    fun isProGuardFile () = fileName.equals("proguard.txt", ignoreCase = true)
 
 }

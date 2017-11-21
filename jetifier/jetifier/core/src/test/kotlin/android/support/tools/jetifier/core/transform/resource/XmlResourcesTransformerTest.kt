@@ -17,7 +17,10 @@
 package android.support.tools.jetifier.core.transform.resource
 
 import android.support.tools.jetifier.core.config.Config
-import android.support.tools.jetifier.core.rules.RewriteRule
+import android.support.tools.jetifier.core.rules.JavaType
+import android.support.tools.jetifier.core.map.TypesMap
+import android.support.tools.jetifier.core.transform.TransformationContext
+import android.support.tools.jetifier.core.transform.proguard.ProGuardTypesMap
 import com.google.common.truth.Truth
 import org.junit.Test
 import java.nio.charset.Charset
@@ -26,197 +29,210 @@ class XmlResourcesTransformerTest {
 
     @Test fun layout_noPrefix_noChange() {
         testRewriteToTheSame(
-            // Given & expected
-            "<android.support.v7.preference.Preference>\n" +
-            "</android.support.v7.preference.Preference>",
-            // Prefixes
-            listOf(),
-            // Rules
-            listOf(RewriteRule(from = "android/support/v7/(.*)", to = "android/test/{1}"))
+            givenAndExpectedXml =
+                "<android.support.v7.preference.Preference>\n" +
+                "</android.support.v7.preference.Preference>",
+            prefixes = listOf(),
+            map = mapOf(
+                "android/support/v7/preference/Preference" to "android/test/pref/Preference"
+            )
         )
     }
 
     @Test fun layout_noRule_noChange() {
         testRewriteToTheSame(
-            // Given & expected
-            "<android.support.v7.preference.Preference>\n" +
-            "</android.support.v7.preference.Preference>",
-            // Prefixes
-            listOf("android/support/v7/"),
-            // Rules
-            listOf()
+            givenAndExpectedXml =
+                "<android.support.v7.preference.Preference>\n" +
+                "</android.support.v7.preference.Preference>",
+            prefixes = listOf("android/support/v7/"),
+            map = mapOf()
         )
     }
 
     @Test fun layout_notApplicablePrefix_noChange() {
         testRewriteToTheSame(
-            // Given & expected
-            "<android.support.v7.preference.Preference>\n" +
-            "</android.support.v7.preference.Preference>",
-            // Prefixes
-            listOf("android/support/v14/"),
-            // Rules
-            listOf(RewriteRule(from = "android/support/v7/(.*)", to = "android/test/{1}"))
+            givenAndExpectedXml =
+                "<android.support.v7.preference.Preference>\n" +
+                "</android.support.v7.preference.Preference>",
+            prefixes = listOf("android/support/v14/"),
+            map = mapOf(
+                "android/support/v7/preference/Preference" to "android/test/pref/Preference"
+            )
         )
     }
 
     @Test fun layout_notApplicablePrefix2_noChange() {
         testRewriteToTheSame(
-            // Given & expected
-            "<my.android.support.v7.preference.Preference>\n" +
-            "</my.android.support.v7.preference.Preference>",
-            // Prefixes
-            listOf("android/support/v7/"),
-            // Rules
-            listOf(RewriteRule(from = "android/support/v7/(.*)", to = "android/test/{1}"))
+            givenAndExpectedXml =
+                "<my.android.support.v7.preference.Preference>\n" +
+                "</my.android.support.v7.preference.Preference>",
+            prefixes = listOf("android/support/v7/"),
+            map = mapOf(
+                "android/support/v7/preference/Preference" to "android/test/pref/Preference"
+            )
         )
     }
 
     @Test fun layout_notApplicableRule_noChange() {
         testRewriteToTheSame(
-            // Given & expected
-            "<android.support.v7.preference.Preference>\n" +
-            "</android.support.v7.preference.Preference>",
-            // Prefixes
-            listOf("android/support/"),
-            // Rules
-            listOf(RewriteRule(from = "android/support2/v7/(.*)", to = "android/test/{1}"))
+            givenAndExpectedXml =
+                "<android.support.v7.preference.Preference>\n" +
+                "</android.support.v7.preference.Preference>",
+            prefixes = listOf("android/support/"),
+            map = mapOf(
+                "android/support2/v7/preference/Preference" to "android/test/pref/Preference"
+            )
         )
     }
 
     @Test fun layout_onePrefix_oneRule_oneRewrite() {
         testRewrite(
-            // Given
-            "<android.support.v7.preference.Preference/>",
-            // Expected
-            "<android.test.preference.Preference/>",
-            // Prefixes
-            listOf("android/support/"),
-            // Rules
-            listOf(RewriteRule(from = "android/support/v7/(.*)", to = "android/test/{0}"))
+            givenXml =
+                "<android.support.v7.preference.Preference/>",
+            expectedXml =
+                "<android.test.pref.Preference/>",
+            prefixes = listOf("android/support/"),
+            map = mapOf(
+                "android/support/v7/preference/Preference" to "android/test/pref/Preference"
+            )
         )
     }
 
     @Test fun layout_onePrefix_oneRule_attribute_oneRewrite() {
         testRewrite(
-            // Given
-            "<android.support.v7.preference.Preference \n" +
-            "    someAttribute=\"android.support.v7.preference.Preference\"/>",
-            // Expected
-            "<android.test.preference.Preference \n" +
-            "    someAttribute=\"android.support.v7.preference.Preference\"/>",
-            // Prefixes
-            listOf("android/support/"),
-            // Rules
-            listOf(RewriteRule(from = "android/support/v7/(.*)", to = "android/test/{0}"))
+            givenXml =
+                "<android.support.v7.preference.Preference \n" +
+                "    someAttribute=\"android.support.v7.preference.Preference\"/>",
+            expectedXml =
+                "<android.test.pref.Preference \n" +
+                "    someAttribute=\"android.support.v7.preference.Preference\"/>",
+            prefixes = listOf("android/support/"),
+            map =  mapOf(
+                "android/support/v7/preference/Preference" to "android/test/pref/Preference"
+            )
         )
     }
 
     @Test fun layout_onePrefix_oneRule_twoRewrites() {
         testRewrite(
-            // Given
-            "<android.support.v7.preference.Preference>\n" +
-            "</android.support.v7.preference.Preference>",
-            // Expected
-            "<android.test.preference.Preference>\n" +
-            "</android.test.preference.Preference>",
-            // Prefixes
-            listOf("android/support/"),
-            // Rules
-            listOf(RewriteRule(from = "android/support/v7/(.*)", to = "android/test/{0}"))
+            givenXml =
+                "<android.support.v7.preference.Preference>\n" +
+                "</android.support.v7.preference.Preference>",
+            expectedXml =
+                "<android.test.pref.Preference>\n" +
+                "</android.test.pref.Preference>",
+            prefixes = listOf("android/support/"),
+            map = mapOf(
+                "android/support/v7/preference/Preference" to "android/test/pref/Preference"
+            )
         )
     }
 
     @Test fun layout_onePrefix_oneRule_viewTag_simple() {
         testRewrite(
-            // Given
-            "<view class=\"android.support.v7.preference.Preference\">",
-            // Expected
-            "<view class=\"android.test.preference.Preference\">",
-            // Prefixes
-            listOf("android/support/"),
-            // Rules
-            listOf(RewriteRule(from = "android/support/v7/(.*)", to = "android/test/{0}"))
+            givenXml =
+                "<view class=\"android.support.v7.preference.Preference\">",
+            expectedXml =
+                "<view class=\"android.test.pref.Preference\">",
+            prefixes = listOf("android/support/"),
+            map = mapOf(
+                "android/support/v7/preference/Preference" to "android/test/pref/Preference"
+            )
         )
     }
 
     @Test fun layout_onePrefix_oneRule_viewTag_stuffAround() {
         testRewrite(
-            // Given
-            "<view notRelated=\"true\" " +
-            "      class=\"android.support.v7.preference.Preference\"" +
-            "      ignoreMe=\"android.support.v7.preference.Preference\">",
-            // Expected
-            "<view notRelated=\"true\" " +
-            "      class=\"android.test.preference.Preference\"" +
-            "      ignoreMe=\"android.support.v7.preference.Preference\">",
-            // Prefixes
-            listOf("android/support/"),
-            // Rules
-            listOf(RewriteRule(from = "android/support/v7/(.*)", to = "android/test/{0}"))
+            givenXml =
+                "<view notRelated=\"true\" " +
+                "      class=\"android.support.v7.preference.Preference\"" +
+                "      ignoreMe=\"android.support.v7.preference.Preference\">",
+            expectedXml =
+                "<view notRelated=\"true\" " +
+                "      class=\"android.test.pref.Preference\"" +
+                "      ignoreMe=\"android.support.v7.preference.Preference\">",
+            prefixes = listOf("android/support/"),
+            map = mapOf(
+                "android/support/v7/preference/Preference" to "android/test/pref/Preference"
+            )
         )
     }
 
     @Test fun layout_onePrefix_oneRule_viewInText_notMatched() {
         testRewriteToTheSame(
-            // Given & expected
-            "<test attribute=\"view\" class=\"android.support.v7.preference.Preference\">",
-            // Prefixes
-            listOf("android/support/"),
-            // Rules
-            listOf(RewriteRule(from = "android/support/v7/(.*)", to = "android/test/{0}"))
+            givenAndExpectedXml =
+                "<test attribute=\"view\" class=\"android.support.v7.preference.Preference\">",
+            prefixes = listOf("android/support/"),
+            map = mapOf(
+                "android/support/v7/preference/Preference" to "android/test/pref/Preference"
+            )
+        )
+    }
+
+    @Test fun layout_onePrefix_oneRule_identity() {
+        testRewrite(
+            givenXml =
+                "<android.support.v7.preference.Preference>\n" +
+                "</android.support.v7.preference.Preference>",
+            expectedXml =
+                "<android.support.v7.preference.Preference>\n" +
+                "</android.support.v7.preference.Preference>",
+            prefixes = listOf("android/support/"),
+            map = mapOf(
+                "android/support/v7/preference/Preference" to "android/support/v7/preference/Preference"
+            )
         )
     }
 
     @Test fun layout_twoPrefixes_threeRules_multipleRewrites() {
         testRewrite(
-            // Given
-            "<android.support.v7.preference.Preference>\n" +
-            "  <android.support.v14.preference.DialogPreference" +
-            "      someAttribute=\"someValue\"/>\n" +
-            "  <android.support.v14.preference.DialogPreference" +
-            "      someAttribute=\"someValue2\"/>\n" +
-            "  <!-- This one should be ignored --> \n" +
-            "  <android.support.v21.preference.DialogPreference" +
-            "      someAttribute=\"someValue2\"/>\n" +
-            "</android.support.v7.preference.Preference>\n" +
-            "\n" +
-            "<android.support.v7.preference.ListPreference/>",
-            // Expected
-            "<android.test.preference.Preference>\n" +
-            "  <android.test14.preference.DialogPreference" +
-            "      someAttribute=\"someValue\"/>\n" +
-            "  <android.test14.preference.DialogPreference" +
-            "      someAttribute=\"someValue2\"/>\n" +
-            "  <!-- This one should be ignored --> \n" +
-            "  <android.support.v21.preference.DialogPreference" +
-            "      someAttribute=\"someValue2\"/>\n" +
-            "</android.test.preference.Preference>\n" +
-            "\n" +
-            "<android.test.preference.ListPreference/>",
-            // Prefixes
-            listOf(
+            givenXml =
+                "<android.support.v7.preference.Preference>\n" +
+                "  <android.support.v14.preference.DialogPreference" +
+                "      someAttribute=\"someValue\"/>\n" +
+                "  <android.support.v14.preference.DialogPreference" +
+                "      someAttribute=\"someValue2\"/>\n" +
+                "  <!-- This one should be ignored --> \n" +
+                "  <android.support.v21.preference.DialogPreference" +
+                "      someAttribute=\"someValue2\"/>\n" +
+                "</android.support.v7.preference.Preference>\n" +
+                "\n" +
+                "<android.support.v7.preference.ListPreference/>",
+            expectedXml =
+                "<android.test.pref.Preference>\n" +
+                "  <android.test14.pref.DialogPreference" +
+                "      someAttribute=\"someValue\"/>\n" +
+                "  <android.test14.pref.DialogPreference" +
+                "      someAttribute=\"someValue2\"/>\n" +
+                "  <!-- This one should be ignored --> \n" +
+                "  <android.support.v21.preference.DialogPreference" +
+                "      someAttribute=\"someValue2\"/>\n" +
+                "</android.test.pref.Preference>\n" +
+                "\n" +
+                "<android.test.pref.ListPref/>",
+            prefixes = listOf(
                 "android/support/v7/",
                 "android/support/v14/"
             ),
-            // Rules
-            listOf(
-                RewriteRule(from = "android/support/v7/(.*)", to = "android/test/{0}"),
-                RewriteRule(from = "android/support/v14/(.*)", to = "android/test14/{0}"),
-                RewriteRule(from = "android/support/v21/(.*)", to = "android/test21/{0}")
+            map = mapOf(
+                "android/support/v7/preference/ListPreference" to "android/test/pref/ListPref",
+                "android/support/v7/preference/Preference" to "android/test/pref/Preference",
+                "android/support/v14/preference/DialogPreference" to "android/test14/pref/DialogPreference",
+                "android/support/v21/preference/DialogPreference" to "android/test21/pref/DialogPreference"
             )
         )
     }
 
-    private fun testRewriteToTheSame(
-            givenXml : String, prefixes: List<String>, rules: List<RewriteRule>) {
-        testRewrite(givenXml, givenXml, prefixes, rules)
+    private fun testRewriteToTheSame(givenAndExpectedXml: String,
+                                     prefixes: List<String>,
+                                     map: Map<String, String>) {
+        testRewrite(givenAndExpectedXml, givenAndExpectedXml, prefixes, map)
     }
 
     private fun testRewrite(givenXml : String,
                             expectedXml : String,
                             prefixes: List<String>,
-                            rules: List<RewriteRule>) {
+                            map: Map<String, String>) {
         val given =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
             "$givenXml\n"
@@ -225,7 +241,11 @@ class XmlResourcesTransformerTest {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
             "$expectedXml\n"
 
-        val processor = XmlResourcesTransformer(Config(prefixes, rules))
+        val typesMap = TypesMap(map.map{ JavaType(it.key) to JavaType(it.value) }.toMap(),
+            emptyMap())
+        val config = Config(prefixes, emptyList(), emptyList(), typesMap, ProGuardTypesMap.EMPTY)
+        val context = TransformationContext(config)
+        val processor = XmlResourcesTransformer(context)
         val result = processor.transform(given.toByteArray())
         val strResult = result.toString(Charset.defaultCharset())
 

@@ -18,4 +18,5 @@ rootProject.name = 'jetifier'
 include 'core'
 include 'gradle-plugin'
 include 'standalone'
+include 'preprocessor'
 

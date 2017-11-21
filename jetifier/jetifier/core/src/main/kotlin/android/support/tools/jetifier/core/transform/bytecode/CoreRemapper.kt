@@ -14,10 +14,16 @@
  * limitations under the License
  */
 
-package android.support.tools.jetifier.core.utils
+package android.support.tools.jetifier.core.transform.bytecode
 
-fun <T> MutableCollection<T>.toListAndClear() : List<T> {
-    var result = toList()
-    clear()
-    return result
+import android.support.tools.jetifier.core.rules.JavaField
+import android.support.tools.jetifier.core.rules.JavaType
+
+/**
+ * High-level re-mapping interface to provide only the refactorings needed by jetifier.
+ */
+interface CoreRemapper {
+    fun rewriteType(type: JavaType) : JavaType
+
+    fun rewriteField(field: JavaField) : JavaField
 }

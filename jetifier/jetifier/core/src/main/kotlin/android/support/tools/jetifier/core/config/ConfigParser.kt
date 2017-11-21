@@ -17,52 +17,56 @@
 package android.support.tools.jetifier.core.config
 
 import android.support.tools.jetifier.core.utils.Log
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import java.io.FileWriter
 import java.nio.file.Files
 import java.nio.file.Path
 
 object ConfigParser {
 
-    private val tag : String = "Config"
+    private const val TAG : String = "Config"
 
-    fun parse(pathToFile: Path) : Config? {
-        Log.i(tag, "Parsing config file: '%s'", pathToFile.toUri())
-        return parse(pathToFile.toFile().readText())
+    private val gson = GsonBuilder().setPrettyPrinting().create()
+
+    fun writeToString(config: Config) : String {
+        return gson.toJson(config.toJson())
     }
 
-    fun parse(inputText: String) : Config? {
-
-        val gson = Gson()
-        val conf = gson.fromJson(inputText, ConfigJson::class.java)
-
-        return conf.getConfig()
+    fun writeToFile(config: Config, outputPath: Path) {
+        FileWriter(outputPath.toFile()).use {
+            gson.toJson(config.toJson(), it)
+        }
     }
 
-    fun loadConfigFile(configPath: Path) : Config? {
+    fun parseFromString(inputText: String) : Config? {
+        return gson.fromJson(inputText, Config.JsonData::class.java).toConfig()
+    }
+
+    fun loadFromFile(configPath: Path) : Config? {
         return loadConfigFileInternal(configPath)
     }
 
     fun loadDefaultConfig() : Config? {
-        Log.v(tag, "Using the default config '%s'", Config.DEFAULT_CONFIG_RES_PATH)
+        Log.v(TAG, "Using the default config '%s'", Config.DEFAULT_CONFIG_RES_PATH)
 
         val inputStream = javaClass.getResourceAsStream(Config.DEFAULT_CONFIG_RES_PATH)
-        return parse(inputStream.reader().readText())
+        return parseFromString(inputStream.reader().readText())
     }
 
     private fun loadConfigFileInternal(configPath: Path) : Config? {
         if (!Files.isReadable(configPath)) {
-            Log.e(tag, "Cannot access the config file: '%s'", configPath)
+            Log.e(TAG, "Cannot access the config file: '%s'", configPath)
             return null
         }
 
-        val config = parse(configPath)
+        Log.i(TAG, "Parsing config file: '%s'", configPath.toUri())
+        val config = parseFromString(configPath.toFile().readText())
+
         if (config == null) {
-            Log.e(tag, "Failed to parse the config file")
+            Log.e(TAG, "Failed to parseFromString the config file")
             return null
         }
 
         return config
     }
 }
-
-

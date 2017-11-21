@@ -14,16 +14,13 @@
  * limitations under the License
  */
 
-package android.support.tools.jetifier.core.transform.bytecode.asm
+version '1.0'
 
-import android.support.tools.jetifier.core.rules.JavaField
-import android.support.tools.jetifier.core.rules.JavaType
+apply plugin: "application"
 
-/**
- * High-level re-mapping interface to provide only the refactorings needed by jetifier.
- */
-interface CoreRemapper {
-    fun rewriteType(type: JavaType) : JavaType
+mainClassName = "android.support.tools.jetifier.preprocessor.MainKt"
 
-    fun rewriteField(field: JavaField) : JavaField
+dependencies {
+    compile project(':core')
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.3.1'
 }

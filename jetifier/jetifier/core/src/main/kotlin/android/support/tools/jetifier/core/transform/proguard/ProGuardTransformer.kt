@@ -14,33 +14,34 @@
  * limitations under the License
  */
 
-package android.support.tools.jetifier.core.transform.bytecode
+package android.support.tools.jetifier.core.transform.proguard
 
 import android.support.tools.jetifier.core.archive.ArchiveFile
-import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.transform.Transformer
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassWriter
+import android.support.tools.jetifier.core.transform.proguard.patterns.ReplacersRunner
+import java.nio.charset.StandardCharsets
 
 /**
- * The [Transformer] responsible for java byte code refactoring.
+ * The [Transformer] responsible for ProGuard files refactoring.
  */
-class ByteCodeTransformer internal constructor(context: TransformationContext) : Transformer {
+class ProGuardTransformer internal constructor(context: TransformationContext) : Transformer {
 
-    private val remapper: CoreRemapperImpl = CoreRemapperImpl(context)
+    private val mapper = ProGuardTypesMapper(context)
 
+    val replacer = ReplacersRunner(listOf(
+        ProGuardClassSpecParser(mapper).replacer,
+        ProGuardClassFilterParser(mapper).replacer
+    ))
 
-    override fun canTransform(file: ArchiveFile) = file.isClassFile()
+    override fun canTransform(file: ArchiveFile): Boolean {
+        return file.isProGuardFile()
+    }
 
     override fun runTransform(file: ArchiveFile) {
-        val reader = ClassReader(file.data)
-        val writer = ClassWriter(0 /* flags */)
-
-        val visitor = remapper.createClassRemapper(writer)
-
-        reader.accept(visitor, 0 /* flags */)
-
-        file.data = writer.toByteArray()
+        val sb = StringBuilder(file.data.toString(StandardCharsets.UTF_8))
+        val result = replacer.applyReplacers(sb.toString())
+        file.data = result.toByteArray()
     }
 }
+
