@@ -19,6 +19,7 @@ import android.arch.background.workmanager.constraints.listeners.BatteryNotLowLi
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
@@ -32,6 +33,16 @@ public class BatteryNotLowTracker
 
     private static final String TAG = "BatteryNotLowTracker";
 
+    /**
+     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/BatteryService.java#111}
+     */
+    static final int BATTERY_PLUGGED_NONE = 0;
+
+    /**
+     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/res/res/values/config.xml#986}
+     */
+    static final float BATTERY_LOW_PERCENTAGE = 0.15f;
+
     @VisibleForTesting
     Boolean mIsBatteryNotLow;
 
@@ -39,23 +50,27 @@ public class BatteryNotLowTracker
         super(context);
     }
 
+    /**
+     * Based on BatteryService#shouldSendBatteryLowLocked(), but this ignores the previous plugged
+     * state - cannot guarantee the last plugged state because this isn't always tracking.
+     *
+     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/BatteryService.java#268}
+     */
     @Override
     public void setUpInitialState(BatteryNotLowListener listener) {
         if (mIsBatteryNotLow == null) {
-            Intent intent = mAppContext.registerReceiver(null, getIntentFilter());
-            if (intent == null || intent.getAction() == null) {
-                return;
-            }
+            IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            Intent intent = mAppContext.registerReceiver(null, intentFilter);
 
-            switch (intent.getAction()) {
-                case Intent.ACTION_BATTERY_OKAY:
-                    mIsBatteryNotLow = true;
-                    break;
+            int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, BATTERY_PLUGGED_NONE);
+            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            float batteryPercentage = level / (float) scale;
 
-                case Intent.ACTION_BATTERY_LOW:
-                    mIsBatteryNotLow = false;
-                    break;
-            }
+            mIsBatteryNotLow = plugged != BATTERY_PLUGGED_NONE
+                    || status == BatteryManager.BATTERY_STATUS_UNKNOWN
+                    || batteryPercentage > BATTERY_LOW_PERCENTAGE;
 
             Log.d(TAG, "Setting initial mIsBatteryNotLow to " + mIsBatteryNotLow);
         }
