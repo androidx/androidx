@@ -659,6 +659,7 @@ public class MediaBrowserCompatTest {
             customActionExtras.putString(TEST_KEY_1, TEST_VALUE_1);
             mMediaBrowser.sendCustomAction(
                     CUSTOM_ACTION, customActionExtras, mCustomActionCallback);
+            mCustomActionCallback.mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
 
             mCustomActionCallback.reset();
             Bundle data1 = new Bundle();
@@ -749,6 +750,8 @@ public class MediaBrowserCompatTest {
         Bundle customActionExtras = new Bundle();
         customActionExtras.putString(TEST_KEY_1, TEST_VALUE_1);
         mMediaBrowser.sendCustomAction(CUSTOM_ACTION, customActionExtras, null);
+        // Wait some time so that the service can get a result receiver for the custom action.
+        Thread.sleep(WAIT_TIME_FOR_NO_RESPONSE_MS);
 
         // These calls should not make any exceptions.
         callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_PROGRESS_UPDATE, new Bundle(),
