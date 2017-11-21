@@ -17,6 +17,7 @@
 package android.arch.background.workmanager;
 
 import static android.arch.background.workmanager.BaseWork.STATUS_BLOCKED;
+import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
 import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
 import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
@@ -102,6 +103,12 @@ public class WorkerWrapper implements Runnable {
                 notifyListener(false);
                 return;
             }
+
+            case STATUS_CANCELLED: {
+                Log.d(TAG, "Status for " + mWorkSpecId + " is cancelled; not doing any work");
+                notifyListener(false);
+                return;
+            }
         }
 
         Worker worker = Worker.fromWorkSpec(mAppContext, mWorkSpec);
@@ -124,10 +131,10 @@ public class WorkerWrapper implements Runnable {
         try {
             checkForInterruption();
             int result = worker.doWork();
-            checkForInterruption();
-
-            setStatusAndNotify(result);
-
+            if (mWorkSpecDao.getWorkSpecStatus(mWorkSpecId) != STATUS_CANCELLED) {
+                checkForInterruption();
+                setStatusAndNotify(result);
+            }
         } catch (InterruptedException e) {
             Log.d(TAG, "Work interrupted for " + mWorkSpecId);
             mWorkSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);

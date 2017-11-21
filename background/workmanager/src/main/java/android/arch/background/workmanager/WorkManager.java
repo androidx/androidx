@@ -238,9 +238,9 @@ public final class WorkManager {
                 WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
                 List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithTag(mTag);
                 for (String workSpecId : workSpecIds) {
+                    recursivelyCancelWorkAndDependencies(workSpecId);
                     mForegroundProcessor.cancel(workSpecId, true);
                     mBackgroundScheduler.cancel(workSpecId);
-                    recursivelyDeleteWorkAndDependencies(workSpecId);
                 }
 
                 mWorkDatabase.setTransactionSuccessful();
@@ -249,15 +249,15 @@ public final class WorkManager {
             }
         }
 
-        private void recursivelyDeleteWorkAndDependencies(String workSpecId) {
+        private void recursivelyCancelWorkAndDependencies(String workSpecId) {
             WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
             DependencyDao dependencyDao = mWorkDatabase.dependencyDao();
 
             List<String> dependentIds = dependencyDao.getDependentWorkIds(workSpecId);
             for (String id : dependentIds) {
-                recursivelyDeleteWorkAndDependencies(id);
+                recursivelyCancelWorkAndDependencies(id);
             }
-            workSpecDao.delete(workSpecId);
+            workSpecDao.setStatus(BaseWork.STATUS_CANCELLED, workSpecId);
         }
     }
 }

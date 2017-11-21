@@ -75,7 +75,7 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
             return false;
         }
         boolean cancelled = mProcessor.cancel(workSpecId, true);
-        Log.d(TAG, workSpecId + "; cancel = " + cancelled);
+        Log.d(TAG, "onStopJob for " + workSpecId + "; Processor.cancel = " + cancelled);
         return cancelled;
     }
 

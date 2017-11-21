@@ -16,9 +16,13 @@
 
 package android.arch.background.workmanager;
 
+import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
+import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
+
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
@@ -301,31 +305,11 @@ public class WorkManagerTest {
 
         mWorkManager.cancelAllWorkWithTag(tagToClear);
 
-        assertThat(workSpecDao.getWorkSpec(work0.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(work1.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(work2.getId()), is(notNullValue()));
-        assertThat(workSpecDao.getWorkSpec(work3.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpecStatus(work0.getId()), is(STATUS_CANCELLED));
+        assertThat(workSpecDao.getWorkSpecStatus(work1.getId()), is(STATUS_CANCELLED));
+        assertThat(workSpecDao.getWorkSpecStatus(work2.getId()), is(not(STATUS_CANCELLED)));
+        assertThat(workSpecDao.getWorkSpecStatus(work3.getId()), is(not(STATUS_CANCELLED)));
     }
-
-    @Test
-    @SmallTest
-    public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
-        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-
-        Work work = new Work.Builder(TestWorker.class).build();
-        WorkSpec workSpec = work.getWorkSpec();
-        workSpec.setStatus(Work.STATUS_RUNNING);
-        workSpecDao.insertWorkSpec(work.getWorkSpec());
-
-        assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(Work.STATUS_RUNNING));
-
-        SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
-        SupportSQLiteDatabase db = openHelper.getWritableDatabase();
-        WorkDatabase.generateCleanupCallback().onOpen(db);
-
-        assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(Work.STATUS_ENQUEUED));
-    }
-
 
     @Test
     @SmallTest
@@ -368,11 +352,30 @@ public class WorkManagerTest {
         mWorkManager.cancelAllWorkWithTag(tag);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getWorkSpec(work0.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(work1.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(work2.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(work3.getId()), is(notNullValue()));
-        assertThat(workSpecDao.getWorkSpec(work4.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpecStatus(work0.getId()), is(STATUS_CANCELLED));
+        assertThat(workSpecDao.getWorkSpecStatus(work1.getId()), is(STATUS_CANCELLED));
+        assertThat(workSpecDao.getWorkSpecStatus(work2.getId()), is(STATUS_CANCELLED));
+        assertThat(workSpecDao.getWorkSpecStatus(work3.getId()), is(not(STATUS_CANCELLED)));
+        assertThat(workSpecDao.getWorkSpecStatus(work4.getId()), is(STATUS_CANCELLED));
+    }
+
+    @Test
+    @SmallTest
+    public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        Work work = new Work.Builder(TestWorker.class).build();
+        WorkSpec workSpec = work.getWorkSpec();
+        workSpec.setStatus(STATUS_RUNNING);
+        workSpecDao.insertWorkSpec(work.getWorkSpec());
+
+        assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(STATUS_RUNNING));
+
+        SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
+        SupportSQLiteDatabase db = openHelper.getWritableDatabase();
+        WorkDatabase.generateCleanupCallback().onOpen(db);
+
+        assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(STATUS_ENQUEUED));
     }
 
     private void insertWorkSpecAndTags(Work work) {

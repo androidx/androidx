@@ -38,7 +38,8 @@ import java.util.UUID;
 public abstract class BaseWork {
 
     @Retention(SOURCE)
-    @IntDef({STATUS_ENQUEUED, STATUS_RUNNING, STATUS_SUCCEEDED, STATUS_FAILED, STATUS_BLOCKED})
+    @IntDef({STATUS_ENQUEUED, STATUS_RUNNING, STATUS_SUCCEEDED, STATUS_FAILED, STATUS_BLOCKED,
+            STATUS_CANCELLED})
     public @interface WorkStatus {
     }
 
@@ -52,6 +53,7 @@ public abstract class BaseWork {
     public static final int STATUS_SUCCEEDED = 2;
     public static final int STATUS_FAILED = 3;
     public static final int STATUS_BLOCKED = 4;
+    public static final int STATUS_CANCELLED = 5;
 
     public static final int BACKOFF_POLICY_EXPONENTIAL = 0;
     public static final int BACKOFF_POLICY_LINEAR = 1;
