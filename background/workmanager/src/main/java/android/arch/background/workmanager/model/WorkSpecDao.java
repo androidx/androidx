@@ -47,14 +47,6 @@ public interface WorkSpecDao {
     void insertWorkSpec(WorkSpec workSpec);
 
     /**
-     * Deletes a {@link WorkSpec} with the given id.
-     *
-     * @param id The WorkSpec id
-     */
-    @Query("DELETE FROM workspec WHERE id=:id")
-    void delete(String id);
-
-    /**
      * @param id The identifier
      * @return The WorkSpec associated with that id
      */
@@ -148,12 +140,6 @@ public interface WorkSpecDao {
     @Query("SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND status!="
             + STATUS_FAILED + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
     List<String> getUnfinishedWorkWithTag(@NonNull String tag);
-
-    /**
-     * Clears all work.
-     */
-    @Query("DELETE FROM workspec")
-    void clearAll();
 
     String CONSTRAINT_SUFFIX =
             " AND (status=" + STATUS_ENQUEUED + " OR status=" + STATUS_RUNNING + ") AND "
