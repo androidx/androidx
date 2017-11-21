@@ -22,6 +22,7 @@ import android.support.tools.jetifier.core.archive.ArchiveItemVisitor
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.transform.Transformer
 import android.support.tools.jetifier.core.transform.bytecode.ByteCodeTransformer
+import android.support.tools.jetifier.core.transform.resource.XmlResourcesTransformer
 import android.support.tools.jetifier.core.utils.Log
 import java.nio.file.Files
 import java.nio.file.Path
@@ -37,7 +38,8 @@ class Processor(config : Config) : ArchiveItemVisitor {
 
     private val transformers = listOf(
             // Register your transformers here
-            ByteCodeTransformer(config)
+            ByteCodeTransformer(config),
+            XmlResourcesTransformer(config)
     )
 
     /**

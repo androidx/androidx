@@ -24,7 +24,7 @@ class ConfigParserTest {
     @Test fun parseConfig_validInput() {
         val confStr =
                 "{\n" +
-                "    restrictToPackagePrefix: \"android/support/\",\n" +
+                "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
                 "    # Sample comment \n" +
                 "    rules: [\n" +
                 "        {\n" +
@@ -42,7 +42,7 @@ class ConfigParserTest {
         val config = ConfigParser.parse(confStr)
 
         Truth.assertThat(config).isNotNull()
-        Truth.assertThat(config!!.restrictToPackagePrefix).isEqualTo("android/support/")
+        Truth.assertThat(config!!.restrictToPackagePrefixes[0]).isEqualTo("android/support/")
         Truth.assertThat(config.rewriteRules.size).isEqualTo(2)
     }
 }
