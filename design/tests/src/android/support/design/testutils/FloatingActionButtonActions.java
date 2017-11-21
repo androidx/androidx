@@ -107,6 +107,30 @@ public class FloatingActionButtonActions {
         };
     }
 
+    public static ViewAction setCustomSize(final int size) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(FloatingActionButton.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Sets FloatingActionButton custom size";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                final FloatingActionButton fab = (FloatingActionButton) view;
+                fab.setCustomSize(size);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
     public static ViewAction setCompatElevation(final float size) {
         return new ViewAction() {
             @Override

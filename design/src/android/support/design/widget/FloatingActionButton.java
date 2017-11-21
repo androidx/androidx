@@ -117,6 +117,11 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
     public static final int SIZE_AUTO = -1;
 
     /**
+     * Indicates that FloatingActionButton should not have a custom size.
+     */
+    public static final int NO_CUSTOM_SIZE = 0;
+
+    /**
      * The switch point for the largest screen edge where SIZE_AUTO switches from mini to normal.
      */
     private static final int AUTO_MINI_LARGEST_SCREEN_WIDTH = 470;
@@ -133,6 +138,7 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
     private int mBorderWidth;
     private int mRippleColor;
     private int mSize;
+    private int mCustomSize;
     int mImagePadding;
     private int mMaxImageSize;
 
@@ -165,6 +171,8 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
                 R.styleable.FloatingActionButton_backgroundTintMode, -1), null);
         mRippleColor = a.getColor(R.styleable.FloatingActionButton_rippleColor, 0);
         mSize = a.getInt(R.styleable.FloatingActionButton_fabSize, SIZE_AUTO);
+        mCustomSize = a.getDimensionPixelSize(R.styleable.FloatingActionButton_fabCustomSize,
+                    0);
         mBorderWidth = a.getDimensionPixelSize(R.styleable.FloatingActionButton_borderWidth, 0);
         final float elevation = a.getDimension(R.styleable.FloatingActionButton_elevation, 0f);
         final float pressedTranslationZ = a.getDimension(
@@ -431,12 +439,41 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
         };
     }
 
+    /**
+     * Sets the size of the button to be a custom value in pixels. If set to
+     * {@link #NO_CUSTOM_SIZE}, custom size will not be used and size will be calculated according
+     * to {@link #setSize(int)} method.
+     *
+     * @param size preferred size in pixels, or zero
+     *
+     * @attr ref android.support.design.R.styleable#FloatingActionButton_fabCustomSize
+     */
+    public void setCustomSize(int size) {
+        if (size < 0) {
+            throw new IllegalArgumentException("Custom size should be non-negative.");
+        }
+        mCustomSize = size;
+    }
+
+    /**
+     * Returns the custom size for this button.
+     *
+     * @return size in pixels, or {@link #NO_CUSTOM_SIZE}
+     */
+    public int getCustomSize() {
+        return mCustomSize;
+    }
+
     int getSizeDimension() {
         return getSizeDimension(mSize);
     }
 
     private int getSizeDimension(@Size final int size) {
         final Resources res = getResources();
+        // If custom size is set, return it
+        if (mCustomSize != NO_CUSTOM_SIZE) {
+            return mCustomSize;
+        }
         switch (size) {
             case SIZE_AUTO:
                 // If we're set to auto, grab the size from resources and refresh

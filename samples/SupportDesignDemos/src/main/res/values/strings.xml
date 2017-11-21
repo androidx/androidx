@@ -37,6 +37,7 @@
 
     <string name="fab_size_normal">Normal size</string>
     <string name="fab_size_mini">Mini size</string>
+    <string name="fab_size_custom">Custom size</string>
 
     <string name="navigation_open">Open</string>
     <string name="navigation_close">Close</string>
