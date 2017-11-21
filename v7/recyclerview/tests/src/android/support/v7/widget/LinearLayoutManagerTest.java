@@ -82,7 +82,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         // The condition for this test is setting RV's height to a non-exact height, so that measure
         // is called twice (once with the larger height and another time with smaller height when
         // the keyboard shows up). To ensure this resizing of RV, SOFT_INPUT_ADJUST_RESIZE is set.
-        imeCleanUp.setContainerView(getActivity().getContainer());
+        imeCleanUp.setup(getActivity(), getInstrumentation());
         final LinearLayout container = new LinearLayout(getActivity());
         container.setOrientation(LinearLayout.VERTICAL);
         container.setLayoutParams(
