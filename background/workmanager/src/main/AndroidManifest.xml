@@ -35,5 +35,21 @@
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="true"
             android:enabled="@bool/enable_system_job_service_default" />
+        <receiver
+            android:name=".background.systemalarm.ConstraintProxy$BatteryChargingProxy"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".background.systemalarm.ConstraintProxy$BatteryNotLowProxy"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BATTERY_OKAY"/>
+                <action android:name="android.intent.action.BATTERY_LOW"/>
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
