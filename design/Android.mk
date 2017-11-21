@@ -49,4 +49,5 @@ LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := \
     --no-version-vectors \
     --add-javadoc-annotation doconly
+LOCAL_EXPORT_PROGUARD_FLAG_FILES := proguard-rules.pro
 include $(BUILD_STATIC_JAVA_LIBRARY)
