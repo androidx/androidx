@@ -16,13 +16,13 @@
 
 package android.arch.background.workmanager;
 
+import static android.arch.background.workmanager.utils.PackageManagerHelper.setComponentEnabled;
+
 import android.arch.background.workmanager.background.systemalarm.SystemAlarmScheduler;
 import android.arch.background.workmanager.background.systemalarm.SystemAlarmService;
 import android.arch.background.workmanager.background.systemjob.SystemJobScheduler;
 import android.arch.background.workmanager.background.systemjob.SystemJobService;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -52,10 +52,10 @@ class WorkManagerConfiguration {
 
         if (Build.VERSION.SDK_INT >= 23) {
             // SystemJobService isn't available on older platforms.
-            setComponentEnabled(context, SystemJobService.class.getName(), usingSystemJob);
+            setComponentEnabled(context, SystemJobService.class, usingSystemJob);
         }
         setComponentEnabled(context, FIREBASE_SCHEDULER_CLASSNAME, usingFirebase);
-        setComponentEnabled(context, SystemAlarmService.class.getName(), usingSystemAlarm);
+        setComponentEnabled(context, SystemAlarmService.class, usingSystemAlarm);
     }
 
     @NonNull Scheduler getBackgroundScheduler() {
@@ -76,22 +76,4 @@ class WorkManagerConfiguration {
         }
         return (mScheduler != null);
     }
-
-    private static void setComponentEnabled(Context context, String className, boolean enabled) {
-        try {
-            PackageManager packageManager = context.getPackageManager();
-            ComponentName componentName = new ComponentName(context, className);
-            packageManager.setComponentEnabledSetting(componentName,
-                    enabled
-                            ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                            : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                    PackageManager.DONT_KILL_APP);
-            Log.d(TAG, className + " " + (enabled ? "enabled" : "disabled"));
-        } catch (Exception e) {
-            Log.d(TAG,
-                    className + " could not be " + (enabled ? "enabled" : "disabled"),
-                    e);
-        }
-    }
-
 }

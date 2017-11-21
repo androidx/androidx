@@ -61,6 +61,7 @@ public class SystemAlarmService extends Service implements ExecutionListener {
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         Log.d(TAG, workSpecId + " executed on AlarmManager");
         // TODO(janclarin): Handle rescheduling or stopping service when there is no more work.
+        // TODO(xbhatnag): Query WorkSpecs and disable proxies as needed.
     }
 
     @Nullable

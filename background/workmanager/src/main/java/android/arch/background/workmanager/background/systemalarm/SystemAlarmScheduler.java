@@ -16,8 +16,13 @@
 
 package android.arch.background.workmanager.background.systemalarm;
 
+import static android.arch.background.workmanager.utils.PackageManagerHelper
+        .isComponentExplicitlyEnabled;
+import static android.arch.background.workmanager.utils.PackageManagerHelper.setComponentEnabled;
+
 import android.app.AlarmManager;
 import android.arch.background.workmanager.Scheduler;
+import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -33,18 +38,40 @@ public class SystemAlarmScheduler implements Scheduler {
     private static final String TAG = "SystemAlarmScheduler";
 
     private final AlarmManager mAlarmManager;
+    private final Context mAppContext;
 
     public SystemAlarmScheduler(Context context) {
-        mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        mAppContext = context.getApplicationContext();
+        mAlarmManager = (AlarmManager) mAppContext.getSystemService(Context.ALARM_SERVICE);
     }
 
     @Override
     public void schedule(WorkSpec... workSpecs) {
-        // TODO(janclarin): Schedule with AlarmManager and pass Work info to SystemAlarmService.
+        // TODO(xbhatnag): Initial delay and periodic work with AlarmManager
+        boolean requiresBatteryNotLow = isComponentExplicitlyEnabled(
+                mAppContext, ConstraintProxy.BatteryNotLowProxy.class);
+        boolean requiresCharging = isComponentExplicitlyEnabled(
+                mAppContext, ConstraintProxy.BatteryChargingProxy.class);
+
+        for (WorkSpec workSpec : workSpecs) {
+            Constraints constraints = workSpec.getConstraints();
+            requiresCharging |= constraints.requiresCharging();
+            requiresBatteryNotLow |= constraints.requiresBatteryNotLow();
+        }
+
+        if (requiresBatteryNotLow) {
+            setComponentEnabled(mAppContext, ConstraintProxy.BatteryNotLowProxy.class, true);
+        }
+
+        if (requiresCharging) {
+            setComponentEnabled(mAppContext, ConstraintProxy.BatteryChargingProxy.class, true);
+        }
     }
 
     @Override
     public void cancel(@NonNull String workSpecId) {
-        // TODO(janclarin)
+        // TODO(janclarin): Send intent to SystemAlarmService to cancel job.
+        // TODO(xbhatnag): Query WorkSpecs and disable proxies as needed.
+        // TODO(xbhatnag): Cancel pending alarms via AlarmManager.
     }
 }
