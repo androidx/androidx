@@ -25,6 +25,7 @@ LOCAL_PATH:= $(call my-dir)
 # in their makefiles to include the resources and their dependencies in their package.
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
+LOCAL_AAPT2_ONLY := true
 LOCAL_MODULE := android-support-v17-leanback
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := \
