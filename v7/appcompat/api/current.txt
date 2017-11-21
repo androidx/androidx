@@ -403,6 +403,15 @@ package android.support.v7.view {
     method public abstract void onActionViewExpanded();
   }
 
+  public class ContextThemeWrapper extends android.content.ContextWrapper {
+    ctor public ContextThemeWrapper();
+    ctor public ContextThemeWrapper(android.content.Context, int);
+    ctor public ContextThemeWrapper(android.content.Context, android.content.res.Resources.Theme);
+    method public void applyOverrideConfiguration(android.content.res.Configuration);
+    method public int getThemeResId();
+    method protected void onApplyThemeResource(android.content.res.Resources.Theme, int, boolean);
+  }
+
 }
 
 package android.support.v7.widget {
