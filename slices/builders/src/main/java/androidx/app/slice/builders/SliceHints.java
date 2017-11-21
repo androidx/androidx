@@ -19,7 +19,6 @@ package androidx.app.slice.builders;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.slice.Slice;
-import android.app.slice.widget.SliceView;
 import android.support.annotation.RestrictTo;
 
 
@@ -42,9 +41,11 @@ public class SliceHints {
      */
     public static final String EXTRA_TOGGLE_STATE = "android.app.slice.extra.TOGGLE_STATE";
     /**
-     * Hint to indicate that this content should not be shown in the {@link SliceView#MODE_SMALL}
-     * and {@link SliceView#MODE_LARGE} modes of SliceView. This content may be used to populate
-     * the {@link SliceView#MODE_SHORTCUT} format of the slice.
+     * Hint to indicate that this content should not be shown in the
+     * {@link androidx.app.slice.widget.SliceView#MODE_SMALL}
+     * and {@link androidx.app.slice.widget.SliceView#MODE_LARGE} modes of SliceView.
+     * This content may be used to populate
+     * the {@link androidx.app.slice.widget.SliceView#MODE_SHORTCUT} format of the slice.
      */
     public static final String HINT_HIDDEN = "hidden";
 }

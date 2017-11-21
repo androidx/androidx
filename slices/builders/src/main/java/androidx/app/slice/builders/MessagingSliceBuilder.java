@@ -58,7 +58,7 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
 
     @Override
     public void add(SubTemplateSliceBuilder builder) {
-        getBuilder().addSubSlice(builder.build());
+        getBuilder().addSubSlice(builder.build(), Slice.SUBTYPE_MESSAGE);
     }
 
     /**
@@ -72,14 +72,13 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public MessageBuilder(MessagingSliceBuilder parent) {
             super(parent.createChildBuilder(), parent);
-            getBuilder().addHints(Slice.HINT_MESSAGE);
         }
 
         /**
          * Add the icon used to display contact in the messaging experience
          */
         public MessageBuilder addSource(Icon source) {
-            getBuilder().addIcon(source, Slice.HINT_SOURCE);
+            getBuilder().addIcon(source, Slice.SUBTYPE_SOURCE);
             return this;
         }
 
@@ -87,7 +86,7 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
          * Add the text to be used for this message.
          */
         public MessageBuilder addText(CharSequence text) {
-            getBuilder().addText(text);
+            getBuilder().addText(text, null);
             return this;
         }
 
@@ -95,7 +94,7 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
          * Add the time at which this message arrived in ms since Unix epoch
          */
         public MessageBuilder addTimestamp(long timestamp) {
-            getBuilder().addTimestamp(timestamp);
+            getBuilder().addTimestamp(timestamp, null);
             return this;
         }
 

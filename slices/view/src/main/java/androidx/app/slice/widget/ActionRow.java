@@ -16,6 +16,11 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.SliceItem.FORMAT_ACTION;
+import static android.app.slice.SliceItem.FORMAT_COLOR;
+import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
+
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.app.RemoteInput;
@@ -100,23 +105,23 @@ public class ActionRow extends FrameLayout {
         mActionsGroup.removeAllViews();
         addView(mActionsGroup);
 
-        SliceItem color = SliceQuery.find(actionRow, SliceItem.TYPE_COLOR);
+        SliceItem color = SliceQuery.find(actionRow, FORMAT_COLOR);
         if (color == null) {
             color = defColor;
         }
         if (color != null) {
             setColor(color.getColor());
         }
-        SliceQuery.findAll(actionRow, SliceItem.TYPE_ACTION).forEach(action -> {
+        SliceQuery.findAll(actionRow, FORMAT_ACTION).forEach(action -> {
             if (mActionsGroup.getChildCount() >= MAX_ACTIONS) {
                 return;
             }
-            SliceItem image = SliceQuery.find(action, SliceItem.TYPE_IMAGE);
+            SliceItem image = SliceQuery.find(action, FORMAT_IMAGE);
             if (image == null) {
                 return;
             }
             boolean tint = !image.hasHint(Slice.HINT_NO_TINT);
-            SliceItem input = SliceQuery.find(action, SliceItem.TYPE_REMOTE_INPUT);
+            SliceItem input = SliceQuery.find(action, FORMAT_REMOTE_INPUT);
             if (input != null && input.getRemoteInput().getAllowFreeFormInput()) {
                 addAction(image.getIcon(), tint, image).setOnClickListener(
                         v -> handleRemoteInputClick(v, action.getAction(), input.getRemoteInput()));

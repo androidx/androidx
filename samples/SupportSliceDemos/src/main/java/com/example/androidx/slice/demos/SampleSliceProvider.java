@@ -116,10 +116,10 @@ public class SampleSliceProvider extends SliceProvider {
         b.addSubSlice(new Slice.Builder(b)
                 .addAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
                         new Slice.Builder(b)
-                                .addText("Wi-fi")
-                                .addText(state)
+                                .addText("Wi-fi", null)
+                                .addText(state, null)
                                 .addIcon(Icon.createWithResource(getContext(),
-                                        R.drawable.ic_settings_wifi), SliceHints.HINT_HIDDEN)
+                                        R.drawable.ic_settings_wifi), null, SliceHints.HINT_HIDDEN)
                                 .addHints(Slice.HINT_TITLE)
                                 .build())
                 .addAction(getBroadcastIntent(ACTION_WIFI_CHANGED),

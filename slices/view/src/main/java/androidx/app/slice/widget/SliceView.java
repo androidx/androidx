@@ -16,6 +16,9 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.SliceItem.FORMAT_COLOR;
+import static android.app.slice.SliceItem.FORMAT_SLICE;
+
 import android.app.slice.Slice;
 import android.app.slice.SliceItem;
 import android.arch.lifecycle.Observer;
@@ -261,9 +264,9 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
             return;
         }
         // TODO: Smarter mapping here from one state to the next.
-        SliceItem color = SliceQuery.find(mCurrentSlice, SliceItem.TYPE_COLOR);
+        SliceItem color = SliceQuery.find(mCurrentSlice, FORMAT_COLOR);
         List<SliceItem> items = mCurrentSlice.getItems();
-        SliceItem actionRow = SliceQuery.find(mCurrentSlice, SliceItem.TYPE_SLICE,
+        SliceItem actionRow = SliceQuery.find(mCurrentSlice, FORMAT_SLICE,
                 Slice.HINT_ACTIONS,
                 null);
         int mode = getMode();

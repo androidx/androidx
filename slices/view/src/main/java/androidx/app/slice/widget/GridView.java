@@ -16,6 +16,10 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.SliceItem.FORMAT_COLOR;
+import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_SLICE;
+import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -76,7 +80,7 @@ public class GridView extends LinearLayout implements LargeSliceAdapter.SliceLis
         mIsAllImages = true;
         removeAllViews();
         int total = 1;
-        if (slice.getType() == SliceItem.TYPE_SLICE) {
+        if (FORMAT_SLICE.equals(slice.getFormat())) {
             List<SliceItem> items = slice.getSlice().getItems();
             total = items.size();
             for (int i = 0; i < total; i++) {
@@ -127,7 +131,7 @@ public class GridView extends LinearLayout implements LargeSliceAdapter.SliceLis
      * Returns true if this item is just an image.
      */
     private boolean addItem(SliceItem item) {
-        if (item.getType() == SliceItem.TYPE_IMAGE) {
+        if (FORMAT_IMAGE.equals(item.getFormat())) {
             ImageView v = new ImageView(getContext());
             v.setImageIcon(item.getIcon());
             v.setScaleType(ScaleType.CENTER_CROP);
@@ -142,13 +146,13 @@ public class GridView extends LinearLayout implements LargeSliceAdapter.SliceLis
             v.setGravity(Gravity.CENTER_HORIZONTAL);
             // TODO: Unify sporadic inflates that happen throughout the code.
             ArrayList<SliceItem> items = new ArrayList<>();
-            if (item.getType() == SliceItem.TYPE_SLICE) {
+            if (FORMAT_SLICE.equals(item.getFormat())) {
                 items.addAll(item.getSlice().getItems());
             }
             items.forEach(i -> {
                 Context context = getContext();
-                switch (i.getType()) {
-                    case SliceItem.TYPE_TEXT:
+                switch (i.getFormat()) {
+                    case FORMAT_TEXT:
                         boolean title = false;
                         if ((SliceQuery.hasAnyHints(item, new String[] {
                                 Slice.HINT_LARGE, Slice.HINT_TITLE
@@ -161,7 +165,7 @@ public class GridView extends LinearLayout implements LargeSliceAdapter.SliceLis
                         tv.setText(i.getText());
                         v.addView(tv);
                         break;
-                    case SliceItem.TYPE_IMAGE:
+                    case FORMAT_IMAGE:
                         ImageView iv = new ImageView(context);
                         iv.setImageIcon(i.getIcon());
                         if (item.hasHint(Slice.HINT_LARGE)) {
@@ -173,7 +177,7 @@ public class GridView extends LinearLayout implements LargeSliceAdapter.SliceLis
                         }
                         v.addView(iv);
                         break;
-                    case SliceItem.TYPE_COLOR:
+                    case FORMAT_COLOR:
                         // TODO: Support color to tint stuff here.
                         break;
                 }

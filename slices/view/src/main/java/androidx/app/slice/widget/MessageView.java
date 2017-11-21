@@ -16,6 +16,9 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_TEXT;
+
 import android.app.slice.Slice;
 import android.app.slice.SliceItem;
 import android.content.Context;
@@ -54,7 +57,7 @@ public class MessageView extends LinearLayout implements LargeSliceAdapter.Slice
 
     @Override
     public void setSliceItem(SliceItem slice) {
-        SliceItem source = SliceQuery.find(slice, SliceItem.TYPE_IMAGE, Slice.HINT_SOURCE, null);
+        SliceItem source = SliceQuery.findSubtype(slice, FORMAT_IMAGE, Slice.SUBTYPE_SOURCE);
         if (source != null) {
             final int iconSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     24, getContext().getResources().getDisplayMetrics());
@@ -67,7 +70,7 @@ public class MessageView extends LinearLayout implements LargeSliceAdapter.Slice
             mIcon.setImageBitmap(SliceViewUtil.getCircularBitmap(iconBm));
         }
         SpannableStringBuilder builder = new SpannableStringBuilder();
-        SliceQuery.findAll(slice, SliceItem.TYPE_TEXT).forEach(text -> {
+        SliceQuery.findAll(slice, FORMAT_TEXT).forEach(text -> {
             if (builder.length() != 0) {
                 builder.append('\n');
             }

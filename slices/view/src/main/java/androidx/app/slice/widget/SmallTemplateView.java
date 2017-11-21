@@ -16,6 +16,13 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.SliceItem.FORMAT_ACTION;
+import static android.app.slice.SliceItem.FORMAT_COLOR;
+import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_SLICE;
+import static android.app.slice.SliceItem.FORMAT_TEXT;
+import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
+
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.app.slice.Slice;
@@ -106,12 +113,12 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
 
     private SliceItem getFirstSlice(Slice slice) {
         List<SliceItem> items = slice.getItems();
-        if (items.size() > 0 && items.get(0).getType() == SliceItem.TYPE_SLICE) {
+        if (items.size() > 0 && FORMAT_SLICE.equals(items.get(0).getFormat())) {
             // Check if this slice is appropriate to use to populate small template
             SliceItem firstSlice = items.get(0);
             if (firstSlice.hasHint(Slice.HINT_LIST)) {
                 // Check for header, use that if it exists
-                SliceItem header = SliceQuery.find(firstSlice, SliceItem.TYPE_SLICE,
+                SliceItem header = SliceQuery.find(firstSlice, FORMAT_SLICE,
                         null,
                         new String[] {
                                 Slice.HINT_LIST_ITEM, Slice.HINT_LIST
@@ -137,7 +144,7 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
     private void populateViews(SliceItem fullSlice, SliceItem sliceItem) {
         resetViews();
         ArrayList<SliceItem> items = new ArrayList<>();
-        if (sliceItem.getType() == SliceItem.TYPE_SLICE) {
+        if (FORMAT_SLICE.equals(sliceItem.getFormat())) {
             items = new ArrayList<>(sliceItem.getSlice().getItems());
         } else {
             items.add(sliceItem);
@@ -152,7 +159,7 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
         // If the first item is an action let's check if it should be used to populate the content
         // or if it should be in the start position.
         SliceItem firstSlice = items.size() > 0 ? items.get(0) : null;
-        if (firstSlice != null && firstSlice.getType() == SliceItem.TYPE_ACTION) {
+        if (firstSlice != null && FORMAT_ACTION.equals(firstSlice.getFormat())) {
             if (!SliceQuery.isSimpleAction(firstSlice)) {
                 mRowAction = firstSlice;
                 items.remove(0);
@@ -168,19 +175,19 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
         for (int i = 0; i < items.size(); i++) {
             SliceItem item = items.get(i);
             List<String> hints = item.getHints();
-            int itemType = item.getType();
+            String itemType = item.getFormat();
             if (hints.contains(Slice.HINT_TITLE)) {
                 // Things with these hints could go in the title / start position
                 if ((startItem == null || !startItem.hasHint(Slice.HINT_TITLE))
                         && SliceQuery.isStartType(item)) {
                     startItem = item;
                 } else if ((titleItem == null || !titleItem.hasHint(Slice.HINT_TITLE))
-                        && itemType == SliceItem.TYPE_TEXT) {
+                        && FORMAT_TEXT.equals(itemType)) {
                     titleItem = item;
                 } else {
                     endItems.add(item);
                 }
-            } else if (item.getType() == SliceItem.TYPE_TEXT) {
+            } else if (FORMAT_TEXT.equals(item.getFormat())) {
                 if (titleItem == null) {
                     titleItem = item;
                 } else if (subTitle == null) {
@@ -188,7 +195,7 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
                 } else {
                     endItems.add(item);
                 }
-            } else if (item.getType() == SliceItem.TYPE_SLICE) {
+            } else if (FORMAT_SLICE.equals(item.getFormat())) {
                 List<SliceItem> subItems = item.getSlice().getItems();
                 for (int j = 0; j < subItems.size(); j++) {
                     endItems.add(subItems.get(j));
@@ -221,8 +228,8 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
         }
         // Check if we have a toggle somewhere in our end items
         SliceItem toggleItem = endItems.stream()
-                .filter(item -> (item.getType() == SliceItem.TYPE_ACTION
-                        && SliceQuery.hasHints(item.getSlice(), SliceHints.HINT_TOGGLE)))
+                .filter(item -> FORMAT_ACTION.equals(item.getFormat())
+                        && SliceQuery.hasHints(item.getSlice(), SliceHints.HINT_TOGGLE))
                 .findFirst().orElse(null);
         if (toggleItem != null) {
             if (addToggle(toggleItem)) {
@@ -233,7 +240,7 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
             }
         }
         // If we're here we can still show end items
-        SliceItem colorItem = SliceQuery.find(fullSlice, SliceItem.TYPE_COLOR);
+        SliceItem colorItem = SliceQuery.find(fullSlice, FORMAT_COLOR);
         int color = colorItem != null
                 ? colorItem.getColor()
                 : (mColorItem != null)
@@ -244,7 +251,7 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
         for (int i = 0; i < items.size(); i++) {
             SliceItem item = items.get(i);
             if (itemCount <= MAX_END_ITEMS) {
-                if (item.getType() == SliceItem.TYPE_ACTION) {
+                if (FORMAT_ACTION.equals(item.getFormat())) {
                     if (SliceQuery.hasHints(item.getSlice(), SliceHints.HINT_TOGGLE)) {
                         if (addToggle(item)) {
                             break;
@@ -254,10 +261,10 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
                         clickableEndItem = true;
                         itemCount++;
                     }
-                } else if (item.getType() == SliceItem.TYPE_IMAGE) {
+                } else if (FORMAT_IMAGE.equals(item.getFormat())) {
                     addIcon(item, color, mEndContainer);
                     itemCount++;
-                } else if (item.getType() == SliceItem.TYPE_TIMESTAMP) {
+                } else if (FORMAT_TIMESTAMP.equals(item.getFormat())) {
                     TextView tv = new TextView(getContext());
                     tv.setText(SliceViewUtil.getRelativeTimeString(item.getTimestamp()));
                     mEndContainer.addView(tv);
@@ -274,7 +281,7 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
      * @return Whether a toggle was added.
      */
     private boolean addToggle(SliceItem toggleItem) {
-        if (toggleItem.getType() != SliceItem.TYPE_ACTION
+        if (!FORMAT_ACTION.equals(toggleItem.getFormat())
                 || !SliceQuery.hasHints(toggleItem.getSlice(), SliceHints.HINT_TOGGLE)) {
             return false;
         }
@@ -299,10 +306,10 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
     private boolean addIcon(SliceItem sliceItem, int color, LinearLayout container) {
         SliceItem image = null;
         SliceItem action = null;
-        if (sliceItem.getType() == SliceItem.TYPE_ACTION) {
-            image = SliceQuery.find(sliceItem.getSlice(), SliceItem.TYPE_IMAGE);
+        if (FORMAT_ACTION.equals(sliceItem.getFormat())) {
+            image = SliceQuery.find(sliceItem.getSlice(), FORMAT_IMAGE);
             action = sliceItem;
-        } else if (sliceItem.getType() == SliceItem.TYPE_IMAGE) {
+        } else if (FORMAT_IMAGE.equals(sliceItem.getFormat())) {
             image = sliceItem;
         }
         if (image != null) {
@@ -336,7 +343,7 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
 
     @Override
     public void onClick(View view) {
-        if (mRowAction != null && mRowAction.getType() == SliceItem.TYPE_ACTION) {
+        if (mRowAction != null && FORMAT_ACTION.equals(mRowAction.getFormat())) {
             if (mToggle != null
                     && SliceQuery.hasHints(mRowAction.getSlice(), SliceHints.HINT_TOGGLE)) {
                 mToggle.toggle();

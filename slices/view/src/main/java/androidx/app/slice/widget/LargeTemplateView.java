@@ -16,6 +16,8 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.SliceItem.FORMAT_COLOR;
+import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import android.app.slice.Slice;
@@ -78,7 +80,7 @@ public class LargeTemplateView extends SliceView.SliceModeView {
 
     @Override
     public void setSlice(Slice slice) {
-        SliceItem color = SliceQuery.find(slice, SliceItem.TYPE_COLOR);
+        SliceItem color = SliceQuery.find(slice, FORMAT_COLOR);
         mSlice = slice;
         List<SliceItem> items = new ArrayList<>();
         boolean[] hasHeader = new boolean[1];
@@ -88,9 +90,9 @@ public class LargeTemplateView extends SliceView.SliceModeView {
             slice.getItems().forEach(item -> {
                 if (item.hasHint(Slice.HINT_ACTIONS)) {
                     return;
-                } else if (item.getType() == SliceItem.TYPE_COLOR) {
+                } else if (FORMAT_COLOR.equals(item.getFormat())) {
                     return;
-                } else if (item.getType() == SliceItem.TYPE_SLICE
+                } else if (FORMAT_SLICE.equals(item.getFormat())
                         && item.hasHint(Slice.HINT_LIST)) {
                     addList(item.getSlice(), items);
                 } else if (item.hasHint(Slice.HINT_LIST_ITEM)) {
