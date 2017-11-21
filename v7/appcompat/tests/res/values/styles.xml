@@ -98,4 +98,6 @@
     <style name="TextView_Typeface_Monospace">
         <item name="android:typeface">monospace</item>
     </style>
+
+    <style name="TextAppearance" parent="TextAppearance.AppCompat" />
 </resources>

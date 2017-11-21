@@ -16,26 +16,19 @@
 
 package android.support.v7.view;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
-import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
 import android.support.v7.appcompat.R;
 import android.view.LayoutInflater;
 
 /**
- * A ContextWrapper that allows you to modify the theme from what is in the
- * wrapped context.
- *
- * @hide
+ * A context wrapper that allows you to modify or replace the theme of the wrapped context.
  */
-@RestrictTo(LIBRARY_GROUP)
 public class ContextThemeWrapper extends ContextWrapper {
     private int mThemeResource;
     private Resources.Theme mTheme;
@@ -110,15 +103,6 @@ public class ContextThemeWrapper extends ContextWrapper {
         mOverrideConfiguration = new Configuration(overrideConfiguration);
     }
 
-    /**
-     * Used by ActivityThread to apply the overridden configuration to onConfigurationChange
-     * callbacks.
-     * @hide
-     */
-    public Configuration getOverrideConfiguration() {
-        return mOverrideConfiguration;
-    }
-
     @Override
     public Resources getResources() {
         return getResourcesInternal();
@@ -144,6 +128,10 @@ public class ContextThemeWrapper extends ContextWrapper {
         }
     }
 
+    /**
+     * Returns the resource ID of the theme that is to be applied on top of the base context's
+     * theme.
+     */
     public int getThemeResId() {
         return mThemeResource;
     }
