@@ -26,10 +26,14 @@
             android:authorities="${applicationId}.workmanager-trojan"
             android:exported="false"
             android:multiprocess="true" />
-        <service android:name=".background.systemalarm.SystemAlarmService" />
+        <service
+            android:name=".background.systemalarm.SystemAlarmService"
+            android:exported="false"
+            android:enabled="@bool/enable_system_alarm_service_default" />
         <service
             android:name=".background.systemjob.SystemJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true" />
+            android:exported="true"
+            android:enabled="@bool/enable_system_job_service_default" />
     </application>
 </manifest>
