@@ -16,6 +16,12 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.SUBTYPE_MESSAGE;
+import static android.app.slice.Slice.SUBTYPE_SOURCE;
+import static android.app.slice.SliceItem.FORMAT_COLOR;
+import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_TEXT;
+
 import android.app.slice.Slice;
 import android.app.slice.SliceItem;
 import android.content.Context;
@@ -118,14 +124,14 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
 
         public SliceWrapper(SliceItem item, IdGenerator idGen) {
             mItem = item;
-            mType = getType(item);
+            mType = getFormat(item);
             mId = idGen.getId(item);
         }
 
-        public static int getType(SliceItem item) {
-            if (item.hasHint(Slice.HINT_MESSAGE)) {
+        public static int getFormat(SliceItem item) {
+            if (SUBTYPE_MESSAGE.equals(item.getSubType())) {
                 // TODO: Better way to determine me or not? Something more like Messaging style.
-                if (SliceQuery.find(item, -1, Slice.HINT_SOURCE, null) != null) {
+                if (SliceQuery.findSubtype(item, null, SUBTYPE_SOURCE) != null) {
                     return TYPE_MESSAGE;
                 } else {
                     return TYPE_MESSAGE_LOCAL;
@@ -186,17 +192,17 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         private String genString(SliceItem item) {
             StringBuilder builder = new StringBuilder();
             SliceQuery.stream(item).forEach(i -> {
-                builder.append(i.getType());
+                builder.append(i.getFormat());
                 //i.removeHint(Slice.HINT_SELECTED);
                 builder.append(i.getHints());
-                switch (i.getType()) {
-                    case SliceItem.TYPE_IMAGE:
+                switch (i.getFormat()) {
+                    case FORMAT_IMAGE:
                         builder.append(i.getIcon());
                         break;
-                    case SliceItem.TYPE_TEXT:
+                    case FORMAT_TEXT:
                         builder.append(i.getText());
                         break;
-                    case SliceItem.TYPE_COLOR:
+                    case FORMAT_COLOR:
                         builder.append(i.getColor());
                         break;
                 }

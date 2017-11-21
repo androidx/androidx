@@ -16,6 +16,12 @@
 
 package androidx.app.slice.core;
 
+import static android.app.slice.SliceItem.FORMAT_ACTION;
+import static android.app.slice.SliceItem.FORMAT_COLOR;
+import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_SLICE;
+import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
+
 import android.app.slice.Slice;
 import android.app.slice.SliceItem;
 import android.support.annotation.RestrictTo;
@@ -44,23 +50,23 @@ public class SliceQuery {
      *         front slot of a small slice.
      */
     public static boolean isStartType(SliceItem item) {
-        final int type = item.getType();
-        return !item.hasHint(SliceHints.HINT_TOGGLE)
-                && ((type == SliceItem.TYPE_ACTION && (find(item, SliceItem.TYPE_IMAGE) != null))
-                || type == SliceItem.TYPE_IMAGE
-                || type == SliceItem.TYPE_TIMESTAMP);
+        final String type = item.getFormat();
+        return (!item.hasHint(SliceHints.HINT_TOGGLE)
+                && (FORMAT_ACTION.equals(type) && (find(item, FORMAT_IMAGE) != null)))
+                || FORMAT_IMAGE.equals(type)
+                || FORMAT_TIMESTAMP.equals(type);
     }
 
     /**
      * @return Finds the first slice that has non-slice children.
      */
     public static SliceItem findFirstSlice(SliceItem slice) {
-        if (slice.getType() != SliceItem.TYPE_SLICE) {
+        if (!FORMAT_SLICE.equals(slice.getFormat())) {
             return slice;
         }
         List<SliceItem> items = slice.getSlice().getItems();
         for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getType() == SliceItem.TYPE_SLICE) {
+            if (FORMAT_SLICE.equals(items.get(i).getFormat())) {
                 SliceItem childSlice = items.get(i);
                 return findFirstSlice(childSlice);
             } else {
@@ -76,14 +82,14 @@ public class SliceQuery {
      * @return Whether this item is a simple action, i.e. an action that only has an icon.
      */
     public static boolean isSimpleAction(SliceItem item) {
-        if (item.getType() == SliceItem.TYPE_ACTION) {
+        if (FORMAT_ACTION.equals(item.getFormat())) {
             List<SliceItem> items = item.getSlice().getItems();
             boolean hasImage = false;
             for (int i = 0; i < items.size(); i++) {
                 SliceItem child = items.get(i);
-                if (child.getType() == SliceItem.TYPE_IMAGE && !hasImage) {
+                if (FORMAT_IMAGE.equals(child.getFormat()) && !hasImage) {
                     hasImage = true;
-                } else if (child.getType() == SliceItem.TYPE_COLOR) {
+                } else if (FORMAT_COLOR.equals(child.getFormat())) {
                     continue;
                 } else {
                     return false;
@@ -136,14 +142,14 @@ public class SliceQuery {
      */
     public static SliceItem getPrimaryIcon(Slice slice) {
         for (SliceItem item : slice.getItems()) {
-            if (item.getType() == SliceItem.TYPE_IMAGE) {
+            if (FORMAT_IMAGE.equals(item.getFormat())) {
                 return item;
             }
-            if (!(item.getType() == SliceItem.TYPE_SLICE && item.hasHint(Slice.HINT_LIST))
+            if (!(FORMAT_SLICE.equals(item.getFormat()) && item.hasHint(Slice.HINT_LIST))
                     && !item.hasHint(Slice.HINT_ACTIONS)
                     && !item.hasHint(Slice.HINT_LIST_ITEM)
-                    && (item.getType() != SliceItem.TYPE_ACTION)) {
-                SliceItem icon = SliceQuery.find(item, SliceItem.TYPE_IMAGE);
+                    && !FORMAT_ACTION.equals(item.getFormat())) {
+                SliceItem icon = SliceQuery.find(item, FORMAT_IMAGE);
                 if (icon != null) {
                     return icon;
                 }
@@ -174,79 +180,95 @@ public class SliceQuery {
 
     /**
      */
-    public static List<SliceItem> findAll(SliceItem s, int type) {
-        return findAll(s, type, (String[]) null, null);
+    public static List<SliceItem> findAll(SliceItem s, String format) {
+        return findAll(s, format, (String[]) null, null);
     }
 
     /**
      */
-    public static List<SliceItem> findAll(Slice s, int type, String hints, String nonHints) {
-        return findAll(s, type, new String[]{ hints }, new String[]{ nonHints });
+    public static List<SliceItem> findAll(Slice s, String format, String hints, String nonHints) {
+        return findAll(s, format, new String[]{ hints }, new String[]{ nonHints });
     }
 
     /**
      */
-    public static List<SliceItem> findAll(SliceItem s, int type, String hints, String nonHints) {
-        return findAll(s, type, new String[]{ hints }, new String[]{ nonHints });
+    public static List<SliceItem> findAll(SliceItem s, String format, String hints,
+            String nonHints) {
+        return findAll(s, format, new String[]{ hints }, new String[]{ nonHints });
     }
 
     /**
      */
-    public static List<SliceItem> findAll(Slice s, int type, String[] hints,
+    public static List<SliceItem> findAll(Slice s, String format, String[] hints,
             String[] nonHints) {
-        return stream(s).filter(item -> (type == -1 || item.getType() == type)
+        return stream(s).filter(item -> checkFormat(item, format)
                 && (hasHints(item, hints) && !hasAnyHints(item, nonHints)))
                 .collect(Collectors.toList());
     }
 
     /**
      */
-    public static List<SliceItem> findAll(SliceItem s, int type, String[] hints,
+    public static List<SliceItem> findAll(SliceItem s, String format, String[] hints,
             String[] nonHints) {
-        return stream(s).filter(item -> (type == -1 || item.getType() == type)
+        return stream(s).filter(item -> checkFormat(item, format)
                 && (hasHints(item, hints) && !hasAnyHints(item, nonHints)))
                 .collect(Collectors.toList());
     }
 
     /**
      */
-    public static SliceItem find(Slice s, int type, String hints, String nonHints) {
-        return find(s, type, new String[]{ hints }, new String[]{ nonHints });
+    public static SliceItem find(Slice s, String format, String hints, String nonHints) {
+        return find(s, format, new String[]{ hints }, new String[]{ nonHints });
     }
 
     /**
      */
-    public static SliceItem find(Slice s, int type) {
-        return find(s, type, (String[]) null, null);
+    public static SliceItem find(Slice s, String format) {
+        return find(s, format, (String[]) null, null);
     }
 
     /**
      */
-    public static SliceItem find(SliceItem s, int type) {
-        return find(s, type, (String[]) null, null);
+    public static SliceItem find(SliceItem s, String format) {
+        return find(s, format, (String[]) null, null);
     }
 
     /**
      */
-    public static SliceItem find(SliceItem s, int type, String hints, String nonHints) {
-        return find(s, type, new String[]{ hints }, new String[]{ nonHints });
+    public static SliceItem find(SliceItem s, String format, String hints, String nonHints) {
+        return find(s, format, new String[]{ hints }, new String[]{ nonHints });
     }
 
     /**
      */
-    public static SliceItem find(Slice s, int type, String[] hints, String[] nonHints) {
-        List<String> h = s.getHints();
-        return stream(s).filter(item -> (item.getType() == type || type == -1)
+    public static SliceItem find(Slice s, String format, String[] hints, String[] nonHints) {
+        return stream(s).filter(item -> checkFormat(item, format)
                 && (hasHints(item, hints) && !hasAnyHints(item, nonHints))).findFirst()
                 .orElse(null);
     }
 
     /**
      */
-    public static SliceItem find(SliceItem s, int type, String[] hints, String[] nonHints) {
-        return stream(s).filter(item -> (item.getType() == type || type == -1)
+    public static SliceItem findSubtype(SliceItem s, String format, String subtype) {
+        return stream(s).filter(item -> checkFormat(item, format)
+                && checkSubtype(item, subtype)).findFirst()
+                .orElse(null);
+    }
+
+    /**
+     */
+    public static SliceItem find(SliceItem s, String format, String[] hints, String[] nonHints) {
+        return stream(s).filter(item -> checkFormat(item, format)
                 && (hasHints(item, hints) && !hasAnyHints(item, nonHints))).findFirst()
                 .orElse(null);
+    }
+
+    private static boolean checkFormat(SliceItem item, String format) {
+        return format == null || format.equals(item.getFormat());
+    }
+
+    private static boolean checkSubtype(SliceItem item, String subtype) {
+        return subtype == null || subtype.equals(item.getSubType());
     }
 
     /**
@@ -277,8 +299,8 @@ public class SliceQuery {
             @Override
             public SliceItem next() {
                 SliceItem item = items.poll();
-                if (item.getType() == SliceItem.TYPE_SLICE
-                        || item.getType() == SliceItem.TYPE_ACTION) {
+                if (FORMAT_SLICE.equals(item.getFormat())
+                        || FORMAT_ACTION.equals(item.getFormat())) {
                     items.addAll(item.getSlice().getItems());
                 }
                 return item;
