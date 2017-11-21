@@ -920,7 +920,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
         /**
          * Called when zero items are returned from an initial load of the PagedList's data source.
          */
-        public abstract void onZeroItemsLoaded();
+        public void onZeroItemsLoaded() {}
 
         /**
          * Called when the item at the front of the PagedList has been loaded, and access has
@@ -930,7 +930,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
          *
          * @param itemAtFront The first item of PagedList
          */
-        public abstract void onItemAtFrontLoaded(@NonNull T itemAtFront);
+        public void onItemAtFrontLoaded(@NonNull T itemAtFront) {}
 
         /**
          * Called when the item at the end of the PagedList has been loaded, and access has
@@ -940,6 +940,6 @@ public abstract class PagedList<T> extends AbstractList<T> {
          *
          * @param itemAtEnd The first item of PagedList
          */
-        public abstract void onItemAtEndLoaded(@NonNull T itemAtEnd);
+        public void onItemAtEndLoaded(@NonNull T itemAtEnd) {}
     }
 }
