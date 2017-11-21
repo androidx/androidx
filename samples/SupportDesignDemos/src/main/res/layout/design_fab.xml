@@ -66,6 +66,21 @@
                 android:clickable="true"
                 app:fabSize="mini" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:text="@string/fab_size_custom" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/custom_fab"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_add"
+            android:clickable="true"
+            app:fabCustomSize="@dimen/custom_fab_size" />
     </LinearLayout>
 
 </FrameLayout>
