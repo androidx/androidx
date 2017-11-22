@@ -40,10 +40,12 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Str
                                 adapter: QueryResultAdapter?)
     : BaseObservableQueryResultBinder(adapter) {
     @Suppress("JoinDeclarationAndAssignment")
-    override fun convertAndReturn(roomSQLiteQueryVar : String,
-                                  dbField: FieldSpec,
-                                  inTransaction : Boolean,
-                                  scope: CodeGenScope) {
+    override fun convertAndReturn(
+            roomSQLiteQueryVar: String,
+            dbField: FieldSpec,
+            inTransaction: Boolean,
+            scope: CodeGenScope
+    ) {
         val typeName = typeArg.typeName()
 
         val liveDataImpl = TypeSpec.anonymousClassBuilder("").apply {
@@ -67,10 +69,14 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Str
         }
     }
 
-    private fun createComputeMethod(roomSQLiteQueryVar: String, typeName: TypeName,
-                                    observerField: FieldSpec, dbField: FieldSpec,
-                                    inTransaction: Boolean,
-                                    scope: CodeGenScope): MethodSpec {
+    private fun createComputeMethod(
+            roomSQLiteQueryVar: String,
+            typeName: TypeName,
+            observerField: FieldSpec,
+            dbField: FieldSpec,
+            inTransaction: Boolean,
+            scope: CodeGenScope
+    ): MethodSpec {
         return MethodSpec.methodBuilder("compute").apply {
             addAnnotation(Override::class.java)
             addModifiers(Modifier.PROTECTED)

@@ -33,10 +33,10 @@ internal fun <T> ResultSet.collect(f: (ResultSet) -> T): List<T> {
     return result
 }
 
-private fun <T> PreparedStatement.map(f : (Int, ResultSetMetaData) ->  T) : List<T> {
+private fun <T> PreparedStatement.map(f: (Int, ResultSetMetaData) -> T): List<T> {
     val columnCount = try {
         metaData.columnCount
-    } catch (ex : SQLException) {
+    } catch (ex: SQLException) {
         // ignore, no-result query
         0
     }
@@ -48,10 +48,10 @@ internal fun PreparedStatement.columnNames(): List<String> {
     return map { index, data -> data.getColumnName(index) }
 }
 
-private fun PreparedStatement.tryGetAffinity(columnIndex : Int) : SQLTypeAffinity {
+private fun PreparedStatement.tryGetAffinity(columnIndex: Int): SQLTypeAffinity {
     return try {
         SQLTypeAffinity.valueOf(metaData.getColumnTypeName(columnIndex).capitalize())
-    } catch (ex : IllegalArgumentException) {
+    } catch (ex: IllegalArgumentException) {
         SQLTypeAffinity.NULL
     }
 }

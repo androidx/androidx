@@ -21,7 +21,7 @@ import android.arch.persistence.room.ForeignKey
 /**
  * Compiler representation of ForeignKey#Action.
  */
-enum class ForeignKeyAction(val annotationValue : Int, val sqlName : String) {
+enum class ForeignKeyAction(val annotationValue: Int, val sqlName: String) {
     NO_ACTION(ForeignKey.NO_ACTION, "NO ACTION"),
     RESTRICT(ForeignKey.RESTRICT, "RESTRICT"),
     SET_NULL(ForeignKey.SET_NULL, "SET NULL"),
@@ -31,6 +31,6 @@ enum class ForeignKeyAction(val annotationValue : Int, val sqlName : String) {
         private val mapping by lazy {
             ForeignKeyAction.values().associateBy { it.annotationValue }
         }
-        fun fromAnnotationValue(value : Int?) = mapping[value]
+        fun fromAnnotationValue(value: Int?) = mapping[value]
     }
 }

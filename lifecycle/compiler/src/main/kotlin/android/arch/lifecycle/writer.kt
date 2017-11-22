@@ -28,7 +28,6 @@ import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.tools.StandardLocation
@@ -176,7 +175,6 @@ private fun MethodSpec.Builder.writeMethodCalls(calls: List<EventMethodCall>,
                 addStatement("$N.$L($paramString)", receiverField,
                         methodName,
                         *takeParams(count, OWNER_PARAM, EVENT_PARAM))
-
             } else {
                 val originalType = syntheticAccess
                 val paramString = generateParamString(count + 1)

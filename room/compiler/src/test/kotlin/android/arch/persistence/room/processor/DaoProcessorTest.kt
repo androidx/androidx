@@ -36,7 +36,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
-class DaoProcessorTest(val enableVerification : Boolean) {
+class DaoProcessorTest(val enableVerification: Boolean) {
     companion object {
         const val DAO_PREFIX = """
             package foo.bar;

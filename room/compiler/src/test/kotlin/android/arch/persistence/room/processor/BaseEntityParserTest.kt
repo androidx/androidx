@@ -25,7 +25,6 @@ import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourceSubjectFactory
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import javax.tools.JavaFileObject
 
@@ -42,10 +41,10 @@ abstract class BaseEntityParserTest {
     }
 
     fun singleEntity(input: String, attributes: Map<String, String> = mapOf(),
-                     baseClass : String = "",
-                     jfos : List<JavaFileObject> = emptyList(),
+                     baseClass: String = "",
+                     jfos: List<JavaFileObject> = emptyList(),
                      handler: (Entity, TestInvocation) -> Unit): CompileTester {
-        val attributesReplacement : String
+        val attributesReplacement: String
         if (attributes.isEmpty()) {
             attributesReplacement = ""
         } else {
@@ -53,7 +52,7 @@ abstract class BaseEntityParserTest {
                     attributes.entries.map { "${it.key} = ${it.value}" }.joinToString(",") +
                     ")".trimIndent()
         }
-        val baseClassReplacement : String
+        val baseClassReplacement: String
         if (baseClass == "") {
             baseClassReplacement = ""
         } else {

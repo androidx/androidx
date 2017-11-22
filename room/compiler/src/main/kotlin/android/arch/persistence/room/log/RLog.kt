@@ -27,8 +27,8 @@ import javax.tools.Diagnostic.Kind.ERROR
 import javax.tools.Diagnostic.Kind.NOTE
 import javax.tools.Diagnostic.Kind.WARNING
 
-class RLog(val messager : Messager, val suppressedWarnings : Set<Warning>,
-           val defaultElement : Element?) {
+class RLog(val messager: Messager, val suppressedWarnings: Set<Warning>,
+           val defaultElement: Element?) {
     private fun String.safeFormat(vararg args: Any): String {
         try {
             return format(args)
@@ -90,7 +90,7 @@ class RLog(val messager : Messager, val suppressedWarnings : Set<Warning>,
 
         fun hasErrors() = messages.containsKey(Diagnostic.Kind.ERROR)
 
-        fun writeTo(env : ProcessingEnvironment) {
+        fun writeTo(env: ProcessingEnvironment) {
             messages.forEach { pair ->
                 val kind = pair.key
                 pair.value.forEach {

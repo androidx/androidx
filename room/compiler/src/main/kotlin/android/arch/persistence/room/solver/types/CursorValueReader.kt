@@ -25,8 +25,8 @@ import javax.lang.model.type.TypeMirror
  * see: StatementValueBinder
  */
 interface CursorValueReader {
-    fun affinity() : SQLTypeAffinity
-    fun typeMirror() : TypeMirror
-    fun readFromCursor(outVarName : String, cursorVarName: String, indexVarName: String,
+    fun affinity(): SQLTypeAffinity
+    fun typeMirror(): TypeMirror
+    fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,
                                 scope: CodeGenScope)
 }

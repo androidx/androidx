@@ -69,14 +69,12 @@ fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: Proces
 // compiler/src/main/java/dagger/internal/codegen/ConfigurationAnnotations.java
 private val TO_LIST_OF_TYPES = object
     : SimpleAnnotationValueVisitor6<List<TypeMirror>, Void?>() {
-    override fun visitArray(values: MutableList<out AnnotationValue>?, p: Void?)
-            : List<TypeMirror> {
+    override fun visitArray(values: MutableList<out AnnotationValue>?, p: Void?): List<TypeMirror> {
         return values?.map {
             val tmp = TO_TYPE.visit(it)
             tmp
         }?.filterNotNull() ?: emptyList()
     }
-
 
     override fun defaultAction(o: Any?, p: Void?): List<TypeMirror>? {
         return emptyList()

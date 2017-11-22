@@ -17,8 +17,9 @@ package android.arch.persistence.room.vo
 
 import javax.lang.model.element.ExecutableElement
 
-class DeletionMethod(element: ExecutableElement, name: String,
-                          entities: Map<String, Entity>, returnCount : Boolean,
-                          parameters: List<ShortcutQueryParameter>) : ShortcutMethod(
-        element, name, entities, returnCount, parameters
-)
+class DeletionMethod(
+        element: ExecutableElement,
+        name: String,
+        entities: Map<String, Entity>, returnCount: Boolean,
+        parameters: List<ShortcutQueryParameter>
+) : ShortcutMethod(element, name, entities, returnCount, parameters)

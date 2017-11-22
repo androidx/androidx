@@ -28,7 +28,7 @@ import javax.lang.model.type.TypeMirror
  * the query. Not having this would require us to special case handle String, String[], List<String>
  * etc.
  */
-class NoOpConverter(type : TypeMirror) : TypeConverter(
+class NoOpConverter(type: TypeMirror) : TypeConverter(
         type, type) {
     override fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder()

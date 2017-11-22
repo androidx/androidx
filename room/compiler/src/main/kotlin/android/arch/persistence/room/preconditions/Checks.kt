@@ -63,7 +63,7 @@ class Checks(private val logger: RLog) {
         return !failed
     }
 
-    fun notBlank(value: String?, element: Element, msg: String, vararg args: Any) : Boolean {
+    fun notBlank(value: String?, element: Element, msg: String, vararg args: Any): Boolean {
         return check(value != null && value.isNotBlank(), element, msg, args)
     }
 }

@@ -28,27 +28,28 @@ import kotlin.reflect.KClass
 /**
  * Common functionality for shortcut method processors
  */
-class ShortcutMethodProcessor(baseContext : Context,
+class ShortcutMethodProcessor(baseContext: Context,
                               val containing: DeclaredType,
                               val executableElement: ExecutableElement) {
     val context = baseContext.fork(executableElement)
     private val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
     private val executableType = MoreTypes.asExecutable(asMember)
 
-    fun extractAnnotation(klass : KClass<out Annotation>,
-                          errorMsg : String) : AnnotationMirror? {
+    fun extractAnnotation(klass: KClass<out Annotation>,
+                          errorMsg: String): AnnotationMirror? {
         val annotation = MoreElements.getAnnotationMirror(executableElement,
                 klass.java).orNull()
         context.checker.check(annotation != null, executableElement, errorMsg)
         return annotation
     }
 
-    fun extractReturnType() : TypeMirror {
+    fun extractReturnType(): TypeMirror {
         return executableType.returnType
     }
 
-    fun extractParams(missingParamError: String)
-            : Pair<Map<String, Entity>, List<ShortcutQueryParameter>> {
+    fun extractParams(
+            missingParamError: String
+    ): Pair<Map<String, Entity>, List<ShortcutQueryParameter>> {
         val params = executableElement.parameters
                 .map { ShortcutParameterProcessor(
                         baseContext = context,

@@ -24,7 +24,8 @@ class AsyncListDataSource<T>(list: List<T>)
     override fun loadInitial(requestedStartPosition: Int, requestedLoadSize: Int, pageSize: Int,
             callback: InitialLoadCallback<T>) {
         workItems.add {
-            listDataSource.loadInitial(requestedStartPosition, requestedLoadSize, pageSize, callback)
+            listDataSource.loadInitial(
+                    requestedStartPosition, requestedLoadSize, pageSize, callback)
         }
     }
 

@@ -31,7 +31,7 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier.PUBLIC
 
-class EntityUpdateAdapterWriter(val entity: Entity, val onConflict : String) {
+class EntityUpdateAdapterWriter(val entity: Entity, val onConflict: String) {
     fun createAnonymous(classWriter: ClassWriter, dbParam: String): TypeSpec {
         @Suppress("RemoveSingleExpressionStringTemplate")
         return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {

@@ -31,10 +31,12 @@ class LivePagedListQueryResultBinder(
     : QueryResultBinder(tiledDataSourceQueryResultBinder.listAdapter) {
     @Suppress("HasPlatformType")
     val typeName = tiledDataSourceQueryResultBinder.itemTypeName
-    override fun convertAndReturn(roomSQLiteQueryVar: String,
-                                  dbField: FieldSpec,
-                                  inTransaction : Boolean,
-                                  scope: CodeGenScope) {
+    override fun convertAndReturn(
+            roomSQLiteQueryVar: String,
+            dbField: FieldSpec,
+            inTransaction: Boolean,
+            scope: CodeGenScope
+    ) {
         scope.builder().apply {
             val pagedListProvider = TypeSpec
                     .anonymousClassBuilder("").apply {
@@ -50,11 +52,12 @@ class LivePagedListQueryResultBinder(
         }
     }
 
-    private fun createCreateDataSourceMethod(roomSQLiteQueryVar: String,
-                                             dbField: FieldSpec,
-                                             inTransaction : Boolean,
-                                             scope: CodeGenScope): MethodSpec
-            = MethodSpec.methodBuilder("createDataSource").apply {
+    private fun createCreateDataSourceMethod(
+            roomSQLiteQueryVar: String,
+            dbField: FieldSpec,
+            inTransaction: Boolean,
+            scope: CodeGenScope
+    ): MethodSpec = MethodSpec.methodBuilder("createDataSource").apply {
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PROTECTED)
         returns(tiledDataSourceQueryResultBinder.typeName)

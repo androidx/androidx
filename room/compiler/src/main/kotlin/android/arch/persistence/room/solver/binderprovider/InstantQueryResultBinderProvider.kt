@@ -23,7 +23,7 @@ import android.arch.persistence.room.solver.query.result.InstantQueryResultBinde
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
 import javax.lang.model.type.DeclaredType
 
-class InstantQueryResultBinderProvider(val context : Context) : QueryResultBinderProvider {
+class InstantQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
         return InstantQueryResultBinder(
                 context.typeAdapterStore.findQueryResultAdapter(declared, query))

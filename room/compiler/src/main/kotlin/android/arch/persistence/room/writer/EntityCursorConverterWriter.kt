@@ -23,7 +23,6 @@ import android.arch.persistence.room.ext.S
 import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.solver.CodeGenScope
 import android.arch.persistence.room.vo.Entity
-import android.arch.persistence.room.vo.Field
 import android.arch.persistence.room.vo.EmbeddedField
 import android.arch.persistence.room.vo.FieldWithIndex
 import com.squareup.javapoet.CodeBlock
@@ -58,8 +57,7 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
         }
     }
 
-    private fun buildConvertMethodBody(writer: ClassWriter, cursorParam: ParameterSpec)
-            : CodeBlock {
+    private fun buildConvertMethodBody(writer: ClassWriter, cursorParam: ParameterSpec): CodeBlock {
         val scope = CodeGenScope(writer)
         val entityVar = scope.getTmpVar("_entity")
         scope.builder().apply {

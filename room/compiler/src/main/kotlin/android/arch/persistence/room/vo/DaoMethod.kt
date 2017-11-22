@@ -21,4 +21,4 @@ import javax.lang.model.element.Element
 /**
  * References a method that returns a dao in a Database
  */
-data class DaoMethod(val element : Element, val name : String, val dao : Dao)
+data class DaoMethod(val element: Element, val name: String, val dao: Dao)

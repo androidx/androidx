@@ -46,7 +46,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter)
         }
     }
 
-    fun typeConverter(scope: CodeGenScope) : FieldSpec {
+    fun typeConverter(scope: CodeGenScope): FieldSpec {
         val baseName = (custom.typeName as ClassName).simpleName().decapitalize()
         return scope.writer.getOrCreateField(object : ClassWriter.SharedFieldSpec(
                 baseName, custom.typeName) {

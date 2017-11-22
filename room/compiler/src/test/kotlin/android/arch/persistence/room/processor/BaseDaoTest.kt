@@ -140,7 +140,7 @@ class BaseDaoTest {
         }
     }
 
-    fun baseDao(code : String, handler : (Dao) -> Unit) {
+    fun baseDao(code: String, handler: (Dao) -> Unit) {
         val baseClass = """
             package foo.bar;
             import android.arch.persistence.room.*;

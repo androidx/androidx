@@ -49,7 +49,7 @@ import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class CustomTypeConverterResolutionTest {
-    fun TypeSpec.toJFO() : JavaFileObject {
+    fun TypeSpec.toJFO(): JavaFileObject {
         return JavaFileObjects.forSourceString("foo.bar.${this.name}",
                 "package foo.bar;\n" + toString())
     }
@@ -168,15 +168,15 @@ class CustomTypeConverterResolutionTest {
         run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
-    fun run(vararg jfos : JavaFileObject): CompileTester {
+    fun run(vararg jfos: JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(jfos.toList() + CUSTOM_TYPE_JFO + CUSTOM_TYPE_CONVERTER_JFO)
                 .processedWith(RoomProcessor())
     }
 
-    private fun createEntity(hasCustomField : Boolean = false,
-                             hasConverters : Boolean = false,
-                             hasConverterOnField : Boolean = false) : TypeSpec {
+    private fun createEntity(hasCustomField: Boolean = false,
+                             hasConverters: Boolean = false,
+                             hasConverterOnField: Boolean = false): TypeSpec {
         if (hasConverterOnField && hasConverters) {
             throw IllegalArgumentException("cannot have both converters")
         }
@@ -199,8 +199,8 @@ class CustomTypeConverterResolutionTest {
         }.build()
     }
 
-    private fun createDatabase(hasConverters : Boolean = false,
-                               hasDao : Boolean = false) : TypeSpec {
+    private fun createDatabase(hasConverters: Boolean = false,
+                               hasDao: Boolean = false): TypeSpec {
         return TypeSpec.classBuilder(DB).apply {
             addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
             superclass(RoomTypeNames.ROOM_DB)
@@ -225,11 +225,11 @@ class CustomTypeConverterResolutionTest {
         }.build()
     }
 
-    private fun createDao(hasConverters : Boolean = false,
-                          hasQueryReturningEntity : Boolean = false,
-                          hasQueryWithCustomParam : Boolean = false,
-                          hasMethodConverters : Boolean = false,
-                          hasParameterConverters : Boolean = false) : TypeSpec {
+    private fun createDao(hasConverters: Boolean = false,
+                          hasQueryReturningEntity: Boolean = false,
+                          hasQueryWithCustomParam: Boolean = false,
+                          hasMethodConverters: Boolean = false,
+                          hasParameterConverters: Boolean = false): TypeSpec {
         val annotationCount = listOf(hasMethodConverters, hasConverters, hasParameterConverters)
                 .map { if (it) 1 else 0 }.sum()
         if (annotationCount > 1) {
