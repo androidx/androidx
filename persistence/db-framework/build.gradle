@@ -33,8 +33,6 @@ dependencies {
     api project(":persistence:db")
 }
 
-createAndroidCheckstyle(project)
-
 supportLibrary {
     name = "Android Support SQLite - Framework Implementation"
     publish = true

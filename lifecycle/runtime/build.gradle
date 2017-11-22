@@ -29,8 +29,6 @@ dependencies {
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
 }
 
-createAndroidCheckstyle(project)
-
 supportLibrary {
     name 'Android Lifecycle Runtime'
     publish true
