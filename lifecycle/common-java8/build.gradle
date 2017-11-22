@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions;
 import android.support.SupportLibraryExtension;
@@ -23,9 +24,9 @@ plugins {
 }
 
 dependencies {
-    testCompile libs.junit
-    testCompile libs.mockito_core
-    compile project(":lifecycle:common")
+    testCompile(JUNIT)
+    testCompile(MOCKITO_CORE)
+    compile(project(":lifecycle:common"))
     compile libs.support.annotations
 }
 

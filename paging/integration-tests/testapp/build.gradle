@@ -45,13 +45,13 @@ android {
 }
 
 dependencies {
-    implementation project(':arch:runtime')
-    implementation project(':arch:common')
-    implementation project(':paging:common')
-    implementation project(':lifecycle:extensions')
-    implementation project(':lifecycle:runtime')
-    implementation project(':lifecycle:common')
-    implementation project(':paging:runtime')
+    implementation(project(":arch:runtime"))
+    implementation(project(":arch:common"))
+    implementation(project(":paging:common"))
+    implementation(project(":lifecycle:extensions"))
+    implementation(project(":lifecycle:runtime"))
+    implementation(project(":lifecycle:common"))
+    implementation(project(":paging:runtime"))
     implementation 'com.android.support:multidex:1.0.1'
 
     implementation libs.support.recyclerview, libs.support_exclude_config

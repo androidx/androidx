@@ -21,9 +21,9 @@ ext {
 }
 
 dependencies {
-    implementation project(':support-emoji')
-    implementation project(':support-emoji-bundled')
-    implementation project(':support-emoji-appcompat')
+    implementation(project(":support-emoji"))
+    implementation(project(":support-emoji-bundled"))
+    implementation(project(":support-emoji-appcompat"))
 }
 
 android {

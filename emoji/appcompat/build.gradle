@@ -23,8 +23,8 @@ plugins {
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
-    api project(':support-emoji')
-    api project(':appcompat-v7')
+    api(project(":support-emoji"))
+    api(project(":appcompat-v7"))
 }
 
 android {

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
@@ -29,14 +30,14 @@ android {
 }
 
 dependencies {
-    api project(":room:common")
-    api project(":room:runtime")
-    api project(":persistence:db")
-    api project(":persistence:db-framework")
-    api project(":room:migration")
-    api project(":arch:runtime")
+    api(project(":room:common"))
+    api(project(":room:runtime"))
+    api(project(":persistence:db"))
+    api(project(":persistence:db-framework"))
+    api(project(":room:migration"))
+    api(project(":arch:runtime"))
     api libs.support.core_utils, libs.support_exclude_config
-    api libs.junit
+    api(JUNIT)
 }
 
 supportLibrary {

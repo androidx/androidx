@@ -17,9 +17,9 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':support-vector-drawable')
-    implementation project(':animated-vector-drawable')
-    implementation project(':appcompat-v7')
+    implementation(project(":support-vector-drawable"))
+    implementation(project(":animated-vector-drawable"))
+    implementation(project(":appcompat-v7"))
 }
 
 android {
