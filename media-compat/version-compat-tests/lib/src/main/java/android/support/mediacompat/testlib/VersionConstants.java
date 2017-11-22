@@ -22,4 +22,7 @@ package android.support.mediacompat.testlib;
 public class VersionConstants {
     public static final String KEY_CLIENT_VERSION = "client_version";
     public static final String KEY_SERVICE_VERSION = "service_version";
+
+    public static final String VERSION_TOT = "tot";
+    public static final String VERSION_PREVIOUS = "previous";
 }
