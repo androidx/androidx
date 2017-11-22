@@ -17,14 +17,10 @@
 package android.arch.background.workmanager.background.systemalarm;
 
 import static android.app.AlarmManager.RTC_WAKEUP;
-import static android.arch.background.workmanager.utils.PackageManagerHelper
-        .isComponentExplicitlyEnabled;
-import static android.arch.background.workmanager.utils.PackageManagerHelper.setComponentEnabled;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.arch.background.workmanager.Scheduler;
-import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.utils.IdGenerator;
 import android.content.Context;
@@ -55,32 +51,12 @@ public class SystemAlarmScheduler implements Scheduler {
 
     @Override
     public void schedule(WorkSpec... workSpecs) {
-        boolean requiresBatteryNotLow = isComponentExplicitlyEnabled(
-                mAppContext, ConstraintProxy.BatteryNotLowProxy.class);
-        boolean requiresCharging = isComponentExplicitlyEnabled(
-                mAppContext, ConstraintProxy.BatteryChargingProxy.class);
-
-        for (WorkSpec workSpec : workSpecs) {
-            Constraints constraints = workSpec.getConstraints();
-            requiresCharging |= constraints.requiresCharging();
-            requiresBatteryNotLow |= constraints.requiresBatteryNotLow();
-
-            scheduleWorkSpec(workSpec);
-        }
-
-        if (requiresBatteryNotLow) {
-            setComponentEnabled(mAppContext, ConstraintProxy.BatteryNotLowProxy.class, true);
-        }
-
-        if (requiresCharging) {
-            setComponentEnabled(mAppContext, ConstraintProxy.BatteryChargingProxy.class, true);
-        }
+        // TODO(xbhatnag): Initial delay and periodic work with AlarmManager
     }
 
     @Override
     public void cancel(@NonNull String workSpecId) {
         // TODO(janclarin): Retrieve alarm id mapping for work spec id.
-        // TODO(xbhatnag): Query WorkSpecs and disable proxies as needed.
         // TODO(xbhatnag): Cancel pending alarms via AlarmManager.
     }
 

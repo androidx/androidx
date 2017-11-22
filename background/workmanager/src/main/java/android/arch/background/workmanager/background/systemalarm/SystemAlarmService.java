@@ -16,11 +16,11 @@
 
 package android.arch.background.workmanager.background.systemalarm;
 
-import android.app.Service;
 import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.background.BackgroundProcessor;
+import android.arch.lifecycle.LifecycleService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
@@ -35,11 +35,9 @@ import android.util.Log;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class SystemAlarmService extends Service implements ExecutionListener {
+public class SystemAlarmService extends LifecycleService implements ExecutionListener {
     public static final String EXTRA_WORK_ID = "EXTRA_WORK_ID";
-
     private static final String TAG = "SystemAlarmService";
-
     private BackgroundProcessor mProcessor;
 
     @Override
@@ -49,11 +47,13 @@ public class SystemAlarmService extends Service implements ExecutionListener {
         WorkManager workManager = WorkManager.getInstance();
         WorkDatabase database = workManager.getWorkDatabase();
         mProcessor = new BackgroundProcessor(context, database, workManager.getScheduler(), this);
+        ProxyController.startProxyControllers(context, database, this);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // TODO(janclarin): Keep wakelock.
+        super.onStartCommand(intent, flags, startId);
         String workSpecId = intent.getStringExtra(EXTRA_WORK_ID);
         mProcessor.process(workSpecId, 0L);
         return START_NOT_STICKY;
@@ -75,6 +75,7 @@ public class SystemAlarmService extends Service implements ExecutionListener {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        super.onBind(intent);
         return null;
     }
 
