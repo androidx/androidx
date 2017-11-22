@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':leanback-v17')
-    implementation project(':preference-leanback-v17')
+    implementation(project(":leanback-v17"))
+    implementation(project(":preference-leanback-v17"))
     implementation 'com.google.code.gson:gson:2.6.2'
 }
 

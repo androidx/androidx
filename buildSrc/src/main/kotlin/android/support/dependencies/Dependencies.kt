@@ -14,25 +14,12 @@
  * limitations under the License.
  */
 
-import static android.support.dependencies.DependenciesKt.*
+package android.support.dependencies
 
-plugins {
-    id("SupportAndroidLibraryPlugin")
-}
-
-dependencies {
-    androidTestImplementation(project(":support-media-compat"))
-    androidTestImplementation(project(":support-media-compat-test-lib"))
-
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
-supportLibrary {
-    legacySourceLocation = true
-}
+const val MOCKITO_CORE = "org.mockito:mockito-core:2.7.6"
+const val DEXMAKER_MOCKITO = "com.linkedin.dexmaker:dexmaker-mockito:2.2.0"
+const val JUNIT = "junit:junit:4.12"
+const val TEST_RUNNER = "com.android.support.test:runner:1.0.1"
+const val TEST_RULES = "com.android.support.test:rules:1.0.1"
+const val ESPRESSO_CORE = "com.android.support.test.espresso:espresso-core:3.0.1"
+const val ESPRESSO_CONTRIB = "com.android.support.test.espresso:espresso-contrib:3.0.1"

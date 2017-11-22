@@ -30,7 +30,7 @@ android {
 
 dependencies {
     api libs.support.annotations
-    api project(":persistence:db")
+    api(project(":persistence:db"))
 }
 
 supportLibrary {
