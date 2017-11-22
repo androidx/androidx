@@ -28,16 +28,11 @@ public class ChainedArgumentWorker extends Worker {
     public static final String ARGUMENT_KEY = "key";
     public static final String ARGUMENT_VALUE = "value";
 
-    private Arguments mChainedArguments = null;
-
     @Override
     public int doWork() {
-        mChainedArguments = new Arguments.Builder().putString(ARGUMENT_KEY, ARGUMENT_VALUE).build();
+        Arguments arguments =
+                new Arguments.Builder().putString(ARGUMENT_KEY, ARGUMENT_VALUE).build();
+        setOutput(arguments);
         return WORKER_RESULT_SUCCESS;
-    }
-
-    @Override
-    public Arguments getArgumentsForChainedWork() {
-        return mChainedArguments;
     }
 }

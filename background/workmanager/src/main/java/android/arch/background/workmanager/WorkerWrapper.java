@@ -220,7 +220,7 @@ public class WorkerWrapper implements Runnable {
                 mWorkSpecDao.setStatus(STATUS_ENQUEUED, unblockedWorkIds);
 
                 // Update Arguments as necessary.
-                Arguments outputArgs = mWorker.getArgumentsForChainedWork();
+                Arguments outputArgs = mWorker.getOutput();
                 if (outputArgs != null) {
                     for (String id : unblockedWorkIds) {
                         Arguments arguments = mWorkSpecDao.getArguments(id);

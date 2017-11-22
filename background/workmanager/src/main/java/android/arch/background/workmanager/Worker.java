@@ -45,6 +45,7 @@ public abstract class Worker {
 
     private Context mAppContext;
     private Arguments mArguments;
+    private Arguments mOutput;
 
     protected final Context getAppContext() {
         return mAppContext;
@@ -64,7 +65,7 @@ public abstract class Worker {
     public abstract @WorkerResult int doWork();
 
     /**
-     * Override this method to pass an {@link Arguments} object to {@link Work} that is dependent on
+     * Call this method to pass an {@link Arguments} object to {@link Work} that is dependent on
      * this one.  Note that if there are multiple {@link Worker}s that contribute to the target, the
      * Arguments will be merged together, so it is up to the developer to make sure that keys are
      * unique.  New values and types will clobber old values and types, and if there are multiple
@@ -80,11 +81,16 @@ public abstract class Worker {
      * This method would be called for both WorkerA and WorkerB after their successful completion,
      * modifying the input Arguments for WorkerC.
      *
-     * @return An {@link Arguments} object that will be merged into the input Arguments of any Work
-     * that is dependent on this one, or {@code null} if there is nothing to contribute
+     * @param output An {@link Arguments} object that will be merged into the input Arguments of any
+     *               Work that is dependent on this one, or {@code null} if there is nothing to
+     *               contribute
      */
-    public Arguments getArgumentsForChainedWork() {
-        return null;
+    public final void setOutput(Arguments output) {
+        mOutput = output;
+    }
+
+    Arguments getOutput() {
+        return mOutput;
     }
 
     private void internalInit(Context appContext, Arguments arguments) {
