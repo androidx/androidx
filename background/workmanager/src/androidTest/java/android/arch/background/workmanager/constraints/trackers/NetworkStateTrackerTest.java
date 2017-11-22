@@ -18,6 +18,8 @@ package android.arch.background.workmanager.constraints.trackers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -63,10 +65,25 @@ public class NetworkStateTrackerTest {
 
     @Test
     @SmallTest
-    public void testSetUpInitialState() {
+    public void testInitState() {
+        assertThat(mTracker.mCurrentNetworkState, is(nullValue()));
+        mTracker.initState();
+        assertThat(mTracker.mCurrentNetworkState, is(notNullValue()));
+    }
+
+    @Test
+    @SmallTest
+    public void testNotifyListener_stateNotInitialized() {
+        mTracker.notifyListener(mListener);
         verify(mListener, never()).setNetworkState(any(NetworkState.class));
-        mTracker.setUpInitialState(mListener);
-        verify(mListener).setNetworkState(any(NetworkState.class));
+    }
+
+    @Test
+    @SmallTest
+    public void testNotifyListener_stateInitialized() {
+        mTracker.mCurrentNetworkState = new NetworkState(true, true, true, true);
+        mTracker.notifyListener(mListener);
+        verify(mListener).setNetworkState(eq(mTracker.mCurrentNetworkState));
     }
 
     @Test

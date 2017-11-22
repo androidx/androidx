@@ -29,33 +29,32 @@ import android.util.Log;
  * Tracks whether or not the device's battery is charging.
  */
 
-public class BatteryChargingTracker
-        extends BroadcastReceiverConstraintTracker<BatteryChargingListener> {
+class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<BatteryChargingListener> {
 
     private static final String TAG = "BatteryChrgTracker";
 
     @VisibleForTesting
     Boolean mIsCharging;
 
-    public BatteryChargingTracker(Context context) {
+    BatteryChargingTracker(Context context) {
         super(context);
     }
 
     @Override
-    public void setUpInitialState(BatteryChargingListener listener) {
-        if (mIsCharging == null) {
-            // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so
-            // we use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
-            IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+    protected void initState() {
+        // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so
+        // we use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent intent = mAppContext.registerReceiver(null, intentFilter);
+        if (intent != null) {
+            mIsCharging = isBatteryChangedIntentCharging(intent);
+            Log.d(TAG, "Setting initial mIsCharging to " + mIsCharging);
+        }
+    }
 
-            Intent intent = mAppContext.registerReceiver(null, intentFilter);
-            if (intent != null) {
-                mIsCharging = isBatteryChangedIntentCharging(intent);
-                Log.d(TAG, "Setting initial mIsCharging to " + mIsCharging);
-                listener.setBatteryCharging(mIsCharging);
-            }
-        } else {
+    @Override
+    protected void notifyListener(@NonNull BatteryChargingListener listener) {
+        if (mIsCharging != null) {
             listener.setBatteryCharging(mIsCharging);
         }
     }
@@ -105,7 +104,7 @@ public class BatteryChargingTracker
             Log.d(TAG, "Setting mIsCharging to " + isCharging);
             mIsCharging = isCharging;
             for (BatteryChargingListener listener : mListeners) {
-                listener.setBatteryCharging(mIsCharging);
+                notifyListener(listener);
             }
         }
     }

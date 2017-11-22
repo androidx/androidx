@@ -27,42 +27,41 @@ import android.util.Log;
  * Tracks whether or not the device's storage is low.
  */
 
-public class StorageNotLowTracker
-        extends BroadcastReceiverConstraintTracker<StorageNotLowListener> {
+class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<StorageNotLowListener> {
 
     private static final String TAG = "StorageNotLowTracker";
 
     @VisibleForTesting
     Boolean mIsStorageNotLow;
 
-    public StorageNotLowTracker(Context context) {
+    StorageNotLowTracker(Context context) {
         super(context);
     }
 
     @Override
-    public void setUpInitialState(StorageNotLowListener listener) {
-        if (mIsStorageNotLow == null) {
+    protected void initState() {
+        Intent intent = mAppContext.registerReceiver(null, getIntentFilter());
+        if (intent == null || intent.getAction() == null) {
+            // ACTION_DEVICE_STORAGE_LOW is a sticky broadcast that is removed when sufficient
+            // storage is available again.  ACTION_DEVICE_STORAGE_OK is not sticky.  So if we
+            // don't receive anything here, we can assume that the storage state is okay.
+            mIsStorageNotLow = true;
+        } else {
+            switch (intent.getAction()) {
+                case Intent.ACTION_DEVICE_STORAGE_OK:
+                    mIsStorageNotLow = true;
+                    break;
 
-            Intent intent = mAppContext.registerReceiver(null, getIntentFilter());
-            if (intent == null || intent.getAction() == null) {
-                // ACTION_DEVICE_STORAGE_LOW is a sticky broadcast that is removed when sufficient
-                // storage is available again.  ACTION_DEVICE_STORAGE_OK is not sticky.  So if we
-                // don't receive anything here, we can assume that the storage state is okay.
-                mIsStorageNotLow = true;
-            } else {
-                switch (intent.getAction()) {
-                    case Intent.ACTION_DEVICE_STORAGE_OK:
-                        mIsStorageNotLow = true;
-                        break;
-
-                    case Intent.ACTION_DEVICE_STORAGE_LOW:
-                        mIsStorageNotLow = false;
-                        break;
-                }
+                case Intent.ACTION_DEVICE_STORAGE_LOW:
+                    mIsStorageNotLow = false;
+                    break;
             }
-            Log.d(TAG, "Setting initial mIsStorageNotLow to " + mIsStorageNotLow);
         }
+        Log.d(TAG, "Setting initial mIsStorageNotLow to " + mIsStorageNotLow);
+    }
 
+    @Override
+    protected void notifyListener(@NonNull StorageNotLowListener listener) {
         if (mIsStorageNotLow != null) {
             listener.setStorageNotLow(mIsStorageNotLow);
         }
@@ -103,7 +102,7 @@ public class StorageNotLowTracker
             Log.d(TAG, "Setting mIsStorageNotLow to " + isStorageNotLow);
             mIsStorageNotLow = isStorageNotLow;
             for (StorageNotLowListener listener : mListeners) {
-                listener.setStorageNotLow(mIsStorageNotLow);
+                notifyListener(listener);
             }
         }
     }

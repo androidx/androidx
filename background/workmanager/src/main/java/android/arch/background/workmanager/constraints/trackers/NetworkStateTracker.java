@@ -29,6 +29,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.net.ConnectivityManagerCompat;
 import android.util.Log;
 
@@ -48,7 +49,9 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkStateListener>
     private static final String TAG = "NetworkStateTracker";
 
     private final ConnectivityManager mConnectivityManager;
-    private NetworkState mCurrentNetworkState;
+
+    @VisibleForTesting
+    NetworkState mCurrentNetworkState;
 
     @RequiresApi(24)
     private NetworkStateCallback mNetworkCallback;
@@ -62,6 +65,19 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkStateListener>
             mNetworkCallback = new NetworkStateCallback();
         } else {
             mBroadcastReceiver = new NetworkStateBroadcastReceiver();
+        }
+    }
+
+    @Override
+    protected void initState() {
+        mCurrentNetworkState = getActiveNetworkState();
+        Log.d(TAG, "Network state initialized to: " + mCurrentNetworkState);
+    }
+
+    @Override
+    protected void notifyListener(@NonNull NetworkStateListener listener) {
+        if (mCurrentNetworkState != null) {
+            listener.setNetworkState(mCurrentNetworkState);
         }
     }
 
@@ -88,15 +104,6 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkStateListener>
         }
     }
 
-    @Override
-    public void setUpInitialState(NetworkStateListener listener) {
-        if (mCurrentNetworkState == null) {
-            mCurrentNetworkState = getActiveNetworkState();
-            Log.d(TAG, "Network state initialized to: " + mCurrentNetworkState);
-        }
-        listener.setNetworkState(mCurrentNetworkState);
-    }
-
     private static boolean isNetworkCallbackSupported() {
         // Based on requiring ConnectivityManager#registerDefaultNetworkCallback - added in API 24.
         return Build.VERSION.SDK_INT >= 24;
@@ -107,7 +114,7 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkStateListener>
         if (mCurrentNetworkState == null || !mCurrentNetworkState.equals(networkState)) {
             mCurrentNetworkState = networkState;
             for (NetworkStateListener listener : mListeners) {
-                listener.setNetworkState(mCurrentNetworkState);
+                notifyListener(listener);
             }
             Log.d(TAG, "Updated network state: " + networkState);
         }

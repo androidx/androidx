@@ -28,8 +28,7 @@ import android.util.Log;
  * Tracks whether or not the device's battery level is low.
  */
 
-public class BatteryNotLowTracker
-        extends BroadcastReceiverConstraintTracker<BatteryNotLowListener> {
+class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<BatteryNotLowListener> {
 
     private static final String TAG = "BatteryNotLowTracker";
 
@@ -46,7 +45,7 @@ public class BatteryNotLowTracker
     @VisibleForTesting
     Boolean mIsBatteryNotLow;
 
-    public BatteryNotLowTracker(Context context) {
+    BatteryNotLowTracker(Context context) {
         super(context);
     }
 
@@ -57,24 +56,25 @@ public class BatteryNotLowTracker
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/BatteryService.java#268}
      */
     @Override
-    public void setUpInitialState(BatteryNotLowListener listener) {
-        if (mIsBatteryNotLow == null) {
-            IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-            Intent intent = mAppContext.registerReceiver(null, intentFilter);
+    public void initState() {
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent intent = mAppContext.registerReceiver(null, intentFilter);
 
-            int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, BATTERY_PLUGGED_NONE);
-            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-            int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-            float batteryPercentage = level / (float) scale;
+        int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, BATTERY_PLUGGED_NONE);
+        int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        float batteryPercentage = level / (float) scale;
 
-            mIsBatteryNotLow = plugged != BATTERY_PLUGGED_NONE
-                    || status == BatteryManager.BATTERY_STATUS_UNKNOWN
-                    || batteryPercentage > BATTERY_LOW_PERCENTAGE;
+        mIsBatteryNotLow = plugged != BATTERY_PLUGGED_NONE
+                || status == BatteryManager.BATTERY_STATUS_UNKNOWN
+                || batteryPercentage > BATTERY_LOW_PERCENTAGE;
 
-            Log.d(TAG, "Setting initial mIsBatteryNotLow to " + mIsBatteryNotLow);
-        }
+        Log.d(TAG, "Setting initial mIsBatteryNotLow to " + mIsBatteryNotLow);
+    }
 
+    @Override
+    protected void notifyListener(@NonNull BatteryNotLowListener listener) {
         if (mIsBatteryNotLow != null) {
             listener.setBatteryNotLow(mIsBatteryNotLow);
         }
@@ -112,7 +112,7 @@ public class BatteryNotLowTracker
             Log.d(TAG, "Setting mIsBatteryNotLow to " + isBatteryNotLow);
             mIsBatteryNotLow = isBatteryNotLow;
             for (BatteryNotLowListener listener : mListeners) {
-                listener.setBatteryNotLow(mIsBatteryNotLow);
+                notifyListener(listener);
             }
         }
     }

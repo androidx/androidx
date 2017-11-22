@@ -17,6 +17,8 @@ package android.arch.background.workmanager.constraints.trackers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -36,7 +38,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class BatteryChargingTrackerTest {
 
@@ -47,10 +48,33 @@ public class BatteryChargingTrackerTest {
     public void setUp() {
         mTracker = new BatteryChargingTracker(InstrumentationRegistry.getTargetContext());
         mListener = mock(BatteryChargingListener.class);
-        mTracker.mListeners.add(mListener);  // Add it silently so no broadcasts trigger.
     }
 
     @Test
+    @SmallTest
+    public void testInitState() {
+        assertThat(mTracker.mIsCharging, is(nullValue()));
+        mTracker.initState();
+        assertThat(mTracker.mIsCharging, is(notNullValue()));
+    }
+
+    @Test
+    @SmallTest
+    public void testNotifyListener_stateNotInitialized() {
+        mTracker.notifyListener(mListener);
+        verify(mListener, never()).setBatteryCharging(anyBoolean());
+    }
+
+    @Test
+    @SmallTest
+    public void testNotifyListener_stateInitialized() {
+        mTracker.mIsCharging = true;
+        mTracker.notifyListener(mListener);
+        verify(mListener).setBatteryCharging(mTracker.mIsCharging);
+    }
+
+    @Test
+    @SmallTest
     @SdkSuppress(maxSdkVersion = 22)
     public void testGetIntentFilter_beforeApi23() {
         IntentFilter intentFilter = mTracker.getIntentFilter();
@@ -60,6 +84,7 @@ public class BatteryChargingTrackerTest {
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 23)
     public void testGetIntentFilter_afterApi23() {
         IntentFilter intentFilter = mTracker.getIntentFilter();
@@ -69,7 +94,9 @@ public class BatteryChargingTrackerTest {
     }
 
     @Test
+    @SmallTest
     public void testOnBroadcastReceive_invalidIntentAction_doesNotNotifyListeners() {
+        mTracker.mListeners.add(mListener);
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 new Intent("INVALID"));
@@ -77,8 +104,10 @@ public class BatteryChargingTrackerTest {
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(maxSdkVersion = 22)
     public void testOnBroadcastReceive_notifiesListeners_beforeApi23() {
+        mTracker.mListeners.add(mListener);
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 createBatteryChangedIntent(true));
@@ -90,8 +119,10 @@ public class BatteryChargingTrackerTest {
     }
 
     @Test
+    @SmallTest
     @SdkSuppress(minSdkVersion = 23)
     public void testOnBroadcastReceive_notifiesListeners_afterApi23() {
+        mTracker.mListeners.add(mListener);
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 createBatteryChangedIntent_afterApi23(true));
