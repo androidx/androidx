@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -22,7 +24,7 @@ dependencies {
     androidTestImplementation project(':support-media-compat-test-lib')
     androidTestImplementation "com.android.support:support-media-compat:27.0.1"
 
-    androidTestImplementation(libs.test_runner)
+    androidTestImplementation(TEST_RUNNER)
 }
 
 android {

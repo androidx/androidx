@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api project(':support-fragment')
-    api project(':appcompat-v7')
+    api(project(":support-fragment"))
+    api(project(":appcompat-v7"))
 
-    compile libs.test_runner,      { exclude module: 'support-annotations' }
-    compile libs.espresso_core,    { exclude module: 'support-annotations' }
-    compile libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has its own MockMaker
-    compile libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has its own MockMaker
-    compile libs.junit
+    implementation(TEST_RUNNER, libs.exclude_annotations)
+    implementation(ESPRESSO_CORE, libs.exclude_annotations)
+    implementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    implementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    implementation(JUNIT)
 }
 
 android {

@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 
 dependencies {
     implementation 'com.github.bumptech.glide:glide:3.6.1'
-    implementation project(':leanback-v17')
-    implementation project(':preference-leanback-v17')
+    implementation(project(":leanback-v17"))
+    implementation(project(":preference-leanback-v17"))
 }
 
 android {

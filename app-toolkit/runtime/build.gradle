@@ -30,7 +30,7 @@ android {
 
 dependencies {
     api libs.support.annotations
-    api project(":arch:common")
+    api(project(":arch:common"))
 }
 
 supportLibrary {
