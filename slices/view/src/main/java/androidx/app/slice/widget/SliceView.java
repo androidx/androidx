@@ -272,7 +272,9 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
                 HINT_ACTIONS,
                 null);
         int mode = getMode();
-        if (mode != mCurrentView.getMode()) {
+        if (mMode == mCurrentView.getMode()) {
+            mCurrentView.setSlice(mCurrentSlice);
+        } else {
             removeAllViews();
             mCurrentView = createView(mode);
             addView(mCurrentView, getChildLp(mCurrentView));

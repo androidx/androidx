@@ -71,6 +71,9 @@ public class ShortcutView extends androidx.app.slice.widget.SliceView.SliceModeV
 
     @Override
     public void setSlice(Slice slice) {
+        mLabel = null;
+        mIcon = null;
+        mAction = null;
         removeAllViews();
         determineShortcutItems(getContext(), slice);
         SliceItem colorItem = SliceQuery.find(slice, FORMAT_COLOR);
