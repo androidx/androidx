@@ -294,6 +294,8 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         val pagedList = ContiguousPagedList(
                 dataSource, mMainThread, mBackgroundThread, null,
                 PagedList.Config.Builder().setPageSize(10).build(), null)
+        val callback = mock(PagedList.Callback::class.java)
+        pagedList.addWeakCallback(null, callback)
 
         assertTrue(pagedList.isEmpty())
         drain()
@@ -302,11 +304,14 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         assertTrue(pagedList.isEmpty())
         mBackgroundThread.executeAll()
         assertTrue(pagedList.isEmpty())
+        verifyZeroInteractions(callback)
 
         // Data source defers callbacks until flush, which posts result to main thread
         mMainThread.executeAll()
         assertFalse(pagedList.isEmpty())
-
+        // callback onInsert called once with initial size
+        verify(callback).onInserted(0, pagedList.size)
+        verifyNoMoreInteractions(callback)
     }
 
     @Test
