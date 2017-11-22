@@ -1,0 +1,52 @@
+# Copyright (C) 2017 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License
+
+https://maven.google.com/com/android/support/animated-vector-drawable/27.0.1/animated-vector-drawable-27.0.1.aar
+https://maven.google.com/com/android/support/appcompat-v7/27.0.1/appcompat-v7-27.0.1.aar
+https://maven.google.com/com/android/support/cardview-v7/27.0.1/cardview-v7-27.0.1.aar
+https://maven.google.com/com/android/support/customtabs/27.0.1/customtabs-27.0.1.aar
+https://maven.google.com/com/android/support/design/27.0.1/design-27.0.1.aar
+https://maven.google.com/com/android/support/exifinterface/27.0.1/exifinterface-27.0.1.aar
+https://maven.google.com/com/android/support/gridlayout-v7/27.0.1/gridlayout-v7-27.0.1.aar
+https://maven.google.com/com/android/support/instantvideo/26.0.0-alpha1/instantvideo-26.0.0-alpha1.aar
+https://maven.google.com/com/android/support/leanback-v17/27.0.1/leanback-v17-27.0.1.aar
+https://maven.google.com/com/android/support/mediarouter-v7/27.0.1/mediarouter-v7-27.0.1.aar
+https://maven.google.com/com/android/support/multidex/1.0.2/multidex-1.0.2.aar
+https://maven.google.com/com/android/support/multidex-instrumentation/1.0.2/multidex-instrumentation-1.0.2.aar
+https://maven.google.com/com/android/support/palette-v7/27.0.1/palette-v7-27.0.1.aar
+https://maven.google.com/com/android/support/percent/27.0.1/percent-27.0.1.aar
+https://maven.google.com/com/android/support/preference-leanback-v17/27.0.1/preference-leanback-v17-27.0.1.aar
+https://maven.google.com/com/android/support/preference-v14/27.0.1/preference-v14-27.0.1.aar
+https://maven.google.com/com/android/support/preference-v7/27.0.1/preference-v7-27.0.1.aar
+https://maven.google.com/com/android/support/recommendation/27.0.1/recommendation-27.0.1.aar
+https://maven.google.com/com/android/support/recyclerview-v7/27.0.1/recyclerview-v7-27.0.1.aar
+https://maven.google.com/com/android/support/support-annotations/27.0.1/support-annotations-27.0.1.jar
+https://maven.google.com/com/android/support/support-compat/27.0.1/support-compat-27.0.1.aar
+https://maven.google.com/com/android/support/support-content/27.0.1/support-content-27.0.1.aar
+https://maven.google.com/com/android/support/support-core-ui/27.0.1/support-core-ui-27.0.1.aar
+https://maven.google.com/com/android/support/support-core-utils/27.0.1/support-core-utils-27.0.1.aar
+https://maven.google.com/com/android/support/support-dynamic-animation/27.0.1/support-dynamic-animation-27.0.1.aar
+https://maven.google.com/com/android/support/support-emoji/27.0.1/support-emoji-27.0.1.aar
+https://maven.google.com/com/android/support/support-emoji-appcompat/27.0.1/support-emoji-appcompat-27.0.1.aar
+https://maven.google.com/com/android/support/support-emoji-bundled/27.0.1/support-emoji-bundled-27.0.1.aar
+https://maven.google.com/com/android/support/support-fragment/27.0.1/support-fragment-27.0.1.aar
+https://maven.google.com/com/android/support/support-media-compat/27.0.1/support-media-compat-27.0.1.aar
+https://maven.google.com/com/android/support/support-tv-provider/27.0.1/support-tv-provider-27.0.1.aar
+https://maven.google.com/com/android/support/support-v13/27.0.1/support-v13-27.0.1.aar
+https://maven.google.com/com/android/support/support-v4/27.0.1/support-v4-27.0.1.aar
+https://maven.google.com/com/android/support/support-vector-drawable/27.0.1/support-vector-drawable-27.0.1.aar
+https://maven.google.com/com/android/support/transition/27.0.1/transition-27.0.1.aar
+https://maven.google.com/com/android/support/wear/27.0.1/wear-27.0.1.aar
+https://maven.google.com/com/android/support/wearable/27.0.1/wearable-27.0.1.aar
+https://maven.google.com/com/android/support/constraint/constraint-layout/1.0.2/constraint-layout-1.0.2.aar

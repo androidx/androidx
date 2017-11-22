@@ -48,6 +48,12 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
      */
     private val ignoredFields = Pattern.compile("(^m[A-Z]+.*$)|(.*\\$.*)")
 
+    /**
+     * Ignores types ending with '$digit' as these are private inner classes and won't be ever
+     * referenced.
+     */
+    private val ignoredTypes = Pattern.compile("^(.*)\\$[0-9]+$")
+
     fun createClassRemapper(visitor: ClassVisitor): CustomClassRemapper {
         return CustomClassRemapper(visitor, CustomRemapper(this))
     }
@@ -58,6 +64,10 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
         }
 
         if (typesRewritesMap.contains(type)) {
+            return type
+        }
+
+        if (isTypeIgnored(type)) {
             return type
         }
 
@@ -81,7 +91,7 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
             return field
         }
 
-        if (ignoredFields.matcher(field.name).matches()) {
+        if (isTypeIgnored(field.owner) || isFieldIgnored(field)) {
             return field
         }
 
@@ -110,5 +120,13 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
 
     private fun isTypeSupported(type: JavaType) : Boolean {
         return config.restrictToPackagePrefixes.any{ type.fullName.startsWith(it) }
+    }
+
+    private fun isTypeIgnored(type: JavaType) : Boolean {
+        return ignoredTypes.matcher(type.fullName).matches()
+    }
+
+    private fun isFieldIgnored(field: JavaField) : Boolean {
+        return ignoredFields.matcher(field.name).matches()
     }
 }
