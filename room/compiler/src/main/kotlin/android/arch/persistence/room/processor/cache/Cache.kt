@@ -40,7 +40,7 @@ class Cache(val parent: Cache?, val converters: LinkedHashSet<TypeMirror>,
 
     inner class Bucket<K, T>(source: Bucket<K, T>?) {
         private val entries: MutableMap<FullKey<K>, T> = source?.entries ?: mutableMapOf()
-        fun get(key : K, calculate: () -> T): T {
+        fun get(key: K, calculate: () -> T): T {
             val fullKey = FullKey(converters, suppressedWarnings, key)
             return entries.getOrPut(fullKey, {
                 calculate()
@@ -56,15 +56,18 @@ class Cache(val parent: Cache?, val converters: LinkedHashSet<TypeMirror>,
     /**
      * Key for Pojo cache
      */
-    data class PojoKey(val element: Element, val scope : FieldProcessor.BindingScope,
-                       val parent : EmbeddedField?)
+    data class PojoKey(
+            val element: Element,
+            val scope: FieldProcessor.BindingScope,
+            val parent: EmbeddedField?)
 
     /**
      * Internal key representation with adapters & warnings included.
      * <p>
      * Converters are kept in a linked set since the order is important for the TypeAdapterStore.
      */
-    private data class FullKey<T>(val converters: LinkedHashSet<TypeMirror>,
-                               val suppressedWarnings: Set<Warning>,
-                               val key: T)
+    private data class FullKey<T>(
+            val converters: LinkedHashSet<TypeMirror>,
+            val suppressedWarnings: Set<Warning>,
+            val key: T)
 }

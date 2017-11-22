@@ -24,7 +24,7 @@ import android.arch.persistence.room.solver.CodeGenScope
 /**
  * combines 2 type converters
  */
-class CompositeTypeConverter(val conv1 : TypeConverter, val conv2 : TypeConverter) : TypeConverter(
+class CompositeTypeConverter(val conv1: TypeConverter, val conv2: TypeConverter) : TypeConverter(
         conv1.from, conv2.to) {
     override fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder().apply {

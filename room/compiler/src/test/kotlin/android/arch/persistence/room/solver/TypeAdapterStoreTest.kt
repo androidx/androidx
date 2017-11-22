@@ -182,7 +182,6 @@ class TypeAdapterStoreTest {
                     invocation.context.COMMON_TYPES.STRING)
             assertThat(converter, notNullValue())
             assertThat(store.reverse(converter!!), `is`(binders[1]))
-
         }.compilesWithoutError()
     }
 
@@ -368,7 +367,6 @@ class TypeAdapterStoreTest {
                             addStatement("$L = $T.toBoolean($L)", outputVarName, from, inputVarName)
                         }
                     }
-
                 },
                 object : TypeConverter(tBoolean, tPoint) {
                     override fun convert(inputVarName: String, outputVarName: String,
@@ -393,7 +391,6 @@ class TypeAdapterStoreTest {
                             addStatement("// convert Date to Long")
                         }
                     }
-
                 },
                 object : TypeConverter(tLong, tDate) {
                     override fun convert(inputVarName: String, outputVarName: String,

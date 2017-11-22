@@ -37,16 +37,17 @@ import javax.lang.model.type.TypeKind.SHORT
 open class PrimitiveColumnTypeAdapter(out: PrimitiveType,
                                       val cursorGetter: String,
                                       val stmtSetter: String,
-                                      typeAffinity : SQLTypeAffinity)
+                                      typeAffinity: SQLTypeAffinity)
         : ColumnTypeAdapter(out, typeAffinity) {
-    val cast =  if (cursorGetter == "get${out.typeName().toString().capitalize()}")
+    val cast = if (cursorGetter == "get${out.typeName().toString().capitalize()}")
                     ""
                 else
                     "(${out.typeName()}) "
 
     companion object {
-        fun createPrimitiveAdapters(processingEnvironment: ProcessingEnvironment)
-                : List<PrimitiveColumnTypeAdapter> {
+        fun createPrimitiveAdapters(
+                processingEnvironment: ProcessingEnvironment
+        ): List<PrimitiveColumnTypeAdapter> {
             return listOf(
                     Triple(INT, "getInt", "bindLong"),
                     Triple(SHORT, "getShort", "bindLong"),
@@ -60,7 +61,7 @@ open class PrimitiveColumnTypeAdapter(out: PrimitiveType,
                         out = processingEnvironment.typeUtils.getPrimitiveType(it.first),
                         cursorGetter = it.second,
                         stmtSetter = it.third,
-                        typeAffinity = when(it.first) {
+                        typeAffinity = when (it.first) {
                             INT, SHORT, BYTE, LONG, CHAR -> SQLTypeAffinity.INTEGER
                             FLOAT, DOUBLE -> REAL
                             else -> throw IllegalArgumentException("invalid type")

@@ -55,8 +55,8 @@ class InsertionMethodProcessorTest {
                 abstract class MyClass {
                 """
         const val DAO_SUFFIX = "}"
-        val USER_TYPE_NAME : TypeName = COMMON.USER_TYPE_NAME
-        val BOOK_TYPE_NAME : TypeName = ClassName.get("foo.bar", "Book")
+        val USER_TYPE_NAME: TypeName = COMMON.USER_TYPE_NAME
+        val BOOK_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Book")
     }
 
     @Test
@@ -387,9 +387,10 @@ class InsertionMethodProcessorTest {
         }
     }
 
-    fun singleInsertMethod(vararg input: String,
-                          handler: (InsertionMethod, TestInvocation) -> Unit):
-            CompileTester {
+    fun singleInsertMethod(
+            vararg input: String,
+            handler: (InsertionMethod, TestInvocation) -> Unit
+    ): CompileTester {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX

@@ -27,7 +27,7 @@ import javax.lang.model.type.TypeMirror
  * Generated when we parse a method annotated with TypeConverter.
  */
 data class CustomTypeConverter(val type: TypeMirror,
-                               val method : ExecutableElement,
+                               val method: ExecutableElement,
                                val from: TypeMirror, val to: TypeMirror) {
     val typeName: TypeName by lazy { type.typeName() }
     val fromTypeName: TypeName by lazy { from.typeName() }

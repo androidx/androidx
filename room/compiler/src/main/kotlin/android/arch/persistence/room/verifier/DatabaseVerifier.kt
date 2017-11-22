@@ -33,7 +33,7 @@ import javax.lang.model.element.Element
  * This class is also used to resolve the return types.
  */
 class DatabaseVerifier private constructor(
-        val connection : Connection, val context : Context, val entities : List<Entity>) {
+        val connection: Connection, val context: Context, val entities: List<Entity>) {
     companion object {
         private const val CONNECTION_URL = "jdbc:sqlite::memory:"
 
@@ -54,11 +54,11 @@ class DatabaseVerifier private constructor(
         /**
          * Tries to create a verifier but returns null if it cannot find the driver.
          */
-        fun create(context: Context, element: Element, entities: List<Entity>) : DatabaseVerifier? {
+        fun create(context: Context, element: Element, entities: List<Entity>): DatabaseVerifier? {
             return try {
                 val connection = JDBC.createConnection(CONNECTION_URL, java.util.Properties())
                 DatabaseVerifier(connection, context, entities)
-            } catch (ex : Exception) {
+            } catch (ex: Exception) {
                 context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
                         DatabaseVerificaitonErrors.cannotCreateConnection(ex))
                 null
@@ -76,7 +76,7 @@ class DatabaseVerifier private constructor(
                 DriverManager.getDriver(CONNECTION_URL)?.let {
                     DriverManager.deregisterDriver(it)
                 }
-            } catch (t : Throwable) {
+            } catch (t: Throwable) {
                 System.err.println("Room: cannot unregister driver ${t.message}")
             }
         }
@@ -88,11 +88,11 @@ class DatabaseVerifier private constructor(
         }
     }
 
-    fun analyze(sql : String) : QueryResultInfo {
+    fun analyze(sql: String): QueryResultInfo {
         return try {
             val stmt = connection.prepareStatement(sql)
             QueryResultInfo(stmt.columnInfo())
-        } catch (ex : SQLException) {
+        } catch (ex: SQLException) {
             QueryResultInfo(emptyList(), ex)
         }
     }
@@ -101,7 +101,7 @@ class DatabaseVerifier private constructor(
         if (!connection.isClosed) {
             try {
                 connection.close()
-            } catch (t : Throwable) {
+            } catch (t: Throwable) {
                 //ignore.
                 context.logger.d("failed to close the database connection ${t.message}")
             }

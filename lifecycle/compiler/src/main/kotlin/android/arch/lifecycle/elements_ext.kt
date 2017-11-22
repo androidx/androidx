@@ -38,7 +38,7 @@ fun ExecutableElement.isProtected() = modifiers.contains(Modifier.PROTECTED)
 
 fun TypeElement.methods(): List<ExecutableElement> = ElementFilter.methodsIn(enclosedElements)
 
-private const val SYNTHETIC =  "__synthetic_"
+private const val SYNTHETIC = "__synthetic_"
 
 fun syntheticName(method: ExecutableElement) = "$SYNTHETIC${method.simpleName}"
 

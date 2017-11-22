@@ -28,7 +28,6 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.verifyZeroInteractions
 
-
 @RunWith(Parameterized::class)
 class ContiguousPagedListTest(private val mCounted: Boolean) {
     private val mMainThread = TestExecutor()
@@ -51,7 +50,6 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
             val loadPosition = Math.max(0, (convertPosition - initialLoadSize / 2))
 
             val data = getClampedRange(loadPosition, loadPosition + initialLoadSize)
-
 
             if (enablePlaceholders && mCounted) {
                 callback.onResult(data, loadPosition, listData.size)
@@ -95,7 +93,6 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
                     actual.storageCount)
             assertEquals(start, actual.leadingNullCount)
             assertEquals(expectedTrailing, actual.trailingNullCount)
-
         } else {
             assertEquals(ITEMS.subList(start, start + count), actual)
 
@@ -116,8 +113,8 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
             initLoadSize: Int = 40,
             prefetchDistance: Int = 20,
             listData: List<Item> = ITEMS,
-            boundaryCallback: PagedList.BoundaryCallback<Item>? = null)
-            : ContiguousPagedList<Int, Item> {
+            boundaryCallback: PagedList.BoundaryCallback<Item>? = null
+    ): ContiguousPagedList<Int, Item> {
         return ContiguousPagedList(
                 TestSource(listData), mMainThread, mBackgroundThread, boundaryCallback,
                 PagedList.Config.Builder()
@@ -372,7 +369,6 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
                 initLoadSize = 20, prefetchDistance = 5, boundaryCallback = boundaryCallback)
         verifyRange(80, 20, pagedList)
 
-
         // nothing yet
         verifyZeroInteractions(boundaryCallback)
         drain()
@@ -384,7 +380,6 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         verifyRange(80, 20, pagedList)
         verify(boundaryCallback).onItemAtEndLoaded(ITEMS.last())
         verifyNoMoreInteractions(boundaryCallback)
-
 
         // prepending doesn't trigger callback...
         pagedList.loadAround(if (mCounted) 80 else 0)

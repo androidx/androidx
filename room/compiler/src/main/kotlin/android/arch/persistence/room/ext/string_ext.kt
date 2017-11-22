@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-private fun String.toCamelCase() : String {
+private fun String.toCamelCase(): String {
     val split = this.split("_")
     if (split.isEmpty()) return ""
     if (split.size == 1) return split[0].capitalize()
     return split.joinToCamelCase()
 }
 
-private fun String.toCamelCaseAsVar() : String {
+private fun String.toCamelCaseAsVar(): String {
     val split = this.split("_")
     if (split.isEmpty()) return ""
     if (split.size == 1) return split[0]
     return split.joinToCamelCaseAsVar()
 }
 
-private fun List<String>.joinToCamelCase(): String = when(size) {
+private fun List<String>.joinToCamelCase(): String = when (size) {
     0 -> throw IllegalArgumentException("invalid section size, cannot be zero")
     1 -> this[0].toCamelCase()
-    else -> this.map {it.toCamelCase()}.joinToString("")
+    else -> this.map { it.toCamelCase() }.joinToString("")
 }
 
-private fun List<String>.joinToCamelCaseAsVar(): String = when(size) {
+private fun List<String>.joinToCamelCaseAsVar(): String = when (size) {
     0 -> throw IllegalArgumentException("invalid section size, cannot be zero")
     1 -> this[0].toCamelCaseAsVar()
     else -> get(0).toCamelCaseAsVar() + drop(1).joinToCamelCase()

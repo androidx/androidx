@@ -42,7 +42,7 @@ class IndexTest {
         ))
     }
 
-    private fun mockField(columnName : String): Field {
+    private fun mockField(columnName: String): Field {
         val (element, type) = mockElementAndType()
         return Field(
                 element = element,

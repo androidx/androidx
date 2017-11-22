@@ -22,12 +22,12 @@ import android.arch.persistence.room.migration.bundle.IndexBundle
 /**
  * Represents a processed index.
  */
-data class Index(val name : String, val unique : Boolean, val fields : List<Field>) {
+data class Index(val name: String, val unique: Boolean, val fields: List<Field>) {
     companion object {
         // should match the value in TableInfo.Index.DEFAULT_PREFIX
         const val DEFAULT_PREFIX = "index_"
     }
-    fun createQuery(tableName : String) : String {
+    fun createQuery(tableName: String): String {
         val uniqueSQL = if (unique) {
             "UNIQUE"
         } else {
@@ -39,7 +39,7 @@ data class Index(val name : String, val unique : Boolean, val fields : List<Fiel
             """.trimIndent().replace("\n", " ")
     }
 
-    val columnNames by lazy { fields.map {it.columnName} }
+    val columnNames by lazy { fields.map { it.columnName } }
 
     fun toBundle(): IndexBundle = IndexBundle(name, unique, fields.map { it.columnName },
             createQuery(BundleUtil.TABLE_NAME_PLACEHOLDER))

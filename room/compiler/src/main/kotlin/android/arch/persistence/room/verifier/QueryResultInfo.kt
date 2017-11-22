@@ -24,4 +24,4 @@ import java.sql.SQLException
  * This information is obtained by preparing the query against an in memory database at compile
  * time.
  */
-data class QueryResultInfo(val columns : List<ColumnInfo>, val error : SQLException? = null)
+data class QueryResultInfo(val columns: List<ColumnInfo>, val error: SQLException? = null)

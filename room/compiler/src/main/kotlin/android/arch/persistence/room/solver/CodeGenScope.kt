@@ -22,29 +22,29 @@ import android.arch.persistence.room.writer.ClassWriter
 /**
  * Defines a code generation scope where we can provide temporary variables, global variables etc
  */
-class CodeGenScope(val writer : ClassWriter) {
+class CodeGenScope(val writer: ClassWriter) {
     private var tmpVarIndices = mutableMapOf<String, Int>()
-    private var builder : CodeBlock.Builder? = null
+    private var builder: CodeBlock.Builder? = null
     companion object {
         const val TMP_VAR_DEFAULT_PREFIX = "_tmp"
         const val CLASS_PROPERTY_PREFIX = "__"
         @VisibleForTesting
-        fun _tmpVar(index:Int) = _tmpVar(TMP_VAR_DEFAULT_PREFIX, index)
-        fun _tmpVar(prefix : String, index:Int) = "$prefix${if(index == 0) "" else "_$index"}"
+        fun _tmpVar(index: Int) = _tmpVar(TMP_VAR_DEFAULT_PREFIX, index)
+        fun _tmpVar(prefix: String, index: Int) = "$prefix${if (index == 0) "" else "_$index"}"
     }
 
-    fun builder() : CodeBlock.Builder {
+    fun builder(): CodeBlock.Builder {
         if (builder == null) {
             builder = CodeBlock.builder()
         }
         return builder!!
     }
 
-    fun getTmpVar() : String {
+    fun getTmpVar(): String {
         return getTmpVar(TMP_VAR_DEFAULT_PREFIX)
     }
 
-    fun getTmpVar(prefix : String) : String {
+    fun getTmpVar(prefix: String): String {
         if (!prefix.startsWith("_")) {
             throw IllegalArgumentException("tmp variable prefixes should start with _")
         }
@@ -62,7 +62,7 @@ class CodeGenScope(val writer : ClassWriter) {
     /**
      * copies all variable indices but excludes generated code.
      */
-    fun fork() : CodeGenScope {
+    fun fork(): CodeGenScope {
         val forked = CodeGenScope(writer)
         forked.tmpVarIndices.putAll(tmpVarIndices)
         return forked

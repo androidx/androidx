@@ -35,8 +35,8 @@ import javax.lang.model.element.Modifier.PUBLIC
 /**
  * Create an open helper using SupportSQLiteOpenHelperFactory
  */
-class SQLiteOpenHelperWriter(val database : Database) {
-    fun write(outVar : String, configuration : ParameterSpec, scope: CodeGenScope) {
+class SQLiteOpenHelperWriter(val database: Database) {
+    fun write(outVar: String, configuration: ParameterSpec, scope: CodeGenScope) {
         scope.builder().apply {
             val sqliteConfigVar = scope.getTmpVar("_sqliteConfig")
             val callbackVar = scope.getTmpVar("_openCallback")
@@ -61,7 +61,7 @@ class SQLiteOpenHelperWriter(val database : Database) {
         }
     }
 
-    private fun createOpenCallback(scope: CodeGenScope) : TypeSpec {
+    private fun createOpenCallback(scope: CodeGenScope): TypeSpec {
         return TypeSpec.anonymousClassBuilder(L, database.version).apply {
             superclass(RoomTypeNames.OPEN_HELPER_DELEGATE)
             addMethod(createCreateAllTables())
@@ -106,7 +106,7 @@ class SQLiteOpenHelperWriter(val database : Database) {
         }.build()
     }
 
-    private fun createCreateAllTables() : MethodSpec {
+    private fun createCreateAllTables(): MethodSpec {
         return MethodSpec.methodBuilder("createAllTables").apply {
             addModifiers(PUBLIC)
             addParameter(SupportDbTypeNames.DB, "_db")
@@ -116,7 +116,7 @@ class SQLiteOpenHelperWriter(val database : Database) {
         }.build()
     }
 
-    private fun createDropAllTables() : MethodSpec {
+    private fun createDropAllTables(): MethodSpec {
         return MethodSpec.methodBuilder("dropAllTables").apply {
             addModifiers(PUBLIC)
             addParameter(SupportDbTypeNames.DB, "_db")
@@ -140,12 +140,12 @@ class SQLiteOpenHelperWriter(val database : Database) {
     }
 
     @VisibleForTesting
-    fun createQuery(entity : Entity) : String {
+    fun createQuery(entity: Entity): String {
         return entity.createTableQuery
     }
 
     @VisibleForTesting
-    fun createDropTableQuery(entity: Entity) : String {
+    fun createDropTableQuery(entity: Entity): String {
         return "DROP TABLE IF EXISTS `${entity.tableName}`"
     }
 }

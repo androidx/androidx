@@ -401,7 +401,7 @@ class TiledPagedListTest {
 
     private fun performInitialLoad(
             callbackInvoker: (callback: DataSource.InitialLoadCallback<String>) -> Unit) {
-        val dataSource = object: PositionalDataSource<String>() {
+        val dataSource = object : PositionalDataSource<String>() {
             override fun loadInitial(requestedStartPosition: Int, requestedLoadSize: Int,
                     pageSize: Int, callback: InitialLoadCallback<String>) {
                 callbackInvoker(callback)

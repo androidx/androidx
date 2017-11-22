@@ -114,7 +114,6 @@ class ListAdapterHelperTest {
         verifyNoMoreInteractions(callback)
         drain()
         verifyNoMoreInteractions(callback)
-
     }
 
     private fun drain() {

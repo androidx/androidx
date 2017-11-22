@@ -214,7 +214,6 @@ class KeyedDataSourceTest {
             val start = Math.max(0, findFirstIndexAfter(key) - initialLoadSize / 2)
             val endExclusive = Math.min(start + initialLoadSize, items.size)
 
-
             if (enablePlaceholders && counted) {
                 callback.onResult(items.subList(start, endExclusive), start, items.size)
             } else {
@@ -255,15 +254,15 @@ class KeyedDataSourceTest {
     }
 
     companion object {
-        private val ITEM_COMPARATOR = compareBy<Item>( {it.name} ).thenByDescending( {it.id} )
-        private val KEY_COMPARATOR = compareBy<Key>( {it.name} ).thenByDescending( {it.id} )
+        private val ITEM_COMPARATOR = compareBy<Item>({ it.name }).thenByDescending({ it.id })
+        private val KEY_COMPARATOR = compareBy<Key>({ it.name }).thenByDescending({ it.id })
 
         private val ITEMS_BY_NAME_ID = List(100) {
             val names = Array(10) { "f" + ('a' + it) }
             Item(names[it % 10],
-                 it,
-                 Math.random() * 1000,
-                 (Math.random() * 200).toInt().toString() + " fake st.")
+                    it,
+                    Math.random() * 1000,
+                    (Math.random() * 200).toInt().toString() + " fake st.")
         }.sortedWith(ITEM_COMPARATOR)
     }
 }

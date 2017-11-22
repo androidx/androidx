@@ -95,7 +95,7 @@ fun testCodeGenScope(): CodeGenScope {
     return CodeGenScope(Mockito.mock(ClassWriter::class.java))
 }
 
-fun simpleRun(vararg jfos : JavaFileObject, f: (TestInvocation) -> Unit): CompileTester {
+fun simpleRun(vararg jfos: JavaFileObject, f: (TestInvocation) -> Unit): CompileTester {
     return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(jfos.toList() + JavaFileObjects.forSourceString("foo.bar.MyClass",
                     """
@@ -115,12 +115,12 @@ fun simpleRun(vararg jfos : JavaFileObject, f: (TestInvocation) -> Unit): Compil
                     .build())
 }
 
-fun loadJavaCode(fileName : String, qName : String) : JavaFileObject {
+fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
     val contents = File("src/test/data/$fileName").readText(Charsets.UTF_8)
     return JavaFileObjects.forSourceString(qName, contents)
 }
 
-fun createVerifierFromEntities(invocation: TestInvocation) : DatabaseVerifier {
+fun createVerifierFromEntities(invocation: TestInvocation): DatabaseVerifier {
     val entities = invocation.roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
         EntityProcessor(invocation.context, MoreElements.asType(it)).process()
     }

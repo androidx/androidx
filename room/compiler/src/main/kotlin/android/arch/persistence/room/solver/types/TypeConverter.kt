@@ -17,7 +17,6 @@
 package android.arch.persistence.room.solver.types
 
 import android.arch.persistence.room.solver.CodeGenScope
-import com.squareup.javapoet.TypeName
 import javax.lang.model.type.TypeMirror
 
 /**

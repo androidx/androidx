@@ -21,13 +21,12 @@ import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.N
 import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.solver.CodeGenScope
-import android.arch.persistence.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
 
 class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
     override fun convertAndReturn(roomSQLiteQueryVar: String,
                                   dbField: FieldSpec,
-                                  inTransaction : Boolean,
+                                  inTransaction: Boolean,
                                   scope: CodeGenScope) {
         val builder = scope.builder()
         val transactionWrapper = if (inTransaction) {

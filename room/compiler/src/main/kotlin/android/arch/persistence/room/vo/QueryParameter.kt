@@ -23,4 +23,4 @@ import javax.lang.model.type.TypeMirror
  * Holds the parameter for a {@link QueryMethod}.
  */
 data class QueryParameter(val name: String, val type: TypeMirror,
-                          val queryParamAdapter : QueryParameterAdapter?)
+                          val queryParamAdapter: QueryParameterAdapter?)
