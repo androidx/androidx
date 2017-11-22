@@ -34,9 +34,6 @@ dependencies {
     testCompile libs.kotlin.stdlib
 }
 
-createAndroidCheckstyle(project)
-createKotlinCheckstyle(project)
-
 supportLibrary {
     name = "Android Paging-Common"
     publish = true

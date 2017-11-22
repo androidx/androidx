@@ -39,8 +39,6 @@ dependencies {
     api libs.junit
 }
 
-createAndroidCheckstyle(project)
-
 supportLibrary {
     name = "Android Room Testing"
     publish = true

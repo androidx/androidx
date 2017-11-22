@@ -42,8 +42,6 @@ dependencies {
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
 }
 
-createAndroidCheckstyle(project)
-
 supportLibrary {
     name = "Android Core-Testing"
     publish = true
