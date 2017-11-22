@@ -189,10 +189,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     /**
      * Call FontFamily#abortCreation()
      */
-    private boolean abortCreation(Object family) {
+    private void abortCreation(Object family) {
         try {
-            Boolean result = (Boolean) mAbortCreation.invoke(family);
-            return result.booleanValue();
+            mAbortCreation.invoke(family);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
