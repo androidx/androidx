@@ -18,20 +18,17 @@ package android.support.v4.media.session;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
-import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_RATING;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,7 +39,6 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
-import android.support.v4.media.VolumeProviderCompat;
 import android.view.KeyEvent;
 
 import org.junit.After;
@@ -50,7 +46,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -169,320 +164,6 @@ public class MediaSessionCompatTest {
     }
 
     /**
-     * Tests {@link MediaSessionCompat#setExtras}.
-     */
-    @Test
-    @SmallTest
-    public void testSetExtras() throws Exception {
-        final Bundle extras = new Bundle();
-        MediaControllerCompat controller = mSession.getController();
-        controller.registerCallback(mCallback, mHandler);
-        synchronized (mWaitLock) {
-            mCallback.resetLocked();
-            mSession.setExtras(TEST_BUNDLE);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnExtraChangedCalled);
-
-            Bundle extrasOut = mCallback.mExtras;
-            assertNotNull(extrasOut);
-            assertEquals(TEST_VALUE, extrasOut.get(TEST_KEY));
-
-            extrasOut = controller.getExtras();
-            assertNotNull(extrasOut);
-            assertEquals(TEST_VALUE, extrasOut.get(TEST_KEY));
-        }
-    }
-
-    /**
-     * Tests {@link MediaSessionCompat#setFlags}.
-     */
-    @Test
-    @SmallTest
-    public void testSetFlags() throws Exception {
-        MediaControllerCompat controller = mSession.getController();
-        controller.registerCallback(mCallback, mHandler);
-        synchronized (mWaitLock) {
-            mCallback.resetLocked();
-            mSession.setFlags(5);
-            assertEquals(5, controller.getFlags());
-        }
-    }
-
-    /**
-     * Tests {@link MediaSessionCompat#setMetadata}.
-     */
-    @Test
-    @SmallTest
-    public void testSetMetadata() throws Exception {
-        MediaControllerCompat controller = mSession.getController();
-        controller.registerCallback(mCallback, mHandler);
-        synchronized (mWaitLock) {
-            mCallback.resetLocked();
-            RatingCompat rating = RatingCompat.newHeartRating(true);
-            MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
-                    .putString(TEST_KEY, TEST_VALUE)
-                    .putRating(METADATA_KEY_RATING, rating)
-                    .build();
-            mSession.setActive(true);
-            mSession.setMetadata(metadata);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnMetadataChangedCalled);
-
-            MediaMetadataCompat metadataOut = mCallback.mMediaMetadata;
-            assertNotNull(metadataOut);
-            assertEquals(TEST_VALUE, metadataOut.getString(TEST_KEY));
-
-            metadataOut = controller.getMetadata();
-            assertNotNull(metadataOut);
-            assertEquals(TEST_VALUE, metadataOut.getString(TEST_KEY));
-
-            assertNotNull(metadataOut.getRating(METADATA_KEY_RATING));
-            RatingCompat ratingOut = metadataOut.getRating(METADATA_KEY_RATING);
-            assertEquals(rating.getRatingStyle(), ratingOut.getRatingStyle());
-            assertEquals(rating.getPercentRating(), ratingOut.getPercentRating(), 0.0f);
-        }
-    }
-
-    /**
-     * Tests {@link MediaSessionCompat#setMetadata} with artwork bitmaps.
-     */
-    @Test
-    @SmallTest
-    public void testSetMetadataWithArtworks() throws Exception {
-        MediaControllerCompat controller = mSession.getController();
-        final Bitmap bitmapSmall = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-        final Bitmap bitmapLarge = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ALPHA_8);
-
-        controller.registerCallback(mCallback, mHandler);
-        mSession.setActive(true);
-        synchronized (mWaitLock) {
-            mCallback.resetLocked();
-            MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
-                    .putString(TEST_KEY, TEST_VALUE)
-                    .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, bitmapSmall)
-                    .build();
-            mSession.setMetadata(metadata);
-            mWaitLock.wait(TIME_OUT_MS);
-
-            assertTrue(mCallback.mOnMetadataChangedCalled);
-            MediaMetadataCompat metadataOut = mCallback.mMediaMetadata;
-            assertNotNull(metadataOut);
-            assertEquals(TEST_VALUE, metadataOut.getString(TEST_KEY));
-            Bitmap bitmapSmallOut = metadataOut.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
-            assertNotNull(bitmapSmallOut);
-            assertEquals(bitmapSmall.getHeight(), bitmapSmallOut.getHeight());
-            assertEquals(bitmapSmall.getWidth(), bitmapSmallOut.getWidth());
-            assertEquals(bitmapSmall.getConfig(), bitmapSmallOut.getConfig());
-
-            metadata = new MediaMetadataCompat.Builder()
-                    .putString(TEST_KEY, TEST_VALUE)
-                    .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, bitmapLarge)
-                    .build();
-            mSession.setMetadata(metadata);
-            mWaitLock.wait(TIME_OUT_MS);
-
-            assertTrue(mCallback.mOnMetadataChangedCalled);
-            metadataOut = mCallback.mMediaMetadata;
-            assertNotNull(metadataOut);
-            assertEquals(TEST_VALUE, metadataOut.getString(TEST_KEY));
-            Bitmap bitmapLargeOut = metadataOut.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
-            assertNotNull(bitmapLargeOut);
-            // Don't check size here because large bitmaps can be scaled down.
-            assertEquals(bitmapLarge.getConfig(), bitmapLargeOut.getConfig());
-
-            assertFalse(bitmapSmall.isRecycled());
-            assertFalse(bitmapLarge.isRecycled());
-            assertFalse(bitmapSmallOut.isRecycled());
-            assertFalse(bitmapLargeOut.isRecycled());
-            bitmapSmallOut.recycle();
-            bitmapLargeOut.recycle();
-        }
-        bitmapSmall.recycle();
-        bitmapLarge.recycle();
-    }
-
-    /**
-     * Tests {@link MediaSessionCompat#setPlaybackState}.
-     */
-    @Test
-    @SmallTest
-    public void testSetPlaybackState() throws Exception {
-        MediaControllerCompat controller = mSession.getController();
-        controller.registerCallback(mCallback, mHandler);
-        synchronized (mWaitLock) {
-            mCallback.resetLocked();
-            PlaybackStateCompat state =
-                    new PlaybackStateCompat.Builder()
-                            .setActions(TEST_ACTION)
-                            .setErrorMessage(TEST_ERROR_CODE, TEST_ERROR_MSG)
-                            .build();
-            mSession.setPlaybackState(state);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnPlaybackStateChangedCalled);
-
-            PlaybackStateCompat stateOut = mCallback.mPlaybackState;
-            assertNotNull(stateOut);
-            assertEquals(TEST_ACTION, stateOut.getActions());
-            assertEquals(TEST_ERROR_CODE, stateOut.getErrorCode());
-            assertEquals(TEST_ERROR_MSG, stateOut.getErrorMessage().toString());
-
-            stateOut = controller.getPlaybackState();
-            assertNotNull(stateOut);
-            assertEquals(TEST_ACTION, stateOut.getActions());
-            assertEquals(TEST_ERROR_CODE, stateOut.getErrorCode());
-            assertEquals(TEST_ERROR_MSG, stateOut.getErrorMessage().toString());
-        }
-    }
-
-    /**
-     * Tests {@link MediaSessionCompat#setQueue} and {@link MediaSessionCompat#setQueueTitle}.
-     */
-    @Test
-    @SmallTest
-    public void testSetQueueAndSetQueueTitle() throws Exception {
-        MediaControllerCompat controller = mSession.getController();
-        controller.registerCallback(mCallback, mHandler);
-        synchronized (mWaitLock) {
-            mCallback.resetLocked();
-            List<MediaSessionCompat.QueueItem> queue = new ArrayList<>();
-            MediaSessionCompat.QueueItem item = new MediaSessionCompat.QueueItem(
-                    new MediaDescriptionCompat.Builder()
-                            .setMediaId(TEST_VALUE)
-                            .setTitle("title")
-                            .build(),
-                    TEST_QUEUE_ID);
-            queue.add(item);
-            mSession.setQueue(queue);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnQueueChangedCalled);
-
-            mSession.setQueueTitle(TEST_VALUE);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnQueueTitleChangedCalled);
-
-            assertEquals(TEST_VALUE, mCallback.mTitle);
-            assertEquals(queue.size(), mCallback.mQueue.size());
-            assertEquals(TEST_QUEUE_ID, mCallback.mQueue.get(0).getQueueId());
-            assertEquals(TEST_VALUE, mCallback.mQueue.get(0).getDescription().getMediaId());
-
-            assertEquals(TEST_VALUE, controller.getQueueTitle());
-            assertEquals(queue.size(), controller.getQueue().size());
-            assertEquals(TEST_QUEUE_ID, controller.getQueue().get(0).getQueueId());
-            assertEquals(TEST_VALUE, controller.getQueue().get(0).getDescription().getMediaId());
-
-            mCallback.resetLocked();
-            mSession.setQueue(null);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnQueueChangedCalled);
-
-            mSession.setQueueTitle(null);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnQueueTitleChangedCalled);
-
-            assertNull(mCallback.mTitle);
-            assertNull(mCallback.mQueue);
-            assertNull(controller.getQueueTitle());
-            assertNull(controller.getQueue());
-        }
-    }
-
-    /**
-     * Tests {@link MediaSessionCompat#setSessionActivity}.
-     */
-    @Test
-    @SmallTest
-    public void testSessionActivity() throws Exception {
-        MediaControllerCompat controller = mSession.getController();
-        synchronized (mWaitLock) {
-            Intent intent = new Intent("cts.MEDIA_SESSION_ACTION");
-            PendingIntent pi = PendingIntent.getActivity(getContext(), 555, intent, 0);
-            mSession.setSessionActivity(pi);
-            assertEquals(pi, controller.getSessionActivity());
-        }
-    }
-
-    /**
-     * Tests {@link MediaSessionCompat#setCaptioningEnabled}.
-     */
-    @Test
-    @SmallTest
-    public void testSetCaptioningEnabled() throws Exception {
-        MediaControllerCompat controller = mSession.getController();
-        controller.registerCallback(mCallback, mHandler);
-        synchronized (mWaitLock) {
-            mCallback.resetLocked();
-            mSession.setCaptioningEnabled(true);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnCaptioningEnabledChangedCalled);
-            assertEquals(true, mCallback.mCaptioningEnabled);
-            assertEquals(true, controller.isCaptioningEnabled());
-
-            mCallback.resetLocked();
-            mSession.setCaptioningEnabled(false);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnCaptioningEnabledChangedCalled);
-            assertEquals(false, mCallback.mCaptioningEnabled);
-            assertEquals(false, controller.isCaptioningEnabled());
-        }
-    }
-
-    /**
-     * Tests {@link MediaSessionCompat#setRepeatMode}.
-     */
-    @Test
-    @SmallTest
-    public void testSetRepeatMode() throws Exception {
-        MediaControllerCompat controller = mSession.getController();
-        controller.registerCallback(mCallback, mHandler);
-        synchronized (mWaitLock) {
-            mCallback.resetLocked();
-            final int repeatMode = PlaybackStateCompat.REPEAT_MODE_ALL;
-            mSession.setRepeatMode(repeatMode);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnRepeatModeChangedCalled);
-            assertEquals(repeatMode, mCallback.mRepeatMode);
-            assertEquals(repeatMode, controller.getRepeatMode());
-        }
-    }
-
-    /**
-     * Tests {@link MediaSessionCompat#setShuffleMode}.
-     */
-    @Test
-    @SmallTest
-    public void testSetShuffleMode() throws Exception {
-        final int shuffleMode = PlaybackStateCompat.SHUFFLE_MODE_ALL;
-        MediaControllerCompat controller = mSession.getController();
-        controller.registerCallback(mCallback, mHandler);
-        synchronized (mWaitLock) {
-            mCallback.resetLocked();
-            mSession.setShuffleMode(shuffleMode);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnShuffleModeChangedCalled);
-            assertEquals(shuffleMode, mCallback.mShuffleMode);
-            assertEquals(shuffleMode, controller.getShuffleMode());
-        }
-    }
-
-    /**
-     * Tests {@link MediaSessionCompat#sendSessionEvent}.
-     */
-    @Test
-    @SmallTest
-    public void testSendSessionEvent() throws Exception {
-        MediaControllerCompat controller = mSession.getController();
-        controller.registerCallback(mCallback, mHandler);
-        synchronized (mWaitLock) {
-            mCallback.resetLocked();
-            mSession.sendSessionEvent(TEST_SESSION_EVENT, TEST_BUNDLE);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnSessionEventCalled);
-            assertEquals(TEST_SESSION_EVENT, mCallback.mEvent);
-            assertEquals(TEST_VALUE, mCallback.mExtras.getString(TEST_KEY));
-        }
-    }
-
-    /**
      * Tests {@link MediaSessionCompat#setActive} and {@link MediaSessionCompat#release}.
      */
     @Test
@@ -522,70 +203,6 @@ public class MediaSessionCompatTest {
         controller.getTransportControls().pause();
         assertFalse(sessionCallback.await(WAIT_TIME_MS));
         assertFalse("Callback shouldn't be called.", sessionCallback.mOnPauseCalled);
-    }
-
-    /**
-     * Tests {@link MediaSessionCompat#setPlaybackToLocal} and
-     * {@link MediaSessionCompat#setPlaybackToRemote}.
-     */
-    @Test
-    @SmallTest
-    public void testPlaybackToLocalAndRemote() throws Exception {
-        MediaControllerCompat controller = mSession.getController();
-        controller.registerCallback(mCallback, mHandler);
-        synchronized (mWaitLock) {
-            // test setPlaybackToRemote, do this before testing setPlaybackToLocal
-            // to ensure it switches correctly.
-            mCallback.resetLocked();
-            try {
-                mSession.setPlaybackToRemote(null);
-                fail("Expected IAE for setPlaybackToRemote(null)");
-            } catch (IllegalArgumentException e) {
-                // expected
-            }
-            VolumeProviderCompat vp = new VolumeProviderCompat(
-                    VolumeProviderCompat.VOLUME_CONTROL_FIXED,
-                    TEST_MAX_VOLUME,
-                    TEST_CURRENT_VOLUME) {};
-            mSession.setPlaybackToRemote(vp);
-
-            MediaControllerCompat.PlaybackInfo info = null;
-            for (int i = 0; i < MAX_AUDIO_INFO_CHANGED_CALLBACK_COUNT; ++i) {
-                mCallback.mOnAudioInfoChangedCalled = false;
-                mWaitLock.wait(TIME_OUT_MS);
-                assertTrue(mCallback.mOnAudioInfoChangedCalled);
-                info = mCallback.mPlaybackInfo;
-                if (info != null && info.getCurrentVolume() == TEST_CURRENT_VOLUME
-                        && info.getMaxVolume() == TEST_MAX_VOLUME
-                        && info.getVolumeControl() == VolumeProviderCompat.VOLUME_CONTROL_FIXED
-                        && info.getPlaybackType()
-                        == MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE) {
-                    break;
-                }
-            }
-            assertNotNull(info);
-            assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE,
-                    info.getPlaybackType());
-            assertEquals(TEST_MAX_VOLUME, info.getMaxVolume());
-            assertEquals(TEST_CURRENT_VOLUME, info.getCurrentVolume());
-            assertEquals(VolumeProviderCompat.VOLUME_CONTROL_FIXED,
-                    info.getVolumeControl());
-
-            info = controller.getPlaybackInfo();
-            assertNotNull(info);
-            assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_REMOTE,
-                    info.getPlaybackType());
-            assertEquals(TEST_MAX_VOLUME, info.getMaxVolume());
-            assertEquals(TEST_CURRENT_VOLUME, info.getCurrentVolume());
-            assertEquals(VolumeProviderCompat.VOLUME_CONTROL_FIXED, info.getVolumeControl());
-
-            // test setPlaybackToLocal
-            mSession.setPlaybackToLocal(AudioManager.STREAM_RING);
-            info = controller.getPlaybackInfo();
-            assertNotNull(info);
-            assertEquals(MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL,
-                    info.getPlaybackType());
-        }
     }
 
     /**
