@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
@@ -29,14 +30,14 @@ android {
 }
 
 dependencies {
-    api project(":room:common")
-    api project(":room:runtime")
-    api project(":arch:runtime")
+    api(project(":room:common"))
+    api(project(":room:runtime"))
+    api(project(":arch:runtime"))
     api libs.support.core_utils, libs.support_exclude_config
     api libs.rx_java
-    testImplementation libs.junit
-    testImplementation libs.mockito_core
-    testImplementation project(":arch:core-testing")
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(project(":arch:core-testing"))
 }
 
 supportLibrary {

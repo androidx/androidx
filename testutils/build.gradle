@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    compile libs.junit
+    api(JUNIT)
 }
 
 android {

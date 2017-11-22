@@ -1,3 +1,4 @@
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
@@ -17,16 +18,16 @@ android {
 }
 
 dependencies {
-    api project(":lifecycle:common")
-    api project(":arch:common")
+    api(project(":lifecycle:common"))
+    api(project(":arch:common"))
     // necessary for IJ to resolve dependencies.
     api libs.support.annotations
 
-    testImplementation libs.junit
-    testImplementation libs.mockito_core
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
 
-    androidTestImplementation libs.junit
-    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
 }
 
 supportLibrary {

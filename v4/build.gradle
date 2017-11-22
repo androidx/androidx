@@ -6,11 +6,11 @@ plugins {
 }
 
 dependencies {
-    api project(':support-compat')
-    api project(':support-media-compat')
-    api project(':support-core-utils')
-    api project(':support-core-ui')
-    api project(':support-fragment')
+    api(project(":support-compat"))
+    api(project(":support-media-compat"))
+    api(project(":support-core-utils"))
+    api(project(":support-core-ui"))
+    api(project(":support-fragment"))
 }
 
 android {

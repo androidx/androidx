@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
@@ -33,23 +34,23 @@ android {
 }
 
 dependencies {
-    api project(":room:common")
-    api project(":persistence:db-framework")
-    api project(":persistence:db")
-    api project(":arch:runtime")
+    api(project(":room:common"))
+    api(project(":persistence:db-framework"))
+    api(project(":persistence:db"))
+    api(project(":arch:runtime"))
     compileOnly project(":paging:common")
     compileOnly project(":lifecycle:runtime")
     compileOnly project(":lifecycle:extensions")
     api libs.support.core_utils, libs.support_exclude_config
 
-    testImplementation project(":arch:core-testing")
-    testImplementation libs.junit
-    testImplementation libs.mockito_core
+    testImplementation(project(":arch:core-testing"))
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
     testImplementation libs.support.annotations
 
-    androidTestImplementation libs.junit
-    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
-    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
 }
 
 // Used by testCompile in room-compiler

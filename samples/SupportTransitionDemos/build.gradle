@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':transition')
-    implementation project(':appcompat-v7')
+    implementation(project(":transition"))
+    implementation(project(":appcompat-v7"))
 }
 
 android {
