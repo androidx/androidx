@@ -17,6 +17,7 @@
 package androidx.app.slice.widget;
 
 import android.animation.Animator;
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Context;
@@ -56,6 +57,7 @@ import androidx.app.slice.view.R;
  */
 // TODO this should be unified with SystemUI RemoteInputView (b/67527720)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@TargetApi(23)
 public class RemoteInputView extends LinearLayout implements View.OnClickListener, TextWatcher {
 
     private static final String TAG = "RemoteInput";

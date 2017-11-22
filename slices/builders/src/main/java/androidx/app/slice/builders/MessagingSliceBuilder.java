@@ -18,11 +18,12 @@ package androidx.app.slice.builders;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.app.slice.Slice;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+
+import androidx.app.slice.Slice;
 
 /**
  * Builder to construct slice content in a messaging format.
@@ -58,7 +59,7 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
 
     @Override
     public void add(SubTemplateSliceBuilder builder) {
-        getBuilder().addSubSlice(builder.build(), Slice.SUBTYPE_MESSAGE);
+        getBuilder().addSubSlice(builder.build(), android.app.slice.Slice.SUBTYPE_MESSAGE);
     }
 
     /**
@@ -78,7 +79,7 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
          * Add the icon used to display contact in the messaging experience
          */
         public MessageBuilder addSource(Icon source) {
-            getBuilder().addIcon(source, Slice.SUBTYPE_SOURCE);
+            getBuilder().addIcon(source, android.app.slice.Slice.SUBTYPE_SOURCE);
             return this;
         }
 

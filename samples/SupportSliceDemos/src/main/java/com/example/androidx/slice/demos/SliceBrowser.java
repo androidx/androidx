@@ -16,7 +16,6 @@
 
 package com.example.androidx.slice.demos;
 
-import android.app.slice.Slice;
 import android.arch.lifecycle.LiveData;
 import android.content.ContentResolver;
 import android.content.pm.ActivityInfo;
@@ -44,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import androidx.app.slice.Slice;
 import androidx.app.slice.widget.SliceLiveData;
 import androidx.app.slice.widget.SliceView;
 
@@ -220,7 +220,12 @@ public class SliceBrowser extends AppCompatActivity {
                 suggestions.add(uriString);
             }
         });
-        suggestions.sort(Comparator.comparingInt(ranking::get));
+        suggestions.sort(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return Integer.compare(ranking.get(o1), ranking.get(o2));
+            }
+        });
         for (int i = 0; i < suggestions.size(); i++) {
             c.addRow(new Object[]{i, suggestions.get(i)});
         }

@@ -40,6 +40,9 @@ LOCAL_JAVA_LIBRARIES := \
     apptoolkit-lifecycle-extensions \
     apptoolkit-arch-core-runtime
 
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-v7-appcompat \
+
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
 include $(BUILD_STATIC_JAVA_LIBRARY)

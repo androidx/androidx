@@ -16,11 +16,11 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.SUBTYPE_SOURCE;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import android.app.slice.Slice;
-import android.app.slice.SliceItem;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -33,12 +33,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.function.Consumer;
+
+import androidx.app.slice.SliceItem;
 import androidx.app.slice.core.SliceQuery;
 
 /**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@TargetApi(24)
 public class MessageView extends LinearLayout implements LargeSliceAdapter.SliceListView {
 
     private TextView mDetails;
@@ -57,7 +61,7 @@ public class MessageView extends LinearLayout implements LargeSliceAdapter.Slice
 
     @Override
     public void setSliceItem(SliceItem slice) {
-        SliceItem source = SliceQuery.findSubtype(slice, FORMAT_IMAGE, Slice.SUBTYPE_SOURCE);
+        SliceItem source = SliceQuery.findSubtype(slice, FORMAT_IMAGE, SUBTYPE_SOURCE);
         if (source != null) {
             final int iconSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     24, getContext().getResources().getDisplayMetrics());
@@ -69,14 +73,22 @@ public class MessageView extends LinearLayout implements LargeSliceAdapter.Slice
             d.draw(iconCanvas);
             mIcon.setImageBitmap(SliceViewUtil.getCircularBitmap(iconBm));
         }
-        SpannableStringBuilder builder = new SpannableStringBuilder();
-        SliceQuery.findAll(slice, FORMAT_TEXT).forEach(text -> {
-            if (builder.length() != 0) {
-                builder.append('\n');
+        final SpannableStringBuilder builder = new SpannableStringBuilder();
+        SliceQuery.findAll(slice, FORMAT_TEXT).forEach(new Consumer<SliceItem>() {
+            @Override
+            public void accept(SliceItem text) {
+                if (builder.length() != 0) {
+                    builder.append('\n');
+                }
+                builder.append(text.getText());
             }
-            builder.append(text.getText());
         });
         mDetails.setText(builder.toString());
+    }
+
+    @Override
+    public void setColor(SliceItem color) {
+
     }
 
 }

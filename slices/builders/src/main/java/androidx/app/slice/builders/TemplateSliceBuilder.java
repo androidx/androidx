@@ -17,9 +17,10 @@
 package androidx.app.slice.builders;
 
 
-import android.app.slice.Slice;
 import android.net.Uri;
 import android.support.annotation.RestrictTo;
+
+import androidx.app.slice.Slice;
 
 /**
  * Base class of builders of various template types.
