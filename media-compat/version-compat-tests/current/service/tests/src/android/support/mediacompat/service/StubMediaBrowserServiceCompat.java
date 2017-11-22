@@ -22,16 +22,20 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.EXTRAS_K
 import static android.support.mediacompat.testlib.MediaBrowserConstants.EXTRAS_VALUE;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_CHILDREN;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_CHILDREN_DELAYED;
+import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_INCLUDE_METADATA;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_INVALID;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_ROOT;
+import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_METADATA;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SEARCH_QUERY;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SEARCH_QUERY_FOR_ERROR;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SEARCH_QUERY_FOR_NO_RESULT;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import junit.framework.Assert;
@@ -79,21 +83,39 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
     }
 
     @Override
-    public void onLoadChildren(final String parentMediaId, final Result<List<MediaItem>> result) {
+    public void onLoadChildren(final String parentId, final Result<List<MediaItem>> result) {
         List<MediaItem> mediaItems = new ArrayList<>();
-        if (MEDIA_ID_ROOT.equals(parentMediaId)) {
+        if (MEDIA_ID_ROOT.equals(parentId)) {
             Bundle rootHints = getBrowserRootHints();
             for (String id : MEDIA_ID_CHILDREN) {
                 mediaItems.add(createMediaItem(id));
             }
             result.sendResult(mediaItems);
-        } else if (MEDIA_ID_CHILDREN_DELAYED.equals(parentMediaId)) {
+        } else if (MEDIA_ID_CHILDREN_DELAYED.equals(parentId)) {
             Assert.assertNull(mPendingLoadChildrenResult);
             mPendingLoadChildrenResult = result;
             mPendingRootHints = getBrowserRootHints();
             result.detach();
-        } else if (MEDIA_ID_INVALID.equals(parentMediaId)) {
+        } else if (MEDIA_ID_INVALID.equals(parentId)) {
             result.sendResult(null);
+        }
+    }
+
+    @Override
+    public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaItem>> result,
+            @NonNull Bundle options) {
+        if (MEDIA_ID_INCLUDE_METADATA.equals(parentId)) {
+            // Test unparcelling the Bundle.
+            MediaMetadataCompat metadata = options.getParcelable(MEDIA_METADATA);
+            if (metadata == null) {
+                super.onLoadChildren(parentId, result, options);
+            } else {
+                List<MediaItem> mediaItems = new ArrayList<>();
+                mediaItems.add(new MediaItem(metadata.getDescription(), MediaItem.FLAG_PLAYABLE));
+                result.sendResult(mediaItems);
+            }
+        } else {
+            super.onLoadChildren(parentId, result, options);
         }
     }
 
