@@ -18,6 +18,7 @@ package android.arch.background.workmanager.model;
 
 import android.arch.background.workmanager.Worker;
 import android.arch.persistence.room.TypeConverter;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import java.io.ByteArrayInputStream;
@@ -34,6 +35,9 @@ import java.util.Map;
 
 public final class Arguments {
     private Map<String, Object> mValues;
+
+    public Arguments() {    // stub required for room
+    }
 
     Arguments(Map<? extends String, ?> values) {
         mValues = new HashMap<>(values);
@@ -177,6 +181,15 @@ public final class Arguments {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Merges the input {@link Arguments} into this object, clobbering existing keys if needed.
+     *
+     * @param input The {@link Arguments} to merge
+     */
+    public void merge(@NonNull Arguments input) {
+        mValues.putAll(input.mValues);
     }
 
     /**

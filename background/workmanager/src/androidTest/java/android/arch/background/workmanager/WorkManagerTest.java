@@ -247,7 +247,6 @@ public class WorkManagerTest {
         assertThat(workSpec1.getArguments().size(), is(0));
 
         String actualValue = workSpec0.getArguments().getString(key, null);
-        assertThat(actualValue, is(notNullValue()));
         assertThat(actualValue, is(expectedValue));
     }
 

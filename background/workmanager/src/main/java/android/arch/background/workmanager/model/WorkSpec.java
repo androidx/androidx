@@ -21,14 +21,12 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.NonNull;
 
 /**
  * Stores information about a logical unit of work.
  */
 @Entity
-@TypeConverters(value = {Arguments.class, ContentUriTriggers.class})
 public class WorkSpec {
     private static final String TAG = "WorkSpec";
 
@@ -56,6 +54,7 @@ public class WorkSpec {
     @Embedded
     Constraints mConstraints = new Constraints.Builder().build();
 
+    @ColumnInfo(name = "arguments")
     Arguments mArguments = new Arguments.Builder().build();
 
     @ColumnInfo(name = "run_attempt_count")

@@ -86,4 +86,59 @@ public class ArgumentsTest {
         assertThat(restoredArgs.getIntArray(KEY1), is(equalTo(expectedValue1)));
         assertThat(restoredArgs.getIntArray(KEY2), is(equalTo(expectedValue2)));
     }
+
+    @Test
+    public void testMerge_basicMerge() {
+        String key1 = "key1";
+        String key2 = "key2";
+        String key3 = "key3";
+        String key4 = "key4";
+
+        Arguments destination = new Arguments.Builder()
+                .putBoolean(key1, false)
+                .putBoolean(key2, true)
+                .build();
+        Arguments source = new Arguments.Builder()
+                .putBoolean(key3, true)
+                .putBoolean(key4, false)
+                .build();
+        destination.merge(source);
+
+        assertThat(destination.size(), is(4));
+        assertThat(destination.getBoolean(key1, true), is(false));
+        assertThat(destination.getBoolean(key2, false), is(true));
+        assertThat(destination.getBoolean(key3, false), is(true));
+        assertThat(destination.getBoolean(key4, true), is(false));
+    }
+
+    @Test
+    public void testMerge_clobbersExistingKeys() {
+        String key = "key";
+        String originalValue = "original_value";
+        String defaultValue = "no_value_found";
+        String clobberedValue = "clobbered_value";
+
+        Arguments destination = new Arguments.Builder().putString(key, originalValue).build();
+        Arguments source = new Arguments.Builder().putString(key, clobberedValue).build();
+        destination.merge(source);
+
+        assertThat(destination.size(), is(1));
+        assertThat(destination.getString(key, defaultValue), is(clobberedValue));
+    }
+
+    @Test
+    public void testMerge_clobbersExistingKeyTypes() {
+        String key = "key";
+        String originalValue = "original_value";
+        String defaultValue = "no_value_found";
+        int clobberedValue = 7;
+
+        Arguments destination = new Arguments.Builder().putString(key, originalValue).build();
+        Arguments source = new Arguments.Builder().putInt(key, clobberedValue).build();
+        destination.merge(source);
+
+        assertThat(destination.size(), is(1));
+        assertThat(destination.getString(key, defaultValue), is(defaultValue));
+        assertThat(destination.getInt(key, 0), is(clobberedValue));
+    }
 }

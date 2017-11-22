@@ -19,6 +19,8 @@ package android.arch.background.workmanager;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.Work.STATUS_RUNNING;
 
+import android.arch.background.workmanager.model.Arguments;
+import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
@@ -29,6 +31,7 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
+import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -40,6 +43,7 @@ import android.support.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Database(entities = {WorkSpec.class, Dependency.class, WorkTag.class}, version = 1)
+@TypeConverters(value = {Arguments.class, ContentUriTriggers.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "android.arch.background.workmanager.work";

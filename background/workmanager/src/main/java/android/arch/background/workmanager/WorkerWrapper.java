@@ -26,6 +26,7 @@ import static android.arch.background.workmanager.Worker.WORKER_RESULT_FAILURE;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_RETRY;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_SUCCESS;
 
+import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
@@ -54,6 +55,7 @@ public class WorkerWrapper implements Runnable {
     private WorkSpec mWorkSpec;
     private WorkSpecDao mWorkSpecDao;
     private DependencyDao mDependencyDao;
+    private Worker mWorker;
 
     private WorkerWrapper(Builder builder) {
         mAppContext = builder.mAppContext;
@@ -111,8 +113,8 @@ public class WorkerWrapper implements Runnable {
             }
         }
 
-        Worker worker = Worker.fromWorkSpec(mAppContext, mWorkSpec);
-        if (worker == null) {
+        mWorker = Worker.fromWorkSpec(mAppContext, mWorkSpec);
+        if (mWorker == null) {
             Log.e(TAG, "Could not create Worker " + mWorkSpec.getWorkerClassName());
             mWorkSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
             notifyListener(false);
@@ -130,7 +132,7 @@ public class WorkerWrapper implements Runnable {
 
         try {
             checkForInterruption();
-            int result = worker.doWork();
+            int result = mWorker.doWork();
             if (mWorkSpecDao.getWorkSpecStatus(mWorkSpecId) != STATUS_CANCELLED) {
                 checkForInterruption();
                 setStatusAndNotify(result);
@@ -216,6 +218,16 @@ public class WorkerWrapper implements Runnable {
                 Log.d(TAG, "Setting status to enqueued for " + unblockedWorkCount + " Works "
                         + "that were dependent on Work ID " + mWorkSpecId);
                 mWorkSpecDao.setStatus(STATUS_ENQUEUED, unblockedWorkIds);
+
+                // Update Arguments as necessary.
+                Arguments outputArgs = mWorker.getArgumentsForChainedWork();
+                if (outputArgs != null) {
+                    for (String id : unblockedWorkIds) {
+                        Arguments arguments = mWorkSpecDao.getArguments(id);
+                        arguments.merge(outputArgs);
+                        mWorkSpecDao.setArguments(id, arguments);
+                    }
+                }
             }
             mWorkDatabase.setTransactionSuccessful();
 

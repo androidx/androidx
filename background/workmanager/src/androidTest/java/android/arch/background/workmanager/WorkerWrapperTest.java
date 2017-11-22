@@ -24,15 +24,18 @@ import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
 import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.utils.taskexecutor.InstantTaskExecutorRule;
+import android.arch.background.workmanager.worker.ChainedArgumentWorker;
 import android.arch.background.workmanager.worker.FailureWorker;
 import android.arch.background.workmanager.worker.RetryWorker;
 import android.arch.background.workmanager.worker.SleepTestWorker;
@@ -230,6 +233,38 @@ public class WorkerWrapperTest {
         ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
         verify(mMockScheduler).schedule(captor.capture());
         assertThat(captor.getValue().getId(), is(work.getId()));
+    }
+
+    @Test
+    @SmallTest
+    public void testDependencies_passesArguments() {
+        Work prerequisiteWork = new Work.Builder(ChainedArgumentWorker.class).build();
+        Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_BLOCKED).build();
+        Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
+
+        mDatabase.beginTransaction();
+        try {
+            mWorkSpecDao.insertWorkSpec(prerequisiteWork.getWorkSpec());
+            mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+            mDependencyDao.insertDependency(dependency);
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            mDatabase.endTransaction();
+        }
+
+        Arguments arguments = mWorkSpecDao.getArguments(work.getId());
+        assertThat(arguments.getString(ChainedArgumentWorker.ARGUMENT_KEY, null),
+                is(nullValue()));
+
+        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
+                .withListener(mMockListener)
+                .withScheduler(mMockScheduler)
+                .build()
+                .run();
+
+        arguments = mWorkSpecDao.getArguments(work.getId());
+        assertThat(arguments.getString(ChainedArgumentWorker.ARGUMENT_KEY, null),
+                is(ChainedArgumentWorker.ARGUMENT_VALUE));
     }
 
     @Test
