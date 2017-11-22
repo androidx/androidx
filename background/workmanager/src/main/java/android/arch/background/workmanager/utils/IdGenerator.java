@@ -30,6 +30,7 @@ public class IdGenerator {
     static final String PREFERENCE_FILE_KEY = "android.arch.background.workmanager.util.id";
     static final String NEXT_JOB_SCHEDULER_ID_KEY = "next_job_scheduler_id";
     static final String NEXT_FIREBASE_ALARM_ID_KEY = "next_firebase_alarm_id";
+    static final String NEXT_ALARM_MANAGER_ID_KEY = "next_alarm_manager_id";
     static final int INITIAL_ID = 0;
 
     private SharedPreferences mSharedPrefs;
@@ -58,6 +59,15 @@ public class IdGenerator {
     public int nextFirebaseAlarmId() {
         synchronized (IdGenerator.class) {
             return nextId(NEXT_FIREBASE_ALARM_ID_KEY);
+        }
+    }
+
+    /**
+     * Generates IDs for {@link android.app.AlarmManager} work.
+     */
+    public int nextAlarmManagerId() {
+        synchronized (IdGenerator.class) {
+            return nextId(NEXT_ALARM_MANAGER_ID_KEY);
         }
     }
 

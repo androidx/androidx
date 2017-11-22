@@ -91,4 +91,15 @@ public class ProcessorTest {
         assertThat(mProcessor.mEnqueuedWorkMap, hasKey(id));
         assertThat(mProcessor.mEnqueuedWorkMap.get(id), is(future));
     }
+
+    @Test
+    @SmallTest
+    public void testHasWork() {
+        Work work = new Work.Builder(InfiniteTestWorker.class).build();
+        mWorkDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
+
+        assertThat(mProcessor.hasWork(), is(false));
+        mProcessor.process(work.getId(), 0L);
+        assertThat(mProcessor.hasWork(), is(true));
+    }
 }
