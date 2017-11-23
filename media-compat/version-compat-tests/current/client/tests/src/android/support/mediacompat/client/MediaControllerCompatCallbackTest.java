@@ -46,6 +46,7 @@ import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_QUE
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_VALUE;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
+import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 import static android.support.mediacompat.testlib.util.IntentUtil.callMediaSessionMethod;
 import static android.support.mediacompat.testlib.util.TestUtil.assertBundleEquals;
 import static android.support.test.InstrumentationRegistry.getArguments;
@@ -107,7 +108,7 @@ public class MediaControllerCompatCallbackTest {
     private static final int MAX_AUDIO_INFO_CHANGED_CALLBACK_COUNT = 10;
 
     private static final ComponentName TEST_BROWSER_SERVICE = new ComponentName(
-            "android.support.mediacompat.service.test",
+            SERVICE_PACKAGE_NAME,
             "android.support.mediacompat.service.StubMediaBrowserServiceCompat");
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -154,6 +155,20 @@ public class MediaControllerCompatCallbackTest {
         if (mMediaBrowser != null && mMediaBrowser.isConnected()) {
             mMediaBrowser.disconnect();
         }
+    }
+
+    @Test
+    @SmallTest
+    public void testGetPackageName() {
+        assertEquals(SERVICE_PACKAGE_NAME, mController.getPackageName());
+    }
+
+    @Test
+    @SmallTest
+    public void testIsSessionReady() throws Exception {
+        // mController already has the extra binder since it was created with the session token
+        // which holds the extra binder.
+        assertTrue(mController.isSessionReady());
     }
 
     /**

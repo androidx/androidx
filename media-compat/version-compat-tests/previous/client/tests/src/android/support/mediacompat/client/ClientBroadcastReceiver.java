@@ -19,6 +19,7 @@ package android.support.mediacompat.client;
 import static android.support.mediacompat.testlib.MediaControllerConstants.ADD_QUEUE_ITEM;
 import static android.support.mediacompat.testlib.MediaControllerConstants
         .ADD_QUEUE_ITEM_WITH_INDEX;
+import static android.support.mediacompat.testlib.MediaControllerConstants.ADJUST_VOLUME;
 import static android.support.mediacompat.testlib.MediaControllerConstants.FAST_FORWARD;
 import static android.support.mediacompat.testlib.MediaControllerConstants.PAUSE;
 import static android.support.mediacompat.testlib.MediaControllerConstants.PLAY;
@@ -40,6 +41,7 @@ import static android.support.mediacompat.testlib.MediaControllerConstants.SET_C
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_RATING;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_REPEAT_MODE;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_SHUFFLE_MODE;
+import static android.support.mediacompat.testlib.MediaControllerConstants.SET_VOLUME_TO;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SKIP_TO_NEXT;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SKIP_TO_PREVIOUS;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SKIP_TO_QUEUE_ITEM;
@@ -104,6 +106,12 @@ public class ClientBroadcastReceiver extends BroadcastReceiver {
                 case REMOVE_QUEUE_ITEM:
                     controller.removeQueueItem(
                             (MediaDescriptionCompat) extras.getParcelable(KEY_ARGUMENT));
+                    break;
+                case SET_VOLUME_TO:
+                    controller.setVolumeTo(extras.getInt(KEY_ARGUMENT), 0);
+                    break;
+                case ADJUST_VOLUME:
+                    controller.adjustVolume(extras.getInt(KEY_ARGUMENT), 0);
                     break;
             }
         } else if (ACTION_CALL_TRANSPORT_CONTROLS_METHOD.equals(intent.getAction())
