@@ -275,7 +275,7 @@ class MetadataListReader {
         @Override
         public void skip(int numOfBytes) throws IOException {
             while (numOfBytes > 0) {
-                long skipped = mInputStream.skip(numOfBytes);
+                int skipped = (int) mInputStream.skip(numOfBytes);
                 if (skipped < 1) {
                     throw new IOException("Skip didn't move at least 1 byte forward");
                 }
