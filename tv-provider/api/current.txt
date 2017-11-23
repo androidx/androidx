@@ -74,12 +74,10 @@ package android.support.media.tv {
   }
 
   public final class PreviewProgram {
-    method public boolean equals(java.lang.Object);
     method public static android.support.media.tv.PreviewProgram fromCursor(android.database.Cursor);
     method public long getChannelId();
     method public int getWeight();
     method public android.content.ContentValues toContentValues();
-    method public java.lang.String toString();
   }
 
   public static final class PreviewProgram.Builder {
@@ -92,16 +90,13 @@ package android.support.media.tv {
 
   public final class Program implements java.lang.Comparable {
     method public int compareTo(android.support.media.tv.Program);
-    method public boolean equals(java.lang.Object);
     method public static android.support.media.tv.Program fromCursor(android.database.Cursor);
     method public java.lang.String[] getBroadcastGenres();
     method public long getChannelId();
     method public long getEndTimeUtcMillis();
     method public long getStartTimeUtcMillis();
-    method public int hashCode();
     method public boolean isRecordingProhibited();
     method public android.content.ContentValues toContentValues();
-    method public java.lang.String toString();
   }
 
   public static class Program.Builder {
@@ -149,7 +144,7 @@ package android.support.media.tv {
     field public static final java.lang.String EXTRA_WATCH_NEXT_PROGRAM_ID = "android.media.tv.extra.WATCH_NEXT_PROGRAM_ID";
   }
 
-  public static abstract interface TvContractCompat.BaseTvColumns {
+  public static abstract interface TvContractCompat.BaseTvColumns implements android.provider.BaseColumns {
     field public static final java.lang.String COLUMN_PACKAGE_NAME = "package_name";
   }
 
@@ -525,12 +520,10 @@ package android.support.media.tv {
   }
 
   public final class WatchNextProgram {
-    method public boolean equals(java.lang.Object);
     method public static android.support.media.tv.WatchNextProgram fromCursor(android.database.Cursor);
     method public long getLastEngagementTimeUtcMillis();
     method public int getWatchNextType();
     method public android.content.ContentValues toContentValues();
-    method public java.lang.String toString();
     field public static final int WATCH_NEXT_TYPE_UNKNOWN = -1; // 0xffffffff
   }
 

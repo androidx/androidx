@@ -190,6 +190,7 @@ package android.support.v7.widget {
     method public boolean getStackFromEnd();
     method protected boolean isLayoutRTL();
     method public boolean isSmoothScrollbarEnabled();
+    method public void prepareForDrop(android.view.View, android.view.View, int, int);
     method public void scrollToPositionWithOffset(int, int);
     method public void setInitialPrefetchItemCount(int);
     method public void setOrientation(int);
@@ -277,7 +278,7 @@ package android.support.v7.widget {
     method public int findTargetSnapPosition(android.support.v7.widget.RecyclerView.LayoutManager, int, int);
   }
 
-  public class RecyclerView extends android.view.ViewGroup {
+  public class RecyclerView extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingChild2 android.support.v4.view.ScrollingView {
     ctor public RecyclerView(android.content.Context);
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet);
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet, int);
@@ -336,7 +337,6 @@ package android.support.v7.widget {
     method public void onChildAttachedToWindow(android.view.View);
     method public void onChildDetachedFromWindow(android.view.View);
     method public void onDraw(android.graphics.Canvas);
-    method protected void onLayout(boolean, int, int, int, int);
     method public void onScrollStateChanged(int);
     method public void onScrolled(int, int);
     method public void removeItemDecoration(android.support.v7.widget.RecyclerView.ItemDecoration);

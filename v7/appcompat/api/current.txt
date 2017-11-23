@@ -211,7 +211,7 @@ package android.support.v7.app {
     method public android.support.v7.app.AlertDialog show();
   }
 
-  public class AppCompatActivity extends android.support.v4.app.FragmentActivity implements android.support.v7.app.ActionBarDrawerToggle.DelegateProvider android.support.v7.app.AppCompatCallback {
+  public class AppCompatActivity extends android.support.v4.app.FragmentActivity implements android.support.v7.app.ActionBarDrawerToggle.DelegateProvider android.support.v7.app.AppCompatCallback android.support.v4.app.TaskStackBuilder.SupportParentable {
     ctor public AppCompatActivity();
     method public android.support.v7.app.AppCompatDelegate getDelegate();
     method public android.support.v7.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
@@ -452,27 +452,41 @@ package android.support.v7.widget {
     method public abstract boolean onMenuItemClick(android.view.MenuItem);
   }
 
-  public class AppCompatAutoCompleteTextView extends android.widget.AutoCompleteTextView {
+  public class AppCompatAutoCompleteTextView extends android.widget.AutoCompleteTextView implements android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatAutoCompleteTextView(android.content.Context);
     ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet, int);
+    method public android.content.res.ColorStateList getSupportBackgroundTintList();
+    method public android.graphics.PorterDuff.Mode getSupportBackgroundTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setSupportBackgroundTintList(android.content.res.ColorStateList);
+    method public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
     method public void setTextAppearance(android.content.Context, int);
   }
 
-  public class AppCompatButton extends android.widget.Button {
+  public class AppCompatButton extends android.widget.Button implements android.support.v4.widget.AutoSizeableTextView android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatButton(android.content.Context);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet, int);
+    method public android.content.res.ColorStateList getSupportBackgroundTintList();
+    method public android.graphics.PorterDuff.Mode getSupportBackgroundTintMode();
+    method public void setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int) throws java.lang.IllegalArgumentException;
+    method public void setAutoSizeTextTypeUniformWithPresetSizes(int[], int) throws java.lang.IllegalArgumentException;
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
     method public void setSupportAllCaps(boolean);
+    method public void setSupportBackgroundTintList(android.content.res.ColorStateList);
+    method public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
     method public void setTextAppearance(android.content.Context, int);
   }
 
-  public class AppCompatCheckBox extends android.widget.CheckBox {
+  public class AppCompatCheckBox extends android.widget.CheckBox implements android.support.v4.widget.TintableCompoundButton {
     ctor public AppCompatCheckBox(android.content.Context);
     ctor public AppCompatCheckBox(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatCheckBox(android.content.Context, android.util.AttributeSet, int);
+    method public android.content.res.ColorStateList getSupportButtonTintList();
+    method public android.graphics.PorterDuff.Mode getSupportButtonTintMode();
+    method public void setSupportButtonTintList(android.content.res.ColorStateList);
+    method public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode);
   }
 
   public class AppCompatCheckedTextView extends android.widget.CheckedTextView {
@@ -482,40 +496,68 @@ package android.support.v7.widget {
     method public void setTextAppearance(android.content.Context, int);
   }
 
-  public class AppCompatEditText extends android.widget.EditText {
+  public class AppCompatEditText extends android.widget.EditText implements android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatEditText(android.content.Context);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet, int);
+    method public android.content.res.ColorStateList getSupportBackgroundTintList();
+    method public android.graphics.PorterDuff.Mode getSupportBackgroundTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setSupportBackgroundTintList(android.content.res.ColorStateList);
+    method public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
     method public void setTextAppearance(android.content.Context, int);
   }
 
-  public class AppCompatImageButton extends android.widget.ImageButton {
+  public class AppCompatImageButton extends android.widget.ImageButton implements android.support.v4.view.TintableBackgroundView android.support.v4.widget.TintableImageSourceView {
     ctor public AppCompatImageButton(android.content.Context);
     ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet, int);
+    method public android.content.res.ColorStateList getSupportBackgroundTintList();
+    method public android.graphics.PorterDuff.Mode getSupportBackgroundTintMode();
+    method public android.content.res.ColorStateList getSupportImageTintList();
+    method public android.graphics.PorterDuff.Mode getSupportImageTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setSupportBackgroundTintList(android.content.res.ColorStateList);
+    method public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
+    method public void setSupportImageTintList(android.content.res.ColorStateList);
+    method public void setSupportImageTintMode(android.graphics.PorterDuff.Mode);
   }
 
-  public class AppCompatImageView extends android.widget.ImageView {
+  public class AppCompatImageView extends android.widget.ImageView implements android.support.v4.view.TintableBackgroundView android.support.v4.widget.TintableImageSourceView {
     ctor public AppCompatImageView(android.content.Context);
     ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet, int);
+    method public android.content.res.ColorStateList getSupportBackgroundTintList();
+    method public android.graphics.PorterDuff.Mode getSupportBackgroundTintMode();
+    method public android.content.res.ColorStateList getSupportImageTintList();
+    method public android.graphics.PorterDuff.Mode getSupportImageTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setSupportBackgroundTintList(android.content.res.ColorStateList);
+    method public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
+    method public void setSupportImageTintList(android.content.res.ColorStateList);
+    method public void setSupportImageTintMode(android.graphics.PorterDuff.Mode);
   }
 
-  public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView {
+  public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView implements android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context);
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet, int);
+    method public android.content.res.ColorStateList getSupportBackgroundTintList();
+    method public android.graphics.PorterDuff.Mode getSupportBackgroundTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setSupportBackgroundTintList(android.content.res.ColorStateList);
+    method public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
     method public void setTextAppearance(android.content.Context, int);
   }
 
-  public class AppCompatRadioButton extends android.widget.RadioButton {
+  public class AppCompatRadioButton extends android.widget.RadioButton implements android.support.v4.widget.TintableCompoundButton {
     ctor public AppCompatRadioButton(android.content.Context);
     ctor public AppCompatRadioButton(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatRadioButton(android.content.Context, android.util.AttributeSet, int);
+    method public android.content.res.ColorStateList getSupportButtonTintList();
+    method public android.graphics.PorterDuff.Mode getSupportButtonTintMode();
+    method public void setSupportButtonTintList(android.content.res.ColorStateList);
+    method public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode);
   }
 
   public class AppCompatRatingBar extends android.widget.RatingBar {
@@ -530,21 +572,31 @@ package android.support.v7.widget {
     ctor public AppCompatSeekBar(android.content.Context, android.util.AttributeSet, int);
   }
 
-  public class AppCompatSpinner extends android.widget.Spinner {
+  public class AppCompatSpinner extends android.widget.Spinner implements android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatSpinner(android.content.Context);
     ctor public AppCompatSpinner(android.content.Context, int);
     ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int);
     ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int, int);
     ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int, int, android.content.res.Resources.Theme);
+    method public android.content.res.ColorStateList getSupportBackgroundTintList();
+    method public android.graphics.PorterDuff.Mode getSupportBackgroundTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setSupportBackgroundTintList(android.content.res.ColorStateList);
+    method public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
   }
 
-  public class AppCompatTextView extends android.widget.TextView {
+  public class AppCompatTextView extends android.widget.TextView implements android.support.v4.widget.AutoSizeableTextView android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatTextView(android.content.Context);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet, int);
+    method public android.content.res.ColorStateList getSupportBackgroundTintList();
+    method public android.graphics.PorterDuff.Mode getSupportBackgroundTintMode();
+    method public void setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int) throws java.lang.IllegalArgumentException;
+    method public void setAutoSizeTextTypeUniformWithPresetSizes(int[], int) throws java.lang.IllegalArgumentException;
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setSupportBackgroundTintList(android.content.res.ColorStateList);
+    method public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
     method public void setTextAppearance(android.content.Context, int);
   }
 
@@ -564,7 +616,6 @@ package android.support.v7.widget {
     method public float getWeightSum();
     method public boolean isBaselineAligned();
     method public boolean isMeasureWithLargestChildEnabled();
-    method protected void onLayout(boolean, int, int, int, int);
     method public void setBaselineAligned(boolean);
     method public void setBaselineAlignedChildIndex(int);
     method public void setDividerDrawable(android.graphics.drawable.Drawable);
@@ -828,7 +879,6 @@ package android.support.v7.widget {
     method public boolean hideOverflowMenu();
     method public void inflateMenu(int);
     method public boolean isOverflowMenuShowing();
-    method protected void onLayout(boolean, int, int, int, int);
     method public void setContentInsetEndWithActions(int);
     method public void setContentInsetStartWithNavigation(int);
     method public void setContentInsetsAbsolute(int, int);
