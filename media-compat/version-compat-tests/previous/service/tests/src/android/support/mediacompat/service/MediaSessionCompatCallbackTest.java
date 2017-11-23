@@ -18,6 +18,7 @@ package android.support.mediacompat.service;
 import static android.support.mediacompat.testlib.MediaControllerConstants.ADD_QUEUE_ITEM;
 import static android.support.mediacompat.testlib.MediaControllerConstants
         .ADD_QUEUE_ITEM_WITH_INDEX;
+import static android.support.mediacompat.testlib.MediaControllerConstants.ADJUST_VOLUME;
 import static android.support.mediacompat.testlib.MediaControllerConstants.FAST_FORWARD;
 import static android.support.mediacompat.testlib.MediaControllerConstants.PAUSE;
 import static android.support.mediacompat.testlib.MediaControllerConstants.PLAY;
@@ -39,6 +40,7 @@ import static android.support.mediacompat.testlib.MediaControllerConstants.SET_C
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_RATING;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_REPEAT_MODE;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_SHUFFLE_MODE;
+import static android.support.mediacompat.testlib.MediaControllerConstants.SET_VOLUME_TO;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SKIP_TO_NEXT;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SKIP_TO_PREVIOUS;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SKIP_TO_QUEUE_ITEM;
@@ -72,17 +74,23 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.media.session.MediaController;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.ResultReceiver;
+import android.os.SystemClock;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
+import android.support.v4.media.VolumeProviderCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -111,6 +119,8 @@ public class MediaSessionCompatCallbackTest {
     private static final long TIME_OUT_MS = 3000L;
     private static final long WAIT_TIME_FOR_NO_RESPONSE_MS = 300L;
 
+    private static final long TEST_POSITION = 1000000L;
+    private static final float TEST_PLAYBACK_SPEED = 3.0f;
     private static final float DELTA = 1e-4f;
     private static final boolean ENABLED = true;
 
@@ -175,6 +185,12 @@ public class MediaSessionCompatCallbackTest {
                 info.getPlaybackType());
         assertEquals(errorMsg, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC),
                 info.getCurrentVolume());
+    }
+
+    @Test
+    @SmallTest
+    public void testGetSessionToken() throws Exception {
+        assertEquals(mSession.getSessionToken(), mSession.getController().getSessionToken());
     }
 
     /**
@@ -253,6 +269,40 @@ public class MediaSessionCompatCallbackTest {
     public void testSetActive() throws Exception {
         mSession.setActive(true);
         assertTrue(mSession.isActive());
+    }
+
+    @Test
+    @SmallTest
+    public void testGetPlaybackStateWithPositionUpdate() throws InterruptedException {
+        final long stateSetTime = SystemClock.elapsedRealtime();
+        PlaybackStateCompat stateIn = new PlaybackStateCompat.Builder()
+                .setState(PlaybackStateCompat.STATE_PLAYING, TEST_POSITION, TEST_PLAYBACK_SPEED,
+                        stateSetTime)
+                .build();
+        mSession.setPlaybackState(stateIn);
+
+        final long waitDuration = 100L;
+        Thread.sleep(waitDuration);
+
+        final long expectedUpdateTime = waitDuration + stateSetTime;
+        final long expectedPosition = (long) (TEST_PLAYBACK_SPEED * waitDuration) + TEST_POSITION;
+
+        final double updateTimeTolerance = 50L;
+        final double positionTolerance = updateTimeTolerance * TEST_PLAYBACK_SPEED;
+
+        PlaybackStateCompat stateOut = mSession.getController().getPlaybackState();
+        assertEquals(expectedUpdateTime, stateOut.getLastPositionUpdateTime(), updateTimeTolerance);
+        assertEquals(expectedPosition, stateOut.getPosition(), positionTolerance);
+
+        // Compare the result with MediaController.getPlaybackState().
+        if (Build.VERSION.SDK_INT >= 21) {
+            MediaController controller = new MediaController(
+                    getContext(), (MediaSession.Token) mSession.getSessionToken().getToken());
+            PlaybackState state = controller.getPlaybackState();
+            assertEquals(state.getLastPositionUpdateTime(), stateOut.getLastPositionUpdateTime(),
+                    updateTimeTolerance);
+            assertEquals(state.getPosition(), stateOut.getPosition(), positionTolerance);
+        }
     }
 
     /**
@@ -666,6 +716,60 @@ public class MediaSessionCompatCallbackTest {
         synchronized (mWaitLock) {
             assertEquals(PlaybackStateCompat.STATE_STOPPED,
                     mSession.getController().getPlaybackState().getState());
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void testVolumeControl() throws Exception {
+        if (android.os.Build.VERSION.SDK_INT < 27) {
+            // This test causes an Exception on System UI in API < 27.
+            return;
+        }
+        VolumeProviderCompat vp =
+                new VolumeProviderCompat(VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 11, 5) {
+                    @Override
+                    public void onSetVolumeTo(int volume) {
+                        synchronized (mWaitLock) {
+                            setCurrentVolume(volume);
+                            mWaitLock.notify();
+                        }
+                    }
+
+                    @Override
+                    public void onAdjustVolume(int direction) {
+                        synchronized (mWaitLock) {
+                            switch (direction) {
+                                case AudioManager.ADJUST_LOWER:
+                                    setCurrentVolume(getCurrentVolume() - 1);
+                                    break;
+                                case AudioManager.ADJUST_RAISE:
+                                    setCurrentVolume(getCurrentVolume() + 1);
+                                    break;
+                            }
+                            mWaitLock.notify();
+                        }
+                    }
+                };
+        mSession.setPlaybackToRemote(vp);
+
+        synchronized (mWaitLock) {
+            // test setVolumeTo
+            callMediaControllerMethod(SET_VOLUME_TO,
+                    7 /* Target volume */, getContext(), mSession.getSessionToken());
+            mWaitLock.wait(TIME_OUT_MS);
+            assertEquals(7, vp.getCurrentVolume());
+
+            // test adjustVolume
+            callMediaControllerMethod(ADJUST_VOLUME,
+                    AudioManager.ADJUST_LOWER, getContext(), mSession.getSessionToken());
+            mWaitLock.wait(TIME_OUT_MS);
+            assertEquals(6, vp.getCurrentVolume());
+
+            callMediaControllerMethod(ADJUST_VOLUME,
+                    AudioManager.ADJUST_RAISE, getContext(), mSession.getSessionToken());
+            mWaitLock.wait(TIME_OUT_MS);
+            assertEquals(7, vp.getCurrentVolume());
         }
     }
 
