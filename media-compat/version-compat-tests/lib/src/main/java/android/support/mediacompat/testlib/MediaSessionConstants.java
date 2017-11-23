@@ -51,6 +51,8 @@ public class MediaSessionConstants {
     public static final long TEST_QUEUE_ID_2 = 20L;
     public static final String TEST_MEDIA_ID_1 = "media_id_1";
     public static final String TEST_MEDIA_ID_2 = "media_id_2";
+    public static final String TEST_MEDIA_TITLE_1 = "media_title_1";
+    public static final String TEST_MEDIA_TITLE_2 = "media_title_2";
     public static final long TEST_ACTION = 55L;
 
     public static final int TEST_ERROR_CODE = 0x3;
