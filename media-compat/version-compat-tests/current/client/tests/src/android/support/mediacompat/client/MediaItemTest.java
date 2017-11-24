@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.support.v4.media;
+package android.support.mediacompat.client;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -22,11 +22,12 @@ import static org.junit.Assert.assertTrue;
 import android.os.Parcel;
 import android.support.test.filters.SmallTest;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaDescriptionCompat;
 
 import org.junit.Test;
 
 /**
- * Test {@link MediaBrowserCompat.MediaItem}.
+ * Test {@link MediaItem}.
  */
 public class MediaItemTest {
     private static final String DESCRIPTION = "test_description";
