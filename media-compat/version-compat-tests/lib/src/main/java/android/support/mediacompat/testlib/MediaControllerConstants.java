@@ -26,6 +26,8 @@ public class MediaControllerConstants {
     public static final int ADD_QUEUE_ITEM = 202;
     public static final int ADD_QUEUE_ITEM_WITH_INDEX = 203;
     public static final int REMOVE_QUEUE_ITEM = 204;
+    public static final int SET_VOLUME_TO = 205;
+    public static final int ADJUST_VOLUME = 206;
 
     // TransportControls methods.
     public static final int PLAY = 301;

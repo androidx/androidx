@@ -30,12 +30,13 @@ import java.util.ArrayList;
  */
 public class IntentUtil {
 
+    public static final String SERVICE_PACKAGE_NAME = "android.support.mediacompat.service.test";
+    public static final String CLIENT_PACKAGE_NAME = "android.support.mediacompat.client.test";
+
     public static final ComponentName SERVICE_RECEIVER_COMPONENT_NAME = new ComponentName(
-            "android.support.mediacompat.service.test",
-            "android.support.mediacompat.service.ServiceBroadcastReceiver");
+            SERVICE_PACKAGE_NAME, "android.support.mediacompat.service.ServiceBroadcastReceiver");
     public static final ComponentName CLIENT_RECEIVER_COMPONENT_NAME = new ComponentName(
-            "android.support.mediacompat.client.test",
-            "android.support.mediacompat.client.ClientBroadcastReceiver");
+            CLIENT_PACKAGE_NAME, "android.support.mediacompat.client.ClientBroadcastReceiver");
 
     public static final String ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD =
             "android.support.mediacompat.service.action.CALL_MEDIA_BROWSER_SERVICE_METHOD";
