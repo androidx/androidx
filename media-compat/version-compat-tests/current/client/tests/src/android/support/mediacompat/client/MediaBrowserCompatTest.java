@@ -50,6 +50,7 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VAL
 import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VALUE_4;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
 import static android.support.mediacompat.testlib.VersionConstants.VERSION_TOT;
+import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 import static android.support.mediacompat.testlib.util.IntentUtil.callMediaBrowserServiceMethod;
 import static android.support.test.InstrumentationRegistry.getArguments;
 import static android.support.test.InstrumentationRegistry.getContext;
@@ -113,11 +114,11 @@ public class MediaBrowserCompatTest {
      */
     private static final long SLEEP_MS = 100L;
     private static final ComponentName TEST_BROWSER_SERVICE = new ComponentName(
-            "android.support.mediacompat.service.test",
+            SERVICE_PACKAGE_NAME,
             "android.support.mediacompat.service.StubMediaBrowserServiceCompat");
     private static final ComponentName TEST_BROWSER_SERVICE_DELAYED_MEDIA_SESSION =
             new ComponentName(
-                    "android.support.mediacompat.service.test",
+                    SERVICE_PACKAGE_NAME,
                     "android.support.mediacompat.service"
                             + ".StubMediaBrowserServiceCompatWithDelayedMediaSession");
     private static final ComponentName TEST_INVALID_BROWSER_SERVICE = new ComponentName(
