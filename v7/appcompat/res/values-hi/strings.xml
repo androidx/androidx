@@ -29,8 +29,8 @@
     <string name="abc_searchview_description_voice" msgid="893419373245838918">"आवाज़ सर्च"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"कोई एप्‍लिकेशन चुनें"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"सभी देखें"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"<xliff:g id="APPLICATION_NAME">%s</xliff:g> के साथ साझा करें"</string>
-    <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"इसके द्वारा साझा करें"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"<xliff:g id="APPLICATION_NAME">%s</xliff:g> के साथ शेयर करें"</string>
+    <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"इसके साथ शेयर करें"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"चालू"</string>
     <string name="abc_capital_off" msgid="121134116657445385">"बंद"</string>
     <string name="search_menu_title" msgid="146198913615257606">"सर्च"</string>
