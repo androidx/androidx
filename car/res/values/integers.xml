@@ -30,4 +30,12 @@ limitations under the License.
 
     <!-- Slide Up Menu -->
     <integer name="car_slide_up_menu_column_number">4</integer>
+
+    <!-- The length limit of body text in a paged list item. String longer than this limit should be
+         truncated. -->
+    <integer name="car_list_item_text_length_limit">120</integer>
+
+    <!-- The length limit of text in a borderless button. String longer than this limit should be
+         truncated. -->
+    <integer name="car_borderless_button_text_length_limit">20</integer>
 </resources>
