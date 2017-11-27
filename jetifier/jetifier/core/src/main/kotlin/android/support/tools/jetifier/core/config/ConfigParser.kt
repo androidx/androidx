@@ -18,6 +18,7 @@ package android.support.tools.jetifier.core.config
 
 import android.support.tools.jetifier.core.utils.Log
 import com.google.gson.GsonBuilder
+import java.io.FileNotFoundException
 import java.io.FileWriter
 import java.nio.file.Files
 import java.nio.file.Path
@@ -51,6 +52,22 @@ object ConfigParser {
 
         val inputStream = javaClass.getResourceAsStream(Config.DEFAULT_CONFIG_RES_PATH)
         return parseFromString(inputStream.reader().readText())
+    }
+
+    fun loadConfigOrFail(configPath: Path?) : Config {
+        if (configPath != null) {
+            val config = loadConfigFileInternal(configPath)
+            if (config != null) {
+                return config
+            }
+            throw FileNotFoundException("Config file was not found at '$configPath'")
+        }
+
+        val config = loadDefaultConfig()
+        if (config != null) {
+            return config
+        }
+        throw AssertionError("The default config could not be found!")
     }
 
     private fun loadConfigFileInternal(configPath: Path) : Config? {

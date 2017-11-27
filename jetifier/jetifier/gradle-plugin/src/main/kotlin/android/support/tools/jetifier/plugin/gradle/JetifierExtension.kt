@@ -17,28 +17,32 @@
 package android.support.tools.jetifier.plugin.gradle
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.file.FileCollection
-
+import java.nio.file.Paths
 
 /**
- * Defines methods that can be used in gradle on the "jetifier" object and triggers [JetifierTask].
+ * Defines methods that can be used in gradle on the "jetifier" object and triggers [JetifyLibsTask]
+ * or [JetifyGlobalTask] based on its usage.
  */
 open class JetifierExtension(val project : Project) {
 
-    companion object {
-        const val TASK_NAME : String = "Jetifier"
-    }
-
     /**
-     * Handles dependency defined via string notation (like group:artifact:version).
+     * Adds dependency defined via string notation to be processed by jetifyLibs task.
+     *
+     *
+     * Example usage in Gradle:
+     * dependencies {
+     *   compile jetifier.process('groupId:artifactId:1.0')
+     * }
      */
     fun process(dependencyNotation: String): FileCollection {
-        return process(project.getDependencies().create(dependencyNotation))
+        return process(project.dependencies.create(dependencyNotation))
     }
 
     /**
-     * Handles dependency.
+     * Adds dependency to be processed by jetifyLibs task.
      */
     fun process(dependency: Dependency): FileCollection {
         val configuration = project.configurations.detachedConfiguration()
@@ -47,15 +51,67 @@ open class JetifierExtension(val project : Project) {
     }
 
     /**
-     * Handles collections of files. Defined e.g. via files() or directly from a configuration.
+     * Adds dependencies defined via file collection to be processed by jetifyLibs task.
+     *
+     * Example usage in Gradle for a single file:
+     * dependencies {
+     *   compile jetifier.process(files('../myFile1.jar'))
+     *   compile jetifier.process(files('../myFile2.jar'))
+     * }
+     *
+     * Example usage in Gradle for a configuration:
+     * configurations.create('depToRefactor')
+     *
+     * dependencies {
+     *    depToRefactor 'test:myDependency:1.0'
+     *    depToRefactor 'test:myDependency2:1.0'
+     * }
+     *
+     * dependencies {
+     *   compile jetifier.process(configurations.depToRefactor)
+     * }
      */
     fun process(files: FileCollection): FileCollection {
-        var task = project.tasks.findByName(TASK_NAME) as JetifierTask?
-        if (task == null) {
-            task = project.tasks.create(TASK_NAME, JetifierTask::class.java)
-        }
-        task!!.addFilesToProcess(files)
-        return task.outputs.files
+        return JetifyLibsTask.resolveTask(project).addFilesToProcess(files)
+    }
+
+    /**
+     * Adds a whole configuration to be processed by jetifyGlobal task. This is the recommended way
+     * if processing a set of dependencies where it is unknown which exactly need to be rewritten.
+     *
+     * This will create a new detached configuration and resolve all the dependencies = obtaining
+     * all the files. Jetifier is then run with all the files and only the files that were rewritten
+     * are added to the given configuration and the original dependencies that didn't have to be
+     * changed are kept.
+     *
+     * Advantage is that all the dependencies that didn't have to be changed are kept intact so
+     * their artifactsIds and groupIds are kept (instead of replacing them with files) which allows
+     * other steps in the build process to use the artifacts information to generate pom files
+     * and other stuff.
+     *
+     * This will NOT resolve the given configuration as the dependencies are resolved in a detached
+     * configuration. If you give it a configuration that was already resolved the process will
+     * end up with exception saying that resolved configuration cannot be changed. This is expected
+     * as Jetifier cannot add new files to an already resolved configuration.
+     *
+     *
+     * Example usage in Gradle:
+     * jetifier.addConfigurationToProcess(configurations.implementation)
+     * afterEvaluate {
+     *   tasks.preBuild.dependsOn tasks.jetifyGlobal
+     * }
+     *
+     *
+     */
+    fun addConfigurationToProcess(config: Configuration) {
+        JetifyGlobalTask.resolveTask(project).addConfigurationToProcess(config)
+    }
+
+    /**
+     * Sets a custom configuration file to be used by Jetifier.
+     */
+    fun setConfigFile(configFilePath: String) {
+        TasksCommon.configFilePath = Paths.get(configFilePath)
     }
 
 }

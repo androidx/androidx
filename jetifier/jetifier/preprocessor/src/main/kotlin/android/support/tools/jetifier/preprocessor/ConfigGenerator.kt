@@ -40,11 +40,11 @@ class ConfigGenerator {
         inputLibraries.forEach {
             if (it.isDirectory) {
                 it.listFiles().forEach { fileInDir ->
-                    val library = Archive.Builder.extract(fileInDir.toPath())
+                    val library = Archive.Builder.extract(fileInDir)
                     mapper.scanLibrary(library)
                 }
             } else {
-                val library = Archive.Builder.extract(it.toPath())
+                val library = Archive.Builder.extract(it)
                 mapper.scanLibrary(library)
             }
         }
