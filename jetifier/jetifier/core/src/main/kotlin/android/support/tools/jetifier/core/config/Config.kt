@@ -39,7 +39,7 @@ data class Config(
 
     companion object {
         /** Path to the default config file located within the jar file. */
-        const val DEFAULT_CONFIG_RES_PATH = "/default.config"
+        const val DEFAULT_CONFIG_RES_PATH = "/default.generated.config"
     }
 
     fun setNewMap(mappings: TypesMap) : Config {
