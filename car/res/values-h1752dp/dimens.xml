@@ -15,7 +15,6 @@ limitations under the License.
 -->
 <resources>
     <!-- Type Sizings -->
-    <dimen name="car_title_size">32sp</dimen>
     <dimen name="car_title2_size">40sp</dimen>
     <dimen name="car_headline1_size">56sp</dimen>
     <dimen name="car_headline2_size">50sp</dimen>
