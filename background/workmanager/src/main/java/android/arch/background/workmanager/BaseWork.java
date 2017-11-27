@@ -73,10 +73,12 @@ public abstract class BaseWork {
 
     private WorkSpec mWorkSpec;
     private Set<String> mTags;
+    private Arguments mArguments;
 
     BaseWork(Builder builder) {
         mWorkSpec = builder.mWorkSpec;
         mTags = builder.mTags;
+        mArguments = builder.mArguments;
         if (builder.mBackoffCriteriaSet && mWorkSpec.getConstraints().requiresDeviceIdle()) {
             throw new IllegalArgumentException("Cannot set backoff criteria on an idle mode job");
         }
@@ -101,6 +103,10 @@ public abstract class BaseWork {
         return mTags;
     }
 
+    Arguments getArguments() {
+        return mArguments;
+    }
+
     /**
      * A builder for {@link BaseWork}.
      *
@@ -111,6 +117,7 @@ public abstract class BaseWork {
         private boolean mBackoffCriteriaSet = false;
         WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
         Set<String> mTags = new HashSet<>();
+        Arguments mArguments = new Arguments.Builder().build();
 
         protected Builder(Class<? extends Worker> workerClass) {
             mWorkSpec.setWorkerClassName(workerClass.getName());
@@ -172,7 +179,7 @@ public abstract class BaseWork {
          * @return The current {@link Builder}.
          */
         public B withArguments(Arguments arguments) {
-            mWorkSpec.setArguments(arguments);
+            mArguments = arguments;
             return getThis();
         }
 

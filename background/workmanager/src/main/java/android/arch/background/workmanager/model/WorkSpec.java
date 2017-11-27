@@ -54,9 +54,6 @@ public class WorkSpec {
     @Embedded
     Constraints mConstraints = new Constraints.Builder().build();
 
-    @ColumnInfo(name = "arguments")
-    Arguments mArguments = new Arguments.Builder().build();
-
     @ColumnInfo(name = "run_attempt_count")
     int mRunAttemptCount;
 
@@ -103,14 +100,6 @@ public class WorkSpec {
 
     public void setConstraints(Constraints constraints) {
         mConstraints = constraints;
-    }
-
-    public Arguments getArguments() {
-        return mArguments;
-    }
-
-    public void setArguments(Arguments arguments) {
-        mArguments = arguments;
     }
 
     public int getBackoffPolicy() {
@@ -230,10 +219,7 @@ public class WorkSpec {
                         : other.mWorkerClassName == null)
                 && (mConstraints != null
                         ? mConstraints.equals(other.mConstraints)
-                        : other.mConstraints == null)
-                && (mArguments != null
-                        ? mArguments.equals(other.mArguments)
-                        : other.mArguments == null);
+                        : other.mConstraints == null);
     }
 
     @Override
@@ -245,7 +231,6 @@ public class WorkSpec {
         result = 31 * result + (int) (mIntervalDuration ^ (mIntervalDuration >>> 32));
         result = 31 * result + (int) (mFlexDuration ^ (mFlexDuration >>> 32));
         result = 31 * result + (mConstraints != null ? mConstraints.hashCode() : 0);
-        result = 31 * result + (mArguments != null ? mArguments.hashCode() : 0);
         result = 31 * result + mRunAttemptCount;
         result = 31 * result + mBackoffPolicy;
         result = 31 * result + (int) (mBackoffDelayDuration ^ (mBackoffDelayDuration >>> 32));

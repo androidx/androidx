@@ -36,18 +36,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 @RunWith(AndroidJUnit4.class)
-public class ProcessorTest {
+public class ProcessorTest extends DatabaseTest {
     private static final long ASYNC_WAIT_DURATION = 2000L;
-    private WorkDatabase mWorkDatabase;
     private Processor mProcessor;
 
     @Before
     public void setUp() {
         Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
-        mWorkDatabase = WorkDatabase.create(appContext, true);
         mProcessor = new Processor(
                 appContext,
-                mWorkDatabase,
+                mDatabase,
                 mock(Scheduler.class),
                 Executors.newSingleThreadScheduledExecutor()) {
         };
@@ -55,7 +53,6 @@ public class ProcessorTest {
 
     @After
     public void tearDown() {
-        mWorkDatabase.close();
         mProcessor = null;
     }
 
@@ -63,10 +60,10 @@ public class ProcessorTest {
     @SmallTest
     public void testProcess_noWorkInitialDelay() throws InterruptedException {
         Work work = new Work.Builder(InfiniteTestWorker.class).build();
-        mWorkDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
         mProcessor.process(work.getId(), work.getWorkSpec().calculateDelay());
         Thread.sleep(ASYNC_WAIT_DURATION);
-        assertThat(mWorkDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
+        assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
                 is(Work.STATUS_RUNNING));
     }
 
@@ -83,7 +80,7 @@ public class ProcessorTest {
     public void testProcess_doesNotProcessTwice() {
         Work work = new Work.Builder(InfiniteTestWorker.class).build();
         String id = work.getId();
-        mWorkDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
         mProcessor.process(id, 0);
         assertThat(mProcessor.mEnqueuedWorkMap, hasKey(id));
         Future future = mProcessor.mEnqueuedWorkMap.get(id);
@@ -96,7 +93,7 @@ public class ProcessorTest {
     @SmallTest
     public void testHasWork() {
         Work work = new Work.Builder(InfiniteTestWorker.class).build();
-        mWorkDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
 
         assertThat(mProcessor.hasWork(), is(false));
         mProcessor.process(work.getId(), 0L);

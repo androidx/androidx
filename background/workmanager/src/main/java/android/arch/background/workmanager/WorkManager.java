@@ -21,6 +21,7 @@ import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
+import android.arch.background.workmanager.model.WorkInput;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.model.WorkTag;
@@ -203,6 +204,9 @@ public final class WorkManager {
                     for (String tag : tags) {
                         mWorkDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
                     }
+
+                    mWorkDatabase.workInputDao().insert(
+                            new WorkInput(work.getId(), work.getArguments()));
                 }
                 mWorkDatabase.setTransactionSuccessful();
 

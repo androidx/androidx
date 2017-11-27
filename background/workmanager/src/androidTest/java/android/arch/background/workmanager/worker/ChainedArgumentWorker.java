@@ -30,9 +30,11 @@ public class ChainedArgumentWorker extends Worker {
 
     @Override
     public int doWork() {
-        Arguments arguments =
-                new Arguments.Builder().putString(ARGUMENT_KEY, ARGUMENT_VALUE).build();
-        setOutput(arguments);
+        setOutput(getChainedArguments());
         return WORKER_RESULT_SUCCESS;
+    }
+
+    public static Arguments getChainedArguments() {
+        return new Arguments.Builder().putString(ARGUMENT_KEY, ARGUMENT_VALUE).build();
     }
 }

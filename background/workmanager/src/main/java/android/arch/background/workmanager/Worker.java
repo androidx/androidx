@@ -22,6 +22,7 @@ import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
@@ -111,10 +112,9 @@ public abstract class Worker {
     }
 
     @SuppressWarnings("ClassNewInstance")
-    static Worker fromWorkSpec(Context context, WorkSpec workSpec) {
+    static Worker fromWorkSpec(Context context, WorkSpec workSpec, @NonNull Arguments arguments) {
         Context appContext = context.getApplicationContext();
         String workerClassName = workSpec.getWorkerClassName();
-        Arguments arguments = workSpec.getArguments();
         try {
             Class<?> clazz = Class.forName(workerClassName);
             if (Worker.class.isAssignableFrom(clazz)) {

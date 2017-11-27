@@ -18,12 +18,11 @@ package android.arch.background.workmanager.background;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import android.arch.background.workmanager.DatabaseTest;
 import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.Work;
-import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.executors.SynchronousExecutorService;
-import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.utils.taskexecutor.InstantTaskExecutorRule;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.content.Context;
@@ -31,15 +30,13 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class BackgroundProcessorTest {
-    private WorkDatabase mWorkDatabase;
+public class BackgroundProcessorTest extends DatabaseTest {
     private ExecutionListener mMockListener;
     private BackgroundProcessor mProcessor;
 
@@ -49,28 +46,22 @@ public class BackgroundProcessorTest {
     @Before
     public void setUp() {
         Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
-        mWorkDatabase = WorkDatabase.create(appContext, true);
         mMockListener = mock(ExecutionListener.class);
         mProcessor = new BackgroundProcessor(
                 appContext,
-                mWorkDatabase,
+                mDatabase,
                 mock(Scheduler.class),
                 mMockListener,
                 new SynchronousExecutorService());
     }
 
-    @After
-    public void tearDown() {
-        mWorkDatabase.close();
-    }
-
     @Test
     @SmallTest
     public void testOnExecuted() throws InterruptedException {
-        WorkSpec workSpec = new Work.Builder(TestWorker.class).build().getWorkSpec();
-        String workSpecId = workSpec.getId();
+        Work work = new Work.Builder(TestWorker.class).build();
+        String workSpecId = work.getId();
 
-        mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
+        insertBaseWork(work);
         mProcessor.process(workSpecId, 0L);
 
         verify(mMockListener).onExecuted(workSpecId, false);

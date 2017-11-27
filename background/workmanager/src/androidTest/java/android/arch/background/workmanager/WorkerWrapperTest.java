@@ -24,14 +24,15 @@ import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
 import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
+import android.arch.background.workmanager.model.WorkInputDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.utils.taskexecutor.InstantTaskExecutorRule;
@@ -46,20 +47,20 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
-public class WorkerWrapperTest {
-    private WorkDatabase mDatabase;
+public class WorkerWrapperTest extends DatabaseTest {
     private WorkSpecDao mWorkSpecDao;
     private DependencyDao mDependencyDao;
+    private WorkInputDao mWorkInputDao;
     private Context mContext;
     private ExecutionListener mMockListener;
     private Scheduler mMockScheduler;
@@ -70,23 +71,18 @@ public class WorkerWrapperTest {
     @Before
     public void setUp() {
         mContext = InstrumentationRegistry.getTargetContext();
-        mDatabase = WorkDatabase.create(mContext, true);
         mWorkSpecDao = mDatabase.workSpecDao();
         mDependencyDao = mDatabase.dependencyDao();
+        mWorkInputDao = mDatabase.workInputDao();
         mMockListener = mock(ExecutionListener.class);
         mMockScheduler = mock(Scheduler.class);
-    }
-
-    @After
-    public void tearDown() {
-        mDatabase.close();
     }
 
     @Test
     @SmallTest
     public void testSuccess() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
                 .build()
@@ -99,7 +95,7 @@ public class WorkerWrapperTest {
     @SmallTest
     public void testRunAttemptCountIncremented_successfulExecution() {
         Work work = new Work.Builder(TestWorker.class).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
                 .build()
@@ -112,7 +108,7 @@ public class WorkerWrapperTest {
     @SmallTest
     public void testRunAttemptCountIncremented_failedExecution() {
         Work work = new Work.Builder(FailureWorker.class).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
                 .build()
@@ -136,7 +132,7 @@ public class WorkerWrapperTest {
     @SmallTest
     public void testNotEnqueued() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_RUNNING).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
                 .build()
@@ -148,7 +144,7 @@ public class WorkerWrapperTest {
     @SmallTest
     public void testCancelled() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_CANCELLED).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
                 .build()
@@ -162,7 +158,7 @@ public class WorkerWrapperTest {
     public void testPermanentErrorWithInvalidWorkerClass() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
         work.getWorkSpec().setWorkerClassName("INVALID_CLASS_NAME");
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
                 .build()
@@ -175,7 +171,7 @@ public class WorkerWrapperTest {
     @SmallTest
     public void testFailed() throws InterruptedException {
         Work work = new Work.Builder(FailureWorker.class).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
                 .build()
@@ -188,7 +184,7 @@ public class WorkerWrapperTest {
     @LargeTest
     public void testRunning() throws InterruptedException {
         Work work = new Work.Builder(SleepTestWorker.class).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
         WorkerWrapper wrapper = new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
                 .build();
@@ -208,8 +204,8 @@ public class WorkerWrapperTest {
 
         mDatabase.beginTransaction();
         try {
-            mWorkSpecDao.insertWorkSpec(prerequisiteWork.getWorkSpec());
-            mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+            insertBaseWork(prerequisiteWork);
+            insertBaseWork(work);
             mDependencyDao.insertDependency(dependency);
             mDatabase.setTransactionSuccessful();
         } finally {
@@ -244,17 +240,17 @@ public class WorkerWrapperTest {
 
         mDatabase.beginTransaction();
         try {
-            mWorkSpecDao.insertWorkSpec(prerequisiteWork.getWorkSpec());
-            mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+            insertBaseWork(prerequisiteWork);
+            insertBaseWork(work);
             mDependencyDao.insertDependency(dependency);
             mDatabase.setTransactionSuccessful();
         } finally {
             mDatabase.endTransaction();
         }
 
-        Arguments arguments = mWorkSpecDao.getArguments(work.getId());
-        assertThat(arguments.getString(ChainedArgumentWorker.ARGUMENT_KEY, null),
-                is(nullValue()));
+        List<Arguments> arguments = mWorkInputDao.getArguments(work.getId());
+        assertThat(arguments.size(), is(1));
+        assertThat(arguments.get(0).size(), is(0));
 
         new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
                 .withListener(mMockListener)
@@ -262,9 +258,10 @@ public class WorkerWrapperTest {
                 .build()
                 .run();
 
-        arguments = mWorkSpecDao.getArguments(work.getId());
-        assertThat(arguments.getString(ChainedArgumentWorker.ARGUMENT_KEY, null),
-                is(ChainedArgumentWorker.ARGUMENT_VALUE));
+        arguments = mWorkInputDao.getArguments(work.getId());
+        assertThat(arguments.size(), is(2));
+        assertThat(arguments, containsInAnyOrder(
+                ChainedArgumentWorker.getChainedArguments(), new Arguments.Builder().build()));
     }
 
     @Test
@@ -276,7 +273,7 @@ public class WorkerWrapperTest {
                 .build();
 
         final String periodicWorkId = periodicWork.getId();
-        mWorkSpecDao.insertWorkSpec(periodicWork.getWorkSpec());
+        insertBaseWork(periodicWork);
         new WorkerWrapper.Builder(mContext, mDatabase, periodicWorkId)
                 .withListener(mMockListener)
                 .build()
@@ -297,7 +294,7 @@ public class WorkerWrapperTest {
                 .build();
 
         final String periodicWorkId = periodicWork.getId();
-        mWorkSpecDao.insertWorkSpec(periodicWork.getWorkSpec());
+        insertBaseWork(periodicWork);
         new WorkerWrapper.Builder(mContext, mDatabase, periodicWorkId)
                 .withListener(mMockListener)
                 .build()
@@ -318,7 +315,7 @@ public class WorkerWrapperTest {
                 .build();
 
         final String periodicWorkId = periodicWork.getId();
-        mWorkSpecDao.insertWorkSpec(periodicWork.getWorkSpec());
+        insertBaseWork(periodicWork);
         new WorkerWrapper.Builder(mContext, mDatabase, periodicWorkId)
                 .withListener(mMockListener)
                 .build()
@@ -334,7 +331,7 @@ public class WorkerWrapperTest {
     @SmallTest
     public void testScheduler() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        insertBaseWork(work);
         Scheduler mockScheduler = mock(Scheduler.class);
 
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())

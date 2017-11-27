@@ -237,16 +237,16 @@ public class WorkManagerTest {
         Work work1 = new Work.Builder(TestWorker.class).build();
         mWorkManager.enqueue(work0).then(work1);
 
-        WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
-        WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
+        List<Arguments> arguments0 = mDatabase.workInputDao().getArguments(work0.getId());
+        List<Arguments> arguments1 = mDatabase.workInputDao().getArguments(work1.getId());
 
-        assertThat(workSpec0.getArguments(), is(notNullValue()));
-        assertThat(workSpec1.getArguments(), is(notNullValue()));
+        assertThat(arguments0.size(), is(1));
+        assertThat(arguments1.size(), is(1));
 
-        assertThat(workSpec0.getArguments().size(), is(1));
-        assertThat(workSpec1.getArguments().size(), is(0));
+        assertThat(arguments0.get(0).size(), is(1));
+        assertThat(arguments1.get(0).size(), is(0));
 
-        String actualValue = workSpec0.getArguments().getString(key, null);
+        String actualValue = arguments0.get(0).getString(key, null);
         assertThat(actualValue, is(expectedValue));
     }
 

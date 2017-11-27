@@ -28,6 +28,8 @@ import static android.arch.background.workmanager.Worker.WORKER_RESULT_SUCCESS;
 
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.DependencyDao;
+import android.arch.background.workmanager.model.WorkInput;
+import android.arch.background.workmanager.model.WorkInputDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.utils.taskexecutor.WorkManagerTaskExecutor;
@@ -36,6 +38,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
+
+import java.util.List;
 
 /**
  * A runnable that looks up the {@link WorkSpec} from the database for a given id, instantiates
@@ -48,23 +52,27 @@ public class WorkerWrapper implements Runnable {
 
     private static final String TAG = "WorkerWrapper";
     private Context mAppContext;
-    private WorkDatabase mWorkDatabase;
     private String mWorkSpecId;
     private ExecutionListener mListener;
     private Scheduler mScheduler;
     private WorkSpec mWorkSpec;
+    private Worker mWorker;
+
+    private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
     private DependencyDao mDependencyDao;
-    private Worker mWorker;
+    private WorkInputDao mWorkInputDao;
 
     private WorkerWrapper(Builder builder) {
         mAppContext = builder.mAppContext;
-        mWorkDatabase = builder.mWorkDatabase;
         mWorkSpecId = builder.mWorkSpecId;
         mListener = builder.mListener;
         mScheduler = builder.mScheduler;
+
+        mWorkDatabase = builder.mWorkDatabase;
         mWorkSpecDao = mWorkDatabase.workSpecDao();
         mDependencyDao = mWorkDatabase.dependencyDao();
+        mWorkInputDao = mWorkDatabase.workInputDao();
     }
 
     @WorkerThread
@@ -113,7 +121,12 @@ public class WorkerWrapper implements Runnable {
             }
         }
 
-        mWorker = Worker.fromWorkSpec(mAppContext, mWorkSpec);
+        List<Arguments> argumentsList = mWorkInputDao.getArguments(mWorkSpecId);
+        // TODO(sumir): This isn't the final implementation.  Clean this up in the next CL.
+        for (int i = 1; i < argumentsList.size(); ++i) {
+            argumentsList.get(0).merge(argumentsList.get(i));
+        }
+        mWorker = Worker.fromWorkSpec(mAppContext, mWorkSpec, argumentsList.get(0));
         if (mWorker == null) {
             Log.e(TAG, "Could not create Worker " + mWorkSpec.getWorkerClassName());
             mWorkSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
@@ -223,9 +236,7 @@ public class WorkerWrapper implements Runnable {
                 Arguments outputArgs = mWorker.getOutput();
                 if (outputArgs != null) {
                     for (String id : unblockedWorkIds) {
-                        Arguments arguments = mWorkSpecDao.getArguments(id);
-                        arguments.merge(outputArgs);
-                        mWorkSpecDao.setArguments(id, arguments);
+                        mWorkInputDao.insert(new WorkInput(id, outputArgs));
                     }
                 }
             }

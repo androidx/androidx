@@ -110,24 +110,6 @@ public interface WorkSpecDao {
     LiveData<Integer> getWorkSpecLiveDataStatus(String id);
 
     /**
-     * Retrieves {@link Arguments} for a given {@link WorkSpec} id.
-     *
-     * @param id The identifier for the {@link WorkSpec}
-     * @return The {@link Arguments} associated with the {@link WorkSpec}
-     */
-    @Query("SELECT arguments FROM workspec WHERE id=:id")
-    Arguments getArguments(String id);
-
-    /**
-     * Sets the {@link Arguments} for a given {@link WorkSpec} id.
-     *
-     * @param id THe identifier for the {@link WorkSpec}
-     * @param arguments The {@link Arguments} to set for the {@link WorkSpec}
-     */
-    @Query("UPDATE workspec SET arguments=:arguments WHERE id=:id")
-    void setArguments(String id, Arguments arguments);
-
-    /**
      * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED}, have no constraints,
      * and are not periodic.
      *
