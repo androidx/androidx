@@ -136,8 +136,10 @@ public class SliceProviderCompat extends ContentProvider {
             b.putParcelable(EXTRA_SLICE, s.toBundle());
             return b;
         } else if (method.equals(METHOD_MAP_INTENT)) {
-            getContext().enforceCallingPermission(permission.BIND_SLICE,
-                    "Slice binding requires the permission BIND_SLICE");
+            if (Binder.getCallingUid() != Process.myUid()) {
+                getContext().enforceCallingPermission(permission.BIND_SLICE,
+                        "Slice binding requires the permission BIND_SLICE");
+            }
             Intent intent = extras.getParcelable(EXTRA_INTENT);
             Uri uri = mSliceProvider.onMapIntentToUri(intent);
             Bundle b = new Bundle();

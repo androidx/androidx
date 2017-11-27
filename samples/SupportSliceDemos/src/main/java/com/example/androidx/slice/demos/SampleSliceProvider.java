@@ -26,6 +26,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 
 import androidx.app.slice.Slice;
@@ -48,6 +49,12 @@ public class SampleSliceProvider extends SliceProvider {
     @Override
     public boolean onCreateSliceProvider() {
         return true;
+    }
+
+    @NonNull
+    @Override
+    public Uri onMapIntentToUri(Intent intent) {
+        return WIFI;
     }
 
     @Override

@@ -18,6 +18,7 @@ package com.example.androidx.slice.demos;
 
 import android.arch.lifecycle.LiveData;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -57,6 +58,7 @@ public class SliceBrowser extends AppCompatActivity {
     private static final String TAG = "SlicePresenter";
 
     private static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
+    private static final boolean TEST_INTENT = true;
 
     private ArrayList<Uri> mSliceUris = new ArrayList<Uri>();
     private int mSelectedMode;
@@ -121,6 +123,9 @@ public class SliceBrowser extends AppCompatActivity {
 
         // TODO: Listen for changes.
         updateAvailableSlices();
+        if (TEST_INTENT) {
+            addSlice(new Intent("androidx.intent.SLICE_ACTION").setPackage(getPackageName()));
+        }
     }
 
     @Override
@@ -183,6 +188,19 @@ public class SliceBrowser extends AppCompatActivity {
         }
         mSliceUris.add(SampleSliceProvider.MESSAGE);
         populateAdapter(String.valueOf(mSearchView.getQuery()));
+    }
+
+    private void addSlice(Intent intent) {
+        SliceView v = new SliceView(getApplicationContext());
+        v.setTag(intent);
+        if (mSliceLiveData != null) {
+            mSliceLiveData.removeObservers(this);
+        }
+        mContainer.removeAllViews();
+        mContainer.addView(v);
+        mSliceLiveData = SliceLiveData.fromIntent(this, intent);
+        v.setMode(mSelectedMode);
+        mSliceLiveData.observe(this, v);
     }
 
     private void addSlice(Uri uri) {
