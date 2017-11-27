@@ -189,6 +189,8 @@
         <attr name="dialogPreferredPadding" format="dimension" />
         <!-- The list divider used in alert dialogs. -->
         <attr name="listDividerAlertDialog" format="reference" />
+        <!-- Preferred corner radius of dialogs. -->
+        <attr name="dialogCornerRadius" format="dimension" />
 
         <!-- =================== -->
         <!-- Other widget styles -->

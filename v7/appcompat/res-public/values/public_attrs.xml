@@ -102,6 +102,7 @@
      <public type="attr" name="customNavigationLayout"/>
      <public type="attr" name="dialogPreferredPadding"/>
      <public type="attr" name="dialogTheme"/>
+     <public type="attr" name="dialogCornerRadius"/>
      <public type="attr" name="displayOptions"/>
      <public type="attr" name="divider"/>
      <public type="attr" name="dividerHorizontal"/>
