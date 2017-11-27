@@ -103,6 +103,13 @@ public abstract class Processor implements ExecutionListener {
         return false;
     }
 
+    /**
+     * @return {@code true} if the processor has work to process.
+     */
+    public boolean hasWork() {
+        return !mEnqueuedWorkMap.isEmpty();
+    }
+
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         mEnqueuedWorkMap.remove(workSpecId);

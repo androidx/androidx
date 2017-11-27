@@ -36,6 +36,8 @@ import android.util.Log;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemAlarmService extends Service implements ExecutionListener {
+    public static final String EXTRA_WORK_ID = "EXTRA_WORK_ID";
+
     private static final String TAG = "SystemAlarmService";
 
     private BackgroundProcessor mProcessor;
@@ -51,17 +53,23 @@ public class SystemAlarmService extends Service implements ExecutionListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // TODO(janclarin): Keep track of work to be done.
-        // TODO(janclarin): Run work with processor.
-        // TODO(janclarin): Determine appropriate stickiness.
-        return START_STICKY;
+        // TODO(janclarin): Keep wakelock.
+        String workSpecId = intent.getStringExtra(EXTRA_WORK_ID);
+        mProcessor.process(workSpecId, 0L);
+        return START_NOT_STICKY;
     }
 
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         Log.d(TAG, workSpecId + " executed on AlarmManager");
-        // TODO(janclarin): Handle rescheduling or stopping service when there is no more work.
+        // TODO(janclarin): Handle rescheduling if needed or if periodic.
         // TODO(xbhatnag): Query WorkSpecs and disable proxies as needed.
+
+        if (!mProcessor.hasWork()) {
+            // TODO(janclarin): Release wakelock.
+            Log.d(TAG, "Stopping self");
+            stopSelf();
+        }
     }
 
     @Nullable
@@ -73,5 +81,6 @@ public class SystemAlarmService extends Service implements ExecutionListener {
     @Override
     public void onDestroy() {
         Log.d(TAG, "Destroyed");
+        super.onDestroy();
     }
 }
