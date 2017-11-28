@@ -34,7 +34,10 @@ import java.util.Map;
  */
 
 public final class Arguments {
+
     private Map<String, Object> mValues;
+
+    public static final Arguments EMPTY = new Arguments.Builder().build();
 
     public Arguments() {    // stub required for room
     }

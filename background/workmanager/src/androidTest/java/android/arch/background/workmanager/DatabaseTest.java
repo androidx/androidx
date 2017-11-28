@@ -16,7 +16,6 @@
 
 package android.arch.background.workmanager;
 
-import android.arch.background.workmanager.model.WorkInput;
 import android.support.test.InstrumentationRegistry;
 
 import org.junit.After;
@@ -42,8 +41,7 @@ public abstract class DatabaseTest {
         mDatabase.beginTransaction();
         try {
             mDatabase.workSpecDao().insertWorkSpec(baseWork.getWorkSpec());
-            mDatabase.workInputDao().insert(
-                    new WorkInput(baseWork.getId(), baseWork.getArguments()));
+            mDatabase.workInputDao().insert(baseWork.getWorkInput());
             mDatabase.setTransactionSuccessful();
         } finally {
             mDatabase.endTransaction();

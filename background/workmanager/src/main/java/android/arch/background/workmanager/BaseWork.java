@@ -19,7 +19,9 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Constraints;
+import android.arch.background.workmanager.model.WorkInput;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.model.WorkTag;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -27,7 +29,9 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -72,13 +76,17 @@ public abstract class BaseWork {
     private static final String TAG = "BaseWork";
 
     private WorkSpec mWorkSpec;
-    private Set<String> mTags;
-    private Arguments mArguments;
+    private List<WorkTag> mWorkTags;
+    private WorkInput mWorkInput;
 
+    @SuppressWarnings("unchecked")
     BaseWork(Builder builder) {
         mWorkSpec = builder.mWorkSpec;
-        mTags = builder.mTags;
-        mArguments = builder.mArguments;
+        mWorkTags = new ArrayList<>(builder.mTags.size());
+        for (String tag : (Set<String>) builder.mTags) {
+            mWorkTags.add(new WorkTag(tag, mWorkSpec.getId()));
+        }
+        mWorkInput = new WorkInput(mWorkSpec.getId(), builder.mArguments);
         if (builder.mBackoffCriteriaSet && mWorkSpec.getConstraints().requiresDeviceIdle()) {
             throw new IllegalArgumentException("Cannot set backoff criteria on an idle mode job");
         }
@@ -99,12 +107,12 @@ public abstract class BaseWork {
         return mWorkSpec;
     }
 
-    Set<String> getTags() {
-        return mTags;
+    List<WorkTag> getWorkTags() {
+        return mWorkTags;
     }
 
-    Arguments getArguments() {
-        return mArguments;
+    WorkInput getWorkInput() {
+        return mWorkInput;
     }
 
     /**
@@ -117,7 +125,7 @@ public abstract class BaseWork {
         private boolean mBackoffCriteriaSet = false;
         WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
         Set<String> mTags = new HashSet<>();
-        Arguments mArguments = new Arguments.Builder().build();
+        Arguments mArguments = Arguments.EMPTY;
 
         protected Builder(Class<? extends Worker> workerClass) {
             mWorkSpec.setWorkerClassName(workerClass.getName());

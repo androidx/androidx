@@ -46,7 +46,7 @@ public class ArgumentsTest {
 
     @Test
     public void testSerializeEmpty() throws IOException, ClassNotFoundException {
-        Arguments args = new Arguments.Builder().build();
+        Arguments args = Arguments.EMPTY;
 
         byte[] byteArray = Arguments.toByteArray(args);
         Arguments restoredArgs = Arguments.fromByteArray(byteArray);

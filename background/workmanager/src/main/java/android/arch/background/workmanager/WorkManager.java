@@ -21,7 +21,6 @@ import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
-import android.arch.background.workmanager.model.WorkInput;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.model.WorkTag;
@@ -37,7 +36,6 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * WorkManager is a class used to enqueue persisted work that is guaranteed to run after its
@@ -200,13 +198,11 @@ public final class WorkManager {
                         }
                     }
 
-                    Set<String> tags = work.getTags();
-                    for (String tag : tags) {
-                        mWorkDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
+                    for (WorkTag workTag : work.getWorkTags()) {
+                        mWorkDatabase.workTagDao().insert(workTag);
                     }
 
-                    mWorkDatabase.workInputDao().insert(
-                            new WorkInput(work.getId(), work.getArguments()));
+                    mWorkDatabase.workInputDao().insert(work.getWorkInput());
                 }
                 mWorkDatabase.setTransactionSuccessful();
 

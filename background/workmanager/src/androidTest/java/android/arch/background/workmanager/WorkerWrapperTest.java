@@ -261,7 +261,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         arguments = mWorkInputDao.getArguments(work.getId());
         assertThat(arguments.size(), is(2));
         assertThat(arguments, containsInAnyOrder(
-                ChainedArgumentWorker.getChainedArguments(), new Arguments.Builder().build()));
+                ChainedArgumentWorker.getChainedArguments(), Arguments.EMPTY));
     }
 
     @Test

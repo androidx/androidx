@@ -45,8 +45,7 @@ public class WorkerTests {
     @Test
     public void context() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
-        Worker worker = Worker.fromWorkSpec(
-                mContext, work.getWorkSpec(), new Arguments.Builder().build());
+        Worker worker = Worker.fromWorkSpec(mContext, work.getWorkSpec(), Arguments.EMPTY);
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getAppContext(), is(equalTo(mContext.getApplicationContext())));
@@ -59,13 +58,13 @@ public class WorkerTests {
         Arguments arguments = new Arguments.Builder().putString(key, expectedValue).build();
 
         Work work = new Work.Builder(TestWorker.class).withArguments(arguments).build();
-        Worker worker = Worker.fromWorkSpec(mContext, work.getWorkSpec(), work.getArguments());
+        Worker worker = Worker.fromWorkSpec(mContext, work.getWorkSpec(), arguments);
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getArguments().getString(key, null), is(expectedValue));
 
         work = new Work.Builder(TestWorker.class).build();
-        worker = Worker.fromWorkSpec(mContext, work.getWorkSpec(), work.getArguments());
+        worker = Worker.fromWorkSpec(mContext, work.getWorkSpec(), Arguments.EMPTY);
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getArguments().size(), is(0));

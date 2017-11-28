@@ -379,8 +379,8 @@ public class WorkManagerTest {
 
     private void insertWorkSpecAndTags(Work work) {
         mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
-        for (String tag : work.getTags()) {
-            mDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
+        for (WorkTag workTag : work.getWorkTags()) {
+            mDatabase.workTagDao().insert(workTag);
         }
     }
 }
