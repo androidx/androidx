@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import static android.support.dependencies.DependenciesKt.*
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android'
@@ -57,21 +60,21 @@ android {
 }
 
 dependencies {
-    implementation project(":room:common")
-    implementation project(":persistence:db")
-    implementation project(":persistence:db-framework")
-    implementation project(':room:runtime')
-    implementation project(':arch:runtime')
+    implementation(project(":room:common"))
+    implementation(project(":persistence:db"))
+    implementation(project(":persistence:db-framework"))
+    implementation(project(":room:runtime"))
+    implementation(project(":arch:runtime"))
 
     implementation libs.support.app_compat, libs.support_exclude_config
     kapt project(":room:compiler")
     kaptAndroidTest project(":room:compiler")
 
-    androidTestImplementation(libs.test_runner) {
+    androidTestImplementation(TEST_RUNNER) {
         exclude module: 'support-annotations'
         exclude module: 'hamcrest-core'
     }
-    androidTestImplementation(libs.espresso_core, {
+    androidTestImplementation(ESPRESSO_CORE, {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude module: "hamcrest-core"
     })
@@ -83,7 +86,7 @@ dependencies {
     androidTestImplementation project(':room:rxjava2')
     androidTestImplementation project(':arch:core-testing')
     androidTestImplementation libs.rx_java
-    testImplementation libs.mockito_core
+    testImplementation(MOCKITO_CORE)
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])

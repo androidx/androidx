@@ -1,3 +1,4 @@
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 
@@ -6,10 +7,10 @@ plugins {
 }
 
 dependencies {
-    api project(':support-annotations')
-    api project(':support-compat')
+    api(project(":support-annotations"))
+    api(project(":support-compat"))
 
-    androidTestImplementation libs.test_runner, { exclude module: 'support-annotations' }
+    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
 }
 
 android {

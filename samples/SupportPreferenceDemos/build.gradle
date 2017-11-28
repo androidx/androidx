@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':appcompat-v7')
-    implementation project(':recyclerview-v7')
-    implementation project(':preference-v7')
-    implementation project(':preference-v14')
-    implementation project(':leanback-v17')
-    implementation project(':preference-leanback-v17')
+    implementation(project(":appcompat-v7"))
+    implementation(project(":recyclerview-v7"))
+    implementation(project(":preference-v7"))
+    implementation(project(":preference-v14"))
+    implementation(project(":leanback-v17"))
+    implementation(project(":preference-leanback-v17"))
 }
 
 android {
