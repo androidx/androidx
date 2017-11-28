@@ -32,7 +32,7 @@ project.ext.noDocs = true
 // Temporary hack to stop AS to adding two guavas into test's classpath
 configurations.all {
     resolutionStrategy {
-        force libs.guava
+        force GUAVA
     }
 }
 
@@ -42,17 +42,17 @@ dependencies {
     def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
     compile(project(":room:common"))
     compile(project(":room:migration"))
-    compile libs.kotlin.stdlib
-    compile libs.auto_common
-    compile libs.javapoet
-    compile libs.antlr
-    compile libs.xerial
-    compile libs.apache.commons.codec
-    testCompile libs.google_compile_testing
+    compile(KOTLIN_STDLIB)
+    compile(AUTO_COMMON)
+    compile(JAVAPOET)
+    compile(ANTLR)
+    compile(XERIAL)
+    compile(APACHE_COMMONS_CODEC)
+    testCompile(GOOGLE_COMPILE_TESTING)
     testCompile project(":paging:common")
     testCompile(JUNIT)
-    testCompile libs.ij_annotations
-    testCompile libs.jsr250
+    testCompile(INTELLIJ_ANNOTATIONS)
+    testCompile(JSR250)
     testCompile(MOCKITO_CORE)
     testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$tools.current_sdk/",
             include : "android.jar")

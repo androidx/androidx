@@ -27,12 +27,10 @@ sourceSets {
 }
 
 dependencies {
-    compile libs.xpp3
-    compile libs.xmlpull
-    compile libs.kotlin.stdlib
+    compile(XPP3)
+    compile(XMLPULL)
+    compile(KOTLIN_STDLIB)
     testCompile(JUNIT)
-    testCompile libs.xpp3
-    testCompile libs.xmlpull
 }
 
 supportLibrary {
