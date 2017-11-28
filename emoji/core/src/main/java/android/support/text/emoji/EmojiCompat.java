@@ -221,6 +221,7 @@ public class EmojiCompat {
      *
      * @see EmojiCompat.Config
      */
+    @SuppressWarnings("GuardedBy")
     public static EmojiCompat init(@NonNull final Config config) {
         if (sInstance == null) {
             synchronized (sInstanceLock) {
@@ -238,6 +239,7 @@ public class EmojiCompat {
      *
      * @hide
      */
+    @SuppressWarnings("GuardedBy")
     @RestrictTo(LIBRARY_GROUP)
     @VisibleForTesting
     public static EmojiCompat reset(@NonNull final Config config) {
@@ -252,6 +254,7 @@ public class EmojiCompat {
      *
      * @hide
      */
+    @SuppressWarnings("GuardedBy")
     @RestrictTo(LIBRARY_GROUP)
     @VisibleForTesting
     public static EmojiCompat reset(final EmojiCompat emojiCompat) {
