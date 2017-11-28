@@ -165,6 +165,8 @@ project(':support-app-navigation').projectDir = new File(samplesRoot, 'SupportAp
 include ':support-emoji-demos'
 project(':support-emoji-demos').projectDir = new File(samplesRoot, 'SupportEmojiDemos')
 
+include ':support-car-demos'
+project(':support-car-demos').projectDir = new File(samplesRoot, 'SupportCarDemos')
 /////////////////////////////
 //
 // Testing libraries
