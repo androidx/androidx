@@ -25,7 +25,7 @@ plugins {
 }
 
 dependencies {
-    compile libs.support.annotations
+    compile(SUPPORT_ANNOTATIONS)
     compile(project(":arch:common"))
 
     testCompile(JUNIT)
