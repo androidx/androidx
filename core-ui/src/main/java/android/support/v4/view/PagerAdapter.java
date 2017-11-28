@@ -131,6 +131,7 @@ public abstract class PagerAdapter {
     /**
      * Called to inform the adapter of which item is currently considered to
      * be the "primary", that is the one show to the user as the current page.
+     * This method will not be invoked when the adapter contains no items.
      *
      * @param container The containing View from which the page will be removed.
      * @param position The page position that is now the primary.
