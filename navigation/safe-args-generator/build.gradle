@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
@@ -29,7 +30,7 @@ dependencies {
     compile libs.xpp3
     compile libs.xmlpull
     compile libs.kotlin.stdlib
-    testCompile libs.junit
+    testCompile(JUNIT)
     testCompile libs.xpp3
     testCompile libs.xmlpull
 }
