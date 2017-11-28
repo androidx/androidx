@@ -316,7 +316,7 @@ public abstract class LiveData<T> {
     }
 
     /**
-     * Called when the number of active observers change to 0 from 1.
+     * Called when the number of active observers change to 1 from 0.
      * <p>
      * This callback can be used to know that this LiveData is being used thus should be kept
      * up to date.
