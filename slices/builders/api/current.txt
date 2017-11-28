@@ -1,0 +1,27 @@
+package androidx.app.slice.builders {
+
+  public class MessagingSliceBuilder extends androidx.app.slice.builders.TemplateSliceBuilder {
+    ctor public MessagingSliceBuilder(android.net.Uri);
+    method public void add(androidx.app.slice.builders.TemplateSliceBuilder.SubTemplateSliceBuilder);
+    method public androidx.app.slice.builders.MessagingSliceBuilder.MessageBuilder startMessage();
+    field public static final int MAXIMUM_RETAINED_MESSAGES = 50; // 0x32
+  }
+
+  public static final class MessagingSliceBuilder.MessageBuilder extends androidx.app.slice.builders.TemplateSliceBuilder.SubTemplateSliceBuilder {
+    method public androidx.app.slice.builders.MessagingSliceBuilder.MessageBuilder addSource(android.graphics.drawable.Icon);
+    method public androidx.app.slice.builders.MessagingSliceBuilder.MessageBuilder addText(java.lang.CharSequence);
+    method public androidx.app.slice.builders.MessagingSliceBuilder.MessageBuilder addTimestamp(long);
+    method public androidx.app.slice.builders.MessagingSliceBuilder endMessage();
+  }
+
+  public abstract class TemplateSliceBuilder {
+    ctor public TemplateSliceBuilder(android.net.Uri);
+    method public androidx.app.slice.Slice build();
+  }
+
+  public static abstract class TemplateSliceBuilder.SubTemplateSliceBuilder<T extends androidx.app.slice.builders.TemplateSliceBuilder> {
+    method public androidx.app.slice.Slice build();
+  }
+
+}
+

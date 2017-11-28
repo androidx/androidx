@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import android.support.LibraryVersions
+import android.support.LibraryGroups
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
@@ -37,7 +40,9 @@ android {
 
 supportLibrary {
     name 'Common utilities for slices'
-    publish false
+    publish true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SLICES
     inceptionYear '2017'
     description "The slices core library provides utilities for the slices view and provider libraries"
     java8Library false

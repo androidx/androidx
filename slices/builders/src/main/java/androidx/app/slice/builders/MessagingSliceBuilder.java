@@ -42,7 +42,7 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
 
     /**
      * Create a {@link MessageBuilder} that will be added to this slice when
-     * {@link MessageBuilder#finish()} is called.
+     * {@link MessageBuilder#endMessage()} is called.
      * @return a new message builder
      */
     public MessageBuilder startMessage() {

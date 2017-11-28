@@ -1,0 +1,60 @@
+package androidx.app.slice {
+
+  public final class Slice {
+    method public static androidx.app.slice.Slice bindSlice(android.content.Context, android.net.Uri);
+    method public static androidx.app.slice.Slice bindSlice(android.content.Context, android.content.Intent);
+    method public java.util.List<java.lang.String> getHints();
+    method public java.util.List<androidx.app.slice.SliceItem> getItems();
+    method public android.net.Uri getUri();
+  }
+
+  public static class Slice.Builder {
+    ctor public Slice.Builder(android.net.Uri);
+    ctor public Slice.Builder(androidx.app.slice.Slice.Builder);
+    method public androidx.app.slice.Slice.Builder addAction(android.app.PendingIntent, androidx.app.slice.Slice, java.lang.String);
+    method public androidx.app.slice.Slice.Builder addColor(int, java.lang.String, java.lang.String...);
+    method public androidx.app.slice.Slice.Builder addColor(int, java.lang.String, java.util.List<java.lang.String>);
+    method public androidx.app.slice.Slice.Builder addHints(java.lang.String...);
+    method public androidx.app.slice.Slice.Builder addHints(java.util.List<java.lang.String>);
+    method public androidx.app.slice.Slice.Builder addIcon(android.graphics.drawable.Icon, java.lang.String, java.lang.String...);
+    method public androidx.app.slice.Slice.Builder addIcon(android.graphics.drawable.Icon, java.lang.String, java.util.List<java.lang.String>);
+    method public androidx.app.slice.Slice.Builder addRemoteInput(android.app.RemoteInput, java.lang.String, java.util.List<java.lang.String>);
+    method public androidx.app.slice.Slice.Builder addRemoteInput(android.app.RemoteInput, java.lang.String, java.lang.String...);
+    method public androidx.app.slice.Slice.Builder addSubSlice(androidx.app.slice.Slice);
+    method public androidx.app.slice.Slice.Builder addSubSlice(androidx.app.slice.Slice, java.lang.String);
+    method public androidx.app.slice.Slice.Builder addText(java.lang.CharSequence, java.lang.String, java.lang.String...);
+    method public androidx.app.slice.Slice.Builder addText(java.lang.CharSequence, java.lang.String, java.util.List<java.lang.String>);
+    method public androidx.app.slice.Slice.Builder addTimestamp(long, java.lang.String, java.lang.String...);
+    method public androidx.app.slice.Slice.Builder addTimestamp(long, java.lang.String, java.util.List<java.lang.String>);
+    method public androidx.app.slice.Slice build();
+  }
+
+  public class SliceConvert {
+    ctor public SliceConvert();
+    method public static android.app.slice.Slice unwrap(androidx.app.slice.Slice);
+    method public static androidx.app.slice.Slice wrap(android.app.slice.Slice);
+  }
+
+  public class SliceItem {
+    method public android.app.PendingIntent getAction();
+    method public int getColor();
+    method public java.lang.String getFormat();
+    method public java.util.List<java.lang.String> getHints();
+    method public android.graphics.drawable.Icon getIcon();
+    method public android.app.RemoteInput getRemoteInput();
+    method public androidx.app.slice.Slice getSlice();
+    method public java.lang.String getSubType();
+    method public java.lang.CharSequence getText();
+    method public long getTimestamp();
+    method public boolean hasHint(java.lang.String);
+  }
+
+  public abstract class SliceProvider extends android.content.ContentProvider {
+    ctor public SliceProvider();
+    method public abstract androidx.app.slice.Slice onBindSlice(android.net.Uri);
+    method public abstract boolean onCreateSliceProvider();
+    method public android.net.Uri onMapIntentToUri(android.content.Intent);
+  }
+
+}
+
