@@ -16,14 +16,15 @@
 
 package android.support.tools.jetifier.preprocessor
 
-import android.support.tools.jetifier.core.archive.Archive
-import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.config.ConfigParser
-import android.support.tools.jetifier.core.map.LibraryMapGenerator
 import android.support.tools.jetifier.core.utils.Log
-import org.apache.commons.cli.*
-import java.nio.file.Path
-
+import org.apache.commons.cli.CommandLine
+import org.apache.commons.cli.DefaultParser
+import org.apache.commons.cli.HelpFormatter
+import org.apache.commons.cli.Option
+import org.apache.commons.cli.Options
+import org.apache.commons.cli.ParseException
+import java.io.File
 import java.nio.file.Paths
 
 class Main {
@@ -62,7 +63,7 @@ class Main {
 
         Log.setLevel(cmd.getOptionValue(OPTION_LOG_LEVEL.opt))
 
-        val inputLibraries = cmd.getOptionValues(OPTION_INPUT_LIBS.opt).map { Paths.get(it) }
+        val inputLibraries = cmd.getOptionValues(OPTION_INPUT_LIBS.opt).map { File(it) }
         val inputConfigPath = Paths.get(cmd.getOptionValue(OPTION_INPUT_CONFIG.opt))
         val outputConfigPath = Paths.get(cmd.getOptionValue(OPTION_OUTPUT_CONFIG.opt))
 
@@ -72,7 +73,8 @@ class Main {
             return
         }
 
-        generateMapping(config, inputLibraries, outputConfigPath)
+        val generator = ConfigGenerator()
+        generator.generateMapping(config, inputLibraries, outputConfigPath)
     }
 
     private fun parseCmdLine(args : Array<String>) : CommandLine? {
@@ -83,18 +85,6 @@ class Main {
             HelpFormatter().printHelp(TOOL_NAME, OPTIONS)
         }
         return null
-    }
-
-    private fun generateMapping(config: Config, inputLibraries: List<Path>, outputConfigPath: Path) {
-        val mapper = LibraryMapGenerator(config)
-        inputLibraries.forEach {
-            val library = Archive.Builder.extract(it)
-            mapper.scanLibrary(library)
-        }
-
-        val map = mapper.generateMap()
-        val newConfig = config.setNewMap(map)
-        ConfigParser.writeToFile(newConfig, outputConfigPath)
     }
 
 }
