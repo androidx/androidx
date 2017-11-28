@@ -1,3 +1,4 @@
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 
@@ -6,11 +7,11 @@ plugins {
 }
 
 dependencies {
-    api project(':support-compat')
-    api project(':support-core-ui')
+    api(project(":support-compat"))
+    api(project(":support-core-ui"))
 
-    androidTestImplementation libs.test_runner,   { exclude module: 'support-annotations' }
-    androidTestImplementation libs.espresso_core, { exclude module: 'support-annotations' }
+    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
 }
 
 android {

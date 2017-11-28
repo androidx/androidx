@@ -15,7 +15,7 @@ configurations.all {
 }
 
 dependencies {
-    compile project(":lifecycle:common")
+    compile(project(":lifecycle:common"))
     compile libs.kotlin.stdlib
     compile libs.auto_common
     compile libs.javapoet

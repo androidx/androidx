@@ -1,3 +1,4 @@
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 
@@ -6,33 +7,33 @@ plugins {
 }
 
 dependencies {
-    api project(':support-annotations')
-    api project(':support-compat')
-    api project(':support-core-ui')
+    api(project(":support-annotations"))
+    api(project(":support-compat"))
+    api(project(":support-core-ui"))
 
-    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
-    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
-    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
-    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
-    androidTestImplementation libs.junit
-    androidTestImplementation project(':support-testutils')
+    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(project(":support-testutils"))
 
-    testImplementation libs.junit
-    testImplementation libs.mockito_core
-    testImplementation libs.test_runner, { exclude module: 'support-annotations' }
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(TEST_RUNNER, libs.exclude_annotations)
 }
 
 android {
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion(14)
     }
 
     sourceSets {
-        main.res.srcDirs 'res', 'res-public'
+        main.res.srcDirs "res", "res-public"
     }
 
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles("proguard-rules.pro")
     }
 }
 
