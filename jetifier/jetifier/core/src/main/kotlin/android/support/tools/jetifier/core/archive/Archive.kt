@@ -18,6 +18,7 @@ package android.support.tools.jetifier.core.archive
 
 import android.support.tools.jetifier.core.utils.Log
 import java.io.BufferedOutputStream
+import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
@@ -52,7 +53,7 @@ class Archive(
     }
 
     @Throws(IOException::class)
-    fun writeSelfToDir(outputDirPath: Path) {
+    fun writeSelfToDir(outputDirPath: Path) : File {
         val outputPath = Paths.get(outputDirPath.toString(), fileName)
 
         if (Files.exists(outputPath)) {
@@ -64,10 +65,12 @@ class Archive(
         Files.createDirectories(outputDirPath)
 
         Log.i(TAG, "Writing archive: %s", outputPath.toUri())
+        val file = outputPath.toFile()
         Files.createFile(outputPath)
-        val stream = BufferedOutputStream(FileOutputStream(outputPath.toFile()))
+        val stream = BufferedOutputStream(FileOutputStream(file))
         writeSelfTo(stream)
         stream.close()
+        return file
     }
 
     @Throws(IOException::class)
@@ -89,13 +92,12 @@ class Archive(
     object Builder {
 
         @Throws(IOException::class)
-        fun extract(archivePath: Path): Archive {
-            Log.i(TAG, "Extracting: %s", archivePath.toUri())
+        fun extract(archiveFile: File): Archive {
+            Log.i(TAG, "Extracting: %s", archiveFile.absolutePath)
 
-            val inputStream = FileInputStream(archivePath.toFile())
+            val inputStream = FileInputStream(archiveFile)
             inputStream.use {
-                val archive = extractArchive(it, archivePath)
-                return archive
+                return extractArchive(it, archiveFile.toPath())
             }
         }
 
