@@ -20,8 +20,13 @@ import android.support.tools.jetifier.core.Processor
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.config.ConfigParser
 import android.support.tools.jetifier.core.utils.Log
-import org.apache.commons.cli.*
-
+import org.apache.commons.cli.CommandLine
+import org.apache.commons.cli.DefaultParser
+import org.apache.commons.cli.HelpFormatter
+import org.apache.commons.cli.Option
+import org.apache.commons.cli.Options
+import org.apache.commons.cli.ParseException
+import java.io.File
 import java.nio.file.Paths
 
 class Main {
@@ -60,7 +65,7 @@ class Main {
 
         Log.setLevel(cmd.getOptionValue(OPTION_LOG_LEVEL.opt))
 
-        val inputLibraries = cmd.getOptionValues(OPTION_INPUT.opt).map { Paths.get(it) }
+        val inputLibraries = cmd.getOptionValues(OPTION_INPUT.opt).map { File(it) }.toSet()
         val outputPath = Paths.get(cmd.getOptionValue(OPTION_OUTPUT.opt))
 
         val config : Config?
