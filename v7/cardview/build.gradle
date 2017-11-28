@@ -6,16 +6,16 @@ plugins {
 }
 
 dependencies {
-    api project(':support-annotations')
+    api(project(":support-annotations"))
 }
 
 android {
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion(14)
     }
 
     sourceSets {
-        main.res.srcDir 'res'
+        main.res.srcDir("res")
     }
 }
 
