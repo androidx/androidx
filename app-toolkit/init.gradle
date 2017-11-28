@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import android.support.DacOptions
 import android.support.LibraryVersions
 import org.gradle.internal.os.OperatingSystem
 
@@ -67,10 +68,7 @@ def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompi
 
 if (ext.inAppToolkitProject) {
     // always build offline docs for flatfoot specific builds.
-    ext.docs.dac = [
-            libraryroot: "android/arch",
-            dataname: "ARCH_DATA"
-    ]
+    ext.docsDac = new DacOptions("android/arch", "ARCH_DATA")
     repos.addMavenRepositories(repositories)
     init.setupRepoOutAndBuildNumber()
     init.configureSubProjects()
