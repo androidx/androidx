@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
+
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':slices-view')
-    implementation project(':slices-builders')
-    implementation project(':lifecycle:extensions')
-    implementation libs.support.design, libs.support_exclude_config
-    implementation libs.support.app_compat, libs.support_exclude_config
-    implementation libs.support.cardview, libs.support_exclude_config
-    implementation project(':lifecycle:extensions')
+    implementation(project(":slices-view"))
+    implementation(project(":slices-builders"))
+    implementation(project(":lifecycle:extensions"))
+    implementation(SUPPORT_DESIGN, libs.support_exclude_config)
+    implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
+    implementation(SUPPORT_CARDVIEW, libs.support_exclude_config)
 }
 
 android {

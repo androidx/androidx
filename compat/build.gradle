@@ -8,10 +8,7 @@ plugins {
 
 dependencies {
     api(project(":support-annotations"))
-    api (libs.arch_lifecycle_runtime)  {
-        exclude module: 'support-annotations'
-        transitive = true
-    }
+    api(ARCH_LIFECYCLE_RUNTIME, libs.exclude_annotations_transitive)
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
