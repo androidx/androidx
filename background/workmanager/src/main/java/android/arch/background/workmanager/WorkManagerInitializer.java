@@ -35,7 +35,8 @@ public class WorkManagerInitializer extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        WorkManager.init(getContext());
+        WorkManagerConfiguration configuration = new WorkManagerConfiguration(getContext());
+        WorkManager.init(getContext(), configuration);
         return true;
     }
 

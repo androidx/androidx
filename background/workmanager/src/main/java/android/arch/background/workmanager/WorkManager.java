@@ -45,7 +45,6 @@ import java.util.List;
 public final class WorkManager {
     private static final String TAG = "WorkManager";
 
-    private Context mContext;
     private WorkDatabase mWorkDatabase;
     private TaskExecutor mTaskExecutor;
     private Processor mForegroundProcessor;
@@ -53,11 +52,11 @@ public final class WorkManager {
 
     private static WorkManager sInstance = null;
 
-    static synchronized void init(Context context) {
+    static synchronized void init(Context context, WorkManagerConfiguration configuration) {
         if (sInstance != null) {
             throw new IllegalStateException("Trying to initialize WorkManager twice!");
         }
-        sInstance = new WorkManager(context.getApplicationContext(), false);
+        sInstance = new WorkManager(context, configuration);
     }
 
     /**
@@ -73,15 +72,17 @@ public final class WorkManager {
         return sInstance;
     }
 
-    WorkManager(Context context, boolean useTestDatabase) {
-        mContext = context.getApplicationContext();
-        mWorkDatabase = WorkDatabase.create(mContext, useTestDatabase);
+    WorkManager(Context context, WorkManagerConfiguration configuration) {
+        // TODO(janclarin): Move ForegroundProcessor and TaskExecutor to WorkManagerConfiguration.
+        // TODO(janclarin): Remove context parameter.
+        Context appContext = context.getApplicationContext();
+        mWorkDatabase = configuration.getWorkDatabase();
         mForegroundProcessor = new ForegroundProcessor(
-                mContext,
+                appContext,
                 mWorkDatabase,
                 mBackgroundScheduler,
                 ProcessLifecycleOwner.get());
-        mBackgroundScheduler = new WorkManagerConfiguration(mContext).getBackgroundScheduler();
+        mBackgroundScheduler = configuration.getBackgroundScheduler();
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
     }
 
