@@ -83,7 +83,7 @@ dependencies {
     androidTestImplementation(project(":room:testing"))
     androidTestImplementation(project(":room:rxjava2"))
     androidTestImplementation(project(":arch:core-testing"))
-    androidTestImplementation(libs.rx_java)
+    androidTestImplementation(RX_JAVA)
     androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
