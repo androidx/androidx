@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
@@ -30,19 +31,17 @@ android {
 
 allprojects {
     dependencies {
-        api project(":arch:common")
-        api project(":lifecycle:common")
-        api project(":lifecycle:extensions")
-        api project(":lifecycle:runtime")
+        api(project(":arch:common"))
+        api(project(":lifecycle:common"))
+        api(project(":lifecycle:extensions"))
+        api(project(":lifecycle:runtime"))
         api libs.support.annotations
         api libs.reactive_streams
 
-        testImplementation libs.junit
+        testImplementation(JUNIT)
         testImplementation libs.rx_java
+        testImplementation(TEST_RUNNER, libs.exclude_annotations)
 
-        testImplementation(libs.test_runner) {
-            exclude module: 'support-annotations'
-        }
         androidTestImplementation libs.support.app_compat, libs.support_exclude_config
     }
 }

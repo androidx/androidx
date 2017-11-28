@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
@@ -29,17 +30,17 @@ android {
 }
 
 dependencies {
-    api project(":arch:runtime")
+    api(project(":arch:runtime"))
     api libs.support.annotations
-    api libs.junit
-    api libs.mockito_core, { exclude group: 'net.bytebuddy' }
+    api(JUNIT)
+    api(MOCKITO_CORE, libs.exclude_bytebuddy)
 
-    testImplementation libs.junit
+    testImplementation(JUNIT)
     testImplementation libs.support.annotations
 
-    androidTestImplementation libs.junit
-    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
-    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
 }
 
 supportLibrary {

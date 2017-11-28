@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
@@ -41,13 +42,14 @@ android {
 }
 
 dependencies {
-    api project(":background:workmanager")
-    api libs.firebase_jobdispatcher
-    androidTestImplementation project(":background:workmanager")
-    androidTestImplementation libs.espresso_core, { exclude module: 'support-annotations' }
-    androidTestImplementation libs.mockito_core, { exclude group: 'net.bytebuddy' }
-    // DexMaker has it"s own MockMaker
-    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' }
+    api(project(":background:workmanager"))
+    api(libs.firebase_jobdispatcher)
+
+    androidTestImplementation(project(":background:workmanager"))
+    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 }
 
 supportLibrary {
