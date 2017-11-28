@@ -25,8 +25,11 @@ import android.support.tools.jetifier.core.transform.Transformer
 import android.support.tools.jetifier.core.transform.bytecode.ByteCodeTransformer
 import android.support.tools.jetifier.core.transform.pom.PomDocument
 import android.support.tools.jetifier.core.transform.pom.PomScanner
+import android.support.tools.jetifier.core.transform.proguard.ProGuardTransformer
 import android.support.tools.jetifier.core.transform.resource.XmlResourcesTransformer
 import android.support.tools.jetifier.core.utils.Log
+import java.io.File
+import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -46,7 +49,8 @@ class Processor(private val config : Config) : ArchiveItemVisitor {
     private val transformers = listOf(
             // Register your transformers here
             ByteCodeTransformer(context),
-            XmlResourcesTransformer(context)
+            XmlResourcesTransformer(context),
+            ProGuardTransformer(context)
     )
 
     /**
@@ -56,8 +60,9 @@ class Processor(private val config : Config) : ArchiveItemVisitor {
      * Currently we have the following transformers:
      * - [ByteCodeTransformer] for java native code
      * - [XmlResourcesTransformer] for java native code
+     * - [ProGuardTransformer] for PorGuard files
      */
-    fun transform(inputLibraries: List<Path>, outputPath: Path) {
+    fun transform(inputLibraries: Set<File>, outputPath: Path) : TransformationResult {
         // 1) Extract and load all libraries
         val libraries = loadLibraries(inputLibraries)
 
@@ -79,20 +84,22 @@ class Processor(private val config : Config) : ArchiveItemVisitor {
         transformPomFiles(pomFiles)
 
         // 5) Repackage the libraries back to archives
-        libraries.forEach{ it.writeSelfToDir(outputPath) }
+        val outputLibraries = libraries.map{ it.writeSelfToDir(outputPath) }.toSet()
 
-        return
+        // TODO: Filter out only the libraries that have been really changed
+        return TransformationResult(
+            filesToRemove = inputLibraries,
+            filesToAdd = outputLibraries)
     }
 
-    private fun loadLibraries(inputLibraries : List<Path>) : List<Archive> {
+    private fun loadLibraries(inputLibraries : Iterable<File>) : List<Archive> {
         val libraries = mutableListOf<Archive>()
-        for (libraryPath in inputLibraries) {
-            if (!Files.isReadable(libraryPath)) {
-                Log.e(TAG, "Cannot access the input file: '%s'", libraryPath)
-                continue
+        for (library in inputLibraries) {
+            if (!library.canRead()) {
+                throw FileNotFoundException("Cannot open a library at '$library'")
             }
 
-            libraries.add(Archive.Builder.extract(libraryPath))
+            libraries.add(Archive.Builder.extract(library))
         }
         return libraries.toList()
     }
