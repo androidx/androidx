@@ -47,10 +47,10 @@ public abstract class TiledDataSource<T> extends PositionalDataSource<T> {
 
     @Override
     public void loadInitial(int requestedStartPosition, int requestedLoadSize, int pageSize,
-            @NonNull InitialLoadCallback<T> callback) {
+            @NonNull InitialLoadCallback callback) {
         int totalCount = countItems();
         if (totalCount == 0) {
-            callback.onResult(Collections.<T>emptyList());
+            callback.onResult(Collections.<T>emptyList(), 0, 0);
             return;
         }
 
@@ -69,7 +69,7 @@ public abstract class TiledDataSource<T> extends PositionalDataSource<T> {
     }
 
     @Override
-    public void loadRange(int startPosition, int count, @NonNull LoadCallback<T> callback) {
+    public void loadRange(int startPosition, int count, @NonNull LoadCallback callback) {
         List<T> list = loadRange(startPosition, count);
         if (list != null) {
             callback.onResult(list);

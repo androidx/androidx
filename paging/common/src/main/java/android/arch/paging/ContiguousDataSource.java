@@ -19,21 +19,23 @@ package android.arch.paging;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.concurrent.Executor;
+
 abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, Value> {
     @Override
     boolean isContiguous() {
         return true;
     }
 
-    public abstract void loadInitial(@Nullable Key key, int initialLoadSize,
-            boolean enablePlaceholders,
-            @NonNull InitialLoadCallback<Value> callback);
+    abstract void loadInitial(@Nullable Key key, int initialLoadSize,
+            int pageSize, boolean enablePlaceholders,
+            @NonNull Executor mainThreadExecutor, @NonNull PageResult.Receiver<Value> receiver);
 
     abstract void loadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize,
-            @NonNull LoadCallback<Value> callback);
+            @NonNull Executor mainThreadExecutor, @NonNull PageResult.Receiver<Value> receiver);
 
     abstract void loadBefore(int currentBeginIndex, @NonNull Value currentBeginItem, int pageSize,
-            @NonNull LoadCallback<Value> callback);
+            @NonNull Executor mainThreadExecutor, @NonNull PageResult.Receiver<Value> receiver);
 
     /**
      * Get the key from either the position, or item, or null if position/item invalid.

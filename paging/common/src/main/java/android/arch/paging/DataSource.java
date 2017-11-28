@@ -16,14 +16,11 @@
 
 package android.arch.paging;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import android.support.annotation.AnyThread;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
-import java.lang.annotation.Retention;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
@@ -137,171 +134,43 @@ public abstract class DataSource<Key, Value> {
      */
     abstract boolean isContiguous();
 
-    /**
-     * Callback for DataSource initial loading methods to return data and position/count
-     * information.
-     * <p>
-     * A callback can be called only once, and will throw if called again.
-     * <p>
-     * It is always valid for a DataSource loading method that takes a callback to stash the
-     * callback and call it later. This enables DataSources to be fully asynchronous, and to handle
-     * temporary, recoverable error states (such as a network error that can be retried).
-     *
-     * @param <T> Type of items being loaded.
-     */
-    public static class InitialLoadCallback<T> extends LoadCallback<T> {
-        private final int mPageSize;
-
-        InitialLoadCallback(@LoadCountType int countType, int pageSize,
-                DataSource dataSource, PageResult.Receiver<T> receiver) {
-            super(PageResult.INIT, countType, dataSource, receiver);
-            mPageSize = pageSize;
-            if (mPageSize < 1) {
-                throw new IllegalArgumentException("Page size must be non-negative");
-            }
-        }
-
-        /**
-         * Called to pass initial load state from a DataSource.
-         * <p>
-         * Call this method from your DataSource's {@code loadInitial} function to return data,
-         * and inform how many placeholders should be shown before and after. If counting is cheap
-         * to compute (for example, if a network load returns the information regardless), it's
-         * recommended to pass data back through this method.
-         *
-         * @param data List of items loaded from the DataSource. If this is empty, the DataSource
-         *             is treated as empty, and no further loads will occur.
-         * @param position Position of the item at the front of the list, relative to the total
-         *                 count. If there are {@code N} items before the items in data that can be
-         *                 loaded from this DataSource, pass {@code N}.
-         * @param totalCount Total number of items that may be returned from this DataSource.
-         *                   Includes the number in the initial {@code data} parameter
-         *                   as well as any items that can be loaded in front or behind of
-         *                   {@code data}.
-         */
-        public void onResult(@NonNull List<T> data, int position, int totalCount) {
+    static class BaseLoadCallback<T> {
+        static void validateInitialLoadParams(@NonNull List<?> data, int position, int totalCount) {
             if (position < 0) {
                 throw new IllegalArgumentException("Position must be non-negative");
             }
             if (data.size() + position > totalCount) {
                 throw new IllegalArgumentException(
-                        "List size + position too large; last item in list beyond totalCount");
+                        "List size + position too large, last item in list beyond totalCount.");
             }
             if (data.size() == 0 && totalCount > 0) {
                 throw new IllegalArgumentException(
                         "Initial result cannot be empty if items are present in data set.");
             }
-            if (mCountType == LOAD_COUNT_REQUIRED_TILED
-                    && position + data.size() != totalCount
-                    && data.size() % mPageSize != 0) {
-                throw new IllegalArgumentException("PositionalDataSource requires initial load size"
-                        + " to be a multiple of page size to support internal tiling.");
-            }
-
-            int trailingUnloadedCount = totalCount - position - data.size();
-            if (mCountType == LOAD_COUNT_REQUIRED_TILED || mCountType == LOAD_COUNT_ACCEPTED) {
-                dispatchResultToReceiver(new PageResult<>(
-                        data, position, trailingUnloadedCount, 0));
-            } else {
-                dispatchResultToReceiver(new PageResult<>(data, position));
-            }
         }
 
-        /**
-         * Called to pass initial load state from a DataSource without supporting placeholders.
-         * <p>
-         * Call this method from your DataSource's {@code loadInitial} function to return data,
-         * if position is known but total size is not. If counting is not expensive, consider
-         * calling the three parameter variant: {@link #onResult(List, int, int)}.
-         *
-         * @param data List of items loaded from the DataSource. If this is empty, the DataSource
-         *             is treated as empty, and no further loads will occur.
-         * @param position Position of the item at the front of the list. If there are {@code N}
-         *                 items before the items in data that can be provided by this DataSource,
-         *                 pass {@code N}.
-         */
-        void onResult(@NonNull List<T> data, int position) {
-            // not counting, don't need to check mAcceptCount
-            dispatchResultToReceiver(new PageResult<>(
-                    data, 0, 0, position));
-        }
-    }
-
-    @Retention(SOURCE)
-    @IntDef({LOAD_COUNT_PREVENTED, LOAD_COUNT_ACCEPTED, LOAD_COUNT_REQUIRED_TILED})
-    @interface LoadCountType {}
-    static final int LOAD_COUNT_PREVENTED = 0;
-    static final int LOAD_COUNT_ACCEPTED = 1;
-    static final int LOAD_COUNT_REQUIRED_TILED = 2;
-
-    /**
-     * Callback for DataSource loading methods to return data.
-     * <p>
-     * A callback can be called only once, and will throw if called again.
-     * <p>
-     * It is always valid for a DataSource loading method that takes a callback to stash the
-     * callback and call it later. This enables DataSources to be fully asynchronous, and to handle
-     * temporary, recoverable error states (such as a network error that can be retried).
-     *
-     * @param <T> Type of items being loaded.
-     */
-    public static class LoadCallback<T> {
         @PageResult.ResultType
         final int mResultType;
-        @LoadCountType
-        final int mCountType;
         private final DataSource mDataSource;
         private final PageResult.Receiver<T> mReceiver;
-
-        private int mPositionOffset = 0;
 
         // mSignalLock protects mPostExecutor, and mHasSignalled
         private final Object mSignalLock = new Object();
         private Executor mPostExecutor = null;
         private boolean mHasSignalled = false;
 
-        private LoadCallback(@PageResult.ResultType int resultType, @LoadCountType int countType,
-                DataSource dataSource, PageResult.Receiver<T> receiver) {
+        BaseLoadCallback(@PageResult.ResultType int resultType, @NonNull DataSource dataSource,
+                @Nullable Executor mainThreadExecutor, @NonNull PageResult.Receiver<T> receiver) {
             mResultType = resultType;
-            mCountType = countType;
-            mDataSource = dataSource;
-            mReceiver = receiver;
-        }
-
-        LoadCallback(int type, Executor mainThreadExecutor,
-                DataSource dataSource, PageResult.Receiver<T> receiver) {
-            mResultType = type;
-            mCountType = LOAD_COUNT_PREVENTED;
             mPostExecutor = mainThreadExecutor;
             mDataSource = dataSource;
             mReceiver = receiver;
-        }
-
-        void setPositionOffset(int positionOffset) {
-            mPositionOffset = positionOffset;
         }
 
         void setPostExecutor(Executor postExecutor) {
             synchronized (mSignalLock) {
                 mPostExecutor = postExecutor;
             }
-        }
-
-        /**
-         * Called to pass loaded data from a DataSource.
-         * <p>
-         * Call this method from your DataSource's {@code load} methods to return data.
-         *
-         * @param data List of items loaded from the DataSource.
-         */
-        public void onResult(@NonNull List<T> data) {
-            if (mCountType == LOAD_COUNT_REQUIRED_TILED && !data.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "PositionalDataSource requires calling the three argument version of"
-                                + " InitialLoadCallback.onResult() to pass position information");
-            }
-            dispatchResultToReceiver(new PageResult<>(
-                    data, 0, 0, mPositionOffset));
         }
 
         void dispatchResultToReceiver(final @NonNull PageResult<T> result) {
