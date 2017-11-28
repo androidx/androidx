@@ -23,6 +23,7 @@ import android.arch.lifecycle.LiveData;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -139,6 +140,7 @@ public class SliceBrowser extends AppCompatActivity {
         mTypeMenu.add("Shortcut");
         mTypeMenu.add("Small");
         mTypeMenu.add("Large");
+        menu.add("Auth");
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -146,6 +148,9 @@ public class SliceBrowser extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getTitle().toString()) {
+            case "Auth":
+                authAllSlices();
+                return true;
             case "Shortcut":
                 mTypeMenu.setIcon(R.drawable.ic_shortcut);
                 mSelectedMode = SliceView.MODE_SHORTCUT;
@@ -170,6 +175,17 @@ public class SliceBrowser extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putInt("SELECTED_MODE", mSelectedMode);
         outState.putString("SELECTED_QUERY", mSearchView.getQuery().toString());
+    }
+
+    private void authAllSlices() {
+        List<ApplicationInfo> packages = getPackageManager().getInstalledApplications(0);
+        packages.forEach(info -> {
+            for (int i = 0; i < URI_PATHS.length; i++) {
+                grantUriPermission(info.packageName, getUri(URI_PATHS[i], getApplicationContext()),
+                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            }
+        });
     }
 
     private void updateAvailableSlices() {
