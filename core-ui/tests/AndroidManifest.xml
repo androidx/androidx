@@ -36,6 +36,8 @@
 
         <activity android:name="android.support.v4.view.ViewPagerWithTabStripActivity"/>
 
+        <activity android:name="android.support.v4.view.ViewPagerTest$ViewPagerActivity"/>
+
     </application>
 
 </manifest>
