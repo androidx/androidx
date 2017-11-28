@@ -71,8 +71,8 @@ dependencies {
     implementation(project(":room:rxjava2"))
     implementation(project(":paging:runtime"))
 
-    implementation libs.support.recyclerview, libs.support_exclude_config
-    implementation libs.support.app_compat, libs.support_exclude_config
+    implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
+    implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
     annotationProcessor project(":room:compiler")
     androidTestAnnotationProcessor project(":room:compiler")
 

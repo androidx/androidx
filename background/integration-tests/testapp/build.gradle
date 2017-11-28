@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import static android.support.dependencies.DependenciesKt.*
+
 apply plugin: 'com.android.application'
 
 project.ext.noDocs = true
@@ -53,11 +56,10 @@ dependencies {
     compile project(':lifecycle:common')
     compile project(':room:runtime')
     annotationProcessor project(":room:compiler")
-    compile 'com.android.support:multidex:1.0.1'
-
-    compile libs.support.recyclerview, libs.support_exclude_config
-    compile libs.support.app_compat, libs.support_exclude_config
-    compile libs.support.design, libs.support_exclude_config
+    compile(MULTIDEX)
+    compile(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
+    compile(SUPPORT_APPCOMPAT, libs.support_exclude_config)
+    compile(SUPPORT_DESIGN, libs.support_exclude_config)
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])

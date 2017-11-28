@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import static android.support.dependencies.DependenciesKt.*
+
 apply plugin: 'com.android.application'
 
 project.ext.noDocs = true
@@ -52,10 +55,9 @@ dependencies {
     implementation(project(":lifecycle:runtime"))
     implementation(project(":lifecycle:common"))
     implementation(project(":paging:runtime"))
-    implementation 'com.android.support:multidex:1.0.1'
-
-    implementation libs.support.recyclerview, libs.support_exclude_config
-    implementation libs.support.app_compat, libs.support_exclude_config
+    implementation(MULTIDEX)
+    implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
+    implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])
