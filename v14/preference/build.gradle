@@ -22,10 +22,10 @@ plugins {
 }
 
 dependencies {
-    api project(':support-v4')
-    api project(':appcompat-v7')
-    api project(':recyclerview-v7')
-    api project(':preference-v7')
+    api(project(":support-v4"))
+    api(project(":appcompat-v7"))
+    api(project(":recyclerview-v7"))
+    api(project(":preference-v7"))
 }
 
 android {

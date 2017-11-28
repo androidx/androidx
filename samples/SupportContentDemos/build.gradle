@@ -17,9 +17,9 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':design')
-    implementation project(':appcompat-v7')
-    implementation project(':support-content')
+    implementation(project(":design"))
+    implementation(project(":appcompat-v7"))
+    implementation(project(":support-content"))
 }
 
 android {

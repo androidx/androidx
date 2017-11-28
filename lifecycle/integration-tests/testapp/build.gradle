@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
+
 apply plugin: 'com.android.application'
 
 project.ext.noDocs = true
@@ -60,22 +62,18 @@ android {
 
 dependencies {
     // IJ canont figure out transitive dependencies so need to declare them.
-    implementation project(":lifecycle:common")
-    implementation project(":lifecycle:runtime")
-    implementation project(":lifecycle:extensions")
-    annotationProcessor project(":lifecycle:compiler")
+    implementation(project(":lifecycle:common"))
+    implementation(project(":lifecycle:runtime"))
+    implementation(project(":lifecycle:extensions"))
+    annotationProcessor(project(":lifecycle:compiler"))
 
-    androidTestAnnotationProcessor project(":lifecycle:compiler")
-    androidTestImplementation(libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation(libs.espresso_core, {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    androidTestAnnotationProcessor(project(":lifecycle:compiler"))
+    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
 
-    testImplementation libs.junit
-    testImplementation libs.mockito_core
-    testAnnotationProcessor project(":lifecycle:compiler")
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
+    testAnnotationProcessor(project(":lifecycle:compiler"))
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])

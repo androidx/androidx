@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    androidTestImplementation project(':support-annotations')
-    androidTestImplementation project(':support-media-compat')
-    androidTestImplementation project(':support-media-compat-test-lib')
+    androidTestImplementation(project(":support-annotations"))
+    androidTestImplementation(project(":support-media-compat"))
+    androidTestImplementation(project(":support-media-compat-test-lib"))
 
-    androidTestImplementation(libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
+    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
 }
 
 android {
