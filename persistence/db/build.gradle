@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
@@ -29,7 +30,7 @@ android {
 }
 
 dependencies {
-    api libs.support.annotations
+    api(SUPPORT_ANNOTATIONS)
 }
 
 // Used by testCompile in room-compiler

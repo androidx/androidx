@@ -98,15 +98,6 @@ project(':room:integration-tests:kotlintestapp').projectDir = new File(supportRo
 
 /////////////////////////////
 //
-// SupportLib
-//
-/////////////////////////////
-if (inAppToolkitProject && System.getenv("USE_SUPPORT_LIB_SOURCE")) {
-    apply from: "${supportRoot.absolutePath}/app-toolkit/settings_support_lib.gradle"
-}
-
-/////////////////////////////
-//
 // External
 //
 /////////////////////////////
