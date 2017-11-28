@@ -1224,6 +1224,8 @@ public class ViewPager extends ViewGroup {
             }
 
             calculatePageOffsets(curItem, curIndex, oldCurInfo);
+
+            mAdapter.setPrimaryItem(this, mCurItem, curItem.object);
         }
 
         if (DEBUG) {
@@ -1232,8 +1234,6 @@ public class ViewPager extends ViewGroup {
                 Log.i(TAG, "#" + i + ": page " + mItems.get(i).position);
             }
         }
-
-        mAdapter.setPrimaryItem(this, mCurItem, curItem != null ? curItem.object : null);
 
         mAdapter.finishUpdate(this);
 
