@@ -55,6 +55,7 @@ final class EmojiEditableFactory extends Editable.Factory {
         }
     }
 
+    @SuppressWarnings("GuardedBy")
     public static Editable.Factory getInstance() {
         if (sInstance == null) {
             synchronized (sInstanceLock) {
