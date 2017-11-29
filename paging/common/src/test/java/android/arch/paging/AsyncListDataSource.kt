@@ -21,7 +21,10 @@ class AsyncListDataSource<T>(list: List<T>)
     val workItems: MutableList<() -> Unit> = ArrayList()
     private val listDataSource = ListDataSource(list)
 
-    override fun loadInitial(requestedStartPosition: Int, requestedLoadSize: Int, pageSize: Int,
+    override fun loadInitial(
+            requestedStartPosition: Int,
+            requestedLoadSize: Int,
+            pageSize: Int,
             callback: InitialLoadCallback<T>) {
         workItems.add {
             listDataSource.loadInitial(
