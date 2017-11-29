@@ -176,6 +176,39 @@ public class MediaBrowserCompatTest {
 
     @Test
     @SmallTest
+    public void testSubscriptionWithCustomOptionsWithRemoteService() throws Exception {
+        final String mediaId = "1000";
+        createMediaBrowser(TEST_REMOTE_BROWSER_SERVICE);
+        assertFalse(mMediaBrowser.isConnected());
+
+        connectMediaBrowserService();
+        assertTrue(mMediaBrowser.isConnected());
+
+        MediaMetadataCompat mediaMetadataCompat = new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId)
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, "title")
+                .putRating(MediaMetadataCompat.METADATA_KEY_RATING,
+                        RatingCompat.newPercentageRating(0.5f))
+                .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING,
+                        RatingCompat.newPercentageRating(0.8f))
+                .build();
+        Bundle options = new Bundle();
+        options.putParcelable(
+                StubRemoteMediaBrowserServiceCompat.MEDIA_METADATA, mediaMetadataCompat);
+
+        // Remote MediaBrowserService will create a media item with the given MediaMetadataCompat
+        mMediaBrowser.subscribe(mMediaBrowser.getRoot(), options, mSubscriptionCallback);
+        synchronized (mSubscriptionCallback.mWaitLock) {
+            mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
+            assertEquals(1, mSubscriptionCallback.mChildrenLoadedWithOptionCount);
+            assertEquals(1, mSubscriptionCallback.mLastChildMediaItems.size());
+            assertEquals(mediaId, mSubscriptionCallback.mLastChildMediaItems.get(0).getMediaId());
+        }
+        mMediaBrowser.disconnect();
+    }
+
+    @Test
+    @SmallTest
     public void testConnectTwice() throws Exception {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
@@ -185,6 +218,7 @@ public class MediaBrowserCompatTest {
         } catch (IllegalStateException e) {
             // expected
         }
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -199,6 +233,7 @@ public class MediaBrowserCompatTest {
         assertTrue(mConnectionCallback.mConnectionFailedCount > 0);
         assertEquals(0, mConnectionCallback.mConnectedCount);
         assertEquals(0, mConnectionCallback.mConnectionSuspendedCount);
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -256,6 +291,7 @@ public class MediaBrowserCompatTest {
             assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0],
                     mItemCallback.mLastMediaItem.getMediaId());
         }
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -330,6 +366,7 @@ public class MediaBrowserCompatTest {
         }
         // onChildrenLoaded should not be called.
         assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -386,6 +423,7 @@ public class MediaBrowserCompatTest {
         }
         // onChildrenLoaded should not be called.
         assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -401,6 +439,7 @@ public class MediaBrowserCompatTest {
             assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_INVALID,
                     mSubscriptionCallback.mLastErrorId);
         }
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -427,6 +466,7 @@ public class MediaBrowserCompatTest {
             assertEquals(pageSize,
                     mSubscriptionCallback.mLastOptions.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE));
         }
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -474,6 +514,7 @@ public class MediaBrowserCompatTest {
         for (StubSubscriptionCallback callback : subscriptionCallbacks) {
             assertEquals(0, callback.mChildrenLoadedWithOptionCount);
         }
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -533,6 +574,7 @@ public class MediaBrowserCompatTest {
                 }
             }
         }
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -549,6 +591,7 @@ public class MediaBrowserCompatTest {
             assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0],
                     mItemCallback.mLastMediaItem.getMediaId());
         }
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -564,6 +607,7 @@ public class MediaBrowserCompatTest {
             assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED,
                     mItemCallback.mLastErrorId);
         }
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -580,6 +624,7 @@ public class MediaBrowserCompatTest {
             assertNull(mItemCallback.mLastMediaItem);
             assertNull(mItemCallback.mLastErrorId);
         }
+        mMediaBrowser.disconnect();
     }
 
     private void createMediaBrowser(final ComponentName component) {

@@ -28,6 +28,8 @@ import android.support.annotation.RestrictTo;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
 /**
@@ -158,5 +160,11 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         if (mTextHelper != null) {
             mTextHelper.onSetTextAppearance(context, resId);
         }
+    }
+
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        return AppCompatHintHelper.onCreateInputConnection(super.onCreateInputConnection(outAttrs),
+                outAttrs, this);
     }
 }

@@ -83,13 +83,12 @@ public class CustomerViewModel extends AndroidViewModel {
 
     private static <K> LiveData<PagedList<Customer>> getLivePagedList(
             K initialLoadKey, DataSource.Factory<K, Customer> dataSourceFactory) {
-        return new LivePagedListBuilder<K, Customer>()
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setPageSize(10)
+                .setEnablePlaceholders(false)
+                .build();
+        return new LivePagedListBuilder<>(dataSourceFactory, config)
                 .setInitialLoadKey(initialLoadKey)
-                .setPagingConfig(new PagedList.Config.Builder()
-                        .setPageSize(10)
-                        .setEnablePlaceholders(false)
-                        .build())
-                .setDataSourceFactory(dataSourceFactory)
                 .build();
     }
 

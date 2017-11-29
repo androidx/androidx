@@ -1,4 +1,9 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-core-utils')
@@ -16,8 +21,11 @@ android {
 }
 
 supportLibrary {
-    name 'Android Support DynamicAnimation'
-    publish true
-    inceptionYear '2017'
-    description "Physics-based animation in support library, where the animations are driven by physics force. You can use this Animation library to create smooth and realistic animations."
+    name = "Android Support DynamicAnimation"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2017"
+    description = "Physics-based animation in support library, where the animations are driven by physics force. You can use this Animation library to create smooth and realistic animations."
+    legacySourceLocation = true
 }
