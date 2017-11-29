@@ -3239,7 +3239,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     /**
-     * Used when onMeasure is called before layout manager is set
+     * An implementation of {@link View#onMeasure(int, int)} to fall back to in various scenarios
+     * where this RecyclerView is otherwise lacking better information.
      */
     void defaultOnMeasure(int widthSpec, int heightSpec) {
         // calling LayoutManager here is not pretty but that API is already public and it is better
@@ -7442,9 +7443,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * wants to handle the layout measurements itself.
          * <p>
          * This method is usually called by the LayoutManager with value {@code true} if it wants
-         * to support WRAP_CONTENT. If you are using a public LayoutManager but want to customize
-         * the measurement logic, you can call this method with {@code false} and override
-         * {@link LayoutManager#onMeasure(int, int)} to implement your custom measurement logic.
+         * to support {@link ViewGroup.LayoutParams#WRAP_CONTENT}. If you are using a public
+         * LayoutManager but want to customize the measurement logic, you can call this method with
+         * {@code false} and override {@link LayoutManager#onMeasure(Recycler, State, int, int)} to
+         * implement your custom measurement logic.
          * <p>
          * AutoMeasure is a convenience mechanism for LayoutManagers to easily wrap their content or
          * handle various specs provided by the RecyclerView's parent.
@@ -7518,24 +7520,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * Returns whether this LayoutManager supports automatic item animations.
-         * A LayoutManager wishing to support item animations should obey certain
-         * rules as outlined in {@link #onLayoutChildren(Recycler, State)}.
-         * The default return value is <code>false</code>, so subclasses of LayoutManager
-         * will not get predictive item animations by default.
-         *
-         * <p>Whether item animations are enabled in a RecyclerView is determined both
-         * by the return value from this method and the
+         * Returns whether this LayoutManager supports "predictive item animations".
+         * <p>
+         * "Predictive item animations" are automatically created animations that show
+         * where items came from, and where they are going to, as items are added, removed,
+         * or moved within a layout.
+         * <p>
+         * A LayoutManager wishing to support predictive item animations must override this
+         * method to return true (the default implementation returns false) and must obey certain
+         * behavioral contracts outlined in {@link #onLayoutChildren(Recycler, State)}.
+         * <p>
+         * Whether item animations actually occur in a RecyclerView is actually determined by both
+         * the return value from this method and the
          * {@link RecyclerView#setItemAnimator(ItemAnimator) ItemAnimator} set on the
          * RecyclerView itself. If the RecyclerView has a non-null ItemAnimator but this
-         * method returns false, then simple item animations will be enabled, in which
-         * views that are moving onto or off of the screen are simply faded in/out. If
-         * the RecyclerView has a non-null ItemAnimator and this method returns true,
-         * then there will be two calls to {@link #onLayoutChildren(Recycler, State)} to
-         * setup up the information needed to more intelligently predict where appearing
-         * and disappearing views should be animated from/to.</p>
+         * method returns false, then only "simple item animations" will be enabled in the
+         * RecyclerView, in which views whose position are changing are simply faded in/out. If the
+         * RecyclerView has a non-null ItemAnimator and this method returns true, then predictive
+         * item animations will be enabled in the RecyclerView.
          *
-         * @return true if predictive item animations should be enabled, false otherwise
+         * @return true if this LayoutManager supports predictive item animations, false otherwise.
          */
         public boolean supportsPredictiveItemAnimations() {
             return false;
@@ -11820,6 +11824,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         boolean mStructureChanged = false;
 
+        /**
+         * True if the associated {@link RecyclerView} is in the pre-layout step where it is having
+         * its {@link LayoutManager} layout items where they will be at the beginning of a set of
+         * predictive item animations.
+         */
         boolean mInPreLayout = false;
 
         boolean mTrackOldChangeHolders = false;
@@ -11895,8 +11904,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * Returns true if
-         * @return
+         * Returns true if the {@link RecyclerView} is in the pre-layout step where it is having its
+         * {@link LayoutManager} layout items where they will be at the beginning of a set of
+         * predictive item animations.
          */
         public boolean isPreLayout() {
             return mInPreLayout;
