@@ -18,8 +18,8 @@ package android.arch.background.workmanager.model;
 
 import android.arch.background.workmanager.Worker;
 import android.arch.persistence.room.TypeConverter;
-import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,6 +35,8 @@ import java.util.Map;
 
 public final class Arguments {
 
+    private static final String TAG = "Arguments";
+
     private Map<String, Object> mValues;
 
     public static final Arguments EMPTY = new Arguments.Builder().build();
@@ -42,7 +44,7 @@ public final class Arguments {
     public Arguments() {    // stub required for room
     }
 
-    Arguments(Map<? extends String, ?> values) {
+    Arguments(Map<String, ?> values) {
         mValues = new HashMap<>(values);
     }
 
@@ -53,7 +55,7 @@ public final class Arguments {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    public boolean getBoolean(String key, boolean defaultValue) {
+    public Boolean getBoolean(String key, Boolean defaultValue) {
         Object value = mValues.get(key);
         if (value instanceof Boolean) {
             return (Boolean) value;
@@ -69,7 +71,7 @@ public final class Arguments {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    public int getInt(String key, int defaultValue) {
+    public Integer getInt(String key, Integer defaultValue) {
         Object value = mValues.get(key);
         if (value instanceof Integer) {
             return (Integer) value;
@@ -84,10 +86,10 @@ public final class Arguments {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
      */
-    public int[] getIntArray(String key) {
+    public Integer[] getIntArray(String key) {
         Object value = mValues.get(key);
-        if (value instanceof int[]) {
-            return (int[]) value;
+        if (value instanceof Integer[]) {
+            return (Integer[]) value;
         } else {
             return null;
         }
@@ -100,7 +102,7 @@ public final class Arguments {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    public long getLong(String key, long defaultValue) {
+    public Long getLong(String key, Long defaultValue) {
         Object value = mValues.get(key);
         if (value instanceof Long) {
             return (Long) value;
@@ -115,10 +117,10 @@ public final class Arguments {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
      */
-    public long[] getLongArray(String key) {
+    public Long[] getLongArray(String key) {
         Object value = mValues.get(key);
-        if (value instanceof long[]) {
-            return (long[]) value;
+        if (value instanceof Long[]) {
+            return (Long[]) value;
         } else {
             return null;
         }
@@ -131,7 +133,7 @@ public final class Arguments {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    public double getDouble(String key, double defaultValue) {
+    public Double getDouble(String key, Double defaultValue) {
         Object value = mValues.get(key);
         if (value instanceof Double) {
             return (Double) value;
@@ -146,10 +148,10 @@ public final class Arguments {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
      */
-    public double[] getDoubleArray(String key) {
+    public Double[] getDoubleArray(String key) {
         Object value = mValues.get(key);
-        if (value instanceof double[]) {
-            return (double[]) value;
+        if (value instanceof Double[]) {
+            return (Double[]) value;
         } else {
             return null;
         }
@@ -187,12 +189,12 @@ public final class Arguments {
     }
 
     /**
-     * Merges the input {@link Arguments} into this object, clobbering existing keys if needed.
+     * Gets all the values in this Arguments object.
      *
-     * @param input The {@link Arguments} to merge
+     * @return A {@link Map} of key-value pairs for this object.
      */
-    public void merge(@NonNull Arguments input) {
-        mValues.putAll(input.mValues);
+    public Map<String, Object> getKeyValueMap() {
+        return mValues;
     }
 
     /**
@@ -305,7 +307,7 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putBoolean(String key, boolean value) {
+        public Builder putBoolean(String key, Boolean value) {
             mValues.put(key, value);
             return this;
         }
@@ -317,7 +319,7 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putInt(String key, int value) {
+        public Builder putInt(String key, Integer value) {
             mValues.put(key, value);
             return this;
         }
@@ -330,7 +332,7 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putIntArray(String key, int[] value) {
+        public Builder putIntArray(String key, Integer[] value) {
             mValues.put(key, value);
             return this;
         }
@@ -343,7 +345,7 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putLong(String key, long value) {
+        public Builder putLong(String key, Long value) {
             mValues.put(key, value);
             return this;
         }
@@ -355,7 +357,7 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putLongArray(String key, long[] value) {
+        public Builder putLongArray(String key, Long[] value) {
             mValues.put(key, value);
             return this;
         }
@@ -367,7 +369,7 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putDouble(String key, double value) {
+        public Builder putDouble(String key, Double value) {
             mValues.put(key, value);
             return this;
         }
@@ -379,7 +381,7 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putDoubleArray(String key, double[] value) {
+        public Builder putDoubleArray(String key, Double[] value) {
             mValues.put(key, value);
             return this;
         }
@@ -406,6 +408,39 @@ public final class Arguments {
         public Builder putStringArray(String key, String[] value) {
             mValues.put(key, value);
             return this;
+        }
+
+        /**
+         * Puts all input key-value pairs into the Builder.  Any non-valid types will be logged and
+         * ignored.  Valid types are: Boolean, Integer, Long, Double, String, and array versions of
+         * each of those types.  Any {@code null} values will also be ignored.
+         *
+         * @param values A {@link Map} of key-value pairs to add
+         */
+        public void putAll(Map<String, Object> values) {
+            for (Map.Entry<String, Object> entry : values.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (value == null) {
+                    Log.w(TAG, "Ignoring null value for key " + key);
+                    continue;
+                }
+                Class valueType = value.getClass();
+                if (valueType == Boolean.class
+                        || valueType == Integer.class
+                        || valueType == Long.class
+                        || valueType == Double.class
+                        || valueType == String.class
+                        || valueType == Boolean[].class
+                        || valueType == Integer[].class
+                        || valueType == Long[].class
+                        || valueType == Double[].class
+                        || valueType == String[].class) {
+                    mValues.put(key, value);
+                } else {
+                    Log.w(TAG, "Ignoring key " + key + " because of invalid type " + valueType);
+                }
+            }
         }
 
         /**

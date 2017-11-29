@@ -124,7 +124,7 @@ public abstract class Worker {
                 worker.internalInit(appContext, arguments);
                 return worker;
             } else {
-                Log.e(TAG, "" + workerClassName + " is not of type Worker");
+                Log.e(TAG, workerClassName + " is not of type Worker");
             }
         } catch (Exception e) {
             Log.e(TAG, "Trouble instantiating " + workerClassName, e);
