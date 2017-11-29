@@ -43,7 +43,7 @@ public class WorkSpec {
     String mWorkerClassName;
 
     @ColumnInfo(name = "input_merger_class_name")
-    String mInputMergerClassName = OverwritingInputMerger.class.getName();
+    String mInputMergerClassName;
 
     @ColumnInfo(name = "initial_delay")
     long mInitialDelay;

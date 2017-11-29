@@ -37,6 +37,7 @@ public class Work extends BaseWork {
     public static class Builder extends BaseWork.Builder<Work, Work.Builder> {
         public Builder(Class<? extends Worker> workerClass) {
             super(workerClass);
+            mWorkSpec.setInputMergerClassName(OverwritingInputMerger.class.getName());
         }
 
         /**
@@ -68,8 +69,7 @@ public class Work extends BaseWork {
         }
 
         /**
-         * Specify an {@link InputMerger}.  The default is
-         * {@link OverwritingInputMerger}.
+         * Specify an {@link InputMerger}.  The default is {@link OverwritingInputMerger}.
          *
          * @param inputMerger The class name of the {@link InputMerger} to use for this {@link Work}
          * @return The current {@link Builder}

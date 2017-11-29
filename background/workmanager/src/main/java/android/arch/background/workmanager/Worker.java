@@ -119,13 +119,9 @@ public abstract class Worker {
         String workerClassName = workSpec.getWorkerClassName();
         try {
             Class<?> clazz = Class.forName(workerClassName);
-            if (Worker.class.isAssignableFrom(clazz)) {
-                Worker worker = (Worker) clazz.newInstance();
-                worker.internalInit(appContext, arguments);
-                return worker;
-            } else {
-                Log.e(TAG, workerClassName + " is not of type Worker");
-            }
+            Worker worker = (Worker) clazz.newInstance();
+            worker.internalInit(appContext, arguments);
+            return worker;
         } catch (Exception e) {
             Log.e(TAG, "Trouble instantiating " + workerClassName, e);
         }
