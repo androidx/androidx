@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -99,6 +100,7 @@ class TooltipPopup {
 
     private void computePosition(View anchorView, int anchorX, int anchorY, boolean fromTouch,
             WindowManager.LayoutParams outParams) {
+        outParams.token = anchorView.getApplicationWindowToken();
         final int tooltipPreciseAnchorThreshold = mContext.getResources().getDimensionPixelOffset(
                 R.dimen.tooltip_precise_anchor_threshold);
 
@@ -157,7 +159,7 @@ class TooltipPopup {
         mTmpAnchorPos[1] -= mTmpAppPos[1];
         // mTmpAnchorPos is now relative to the main app window.
 
-        outParams.x = mTmpAnchorPos[0] + offsetX - mTmpDisplayFrame.width() / 2;
+        outParams.x = mTmpAnchorPos[0] + offsetX - appView.getWidth() / 2;
 
         final int spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         mContentView.measure(spec, spec);
@@ -181,6 +183,16 @@ class TooltipPopup {
     }
 
     private static View getAppRootView(View anchorView) {
+        View rootView = anchorView.getRootView();
+        ViewGroup.LayoutParams lp = rootView.getLayoutParams();
+        if (lp instanceof WindowManager.LayoutParams
+                && (((WindowManager.LayoutParams) lp).type
+                    == WindowManager.LayoutParams.TYPE_APPLICATION)) {
+            // This covers regular app windows and Dialog windows.
+            return rootView;
+        }
+        // For non-application window types (such as popup windows) try to find the main app window
+        // through the context.
         Context context = anchorView.getContext();
         while (context instanceof ContextWrapper) {
             if (context instanceof Activity) {
@@ -189,6 +201,8 @@ class TooltipPopup {
                 context = ((ContextWrapper) context).getBaseContext();
             }
         }
-        return anchorView.getRootView();
+        // Main app window not found, fall back to the anchor's root view. There is no guarantee
+        // that the tooltip position will be computed correctly.
+        return rootView;
     }
 }
