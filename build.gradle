@@ -25,6 +25,7 @@ buildscript {
     dependencies {
         classpath build_libs.gradle
         classpath build_libs.jacoco
+        classpath build_libs.jetifier
     }
 }
 
