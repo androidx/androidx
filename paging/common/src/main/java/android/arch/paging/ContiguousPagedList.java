@@ -87,21 +87,12 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         if (mDataSource.isInvalid()) {
             detach();
         } else {
-            @DataSource.LoadCountType int type = mConfig.enablePlaceholders
-                    ? DataSource.LOAD_COUNT_ACCEPTED
-                    : DataSource.LOAD_COUNT_PREVENTED;
-
-            DataSource.InitialLoadCallback<V> callback = new DataSource.InitialLoadCallback<>(
-                    type, mConfig.pageSize, mDataSource, mReceiver);
             mDataSource.loadInitial(key,
                     mConfig.initialLoadSizeHint,
+                    mConfig.pageSize,
                     mConfig.enablePlaceholders,
-                    callback);
-
-            // If initialLoad's callback is not called within the body, we force any following calls
-            // to post to the UI thread. This constructor may be run on a background thread, but
-            // after constructor, mutation must happen on UI thread.
-            callback.setPostExecutor(mMainThreadExecutor);
+                    mMainThreadExecutor,
+                    mReceiver);
         }
     }
 
@@ -193,9 +184,8 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 if (mDataSource.isInvalid()) {
                     detach();
                 } else {
-                    DataSource.LoadCallback<V> callback = new DataSource.LoadCallback<>(
-                            PageResult.PREPEND, mMainThreadExecutor, mDataSource, mReceiver);
-                    mDataSource.loadBefore(position, item, mConfig.pageSize, callback);
+                    mDataSource.loadBefore(position, item, mConfig.pageSize,
+                            mMainThreadExecutor, mReceiver);
                 }
 
             }
@@ -223,9 +213,8 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 if (mDataSource.isInvalid()) {
                     detach();
                 } else {
-                    DataSource.LoadCallback<V> callback = new DataSource.LoadCallback<>(
-                            PageResult.APPEND, mMainThreadExecutor, mDataSource, mReceiver);
-                    mDataSource.loadAfter(position, item, mConfig.pageSize, callback);
+                    mDataSource.loadAfter(position, item, mConfig.pageSize,
+                            mMainThreadExecutor, mReceiver);
                 }
             }
         });
