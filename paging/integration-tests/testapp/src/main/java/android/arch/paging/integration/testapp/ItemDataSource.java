@@ -56,35 +56,19 @@ class ItemDataSource extends PositionalDataSource<Item> {
         return items;
     }
 
-    // TODO: open up this API in PositionalDataSource?
-    private static int computeFirstLoadPosition(int position, int firstLoadSize,
-            int pageSize, int size) {
-        int roundedPageStart = Math.round(position / pageSize) * pageSize;
-
-        // minimum start position is 0
-        roundedPageStart = Math.max(0, roundedPageStart);
-
-        // maximum start pos is that which will encompass end of list
-        int maximumLoadPage = ((size - firstLoadSize + pageSize - 1) / pageSize) * pageSize;
-        roundedPageStart = Math.min(maximumLoadPage, roundedPageStart);
-
-        return roundedPageStart;
+    @Override
+    public void loadInitial(@NonNull LoadInitialParams params,
+            @NonNull LoadInitialCallback<Item> callback) {
+        int position = computeInitialLoadPosition(params, COUNT);
+        int loadSize = computeInitialLoadSize(params, position, COUNT);
+        List<Item> data = loadRangeInternal(position, loadSize);
+        callback.onResult(data, position, COUNT);
     }
 
     @Override
-    public void loadInitial(int requestedStartPosition, int requestedLoadSize,
-            int pageSize, @NonNull InitialLoadCallback<Item> callback) {
-        requestedStartPosition = computeFirstLoadPosition(
-                requestedStartPosition, requestedLoadSize, pageSize, COUNT);
-
-        requestedLoadSize = Math.min(COUNT - requestedStartPosition, requestedLoadSize);
-        List<Item> data = loadRangeInternal(requestedStartPosition, requestedLoadSize);
-        callback.onResult(data, requestedStartPosition, COUNT);
-    }
-
-    @Override
-    public void loadRange(int startPosition, int count, @NonNull LoadCallback<Item> callback) {
-        List<Item> data = loadRangeInternal(startPosition, count);
+    public void loadRange(@NonNull LoadRangeParams params,
+            @NonNull LoadRangeCallback<Item> callback) {
+        List<Item> data = loadRangeInternal(params.startPosition, params.loadSize);
         callback.onResult(data);
     }
 }

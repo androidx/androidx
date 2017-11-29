@@ -602,7 +602,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * GC'd.
      *
      * @param previousSnapshot Snapshot previously captured from this List, or null.
-     * @param callback         LoadCallback to dispatch to.
+     * @param callback Callback to dispatch to.
+     *
      * @see #removeWeakCallback(Callback)
      */
     @SuppressWarnings("WeakerAccess")
@@ -637,7 +638,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
     /**
      * Removes a previously added callback.
      *
-     * @param callback LoadCallback, previously added.
+     * @param callback Callback, previously added.
      * @see #addWeakCallback(List, Callback)
      */
     @SuppressWarnings("WeakerAccess")
@@ -680,7 +681,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * Dispatch updates since the non-empty snapshot was taken.
      *
      * @param snapshot Non-empty snapshot.
-     * @param callback LoadCallback for updates that have occurred since snapshot.
+     * @param callback Callback for updates that have occurred since snapshot.
      */
     abstract void dispatchUpdatesSinceSnapshot(@NonNull PagedList<T> snapshot,
             @NonNull Callback callback);

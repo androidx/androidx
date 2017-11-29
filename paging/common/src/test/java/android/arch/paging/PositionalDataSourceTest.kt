@@ -24,39 +24,71 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class PositionalDataSourceTest {
-    @Test
-    fun computeFirstLoadPositionZero() {
-        assertEquals(0, PositionalDataSource.computeFirstLoadPosition(0, 30, 10, 100))
+    private fun computeInitialLoadPos(
+            requestedStartPosition: Int,
+            requestedLoadSize: Int,
+            pageSize: Int,
+            totalCount: Int): Int {
+        val params = PositionalDataSource.LoadInitialParams(
+                requestedStartPosition, requestedLoadSize, pageSize, true)
+        return PositionalDataSource.computeInitialLoadPosition(params, totalCount)
     }
 
     @Test
-    fun computeFirstLoadPositionRequestedPositionIncluded() {
-        assertEquals(10, PositionalDataSource.computeFirstLoadPosition(10, 10, 10, 100))
+    fun computeInitialLoadPositionZero() {
+        assertEquals(0, computeInitialLoadPos(
+                requestedStartPosition = 0,
+                requestedLoadSize = 30,
+                pageSize = 10,
+                totalCount = 100))
     }
 
     @Test
-    fun computeFirstLoadPositionRound() {
-        assertEquals(10, PositionalDataSource.computeFirstLoadPosition(13, 30, 10, 100))
+    fun computeInitialLoadPositionRequestedPositionIncluded() {
+        assertEquals(10, computeInitialLoadPos(
+                requestedStartPosition = 10,
+                requestedLoadSize = 10,
+                pageSize = 10,
+                totalCount = 100))
     }
 
     @Test
-    fun computeFirstLoadPositionEndAdjusted() {
-        assertEquals(70, PositionalDataSource.computeFirstLoadPosition(99, 30, 10, 100))
+    fun computeInitialLoadPositionRound() {
+        assertEquals(10, computeInitialLoadPos(
+                requestedStartPosition = 13,
+                requestedLoadSize = 30,
+                pageSize = 10,
+                totalCount = 100))
     }
 
     @Test
-    fun computeFirstLoadPositionEndAdjustedAndAligned() {
-        assertEquals(70, PositionalDataSource.computeFirstLoadPosition(99, 35, 10, 100))
+    fun computeInitialLoadPositionEndAdjusted() {
+        assertEquals(70, computeInitialLoadPos(
+                requestedStartPosition = 99,
+                requestedLoadSize = 30,
+                pageSize = 10,
+                totalCount = 100))
+    }
+
+    @Test
+    fun computeInitialLoadPositionEndAdjustedAndAligned() {
+        assertEquals(70, computeInitialLoadPos(
+                requestedStartPosition = 99,
+                requestedLoadSize = 35,
+                pageSize = 10,
+                totalCount = 100))
     }
 
     private fun performInitialLoad(
-            callbackInvoker: (callback: PositionalDataSource.InitialLoadCallback<String>) -> Unit) {
+            callbackInvoker: (callback: PositionalDataSource.LoadInitialCallback<String>) -> Unit) {
         val dataSource = object : PositionalDataSource<String>() {
-            override fun loadInitial(requestedStartPosition: Int, requestedLoadSize: Int,
-                                     pageSize: Int, callback: InitialLoadCallback<String>) {
+            override fun loadInitial(
+                    params: LoadInitialParams,
+                    callback: LoadInitialCallback<String>) {
                 callbackInvoker(callback)
             }
-            override fun loadRange(startPosition: Int, count: Int, callback: LoadCallback<String>) {
+
+            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
                 fail("loadRange not expected")
             }
         }
@@ -71,38 +103,38 @@ class PositionalDataSourceTest {
 
     @Test
     fun initialLoadCallbackSuccess() = performInitialLoad {
-        // InitialLoadCallback correct usage
+        // LoadInitialCallback correct usage
         it.onResult(listOf("a", "b"), 0, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun initialLoadCallbackNotPageSizeMultiple() = performInitialLoad {
-        // Positional InitialLoadCallback can't accept result that's not a multiple of page size
+        // Positional LoadInitialCallback can't accept result that's not a multiple of page size
         val elevenLetterList = List(11) { "" + 'a' + it }
         it.onResult(elevenLetterList, 0, 12)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun initialLoadCallbackListTooBig() = performInitialLoad {
-        // InitialLoadCallback can't accept pos + list > totalCount
+        // LoadInitialCallback can't accept pos + list > totalCount
         it.onResult(listOf("a", "b", "c"), 0, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun initialLoadCallbackPositionTooLarge() = performInitialLoad {
-        // InitialLoadCallback can't accept pos + list > totalCount
+        // LoadInitialCallback can't accept pos + list > totalCount
         it.onResult(listOf("a", "b"), 1, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun initialLoadCallbackPositionNegative() = performInitialLoad {
-        // InitialLoadCallback can't accept negative position
+        // LoadInitialCallback can't accept negative position
         it.onResult(listOf("a", "b", "c"), -1, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun initialLoadCallbackEmptyCannotHavePlaceholders() = performInitialLoad {
-        // InitialLoadCallback can't accept empty result unless data set is empty
+        // LoadInitialCallback can't accept empty result unless data set is empty
         it.onResult(emptyList(), 0, 2)
     }
 }
