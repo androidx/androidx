@@ -19,6 +19,7 @@ package android.arch.paging
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -41,10 +42,8 @@ class KeyedDataSourceTest {
         val captor = ArgumentCaptor.forClass(PageResult::class.java)
                 as ArgumentCaptor<PageResult<Item>>
 
-        val callback = DataSource.InitialLoadCallback(
-                DataSource.LOAD_COUNT_ACCEPTED, /* ignored page size */ 10, dataSource, receiver)
-
-        dataSource.loadInitial(key, initialLoadSize, enablePlaceholders, callback)
+        dataSource.loadInitial(key, initialLoadSize,
+                /* ignored pageSize */ 10, enablePlaceholders, FailExecutor(), receiver)
 
         verify(receiver).onPageResult(anyInt(), captor.capture())
         verifyNoMoreInteractions(receiver)
@@ -186,9 +185,10 @@ class KeyedDataSourceTest {
     fun loadBefore() {
         val dataSource = ItemDataSource()
         @Suppress("UNCHECKED_CAST")
-        val callback = mock(DataSource.LoadCallback::class.java) as DataSource.LoadCallback<Item>
+        val callback = mock(KeyedDataSource.LoadCallback::class.java)
+                as KeyedDataSource.LoadCallback<Item>
 
-        dataSource.loadBefore(5, ITEMS_BY_NAME_ID[5], 5, callback)
+        dataSource.loadBefore(dataSource.getKey(ITEMS_BY_NAME_ID[5]), 5, callback)
 
         @Suppress("UNCHECKED_CAST")
         val argument = ArgumentCaptor.forClass(List::class.java) as ArgumentCaptor<List<Item>>
@@ -251,6 +251,81 @@ class KeyedDataSourceTest {
                 KEY_COMPARATOR.compare(key, getKey(items[it])) > 0
             } ?: -1
         }
+    }
+
+    private fun performInitialLoad(
+            callbackInvoker: (callback: KeyedDataSource.InitialLoadCallback<String>) -> Unit) {
+        val dataSource = object : KeyedDataSource<String, String>() {
+            override fun getKey(item: String): String {
+                return ""
+            }
+
+            override fun loadInitial(
+                    initialLoadKey: String?,
+                    requestedLoadSize: Int,
+                    enablePlaceholders: Boolean,
+                    callback: InitialLoadCallback<String>) {
+                callbackInvoker(callback)
+            }
+
+            override fun loadAfter(
+                    currentEndKey: String,
+                    pageSize: Int,
+                    callback: LoadCallback<String>) {
+                fail("loadRange not expected")
+            }
+
+            override fun loadBefore(
+                    currentBeginKey: String,
+                    pageSize: Int,
+                    callback: LoadCallback<String>) {
+                fail("loadRange not expected")
+            }
+        }
+
+        ContiguousPagedList<String, String>(
+                dataSource, FailExecutor(), FailExecutor(), null,
+                PagedList.Config.Builder()
+                        .setPageSize(10)
+                        .build(),
+                "")
+    }
+
+    @Test
+    fun initialLoadCallbackSuccess() = performInitialLoad {
+        // InitialLoadCallback correct usage
+        it.onResult(listOf("a", "b"), 0, 2)
+    }
+
+    @Test
+    fun initialLoadCallbackNotPageSizeMultiple() = performInitialLoad {
+        // Keyed InitialLoadCallback *can* accept result that's not a multiple of page size
+        val elevenLetterList = List(11) { "" + 'a' + it }
+        it.onResult(elevenLetterList, 0, 12)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackListTooBig() = performInitialLoad {
+        // InitialLoadCallback can't accept pos + list > totalCount
+        it.onResult(listOf("a", "b", "c"), 0, 2)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackPositionTooLarge() = performInitialLoad {
+        // InitialLoadCallback can't accept pos + list > totalCount
+        it.onResult(listOf("a", "b"), 1, 2)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackPositionNegative() = performInitialLoad {
+        // InitialLoadCallback can't accept negative position
+        it.onResult(listOf("a", "b", "c"), -1, 2)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackEmptyCannotHavePlaceholders() = performInitialLoad {
+        // InitialLoadCallback can't accept empty result unless data set is empty
+        it.onResult(emptyList(), 0, 2)
     }
 
     companion object {

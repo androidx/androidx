@@ -36,10 +36,7 @@ class TiledDataSourceTest {
         @Suppress("UNCHECKED_CAST")
         val receiver = mock(PageResult.Receiver::class.java) as PageResult.Receiver<String>
 
-        val callback = DataSource.InitialLoadCallback(
-                DataSource.LOAD_COUNT_REQUIRED_TILED, pageSize, this, receiver)
-
-        this.loadInitial(startPosition, count, pageSize, callback)
+        this.loadInitial(true, startPosition, count, pageSize, FailExecutor(), receiver)
 
         @Suppress("UNCHECKED_CAST")
         val argument = ArgumentCaptor.forClass(PageResult::class.java)
