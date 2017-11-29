@@ -27,6 +27,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.verifyZeroInteractions
+import java.util.concurrent.Executor
 
 @RunWith(Parameterized::class)
 class ContiguousPagedListTest(private val mCounted: Boolean) {
@@ -43,32 +44,56 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
 
     private inner class TestSource(val listData: List<Item> = ITEMS)
             : ContiguousDataSource<Int, Item>() {
-        override fun loadInitial(key: Int?, initialLoadSize: Int,
-                enablePlaceholders: Boolean, callback: InitialLoadCallback<Item>) {
+        override fun loadInitial(
+                key: Int?,
+                initialLoadSize: Int,
+                pageSize: Int,
+                enablePlaceholders: Boolean,
+                mainThreadExecutor: Executor,
+                receiver: PageResult.Receiver<Item>) {
 
             val convertPosition = key ?: 0
-            val loadPosition = Math.max(0, (convertPosition - initialLoadSize / 2))
-
-            val data = getClampedRange(loadPosition, loadPosition + initialLoadSize)
+            val position = Math.max(0, (convertPosition - initialLoadSize / 2))
+            val data = getClampedRange(position, position + initialLoadSize)
+            val trailingUnloadedCount = listData.size - position - data.size
 
             if (enablePlaceholders && mCounted) {
-                callback.onResult(data, loadPosition, listData.size)
+                receiver.onPageResult(PageResult.INIT,
+                        PageResult(data, position, trailingUnloadedCount, 0))
             } else {
                 // still must pass offset, even if not counted
-                callback.onResult(data, loadPosition)
+                receiver.onPageResult(PageResult.INIT,
+                        PageResult(data, position))
             }
         }
 
-        override fun loadAfter(currentEndIndex: Int, currentEndItem: Item, pageSize: Int,
-                callback: LoadCallback<Item>) {
+        override fun loadAfter(
+                currentEndIndex: Int,
+                currentEndItem: Item,
+                pageSize: Int,
+                mainThreadExecutor: Executor,
+                receiver: PageResult.Receiver<Item>) {
             val startIndex = currentEndIndex + 1
-            callback.onResult(getClampedRange(startIndex, startIndex + pageSize))
+            val data = getClampedRange(startIndex, startIndex + pageSize)
+
+            mainThreadExecutor.execute {
+                receiver.onPageResult(PageResult.APPEND, PageResult(data, 0, 0, 0))
+            }
         }
 
-        override fun loadBefore(currentBeginIndex: Int, currentBeginItem: Item, pageSize: Int,
-                callback: LoadCallback<Item>) {
+        override fun loadBefore(
+                currentBeginIndex: Int,
+                currentBeginItem: Item,
+                pageSize: Int,
+                mainThreadExecutor: Executor,
+                receiver: PageResult.Receiver<Item>) {
+
             val startIndex = currentBeginIndex - 1
-            callback.onResult(getClampedRange(startIndex - pageSize + 1, startIndex + 1))
+            val data = getClampedRange(startIndex - pageSize + 1, startIndex + 1)
+
+            mainThreadExecutor.execute {
+                receiver.onPageResult(PageResult.PREPEND, PageResult(data, 0, 0, 0))
+            }
         }
 
         override fun getKey(position: Int, item: Item?): Int {

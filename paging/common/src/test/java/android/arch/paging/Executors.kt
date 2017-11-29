@@ -16,6 +16,7 @@
 
 package android.arch.paging
 
+import org.junit.Assert.fail
 import java.util.LinkedList
 import java.util.concurrent.Executor
 
@@ -35,5 +36,11 @@ class TestExecutor : Executor {
             task = mTasks.poll()
         }
         return consumed
+    }
+}
+
+class FailExecutor(val string: String = "Executor expected to be unused") : Executor {
+    override fun execute(p0: Runnable?) {
+        fail(string)
     }
 }

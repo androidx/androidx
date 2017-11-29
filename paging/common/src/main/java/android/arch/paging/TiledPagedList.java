@@ -92,15 +92,8 @@ class TiledPagedList<T> extends PagedList<T>
             final int idealStart = position - firstLoadSize / 2;
             final int roundedPageStart = Math.max(0, Math.round(idealStart / pageSize) * pageSize);
 
-            DataSource.InitialLoadCallback<T> callback = new DataSource.InitialLoadCallback<>(
-                            DataSource.LOAD_COUNT_REQUIRED_TILED,
-                    mConfig.pageSize, mDataSource, mReceiver);
-            mDataSource.loadInitial(roundedPageStart, firstLoadSize, pageSize, callback);
-
-            // If initialLoad's callback is not called within the body, we force any following calls
-            // to post to the UI thread. This constructor may be run on a background thread, but
-            // after constructor, mutation must happen on UI thread.
-            callback.setPostExecutor(mMainThreadExecutor);
+            mDataSource.loadInitial(true, roundedPageStart, firstLoadSize,
+                    pageSize, mMainThreadExecutor, mReceiver);
         }
     }
 
@@ -185,10 +178,7 @@ class TiledPagedList<T> extends PagedList<T>
                 } else {
                     int startPosition = pageIndex * pageSize;
                     int count = Math.min(pageSize, mStorage.size() - startPosition);
-                    DataSource.LoadCallback<T> callback = new DataSource.LoadCallback<>(
-                            PageResult.TILE, mMainThreadExecutor, mDataSource, mReceiver);
-                    callback.setPositionOffset(startPosition);
-                    mDataSource.loadRange(startPosition, count, callback);
+                    mDataSource.loadRange(startPosition, count, mMainThreadExecutor, mReceiver);
                 }
             }
         });
