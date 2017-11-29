@@ -17,10 +17,12 @@ package androidx.app.slice.widget;
 
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 
 import androidx.app.slice.Slice;
 
@@ -41,32 +43,61 @@ public final class SliceLiveData {
         return new SliceLiveDataImpl(context.getApplicationContext(), uri);
     }
 
+    /**
+     * Produces an {@link LiveData} that tracks a Slice for a given Intent. To use
+     * this method your app must have the permission to the slice Uri or hold
+     * {@link android.Manifest.permission#BIND_SLICE}).
+     */
+    public static LiveData<Slice> fromIntent(@NonNull Context context, @NonNull Intent intent) {
+        return new SliceLiveDataImpl(context.getApplicationContext(), intent);
+    }
+
     private static class SliceLiveDataImpl extends LiveData<Slice> {
-        private final Uri mUri;
         private final Context mContext;
+        private final Intent mIntent;
+        private Uri mUri;
 
         private SliceLiveDataImpl(Context context, Uri uri) {
             super();
             mContext = context;
             mUri = uri;
+            mIntent = null;
             // TODO: Check if uri points at a Slice?
+        }
+
+        private SliceLiveDataImpl(Context context, Intent intent) {
+            super();
+            mContext = context;
+            mUri = null;
+            mIntent = intent;
         }
 
         @Override
         protected void onActive() {
             AsyncTask.execute(mUpdateSlice);
-            mContext.getContentResolver().registerContentObserver(mUri, false, mObserver);
+            if (mUri != null) {
+                mContext.getContentResolver().registerContentObserver(mUri, false, mObserver);
+            }
         }
 
         @Override
         protected void onInactive() {
-            mContext.getContentResolver().unregisterContentObserver(mObserver);
+            if (mUri != null) {
+                mContext.getContentResolver().unregisterContentObserver(mObserver);
+            }
         }
 
         private final Runnable mUpdateSlice = new Runnable() {
             @Override
             public void run() {
-                postValue(Slice.bindSlice(mContext, mUri));
+                Slice s = mUri != null ? Slice.bindSlice(mContext, mUri)
+                        : Slice.bindSlice(mContext, mIntent);
+                if (mUri == null && s != null) {
+                    mContext.getContentResolver().registerContentObserver(s.getUri(),
+                            false, mObserver);
+                    mUri = s.getUri();
+                }
+                postValue(s);
             }
         };
 

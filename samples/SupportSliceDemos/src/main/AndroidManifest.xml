@@ -40,11 +40,19 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.intent.SLICE_ACTION"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
 
         <provider android:authorities="com.example.androidx.slice.demos"
                   android:name=".SampleSliceProvider"
                   android:grantUriPermissions="true">
+            <intent-filter>
+                <action android:name="androidx.intent.SLICE_ACTION"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </provider>
 
         <receiver

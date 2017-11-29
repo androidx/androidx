@@ -2,6 +2,7 @@ package androidx.app.slice.widget {
 
   public final class SliceLiveData {
     ctor public SliceLiveData();
+    method public static android.arch.lifecycle.LiveData<androidx.app.slice.Slice> fromIntent(android.content.Context, android.content.Intent);
     method public static android.arch.lifecycle.LiveData<androidx.app.slice.Slice> fromUri(android.content.Context, android.net.Uri);
   }
 
