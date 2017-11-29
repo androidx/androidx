@@ -20,7 +20,6 @@ import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -37,20 +36,15 @@ import android.os.Build;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.testutils.PollingCheck;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v7.util.ImeCleanUpTestRule;
-import android.support.v7.util.TouchUtils;
 import android.test.UiThreadTest;
 import android.util.SparseIntArray;
 import android.util.StateSet;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -63,9 +57,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
-
-    @Rule
-    public final ImeCleanUpTestRule imeCleanUp = new ImeCleanUpTestRule();
 
     @Test
     public void focusSearchFailureUp() throws Throwable {
@@ -179,100 +170,140 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         }
     }
 
+    /**
+     * Tests that the GridLayoutManager retains the focused element after multiple measure
+     * calls to the RecyclerView.  There was a bug where the focused view was lost when the soft
+     * keyboard opened.  This test simulates the measure/layout events triggered by the opening
+     * of the soft keyboard by making two calls to measure.  A simulation was done because using
+     * the soft keyboard in the test caused many issues on API levels 15, 17 and 19.
+     */
     @Test
-    public void editTextVisibility() throws Throwable {
+    public void focusedChildStaysInViewWhenRecyclerViewShrinks() throws Throwable {
+
+        // Arrange.
+
         final int spanCount = 3;
         final int itemCount = 100;
 
-        imeCleanUp.setup(getActivity(), getInstrumentation());
-        RecyclerView recyclerView = new WrappedRecyclerView(getActivity());
-        GridEditTextAdapter editTextAdapter = new GridEditTextAdapter(itemCount) {
-            @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent,
-                    int viewType) {
-                TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
-                // Good to have colors for debugging
-                StateListDrawable stl = new StateListDrawable();
-                stl.addState(new int[]{android.R.attr.state_focused},
-                        new ColorDrawable(Color.RED));
-                stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                //noinspection deprecation using this for kitkat tests
-                testViewHolder.itemView.setBackgroundDrawable(stl);
-                return testViewHolder;
-            }
-        };
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mActivityRule.getActivity().getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE);
-            }
-        });
-
-        recyclerView.setLayoutParams(
-                new ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        final RecyclerView recyclerView = inflateWrappedRV();
+        ViewGroup.LayoutParams lp = recyclerView.getLayoutParams();
+        lp.height = WRAP_CONTENT;
+        lp.width = MATCH_PARENT;
 
         Config config = new Config(spanCount, itemCount);
         mGlm = new WrappedGridLayoutManager(getActivity(), config.mSpanCount, config.mOrientation,
                 config.mReverseLayout);
-        editTextAdapter.assignSpanSizeLookup(mGlm);
-        recyclerView.setAdapter(editTextAdapter);
         recyclerView.setLayoutManager(mGlm);
-        waitForFirstLayout(recyclerView);
 
-        // First focus on the last fully visible EditText located at span index #1.
-        View toFocus = findLastFullyVisibleChild(mRecyclerView);
-        int focusIndex = mRecyclerView.getChildAdapterPosition(toFocus);
-        focusIndex = (focusIndex / spanCount) * spanCount + 1;
-        toFocus = mRecyclerView.findViewHolderForAdapterPosition(focusIndex).itemView;
-        assertTrue(focusIndex >= 1 && focusIndex < itemCount);
+        GridFocusableAdapter gridFocusableAdapter = new GridFocusableAdapter(itemCount);
+        gridFocusableAdapter.assignSpanSizeLookup(mGlm);
+        recyclerView.setAdapter(gridFocusableAdapter);
 
-        final int heightBeforeImeOpen = mRecyclerView.getHeight();
-        TouchUtils.tapView(getInstrumentation(), mRecyclerView, toFocus);
-        getInstrumentation().waitForIdleSync();
-        // Wait for IME to pop up.
-        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+        mGlm.expectLayout(1);
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
-            public boolean canProceed() {
-                return mRecyclerView.getHeight() < heightBeforeImeOpen;
+            public void run() {
+                getActivity().getContainer().addView(recyclerView);
             }
         });
+        mGlm.waitForLayout(3);
+
+        int width = recyclerView.getWidth();
+        int height = recyclerView.getHeight();
+        final int widthMeasureSpec =
+                View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+        final int fullHeightMeasureSpec =
+                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST);
+        // "MinusOne" so that a measure call will appropriately trigger onMeasure after RecyclerView
+        // was previously laid out with the full height version.
+        final int fullHeightMinusOneMeasureSpec =
+                View.MeasureSpec.makeMeasureSpec(height - 1, View.MeasureSpec.AT_MOST);
+        final int halfHeightMeasureSpec =
+                View.MeasureSpec.makeMeasureSpec(height / 2, View.MeasureSpec.AT_MOST);
+
+        // Act 1.
+
+        // First focus on the last fully visible child located at span index #1.
+        View toFocus = findLastFullyVisibleChild(recyclerView);
+        int focusIndex = recyclerView.getChildAdapterPosition(toFocus);
+        focusIndex = (focusIndex / spanCount) * spanCount + 1;
+        toFocus = recyclerView.findViewHolderForAdapterPosition(focusIndex).itemView;
+        assertTrue(focusIndex >= 1 && focusIndex < itemCount);
+
+        requestFocus(toFocus, false);
+
+        mGlm.expectLayout(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.measure(widthMeasureSpec, fullHeightMinusOneMeasureSpec);
+                recyclerView.measure(widthMeasureSpec, halfHeightMeasureSpec);
+                recyclerView.layout(
+                        0,
+                        0,
+                        recyclerView.getMeasuredWidth(),
+                        recyclerView.getMeasuredHeight());
+            }
+        });
+        mGlm.waitForLayout(3);
+
+        // Assert 1.
 
         assertThat("Child at position " + focusIndex + " should be focused",
                 toFocus.hasFocus(), is(true));
         assertTrue("Child view at adapter pos " + focusIndex + " should be fully visible.",
-                isViewPartiallyInBound(mRecyclerView, toFocus));
+                isViewPartiallyInBound(recyclerView, toFocus));
 
-        // Close IME
-        final int heightBeforeImeClose = mRecyclerView.getHeight();
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
-        getInstrumentation().waitForIdleSync();
-        // Wait for IME to close
-        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+        // Act 2.
+
+        mGlm.expectLayout(1);
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
-            public boolean canProceed() {
-                return mRecyclerView.getHeight() > heightBeforeImeClose;
+            public void run() {
+                recyclerView.measure(widthMeasureSpec, fullHeightMeasureSpec);
+                recyclerView.layout(
+                        0,
+                        0,
+                        recyclerView.getMeasuredWidth(),
+                        recyclerView.getMeasuredHeight());
             }
         });
+        mGlm.waitForLayout(3);
+
+        // Assert 2.
+
         assertTrue("Child view at adapter pos " + focusIndex + " should be fully visible.",
-                isViewPartiallyInBound(mRecyclerView, toFocus));
+                isViewPartiallyInBound(recyclerView, toFocus));
+
+        // Act 3.
 
         // Now focus on the first fully visible EditText located at the last span index.
-        toFocus = findFirstFullyVisibleChild(mRecyclerView);
-        focusIndex = mRecyclerView.getChildAdapterPosition(toFocus);
+        toFocus = findFirstFullyVisibleChild(recyclerView);
+        focusIndex = recyclerView.getChildAdapterPosition(toFocus);
         focusIndex = (focusIndex / spanCount) * spanCount + (spanCount - 1);
-        toFocus = mRecyclerView.findViewHolderForAdapterPosition(focusIndex).itemView;
-        final int heightBeforeImeOpen2 = mRecyclerView.getHeight();
-        TouchUtils.tapView(getInstrumentation(), mRecyclerView, toFocus);
-        getInstrumentation().waitForIdleSync();
-        // Wait for IME to pop up
-        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+        toFocus = recyclerView.findViewHolderForAdapterPosition(focusIndex).itemView;
+
+        requestFocus(toFocus, false);
+
+        mGlm.expectLayout(1);
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
-            public boolean canProceed() {
-                return mRecyclerView.getHeight() < heightBeforeImeOpen2;
+            public void run() {
+                recyclerView.measure(widthMeasureSpec, fullHeightMinusOneMeasureSpec);
+                recyclerView.measure(widthMeasureSpec, halfHeightMeasureSpec);
+                recyclerView.layout(
+                        0,
+                        0,
+                        recyclerView.getMeasuredWidth(),
+                        recyclerView.getMeasuredHeight());
             }
         });
+        mGlm.waitForLayout(3);
+
+        // Assert 3.
+
         assertTrue("Child view at adapter pos " + focusIndex + " should be fully visible.",
-                isViewPartiallyInBound(mRecyclerView, toFocus));
+                isViewPartiallyInBound(recyclerView, toFocus));
     }
 
     @Test

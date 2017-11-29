@@ -35,14 +35,13 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
+import android.support.testutils.PollingCheck;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.recyclerview.test.R;
-import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -323,6 +322,12 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             @Override
             public void run() {
                 result[0] = view.requestFocus();
+            }
+        });
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return view.hasFocus();
             }
         });
         if (waitForScroll && result[0]) {
@@ -789,34 +794,32 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
     }
 
-    public class EditTextAdapter extends RecyclerView.Adapter<TestViewHolder> {
+    public class FocusableAdapter extends RecyclerView.Adapter<TestViewHolder> {
 
-        final ArrayList<Editable> mEditables;
-        public EditTextAdapter(int count) {
-            mEditables = new ArrayList<>();
-            for (int i = 0; i < count; ++i) {
-                mEditables.add(Editable.Factory.getInstance().newEditable("Sample Text " + i));
-            }
+        private int mCount;
+
+        FocusableAdapter(int count) {
+            mCount = count;
         }
 
         @Override
         public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            final EditText editText = new EditText(parent.getContext());
-            editText.setLayoutParams(new ViewGroup.LayoutParams(
+            final TextView textView = new TextView(parent.getContext());
+            textView.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            final TestViewHolder viewHolder = new TestViewHolder(editText);
-            return viewHolder;
+            textView.setFocusable(true);
+            textView.setBackgroundResource(R.drawable.item_bg);
+            return new TestViewHolder(textView);
         }
 
         @Override
         public void onBindViewHolder(TestViewHolder holder, int position) {
-            ((EditText) holder.itemView).setText(Editable.Factory.getInstance().newEditable(
-                    mEditables.get(position)));
+            ((TextView) holder.itemView).setText("Item " + position);
         }
 
         @Override
         public int getItemCount() {
-            return mEditables.size();
+            return mCount;
         }
     }
 

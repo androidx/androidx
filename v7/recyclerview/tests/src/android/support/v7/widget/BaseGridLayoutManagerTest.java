@@ -325,16 +325,16 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
         }
     }
 
-    class GridEditTextAdapter extends EditTextAdapter {
+    class GridFocusableAdapter extends FocusableAdapter {
 
         Set<Integer> mFullSpanItems = new HashSet<Integer>();
         int mSpanPerItem = 1;
 
-        GridEditTextAdapter(int count) {
+        GridFocusableAdapter(int count) {
             this(count, 1);
         }
 
-        GridEditTextAdapter(int count, int spanPerItem) {
+        GridFocusableAdapter(int count, int spanPerItem) {
             super(count);
             mSpanPerItem = spanPerItem;
         }
