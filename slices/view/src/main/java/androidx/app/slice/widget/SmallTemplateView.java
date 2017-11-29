@@ -221,6 +221,7 @@ public class SmallTemplateView extends SliceView.SliceModeView implements
         if (startItem != null) {
             // TODO - check for icon, timestamp, action with icon
         }
+        mStartContainer.setVisibility(startItem != null ? View.VISIBLE : View.GONE);
         if (titleItem != null) {
             mPrimaryText.setText(titleItem.getText());
         }
