@@ -43,6 +43,7 @@ public class MockFontProvider extends ContentProvider {
     static final String[] FONT_FILES = {
             "samplefont.ttf", "large_a.ttf", "large_b.ttf", "large_c.ttf", "large_d.ttf"
     };
+    private static final int INVALID_FONT_FILE_ID = -1;
     private static final int SAMPLE_FONT_FILE_0_ID = 0;
     private static final int LARGE_A_FILE_ID = 1;
     private static final int LARGE_B_FILE_ID = 2;
@@ -59,6 +60,7 @@ public class MockFontProvider extends ContentProvider {
     static final String NEGATIVE_ERROR_CODE_QUERY = "negativeCode";
     static final String MANDATORY_FIELDS_ONLY_QUERY = "mandatoryFields";
     static final String STYLE_TEST_QUERY = "styleTest";
+    static final String INVALID_URI = "invalidURI";
 
     static class Font {
         Font(int id, int fileId, int ttcIndex, String varSettings, int weight, int italic,
@@ -176,6 +178,11 @@ public class MockFontProvider extends ContentProvider {
                         Columns.RESULT_CODE_OK, true),
         });
 
+        map.put(INVALID_URI, new Font[] {
+                new Font(id++, INVALID_FONT_FILE_ID, 0, null, 400, 0,
+                        Columns.RESULT_CODE_OK, true),
+        });
+
         QUERY_MAP = Collections.unmodifiableMap(map);
     }
 
@@ -260,6 +267,9 @@ public class MockFontProvider extends ContentProvider {
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) {
         final int id = (int) ContentUris.parseId(uri);
+        if (id < 0) {
+            return null;
+        }
         final File targetFile = getCopiedFile(getContext(), FONT_FILES[id]);
         try {
             return ParcelFileDescriptor.open(targetFile, ParcelFileDescriptor.MODE_READ_ONLY);
