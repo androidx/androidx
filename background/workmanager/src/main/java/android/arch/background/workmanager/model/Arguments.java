@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public final class Arguments {
 
     public static final Arguments EMPTY = new Arguments.Builder().build();
 
-    public Arguments() {    // stub required for room
+    Arguments() {    // stub required for room
     }
 
     Arguments(Map<String, ?> values) {
@@ -191,10 +192,11 @@ public final class Arguments {
     /**
      * Gets all the values in this Arguments object.
      *
-     * @return A {@link Map} of key-value pairs for this object.
+     * @return A {@link Map} of key-value pairs for this object; this Map is unmodifiable and should
+     * be used for reads only.
      */
     public Map<String, Object> getKeyValueMap() {
-        return mValues;
+        return Collections.unmodifiableMap(mValues);
     }
 
     /**

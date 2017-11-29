@@ -49,15 +49,16 @@ public class ArrayCreatingInputMerger extends InputMerger {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 Class valueClass = value.getClass();
+                Object mergedValue;
 
                 if (!mergedValues.containsKey(key)) {
                     // First time encountering this key.
                     if (valueClass.isArray()) {
                         // Arrays carry over as-is.
-                        mergedValues.put(key, value);
+                        mergedValue = value;
                     } else {
                         // Primitives get turned into size 1 arrays.
-                        mergedValues.put(key, createArrayFor(value));
+                        mergedValue = createArrayFor(value);
                     }
                 } else {
                     // We've encountered this key before.
@@ -67,22 +68,24 @@ public class ArrayCreatingInputMerger extends InputMerger {
                     if (existingValueClass.equals(valueClass)) {
                         // The classes match; we can merge.
                         if (existingValueClass.isArray()) {
-                            mergedValues.put(key, concatenateArrays(existingValue, value));
+                            mergedValue = concatenateArrays(existingValue, value);
                         } else {
-                            mergedValues.put(key, concatenateNonArrays(existingValue, value));
+                            mergedValue = concatenateNonArrays(existingValue, value);
                         }
                     } else if (existingValueClass.isArray()
                             && existingValueClass.getComponentType().equals(valueClass)) {
                         // We have an existing array of the same type.
-                        mergedValues.put(key, concatenateArrayAndNonArray(existingValue, value));
+                        mergedValue = concatenateArrayAndNonArray(existingValue, value);
                     } else if (valueClass.isArray()
                             && valueClass.getComponentType().equals(existingValueClass)) {
                         // We have an existing array of the same type.
-                        mergedValues.put(key, concatenateArrayAndNonArray(value, existingValue));
+                        mergedValue = concatenateArrayAndNonArray(value, existingValue);
                     } else {
                         throw new IllegalStateException();
                     }
                 }
+
+                mergedValues.put(key, mergedValue);
             }
         }
 

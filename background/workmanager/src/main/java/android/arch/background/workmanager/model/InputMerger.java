@@ -32,7 +32,7 @@ public abstract class InputMerger {
     /**
      * Merges a list of {@link Arguments} and outputs a single Arguments object.
      *
-     * @param inputs A list of {@link Arguments} from previous Workers
+     * @param inputs A list of {@link Arguments} from previous Workers or the Work.Builder
      * @return The merged output
      */
     public abstract Arguments merge(List<Arguments> inputs);
@@ -50,12 +50,7 @@ public abstract class InputMerger {
     public static InputMerger fromClassName(String className) {
         try {
             Class<?> clazz = Class.forName(className);
-            if (InputMerger.class.isAssignableFrom(clazz)) {
-                InputMerger inputMerger = (InputMerger) clazz.newInstance();
-                return inputMerger;
-            } else {
-                Log.e(TAG, className + " is not of type InputMerger");
-            }
+            return (InputMerger) clazz.newInstance();
         } catch (Exception e) {
             Log.e(TAG, "Trouble instantiating + " + className, e);
         }
