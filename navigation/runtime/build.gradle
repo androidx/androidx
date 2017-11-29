@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
@@ -32,19 +33,12 @@ dependencies {
     compile libs.support.core_utils
     compile libs.support.fragments
 
-    testCompile libs.junit
-    testCompile libs.mockito_core
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(TEST_RUNNER, libs.exclude_annotations)
 
-    testCompile(libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-
-    androidTestCompile(libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestCompile(libs.espresso_core, {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
 }
 
 supportLibrary {
