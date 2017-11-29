@@ -27,11 +27,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(JUnit4.class)
 @SmallTest
@@ -44,6 +48,8 @@ public class SortedListTest extends TestCase {
     List<Pair> mUpdates = new ArrayList<Pair>();
     private boolean mPayloadChanges = false;
     List<PayloadChange> mPayloadUpdates = new ArrayList<>();
+    Queue<AssertListStateRunnable> mCallbackRunnables;
+    List<Event> mEvents = new ArrayList<>();
     private SortedList.Callback<Item> mCallback;
     InsertedCallback<Item> mInsertedCallback;
     ChangedCallback<Item> mChangedCallback;
@@ -67,6 +73,7 @@ public class SortedListTest extends TestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+
         mCallback = new SortedList.Callback<Item>() {
             @Override
             public int compare(Item o1, Item o2) {
@@ -75,28 +82,35 @@ public class SortedListTest extends TestCase {
 
             @Override
             public void onInserted(int position, int count) {
+                mEvents.add(new Event(TYPE.ADD, position, count));
                 mAdditions.add(new Pair(position, count));
                 if (mInsertedCallback != null) {
                     mInsertedCallback.onInserted(position, count);
                 }
+                pollAndRun(mCallbackRunnables);
             }
 
             @Override
             public void onRemoved(int position, int count) {
+                mEvents.add(new Event(TYPE.REMOVE, position, count));
                 mRemovals.add(new Pair(position, count));
+                pollAndRun(mCallbackRunnables);
             }
 
             @Override
             public void onMoved(int fromPosition, int toPosition) {
+                mEvents.add(new Event(TYPE.MOVE, fromPosition, toPosition));
                 mMoves.add(new Pair(fromPosition, toPosition));
             }
 
             @Override
             public void onChanged(int position, int count) {
+                mEvents.add(new Event(TYPE.CHANGE, position, count));
                 mUpdates.add(new Pair(position, count));
                 if (mChangedCallback != null) {
                     mChangedCallback.onChanged(position, count);
                 }
+                pollAndRun(mCallbackRunnables);
             }
 
             @Override
@@ -110,7 +124,7 @@ public class SortedListTest extends TestCase {
 
             @Override
             public boolean areContentsTheSame(Item oldItem, Item newItem) {
-                return oldItem.cmpField == newItem.cmpField && oldItem.data == newItem.data;
+                return oldItem.data == newItem.data;
             }
 
             @Override
@@ -127,9 +141,39 @@ public class SortedListTest extends TestCase {
                 return null;
             }
         };
-        mInsertedCallback = null;
-        mChangedCallback = null;
         mList = new SortedList<Item>(Item.class, mCallback);
+    }
+
+    private void pollAndRun(Queue<AssertListStateRunnable> queue) {
+        if (queue != null) {
+            Runnable runnable = queue.poll();
+            assertNotNull(runnable);
+            runnable.run();
+        }
+    }
+
+    @Test
+    public void testValidMethodsDuringOnInsertedCallbackFromEmptyList() {
+
+        final Item[] items =
+                new Item[] {new Item(0), new Item(1), new Item(2)};
+
+        final AtomicInteger atomicInteger = new AtomicInteger(0);
+        mInsertedCallback = new InsertedCallback<Item>() {
+            @Override
+            public void onInserted(int position, int count) {
+                for (int i = 0; i < count; i++) {
+                    assertEquals(mList.get(i), items[i]);
+                    assertEquals(mList.indexOf(items[i]), i);
+                    atomicInteger.incrementAndGet();
+                }
+            }
+        };
+
+        mList.add(items[0]);
+        mList.clear();
+        mList.addAll(items, false);
+        assertEquals(4, atomicInteger.get());
     }
 
     @Test
@@ -139,16 +183,16 @@ public class SortedListTest extends TestCase {
 
     @Test
     public void testAdd() {
-        Item item = new Item();
+        Item item = new Item(1);
         assertEquals(insert(item), 0);
         assertEquals(size(), 1);
         assertTrue(mAdditions.contains(new Pair(0, 1)));
-        Item item2 = new Item();
+        Item item2 = new Item(2);
         item2.cmpField = item.cmpField + 1;
         assertEquals(insert(item2), 1);
         assertEquals(size(), 2);
         assertTrue(mAdditions.contains(new Pair(1, 1)));
-        Item item3 = new Item();
+        Item item3 = new Item(3);
         item3.cmpField = item.cmpField - 1;
         mAdditions.clear();
         assertEquals(insert(item3), 0);
@@ -158,9 +202,8 @@ public class SortedListTest extends TestCase {
 
     @Test
     public void testAddDuplicate() {
-        Item item = new Item();
-        Item item2 = new Item(item.id, item.cmpField);
-        item2.data = item.data;
+        Item item = new Item(1);
+        Item item2 = new Item(item.id);
         insert(item);
         assertEquals(0, insert(item2));
         assertEquals(1, size());
@@ -170,7 +213,7 @@ public class SortedListTest extends TestCase {
 
     @Test
     public void testRemove() {
-        Item item = new Item();
+        Item item = new Item(1);
         assertFalse(remove(item));
         assertEquals(0, mRemovals.size());
         insert(item);
@@ -184,8 +227,8 @@ public class SortedListTest extends TestCase {
 
     @Test
     public void testRemove2() {
-        Item item = new Item();
-        Item item2 = new Item(item.cmpField);
+        Item item = new Item(1);
+        Item item2 = new Item(2, 1, 1);
         insert(item);
         assertFalse(remove(item2));
         assertEquals(0, mRemovals.size());
@@ -218,11 +261,12 @@ public class SortedListTest extends TestCase {
         Random random = new Random(System.nanoTime());
         List<Item> copy = new ArrayList<Item>();
         StringBuilder log = new StringBuilder();
+        int id = 1;
         try {
             for (int i = 0; i < 10000; i++) {
                 switch (random.nextInt(3)) {
                     case 0://ADD
-                        Item item = new Item();
+                        Item item = new Item(id++);
                         copy.add(item);
                         insert(item);
                         log.append("add ").append(item).append("\n");
@@ -241,12 +285,13 @@ public class SortedListTest extends TestCase {
                             int index = random.nextInt(mList.size());
                             item = mList.get(index);
                             // TODO this cannot work
-                            Item newItem = new Item(item.id, item.cmpField);
-                            log.append("update ").append(item).append(" to ").append(newItem)
-                                    .append("\n");
+                            Item newItem =
+                                    new Item(item.id, item.cmpField, random.nextInt(1000));
                             while (newItem.data == item.data) {
                                 newItem.data = random.nextInt(1000);
                             }
+                            log.append("update ").append(item).append(" to ").append(newItem)
+                                    .append("\n");
                             int itemIndex = mList.add(newItem);
                             copy.remove(item);
                             copy.add(newItem);
@@ -258,10 +303,12 @@ public class SortedListTest extends TestCase {
                         if (copy.size() > 0) {
                             int index = random.nextInt(mList.size());
                             item = mList.get(index);
-                            Item newItem = new Item(item.id, random.nextInt());
+                            Item newItem = new Item(item.id, random.nextInt(), random.nextInt());
                             mList.updateItemAt(index, newItem);
                             copy.remove(item);
                             copy.add(newItem);
+                            log.append("update at ").append(index).append(" ").append(item)
+                                    .append(" to ").append(newItem).append("\n");
                         }
                 }
                 int lastCmp = Integer.MIN_VALUE;
@@ -299,10 +346,17 @@ public class SortedListTest extends TestCase {
         Item[] items = new Item[count];
         int id = idFrom;
         for (int i = 0; i < count; i++) {
-            Item item = new Item(id, id);
-            item.data = id;
+            Item item = new Item(id);
             items[i] = item;
             id += idStep;
+        }
+        return items;
+    }
+
+    private static Item[] createItemsFromInts(int ... ints) {
+        Item[] items = new Item[ints.length];
+        for (int i = ints.length - 1; i >= 0; i--) {
+            items[i] = new Item(ints[i]);
         }
         return items;
     }
@@ -493,8 +547,7 @@ public class SortedListTest extends TestCase {
             int uniqueId = 0;
             for (int cmpField = 0; cmpField < maxCmpField; cmpField++) {
                 for (int id = 0; id < idsPerCmpField; id++) {
-                    Item item = new Item(uniqueId++, cmpField);
-                    item.data = generation;
+                    Item item = new Item(uniqueId++, cmpField, generation);
                     items[index++] = item;
                 }
             }
@@ -548,13 +601,13 @@ public class SortedListTest extends TestCase {
     @Test
     public void testAddAllStableSort() {
         int id = 0;
-        Item item = new Item(id++, 0);
+        Item item = new Item(id++, 0, 0);
         mList.add(item);
 
         // Create a few items with the same sort order.
         Item[] items = new Item[3];
         for (int i = 0; i < 3; i++) {
-            items[i] = new Item(id++, item.cmpField);
+            items[i] = new Item(id++, item.cmpField, 0);
             assertEquals(0, mCallback.compare(item, items[i]));
         }
 
@@ -576,6 +629,7 @@ public class SortedListTest extends TestCase {
             item.data = 1;
         }
 
+
         mInsertedCallback = new InsertedCallback<Item>() {
             @Override
             public void onInserted(int position, int count) {
@@ -585,6 +639,7 @@ public class SortedListTest extends TestCase {
                     assertEquals(i * 2, mList.get(i).id);
                 }
                 assertIntegrity(5, "onInserted(" + position + ", " + count + ")");
+
             }
         };
 
@@ -639,7 +694,7 @@ public class SortedListTest extends TestCase {
             @Override
             public void onInserted(int position, int count) {
                 try {
-                    mList.add(new Item());
+                    mList.add(new Item(1));
                     fail("add must throw from within a callback");
                 } catch (IllegalStateException e) {
                 }
@@ -729,14 +784,14 @@ public class SortedListTest extends TestCase {
     @Test
     public void testAddExistingItemCallsChangeWithPayload() {
         mList.addAll(
-                new Item(1, 10),
-                new Item(2, 20),
-                new Item(3, 30)
+                new Item(1),
+                new Item(2),
+                new Item(3)
         );
         mPayloadChanges = true;
 
         // add an item with the same id but a new data field i.e. send an update
-        final Item twoUpdate = new Item(2, 20);
+        final Item twoUpdate = new Item(2);
         twoUpdate.data = 1337;
         mList.add(twoUpdate);
         assertEquals(1, mPayloadUpdates.size());
@@ -750,14 +805,14 @@ public class SortedListTest extends TestCase {
     @Test
     public void testUpdateItemCallsChangeWithPayload() {
         mList.addAll(
-                new Item(1, 10),
-                new Item(2, 20),
-                new Item(3, 30)
+                new Item(1),
+                new Item(2),
+                new Item(3)
         );
         mPayloadChanges = true;
 
         // add an item with the same id but a new data field i.e. send an update
-        final Item twoUpdate = new Item(2, 20);
+        final Item twoUpdate = new Item(2);
         twoUpdate.data = 1337;
         mList.updateItemAt(1, twoUpdate);
         assertEquals(1, mPayloadUpdates.size());
@@ -772,16 +827,16 @@ public class SortedListTest extends TestCase {
     @Test
     public void testAddMultipleExistingItemCallsChangeWithPayload() {
         mList.addAll(
-                new Item(1, 10),
-                new Item(2, 20),
-                new Item(3, 30)
+                new Item(1),
+                new Item(2),
+                new Item(3)
         );
         mPayloadChanges = true;
 
         // add two items with the same ids but a new data fields i.e. send two updates
-        final Item twoUpdate = new Item(2, 20);
+        final Item twoUpdate = new Item(2);
         twoUpdate.data = 222;
-        final Item threeUpdate = new Item(3, 30);
+        final Item threeUpdate = new Item(3);
         threeUpdate.data = 333;
         mList.addAll(twoUpdate, threeUpdate);
         assertEquals(2, mPayloadUpdates.size());
@@ -794,6 +849,648 @@ public class SortedListTest extends TestCase {
         assertEquals(1, update2.count);
         assertEquals(333, update2.payload);
         assertEquals(3, size());
+    }
+
+    @Test
+    public void replaceAll_mayModifyInputFalse_doesNotModify() {
+        mList.addAll(
+                new Item(1),
+                new Item(2)
+        );
+        Item replacement0 = new Item(4);
+        Item replacement1 = new Item(3);
+        Item[] replacements = new Item[]{
+                replacement0,
+                replacement1
+        };
+
+        mList.replaceAll(replacements, false);
+
+        assertSame(replacement0, replacements[0]);
+        assertSame(replacement1, replacements[1]);
+    }
+
+    @Test
+    public void replaceAll_varArgs_isEquivalentToDefault() {
+        mList.addAll(
+                new Item(1),
+                new Item(2)
+        );
+        Item replacement0 = new Item(3);
+        Item replacement1 = new Item(4);
+
+        mList.replaceAll(replacement0, replacement1);
+
+        assertEquals(mList.get(0), replacement0);
+        assertEquals(mList.get(1), replacement1);
+        assertEquals(2, mList.size());
+    }
+
+    @Test
+    public void replaceAll_collection_isEquivalentToDefaultWithMayModifyInputFalse() {
+        mList.addAll(
+                new Item(1),
+                new Item(2)
+        );
+        Item replacement0 = new Item(4);
+        Item replacement1 = new Item(3);
+        List<Item> replacements = new ArrayList<>();
+        replacements.add(replacement0);
+        replacements.add(replacement1);
+
+        mList.replaceAll(replacements);
+
+        assertEquals(mList.get(0), replacement1);
+        assertEquals(mList.get(1), replacement0);
+        assertSame(replacements.get(0), replacement0);
+        assertSame(replacements.get(1), replacement1);
+        assertEquals(2, mList.size());
+    }
+
+    @Test
+    public void replaceAll_callsChangeWithPayload() {
+        mList.addAll(
+                new Item(1),
+                new Item(2),
+                new Item(3)
+        );
+        mPayloadChanges = true;
+        final Item twoUpdate = new Item(2);
+        twoUpdate.data = 222;
+        final Item threeUpdate = new Item(3);
+        threeUpdate.data = 333;
+
+        mList.replaceAll(twoUpdate, threeUpdate);
+
+        assertEquals(2, mPayloadUpdates.size());
+        final PayloadChange update1 = mPayloadUpdates.get(0);
+        assertEquals(0, update1.position);
+        assertEquals(1, update1.count);
+        assertEquals(222, update1.payload);
+        final PayloadChange update2 = mPayloadUpdates.get(1);
+        assertEquals(1, update2.position);
+        assertEquals(1, update2.count);
+        assertEquals(333, update2.payload);
+    }
+
+    @Test
+    public void replaceAll_totallyEquivalentData_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 2, 3);
+        Item[] items2 = createItemsFromInts(1, 2, 3);
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mList.replaceAll(items2);
+
+        assertEquals(0, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+    }
+
+    @Test
+    public void replaceAll_removalsAndAdds1_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 3, 5);
+        Item[] items2 = createItemsFromInts(2, 4);
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(createItemsFromInts(2, 3, 5)));
+        mCallbackRunnables.add(new AssertListStateRunnable(createItemsFromInts(2, 5)));
+        mCallbackRunnables.add(new AssertListStateRunnable(createItemsFromInts(2, 4, 5)));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.REMOVE, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.ADD, 0, 1), mEvents.get(1));
+        assertEquals(new Event(TYPE.REMOVE, 1, 1), mEvents.get(2));
+        assertEquals(new Event(TYPE.ADD, 1, 1), mEvents.get(3));
+        assertEquals(new Event(TYPE.REMOVE, 2, 1), mEvents.get(4));
+        assertEquals(5, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_removalsAndAdds2_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(2, 4);
+        Item[] items2 = createItemsFromInts(1, 3, 5);
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(createItemsFromInts(1, 4)));
+        mCallbackRunnables.add(new AssertListStateRunnable(createItemsFromInts(1, 3, 4)));
+        mCallbackRunnables.add(new AssertListStateRunnable(createItemsFromInts(1, 3)));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.ADD, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.REMOVE, 1, 1), mEvents.get(1));
+        assertEquals(new Event(TYPE.ADD, 1, 1), mEvents.get(2));
+        assertEquals(new Event(TYPE.REMOVE, 2, 1), mEvents.get(3));
+        assertEquals(new Event(TYPE.ADD, 2, 1), mEvents.get(4));
+        assertEquals(5, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_removalsAndAdds3_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 3, 5);
+        Item[] items2 = createItemsFromInts(2, 3, 4);
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(createItemsFromInts(2, 3, 5)));
+        mCallbackRunnables.add(new AssertListStateRunnable(createItemsFromInts(2, 3, 4, 5)));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.REMOVE, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.ADD, 0, 1), mEvents.get(1));
+        assertEquals(new Event(TYPE.ADD, 2, 1), mEvents.get(2));
+        assertEquals(new Event(TYPE.REMOVE, 3, 1), mEvents.get(3));
+        assertEquals(4, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_removalsAndAdds4_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(2, 3, 4);
+        Item[] items2 = createItemsFromInts(1, 3, 5);
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(createItemsFromInts(1, 3, 4)));
+        mCallbackRunnables.add(new AssertListStateRunnable(createItemsFromInts(1, 3)));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.ADD, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.REMOVE, 1, 1), mEvents.get(1));
+        assertEquals(new Event(TYPE.REMOVE, 2, 1), mEvents.get(2));
+        assertEquals(new Event(TYPE.ADD, 2, 1), mEvents.get(3));
+        assertEquals(4, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_removalsAndAdds5_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 2, 3);
+        Item[] items2 = createItemsFromInts(3, 4, 5);
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.REMOVE, 0, 2), mEvents.get(0));
+        assertEquals(new Event(TYPE.ADD, 1, 2), mEvents.get(1));
+        assertEquals(2, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_removalsAndAdds6_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(3, 4, 5);
+        Item[] items2 = createItemsFromInts(1, 2, 3);
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.ADD, 0, 2), mEvents.get(0));
+        assertEquals(new Event(TYPE.REMOVE, 3, 2), mEvents.get(1));
+        assertEquals(2, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_move1_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 2, 3);
+        Item[] items2 = new Item[]{
+                new Item(2),
+                new Item(3),
+                new Item(1, 4, 1)};
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.REMOVE, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.ADD, 2, 1), mEvents.get(1));
+        assertEquals(2, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_move2_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 2, 3);
+        Item[] items2 = new Item[]{
+                new Item(3, 0, 3),
+                new Item(1),
+                new Item(2)};
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.ADD, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.REMOVE, 3, 1), mEvents.get(1));
+        assertEquals(2, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_move3_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 3, 5, 7, 9);
+        Item[] items2 = new Item[]{
+                new Item(3, 0, 3),
+                new Item(1),
+                new Item(5),
+                new Item(9),
+                new Item(7, 10, 7),
+        };
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(3, 0, 3),
+                new Item(1),
+                new Item(5),
+                new Item(7),
+                new Item(9)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(3, 0, 3),
+                new Item(1),
+                new Item(5),
+                new Item(9)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.ADD, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.REMOVE, 2, 1), mEvents.get(1));
+        assertEquals(new Event(TYPE.REMOVE, 3, 1), mEvents.get(2));
+        assertEquals(new Event(TYPE.ADD, 4, 1), mEvents.get(3));
+        assertEquals(4, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_move4_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 3, 5, 7, 9);
+        Item[] items2 = new Item[]{
+                new Item(3),
+                new Item(1, 4, 1),
+                new Item(5),
+                new Item(9, 6, 9),
+                new Item(7),
+        };
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(3),
+                new Item(1, 4, 1),
+                new Item(5),
+                new Item(7),
+                new Item(9)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(3),
+                new Item(1, 4, 1),
+                new Item(5),
+                new Item(9, 6, 9),
+                new Item(7),
+                new Item(9)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.REMOVE, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.ADD, 1, 1), mEvents.get(1));
+        assertEquals(new Event(TYPE.ADD, 3, 1), mEvents.get(2));
+        assertEquals(new Event(TYPE.REMOVE, 5, 1), mEvents.get(3));
+        assertEquals(4, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_move5_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 3, 5, 7, 9);
+        Item[] items2 = new Item[]{
+                new Item(9, 1, 9),
+                new Item(7, 3, 7),
+                new Item(5),
+                new Item(3, 7, 3),
+                new Item(1, 9, 1),
+        };
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(9, 1, 9),
+                new Item(3),
+                new Item(5),
+                new Item(7),
+                new Item(9)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(9, 1, 9),
+                new Item(5),
+                new Item(7),
+                new Item(9)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(9, 1, 9),
+                new Item(7, 3, 7),
+                new Item(5),
+                new Item(7),
+                new Item(9)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(9, 1, 9),
+                new Item(7, 3, 7),
+                new Item(5),
+                new Item(9)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(9, 1, 9),
+                new Item(7, 3, 7),
+                new Item(5),
+                new Item(3, 7, 3),
+                new Item(9)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(9, 1, 9),
+                new Item(7, 3, 7),
+                new Item(5),
+                new Item(3, 7, 3)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.REMOVE, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.ADD, 0, 1), mEvents.get(1));
+        assertEquals(new Event(TYPE.REMOVE, 1, 1), mEvents.get(2));
+        assertEquals(new Event(TYPE.ADD, 1, 1), mEvents.get(3));
+        assertEquals(new Event(TYPE.REMOVE, 3, 1), mEvents.get(4));
+        assertEquals(new Event(TYPE.ADD, 3, 1), mEvents.get(5));
+        assertEquals(new Event(TYPE.REMOVE, 4, 1), mEvents.get(6));
+        assertEquals(new Event(TYPE.ADD, 4, 1), mEvents.get(7));
+        assertEquals(8, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_orderSameItemDifferent_worksCorrectly() {
+        Item[] items1 = new Item[]{
+                new Item(1),
+                new Item(2, 3, 2),
+                new Item(5)
+        };
+        Item[] items2 = new Item[]{
+                new Item(1),
+                new Item(4, 3, 4),
+                new Item(5)
+        };
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.REMOVE, 1, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.ADD, 1, 1), mEvents.get(1));
+        assertEquals(2, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_orderSameItemSameContentsDifferent_worksCorrectly() {
+        Item[] items1 = new Item[]{
+                new Item(1),
+                new Item(3, 3, 2),
+                new Item(5)
+        };
+        Item[] items2 = new Item[]{
+                new Item(1),
+                new Item(3, 3, 4),
+                new Item(5)
+        };
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.CHANGE, 1, 1), mEvents.get(0));
+        assertEquals(1, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_allTypesOfChanges1_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(2, 5, 6);
+        Item[] items2 = new Item[]{
+                new Item(1),
+                new Item(3, 2, 3),
+                new Item(6, 6, 7)
+        };
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(createItemsFromInts(1, 5, 6)));
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(1),
+                new Item(3, 2, 3),
+                new Item(5),
+                new Item(6)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(1),
+                new Item(3, 2, 3),
+                new Item(6)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.ADD, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.REMOVE, 1, 1), mEvents.get(1));
+        assertEquals(new Event(TYPE.ADD, 1, 1), mEvents.get(2));
+        assertEquals(new Event(TYPE.REMOVE, 2, 1), mEvents.get(3));
+        assertEquals(new Event(TYPE.CHANGE, 2, 1), mEvents.get(4));
+        assertEquals(5, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_allTypesOfChanges2_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 4, 6);
+        Item[] items2 = new Item[]{
+                new Item(1, 1, 2),
+                new Item(3),
+                new Item(5, 4, 5)
+        };
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(1, 1, 2),
+                new Item(3),
+                new Item(4),
+                new Item(6)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(1, 1, 2),
+                new Item(3),
+                new Item(6)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(1, 1, 2),
+                new Item(3),
+                new Item(5, 4, 5),
+                new Item(6)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.CHANGE, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.ADD, 1, 1), mEvents.get(1));
+        assertEquals(new Event(TYPE.REMOVE, 2, 1), mEvents.get(2));
+        assertEquals(new Event(TYPE.ADD, 2, 1), mEvents.get(3));
+        assertEquals(new Event(TYPE.REMOVE, 3, 1), mEvents.get(4));
+        assertEquals(5, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_allTypesOfChanges3_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 2);
+        Item[] items2 = new Item[]{
+                new Item(2, 2, 3),
+                new Item(3, 2, 4),
+                new Item(5)
+        };
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(
+                new Item(2, 2, 3)
+        ));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.replaceAll(items2);
+
+        assertEquals(new Event(TYPE.REMOVE, 0, 1), mEvents.get(0));
+        assertEquals(new Event(TYPE.CHANGE, 0, 1), mEvents.get(1));
+        assertEquals(new Event(TYPE.ADD, 1, 2), mEvents.get(2));
+        assertEquals(3, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
+    }
+
+    @Test
+    public void replaceAll_newItemsAreIdentical_resultIsDeduped() {
+        Item[] items = createItemsFromInts(1, 1);
+        mList.replaceAll(items);
+
+        assertEquals(new Item(1), mList.get(0));
+        assertEquals(1, mList.size());
+    }
+
+    @Test
+    public void replaceAll_newItemsUnsorted_resultIsSorted() {
+        Item[] items = createItemsFromInts(2, 1);
+        mList.replaceAll(items);
+
+        assertEquals(new Item(1), mList.get(0));
+        assertEquals(new Item(2), mList.get(1));
+        assertEquals(2, mList.size());
+    }
+
+    @Test
+    public void replaceAll_calledAfterBeginBatchedUpdates_worksCorrectly() {
+        Item[] items1 = createItemsFromInts(1, 2, 3);
+        Item[] items2 = createItemsFromInts(4, 5, 6);
+        mList.addAll(items1);
+        mEvents.clear();
+
+        mCallbackRunnables = new LinkedList<>();
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+        mCallbackRunnables.add(new AssertListStateRunnable(items2));
+
+        mList.beginBatchedUpdates();
+        mList.replaceAll(items2);
+        mList.endBatchedUpdates();
+
+        assertEquals(new Event(TYPE.REMOVE, 0, 3), mEvents.get(0));
+        assertEquals(new Event(TYPE.ADD, 0, 3), mEvents.get(1));
+        assertEquals(2, mEvents.size());
+        assertTrue(sortedListEquals(mList, items2));
+        assertTrue(mCallbackRunnables.isEmpty());
     }
 
     private int size() {
@@ -810,63 +1507,33 @@ public class SortedListTest extends TestCase {
 
     static class Item {
 
-        static int idCounter = 0;
         final int id;
-
         int cmpField;
+        int data;
 
-        int data = (int) (Math.random() * 1000);//used for comparison
-
-        public Item() {
-            id = idCounter++;
-            cmpField = (int) (Math.random() * 1000);
+        Item(int allFields) {
+            this(allFields, allFields, allFields);
         }
 
-        public Item(int cmpField) {
-            id = idCounter++;
-            this.cmpField = cmpField;
-        }
-
-        public Item(int id, int cmpField) {
+        Item(int id, int compField, int data) {
             this.id = id;
-            this.cmpField = cmpField;
+            this.cmpField = compField;
+            this.data = data;
         }
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
 
             Item item = (Item) o;
 
-            if (cmpField != item.cmpField) {
-                return false;
-            }
-            if (id != item.id) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = id;
-            result = 31 * result + cmpField;
-            return result;
+            return id == item.id && cmpField == item.cmpField && data == item.data;
         }
 
         @Override
         public String toString() {
-            return "Item{" +
-                    "id=" + id +
-                    ", cmpField=" + cmpField +
-                    ", data=" + data +
-                    '}';
+            return "Item(id=" + id + ", cmpField=" + cmpField + ", data=" + data + ')';
         }
     }
 
@@ -911,6 +1578,85 @@ public class SortedListTest extends TestCase {
             result = 31 * result + second;
             return result;
         }
+    }
+
+    private enum TYPE {
+        ADD, REMOVE, MOVE, CHANGE
+    }
+
+    private final class AssertListStateRunnable implements Runnable {
+
+        private Item[] mExpectedItems;
+
+        AssertListStateRunnable(Item... expectedItems) {
+            this.mExpectedItems = expectedItems;
+        }
+
+        @Override
+        public void run() {
+            try {
+                assertEquals(mExpectedItems.length, mList.size());
+                for (int i = mExpectedItems.length - 1; i >= 0; i--) {
+                    assertEquals(mExpectedItems[i], mList.get(i));
+                    assertEquals(i, mList.indexOf(mExpectedItems[i]));
+                }
+            } catch (AssertionError assertionError) {
+                throw new AssertionError(
+                        assertionError.getMessage()
+                        + "\nExpected: "
+                        + Arrays.toString(mExpectedItems)
+                        + "\nActual: "
+                        + sortedListToString(mList));
+            }
+        }
+    }
+
+    private static final class Event {
+        private final TYPE mType;
+        private final int mVal1;
+        private final int mVal2;
+
+        Event(TYPE type, int val1, int val2) {
+            this.mType = type;
+            this.mVal1 = val1;
+            this.mVal2 = val2;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Event that = (Event) o;
+            return mType == that.mType && mVal1 == that.mVal1 && mVal2 == that.mVal2;
+        }
+
+        @Override
+        public String toString() {
+            return "Event(" + mType + ", " + mVal1 + ", " + mVal2 + ")";
+        }
+    }
+
+    private <T> boolean sortedListEquals(SortedList<T> sortedList, T[] array) {
+        if (sortedList.size() != array.length) {
+            return false;
+        }
+        for (int i = sortedList.size() - 1; i >= 0; i--) {
+            if (!sortedList.get(i).equals(array[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static String sortedListToString(SortedList sortedList) {
+        StringBuilder stringBuilder = new StringBuilder("[");
+        int size = sortedList.size();
+        for (int i = 0; i < size; i++) {
+            stringBuilder.append(sortedList.get(i).toString() + ", ");
+        }
+        stringBuilder.delete(stringBuilder.length() - 2, stringBuilder.length());
+        stringBuilder.append("]");
+        return stringBuilder.toString();
     }
 
     private static final class PayloadChange {

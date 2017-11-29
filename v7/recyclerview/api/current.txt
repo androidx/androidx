@@ -84,6 +84,9 @@ package android.support.v7.util {
     method public void recalculatePositionOfItemAt(int);
     method public boolean remove(T);
     method public T removeItemAt(int);
+    method public void replaceAll(T[], boolean);
+    method public void replaceAll(T...);
+    method public void replaceAll(java.util.Collection<T>);
     method public int size();
     method public void updateItemAt(int, T);
     field public static final int INVALID_POSITION = -1; // 0xffffffff
