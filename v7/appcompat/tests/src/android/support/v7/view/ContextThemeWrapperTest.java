@@ -26,6 +26,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -127,18 +128,22 @@ public class ContextThemeWrapperTest {
 
     @Test
     public void testApplyOverrideConfiguration() {
-        final int realDensity = mContext.getResources().getConfiguration().densityDpi;
-        final int expectedDensity = realDensity + 1;
+        // Configuration.densityApi is only available on API 17 and above
+        if (Build.VERSION.SDK_INT >= 17) {
+            final int realDensity = mContext.getResources().getConfiguration().densityDpi;
+            final int expectedDensity = realDensity + 1;
 
-        ContextThemeWrapper contextThemeWrapper = new ContextThemeWrapper(
-                mContext, SYSTEM_DEFAULT_THEME);
+            ContextThemeWrapper contextThemeWrapper = new ContextThemeWrapper(
+                    mContext, SYSTEM_DEFAULT_THEME);
 
-        Configuration overrideConfig = new Configuration();
-        overrideConfig.densityDpi = expectedDensity;
-        contextThemeWrapper.applyOverrideConfiguration(overrideConfig);
+            Configuration overrideConfig = new Configuration();
+            overrideConfig.densityDpi = expectedDensity;
+            contextThemeWrapper.applyOverrideConfiguration(overrideConfig);
 
-        Configuration actualConfiguration = contextThemeWrapper.getResources().getConfiguration();
-        assertEquals(expectedDensity, actualConfiguration.densityDpi);
+            Configuration actualConfiguration =
+                    contextThemeWrapper.getResources().getConfiguration();
+            assertEquals(expectedDensity, actualConfiguration.densityDpi);
+        }
     }
 
     private void verifyIdenticalTextAppearanceStyle(TypedArray ta) {
