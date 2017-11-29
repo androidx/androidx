@@ -42,6 +42,9 @@ public class WorkSpec {
     @ColumnInfo(name = "worker_class_name")
     String mWorkerClassName;
 
+    @ColumnInfo(name = "input_merger_class_name")
+    String mInputMergerClassName = OverwritingInputMerger.class.getName();
+
     @ColumnInfo(name = "initial_delay")
     long mInitialDelay;
 
@@ -92,6 +95,14 @@ public class WorkSpec {
 
     public void setWorkerClassName(String workerClassName) {
         mWorkerClassName = workerClassName;
+    }
+
+    public String getInputMergerClassName() {
+        return mInputMergerClassName;
+    }
+
+    public void setInputMergerClassName(String inputMergerClassName) {
+        mInputMergerClassName = inputMergerClassName;
     }
 
     public Constraints getConstraints() {
@@ -217,6 +228,9 @@ public class WorkSpec {
                 && (mWorkerClassName != null
                         ? mWorkerClassName.equals(other.mWorkerClassName)
                         : other.mWorkerClassName == null)
+                && (mInputMergerClassName != null
+                        ? mInputMergerClassName.equals(other.mInputMergerClassName)
+                        : other.mInputMergerClassName == null)
                 && (mConstraints != null
                         ? mConstraints.equals(other.mConstraints)
                         : other.mConstraints == null);
@@ -227,6 +241,8 @@ public class WorkSpec {
         int result = mId.hashCode();
         result = 31 * result + mStatus;
         result = 31 * result + (mWorkerClassName != null ? mWorkerClassName.hashCode() : 0);
+        result = 31 * result
+                + (mInputMergerClassName != null ? mInputMergerClassName.hashCode() : 0);
         result = 31 * result + (int) (mInitialDelay ^ (mInitialDelay >>> 32));
         result = 31 * result + (int) (mIntervalDuration ^ (mIntervalDuration >>> 32));
         result = 31 * result + (int) (mFlexDuration ^ (mFlexDuration >>> 32));

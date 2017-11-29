@@ -16,6 +16,8 @@
 
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.model.InputMerger;
+import android.arch.background.workmanager.model.OverwritingInputMerger;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
@@ -62,6 +64,18 @@ public class Work extends BaseWork {
          */
         public Builder withInitialDelay(long duration) {
             mWorkSpec.setInitialDelay(duration);
+            return this;
+        }
+
+        /**
+         * Specify an {@link InputMerger}.  The default is
+         * {@link OverwritingInputMerger}.
+         *
+         * @param inputMerger The class name of the {@link InputMerger} to use for this {@link Work}
+         * @return The current {@link Builder}
+         */
+        public Builder withInputMerger(Class<? extends InputMerger> inputMerger) {
+            mWorkSpec.setInputMergerClassName(inputMerger.getName());
             return this;
         }
 

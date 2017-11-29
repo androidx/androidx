@@ -28,6 +28,7 @@ import static android.arch.background.workmanager.Worker.WORKER_RESULT_SUCCESS;
 
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.DependencyDao;
+import android.arch.background.workmanager.model.InputMerger;
 import android.arch.background.workmanager.model.WorkInput;
 import android.arch.background.workmanager.model.WorkInputDao;
 import android.arch.background.workmanager.model.WorkSpec;
@@ -121,12 +122,11 @@ public class WorkerWrapper implements Runnable {
             }
         }
 
-        List<Arguments> argumentsList = mWorkInputDao.getArguments(mWorkSpecId);
-        // TODO(sumir): This isn't the final implementation.  Clean this up in the next CL.
-        for (int i = 1; i < argumentsList.size(); ++i) {
-            argumentsList.get(0).merge(argumentsList.get(i));
-        }
-        mWorker = Worker.fromWorkSpec(mAppContext, mWorkSpec, argumentsList.get(0));
+        List<Arguments> inputs = mWorkInputDao.getArguments(mWorkSpecId);
+        InputMerger inputMerger = InputMerger.fromClassName(mWorkSpec.getInputMergerClassName());
+        Arguments arguments = (inputMerger != null) ? inputMerger.merge(inputs) : Arguments.EMPTY;
+
+        mWorker = Worker.fromWorkSpec(mAppContext, mWorkSpec, arguments);
         if (mWorker == null) {
             Log.e(TAG, "Could not create Worker " + mWorkSpec.getWorkerClassName());
             mWorkSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
