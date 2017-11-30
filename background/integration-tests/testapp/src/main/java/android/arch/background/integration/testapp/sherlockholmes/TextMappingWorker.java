@@ -36,7 +36,6 @@ import java.util.Scanner;
 public class TextMappingWorker extends Worker {
 
     private static final String INPUT_FILE = "input_file";
-    private static final String OUTPUT_FILE = "output_file";
 
     private Map<String, Integer> mWordCount = new HashMap<>();
 
@@ -44,13 +43,11 @@ public class TextMappingWorker extends Worker {
      * Creates a {@link Work.Builder} with the necessary arguments.
      *
      * @param inputFile The input file to process
-     * @param outputFile The output file for the processed results
      * @return A {@link Work.Builder} with these arguments
      */
-    public static Work.Builder create(String inputFile, String outputFile) {
+    public static Work.Builder create(String inputFile) {
         Arguments args = new Arguments.Builder()
                 .putString(INPUT_FILE, inputFile)
-                .putString(OUTPUT_FILE, outputFile)
                 .build();
         return new Work.Builder(TextMappingWorker.class).withArguments(args);
     }
@@ -59,7 +56,7 @@ public class TextMappingWorker extends Worker {
     public @WorkerResult int doWork() {
         Arguments args = getArguments();
         String inputFileName = args.getString(INPUT_FILE, null);
-        String outputFileName = args.getString(OUTPUT_FILE, null);
+        String outputFileName = "out_" + inputFileName;
 
         AssetManager assetManager = getAppContext().getAssets();
         InputStream inputStream = null;
@@ -119,6 +116,8 @@ public class TextMappingWorker extends Worker {
                 }
             }
         }
+
+        setOutput(new Arguments.Builder().putString(INPUT_FILE, outputFileName).build());
 
         Log.d("Map", "Mapping finished for " + inputFileName);
         return WORKER_RESULT_SUCCESS;

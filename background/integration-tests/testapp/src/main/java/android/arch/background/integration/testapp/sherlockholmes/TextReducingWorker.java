@@ -17,7 +17,6 @@ package android.arch.background.integration.testapp.sherlockholmes;
 
 import android.arch.background.integration.testapp.db.TestDatabase;
 import android.arch.background.integration.testapp.db.WordCount;
-import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.model.Arguments;
 import android.util.Log;
@@ -37,25 +36,14 @@ import java.util.Map;
  */
 public class TextReducingWorker extends Worker {
 
-    private static final String INPUT_FILES = "input_files";
+    private static final String INPUT_FILE = "input_file";
 
     private Map<String, Integer> mWordCount = new HashMap<>();
-
-    /**
-     * Creates a {@link Work.Builder} with the necessary arguments.
-     *
-     * @param inputFiles A list of input files to process
-     * @return A {@link Work.Builder} with these arguments
-     */
-    public static Work.Builder create(String... inputFiles) {
-        Arguments args = new Arguments.Builder().putStringArray(INPUT_FILES, inputFiles).build();
-        return new Work.Builder(TextReducingWorker.class).withArguments(args);
-    }
 
     @Override
     public @WorkerResult int doWork() {
         Arguments args = getArguments();
-        String[] inputFiles = args.getStringArray(INPUT_FILES);
+        String[] inputFiles = args.getStringArray(INPUT_FILE);
         if (inputFiles == null) {
             throw new IllegalArgumentException();
         }

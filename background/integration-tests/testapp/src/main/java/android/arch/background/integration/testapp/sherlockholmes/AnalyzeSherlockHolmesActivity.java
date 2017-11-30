@@ -21,6 +21,7 @@ import android.arch.background.integration.testapp.db.TestDatabase;
 import android.arch.background.integration.testapp.db.WordCount;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkManager;
+import android.arch.background.workmanager.model.ArrayCreatingInputMerger;
 import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -74,22 +75,17 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
     private void enqueueWork() {
         WorkManager workManager = WorkManager.getInstance();
 
-        Work textReducingWork = TextReducingWorker.create(
-                "advs_out.txt",
-                "case_out.txt",
-                "lstb_out.txt",
-                "mems_out.txt",
-                "retn_out.txt")
+        Work textReducingWork = new Work.Builder(TextReducingWorker.class)
+                .withInputMerger(ArrayCreatingInputMerger.class)
                 .build();
 
         workManager
                 .enqueue(TextStartupWorker.class)
-                .then(
-                        TextMappingWorker.create("advs.txt", "advs_out.txt").build(),
-                        TextMappingWorker.create("case.txt", "case_out.txt").build(),
-                        TextMappingWorker.create("lstb.txt", "lstb_out.txt").build(),
-                        TextMappingWorker.create("mems.txt", "mems_out.txt").build(),
-                        TextMappingWorker.create("retn.txt", "retn_out.txt").build())
+                .then(TextMappingWorker.create("advs.txt").build(),
+                        TextMappingWorker.create("case.txt").build(),
+                        TextMappingWorker.create("lstb.txt").build(),
+                        TextMappingWorker.create("mems.txt").build(),
+                        TextMappingWorker.create("retn.txt").build())
                 .then(textReducingWork);
 
         workManager.getWorkStatus(textReducingWork.getId()).observe(
@@ -97,8 +93,8 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
                 new Observer<Integer>() {
                     @Override
                     public void onChanged(@Nullable Integer status) {
-                        boolean loading = (status == null)
-                                || (status != Work.STATUS_SUCCEEDED
+                        boolean loading = (status != null
+                                && status != Work.STATUS_SUCCEEDED
                                 && status != Work.STATUS_FAILED);
                         mProgressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
                         mResultsView.setVisibility(loading ? View.GONE : View.VISIBLE);

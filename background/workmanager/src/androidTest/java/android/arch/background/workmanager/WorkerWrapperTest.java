@@ -30,6 +30,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.arch.background.workmanager.model.Arguments;
+import android.arch.background.workmanager.model.ArrayCreatingInputMerger;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkInputDao;
@@ -37,6 +38,7 @@ import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.utils.taskexecutor.InstantTaskExecutorRule;
 import android.arch.background.workmanager.worker.ChainedArgumentWorker;
+import android.arch.background.workmanager.worker.EchoingWorker;
 import android.arch.background.workmanager.worker.FailureWorker;
 import android.arch.background.workmanager.worker.RetryWorker;
 import android.arch.background.workmanager.worker.SleepTestWorker;
@@ -53,6 +55,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -252,16 +255,58 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(arguments.size(), is(1));
         assertThat(arguments.get(0).size(), is(0));
 
-        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
-                .withListener(mMockListener)
-                .withScheduler(mMockScheduler)
-                .build()
-                .run();
+        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId()).build().run();
 
         arguments = mWorkInputDao.getArguments(work.getId());
         assertThat(arguments.size(), is(2));
         assertThat(arguments, containsInAnyOrder(
                 ChainedArgumentWorker.getChainedArguments(), Arguments.EMPTY));
+    }
+
+    @Test
+    @SmallTest
+    public void testDependencies_passesMergedArguments() {
+        String key = "key";
+        String value1 = "value1";
+        String value2 = "value2";
+
+        Work prerequisiteWork1 = new Work.Builder(EchoingWorker.class)
+                .withArguments(new Arguments.Builder().putString(key, value1).build())
+                .build();
+        Work prerequisiteWork2 = new Work.Builder(EchoingWorker.class)
+                .withArguments(new Arguments.Builder().putString(key, value2).build())
+                .build();
+        Work work = new Work.Builder(TestWorker.class)
+                .withInputMerger(ArrayCreatingInputMerger.class)
+                .build();
+        Dependency dependency1 = new Dependency(work.getId(), prerequisiteWork1.getId());
+        Dependency dependency2 = new Dependency(work.getId(), prerequisiteWork2.getId());
+
+        mDatabase.beginTransaction();
+        try {
+            insertBaseWork(prerequisiteWork1);
+            insertBaseWork(prerequisiteWork2);
+            insertBaseWork(work);
+            mDependencyDao.insertDependency(dependency1);
+            mDependencyDao.insertDependency(dependency2);
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            mDatabase.endTransaction();
+        }
+
+        // Run the prerequisites.
+        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork1.getId()).build().run();
+        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork2.getId()).build().run();
+
+        // Create and run the dependent work.
+        WorkerWrapper workerWrapper = new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .build();
+        workerWrapper.run();
+
+        Arguments arguments = workerWrapper.mWorker.getArguments();
+        assertThat(arguments.size(), is(1));
+        assertThat(Arrays.asList(arguments.getStringArray(key)),
+                containsInAnyOrder(value1, value2));
     }
 
     @Test

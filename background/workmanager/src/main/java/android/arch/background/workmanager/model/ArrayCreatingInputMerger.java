@@ -49,7 +49,7 @@ public class ArrayCreatingInputMerger extends InputMerger {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 Class valueClass = value.getClass();
-                Object mergedValue;
+                Object mergedValue = null;
 
                 if (!mergedValues.containsKey(key)) {
                     // First time encountering this key.

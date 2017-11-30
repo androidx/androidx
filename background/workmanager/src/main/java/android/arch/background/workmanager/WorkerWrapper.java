@@ -57,7 +57,7 @@ public class WorkerWrapper implements Runnable {
     private ExecutionListener mListener;
     private Scheduler mScheduler;
     private WorkSpec mWorkSpec;
-    private Worker mWorker;
+    Worker mWorker;
 
     private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
@@ -224,21 +224,24 @@ public class WorkerWrapper implements Runnable {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setStatus(STATUS_SUCCEEDED, mWorkSpecId);
+
+            // Update Arguments as necessary.
+            Arguments outputArgs = mWorker.getOutput();
+            if (outputArgs != null) {
+                List<String> dependentIds = mDependencyDao.getDependentWorkIds(mWorkSpecId);
+                for (String id : dependentIds) {
+                    mWorkInputDao.insert(new WorkInput(id, outputArgs));
+                }
+            }
+
             mDependencyDao.deleteDependenciesWithPrerequisite(mWorkSpecId);
+
             String[] unblockedWorkIds = mWorkSpecDao.getUnblockedWorkIds();
             int unblockedWorkCount = unblockedWorkIds.length;
             if (unblockedWorkCount > 0) {
                 Log.d(TAG, "Setting status to enqueued for " + unblockedWorkCount + " Works "
                         + "that were dependent on Work ID " + mWorkSpecId);
                 mWorkSpecDao.setStatus(STATUS_ENQUEUED, unblockedWorkIds);
-
-                // Update Arguments as necessary.
-                Arguments outputArgs = mWorker.getOutput();
-                if (outputArgs != null) {
-                    for (String id : unblockedWorkIds) {
-                        mWorkInputDao.insert(new WorkInput(id, outputArgs));
-                    }
-                }
             }
             mWorkDatabase.setTransactionSuccessful();
 
