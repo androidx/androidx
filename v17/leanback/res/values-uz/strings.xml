@@ -53,7 +53,7 @@ limitations under the License.
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"Boshqaruv elementlari berkitilgan, ochish uchun D-pad tugmasini bosing"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"Tugatish"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"Davom etish"</string>
-    <string name="lb_media_player_error" msgid="3650250994187305396">"MediaPlayer xatosi kodi: %1$d, %2$d"</string>
+    <string name="lb_media_player_error" msgid="3650250994187305396">"Media pleyer xatoligi kodi: %1$d (yana: %2$d)"</string>
     <string name="lb_onboarding_get_started" msgid="6961440391306351139">"BOSHLADIK"</string>
     <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"Keyingisi"</string>
 </resources>
