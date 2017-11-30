@@ -16,16 +16,14 @@
 
 package android.arch.persistence.db;
 
-import android.annotation.TargetApi;
-import android.os.Build;
+import java.io.Closeable;
 
 /**
  * An interface to map the behavior of {@link android.database.sqlite.SQLiteProgram}.
  */
 
-@TargetApi(Build.VERSION_CODES.KITKAT)
 @SuppressWarnings("unused")
-public interface SupportSQLiteProgram extends AutoCloseable {
+public interface SupportSQLiteProgram extends Closeable {
     /**
      * Bind a NULL value to this statement. The value remains bound until
      * {@link #clearBindings} is called.
