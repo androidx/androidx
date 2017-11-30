@@ -28,10 +28,10 @@ sourceSets {
 }
 dependencies {
     compile(project(":room:common"))
-    compile libs.kotlin.stdlib
-    compile libs.gson
+    compile(KOTLIN_STDLIB)
+    compile(GSON)
     testCompile(JUNIT)
-    testCompile libs.ij_annotations
+    testCompile(INTELLIJ_ANNOTATIONS)
     testCompile(MOCKITO_CORE)
 }
 
