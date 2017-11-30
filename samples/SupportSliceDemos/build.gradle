@@ -31,7 +31,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.androidx.slice.demos"
-        minSdkVersion 27
+        minSdkVersion 26
         targetSdkVersion project.ext.currentSdk
     }
 
