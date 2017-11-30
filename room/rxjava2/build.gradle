@@ -34,7 +34,7 @@ dependencies {
     api(project(":room:runtime"))
     api(project(":arch:runtime"))
     api libs.support.core_utils, libs.support_exclude_config
-    api libs.rx_java
+    api(RX_JAVA)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(project(":arch:core-testing"))
