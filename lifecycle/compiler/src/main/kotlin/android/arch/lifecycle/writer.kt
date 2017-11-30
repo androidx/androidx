@@ -150,7 +150,10 @@ private fun generateKeepRule(type: TypeElement, processingEnv: ProcessingEnviron
     val keepRule = """# Generated keep rule for Lifecycle observer adapter.
         |-if class $observerClass {
         |    <init>(...);
-        |} -keep class $adapterClass
+        |}
+        |-keep class $adapterClass {
+        |    <init>(...);
+        |}
         |""".trimMargin()
 
     // Write the keep rule to the META-INF/proguard directory of the Jar file. The file name
