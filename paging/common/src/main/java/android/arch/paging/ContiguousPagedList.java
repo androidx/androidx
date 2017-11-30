@@ -87,7 +87,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         if (mDataSource.isInvalid()) {
             detach();
         } else {
-            mDataSource.loadInitial(key,
+            mDataSource.dispatchLoadInitial(key,
                     mConfig.initialLoadSizeHint,
                     mConfig.pageSize,
                     mConfig.enablePlaceholders,
@@ -184,7 +184,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 if (mDataSource.isInvalid()) {
                     detach();
                 } else {
-                    mDataSource.loadBefore(position, item, mConfig.pageSize,
+                    mDataSource.dispatchLoadBefore(position, item, mConfig.pageSize,
                             mMainThreadExecutor, mReceiver);
                 }
 
@@ -213,7 +213,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 if (mDataSource.isInvalid()) {
                     detach();
                 } else {
-                    mDataSource.loadAfter(position, item, mConfig.pageSize,
+                    mDataSource.dispatchLoadAfter(position, item, mConfig.pageSize,
                             mMainThreadExecutor, mReceiver);
                 }
             }
