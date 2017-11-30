@@ -88,9 +88,21 @@ public class LivePagedListBuilder<Key, Value> {
     }
 
     /**
-     * Sets a {@link PagedList.BoundaryCallback} on each PagedList created.
+     * Sets a {@link PagedList.BoundaryCallback} on each PagedList created, typically used to load
+     * additional data from network when paging from local storage.
      * <p>
-     * This can be used to
+     * Pass a BoundaryCallback to listen to when the PagedList runs out of data to load. If this
+     * method is not called, or {@code null} is passed, you will not be notified when each
+     * DataSource runs out of data to provide to its PagedList.
+     * <p>
+     * If you are paging from a DataSource.Factory backed by local storage, you can set a
+     * BoundaryCallback to know when there is no more information to page from local storage.
+     * This is useful to page from the network when local storage is a cache of network data.
+     * <p>
+     * Note that when using a BoundaryCallback with a {@code LiveData<PagedList>}, method calls
+     * on the callback may be dispatched multiple times - one for each PagedList/DataSource
+     * pair. If loading network data from a BoundaryCallback, you should prevent multiple
+     * dispatches of the same method from triggering multiple simultaneous network loads.
      *
      * @param boundaryCallback The boundary callback for listening to PagedList load state.
      * @return this
@@ -105,6 +117,8 @@ public class LivePagedListBuilder<Key, Value> {
 
     /**
      * Sets executor which will be used for background loading of pages.
+     * <p>
+     * If not set, defaults to the Arch components I/O thread.
      * <p>
      * Does not affect initial load, which will be always be done on done on the Arch components
      * I/O thread.
