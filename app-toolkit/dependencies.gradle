@@ -22,35 +22,7 @@ if (hasProperty("libs")) {
     ffLibs = libs
 }
 def ffVersions = [:]
-ffVersions.kotlin = "1.1.51"
-ffVersions.auto_common = "0.6"
-ffVersions.javapoet = "1.8.0"
-ffVersions.compile_testing = "0.11"
 ffVersions.support_lib = "27.0.0"
-ffVersions.intellij_annotations = "12.0"
-ffVersions.rxjava2 = "2.0.6"
-ffVersions.reactivestreams = "1.0.0"
-// this Xerial version is newer than we want but we need it to fix
-// https://github.com/xerial/sqlite-jdbc/issues/97
-// https://github.com/xerial/sqlite-jdbc/issues/267
-ffVersions.xerial = "3.20.1"
-ffVersions.antlr = "4.5.3"
-ffVersions.commons_codec = "1.10"
-ffVersions.gson = "2.8.0"
-ffVersions.guava = "21.0"
-ffVersions.jsr250 = "1.2"
-ffVersions.xpp3 = "1.1.4c"
-ffVersions.xmlpull = "1.1.3.1"
-
-ffLibs.kotlin = [
-        stdlib : "org.jetbrains.kotlin:kotlin-stdlib:$ffVersions.kotlin",
-]
-ffLibs.auto_common = "com.google.auto:auto-common:$ffVersions.auto_common"
-ffLibs.apache = [
-    commons : [
-            codec : "commons-codec:commons-codec:$ffVersions.commons_codec"
-    ]
-]
 
 def getSupportLib(String name, String version, String artifactName = null) {
     def sourceProject = findProject(name)
@@ -76,19 +48,9 @@ ffLibs.support_exclude_config = {
     exclude group: 'android.arch.lifecycle'
 }
 
-ffLibs.javapoet = "com.squareup:javapoet:$ffVersions.javapoet"
-ffLibs.antlr = "org.antlr:antlr4:$ffVersions.antlr"
-ffLibs.xerial = "org.xerial:sqlite-jdbc:$ffVersions.xerial"
-ffLibs.google_compile_testing = "com.google.testing.compile:compile-testing:$ffVersions.compile_testing"
-ffLibs.ij_annotations = "com.intellij:annotations:$ffVersions.intellij_annotations"
-ffLibs.reactive_streams = "org.reactivestreams:reactive-streams:$ffVersions.reactivestreams"
-ffLibs.rx_java = "io.reactivex.rxjava2:rxjava:$ffVersions.rxjava2"
-ffLibs.gson = "com.google.code.gson:gson:$ffVersions.gson"
-ffLibs.guava= "com.google.guava:guava:$ffVersions.guava"
-ffLibs.jsr250 = "javax.annotation:javax.annotation-api:$ffVersions.jsr250"
+
 ffLibs.xpp3 = "xpp3:xpp3:$ffVersions.xpp3"
 ffLibs.xmlpull = "xmlpull:xmlpull:$ffVersions.xmlpull"
-
 ext.tools = [:]
 ext.tools.current_sdk = gradle.ext.currentSdk
 ext.tools.build_tools_version = rootProject.ext.buildToolsVersion

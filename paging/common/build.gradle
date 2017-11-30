@@ -30,8 +30,7 @@ dependencies {
 
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)
-
-    testCompile libs.kotlin.stdlib
+    testCompile(KOTLIN_STDLIB)
 }
 
 supportLibrary {

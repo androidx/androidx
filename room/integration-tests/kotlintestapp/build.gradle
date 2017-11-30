@@ -85,7 +85,7 @@ dependencies {
     androidTestImplementation project(':room:testing')
     androidTestImplementation project(':room:rxjava2')
     androidTestImplementation project(':arch:core-testing')
-    androidTestImplementation libs.rx_java
+    androidTestImplementation(RX_JAVA)
     testImplementation(MOCKITO_CORE)
 }
 
