@@ -1,3 +1,4 @@
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
@@ -10,17 +11,17 @@ sourceSets {
 // Temporary hack to stop AS to adding two guavas into test's classpath
 configurations.all {
     resolutionStrategy {
-        force libs.guava
+        force GUAVA
     }
 }
 
 dependencies {
     compile(project(":lifecycle:common"))
-    compile libs.kotlin.stdlib
-    compile libs.auto_common
-    compile libs.javapoet
-    testCompile libs.google_compile_testing
-    testCompile libs.jsr250
+    compile(KOTLIN_STDLIB)
+    compile(AUTO_COMMON)
+    compile(JAVAPOET)
+    testCompile(GOOGLE_COMPILE_TESTING)
+    testCompile(JSR250)
     testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 

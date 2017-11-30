@@ -36,10 +36,10 @@ allprojects {
         api(project(":lifecycle:extensions"))
         api(project(":lifecycle:runtime"))
         api libs.support.annotations
-        api libs.reactive_streams
+        api(REACTIVE_STREAMS)
 
         testImplementation(JUNIT)
-        testImplementation libs.rx_java
+        testImplementation(RX_JAVA)
         testImplementation(TEST_RUNNER, libs.exclude_annotations)
 
         androidTestImplementation libs.support.app_compat, libs.support_exclude_config
