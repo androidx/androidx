@@ -29,8 +29,6 @@ import static android.arch.background.workmanager.Worker.WORKER_RESULT_SUCCESS;
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.InputMerger;
-import android.arch.background.workmanager.model.WorkInput;
-import android.arch.background.workmanager.model.WorkInputDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.utils.taskexecutor.WorkManagerTaskExecutor;
@@ -40,6 +38,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -62,7 +61,6 @@ public class WorkerWrapper implements Runnable {
     private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
     private DependencyDao mDependencyDao;
-    private WorkInputDao mWorkInputDao;
 
     private WorkerWrapper(Builder builder) {
         mAppContext = builder.mAppContext;
@@ -73,7 +71,6 @@ public class WorkerWrapper implements Runnable {
         mWorkDatabase = builder.mWorkDatabase;
         mWorkSpecDao = mWorkDatabase.workSpecDao();
         mDependencyDao = mWorkDatabase.dependencyDao();
-        mWorkInputDao = mWorkDatabase.workInputDao();
     }
 
     @WorkerThread
@@ -122,7 +119,9 @@ public class WorkerWrapper implements Runnable {
             }
         }
 
-        List<Arguments> inputs = mWorkInputDao.getArguments(mWorkSpecId);
+        List<Arguments> inputs = new ArrayList<>();
+        inputs.add(mWorkSpec.getArguments());
+        inputs.addAll(mDependencyDao.getInputsFromPrerequisites(mWorkSpecId));
         InputMerger inputMerger = InputMerger.fromClassName(mWorkSpec.getInputMergerClassName());
         Arguments arguments = (inputMerger != null) ? inputMerger.merge(inputs) : Arguments.EMPTY;
 
@@ -228,20 +227,23 @@ public class WorkerWrapper implements Runnable {
             // Update Arguments as necessary.
             Arguments outputArgs = mWorker.getOutput();
             if (outputArgs != null) {
-                List<String> dependentIds = mDependencyDao.getDependentWorkIds(mWorkSpecId);
-                for (String id : dependentIds) {
-                    mWorkInputDao.insert(new WorkInput(id, outputArgs));
+                mWorkSpecDao.setOutput(mWorkSpecId, outputArgs);
+            }
+
+            List<String> dependentWorkIds = mDependencyDao.getDependentWorkIds(mWorkSpecId);
+            List<String> unblockedWorkIds = new ArrayList<>();
+            for (String dependentWorkId : dependentWorkIds) {
+                if (mDependencyDao.hasCompletedAllPrerequisites(dependentWorkId)) {
+                    Log.d(TAG, "Setting status to enqueued for " + dependentWorkId);
+                    mWorkSpecDao.setStatus(STATUS_ENQUEUED, dependentWorkId);
+                    unblockedWorkIds.add(dependentWorkId);
                 }
             }
 
-            mDependencyDao.deleteDependenciesWithPrerequisite(mWorkSpecId);
-
-            String[] unblockedWorkIds = mWorkSpecDao.getUnblockedWorkIds();
-            int unblockedWorkCount = unblockedWorkIds.length;
+            int unblockedWorkCount = unblockedWorkIds.size();
             if (unblockedWorkCount > 0) {
                 Log.d(TAG, "Setting status to enqueued for " + unblockedWorkCount + " Works "
                         + "that were dependent on Work ID " + mWorkSpecId);
-                mWorkSpecDao.setStatus(STATUS_ENQUEUED, unblockedWorkIds);
             }
             mWorkDatabase.setTransactionSuccessful();
 

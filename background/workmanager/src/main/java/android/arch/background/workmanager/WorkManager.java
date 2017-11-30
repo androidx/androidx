@@ -201,8 +201,6 @@ public final class WorkManager {
                     for (WorkTag workTag : work.getWorkTags()) {
                         mWorkDatabase.workTagDao().insert(workTag);
                     }
-
-                    mWorkDatabase.workInputDao().insert(work.getWorkInput());
                 }
                 mWorkDatabase.setTransactionSuccessful();
 

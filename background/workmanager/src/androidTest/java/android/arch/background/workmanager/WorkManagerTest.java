@@ -27,7 +27,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 
-import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.Dependency;
@@ -52,6 +51,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -88,7 +88,7 @@ public class WorkManagerTest {
             assertThat(mDatabase.workSpecDao().getWorkSpec(id), is(notNullValue()));
             assertThat(
                     "index " + i + " does not have expected number of dependencies!",
-                    mDatabase.dependencyDao().hasPrerequisites(id),
+                    mDatabase.dependencyDao().getPrerequisites(id).size() > 0,
                     is(i > 0));
         }
     }
@@ -127,8 +127,10 @@ public class WorkManagerTest {
         assertThat(workSpecDao.getWorkSpec(work3b.getId()), is(notNullValue()));
 
         DependencyDao dependencyDao = mDatabase.dependencyDao();
-        assertThat(dependencyDao.hasPrerequisites(work1a.getId()), is(false));
-        assertThat(dependencyDao.hasPrerequisites(work1b.getId()), is(false));
+        assertThat(dependencyDao.getPrerequisites(work1a.getId()),
+                is(Collections.<String>emptyList()));
+        assertThat(dependencyDao.getPrerequisites(work1b.getId()),
+                is(Collections.<String>emptyList()));
 
         List<String> prerequisites = dependencyDao.getPrerequisites(work2.getId());
         assertThat(prerequisites, containsInAnyOrder(work1a.getId(), work1b.getId()));
@@ -221,33 +223,6 @@ public class WorkManagerTest {
 
         assertThat(workSpec1.getBackoffPolicy(), is(Work.BACKOFF_POLICY_EXPONENTIAL));
         assertThat(workSpec1.getBackoffDelayDuration(), is(Work.DEFAULT_BACKOFF_DELAY_MILLIS));
-    }
-
-    @Test
-    @SmallTest
-    public void testEnqueue_insertWorkArguments() throws InterruptedException {
-        String key = "key";
-        String expectedValue = "value";
-
-        Arguments args = new Arguments.Builder().putString(key, expectedValue).build();
-
-        Work work0 = new Work.Builder(TestWorker.class)
-                .withArguments(args)
-                .build();
-        Work work1 = new Work.Builder(TestWorker.class).build();
-        mWorkManager.enqueue(work0).then(work1);
-
-        List<Arguments> arguments0 = mDatabase.workInputDao().getArguments(work0.getId());
-        List<Arguments> arguments1 = mDatabase.workInputDao().getArguments(work1.getId());
-
-        assertThat(arguments0.size(), is(1));
-        assertThat(arguments1.size(), is(1));
-
-        assertThat(arguments0.get(0).size(), is(1));
-        assertThat(arguments1.get(0).size(), is(0));
-
-        String actualValue = arguments0.get(0).getString(key, null);
-        assertThat(actualValue, is(expectedValue));
     }
 
     @Test

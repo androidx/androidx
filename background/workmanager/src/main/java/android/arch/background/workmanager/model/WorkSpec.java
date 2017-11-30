@@ -45,6 +45,14 @@ public class WorkSpec {
     @ColumnInfo(name = "input_merger_class_name")
     String mInputMergerClassName;
 
+    @ColumnInfo(name = "arguments")
+    @NonNull
+    Arguments mArguments = Arguments.EMPTY;
+
+    @ColumnInfo(name = "output")
+    @NonNull
+    Arguments mOutput = Arguments.EMPTY;
+
     @ColumnInfo(name = "initial_delay")
     long mInitialDelay;
 
@@ -103,6 +111,22 @@ public class WorkSpec {
 
     public void setInputMergerClassName(String inputMergerClassName) {
         mInputMergerClassName = inputMergerClassName;
+    }
+
+    public @NonNull Arguments getArguments() {
+        return mArguments;
+    }
+
+    public void setArguments(@NonNull Arguments arguments) {
+        mArguments = arguments;
+    }
+
+    public @NonNull Arguments getOutput() {
+        return mOutput;
+    }
+
+    public void setOutput(@NonNull Arguments output) {
+        mOutput = output;
     }
 
     public Constraints getConstraints() {
@@ -225,6 +249,8 @@ public class WorkSpec {
                 && mRunAttemptCount == other.mRunAttemptCount
                 && mBackoffPolicy == other.mBackoffPolicy
                 && mBackoffDelayDuration == other.mBackoffDelayDuration
+                && mArguments.equals(other.mArguments)
+                && mOutput.equals(other.mOutput)
                 && (mWorkerClassName != null
                         ? mWorkerClassName.equals(other.mWorkerClassName)
                         : other.mWorkerClassName == null)
@@ -243,6 +269,8 @@ public class WorkSpec {
         result = 31 * result + (mWorkerClassName != null ? mWorkerClassName.hashCode() : 0);
         result = 31 * result
                 + (mInputMergerClassName != null ? mInputMergerClassName.hashCode() : 0);
+        result = 31 * result + mArguments.hashCode();
+        result = 31 * result + mOutput.hashCode();
         result = 31 * result + (int) (mInitialDelay ^ (mInitialDelay >>> 32));
         result = 31 * result + (int) (mIntervalDuration ^ (mIntervalDuration >>> 32));
         result = 31 * result + (int) (mFlexDuration ^ (mFlexDuration >>> 32));
