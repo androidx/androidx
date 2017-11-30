@@ -16,6 +16,7 @@
 
 package android.arch.core.executor;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 /**
@@ -33,14 +34,14 @@ public abstract class TaskExecutor {
      *
      * @param runnable The runnable to run in the disk IO thread pool.
      */
-    public abstract void executeOnDiskIO(Runnable runnable);
+    public abstract void executeOnDiskIO(@NonNull Runnable runnable);
 
     /**
      * Posts the given task to the main thread.
      *
      * @param runnable The runnable to run on the main thread.
      */
-    public abstract void postToMainThread(Runnable runnable);
+    public abstract void postToMainThread(@NonNull Runnable runnable);
 
     /**
      * Executes the given task on the main thread.
@@ -49,7 +50,7 @@ public abstract class TaskExecutor {
      *
      * @param runnable The runnable to run on the main thread.
      */
-    public void executeOnMainThread(Runnable runnable) {
+    public void executeOnMainThread(@NonNull Runnable runnable) {
         if (isMainThread()) {
             runnable.run();
         } else {

@@ -64,6 +64,7 @@ public class ArchTaskExecutor extends TaskExecutor {
      *
      * @return The singleton ArchTaskExecutor.
      */
+    @NonNull
     public static ArchTaskExecutor getInstance() {
         if (sInstance != null) {
             return sInstance;
