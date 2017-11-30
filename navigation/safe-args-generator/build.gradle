@@ -29,9 +29,34 @@ sourceSets {
 dependencies {
     compile(XPP3)
     compile(XMLPULL)
+    compile(XPP3)
+    compile(XMLPULL)
     compile(KOTLIN_STDLIB)
+
+    compile(JAVAPOET)
+
     testCompile(JUNIT)
+    testCompile(GOOGLE_COMPILE_TESTING)
+    def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)
+    def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
+    testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$tools.current_sdk/",
+            include : "android.jar")
+    testCompile fileTree(dir: "${new File(project(":navigation:runtime").buildDir, "libJar")}",
+            include : "*.jar")
+    testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
+
+tasks.findByName("test").doFirst {
+    // android.jar and xmlpull has the same classes, but android.jar has stubs instead of real
+    // implementation, so we move android.jar to end of classpath
+    def classpath = it.classpath.getFiles()
+    def androidJar = classpath.find { it.name == "android.jar" }
+    classpath.remove(androidJar)
+    classpath.add(androidJar)
+    it.classpath = files(classpath)
+}
+
+tasks.findByName("compileKotlin").dependsOn(":navigation:runtime:jarDebug")
 
 supportLibrary {
     name = 'Android Navigation TypeSafe Arguments Generator'
