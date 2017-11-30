@@ -42,7 +42,7 @@ class KeyedDataSourceTest {
         val captor = ArgumentCaptor.forClass(PageResult::class.java)
                 as ArgumentCaptor<PageResult<Item>>
 
-        dataSource.loadInitial(key, initialLoadSize,
+        dataSource.dispatchLoadInitial(key, initialLoadSize,
                 /* ignored pageSize */ 10, enablePlaceholders, FailExecutor(), receiver)
 
         verify(receiver).onPageResult(anyInt(), captor.capture())
@@ -90,7 +90,7 @@ class KeyedDataSourceTest {
     fun loadInitial_nullKey() {
         val dataSource = ItemDataSource()
 
-        // loadInitial(null, count) == loadInitial(count)
+        // dispatchLoadInitial(null, count) == dispatchLoadInitial(count)
         val result = loadInitial(dataSource, null, 10, true)
 
         assertEquals(0, result.leadingNulls)
@@ -120,7 +120,7 @@ class KeyedDataSourceTest {
     fun loadInitial_disablePlaceholders() {
         val dataSource = ItemDataSource()
 
-        // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
+        // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
         val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
         val result = loadInitial(dataSource, key, 10, false)
 
@@ -133,7 +133,7 @@ class KeyedDataSourceTest {
     fun loadInitial_uncounted() {
         val dataSource = ItemDataSource(counted = false)
 
-        // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
+        // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
         val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
         val result = loadInitial(dataSource, key, 10, true)
 
@@ -146,7 +146,7 @@ class KeyedDataSourceTest {
     fun loadInitial_nullKey_uncounted() {
         val dataSource = ItemDataSource(counted = false)
 
-        // loadInitial(null, count) == loadInitial(count)
+        // dispatchLoadInitial(null, count) == dispatchLoadInitial(count)
         val result = loadInitial(dataSource, null, 10, true)
 
         assertEquals(0, result.leadingNulls)
@@ -160,7 +160,7 @@ class KeyedDataSourceTest {
     fun loadInitial_empty() {
         val dataSource = ItemDataSource(items = ArrayList())
 
-        // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
+        // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
         val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
         val result = loadInitial(dataSource, key, 10, true)
 
@@ -188,7 +188,8 @@ class KeyedDataSourceTest {
         val callback = mock(KeyedDataSource.LoadCallback::class.java)
                 as KeyedDataSource.LoadCallback<Item>
 
-        dataSource.loadBefore(dataSource.getKey(ITEMS_BY_NAME_ID[5]), 5, callback)
+        dataSource.loadBefore(
+                KeyedDataSource.LoadParams(dataSource.getKey(ITEMS_BY_NAME_ID[5]), 5), callback)
 
         @Suppress("UNCHECKED_CAST")
         val argument = ArgumentCaptor.forClass(List::class.java) as ArgumentCaptor<List<Item>>
@@ -208,30 +209,32 @@ class KeyedDataSourceTest {
     internal class ItemDataSource(private val counted: Boolean = true,
                                   private val items: List<Item> = ITEMS_BY_NAME_ID)
             : KeyedDataSource<Key, Item>() {
-        override fun loadInitial(initialLoadKey: Key?, initialLoadSize: Int,
-                enablePlaceholders: Boolean, callback: InitialLoadCallback<Item>) {
-            val key = initialLoadKey ?: Key("", Integer.MAX_VALUE)
-            val start = Math.max(0, findFirstIndexAfter(key) - initialLoadSize / 2)
-            val endExclusive = Math.min(start + initialLoadSize, items.size)
 
-            if (enablePlaceholders && counted) {
+        override fun loadInitial(
+                params: LoadInitialParams<Key>,
+                callback: LoadInitialCallback<Item>) {
+            val key = params.requestedInitialKey ?: Key("", Integer.MAX_VALUE)
+            val start = Math.max(0, findFirstIndexAfter(key) - params.requestedLoadSize / 2)
+            val endExclusive = Math.min(start + params.requestedLoadSize, items.size)
+
+            if (params.placeholdersEnabled && counted) {
                 callback.onResult(items.subList(start, endExclusive), start, items.size)
             } else {
                 callback.onResult(items.subList(start, endExclusive))
             }
         }
 
-        override fun loadAfter(currentEndKey: Key, pageSize: Int, callback: LoadCallback<Item>) {
-            val start = findFirstIndexAfter(currentEndKey)
-            val endExclusive = Math.min(start + pageSize, items.size)
+        override fun loadAfter(params: LoadParams<Key>, callback: LoadCallback<Item>) {
+            val start = findFirstIndexAfter(params.key)
+            val endExclusive = Math.min(start + params.requestedLoadSize, items.size)
 
             callback.onResult(items.subList(start, endExclusive))
         }
 
-        override fun loadBefore(currentBeginKey: Key, pageSize: Int, callback: LoadCallback<Item>) {
-            val firstIndexBefore = findFirstIndexBefore(currentBeginKey)
+        override fun loadBefore(params: LoadParams<Key>, callback: LoadCallback<Item>) {
+            val firstIndexBefore = findFirstIndexBefore(params.key)
             val endExclusive = Math.max(0, firstIndexBefore + 1)
-            val start = Math.max(0, firstIndexBefore - pageSize + 1)
+            val start = Math.max(0, firstIndexBefore - params.requestedLoadSize + 1)
 
             callback.onResult(items.subList(start, endExclusive))
         }
@@ -254,32 +257,24 @@ class KeyedDataSourceTest {
     }
 
     private fun performInitialLoad(
-            callbackInvoker: (callback: KeyedDataSource.InitialLoadCallback<String>) -> Unit) {
+            callbackInvoker: (callback: KeyedDataSource.LoadInitialCallback<String>) -> Unit) {
         val dataSource = object : KeyedDataSource<String, String>() {
             override fun getKey(item: String): String {
                 return ""
             }
 
             override fun loadInitial(
-                    initialLoadKey: String?,
-                    requestedLoadSize: Int,
-                    enablePlaceholders: Boolean,
-                    callback: InitialLoadCallback<String>) {
+                    params: LoadInitialParams<String>,
+                    callback: LoadInitialCallback<String>) {
                 callbackInvoker(callback)
             }
 
-            override fun loadAfter(
-                    currentEndKey: String,
-                    pageSize: Int,
-                    callback: LoadCallback<String>) {
-                fail("loadRange not expected")
+            override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String>) {
+                fail("loadAfter not expected")
             }
 
-            override fun loadBefore(
-                    currentBeginKey: String,
-                    pageSize: Int,
-                    callback: LoadCallback<String>) {
-                fail("loadRange not expected")
+            override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String>) {
+                fail("loadBefore not expected")
             }
         }
 
@@ -293,38 +288,38 @@ class KeyedDataSourceTest {
 
     @Test
     fun initialLoadCallbackSuccess() = performInitialLoad {
-        // InitialLoadCallback correct usage
+        // LoadInitialCallback correct usage
         it.onResult(listOf("a", "b"), 0, 2)
     }
 
     @Test
     fun initialLoadCallbackNotPageSizeMultiple() = performInitialLoad {
-        // Keyed InitialLoadCallback *can* accept result that's not a multiple of page size
+        // Keyed LoadInitialCallback *can* accept result that's not a multiple of page size
         val elevenLetterList = List(11) { "" + 'a' + it }
         it.onResult(elevenLetterList, 0, 12)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun initialLoadCallbackListTooBig() = performInitialLoad {
-        // InitialLoadCallback can't accept pos + list > totalCount
+        // LoadInitialCallback can't accept pos + list > totalCount
         it.onResult(listOf("a", "b", "c"), 0, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun initialLoadCallbackPositionTooLarge() = performInitialLoad {
-        // InitialLoadCallback can't accept pos + list > totalCount
+        // LoadInitialCallback can't accept pos + list > totalCount
         it.onResult(listOf("a", "b"), 1, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun initialLoadCallbackPositionNegative() = performInitialLoad {
-        // InitialLoadCallback can't accept negative position
+        // LoadInitialCallback can't accept negative position
         it.onResult(listOf("a", "b", "c"), -1, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun initialLoadCallbackEmptyCannotHavePlaceholders() = performInitialLoad {
-        // InitialLoadCallback can't accept empty result unless data set is empty
+        // LoadInitialCallback can't accept empty result unless data set is empty
         it.onResult(emptyList(), 0, 2)
     }
 

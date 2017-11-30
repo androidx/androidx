@@ -46,8 +46,8 @@ public abstract class TiledDataSource<T> extends PositionalDataSource<T> {
     public abstract List<T> loadRange(int startPosition, int count);
 
     @Override
-    public void loadInitial(int requestedStartPosition, int requestedLoadSize, int pageSize,
-            @NonNull InitialLoadCallback callback) {
+    public void loadInitial(@NonNull LoadInitialParams params,
+            @NonNull LoadInitialCallback<T> callback) {
         int totalCount = countItems();
         if (totalCount == 0) {
             callback.onResult(Collections.<T>emptyList(), 0, 0);
@@ -55,9 +55,8 @@ public abstract class TiledDataSource<T> extends PositionalDataSource<T> {
         }
 
         // bound the size requested, based on known count
-        final int firstLoadPosition = computeFirstLoadPosition(
-                requestedStartPosition, requestedLoadSize, pageSize, totalCount);
-        final int firstLoadSize = Math.min(totalCount - firstLoadPosition, requestedLoadSize);
+        final int firstLoadPosition = computeInitialLoadPosition(params, totalCount);
+        final int firstLoadSize = computeInitialLoadSize(params, firstLoadPosition, totalCount);
 
         // convert from legacy behavior
         List<T> list = loadRange(firstLoadPosition, firstLoadSize);
@@ -69,8 +68,9 @@ public abstract class TiledDataSource<T> extends PositionalDataSource<T> {
     }
 
     @Override
-    public void loadRange(int startPosition, int count, @NonNull LoadCallback callback) {
-        List<T> list = loadRange(startPosition, count);
+    public void loadRange(@NonNull LoadRangeParams params,
+            @NonNull LoadRangeCallback<T> callback) {
+        List<T> list = loadRange(params.startPosition, params.loadSize);
         if (list != null) {
             callback.onResult(list);
         } else {

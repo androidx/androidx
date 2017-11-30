@@ -92,7 +92,7 @@ class TiledPagedList<T> extends PagedList<T>
             final int idealStart = position - firstLoadSize / 2;
             final int roundedPageStart = Math.max(0, Math.round(idealStart / pageSize) * pageSize);
 
-            mDataSource.loadInitial(true, roundedPageStart, firstLoadSize,
+            mDataSource.dispatchLoadInitial(true, roundedPageStart, firstLoadSize,
                     pageSize, mMainThreadExecutor, mReceiver);
         }
     }
@@ -178,7 +178,8 @@ class TiledPagedList<T> extends PagedList<T>
                 } else {
                     int startPosition = pageIndex * pageSize;
                     int count = Math.min(pageSize, mStorage.size() - startPosition);
-                    mDataSource.loadRange(startPosition, count, mMainThreadExecutor, mReceiver);
+                    mDataSource.dispatchLoadRange(
+                            startPosition, count, mMainThreadExecutor, mReceiver);
                 }
             }
         });
