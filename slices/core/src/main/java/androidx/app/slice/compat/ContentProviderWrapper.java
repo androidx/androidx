@@ -43,8 +43,8 @@ public class ContentProviderWrapper extends ContentProvider {
      */
     public void attachInfo(Context context, ProviderInfo info, ContentProvider impl) {
         mImpl = impl;
-        mImpl.attachInfo(context, info);
         super.attachInfo(context, info);
+        mImpl.attachInfo(context, info);
     }
 
     @Override
