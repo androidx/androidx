@@ -29,22 +29,23 @@ class ListDataSource<T> extends PositionalDataSource<T> {
     }
 
     @Override
-    public void loadInitial(int requestedStartPosition, int requestedLoadSize, int pageSize,
-            @NonNull InitialLoadCallback<T> callback) {
+    public void loadInitial(@NonNull LoadInitialParams params,
+            @NonNull LoadInitialCallback<T> callback) {
         final int totalCount = mList.size();
 
-        final int firstLoadPosition = computeFirstLoadPosition(
-                requestedStartPosition, requestedLoadSize, pageSize, totalCount);
-        final int firstLoadSize = Math.min(totalCount - firstLoadPosition, requestedLoadSize);
+        final int position = computeInitialLoadPosition(params, totalCount);
+        final int loadSize = computeInitialLoadSize(params, position, totalCount);
 
         // for simplicity, we could return everything immediately,
         // but we tile here since it's expected behavior
-        List<T> sublist = mList.subList(firstLoadPosition, firstLoadPosition + firstLoadSize);
-        callback.onResult(sublist, firstLoadPosition, totalCount);
+        List<T> sublist = mList.subList(position, position + loadSize);
+        callback.onResult(sublist, position, totalCount);
     }
 
     @Override
-    public void loadRange(int startPosition, int count, @NonNull LoadCallback<T> callback) {
-        callback.onResult(mList.subList(startPosition, startPosition + count));
+    public void loadRange(@NonNull LoadRangeParams params,
+            @NonNull LoadRangeCallback<T> callback) {
+        callback.onResult(mList.subList(params.startPosition,
+                params.startPosition + params.loadSize));
     }
 }

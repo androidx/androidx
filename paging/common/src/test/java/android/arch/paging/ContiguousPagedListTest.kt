@@ -44,7 +44,7 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
 
     private inner class TestSource(val listData: List<Item> = ITEMS)
             : ContiguousDataSource<Int, Item>() {
-        override fun loadInitial(
+        override fun dispatchLoadInitial(
                 key: Int?,
                 initialLoadSize: Int,
                 pageSize: Int,
@@ -67,7 +67,7 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
             }
         }
 
-        override fun loadAfter(
+        override fun dispatchLoadAfter(
                 currentEndIndex: Int,
                 currentEndItem: Item,
                 pageSize: Int,
@@ -81,7 +81,7 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
             }
         }
 
-        override fun loadBefore(
+        override fun dispatchLoadBefore(
                 currentBeginIndex: Int,
                 currentBeginItem: Item,
                 pageSize: Int,

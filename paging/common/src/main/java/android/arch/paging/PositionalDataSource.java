@@ -46,9 +46,79 @@ import java.util.concurrent.Executor;
  * @param <T> Type of items being loaded by the PositionalDataSource.
  */
 public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
+
     /**
-     * Callback for PositionalDataSource initial loading methods to return data, position, and
-     * (optionally) count information.
+     * Holder object for inputs to {@link #loadInitial(LoadInitialParams, LoadInitialCallback)}.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static class LoadInitialParams {
+        /**
+         * Initial load position requested.
+         * <p>
+         * Note that this may not be within the bounds of your data set, it may need to be adjusted
+         * before you execute your load.
+         */
+        public final int requestedStartPosition;
+
+        /**
+         * Requested number of items to load.
+         * <p>
+         * Note that this may be larger than available data.
+         */
+        public final int requestedLoadSize;
+
+        /**
+         * Defines page size acceptable for return values.
+         * <p>
+         * List of items passed to the callback must be an integer multiple of page size.
+         */
+        public final int pageSize;
+
+        /**
+         * Defines whether placeholders are enabled, and whether the total count passed to
+         * {@link LoadInitialCallback#onResult(List, int, int)} will be ignored.
+         */
+        public final boolean placeholdersEnabled;
+
+        LoadInitialParams(
+                int requestedStartPosition,
+                int requestedLoadSize,
+                int pageSize,
+                boolean placeholdersEnabled) {
+            this.requestedStartPosition = requestedStartPosition;
+            this.requestedLoadSize = requestedLoadSize;
+            this.pageSize = pageSize;
+            this.placeholdersEnabled = placeholdersEnabled;
+        }
+    }
+
+    /**
+     * Holder object for inputs to {@link #loadRange(LoadRangeParams, LoadRangeCallback)}.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static class LoadRangeParams {
+        /**
+         * Start position of data to load.
+         * <p>
+         * Returned data must start at this position.
+         */
+        public final int startPosition;
+        /**
+         * Number of items to load.
+         * <p>
+         * Returned data must be of this size, unless at end of the list.
+         */
+        public final int loadSize;
+
+        LoadRangeParams(int startPosition, int loadSize) {
+            this.startPosition = startPosition;
+            this.loadSize = loadSize;
+        }
+    }
+
+    /**
+     * Callback for {@link #loadInitial(LoadInitialParams, LoadInitialCallback)}
+     * to return data, position, and count.
      * <p>
      * A callback can be called only once, and will throw if called again.
      * <p>
@@ -58,11 +128,11 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
      *
      * @param <T> Type of items being loaded.
      */
-    public static class InitialLoadCallback<T> extends BaseLoadCallback<T> {
+    public static class LoadInitialCallback<T> extends BaseLoadCallback<T> {
         private final boolean mCountingEnabled;
         private final int mPageSize;
 
-        InitialLoadCallback(@NonNull PositionalDataSource dataSource, boolean countingEnabled,
+        LoadInitialCallback(@NonNull PositionalDataSource dataSource, boolean countingEnabled,
                 int pageSize, PageResult.Receiver<T> receiver) {
             super(PageResult.INIT, dataSource, null, receiver);
             mCountingEnabled = countingEnabled;
@@ -129,7 +199,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
     }
 
     /**
-     * Callback for PositionalDataSource {@link #loadRange(int, int, LoadCallback)} methods
+     * Callback for PositionalDataSource {@link #loadRange(LoadRangeParams, LoadRangeCallback)}
      * to return data.
      * <p>
      * A callback can be called only once, and will throw if called again.
@@ -140,20 +210,19 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
      *
      * @param <T> Type of items being loaded.
      */
-    public static class LoadCallback<T> extends BaseLoadCallback<T> {
+    public static class LoadRangeCallback<T> extends BaseLoadCallback<T> {
         private final int mPositionOffset;
-        LoadCallback(@NonNull PositionalDataSource dataSource, int positionOffset,
+        LoadRangeCallback(@NonNull PositionalDataSource dataSource, int positionOffset,
                 Executor mainThreadExecutor, PageResult.Receiver<T> receiver) {
             super(PageResult.TILE, dataSource, mainThreadExecutor, receiver);
             mPositionOffset = positionOffset;
         }
 
         /**
-         * Called to pass loaded data from a DataSource.
-         * <p>
-         * Call this method from your DataSource's {@code load} methods to return data.
+         * Called to pass loaded data from {@link #loadRange(LoadRangeParams, LoadRangeCallback)}.
          *
-         * @param data List of items loaded from the DataSource.
+         * @param data List of items loaded from the DataSource. Must be same size as requested,
+         *             unless at end of list.
          */
         public void onResult(@NonNull List<T> data) {
             dispatchResultToReceiver(new PageResult<>(
@@ -161,12 +230,15 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
         }
     }
 
-    void loadInitial(boolean acceptCount,
+    final void dispatchLoadInitial(boolean acceptCount,
             int requestedStartPosition, int requestedLoadSize, int pageSize,
             @NonNull Executor mainThreadExecutor, @NonNull PageResult.Receiver<T> receiver) {
-        InitialLoadCallback<T> callback =
-                new InitialLoadCallback<>(this, acceptCount, pageSize, receiver);
-        loadInitial(requestedStartPosition, requestedLoadSize, pageSize, callback);
+        LoadInitialCallback<T> callback =
+                new LoadInitialCallback<>(this, acceptCount, pageSize, receiver);
+
+        LoadInitialParams params = new LoadInitialParams(
+                requestedStartPosition, requestedLoadSize, pageSize, true);
+        loadInitial(params, callback);
 
         // If initialLoad's callback is not called within the body, we force any following calls
         // to post to the UI thread. This constructor may be run on a background thread, but
@@ -174,14 +246,14 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
         callback.setPostExecutor(mainThreadExecutor);
     }
 
-    void loadRange(int startPosition, int count,
+    final void dispatchLoadRange(int startPosition, int count,
             @NonNull Executor mainThreadExecutor, @NonNull PageResult.Receiver<T> receiver) {
-        LoadCallback<T> callback =
-                new LoadCallback<>(this, startPosition, mainThreadExecutor, receiver);
+        LoadRangeCallback<T> callback =
+                new LoadRangeCallback<>(this, startPosition, mainThreadExecutor, receiver);
         if (count == 0) {
             callback.onResult(Collections.<T>emptyList());
         } else {
-            loadRange(startPosition, count, callback);
+            loadRange(new LoadRangeParams(startPosition, count), callback);
         }
     }
 
@@ -192,58 +264,150 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
      * <p>
      * Result list must be a multiple of pageSize to enable efficient tiling.
      *
-     * @param requestedStartPosition Initial load position requested. Note that this may not be
-     *                               within the bounds of your data set, it should be corrected
-     *                               before you make your query.
-     * @param requestedLoadSize Requested number of items to load. Note that this may be larger than
-     *                          available data.
-     * @param pageSize Defines page size acceptable for return values. List of items passed to the
-     *                 callback must be an integer multiple of page size.
-     * @param callback DataSource.InitialLoadCallback that receives initial load data, including
+     * @param params Parameters for initial load, including requested start position, load size, and
+     *               page size.
+     * @param callback Callback that receives initial load data, including
      *                 position and total data set size.
      */
     @WorkerThread
-    public abstract void loadInitial(int requestedStartPosition, int requestedLoadSize,
-            int pageSize, @NonNull InitialLoadCallback<T> callback);
+    public abstract void loadInitial(
+            @NonNull LoadInitialParams params,
+            @NonNull LoadInitialCallback<T> callback);
 
     /**
      * Called to load a range of data from the DataSource.
      * <p>
      * This method is called to load additional pages from the DataSource after the
-     * InitialLoadCallback passed to loadInitial has initialized a PagedList.
+     * LoadInitialCallback passed to dispatchLoadInitial has initialized a PagedList.
      * <p>
-     * Unlike {@link #loadInitial(int, int, int, InitialLoadCallback)}, this method must return the
-     * number of items requested, at the position requested.
+     * Unlike {@link #loadInitial(LoadInitialParams, LoadInitialCallback)}, this method must return
+     * the number of items requested, at the position requested.
      *
-     * @param startPosition Initial load position.
-     * @param count Number of items to load.
-     * @param callback DataSource.LoadCallback that receives loaded data.
+     * @param params Parameters for load, including start position and load size.
+     * @param callback Callback that receives loaded data.
      */
     @WorkerThread
-    public abstract void loadRange(int startPosition, int count, @NonNull LoadCallback<T> callback);
+    public abstract void loadRange(@NonNull LoadRangeParams params,
+            @NonNull LoadRangeCallback<T> callback);
 
     @Override
     boolean isContiguous() {
         return false;
     }
 
-
     @NonNull
     ContiguousDataSource<Integer, T> wrapAsContiguousWithoutPlaceholders() {
         return new ContiguousWithoutPlaceholdersWrapper<>(this);
     }
 
-    static int computeFirstLoadPosition(int position, int firstLoadSize, int pageSize, int size) {
+    /**
+     * Helper for computing an initial position in
+     * {@link #loadInitial(LoadInitialParams, LoadInitialCallback)} when total data set size can be
+     * computed ahead of loading.
+     * <p>
+     * The value computed by this function will do bounds checking, page alignment, and positioning
+     * based on initial load size requested.
+     * <p>
+     * Example usage in a PositionalDataSource subclass:
+     * <pre>
+     * class ItemDataSource extends PositionalDataSource&lt;Item> {
+     *     private int computeCount() {
+     *         // actual count code here
+     *     }
+     *
+     *     private List&lt;Item> loadRangeInternal(int startPosition, int loadCount) {
+     *         // actual load code here
+     *     }
+     *
+     *     {@literal @}Override
+     *     public void loadInitial({@literal @}NonNull LoadInitialParams params,
+     *             {@literal @}NonNull LoadInitialCallback&lt;Item> callback) {
+     *         int totalCount = computeCount();
+     *         int position = computeInitialLoadPosition(params, totalCount);
+     *         int loadSize = computeInitialLoadSize(params, position, totalCount);
+     *         callback.onResult(loadRangeInternal(position, loadSize), position, totalCount);
+     *     }
+     *
+     *     {@literal @}Override
+     *     public void loadRange({@literal @}NonNull LoadRangeParams params,
+     *             {@literal @}NonNull LoadRangeCallback&lt;Item> callback) {
+     *         callback.onResult(loadRangeInternal(params.startPosition, params.loadSize));
+     *     }
+     * }</pre>
+     *
+     * @param params Params passed to {@link #loadInitial(LoadInitialParams, LoadInitialCallback)},
+     *               including page size, and requested start/loadSize.
+     * @param totalCount Total size of the data set.
+     * @return Position to start loading at.
+     *
+     * @see #computeInitialLoadSize(LoadInitialParams, int, int)
+     */
+    public static int computeInitialLoadPosition(@NonNull LoadInitialParams params,
+            int totalCount) {
+        int position = params.requestedStartPosition;
+        int initialLoadSize = params.requestedLoadSize;
+        int pageSize = params.pageSize;
+
         int roundedPageStart = Math.round(position / pageSize) * pageSize;
 
         // maximum start pos is that which will encompass end of list
-        int maximumLoadPage = ((size - firstLoadSize + pageSize - 1) / pageSize) * pageSize;
+        int maximumLoadPage = ((totalCount - initialLoadSize + pageSize - 1) / pageSize) * pageSize;
         roundedPageStart = Math.min(maximumLoadPage, roundedPageStart);
 
         // minimum start position is 0
         roundedPageStart = Math.max(0, roundedPageStart);
 
         return roundedPageStart;
+    }
+
+    /**
+     * Helper for computing an initial load size in
+     * {@link #loadInitial(LoadInitialParams, LoadInitialCallback)} when total data set size can be
+     * computed ahead of loading.
+     * <p>
+     * This function takes the requested load size, and bounds checks it against the value returned
+     * by {@link #computeInitialLoadPosition(LoadInitialParams, int)}.
+     * <p>
+     * Example usage in a PositionalDataSource subclass:
+     * <pre>
+     * class ItemDataSource extends PositionalDataSource&lt;Item> {
+     *     private int computeCount() {
+     *         // actual count code here
+     *     }
+     *
+     *     private List&lt;Item> loadRangeInternal(int startPosition, int loadCount) {
+     *         // actual load code here
+     *     }
+     *
+     *     {@literal @}Override
+     *     public void loadInitial({@literal @}NonNull LoadInitialParams params,
+     *             {@literal @}NonNull LoadInitialCallback&lt;Item> callback) {
+     *         int totalCount = computeCount();
+     *         int position = computeInitialLoadPosition(params, totalCount);
+     *         int loadSize = computeInitialLoadSize(params, position, totalCount);
+     *         callback.onResult(loadRangeInternal(position, loadSize), position, totalCount);
+     *     }
+     *
+     *     {@literal @}Override
+     *     public void loadRange({@literal @}NonNull LoadRangeParams params,
+     *             {@literal @}NonNull LoadRangeCallback&lt;Item> callback) {
+     *         callback.onResult(loadRangeInternal(params.startPosition, params.loadSize));
+     *     }
+     * }</pre>
+     *
+     * @param params Params passed to {@link #loadInitial(LoadInitialParams, LoadInitialCallback)},
+     *               including page size, and requested start/loadSize.
+     * @param initialLoadPosition Value returned by
+     *                          {@link #computeInitialLoadPosition(LoadInitialParams, int)}
+     * @param totalCount Total size of the data set.
+     * @return Number of items to load.
+     *
+     * @see #computeInitialLoadPosition(LoadInitialParams, int)
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static int computeInitialLoadSize(@NonNull LoadInitialParams params,
+            int initialLoadPosition, int totalCount) {
+        return Math.min(totalCount - initialLoadPosition, params.requestedLoadSize);
     }
 
     @SuppressWarnings("deprecation")
@@ -259,39 +423,42 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
         }
 
         @Override
-        void loadInitial(@Nullable Integer position, int initialLoadSize, int pageSize,
+        void dispatchLoadInitial(@Nullable Integer position, int initialLoadSize, int pageSize,
                 boolean enablePlaceholders, @NonNull Executor mainThreadExecutor,
                 @NonNull PageResult.Receiver<Value> receiver) {
             final int convertPosition = position == null ? 0 : position;
 
             // Note enablePlaceholders will be false here, but we don't have a way to communicate
             // this to PositionalDataSource. This is fine, because only the list and its position
-            // offset will be consumed by the InitialLoadCallback.
-            mPositionalDataSource.loadInitial(false, convertPosition, initialLoadSize,
+            // offset will be consumed by the LoadInitialCallback.
+            mPositionalDataSource.dispatchLoadInitial(false, convertPosition, initialLoadSize,
                     pageSize, mainThreadExecutor, receiver);
         }
 
         @Override
-        void loadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize,
+        void dispatchLoadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize,
                 @NonNull Executor mainThreadExecutor,
                 @NonNull PageResult.Receiver<Value> receiver) {
             int startIndex = currentEndIndex + 1;
-            mPositionalDataSource.loadRange(startIndex, pageSize, mainThreadExecutor, receiver);
+            mPositionalDataSource.dispatchLoadRange(
+                    startIndex, pageSize, mainThreadExecutor, receiver);
         }
 
         @Override
-        void loadBefore(int currentBeginIndex, @NonNull Value currentBeginItem, int pageSize,
-                @NonNull Executor mainThreadExecutor,
+        void dispatchLoadBefore(int currentBeginIndex, @NonNull Value currentBeginItem,
+                int pageSize, @NonNull Executor mainThreadExecutor,
                 @NonNull PageResult.Receiver<Value> receiver) {
 
             int startIndex = currentBeginIndex - 1;
             if (startIndex < 0) {
                 // trigger empty list load
-                mPositionalDataSource.loadRange(startIndex, 0, mainThreadExecutor, receiver);
+                mPositionalDataSource.dispatchLoadRange(
+                        startIndex, 0, mainThreadExecutor, receiver);
             } else {
                 int loadSize = Math.min(pageSize, startIndex + 1);
                 startIndex = startIndex - loadSize + 1;
-                mPositionalDataSource.loadRange(startIndex, loadSize, mainThreadExecutor, receiver);
+                mPositionalDataSource.dispatchLoadRange(
+                        startIndex, loadSize, mainThreadExecutor, receiver);
             }
         }
 
