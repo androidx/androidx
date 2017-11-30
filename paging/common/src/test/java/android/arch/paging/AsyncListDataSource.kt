@@ -18,23 +18,18 @@ package android.arch.paging
 
 class AsyncListDataSource<T>(list: List<T>)
     : PositionalDataSource<T>() {
-    val workItems: MutableList<() -> Unit> = ArrayList()
+    private val workItems: MutableList<() -> Unit> = ArrayList()
     private val listDataSource = ListDataSource(list)
 
-    override fun loadInitial(
-            requestedStartPosition: Int,
-            requestedLoadSize: Int,
-            pageSize: Int,
-            callback: InitialLoadCallback<T>) {
+    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
         workItems.add {
-            listDataSource.loadInitial(
-                    requestedStartPosition, requestedLoadSize, pageSize, callback)
+            listDataSource.loadInitial(params, callback)
         }
     }
 
-    override fun loadRange(startPosition: Int, count: Int, callback: LoadCallback<T>) {
+    override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
         workItems.add {
-            listDataSource.loadRange(startPosition, count, callback)
+            listDataSource.loadRange(params, callback)
         }
     }
 

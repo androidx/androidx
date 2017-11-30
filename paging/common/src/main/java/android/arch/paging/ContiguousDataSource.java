@@ -27,15 +27,27 @@ abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, Value> {
         return true;
     }
 
-    abstract void loadInitial(@Nullable Key key, int initialLoadSize,
-            int pageSize, boolean enablePlaceholders,
-            @NonNull Executor mainThreadExecutor, @NonNull PageResult.Receiver<Value> receiver);
+    abstract void dispatchLoadInitial(
+            @Nullable Key key,
+            int initialLoadSize,
+            int pageSize,
+            boolean enablePlaceholders,
+            @NonNull Executor mainThreadExecutor,
+            @NonNull PageResult.Receiver<Value> receiver);
 
-    abstract void loadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize,
-            @NonNull Executor mainThreadExecutor, @NonNull PageResult.Receiver<Value> receiver);
+    abstract void dispatchLoadAfter(
+            int currentEndIndex,
+            @NonNull Value currentEndItem,
+            int pageSize,
+            @NonNull Executor mainThreadExecutor,
+            @NonNull PageResult.Receiver<Value> receiver);
 
-    abstract void loadBefore(int currentBeginIndex, @NonNull Value currentBeginItem, int pageSize,
-            @NonNull Executor mainThreadExecutor, @NonNull PageResult.Receiver<Value> receiver);
+    abstract void dispatchLoadBefore(
+            int currentBeginIndex,
+            @NonNull Value currentBeginItem,
+            int pageSize,
+            @NonNull Executor mainThreadExecutor,
+            @NonNull PageResult.Receiver<Value> receiver);
 
     /**
      * Get the key from either the position, or item, or null if position/item invalid.

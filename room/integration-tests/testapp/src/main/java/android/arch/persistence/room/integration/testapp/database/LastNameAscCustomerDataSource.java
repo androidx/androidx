@@ -19,7 +19,6 @@ import android.arch.paging.DataSource;
 import android.arch.paging.KeyedDataSource;
 import android.arch.persistence.room.InvalidationTracker;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -76,13 +75,14 @@ public class LastNameAscCustomerDataSource extends KeyedDataSource<String, Custo
     }
 
     @Override
-    public void loadInitial(@Nullable String customerName, int initialLoadSize,
-            boolean enablePlaceholders, @NonNull InitialLoadCallback<Customer> callback) {
+    public void loadInitial(@NonNull LoadInitialParams<String> params,
+            @NonNull LoadInitialCallback<Customer> callback) {
+        String customerName = params.requestedInitialKey;
         List<Customer> list;
         if (customerName != null) {
             // initial keyed load - load before 'customerName',
             // and load after last item in before list
-            int pageSize = initialLoadSize / 2;
+            int pageSize = params.requestedLoadSize / 2;
             String key = customerName;
             list = mCustomerDao.customerNameLoadBefore(key, pageSize);
             Collections.reverse(list);
@@ -91,10 +91,10 @@ public class LastNameAscCustomerDataSource extends KeyedDataSource<String, Custo
             }
             list.addAll(mCustomerDao.customerNameLoadAfter(key, pageSize));
         } else {
-            list = mCustomerDao.customerNameInitial(initialLoadSize);
+            list = mCustomerDao.customerNameInitial(params.requestedLoadSize);
         }
 
-        if (enablePlaceholders && !list.isEmpty()) {
+        if (params.placeholdersEnabled && !list.isEmpty()) {
             String firstKey = getKey(list.get(0));
             String lastKey = getKey(list.get(list.size() - 1));
 
@@ -108,16 +108,18 @@ public class LastNameAscCustomerDataSource extends KeyedDataSource<String, Custo
     }
 
     @Override
-    public void loadAfter(@NonNull String currentEndKey, int pageSize,
+    public void loadAfter(@NonNull LoadParams<String> params,
             @NonNull LoadCallback<Customer> callback) {
-        callback.onResult(mCustomerDao.customerNameLoadAfter(currentEndKey, pageSize));
+        callback.onResult(mCustomerDao.customerNameLoadAfter(params.key, params.requestedLoadSize));
     }
 
     @Override
-    public void loadBefore(@NonNull String currentBeginKey, int pageSize,
+    public void loadBefore(@NonNull LoadParams<String> params,
             @NonNull LoadCallback<Customer> callback) {
-        List<Customer> list = mCustomerDao.customerNameLoadBefore(currentBeginKey, pageSize);
+        List<Customer> list = mCustomerDao.customerNameLoadBefore(
+                params.key, params.requestedLoadSize);
         Collections.reverse(list);
         callback.onResult(list);
     }
 }
+
