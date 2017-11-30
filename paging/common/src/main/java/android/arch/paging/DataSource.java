@@ -178,7 +178,7 @@ public abstract class DataSource<Key, Value> {
             synchronized (mSignalLock) {
                 if (mHasSignalled) {
                     throw new IllegalStateException(
-                            "LoadCallback already dispatched, cannot dispatch again.");
+                            "callback.onResult already called, cannot call again.");
                 }
                 mHasSignalled = true;
                 executor = mPostExecutor;
