@@ -148,10 +148,11 @@ private fun generateKeepRule(type: TypeElement, processingEnv: ProcessingEnviron
     val adapterClass = type.getPackageQName() + "." + getAdapterName(type)
     val observerClass = type.toString()
     val keepRule = """# Generated keep rule for Lifecycle observer adapter.
+        |-if class $observerClass {
+        |    <init>(...);
+        |}
         |-keep class $adapterClass {
-        |   ifused class $observerClass {
-        |       <init>(...);
-        |   };
+        |    <init>(...);
         |}
         |""".trimMargin()
 
