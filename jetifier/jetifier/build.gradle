@@ -14,9 +14,6 @@
  * limitations under the License
  */
 
-group 'android.support.tools.jetifier'
-version '1.0'
-
 buildscript {
     ext.supportRootFolder = "${project.projectDir}/../../"
     apply from: "$supportRootFolder/buildSrc/repos.gradle"
@@ -32,12 +29,10 @@ buildscript {
 
 subprojects {
     group 'android.support.tools.jetifier'
-    version '1.0'
 
     ext.supportRootFolder = "${project.projectDir}/../../.."
 
     apply plugin: 'kotlin'
-    apply plugin: 'java'
     apply from: "$supportRootFolder/buildSrc/repos.gradle"
 
     compileKotlin {
@@ -53,3 +48,49 @@ subprojects {
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     }
 }
+
+ext.runningInBuildServer = System.env.DIST_DIR != null && System.env.OUT_DIR != null
+def setupOutDirs() {
+    /*
+     * With the build server you are given two env variables.
+     * The OUT_DIR is a temporary directory you can use to put things during the build.
+     * The DIST_DIR is where you want to save things from the build.
+     *
+     * The build server will copy the contents of DIST_DIR to somewhere and make it available.
+     */
+    if (ext.runningInBuildServer) {
+        buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build')
+                .getCanonicalFile()
+        project.ext.distDir = new File(System.env.DIST_DIR).getCanonicalFile()
+
+        // the build server should always print out full stack traces for any failures.
+        gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
+    } else {
+        buildDir = file("${ext.supportRootFolder}/../../out/host/gradle/frameworks/support/jetifier/build")
+        project.ext.distDir = new File("${ext.supportRootFolder}/../../out/dist")
+    }
+    subprojects {
+        // Change buildDir so that all plugins pick up the new value.
+        project.buildDir = new File("$project.parent.buildDir/../$project.name/build")
+        project.ext.distDir = new File("${ext.supportRootFolder}/../../out/dist")
+    }
+}
+
+def configureBuildOnServer() {
+    def buildOnServerTask = rootProject.tasks.create("buildOnServer")
+    rootProject.tasks.whenTaskAdded { task ->
+        if ("build".equals(task.name)) {
+            buildOnServerTask.dependsOn task
+        }
+    }
+    subprojects {
+        project.tasks.whenTaskAdded { task ->
+            if ("fatJar".equals(task.name)) {
+                buildOnServerTask.dependsOn task
+            }
+        }
+    }
+}
+
+setupOutDirs()
+configureBuildOnServer()
