@@ -119,11 +119,17 @@ public class WorkerWrapper implements Runnable {
             }
         }
 
-        List<Arguments> inputs = new ArrayList<>();
-        inputs.add(mWorkSpec.getArguments());
-        inputs.addAll(mWorkSpecDao.getInputsFromPrerequisites(mWorkSpecId));
-        InputMerger inputMerger = InputMerger.fromClassName(mWorkSpec.getInputMergerClassName());
-        Arguments arguments = (inputMerger != null) ? inputMerger.merge(inputs) : Arguments.EMPTY;
+        Arguments arguments;
+        if (mWorkSpec.isPeriodic()) {
+            arguments = mWorkSpec.getArguments();
+        } else {
+            List<Arguments> inputs = new ArrayList<>();
+            inputs.add(mWorkSpec.getArguments());
+            inputs.addAll(mWorkSpecDao.getInputsFromPrerequisites(mWorkSpecId));
+            InputMerger inputMerger = InputMerger.fromClassName(
+                    mWorkSpec.getInputMergerClassName());
+            arguments = (inputMerger != null) ? inputMerger.merge(inputs) : Arguments.EMPTY;
+        }
 
         mWorker = Worker.fromWorkSpec(mAppContext, mWorkSpec, arguments);
         if (mWorker == null) {
