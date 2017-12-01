@@ -16,7 +16,6 @@
 
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,8 +27,7 @@ import android.util.Log;
  * A {@link ConstraintTracker} with a {@link BroadcastReceiver} for monitoring constraint changes.
  */
 
-abstract class BroadcastReceiverConstraintTracker<T extends ConstraintListener>
-        extends ConstraintTracker<T> {
+abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTracker<T> {
     private static final String TAG = "BrdcstRcvrCnstrntTrckr";
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {

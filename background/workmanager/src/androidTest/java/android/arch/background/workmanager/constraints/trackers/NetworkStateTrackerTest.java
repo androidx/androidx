@@ -27,8 +27,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.arch.background.workmanager.constraints.NetworkState;
-import android.arch.background.workmanager.constraints.listeners.NetworkStateListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
@@ -46,7 +46,7 @@ import org.mockito.ArgumentCaptor;
 public class NetworkStateTrackerTest {
 
     private NetworkStateTracker mTracker;
-    private NetworkStateListener mListener;
+    private ConstraintListener<NetworkState> mListener;
 
     private Context mMockContext;
     private ConnectivityManager mMockConnectivityManager;
@@ -60,7 +60,7 @@ public class NetworkStateTrackerTest {
                 .thenReturn(mMockConnectivityManager);
 
         mTracker = new NetworkStateTracker(mMockContext);
-        mListener = mock(NetworkStateListener.class);
+        mListener = mock(ConstraintListener.class);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class NetworkStateTrackerTest {
     @SmallTest
     public void testNotifyListener_stateNotInitialized() {
         mTracker.notifyListener(mListener);
-        verify(mListener, never()).setNetworkState(any(NetworkState.class));
+        verify(mListener, never()).onConstraintChanged(any(NetworkState.class));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class NetworkStateTrackerTest {
     public void testNotifyListener_stateInitialized() {
         mTracker.mCurrentNetworkState = new NetworkState(true, true, true, true);
         mTracker.notifyListener(mListener);
-        verify(mListener).setNetworkState(eq(mTracker.mCurrentNetworkState));
+        verify(mListener).onConstraintChanged(eq(mTracker.mCurrentNetworkState));
     }
 
     @Test

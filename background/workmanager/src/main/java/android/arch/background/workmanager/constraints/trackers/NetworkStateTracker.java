@@ -15,8 +15,8 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
+import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.arch.background.workmanager.constraints.NetworkState;
-import android.arch.background.workmanager.constraints.listeners.NetworkStateListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -45,7 +45,7 @@ import android.util.Log;
  * Based on {@link android.app.job.JobScheduler}'s ConnectivityController on API 26.
  * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/job/controllers/ConnectivityController.java}
  */
-public class NetworkStateTracker extends ConstraintTracker<NetworkStateListener> {
+public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     private static final String TAG = "NetworkStateTracker";
 
     private final ConnectivityManager mConnectivityManager;
@@ -75,9 +75,9 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkStateListener>
     }
 
     @Override
-    protected void notifyListener(@NonNull NetworkStateListener listener) {
+    protected void notifyListener(@NonNull ConstraintListener<NetworkState> listener) {
         if (mCurrentNetworkState != null) {
-            listener.setNetworkState(mCurrentNetworkState);
+            listener.onConstraintChanged(mCurrentNetworkState);
         }
     }
 
@@ -113,7 +113,7 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkStateListener>
         Log.d(TAG, "Attempting to update network state: " + networkState);
         if (mCurrentNetworkState == null || !mCurrentNetworkState.equals(networkState)) {
             mCurrentNetworkState = networkState;
-            for (NetworkStateListener listener : mListeners) {
+            for (ConstraintListener<NetworkState> listener : mListeners) {
                 notifyListener(listener);
             }
             Log.d(TAG, "Updated network state: " + networkState);

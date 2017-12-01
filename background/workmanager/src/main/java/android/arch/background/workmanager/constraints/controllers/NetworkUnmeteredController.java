@@ -18,7 +18,6 @@ package android.arch.background.workmanager.constraints.controllers;
 
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.NetworkState;
-import android.arch.background.workmanager.constraints.listeners.NetworkStateListener;
 import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.lifecycle.LifecycleOwner;
@@ -29,16 +28,9 @@ import android.support.annotation.NonNull;
  * A {@link ConstraintController} for monitoring that the network connection is unmetered.
  */
 
-public class NetworkUnmeteredController extends ConstraintController<NetworkStateListener> {
+public class NetworkUnmeteredController extends ConstraintController<NetworkState> {
 
     private boolean mIsConnectedAndUnmetered;
-    private final NetworkStateListener mNetworkStateUnmeteredListener = new NetworkStateListener() {
-        @Override
-        public void setNetworkState(@NonNull NetworkState state) {
-            mIsConnectedAndUnmetered = state.isConnected() && !state.isMetered();
-            updateListener();
-        }
-    };
 
     public NetworkUnmeteredController(
             Context context,
@@ -57,12 +49,13 @@ public class NetworkUnmeteredController extends ConstraintController<NetworkStat
     }
 
     @Override
-    NetworkStateListener getListener() {
-        return mNetworkStateUnmeteredListener;
+    boolean isConstrained() {
+        return !mIsConnectedAndUnmetered;
     }
 
     @Override
-    boolean isConstrained() {
-        return !mIsConnectedAndUnmetered;
+    public void onConstraintChanged(@NonNull NetworkState state) {
+        mIsConnectedAndUnmetered = state.isConnected() && !state.isMetered();
+        updateListener();
     }
 }

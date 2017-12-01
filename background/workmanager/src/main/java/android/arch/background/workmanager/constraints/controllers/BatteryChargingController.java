@@ -16,25 +16,18 @@
 package android.arch.background.workmanager.constraints.controllers;
 
 import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.constraints.listeners.BatteryChargingListener;
 import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 /**
  * A {@link ConstraintController} for battery charging events.
  */
 
-public class BatteryChargingController extends ConstraintController<BatteryChargingListener> {
+public class BatteryChargingController extends ConstraintController<Boolean> {
 
     private boolean mIsBatteryCharging;
-    private final BatteryChargingListener mChargingListener = new BatteryChargingListener() {
-        @Override
-        public void setBatteryCharging(boolean isBatteryCharging) {
-            mIsBatteryCharging = isBatteryCharging;
-            updateListener();
-        }
-    };
 
     public BatteryChargingController(
             Context context,
@@ -50,12 +43,13 @@ public class BatteryChargingController extends ConstraintController<BatteryCharg
     }
 
     @Override
-    BatteryChargingListener getListener() {
-        return mChargingListener;
+    boolean isConstrained() {
+        return !mIsBatteryCharging;
     }
 
     @Override
-    boolean isConstrained() {
-        return !mIsBatteryCharging;
+    public void onConstraintChanged(@NonNull Boolean isBatteryCharging) {
+        mIsBatteryCharging = isBatteryCharging;
+        updateListener();
     }
 }

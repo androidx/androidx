@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
+import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -25,15 +25,15 @@ import java.util.Set;
 /**
  * A base for tracking constraints and notifying listeners of changes.
  *
- * @param <T> A specific type of {@link ConstraintListener} associated with this tracker
+ * @param <T> the constraint data type observed by this tracker
  */
 
-public abstract class ConstraintTracker<T extends ConstraintListener> {
+public abstract class ConstraintTracker<T> {
 
     private static final String TAG = "ConstraintTracker";
 
     protected Context mAppContext;
-    protected Set<T> mListeners = new LinkedHashSet<>();
+    protected Set<ConstraintListener<T>> mListeners = new LinkedHashSet<>();
 
     ConstraintTracker(Context context) {
         mAppContext = context.getApplicationContext();
@@ -44,7 +44,7 @@ public abstract class ConstraintTracker<T extends ConstraintListener> {
      *
      * @param listener The target listener to start notifying
      */
-    public void addListener(T listener) {
+    public void addListener(ConstraintListener<T> listener) {
         if (mListeners.add(listener)) {
             if (mListeners.size() == 1) {
                 initState();
@@ -59,7 +59,7 @@ public abstract class ConstraintTracker<T extends ConstraintListener> {
      *
      * @param listener The listener to stop notifying.
      */
-    public void removeListener(T listener) {
+    public void removeListener(ConstraintListener<T> listener) {
         if (mListeners.remove(listener) && mListeners.isEmpty()) {
             stopTracking();
         }
@@ -75,7 +75,7 @@ public abstract class ConstraintTracker<T extends ConstraintListener> {
      *
      * @param listener The listener to notify
      */
-    protected abstract void notifyListener(@NonNull T listener);
+    protected abstract void notifyListener(@NonNull ConstraintListener<T> listener);
 
     /**
      * Start tracking for constraint state changes.

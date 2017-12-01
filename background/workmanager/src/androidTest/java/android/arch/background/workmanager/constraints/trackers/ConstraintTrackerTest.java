@@ -20,7 +20,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
-import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
+import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
@@ -110,7 +110,7 @@ public class ConstraintTrackerTest {
 
     @Test
     public void testRemoveListener_lastListener_stopsTracking() {
-        ConstraintListener constraintListener = mock(ConstraintListener.class);
+        ConstraintListener<Boolean> constraintListener = mock(ConstraintListener.class);
         mTracker.addListener(constraintListener);
 
         mTracker.removeListener(constraintListener);
@@ -120,8 +120,8 @@ public class ConstraintTrackerTest {
 
     @Test
     public void testRemoveListener_notLastListener_doesNotStopTracking() {
-        ConstraintListener constraintListener1 = mock(ConstraintListener.class);
-        ConstraintListener constraintListener2 = mock(ConstraintListener.class);
+        ConstraintListener<Boolean> constraintListener1 = mock(ConstraintListener.class);
+        ConstraintListener<Boolean> constraintListener2 = mock(ConstraintListener.class);
 
         mTracker.addListener(constraintListener1);
         mTracker.addListener(constraintListener2);
@@ -131,7 +131,7 @@ public class ConstraintTrackerTest {
         assertThat(mTracker.mStopTrackingCount, is(0));
     }
 
-    private static class TestConstraintTracker extends ConstraintTracker<ConstraintListener> {
+    private static class TestConstraintTracker extends ConstraintTracker<Boolean> {
 
         final Set<ConstraintListener> mNotifiedListeners = new HashSet<>();
 

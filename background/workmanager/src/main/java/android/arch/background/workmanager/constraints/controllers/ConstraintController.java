@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.constraints.controllers;
 
-import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
+import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.arch.background.workmanager.constraints.trackers.ConstraintTracker;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.utils.LiveDataUtils;
@@ -33,11 +33,11 @@ import java.util.List;
 /**
  * A controller for a particular constraint.
  *
- * @param <T> A specific type of {@link ConstraintListener} associated with this controller
+ * @param <T> the constraint data type managed by this controller.
  */
 
-public abstract class ConstraintController<T extends ConstraintListener>
-        implements LifecycleObserver {
+public abstract class ConstraintController<T> implements LifecycleObserver, ConstraintListener<T>,
+        Observer<List<WorkSpec>> {
 
     /**
      * A callback for when a constraint changes.
@@ -64,7 +64,6 @@ public abstract class ConstraintController<T extends ConstraintListener>
     private LiveData<List<WorkSpec>> mConstraintLiveData;
     private LifecycleOwner mLifecycleOwner;
     private ConstraintTracker<T> mTracker;
-    private Observer<List<WorkSpec>> mConstraintObserver;
     private OnConstraintUpdatedCallback mOnConstraintUpdatedCallback;
     private List<WorkSpec> mMatchingWorkSpecs;
 
@@ -78,24 +77,6 @@ public abstract class ConstraintController<T extends ConstraintListener>
         mLifecycleOwner = lifecycleOwner;
         mTracker = tracker;
         mOnConstraintUpdatedCallback = onConstraintUpdatedCallback;
-
-        mConstraintObserver = new Observer<List<WorkSpec>>() {
-            @Override
-            public void onChanged(@Nullable List<WorkSpec> matchingWorkSpecs) {
-                Log.d(
-                        TAG,
-                        ConstraintController.this.getClass().getSimpleName() + ": "
-                                + matchingWorkSpecs);
-                mMatchingWorkSpecs = matchingWorkSpecs;
-                if (matchingWorkSpecs != null && matchingWorkSpecs.size() > 0) {
-                    mTracker.addListener(getListener());
-                    updateListener();
-                } else {
-                    mTracker.removeListener(getListener());
-                }
-            }
-        };
-
         mLifecycleOwner.getLifecycle().addObserver(this);
     }
 
@@ -104,7 +85,7 @@ public abstract class ConstraintController<T extends ConstraintListener>
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onLifecycleStart() {
-        mConstraintLiveData.observe(mLifecycleOwner, mConstraintObserver);
+        mConstraintLiveData.observe(mLifecycleOwner, this);
     }
 
     /**
@@ -112,8 +93,8 @@ public abstract class ConstraintController<T extends ConstraintListener>
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void shutdown() {
-        mConstraintLiveData.removeObserver(mConstraintObserver);
-        mTracker.removeListener(getListener());
+        mConstraintLiveData.removeObserver(this);
+        mTracker.removeListener(this);
     }
 
     /**
@@ -147,7 +128,20 @@ public abstract class ConstraintController<T extends ConstraintListener>
         }
     }
 
-    abstract T getListener();
-
     abstract boolean isConstrained();
+
+    @Override
+    public void onChanged(@Nullable List<WorkSpec> matchingWorkSpecs) {
+        Log.d(
+                TAG,
+                ConstraintController.this.getClass().getSimpleName() + ": "
+                        + matchingWorkSpecs);
+        mMatchingWorkSpecs = matchingWorkSpecs;
+        if (matchingWorkSpecs != null && matchingWorkSpecs.size() > 0) {
+            mTracker.addListener(this);
+            updateListener();
+        } else {
+            mTracker.removeListener(this);
+        }
+    }
 }

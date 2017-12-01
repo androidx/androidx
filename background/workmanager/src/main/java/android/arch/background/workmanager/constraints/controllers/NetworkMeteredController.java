@@ -18,7 +18,6 @@ package android.arch.background.workmanager.constraints.controllers;
 
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.NetworkState;
-import android.arch.background.workmanager.constraints.listeners.NetworkStateListener;
 import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.lifecycle.LifecycleOwner;
@@ -31,19 +30,11 @@ import android.util.Log;
  * A {@link ConstraintController} for monitoring that the network connection is metered.
  */
 
-public class NetworkMeteredController extends ConstraintController<NetworkStateListener> {
+public class NetworkMeteredController extends ConstraintController<NetworkState> {
     private static final String TAG = "NetworkMeteredCtrlr";
 
     private boolean mIsConnected;
     private boolean mIsMetered;
-    private final NetworkStateListener mNetworkStateMeteredListener = new NetworkStateListener() {
-        @Override
-        public void setNetworkState(@NonNull NetworkState state) {
-            mIsConnected = state.isConnected();
-            mIsMetered = state.isMetered();
-            updateListener();
-        }
-    };
 
     public NetworkMeteredController(
             Context context,
@@ -61,11 +52,6 @@ public class NetworkMeteredController extends ConstraintController<NetworkStateL
         );
     }
 
-    @Override
-    NetworkStateListener getListener() {
-        return mNetworkStateMeteredListener;
-    }
-
     /**
      * Check for metered constraint on API 26+, when JobInfo#NETWORK_METERED was added, to
      * be consistent with JobScheduler functionality.
@@ -78,5 +64,12 @@ public class NetworkMeteredController extends ConstraintController<NetworkStateL
             return !mIsConnected;
         }
         return !mIsConnected || !mIsMetered;
+    }
+
+    @Override
+    public void onConstraintChanged(@NonNull NetworkState state) {
+        mIsConnected = state.isConnected();
+        mIsMetered = state.isMetered();
+        updateListener();
     }
 }

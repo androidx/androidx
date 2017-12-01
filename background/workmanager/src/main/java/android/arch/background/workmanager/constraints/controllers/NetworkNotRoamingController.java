@@ -18,7 +18,6 @@ package android.arch.background.workmanager.constraints.controllers;
 
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.NetworkState;
-import android.arch.background.workmanager.constraints.listeners.NetworkStateListener;
 import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.lifecycle.LifecycleOwner;
@@ -31,20 +30,11 @@ import android.util.Log;
  * A {@link ConstraintController} for monitoring that the network connection is not roaming.
  */
 
-public class NetworkNotRoamingController extends ConstraintController<NetworkStateListener> {
+public class NetworkNotRoamingController extends ConstraintController<NetworkState> {
     private static final String TAG = "NetworkNotRoamingCtrlr";
 
     private boolean mIsConnected;
     private boolean mIsNotRoaming;
-    private final NetworkStateListener mNetworkStateNotRoamingListener =
-            new NetworkStateListener() {
-                @Override
-                public void setNetworkState(@NonNull NetworkState state) {
-                    mIsConnected = state.isConnected();
-                    mIsNotRoaming = state.isNotRoaming();
-                    updateListener();
-                }
-            };
 
     public NetworkNotRoamingController(
             Context context,
@@ -62,11 +52,6 @@ public class NetworkNotRoamingController extends ConstraintController<NetworkSta
         );
     }
 
-    @Override
-    NetworkStateListener getListener() {
-        return mNetworkStateNotRoamingListener;
-    }
-
     /**
      * Check for not-roaming constraint on API 24+, when JobInfo#NETWORK_TYPE_NOT_ROAMING was added,
      * to be consistent with JobScheduler functionality.
@@ -79,5 +64,12 @@ public class NetworkNotRoamingController extends ConstraintController<NetworkSta
             return !mIsConnected;
         }
         return !mIsConnected || !mIsNotRoaming;
+    }
+
+    @Override
+    public void onConstraintChanged(@NonNull NetworkState state) {
+        mIsConnected = state.isConnected();
+        mIsNotRoaming = state.isNotRoaming();
+        updateListener();
     }
 }
