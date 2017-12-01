@@ -65,6 +65,7 @@ class AlertController {
     private final Context mContext;
     final AppCompatDialog mDialog;
     private final Window mWindow;
+    private final int mButtonIconDimen;
 
     private CharSequence mTitle;
     private CharSequence mMessage;
@@ -82,14 +83,17 @@ class AlertController {
     Button mButtonPositive;
     private CharSequence mButtonPositiveText;
     Message mButtonPositiveMessage;
+    private Drawable mButtonPositiveIcon;
 
     Button mButtonNegative;
     private CharSequence mButtonNegativeText;
     Message mButtonNegativeMessage;
+    private Drawable mButtonNegativeIcon;
 
     Button mButtonNeutral;
     private CharSequence mButtonNeutralText;
     Message mButtonNeutralMessage;
+    private Drawable mButtonNeutralIcon;
 
     NestedScrollView mScrollView;
 
@@ -192,6 +196,7 @@ class AlertController {
                 .getResourceId(R.styleable.AlertDialog_singleChoiceItemLayout, 0);
         mListItemLayout = a.getResourceId(R.styleable.AlertDialog_listItemLayout, 0);
         mShowTitle = a.getBoolean(R.styleable.AlertDialog_showTitle, true);
+        mButtonIconDimen = a.getDimensionPixelSize(R.styleable.AlertDialog_buttonIconDimen, 0);
 
         a.recycle();
 
@@ -298,8 +303,8 @@ class AlertController {
     }
 
     /**
-     * Sets a click listener or a message to be sent when the button is clicked.
-     * You only need to pass one of {@code listener} or {@code msg}.
+     * Sets an icon, a click listener or a message to be sent when the button is clicked.
+     * You only need to pass one of {@code icon}, {@code listener} or {@code msg}.
      *
      * @param whichButton Which button, can be one of
      *                    {@link DialogInterface#BUTTON_POSITIVE},
@@ -308,9 +313,11 @@ class AlertController {
      * @param text        The text to display in positive button.
      * @param listener    The {@link DialogInterface.OnClickListener} to use.
      * @param msg         The {@link Message} to be sent when clicked.
+     * @param icon        The (@link Drawable) to be used as an icon for the button.
+     *
      */
     public void setButton(int whichButton, CharSequence text,
-            DialogInterface.OnClickListener listener, Message msg) {
+            DialogInterface.OnClickListener listener, Message msg, Drawable icon) {
 
         if (msg == null && listener != null) {
             msg = mHandler.obtainMessage(whichButton, listener);
@@ -321,16 +328,19 @@ class AlertController {
             case DialogInterface.BUTTON_POSITIVE:
                 mButtonPositiveText = text;
                 mButtonPositiveMessage = msg;
+                mButtonPositiveIcon = icon;
                 break;
 
             case DialogInterface.BUTTON_NEGATIVE:
                 mButtonNegativeText = text;
                 mButtonNegativeMessage = msg;
+                mButtonNegativeIcon = icon;
                 break;
 
             case DialogInterface.BUTTON_NEUTRAL:
                 mButtonNeutralText = text;
                 mButtonNeutralMessage = msg;
+                mButtonNeutralIcon = icon;
                 break;
 
             default:
@@ -752,35 +762,45 @@ class AlertController {
         mButtonPositive = (Button) buttonPanel.findViewById(android.R.id.button1);
         mButtonPositive.setOnClickListener(mButtonHandler);
 
-        if (TextUtils.isEmpty(mButtonPositiveText)) {
+        if (TextUtils.isEmpty(mButtonPositiveText) && mButtonPositiveIcon == null) {
             mButtonPositive.setVisibility(View.GONE);
         } else {
             mButtonPositive.setText(mButtonPositiveText);
+            if (mButtonPositiveIcon != null) {
+                mButtonPositiveIcon.setBounds(0, 0, mButtonIconDimen, mButtonIconDimen);
+                mButtonPositive.setCompoundDrawables(mButtonPositiveIcon, null, null, null);
+            }
             mButtonPositive.setVisibility(View.VISIBLE);
             whichButtons = whichButtons | BIT_BUTTON_POSITIVE;
         }
 
-        mButtonNegative = (Button) buttonPanel.findViewById(android.R.id.button2);
+        mButtonNegative = buttonPanel.findViewById(android.R.id.button2);
         mButtonNegative.setOnClickListener(mButtonHandler);
 
-        if (TextUtils.isEmpty(mButtonNegativeText)) {
+        if (TextUtils.isEmpty(mButtonNegativeText) && mButtonNegativeIcon == null) {
             mButtonNegative.setVisibility(View.GONE);
         } else {
             mButtonNegative.setText(mButtonNegativeText);
+            if (mButtonNegativeIcon != null) {
+                mButtonNegativeIcon.setBounds(0, 0, mButtonIconDimen, mButtonIconDimen);
+                mButtonNegative.setCompoundDrawables(mButtonNegativeIcon, null, null, null);
+            }
             mButtonNegative.setVisibility(View.VISIBLE);
-
             whichButtons = whichButtons | BIT_BUTTON_NEGATIVE;
         }
 
         mButtonNeutral = (Button) buttonPanel.findViewById(android.R.id.button3);
         mButtonNeutral.setOnClickListener(mButtonHandler);
 
-        if (TextUtils.isEmpty(mButtonNeutralText)) {
+        if (TextUtils.isEmpty(mButtonNeutralText) && mButtonNeutralIcon == null) {
             mButtonNeutral.setVisibility(View.GONE);
         } else {
             mButtonNeutral.setText(mButtonNeutralText);
+            if (mButtonPositiveIcon != null) {
+                mButtonPositiveIcon.setBounds(0, 0, mButtonIconDimen, mButtonIconDimen);
+                mButtonPositive.setCompoundDrawables(mButtonPositiveIcon, null, null, null);
+            }
             mButtonNeutral.setVisibility(View.VISIBLE);
-
             whichButtons = whichButtons | BIT_BUTTON_NEUTRAL;
         }
 
@@ -852,10 +872,13 @@ class AlertController {
         public View mCustomTitleView;
         public CharSequence mMessage;
         public CharSequence mPositiveButtonText;
+        public Drawable mPositiveButtonIcon;
         public DialogInterface.OnClickListener mPositiveButtonListener;
         public CharSequence mNegativeButtonText;
+        public Drawable mNegativeButtonIcon;
         public DialogInterface.OnClickListener mNegativeButtonListener;
         public CharSequence mNeutralButtonText;
+        public Drawable mNeutralButtonIcon;
         public DialogInterface.OnClickListener mNeutralButtonListener;
         public boolean mCancelable;
         public DialogInterface.OnCancelListener mOnCancelListener;
@@ -923,17 +946,17 @@ class AlertController {
             if (mMessage != null) {
                 dialog.setMessage(mMessage);
             }
-            if (mPositiveButtonText != null) {
+            if (mPositiveButtonText != null || mPositiveButtonIcon != null) {
                 dialog.setButton(DialogInterface.BUTTON_POSITIVE, mPositiveButtonText,
-                        mPositiveButtonListener, null);
+                        mPositiveButtonListener, null, mPositiveButtonIcon);
             }
-            if (mNegativeButtonText != null) {
+            if (mNegativeButtonText != null || mNegativeButtonIcon != null) {
                 dialog.setButton(DialogInterface.BUTTON_NEGATIVE, mNegativeButtonText,
-                        mNegativeButtonListener, null);
+                        mNegativeButtonListener, null, mNegativeButtonIcon);
             }
-            if (mNeutralButtonText != null) {
+            if (mNeutralButtonText != null || mNeutralButtonIcon != null) {
                 dialog.setButton(DialogInterface.BUTTON_NEUTRAL, mNeutralButtonText,
-                        mNeutralButtonListener, null);
+                        mNeutralButtonListener, null, mNeutralButtonIcon);
             }
             // For a list, the client can either supply an array of items or an
             // adapter or a cursor
