@@ -18,7 +18,6 @@ package android.arch.background.workmanager.model;
 
 import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
 import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
-import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.Work.STATUS_RUNNING;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
@@ -60,7 +59,7 @@ public interface WorkSpecDao {
      * @return The {@link WorkSpec}s with the requested IDs.
      */
     @Query("SELECT * FROM workspec WHERE id IN (:ids)")
-    WorkSpec[] getWorkSpecs(String... ids);
+    WorkSpec[] getWorkSpecs(List<String> ids);
 
     /**
      * Updates the status of at least one {@link WorkSpec} by ID.
@@ -71,6 +70,15 @@ public interface WorkSpecDao {
      */
     @Query("UPDATE workspec SET status=:status WHERE id IN (:ids)")
     int setStatus(@Work.WorkStatus int status, String... ids);
+
+    /**
+     * Updates the output of a {@link WorkSpec}.
+     *
+     * @param id The {@link WorkSpec} identifier to update
+     * @param output The {@link Arguments} to set as the output
+     */
+    @Query("UPDATE workspec SET output=:output WHERE id=:id")
+    void setOutput(String id, Arguments output);
 
     /**
      * Increment run attempt count of a {@link WorkSpec}.
@@ -120,16 +128,6 @@ public interface WorkSpecDao {
             + " requires_storage_not_low=0 AND required_network_type=0 AND interval_duration=0 AND"
             + " content_uri_triggers IS NULL")
     LiveData<List<WorkSpec>> getForegroundEligibleWorkSpecs();
-
-    /**
-     * Retrieves work ids for items that are no longer considered blocked (items that are currently
-     * {@code STATUS_BLOCKED} but aren't in the {@link Dependency} table).
-     *
-     * @return An array of work ids.
-     */
-    @Query("SELECT id FROM workspec WHERE status=" + STATUS_BLOCKED + " AND id NOT IN "
-            + "(SELECT DISTINCT work_spec_id FROM dependency)")
-    String[] getUnblockedWorkIds();
 
     /**
      * Retrieves work ids for unfinished work with a given tag.

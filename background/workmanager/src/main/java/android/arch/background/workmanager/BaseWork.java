@@ -19,7 +19,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Constraints;
-import android.arch.background.workmanager.model.WorkInput;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkTag;
 import android.support.annotation.IntDef;
@@ -77,7 +76,6 @@ public abstract class BaseWork {
 
     private WorkSpec mWorkSpec;
     private List<WorkTag> mWorkTags;
-    private WorkInput mWorkInput;
 
     @SuppressWarnings("unchecked")
     BaseWork(Builder builder) {
@@ -86,7 +84,6 @@ public abstract class BaseWork {
         for (String tag : (Set<String>) builder.mTags) {
             mWorkTags.add(new WorkTag(tag, mWorkSpec.getId()));
         }
-        mWorkInput = new WorkInput(mWorkSpec.getId(), builder.mArguments);
         if (builder.mBackoffCriteriaSet && mWorkSpec.getConstraints().requiresDeviceIdle()) {
             throw new IllegalArgumentException("Cannot set backoff criteria on an idle mode job");
         }
@@ -109,10 +106,6 @@ public abstract class BaseWork {
 
     List<WorkTag> getWorkTags() {
         return mWorkTags;
-    }
-
-    WorkInput getWorkInput() {
-        return mWorkInput;
     }
 
     /**
@@ -186,8 +179,8 @@ public abstract class BaseWork {
          * @param arguments key/value pairs that will be provided to the {@link Worker} class
          * @return The current {@link Builder}.
          */
-        public B withArguments(Arguments arguments) {
-            mArguments = arguments;
+        public B withArguments(@NonNull Arguments arguments) {
+            mWorkSpec.setArguments(arguments);
             return getThis();
         }
 

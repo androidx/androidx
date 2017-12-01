@@ -23,8 +23,6 @@ import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
-import android.arch.background.workmanager.model.WorkInput;
-import android.arch.background.workmanager.model.WorkInputDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.model.WorkTag;
@@ -44,7 +42,7 @@ import android.support.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Database(entities = {Dependency.class, WorkInput.class, WorkSpec.class, WorkTag.class},
+@Database(entities = {Dependency.class, WorkSpec.class, WorkTag.class},
         version = 1)
 @TypeConverters(value = {Arguments.class, ContentUriTriggers.class})
 public abstract class WorkDatabase extends RoomDatabase {
@@ -99,9 +97,4 @@ public abstract class WorkDatabase extends RoomDatabase {
      * @return The Data Access Object for {@link WorkTag}s.
      */
     public abstract WorkTagDao workTagDao();
-
-    /**
-     * @return The Data Access Object for {@link WorkInput}.
-     */
-    public abstract WorkInputDao workInputDao();
 }

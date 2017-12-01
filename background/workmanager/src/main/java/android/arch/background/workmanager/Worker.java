@@ -45,14 +45,14 @@ public abstract class Worker {
     private static final String TAG = "Worker";
 
     private Context mAppContext;
-    private Arguments mArguments;
+    private @NonNull Arguments mArguments;
     private Arguments mOutput;
 
     protected final Context getAppContext() {
         return mAppContext;
     }
 
-    protected final Arguments getArguments() {
+    protected final @NonNull Arguments getArguments() {
         return mArguments;
     }
 

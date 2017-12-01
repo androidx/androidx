@@ -25,6 +25,7 @@ import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -33,7 +34,6 @@ import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.ArrayCreatingInputMerger;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
-import android.arch.background.workmanager.model.WorkInputDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.utils.taskexecutor.InstantTaskExecutorRule;
@@ -63,7 +63,6 @@ import java.util.concurrent.Executors;
 public class WorkerWrapperTest extends DatabaseTest {
     private WorkSpecDao mWorkSpecDao;
     private DependencyDao mDependencyDao;
-    private WorkInputDao mWorkInputDao;
     private Context mContext;
     private ExecutionListener mMockListener;
     private Scheduler mMockScheduler;
@@ -76,7 +75,6 @@ public class WorkerWrapperTest extends DatabaseTest {
         mContext = InstrumentationRegistry.getTargetContext();
         mWorkSpecDao = mDatabase.workSpecDao();
         mDependencyDao = mDatabase.dependencyDao();
-        mWorkInputDao = mDatabase.workInputDao();
         mMockListener = mock(ExecutionListener.class);
         mMockScheduler = mock(Scheduler.class);
     }
@@ -217,7 +215,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         assertThat(mWorkSpecDao.getWorkSpecStatus(prerequisiteWork.getId()), is(STATUS_ENQUEUED));
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_BLOCKED));
-        assertThat(mDependencyDao.hasPrerequisites(work.getId()), is(true));
+        assertThat(mDependencyDao.hasCompletedAllPrerequisites(work.getId()), is(false));
 
         new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
                 .withListener(mMockListener)
@@ -227,7 +225,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         assertThat(mWorkSpecDao.getWorkSpecStatus(prerequisiteWork.getId()), is(STATUS_SUCCEEDED));
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_ENQUEUED));
-        assertThat(mDependencyDao.hasPrerequisites(work.getId()), is(false));
+        assertThat(mDependencyDao.hasCompletedAllPrerequisites(work.getId()), is(true));
 
         ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
         verify(mMockScheduler).schedule(captor.capture());
@@ -236,7 +234,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testDependencies_passesArguments() {
+    public void testDependencies_passesOutputs() {
         Work prerequisiteWork = new Work.Builder(ChainedArgumentWorker.class).build();
         Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_BLOCKED).build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
@@ -251,21 +249,16 @@ public class WorkerWrapperTest extends DatabaseTest {
             mDatabase.endTransaction();
         }
 
-        List<Arguments> arguments = mWorkInputDao.getArguments(work.getId());
-        assertThat(arguments.size(), is(1));
-        assertThat(arguments.get(0).size(), is(0));
-
         new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId()).build().run();
 
-        arguments = mWorkInputDao.getArguments(work.getId());
-        assertThat(arguments.size(), is(2));
-        assertThat(arguments, containsInAnyOrder(
-                ChainedArgumentWorker.getChainedArguments(), Arguments.EMPTY));
+        List<Arguments> arguments = mDependencyDao.getInputsFromPrerequisites(work.getId());
+        assertThat(arguments.size(), is(1));
+        assertThat(arguments, contains(ChainedArgumentWorker.getChainedArguments()));
     }
 
     @Test
     @SmallTest
-    public void testDependencies_passesMergedArguments() {
+    public void testDependencies_passesMergedOutputs() {
         String key = "key";
         String value1 = "value1";
         String value2 = "value2";

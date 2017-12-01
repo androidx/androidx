@@ -16,6 +16,7 @@
 
 package android.arch.background.workmanager.model;
 
+import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.persistence.room.Dao;
@@ -38,28 +39,14 @@ public interface DependencyDao {
     void insertDependency(Dependency dependency);
 
     /**
-     * Gets all {@link Dependency} rows in the table.
-     *
-     * @return All {@link Dependency} items in the table.
-     */
-    @Query("SELECT * FROM dependency")
-    List<Dependency> getAllDependencies();
-
-    /**
-     * Delete all {@link Dependency} with {@code prerequisiteId}.
-     * @param prerequisiteId ID of a {@link WorkSpec} that is a prerequisite for another one.
-     */
-    @Query("DELETE FROM dependency WHERE prerequisite_id=:prerequisiteId")
-    void deleteDependenciesWithPrerequisite(String prerequisiteId);
-
-    /**
-     * Determines if a {@link WorkSpec is dependent on other {@link WorkSpec}s.
+     * Determines if a {@link WorkSpec} has completed all prerequisites.
      *
      * @param id The identifier for the {@link WorkSpec}
-     * @return {@code true} if the {@link WorkSpec} is dependent on other {@link WorkSpec}s
+     * @return {@code true} if the {@link WorkSpec} has no pending prerequisites.
      */
-    @Query("SELECT COUNT(*) > 0 FROM dependency WHERE work_spec_id=:id")
-    boolean hasPrerequisites(String id);
+    @Query("SELECT COUNT(*)=0 FROM dependency WHERE work_spec_id=:id AND prerequisite_id IN "
+            + "(SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + ")")
+    boolean hasCompletedAllPrerequisites(String id);
 
     /**
      * Gets all the direct prerequisites for a particular {@link WorkSpec}.
@@ -69,6 +56,17 @@ public interface DependencyDao {
      */
     @Query("SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id")
     List<String> getPrerequisites(String id);
+
+    /**
+     * Gets all inputs coming from prerequisites for a particular {@link WorkSpec}.  These are
+     * {@link Arguments} set via {@code Worker#setOutput()}.
+     *
+     * @param id The {@link WorkSpec} identifier
+     * @return A list of all inputs coming from prerequisites for {@code id}
+     */
+    @Query("SELECT output FROM workspec WHERE id IN "
+            + "(SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)")
+    List<Arguments> getInputsFromPrerequisites(String id);
 
     /**
      * Gets all {@link WorkSpec} id's dependent on a given id

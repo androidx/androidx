@@ -37,14 +37,7 @@ public abstract class DatabaseTest {
         mDatabase.close();
     }
 
-    public void insertBaseWork(BaseWork baseWork) {
-        mDatabase.beginTransaction();
-        try {
-            mDatabase.workSpecDao().insertWorkSpec(baseWork.getWorkSpec());
-            mDatabase.workInputDao().insert(baseWork.getWorkInput());
-            mDatabase.setTransactionSuccessful();
-        } finally {
-            mDatabase.endTransaction();
-        }
+    protected void insertBaseWork(BaseWork baseWork) {
+        mDatabase.workSpecDao().insertWorkSpec(baseWork.getWorkSpec());
     }
 }
