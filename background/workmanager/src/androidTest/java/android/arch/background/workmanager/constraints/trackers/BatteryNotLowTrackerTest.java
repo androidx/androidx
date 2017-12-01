@@ -17,13 +17,14 @@ package android.arch.background.workmanager.constraints.trackers;
 
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.arch.background.workmanager.constraints.ConstraintListener;
@@ -47,7 +48,7 @@ public class BatteryNotLowTrackerTest {
     private static final int KNOWN_STATUS = BatteryManager.BATTERY_STATUS_CHARGING;
     private static final int UNKNOWN_STATUS = BatteryManager.BATTERY_STATUS_UNKNOWN;
     private static final float AT_LOW_PERCENTAGE = BatteryNotLowTracker.BATTERY_LOW_PERCENTAGE;
-    private static final float ABOVE_LOW_PERCENTAGE  =
+    private static final float ABOVE_LOW_PERCENTAGE =
             BatteryNotLowTracker.BATTERY_LOW_PERCENTAGE + 0.01f;
 
     private Context mMockContext;
@@ -63,11 +64,16 @@ public class BatteryNotLowTrackerTest {
         mListener = mock(ConstraintListener.class);
     }
 
+    private void mockContextReturns(Intent expectedIntent) {
+        when(mMockContext.registerReceiver((BroadcastReceiver) isNull(),
+                any(IntentFilter.class))).thenReturn(expectedIntent);
+    }
+
     private Intent createBatteryChangedIntent(int plugged, int status, float percent) {
         int scale = 100;
         int level = (int) (scale * percent);
 
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_BATTERY_CHANGED);
         intent.putExtra(BatteryManager.EXTRA_PLUGGED, plugged);
         intent.putExtra(BatteryManager.EXTRA_STATUS, status);
         intent.putExtra(BatteryManager.EXTRA_LEVEL, level);
@@ -75,78 +81,65 @@ public class BatteryNotLowTrackerTest {
         return intent;
     }
 
-    private void testInitStateHelper(
+    private void testGetInitialStateHelper(
             int plugged, int status, float percentage, boolean expectedBatteryNotLow) {
-        Intent batteryChangedIntent = createBatteryChangedIntent(plugged, status, percentage);
-
-        when(mMockContext.registerReceiver((BroadcastReceiver) isNull(), any(IntentFilter.class)))
-                .thenReturn(batteryChangedIntent);
-
-        mTracker.initState();
-        assertThat(mTracker.mIsBatteryNotLow, is(expectedBatteryNotLow));
+        mockContextReturns(createBatteryChangedIntent(plugged, status, percentage));
+        assertThat(mTracker.getInitialState(), is(expectedBatteryNotLow));
     }
 
     @Test
     @SmallTest
-    public void testInitState_notPlugged_knownStatus_atBatteryLowPercentage() {
-        testInitStateHelper(NOT_PLUGGED_IN, KNOWN_STATUS, AT_LOW_PERCENTAGE, false);
+    public void testGetInitialState_nullIntent() {
+        mockContextReturns(null);
+        assertThat(mTracker.getInitialState(), is(nullValue()));
     }
 
     @Test
     @SmallTest
-    public void testInitState_plugged_knownStatus_aboveBatteryLowPercentage() {
-        testInitStateHelper(PLUGGED_IN, KNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
+    public void testGetInitialState_notPlugged_knownStatus_atBatteryLowPercentage() {
+        testGetInitialStateHelper(NOT_PLUGGED_IN, KNOWN_STATUS, AT_LOW_PERCENTAGE, false);
     }
 
     @Test
     @SmallTest
-    public void testInitState_plugged_knownStatus_atBatteryLowPercentage() {
-        testInitStateHelper(PLUGGED_IN, KNOWN_STATUS, AT_LOW_PERCENTAGE, true);
+    public void testGetInitialState_plugged_knownStatus_aboveBatteryLowPercentage() {
+        testGetInitialStateHelper(PLUGGED_IN, KNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
     }
 
     @Test
     @SmallTest
-    public void testInitState_plugged_unknownStatus_aboveBatteryLowPercentage() {
-        testInitStateHelper(PLUGGED_IN, UNKNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
+    public void testGetInitialState_plugged_knownStatus_atBatteryLowPercentage() {
+        testGetInitialStateHelper(PLUGGED_IN, KNOWN_STATUS, AT_LOW_PERCENTAGE, true);
     }
 
     @Test
     @SmallTest
-    public void testInitState_plugged_unknownStatus_atBatteryLowPercentage() {
-        testInitStateHelper(PLUGGED_IN, UNKNOWN_STATUS, AT_LOW_PERCENTAGE, true);
+    public void testGetInitialState_plugged_unknownStatus_aboveBatteryLowPercentage() {
+        testGetInitialStateHelper(PLUGGED_IN, UNKNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
     }
 
     @Test
     @SmallTest
-    public void testInitState_notPlugged_knownStatus_aboveBatteryLowPercentage() {
-        testInitStateHelper(NOT_PLUGGED_IN, KNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
+    public void testGetInitialState_plugged_unknownStatus_atBatteryLowPercentage() {
+        testGetInitialStateHelper(PLUGGED_IN, UNKNOWN_STATUS, AT_LOW_PERCENTAGE, true);
     }
 
     @Test
     @SmallTest
-    public void testInitState_notPlugged_unknownStatus_aboveBatteryLowPercentage() {
-        testInitStateHelper(NOT_PLUGGED_IN, UNKNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
+    public void testGetInitialState_notPlugged_knownStatus_aboveBatteryLowPercentage() {
+        testGetInitialStateHelper(NOT_PLUGGED_IN, KNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
     }
 
     @Test
     @SmallTest
-    public void testInitState_notPlugged_unknownStatus_atBatteryLowPercentage() {
-        testInitStateHelper(NOT_PLUGGED_IN, UNKNOWN_STATUS, AT_LOW_PERCENTAGE, true);
+    public void testGetInitialState_notPlugged_unknownStatus_aboveBatteryLowPercentage() {
+        testGetInitialStateHelper(NOT_PLUGGED_IN, UNKNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
     }
 
     @Test
     @SmallTest
-    public void testNotifyListener_stateNotInitialized() {
-        mTracker.notifyListener(mListener);
-        verify(mListener, never()).onConstraintChanged(anyBoolean());
-    }
-
-    @Test
-    @SmallTest
-    public void testNotifyListener_stateInitialized() {
-        mTracker.mIsBatteryNotLow = true;
-        mTracker.notifyListener(mListener);
-        verify(mListener).onConstraintChanged(mTracker.mIsBatteryNotLow);
+    public void testGetInitialState_notPlugged_unknownStatus_atBatteryLowPercentage() {
+        testGetInitialStateHelper(NOT_PLUGGED_IN, UNKNOWN_STATUS, AT_LOW_PERCENTAGE, true);
     }
 
     @Test
@@ -161,18 +154,26 @@ public class BatteryNotLowTrackerTest {
     @Test
     @SmallTest
     public void testOnBroadcastReceive_invalidIntentAction_doesNotNotifyListeners() {
-        mTracker.mListeners.add(mListener);
+        mockContextReturns(
+                createBatteryChangedIntent(PLUGGED_IN, KNOWN_STATUS, ABOVE_LOW_PERCENTAGE));
+        mTracker.addListener(mListener);
+        verify(mListener).onConstraintChanged(true);
+
         mTracker.onBroadcastReceive(mMockContext, new Intent("INVALID"));
-        verify(mListener, never()).onConstraintChanged(anyBoolean());
+        verifyNoMoreInteractions(mListener);
     }
 
     @Test
     @SmallTest
     public void testOnBroadcastReceive_notifiesListeners() {
-        mTracker.mListeners.add(mListener);
+        mockContextReturns(
+                createBatteryChangedIntent(NOT_PLUGGED_IN, KNOWN_STATUS, AT_LOW_PERCENTAGE));
+        mTracker.addListener(mListener);
+        verify(mListener).onConstraintChanged(false);
+
         mTracker.onBroadcastReceive(mMockContext, new Intent(Intent.ACTION_BATTERY_OKAY));
         verify(mListener).onConstraintChanged(true);
         mTracker.onBroadcastReceive(mMockContext, new Intent(Intent.ACTION_BATTERY_LOW));
-        verify(mListener).onConstraintChanged(false);
+        verify(mListener, times(2)).onConstraintChanged(false);
     }
 }

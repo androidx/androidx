@@ -18,6 +18,7 @@ package android.arch.background.workmanager.constraints.trackers;
 import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -32,8 +33,9 @@ public abstract class ConstraintTracker<T> {
 
     private static final String TAG = "ConstraintTracker";
 
-    protected Context mAppContext;
-    protected Set<ConstraintListener<T>> mListeners = new LinkedHashSet<>();
+    protected final Context mAppContext;
+    private final Set<ConstraintListener<T>> mListeners = new LinkedHashSet<>();
+    private T mCurrentState;
 
     ConstraintTracker(Context context) {
         mAppContext = context.getApplicationContext();
@@ -41,16 +43,21 @@ public abstract class ConstraintTracker<T> {
 
     /**
      * Add the given listener for tracking.
+     * This may cause {@link #getInitialState()} and {@link #startTracking()} to be invoked.
+     * If a state is set, this will immediately notify the given listener.
      *
      * @param listener The target listener to start notifying
      */
     public void addListener(ConstraintListener<T> listener) {
         if (mListeners.add(listener)) {
             if (mListeners.size() == 1) {
-                initState();
+                mCurrentState = getInitialState();
+                Log.d(TAG, getClass().getSimpleName() + ": initial state = " + mCurrentState);
                 startTracking();
             }
-            notifyListener(listener);
+            if (mCurrentState != null) {
+                listener.onConstraintChanged(mCurrentState);
+            }
         }
     }
 
@@ -66,16 +73,26 @@ public abstract class ConstraintTracker<T> {
     }
 
     /**
-     * Determines and stores the initial state of the constraint being tracked.
+     * Sets the state of the constraint.
+     * If state is has not changed, nothing happens.
+     *
+     * @param newState new state of constraint
      */
-    protected abstract void initState();
+    public void setState(@NonNull T newState) {
+        if (mCurrentState != null && mCurrentState.equals(newState)) {
+            return;
+        }
+        mCurrentState = newState;
+        for (ConstraintListener<T> listener : mListeners) {
+            listener.onConstraintChanged(mCurrentState);
+        }
+    }
 
     /**
-     * Notifies the listener about the current state.
-     *
-     * @param listener The listener to notify
+     * Determines the initial state of the constraint being tracked.
+     * Return null if state could not be determined.
      */
-    protected abstract void notifyListener(@NonNull ConstraintListener<T> listener);
+    protected abstract T getInitialState();
 
     /**
      * Start tracking for constraint state changes.
