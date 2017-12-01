@@ -85,7 +85,7 @@ package android.arch.persistence.db {
     method public abstract android.arch.persistence.db.SupportSQLiteOpenHelper create(android.arch.persistence.db.SupportSQLiteOpenHelper.Configuration);
   }
 
-  public abstract interface SupportSQLiteProgram implements java.lang.AutoCloseable {
+  public abstract interface SupportSQLiteProgram implements java.io.Closeable {
     method public abstract void bindBlob(int, byte[]);
     method public abstract void bindDouble(int, double);
     method public abstract void bindLong(int, long);
