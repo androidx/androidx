@@ -6544,7 +6544,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @see #getItemViewType(int)
          * @see #onBindViewHolder(ViewHolder, int)
          */
-        public abstract VH onCreateViewHolder(ViewGroup parent, int viewType);
+        @NonNull
+        public abstract VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType);
 
         /**
          * Called by RecyclerView to display the data at the specified position. This method should
@@ -6566,7 +6567,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *        item at the given position in the data set.
          * @param position The position of the item within the adapter's data set.
          */
-        public abstract void onBindViewHolder(VH holder, int position);
+        public abstract void onBindViewHolder(@NonNull VH holder, int position);
 
         /**
          * Called by RecyclerView to display the data at the specified position. This method
@@ -6597,7 +6598,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param payloads A non-null list of merged payloads. Can be empty list if requires full
          *                 update.
          */
-        public void onBindViewHolder(VH holder, int position, List<Object> payloads) {
+        public void onBindViewHolder(@NonNull VH holder, int position,
+                @NonNull List<Object> payloads) {
             onBindViewHolder(holder, position);
         }
 
@@ -6607,7 +6609,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @see #onCreateViewHolder(ViewGroup, int)
          */
-        public final VH createViewHolder(ViewGroup parent, int viewType) {
+        public final VH createViewHolder(@NonNull ViewGroup parent, int viewType) {
             TraceCompat.beginSection(TRACE_CREATE_VIEW_TAG);
             final VH holder = onCreateViewHolder(parent, viewType);
             holder.mItemViewType = viewType;
@@ -6622,7 +6624,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @see #onBindViewHolder(ViewHolder, int)
          */
-        public final void bindViewHolder(VH holder, int position) {
+        public final void bindViewHolder(@NonNull VH holder, int position) {
             holder.mPosition = position;
             if (hasStableIds()) {
                 holder.mItemId = getItemId(position);
@@ -6719,7 +6721,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @param holder The ViewHolder for the view being recycled
          */
-        public void onViewRecycled(VH holder) {
+        public void onViewRecycled(@NonNull VH holder) {
         }
 
         /**
@@ -6756,7 +6758,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * RecyclerView will check the View's transient state again before giving a final decision.
          * Default implementation returns false.
          */
-        public boolean onFailedToRecycleView(VH holder) {
+        public boolean onFailedToRecycleView(@NonNull VH holder) {
             return false;
         }
 
@@ -6770,7 +6772,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @param holder Holder of the view being attached
          */
-        public void onViewAttachedToWindow(VH holder) {
+        public void onViewAttachedToWindow(@NonNull VH holder) {
         }
 
         /**
@@ -6782,7 +6784,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @param holder Holder of the view being detached
          */
-        public void onViewDetachedFromWindow(VH holder) {
+        public void onViewDetachedFromWindow(@NonNull VH holder) {
         }
 
         /**
@@ -6810,7 +6812,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @see #unregisterAdapterDataObserver(RecyclerView.AdapterDataObserver)
          */
-        public void registerAdapterDataObserver(AdapterDataObserver observer) {
+        public void registerAdapterDataObserver(@NonNull AdapterDataObserver observer) {
             mObservable.registerObserver(observer);
         }
 
@@ -6824,7 +6826,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @see #registerAdapterDataObserver(RecyclerView.AdapterDataObserver)
          */
-        public void unregisterAdapterDataObserver(AdapterDataObserver observer) {
+        public void unregisterAdapterDataObserver(@NonNull AdapterDataObserver observer) {
             mObservable.unregisterObserver(observer);
         }
 
@@ -6836,7 +6838,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param recyclerView The RecyclerView instance which started observing this adapter.
          * @see #onDetachedFromRecyclerView(RecyclerView)
          */
-        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         }
 
         /**
@@ -6845,7 +6847,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param recyclerView The RecyclerView instance which stopped observing this adapter.
          * @see #onAttachedToRecyclerView(RecyclerView)
          */
-        public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         }
 
         /**
@@ -6921,7 +6923,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @see #notifyItemRangeChanged(int, int)
          */
-        public final void notifyItemChanged(int position, Object payload) {
+        public final void notifyItemChanged(int position, @Nullable Object payload) {
             mObservable.notifyItemRangeChanged(position, 1, payload);
         }
 
@@ -6969,7 +6971,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @see #notifyItemChanged(int)
          */
-        public final void notifyItemRangeChanged(int positionStart, int itemCount, Object payload) {
+        public final void notifyItemRangeChanged(int positionStart, int itemCount,
+                @Nullable Object payload) {
             mObservable.notifyItemRangeChanged(positionStart, itemCount, payload);
         }
 
@@ -11193,7 +11196,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // do nothing
         }
 
-        public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
+        public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
             // fallback to onItemRangeChanged(positionStart, itemCount) if app
             // does not override this method.
             onItemRangeChanged(positionStart, itemCount);
@@ -11670,7 +11673,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             notifyItemRangeChanged(positionStart, itemCount, null);
         }
 
-        public void notifyItemRangeChanged(int positionStart, int itemCount, Object payload) {
+        public void notifyItemRangeChanged(int positionStart, int itemCount,
+                @Nullable Object payload) {
             // since onItemRangeChanged() is implemented by the app, it could do anything, including
             // removing itself from {@link mObservers} - and that could cause problems if
             // an iterator is used on the ArrayList {@link mObservers}.
