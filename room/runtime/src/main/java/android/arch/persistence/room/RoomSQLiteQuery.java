@@ -209,7 +209,7 @@ public class RoomSQLiteQuery implements SupportSQLiteQuery, SupportSQLiteProgram
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         // no-op. not calling release because it is internal API.
     }
 
