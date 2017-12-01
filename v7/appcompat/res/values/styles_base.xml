@@ -520,6 +520,7 @@
         <item name="listItemLayout">@layout/select_dialog_item_material</item>
         <item name="multiChoiceItemLayout">@layout/select_dialog_multichoice_material</item>
         <item name="singleChoiceItemLayout">@layout/select_dialog_singlechoice_material</item>
+        <item name="buttonIconDimen">@dimen/abc_alert_dialog_button_dimen</item>
     </style>
 
     <style name="Base.AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat" />

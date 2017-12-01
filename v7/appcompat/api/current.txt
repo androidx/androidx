@@ -161,6 +161,7 @@ package android.support.v7.app {
     method public android.widget.ListView getListView();
     method public void setButton(int, java.lang.CharSequence, android.os.Message);
     method public void setButton(int, java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public void setButton(int, java.lang.CharSequence, android.graphics.drawable.Drawable, android.content.DialogInterface.OnClickListener);
     method public void setCustomTitle(android.view.View);
     method public void setIcon(int);
     method public void setIcon(android.graphics.drawable.Drawable);
@@ -192,14 +193,17 @@ package android.support.v7.app {
     method public android.support.v7.app.AlertDialog.Builder setMultiChoiceItems(android.database.Cursor, java.lang.String, java.lang.String, android.content.DialogInterface.OnMultiChoiceClickListener);
     method public android.support.v7.app.AlertDialog.Builder setNegativeButton(int, android.content.DialogInterface.OnClickListener);
     method public android.support.v7.app.AlertDialog.Builder setNegativeButton(java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setNegativeButtonIcon(android.graphics.drawable.Drawable);
     method public android.support.v7.app.AlertDialog.Builder setNeutralButton(int, android.content.DialogInterface.OnClickListener);
     method public android.support.v7.app.AlertDialog.Builder setNeutralButton(java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setNeutralButtonIcon(android.graphics.drawable.Drawable);
     method public android.support.v7.app.AlertDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener);
     method public android.support.v7.app.AlertDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener);
     method public android.support.v7.app.AlertDialog.Builder setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener);
     method public android.support.v7.app.AlertDialog.Builder setOnKeyListener(android.content.DialogInterface.OnKeyListener);
     method public android.support.v7.app.AlertDialog.Builder setPositiveButton(int, android.content.DialogInterface.OnClickListener);
     method public android.support.v7.app.AlertDialog.Builder setPositiveButton(java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setPositiveButtonIcon(android.graphics.drawable.Drawable);
     method public android.support.v7.app.AlertDialog.Builder setSingleChoiceItems(int, int, android.content.DialogInterface.OnClickListener);
     method public android.support.v7.app.AlertDialog.Builder setSingleChoiceItems(android.database.Cursor, int, java.lang.String, android.content.DialogInterface.OnClickListener);
     method public android.support.v7.app.AlertDialog.Builder setSingleChoiceItems(java.lang.CharSequence[], int, android.content.DialogInterface.OnClickListener);
