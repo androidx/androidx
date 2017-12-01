@@ -34,6 +34,9 @@ import android.util.SparseArray;
  * for you; you must request the {@link android.Manifest.permission#WAKE_LOCK}
  * permission to use it.</p>
  *
+ * <p>Wakelocks held by this class are reported to tools as
+ * {@code "androidx.core:wake:<component-name>"}.</p>
+ *
  * <h3>Example</h3>
  *
  * <p>A {@link WakefulBroadcastReceiver} uses the method
@@ -103,7 +106,7 @@ public abstract class WakefulBroadcastReceiver extends BroadcastReceiver {
 
             PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
             PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                    "wake:" + comp.flattenToShortString());
+                    "androidx.core:wake:" + comp.flattenToShortString());
             wl.setReferenceCounted(false);
             wl.acquire(60 * 1000);
             sActiveWakeLocks.put(id, wl);
