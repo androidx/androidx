@@ -15,7 +15,6 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.arch.background.workmanager.constraints.NetworkState;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,9 +26,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.annotation.VisibleForTesting;
 import android.support.v4.net.ConnectivityManagerCompat;
 import android.util.Log;
 
@@ -50,9 +47,6 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
 
     private final ConnectivityManager mConnectivityManager;
 
-    @VisibleForTesting
-    NetworkState mCurrentNetworkState;
-
     @RequiresApi(24)
     private NetworkStateCallback mNetworkCallback;
     private NetworkStateBroadcastReceiver mBroadcastReceiver;
@@ -69,16 +63,8 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     }
 
     @Override
-    protected void initState() {
-        mCurrentNetworkState = getActiveNetworkState();
-        Log.d(TAG, "Network state initialized to: " + mCurrentNetworkState);
-    }
-
-    @Override
-    protected void notifyListener(@NonNull ConstraintListener<NetworkState> listener) {
-        if (mCurrentNetworkState != null) {
-            listener.onConstraintChanged(mCurrentNetworkState);
-        }
+    protected NetworkState getInitialState() {
+        return getActiveNetworkState();
     }
 
     @Override
@@ -109,17 +95,6 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         return Build.VERSION.SDK_INT >= 24;
     }
 
-    private void setNetworkStateAndNotify(@NonNull final NetworkState networkState) {
-        Log.d(TAG, "Attempting to update network state: " + networkState);
-        if (mCurrentNetworkState == null || !mCurrentNetworkState.equals(networkState)) {
-            mCurrentNetworkState = networkState;
-            for (ConstraintListener<NetworkState> listener : mListeners) {
-                notifyListener(listener);
-            }
-            Log.d(TAG, "Updated network state: " + networkState);
-        }
-    }
-
     private NetworkState getActiveNetworkState() {
         // Use getActiveNetworkInfo() instead of getNetworkInfo(network) because it can detect VPNs.
         NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
@@ -146,13 +121,13 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
             // The Network parameter is unreliable when a VPN app is running - use active network.
             Log.d(TAG, "Network capabilities changed: " + capabilities);
-            setNetworkStateAndNotify(getActiveNetworkState());
+            setState(getActiveNetworkState());
         }
 
         @Override
         public void onLost(Network network) {
             Log.d(TAG, "Network connection lost");
-            setNetworkStateAndNotify(getActiveNetworkState());
+            setState(getActiveNetworkState());
         }
     }
 
@@ -164,7 +139,7 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
             }
             if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
                 Log.d(TAG, "Network broadcast received");
-                setNetworkStateAndNotify(getActiveNetworkState());
+                setState(getActiveNetworkState());
             }
         }
     }

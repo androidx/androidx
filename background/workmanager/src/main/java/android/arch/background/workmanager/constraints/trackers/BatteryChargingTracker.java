@@ -15,14 +15,12 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 /**
@@ -33,30 +31,21 @@ class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<Boolean>
 
     private static final String TAG = "BatteryChrgTracker";
 
-    @VisibleForTesting
-    Boolean mIsCharging;
-
     BatteryChargingTracker(Context context) {
         super(context);
     }
 
     @Override
-    protected void initState() {
+    protected Boolean getInitialState() {
         // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so
         // we use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent intent = mAppContext.registerReceiver(null, intentFilter);
-        if (intent != null) {
-            mIsCharging = isBatteryChangedIntentCharging(intent);
-            Log.d(TAG, "Setting initial mIsCharging to " + mIsCharging);
+        if (intent == null) {
+            Log.e(TAG, "getInitialState - null intent received");
+            return null;
         }
-    }
-
-    @Override
-    protected void notifyListener(@NonNull ConstraintListener<Boolean> listener) {
-        if (mIsCharging != null) {
-            listener.onConstraintChanged(mIsCharging);
-        }
+        return isBatteryChangedIntentCharging(intent);
     }
 
     @Override
@@ -82,30 +71,20 @@ class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<Boolean>
         Log.d(TAG, "Received " + action);
         switch (action) {
             case BatteryManager.ACTION_CHARGING:
-                setIsChargingAndNotify(true);
+                setState(true);
                 break;
 
             case BatteryManager.ACTION_DISCHARGING:
-                setIsChargingAndNotify(false);
+                setState(false);
                 break;
 
             case Intent.ACTION_POWER_CONNECTED:
-                setIsChargingAndNotify(true);
+                setState(true);
                 break;
 
             case Intent.ACTION_POWER_DISCONNECTED:
-                setIsChargingAndNotify(false);
+                setState(false);
                 break;
-        }
-    }
-
-    private void setIsChargingAndNotify(boolean isCharging) {
-        if (mIsCharging == null || mIsCharging != isCharging) {
-            Log.d(TAG, "Setting mIsCharging to " + isCharging);
-            mIsCharging = isCharging;
-            for (ConstraintListener<Boolean> listener : mListeners) {
-                notifyListener(listener);
-            }
         }
     }
 

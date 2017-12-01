@@ -15,12 +15,10 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 /**
@@ -31,39 +29,31 @@ class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
 
     private static final String TAG = "StorageNotLowTracker";
 
-    @VisibleForTesting
-    Boolean mIsStorageNotLow;
-
     StorageNotLowTracker(Context context) {
         super(context);
     }
 
     @Override
-    protected void initState() {
+    protected Boolean getInitialState() {
         Intent intent = mAppContext.registerReceiver(null, getIntentFilter());
         if (intent == null || intent.getAction() == null) {
             // ACTION_DEVICE_STORAGE_LOW is a sticky broadcast that is removed when sufficient
             // storage is available again.  ACTION_DEVICE_STORAGE_OK is not sticky.  So if we
             // don't receive anything here, we can assume that the storage state is okay.
-            mIsStorageNotLow = true;
+            return true;
         } else {
             switch (intent.getAction()) {
                 case Intent.ACTION_DEVICE_STORAGE_OK:
-                    mIsStorageNotLow = true;
-                    break;
+                    return true;
 
                 case Intent.ACTION_DEVICE_STORAGE_LOW:
-                    mIsStorageNotLow = false;
-                    break;
-            }
-        }
-        Log.d(TAG, "Setting initial mIsStorageNotLow to " + mIsStorageNotLow);
-    }
+                    return false;
 
-    @Override
-    protected void notifyListener(@NonNull ConstraintListener<Boolean> listener) {
-        if (mIsStorageNotLow != null) {
-            listener.onConstraintChanged(mIsStorageNotLow);
+                default:
+                    // This should never happen because the intent filter is configured
+                    // correctly.
+                    return null;
+            }
         }
     }
 
@@ -88,22 +78,12 @@ class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
 
         switch (intent.getAction()) {
             case Intent.ACTION_DEVICE_STORAGE_OK:
-                setIsStorageNotLowAndNotify(true);
+                setState(true);
                 break;
 
             case Intent.ACTION_DEVICE_STORAGE_LOW:
-                setIsStorageNotLowAndNotify(false);
+                setState(false);
                 break;
-        }
-    }
-
-    private void setIsStorageNotLowAndNotify(boolean isStorageNotLow) {
-        if (mIsStorageNotLow == null || mIsStorageNotLow != isStorageNotLow) {
-            Log.d(TAG, "Setting mIsStorageNotLow to " + isStorageNotLow);
-            mIsStorageNotLow = isStorageNotLow;
-            for (ConstraintListener<Boolean> listener : mListeners) {
-                notifyListener(listener);
-            }
         }
     }
 }

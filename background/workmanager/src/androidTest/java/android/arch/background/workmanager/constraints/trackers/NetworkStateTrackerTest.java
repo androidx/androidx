@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package android.arch.background.workmanager.constraints.trackers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.arch.background.workmanager.constraints.NetworkState;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -46,7 +41,6 @@ import org.mockito.ArgumentCaptor;
 public class NetworkStateTrackerTest {
 
     private NetworkStateTracker mTracker;
-    private ConstraintListener<NetworkState> mListener;
 
     private Context mMockContext;
     private ConnectivityManager mMockConnectivityManager;
@@ -60,30 +54,13 @@ public class NetworkStateTrackerTest {
                 .thenReturn(mMockConnectivityManager);
 
         mTracker = new NetworkStateTracker(mMockContext);
-        mListener = mock(ConstraintListener.class);
     }
 
     @Test
     @SmallTest
-    public void testInitState() {
-        assertThat(mTracker.mCurrentNetworkState, is(nullValue()));
-        mTracker.initState();
-        assertThat(mTracker.mCurrentNetworkState, is(notNullValue()));
-    }
-
-    @Test
-    @SmallTest
-    public void testNotifyListener_stateNotInitialized() {
-        mTracker.notifyListener(mListener);
-        verify(mListener, never()).onConstraintChanged(any(NetworkState.class));
-    }
-
-    @Test
-    @SmallTest
-    public void testNotifyListener_stateInitialized() {
-        mTracker.mCurrentNetworkState = new NetworkState(true, true, true, true);
-        mTracker.notifyListener(mListener);
-        verify(mListener).onConstraintChanged(eq(mTracker.mCurrentNetworkState));
+    public void testGetInitialState_nullNetworkInfo() {
+        NetworkState expectedState = new NetworkState(false, false, false, false);
+        assertThat(mTracker.getInitialState(), is(expectedState));
     }
 
     @Test

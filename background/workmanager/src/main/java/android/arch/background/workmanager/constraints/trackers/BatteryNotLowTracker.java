@@ -15,13 +15,11 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 /**
@@ -42,9 +40,6 @@ class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
      */
     static final float BATTERY_LOW_PERCENTAGE = 0.15f;
 
-    @VisibleForTesting
-    Boolean mIsBatteryNotLow;
-
     BatteryNotLowTracker(Context context) {
         super(context);
     }
@@ -56,28 +51,22 @@ class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/BatteryService.java#268}
      */
     @Override
-    public void initState() {
+    public Boolean getInitialState() {
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent intent = mAppContext.registerReceiver(null, intentFilter);
-
+        if (intent == null) {
+            Log.e(TAG, "getInitialState - null intent received");
+            return null;
+        }
         int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, BATTERY_PLUGGED_NONE);
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         float batteryPercentage = level / (float) scale;
 
-        mIsBatteryNotLow = plugged != BATTERY_PLUGGED_NONE
+        return (plugged != BATTERY_PLUGGED_NONE
                 || status == BatteryManager.BATTERY_STATUS_UNKNOWN
-                || batteryPercentage > BATTERY_LOW_PERCENTAGE;
-
-        Log.d(TAG, "Setting initial mIsBatteryNotLow to " + mIsBatteryNotLow);
-    }
-
-    @Override
-    protected void notifyListener(@NonNull ConstraintListener<Boolean> listener) {
-        if (mIsBatteryNotLow != null) {
-            listener.onConstraintChanged(mIsBatteryNotLow);
-        }
+                || batteryPercentage > BATTERY_LOW_PERCENTAGE);
     }
 
     @Override
@@ -98,22 +87,12 @@ class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
 
         switch (intent.getAction()) {
             case Intent.ACTION_BATTERY_OKAY:
-                setIsBatteryNotLowAndNotify(true);
+                setState(true);
                 break;
 
             case Intent.ACTION_BATTERY_LOW:
-                setIsBatteryNotLowAndNotify(false);
+                setState(false);
                 break;
-        }
-    }
-
-    private void setIsBatteryNotLowAndNotify(boolean isBatteryNotLow) {
-        if (mIsBatteryNotLow == null || mIsBatteryNotLow != isBatteryNotLow) {
-            Log.d(TAG, "Setting mIsBatteryNotLow to " + isBatteryNotLow);
-            mIsBatteryNotLow = isBatteryNotLow;
-            for (ConstraintListener<Boolean> listener : mListeners) {
-                notifyListener(listener);
-            }
         }
     }
 }
