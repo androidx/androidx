@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.listeners.StorageNotLowListener;
+import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -27,7 +27,7 @@ import android.util.Log;
  * Tracks whether or not the device's storage is low.
  */
 
-class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<StorageNotLowListener> {
+class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
 
     private static final String TAG = "StorageNotLowTracker";
 
@@ -61,9 +61,9 @@ class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<StorageNot
     }
 
     @Override
-    protected void notifyListener(@NonNull StorageNotLowListener listener) {
+    protected void notifyListener(@NonNull ConstraintListener<Boolean> listener) {
         if (mIsStorageNotLow != null) {
-            listener.setStorageNotLow(mIsStorageNotLow);
+            listener.onConstraintChanged(mIsStorageNotLow);
         }
     }
 
@@ -101,7 +101,7 @@ class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<StorageNot
         if (mIsStorageNotLow == null || mIsStorageNotLow != isStorageNotLow) {
             Log.d(TAG, "Setting mIsStorageNotLow to " + isStorageNotLow);
             mIsStorageNotLow = isStorageNotLow;
-            for (StorageNotLowListener listener : mListeners) {
+            for (ConstraintListener<Boolean> listener : mListeners) {
                 notifyListener(listener);
             }
         }

@@ -24,7 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import android.arch.background.workmanager.constraints.listeners.StorageNotLowListener;
+import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.test.InstrumentationRegistry;
@@ -39,12 +39,12 @@ import org.junit.runner.RunWith;
 public class StorageNotLowTrackerTest {
 
     private StorageNotLowTracker mTracker;
-    private StorageNotLowListener mListener;
+    private ConstraintListener<Boolean> mListener;
 
     @Before
     public void setUp() {
         mTracker = new StorageNotLowTracker(InstrumentationRegistry.getTargetContext());
-        mListener = mock(StorageNotLowListener.class);
+        mListener = mock(ConstraintListener.class);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class StorageNotLowTrackerTest {
     @SmallTest
     public void testNotifyListener_stateNotInitialized() {
         mTracker.notifyListener(mListener);
-        verify(mListener, never()).setStorageNotLow(anyBoolean());
+        verify(mListener, never()).onConstraintChanged(anyBoolean());
     }
 
     @Test
@@ -67,7 +67,7 @@ public class StorageNotLowTrackerTest {
     public void testNotifyListener_stateInitialized() {
         mTracker.mIsStorageNotLow = true;
         mTracker.notifyListener(mListener);
-        verify(mListener).setStorageNotLow(mTracker.mIsStorageNotLow);
+        verify(mListener).onConstraintChanged(mTracker.mIsStorageNotLow);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class StorageNotLowTrackerTest {
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 new Intent("INVALID"));
-        verify(mListener, never()).setStorageNotLow(anyBoolean());
+        verify(mListener, never()).onConstraintChanged(anyBoolean());
     }
 
     @Test
@@ -96,10 +96,10 @@ public class StorageNotLowTrackerTest {
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 new Intent(Intent.ACTION_DEVICE_STORAGE_OK));
-        verify(mListener).setStorageNotLow(true);
+        verify(mListener).onConstraintChanged(true);
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 new Intent(Intent.ACTION_DEVICE_STORAGE_LOW));
-        verify(mListener).setStorageNotLow(false);
+        verify(mListener).onConstraintChanged(false);
     }
 }

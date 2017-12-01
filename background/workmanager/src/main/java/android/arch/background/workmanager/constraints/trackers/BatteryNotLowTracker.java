@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.listeners.BatteryNotLowListener;
+import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -28,7 +28,7 @@ import android.util.Log;
  * Tracks whether or not the device's battery level is low.
  */
 
-class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<BatteryNotLowListener> {
+class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
 
     private static final String TAG = "BatteryNotLowTracker";
 
@@ -74,9 +74,9 @@ class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<BatteryNot
     }
 
     @Override
-    protected void notifyListener(@NonNull BatteryNotLowListener listener) {
+    protected void notifyListener(@NonNull ConstraintListener<Boolean> listener) {
         if (mIsBatteryNotLow != null) {
-            listener.setBatteryNotLow(mIsBatteryNotLow);
+            listener.onConstraintChanged(mIsBatteryNotLow);
         }
     }
 
@@ -111,7 +111,7 @@ class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<BatteryNot
         if (mIsBatteryNotLow == null || mIsBatteryNotLow != isBatteryNotLow) {
             Log.d(TAG, "Setting mIsBatteryNotLow to " + isBatteryNotLow);
             mIsBatteryNotLow = isBatteryNotLow;
-            for (BatteryNotLowListener listener : mListeners) {
+            for (ConstraintListener<Boolean> listener : mListeners) {
                 notifyListener(listener);
             }
         }

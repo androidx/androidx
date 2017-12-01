@@ -16,25 +16,18 @@
 package android.arch.background.workmanager.constraints.controllers;
 
 import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.constraints.listeners.BatteryNotLowListener;
 import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 /**
  * A {@link ConstraintController} for battery not low events.
  */
 
-public class BatteryNotLowController extends ConstraintController<BatteryNotLowListener> {
+public class BatteryNotLowController extends ConstraintController<Boolean> {
 
     private boolean mIsBatteryNotLow;
-    private final BatteryNotLowListener mBatteryNotLowListener = new BatteryNotLowListener() {
-        @Override
-        public void setBatteryNotLow(boolean isBatteryNotLow) {
-            mIsBatteryNotLow = isBatteryNotLow;
-            updateListener();
-        }
-    };
 
     public BatteryNotLowController(
             Context context,
@@ -50,12 +43,13 @@ public class BatteryNotLowController extends ConstraintController<BatteryNotLowL
     }
 
     @Override
-    BatteryNotLowListener getListener() {
-        return mBatteryNotLowListener;
+    boolean isConstrained() {
+        return !mIsBatteryNotLow;
     }
 
     @Override
-    boolean isConstrained() {
-        return !mIsBatteryNotLow;
+    public void onConstraintChanged(@NonNull Boolean isBatteryNotLow) {
+        mIsBatteryNotLow = isBatteryNotLow;
+        updateListener();
     }
 }

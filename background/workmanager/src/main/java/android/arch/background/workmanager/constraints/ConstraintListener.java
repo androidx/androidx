@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package android.arch.background.workmanager.constraints;
 
-package android.arch.background.workmanager.constraints.listeners;
-
-
-import android.arch.background.workmanager.constraints.NetworkState;
 import android.support.annotation.NonNull;
 
 /**
- * A listener for changes in network state events.
+ * The listener for constraint changes.
+ *
+ * @param <T> the constraint data type for this listener
  */
 
-public interface NetworkStateListener extends ConstraintListener {
+public interface ConstraintListener<T> {
 
     /**
-     * Called when the network state changes.
-     *
-     * @param state the state of the network
+     * Called when the value of a constraint has changed.
+     * @param newValue the new value of the constraint
      */
-    void setNetworkState(@NonNull NetworkState state);
+    void onConstraintChanged(@NonNull T newValue);
 }

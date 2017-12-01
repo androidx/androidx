@@ -26,7 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.arch.background.workmanager.constraints.listeners.BatteryNotLowListener;
+import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -52,7 +52,7 @@ public class BatteryNotLowTrackerTest {
 
     private Context mMockContext;
     private BatteryNotLowTracker mTracker;
-    private BatteryNotLowListener mListener;
+    private ConstraintListener<Boolean> mListener;
 
     @Before
     public void setUp() {
@@ -60,7 +60,7 @@ public class BatteryNotLowTrackerTest {
         when(mMockContext.getApplicationContext()).thenReturn(mMockContext);
 
         mTracker = new BatteryNotLowTracker(mMockContext);
-        mListener = mock(BatteryNotLowListener.class);
+        mListener = mock(ConstraintListener.class);
     }
 
     private Intent createBatteryChangedIntent(int plugged, int status, float percent) {
@@ -138,7 +138,7 @@ public class BatteryNotLowTrackerTest {
     @SmallTest
     public void testNotifyListener_stateNotInitialized() {
         mTracker.notifyListener(mListener);
-        verify(mListener, never()).setBatteryNotLow(anyBoolean());
+        verify(mListener, never()).onConstraintChanged(anyBoolean());
     }
 
     @Test
@@ -146,7 +146,7 @@ public class BatteryNotLowTrackerTest {
     public void testNotifyListener_stateInitialized() {
         mTracker.mIsBatteryNotLow = true;
         mTracker.notifyListener(mListener);
-        verify(mListener).setBatteryNotLow(mTracker.mIsBatteryNotLow);
+        verify(mListener).onConstraintChanged(mTracker.mIsBatteryNotLow);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class BatteryNotLowTrackerTest {
     public void testOnBroadcastReceive_invalidIntentAction_doesNotNotifyListeners() {
         mTracker.mListeners.add(mListener);
         mTracker.onBroadcastReceive(mMockContext, new Intent("INVALID"));
-        verify(mListener, never()).setBatteryNotLow(anyBoolean());
+        verify(mListener, never()).onConstraintChanged(anyBoolean());
     }
 
     @Test
@@ -171,8 +171,8 @@ public class BatteryNotLowTrackerTest {
     public void testOnBroadcastReceive_notifiesListeners() {
         mTracker.mListeners.add(mListener);
         mTracker.onBroadcastReceive(mMockContext, new Intent(Intent.ACTION_BATTERY_OKAY));
-        verify(mListener).setBatteryNotLow(true);
+        verify(mListener).onConstraintChanged(true);
         mTracker.onBroadcastReceive(mMockContext, new Intent(Intent.ACTION_BATTERY_LOW));
-        verify(mListener).setBatteryNotLow(false);
+        verify(mListener).onConstraintChanged(false);
     }
 }

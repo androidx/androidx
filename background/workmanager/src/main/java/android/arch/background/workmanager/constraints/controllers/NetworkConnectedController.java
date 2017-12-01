@@ -18,7 +18,6 @@ package android.arch.background.workmanager.constraints.controllers;
 
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.NetworkState;
-import android.arch.background.workmanager.constraints.listeners.NetworkStateListener;
 import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.lifecycle.LifecycleOwner;
@@ -35,20 +34,9 @@ import android.support.annotation.NonNull;
  * For API 25 and below, usable simply means that {@link NetworkState} is connected.
  */
 
-public class NetworkConnectedController extends ConstraintController<NetworkStateListener> {
+public class NetworkConnectedController extends ConstraintController<NetworkState> {
 
     private boolean mIsConnectedAndUsable;
-    private final NetworkStateListener mNetworkStateAnyListener = new NetworkStateListener() {
-        @Override
-        public void setNetworkState(@NonNull NetworkState state) {
-            if (Build.VERSION.SDK_INT >= 26) {
-                mIsConnectedAndUsable = state.isConnected() && state.isValidated();
-            } else {
-                mIsConnectedAndUsable = state.isConnected();
-            }
-            updateListener();
-        }
-    };
 
     public NetworkConnectedController(
             Context context,
@@ -67,12 +55,17 @@ public class NetworkConnectedController extends ConstraintController<NetworkStat
     }
 
     @Override
-    NetworkStateListener getListener() {
-        return mNetworkStateAnyListener;
+    boolean isConstrained() {
+        return !mIsConnectedAndUsable;
     }
 
     @Override
-    boolean isConstrained() {
-        return !mIsConnectedAndUsable;
+    public void onConstraintChanged(@NonNull NetworkState state) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            mIsConnectedAndUsable = state.isConnected() && state.isValidated();
+        } else {
+            mIsConnectedAndUsable = state.isConnected();
+        }
+        updateListener();
     }
 }

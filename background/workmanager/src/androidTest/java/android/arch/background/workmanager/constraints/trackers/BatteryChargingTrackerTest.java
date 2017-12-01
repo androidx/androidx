@@ -25,7 +25,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import android.annotation.TargetApi;
-import android.arch.background.workmanager.constraints.listeners.BatteryChargingListener;
+import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
@@ -42,12 +42,12 @@ import org.junit.runner.RunWith;
 public class BatteryChargingTrackerTest {
 
     private BatteryChargingTracker mTracker;
-    private BatteryChargingListener mListener;
+    private ConstraintListener<Boolean> mListener;
 
     @Before
     public void setUp() {
         mTracker = new BatteryChargingTracker(InstrumentationRegistry.getTargetContext());
-        mListener = mock(BatteryChargingListener.class);
+        mListener = mock(ConstraintListener.class);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class BatteryChargingTrackerTest {
     @SmallTest
     public void testNotifyListener_stateNotInitialized() {
         mTracker.notifyListener(mListener);
-        verify(mListener, never()).setBatteryCharging(anyBoolean());
+        verify(mListener, never()).onConstraintChanged(anyBoolean());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class BatteryChargingTrackerTest {
     public void testNotifyListener_stateInitialized() {
         mTracker.mIsCharging = true;
         mTracker.notifyListener(mListener);
-        verify(mListener).setBatteryCharging(mTracker.mIsCharging);
+        verify(mListener).onConstraintChanged(mTracker.mIsCharging);
     }
 
     @Test
@@ -100,7 +100,7 @@ public class BatteryChargingTrackerTest {
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 new Intent("INVALID"));
-        verify(mListener, never()).setBatteryCharging(anyBoolean());
+        verify(mListener, never()).onConstraintChanged(anyBoolean());
     }
 
     @Test
@@ -111,11 +111,11 @@ public class BatteryChargingTrackerTest {
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 createBatteryChangedIntent(true));
-        verify(mListener).setBatteryCharging(true);
+        verify(mListener).onConstraintChanged(true);
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 createBatteryChangedIntent(false));
-        verify(mListener).setBatteryCharging(false);
+        verify(mListener).onConstraintChanged(false);
     }
 
     @Test
@@ -126,11 +126,11 @@ public class BatteryChargingTrackerTest {
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 createBatteryChangedIntent_afterApi23(true));
-        verify(mListener).setBatteryCharging(true);
+        verify(mListener).onConstraintChanged(true);
         mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 createBatteryChangedIntent_afterApi23(false));
-        verify(mListener).setBatteryCharging(false);
+        verify(mListener).onConstraintChanged(false);
     }
 
     private Intent createBatteryChangedIntent(boolean plugged) {

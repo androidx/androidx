@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.listeners.BatteryChargingListener;
+import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -29,7 +29,7 @@ import android.util.Log;
  * Tracks whether or not the device's battery is charging.
  */
 
-class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<BatteryChargingListener> {
+class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<Boolean> {
 
     private static final String TAG = "BatteryChrgTracker";
 
@@ -53,9 +53,9 @@ class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<BatteryC
     }
 
     @Override
-    protected void notifyListener(@NonNull BatteryChargingListener listener) {
+    protected void notifyListener(@NonNull ConstraintListener<Boolean> listener) {
         if (mIsCharging != null) {
-            listener.setBatteryCharging(mIsCharging);
+            listener.onConstraintChanged(mIsCharging);
         }
     }
 
@@ -103,7 +103,7 @@ class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<BatteryC
         if (mIsCharging == null || mIsCharging != isCharging) {
             Log.d(TAG, "Setting mIsCharging to " + isCharging);
             mIsCharging = isCharging;
-            for (BatteryChargingListener listener : mListeners) {
+            for (ConstraintListener<Boolean> listener : mListeners) {
                 notifyListener(listener);
             }
         }

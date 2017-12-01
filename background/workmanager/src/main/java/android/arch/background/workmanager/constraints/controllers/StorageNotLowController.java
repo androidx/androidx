@@ -16,25 +16,18 @@
 package android.arch.background.workmanager.constraints.controllers;
 
 import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.constraints.listeners.StorageNotLowListener;
 import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 /**
  * A {@link ConstraintController} for storage not low events.
  */
 
-public class StorageNotLowController extends ConstraintController<StorageNotLowListener> {
+public class StorageNotLowController extends ConstraintController<Boolean> {
 
     private boolean mIsStorageNotLow;
-    private final StorageNotLowListener mStorageNotLowListener = new StorageNotLowListener() {
-        @Override
-        public void setStorageNotLow(boolean isStorageNotLow) {
-            mIsStorageNotLow = isStorageNotLow;
-            updateListener();
-        }
-    };
 
     public StorageNotLowController(
             Context context,
@@ -50,12 +43,13 @@ public class StorageNotLowController extends ConstraintController<StorageNotLowL
     }
 
     @Override
-    StorageNotLowListener getListener() {
-        return mStorageNotLowListener;
+    boolean isConstrained() {
+        return !mIsStorageNotLow;
     }
 
     @Override
-    boolean isConstrained() {
-        return !mIsStorageNotLow;
+    public void onConstraintChanged(@NonNull Boolean isStorageNotLow) {
+        mIsStorageNotLow = isStorageNotLow;
+        updateListener();
     }
 }
