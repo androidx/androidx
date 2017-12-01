@@ -251,7 +251,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId()).build().run();
 
-        List<Arguments> arguments = mDependencyDao.getInputsFromPrerequisites(work.getId());
+        List<Arguments> arguments = mWorkSpecDao.getInputsFromPrerequisites(work.getId());
         assertThat(arguments.size(), is(1));
         assertThat(arguments, contains(ChainedArgumentWorker.getChainedArguments()));
     }
