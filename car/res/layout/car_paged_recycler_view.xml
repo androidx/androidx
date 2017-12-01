@@ -19,14 +19,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.car.widget.CarRecyclerView
+    <androidx.car.widget.CarRecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <!-- Putting this as the last child so that it can intercept any touch events on the
          scroll buttons. -->
-    <android.support.car.widget.PagedScrollBarView
+    <androidx.car.widget.PagedScrollBarView
         android:id="@+id/paged_scroll_view"
         android:layout_width="@dimen/car_margin"
         android:layout_height="match_parent"

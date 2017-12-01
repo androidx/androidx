@@ -23,7 +23,7 @@ limitations under the License.
     android:background="@color/car_card"
     android:paddingTop="@dimen/car_app_bar_height" >
 
-  <android.support.car.widget.PagedListView
+  <androidx.car.widget.PagedListView
       android:id="@+id/drawer_list"
       android:layout_width="match_parent"
       android:layout_height="match_parent"

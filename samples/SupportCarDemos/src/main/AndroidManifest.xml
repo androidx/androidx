@@ -15,7 +15,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.support.car">
+    package="com.example.androidx.car">
 
     <application android:label="@string/activity_sample_code"
             android:supportsRtl="true"
