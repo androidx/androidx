@@ -5333,7 +5333,7 @@ public class ExifInterface {
             int dataFormat = dataInputStream.readUnsignedShort();
             int numberOfComponents = dataInputStream.readInt();
             // Next four bytes is for data offset or value.
-            long nextEntryOffset = dataInputStream.peek() + 4;
+            long nextEntryOffset = dataInputStream.peek() + 4L;
 
             // Look up a corresponding tag from tag number
             ExifTag tag = (ExifTag) sExifTagMapsForReading[ifdType].get(tagNumber);
