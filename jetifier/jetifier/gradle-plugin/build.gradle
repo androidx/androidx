@@ -14,7 +14,7 @@
  * limitations under the License
  */
 
-version '1.0'
+version '0.1'
 
 apply plugin: 'maven-publish'
 
@@ -26,6 +26,7 @@ dependencies {
 // Task to create a jar with all the required dependencies bundled inside
 task fatJar(type: Jar) {
     baseName = project.name + '-all'
+    destinationDir = rootProject.ext.distDir
     from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
