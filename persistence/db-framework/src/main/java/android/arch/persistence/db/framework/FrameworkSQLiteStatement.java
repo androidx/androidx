@@ -90,7 +90,7 @@ class FrameworkSQLiteStatement implements SupportSQLiteStatement {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         mDelegate.close();
     }
 }
