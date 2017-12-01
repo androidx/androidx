@@ -139,7 +139,7 @@ public final class SelectionStorage<K> {
         }
     }
 
-    private @Nullable Selection<String> readStringSelection(@Nullable Bundle state) {
+    private @Nullable Selection<String> readStringSelection(Bundle state) {
         @Nullable ArrayList<String> stored =
                 state.getStringArrayList(EXTRA_SAVED_SELECTION_ENTRIES);
         if (stored == null) {
@@ -151,7 +151,7 @@ public final class SelectionStorage<K> {
         return selection;
     }
 
-    private @Nullable Selection<Long> readLongSelection(@Nullable Bundle state) {
+    private @Nullable Selection<Long> readLongSelection(Bundle state) {
         @Nullable long[] stored = state.getLongArray(EXTRA_SAVED_SELECTION_ENTRIES);
         if (stored == null) {
             return null;
