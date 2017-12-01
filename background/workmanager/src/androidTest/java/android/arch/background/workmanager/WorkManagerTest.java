@@ -51,7 +51,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -128,9 +127,9 @@ public class WorkManagerTest {
 
         DependencyDao dependencyDao = mDatabase.dependencyDao();
         assertThat(dependencyDao.getPrerequisites(work1a.getId()),
-                is(Collections.<String>emptyList()));
+                is(emptyCollectionOf(String.class)));
         assertThat(dependencyDao.getPrerequisites(work1b.getId()),
-                is(Collections.<String>emptyList()));
+                is(emptyCollectionOf(String.class)));
 
         List<String> prerequisites = dependencyDao.getPrerequisites(work2.getId());
         assertThat(prerequisites, containsInAnyOrder(work1a.getId(), work1b.getId()));

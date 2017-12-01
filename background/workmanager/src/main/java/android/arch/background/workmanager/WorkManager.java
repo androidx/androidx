@@ -19,6 +19,7 @@ package android.arch.background.workmanager;
 import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
+import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
@@ -114,6 +115,16 @@ public final class WorkManager {
     public LiveData<Integer> getWorkStatus(String id) {
         return LiveDataUtils.dedupedLiveDataFor(
                 mWorkDatabase.workSpecDao().getWorkSpecLiveDataStatus(id));
+    }
+
+    /**
+     * Gets the output for a given work id.
+     *
+     * @param id The id of the {@link BaseWork}.
+     * @return A {@link LiveData} of the output.
+     */
+    public LiveData<Arguments> getOutput(String id) {
+        return LiveDataUtils.dedupedLiveDataFor(mWorkDatabase.workSpecDao().getOutput(id));
     }
 
     /**

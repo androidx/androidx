@@ -121,7 +121,7 @@ public class WorkerWrapper implements Runnable {
 
         List<Arguments> inputs = new ArrayList<>();
         inputs.add(mWorkSpec.getArguments());
-        inputs.addAll(mDependencyDao.getInputsFromPrerequisites(mWorkSpecId));
+        inputs.addAll(mWorkSpecDao.getInputsFromPrerequisites(mWorkSpecId));
         InputMerger inputMerger = InputMerger.fromClassName(mWorkSpec.getInputMergerClassName());
         Arguments arguments = (inputMerger != null) ? inputMerger.merge(inputs) : Arguments.EMPTY;
 

@@ -58,17 +58,6 @@ public interface DependencyDao {
     List<String> getPrerequisites(String id);
 
     /**
-     * Gets all inputs coming from prerequisites for a particular {@link WorkSpec}.  These are
-     * {@link Arguments} set via {@code Worker#setOutput()}.
-     *
-     * @param id The {@link WorkSpec} identifier
-     * @return A list of all inputs coming from prerequisites for {@code id}
-     */
-    @Query("SELECT output FROM workspec WHERE id IN "
-            + "(SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)")
-    List<Arguments> getInputsFromPrerequisites(String id);
-
-    /**
      * Gets all {@link WorkSpec} id's dependent on a given id
      *
      * @param id A {@link WorkSpec} identifier

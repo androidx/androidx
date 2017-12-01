@@ -130,6 +130,25 @@ public interface WorkSpecDao {
     LiveData<List<WorkSpec>> getForegroundEligibleWorkSpecs();
 
     /**
+     * Gets all inputs coming from prerequisites for a particular {@link WorkSpec}.  These are
+     * {@link Arguments} set via {@code Worker#setOutput()}.
+     *
+     * @param id The {@link WorkSpec} identifier
+     * @return A list of all inputs coming from prerequisites for {@code id}
+     */
+    @Query("SELECT output FROM workspec WHERE id IN "
+            + "(SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)")
+    List<Arguments> getInputsFromPrerequisites(String id);
+
+    /**
+     * Retrieves a {@link LiveData} of the output for a {@link WorkSpec}
+     * @param id
+     * @return
+     */
+    @Query("SELECT output FROM workspec WHERE id=:id")
+    LiveData<Arguments> getOutput(String id);
+
+    /**
      * Retrieves work ids for unfinished work with a given tag.
      *
      * @param tag The tag used to identify the work.
