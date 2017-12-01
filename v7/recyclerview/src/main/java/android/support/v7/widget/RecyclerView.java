@@ -12063,6 +12063,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     + "mTargetPosition=" + mTargetPosition
                     + ", mData=" + mData
                     + ", mItemCount=" + mItemCount
+                    + ", mIsMeasuring=" + mIsMeasuring
                     + ", mPreviousLayoutItemCount=" + mPreviousLayoutItemCount
                     + ", mDeletedInvisibleItemCountSincePreviousLayout="
                     + mDeletedInvisibleItemCountSincePreviousLayout
