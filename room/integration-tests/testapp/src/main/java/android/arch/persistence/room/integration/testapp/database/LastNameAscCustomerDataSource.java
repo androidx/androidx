@@ -16,7 +16,7 @@
 package android.arch.persistence.room.integration.testapp.database;
 
 import android.arch.paging.DataSource;
-import android.arch.paging.KeyedDataSource;
+import android.arch.paging.ItemKeyedDataSource;
 import android.arch.persistence.room.InvalidationTracker;
 import android.support.annotation.NonNull;
 
@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * Sample Room keyed data source.
  */
-public class LastNameAscCustomerDataSource extends KeyedDataSource<String, Customer> {
+public class LastNameAscCustomerDataSource extends ItemKeyedDataSource<String, Customer> {
     private final CustomerDao mCustomerDao;
     @SuppressWarnings("FieldCanBeLocal")
     private final InvalidationTracker.Observer mObserver;
