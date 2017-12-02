@@ -27,6 +27,7 @@ import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.model.WorkTag;
 import android.arch.background.workmanager.utils.BaseWorkHelper;
 import android.arch.background.workmanager.utils.LiveDataUtils;
+import android.arch.background.workmanager.utils.PruneDatabaseRunnable;
 import android.arch.background.workmanager.utils.taskexecutor.TaskExecutor;
 import android.arch.background.workmanager.utils.taskexecutor.WorkManagerTaskExecutor;
 import android.arch.lifecycle.LiveData;
@@ -170,6 +171,15 @@ public final class WorkManager {
      */
     public void cancelAllWorkWithTag(@NonNull final String tag) {
         mTaskExecutor.executeOnBackgroundThread(new CancelWorkWithTagRunnable(tag));
+    }
+
+    /**
+     * Prunes the database of all non-pending work.  Any work that has cancelled, failed, or
+     * succeeded that is not part of a pending chain of work will be deleted.  This includes all
+     * outputs stored in the database.
+     */
+    public void pruneDatabase() {
+        mTaskExecutor.executeOnBackgroundThread(new PruneDatabaseRunnable(mWorkDatabase));
     }
 
     WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {

@@ -16,6 +16,7 @@
 
 package android.arch.background.workmanager.model;
 
+import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
 import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
 import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
@@ -157,6 +158,18 @@ public interface WorkSpecDao {
     @Query("SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND status!="
             + STATUS_FAILED + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
     List<String> getUnfinishedWorkWithTag(@NonNull String tag);
+
+    /**
+     * Deletes all non-pending work from the database that isn't a prerequisite for other work.
+     * Calling this method repeatedly until it returns 0 will allow you to prune all work chains
+     * that are finished.
+     *
+     * @return The number of deleted work items
+     */
+    @Query("DELETE FROM workspec WHERE status IN "
+            + "(" + STATUS_CANCELLED + ", " + STATUS_FAILED + ", " + STATUS_SUCCEEDED + ") AND "
+            + "id NOT IN (SELECT DISTINCT prerequisite_id FROM dependency)")
+    int pruneLeaves();
 
     String CONSTRAINT_SUFFIX =
             " AND (status=" + STATUS_ENQUEUED + " OR status=" + STATUS_RUNNING + ") AND "

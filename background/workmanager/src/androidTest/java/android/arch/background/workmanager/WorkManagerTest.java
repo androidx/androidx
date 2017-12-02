@@ -19,10 +19,12 @@ package android.arch.background.workmanager;
 import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
 import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
+import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
@@ -337,12 +339,51 @@ public class WorkManagerTest {
 
     @Test
     @SmallTest
+    public void testPruneDatabase() {
+        Work enqueuedWork = new Work.Builder(TestWorker.class).build();
+        Work finishedPrerequisiteWork1A =
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+        Work finishedPrerequisiteWork1B =
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+        Work finishedPrerequisiteWork2 =
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+        Work finishedFinalWork =
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+
+        insertWorkSpecAndTags(enqueuedWork);
+        insertWorkSpecAndTags(finishedPrerequisiteWork1A);
+        insertWorkSpecAndTags(finishedPrerequisiteWork1B);
+        insertWorkSpecAndTags(finishedPrerequisiteWork2);
+        insertWorkSpecAndTags(finishedFinalWork);
+
+        Dependency dependency21A = new Dependency(
+                finishedPrerequisiteWork2.getId(), finishedPrerequisiteWork1A.getId());
+        Dependency dependency21B = new Dependency(
+                finishedPrerequisiteWork2.getId(), finishedPrerequisiteWork1B.getId());
+        Dependency dependencyFinal2 = new Dependency(
+                finishedFinalWork.getId(), finishedPrerequisiteWork2.getId());
+
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
+        dependencyDao.insertDependency(dependency21A);
+        dependencyDao.insertDependency(dependency21B);
+        dependencyDao.insertDependency(dependencyFinal2);
+
+        mWorkManager.pruneDatabase();
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(enqueuedWork.getId()), is(not(nullValue())));
+        assertThat(workSpecDao.getWorkSpec(finishedPrerequisiteWork1A.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(finishedPrerequisiteWork1B.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(finishedPrerequisiteWork2.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(finishedFinalWork.getId()), is(nullValue()));
+    }
+
+    @Test
+    @SmallTest
     public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
-        Work work = new Work.Builder(TestWorker.class).build();
-        WorkSpec workSpec = work.getWorkSpec();
-        workSpec.setStatus(STATUS_RUNNING);
+        Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_RUNNING).build();
         workSpecDao.insertWorkSpec(work.getWorkSpec());
 
         assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(STATUS_RUNNING));
