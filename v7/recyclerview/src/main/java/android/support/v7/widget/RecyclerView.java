@@ -10836,8 +10836,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         private void onEnteredHiddenState(RecyclerView parent) {
             // While the view item is in hidden state, make it invisible for the accessibility.
-            mWasImportantForAccessibilityBeforeHidden =
-                    ViewCompat.getImportantForAccessibility(itemView);
+            if (mPendingAccessibilityState != PENDING_ACCESSIBILITY_STATE_NOT_SET) {
+                mWasImportantForAccessibilityBeforeHidden = mPendingAccessibilityState;
+            } else {
+                mWasImportantForAccessibilityBeforeHidden =
+                        ViewCompat.getImportantForAccessibility(itemView);
+            }
             parent.setChildImportantForAccessibilityInternal(this,
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
         }
