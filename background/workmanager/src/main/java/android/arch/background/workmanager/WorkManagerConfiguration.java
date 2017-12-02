@@ -25,6 +25,7 @@ import android.arch.background.workmanager.background.systemjob.SystemJobService
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 class WorkManagerConfiguration {
@@ -33,20 +34,30 @@ class WorkManagerConfiguration {
     private static final String FIREBASE_SCHEDULER_CLASSNAME =
             "android.arch.background.workmanager.background.firebase.FirebaseJobScheduler";
 
-    private Scheduler mScheduler;
+    private final WorkDatabase mWorkDatabase;
+
+    private Scheduler mBackgroundScheduler;
 
     WorkManagerConfiguration(Context context) {
+        this(context, false);
+    }
+
+    @VisibleForTesting
+    WorkManagerConfiguration(Context context, boolean useTestDatabase) {
+        mWorkDatabase = WorkDatabase.create(context, useTestDatabase);
+
         boolean usingSystemJob = (Build.VERSION.SDK_INT >= 23);
         boolean usingFirebase = !usingSystemJob && tryCreateFirebaseJobScheduler(context);
         boolean usingSystemAlarm = !usingSystemJob && !usingFirebase;
 
         if (usingSystemJob) {
-            mScheduler = new SystemJobScheduler(context);
+            mBackgroundScheduler = new SystemJobScheduler(context);
             Log.d(TAG, "Created SystemJobScheduler");
         } else if (usingFirebase) {
             // Scheduler already initialized as part of tryCreateFirebaseJobScheduler.
+            Log.d(TAG, "Created FirebaseJobScheduler");
         } else if (usingSystemAlarm) {
-            mScheduler = new SystemAlarmScheduler(context);
+            mBackgroundScheduler = new SystemAlarmScheduler(context);
             Log.d(TAG, "Created SystemAlarmScheduler");
         }
 
@@ -58,22 +69,25 @@ class WorkManagerConfiguration {
         setComponentEnabled(context, SystemAlarmService.class, usingSystemAlarm);
     }
 
+    @NonNull WorkDatabase getWorkDatabase() {
+        return mWorkDatabase;
+    }
+
     @NonNull Scheduler getBackgroundScheduler() {
-        return mScheduler;
+        return mBackgroundScheduler;
     }
 
     private boolean tryCreateFirebaseJobScheduler(@NonNull Context context) {
         try {
             Class<?> firebaseSchedulerClass = Class.forName(FIREBASE_SCHEDULER_CLASSNAME);
-            mScheduler = (Scheduler) firebaseSchedulerClass
+            mBackgroundScheduler = (Scheduler) firebaseSchedulerClass
                     .getConstructor(Context.class)
                     .newInstance(context);
-            Log.d(TAG, "Created FirebaseJobScheduler");
         } catch (Exception e) {
             // Catch all for class cast, invoke, no such method, security exceptions and more.
             // Also thrown if Play Services was not found on device.
             Log.e(TAG, "Could not instantiate FirebaseJobScheduler", e);
         }
-        return (mScheduler != null);
+        return (mBackgroundScheduler != null);
     }
 }

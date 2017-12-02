@@ -34,18 +34,20 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerConfigurationTest {
-    private Context mContext;
+
+    private WorkManagerConfiguration mConfiguration;
 
     @Before
     public void setUp() {
-        mContext = InstrumentationRegistry.getTargetContext();
+        Context context = InstrumentationRegistry.getTargetContext();
+        mConfiguration = new WorkManagerConfiguration(context, true);
     }
 
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 23)
     public void testGetScheduler_afterApi23_returnsSystemJobScheduler() {
-        Scheduler scheduler = new WorkManagerConfiguration(mContext).getBackgroundScheduler();
+        Scheduler scheduler = mConfiguration.getBackgroundScheduler();
         assertThat(scheduler, is(instanceOf(SystemJobScheduler.class)));
     }
 
@@ -53,7 +55,7 @@ public class WorkManagerConfigurationTest {
     @SmallTest
     @SdkSuppress(maxSdkVersion = 22)
     public void testGetScheduler_beforeApi23_returnsSystemAlarmScheduler() {
-        Scheduler scheduler = new WorkManagerConfiguration(mContext).getBackgroundScheduler();
+        Scheduler scheduler = mConfiguration.getBackgroundScheduler();
         assertThat(scheduler, is(instanceOf(SystemAlarmScheduler.class)));
     }
 }

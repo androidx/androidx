@@ -39,6 +39,7 @@ import android.arch.background.workmanager.utils.taskexecutor.InstantTaskExecuto
 import android.arch.background.workmanager.worker.TestWorker;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
+import android.content.Context;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.test.InstrumentationRegistry;
@@ -63,7 +64,9 @@ public class WorkManagerTest {
 
     @Before
     public void setUp() {
-        mWorkManager = new WorkManager(InstrumentationRegistry.getTargetContext(), true);
+        Context context = InstrumentationRegistry.getTargetContext();
+        WorkManagerConfiguration configuration = new WorkManagerConfiguration(context, true);
+        mWorkManager = new WorkManager(context, configuration);
         mDatabase = mWorkManager.getWorkDatabase();
     }
 
