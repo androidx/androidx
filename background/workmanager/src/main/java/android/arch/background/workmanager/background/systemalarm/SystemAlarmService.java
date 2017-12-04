@@ -47,7 +47,7 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
         WorkManager workManager = WorkManager.getInstance();
         WorkDatabase database = workManager.getWorkDatabase();
         mProcessor = new BackgroundProcessor(context, database, workManager.getScheduler(), this);
-        ProxyController.startProxyControllers(context, database, this);
+        ConstraintProxyController.startAll(context, database, this);
     }
 
     @Override

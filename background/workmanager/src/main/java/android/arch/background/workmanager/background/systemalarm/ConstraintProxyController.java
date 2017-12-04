@@ -39,16 +39,16 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ProxyController implements Observer<List<WorkSpec>> {
-    private static final String TAG = "ProxyController";
+public class ConstraintProxyController implements Observer<List<WorkSpec>> {
+    private static final String TAG = "ConstraintProxyCtrl";
     private final Class<? extends ConstraintProxy> mProxyClass;
     private final Context mAppContext;
 
-    private ProxyController(
+    private ConstraintProxyController(
             @NonNull Context context, @NonNull Class<? extends ConstraintProxy> proxyClass) {
-        mProxyClass = proxyClass;
         mAppContext = context;
-        Log.d(TAG, "ProxyController created for " + proxyClass.getSimpleName());
+        mProxyClass = proxyClass;
+        Log.d(TAG, "ConstraintProxyController created for " + proxyClass.getSimpleName());
     }
 
     @Override
@@ -66,17 +66,17 @@ public class ProxyController implements Observer<List<WorkSpec>> {
     }
 
     /**
-     * Creates and attaches all {@link ProxyController}s to their corresponding LiveData.
+     * Creates and attaches all {@link ConstraintProxyController}s to their corresponding LiveData.
      * @param context {@link Context}
      * @param database {@link WorkDatabase}
-     * @param owner {@link LifecycleOwner} which controls the {@link ProxyController}
+     * @param owner {@link LifecycleOwner} which controls the {@link ConstraintProxyController}
      */
-    public static void startProxyControllers(
+    static void startAll(
             Context context, WorkDatabase database, LifecycleOwner owner) {
-        ProxyController batteryNotLowController =
-                new ProxyController(context, ConstraintProxy.BatteryNotLowProxy.class);
-        ProxyController batteryChargingController =
-                new ProxyController(context, ConstraintProxy.BatteryChargingProxy.class);
+        ConstraintProxyController batteryNotLowController =
+                new ConstraintProxyController(context, ConstraintProxy.BatteryNotLowProxy.class);
+        ConstraintProxyController batteryChargingController =
+                new ConstraintProxyController(context, ConstraintProxy.BatteryChargingProxy.class);
 
         WorkSpecDao workSpecDao = database.workSpecDao();
         workSpecDao.getIdsForBatteryNotLowController(true)
