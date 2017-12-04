@@ -29,8 +29,8 @@ import android.annotation.TargetApi;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
+import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Spliterators;
@@ -307,7 +307,7 @@ public class SliceQuery {
     /**
      */
     public static Stream<SliceItem> stream(SliceItem slice) {
-        Queue<SliceItem> items = new LinkedList();
+        Queue<SliceItem> items = new ArrayDeque<>();
         items.add(slice);
         return getSliceItemStream(items);
     }
@@ -315,7 +315,7 @@ public class SliceQuery {
     /**
      */
     public static Stream<SliceItem> stream(Slice slice) {
-        Queue<SliceItem> items = new LinkedList();
+        Queue<SliceItem> items = new ArrayDeque<>();
         items.addAll(slice.getItems());
         return getSliceItemStream(items);
     }
