@@ -274,7 +274,10 @@ public class FontsContractCompat {
                     : new ReplyCallback<TypefaceResult>() {
                         @Override
                         public void onReply(final TypefaceResult typeface) {
-                            if (typeface.mResult == FontFamilyResult.STATUS_OK) {
+                            if (typeface == null) {
+                                fontCallback.callbackFailAsync(
+                                        FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND, handler);
+                            } else if (typeface.mResult == FontFamilyResult.STATUS_OK) {
                                 fontCallback.callbackSuccessAsync(typeface.mTypeface, handler);
                             } else {
                                 fontCallback.callbackFailAsync(typeface.mResult, handler);
