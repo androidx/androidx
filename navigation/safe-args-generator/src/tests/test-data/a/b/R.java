@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package android.arch.navigation.safe.args.generator.models
+package a.b;
 
-import com.squareup.javapoet.ClassName
+// fake R class to compile against for WriterTest
+public class R {
 
-data class Destination(
-        val type: String,
-        private val name: String,
-        val args: List<Argument>,
-        val actions: List<Action>,
-        val nested: List<Destination> = emptyList()) {
-
-    val className: ClassName by lazy {
-        val simpleName = name.substringAfterLast('.', "")
-        val packageName = name.substringBeforeLast('.', "")
-        ClassName.get(packageName, simpleName)
+    public static final class id {
+        public static final int destA = 0x7f060000;
+        public static final int destB = 0x7f060001;
     }
 }

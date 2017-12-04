@@ -41,6 +41,17 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
 }
 
+//used by testCompile safe-args-generator
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+    def suffix = name.capitalize()
+    project.tasks.create(name: "jar${suffix}", type: Jar){
+        dependsOn variant.javaCompile
+        from variant.javaCompile.destinationDir
+        destinationDir new File(project.buildDir, "libJar")
+    }
+}
+
 supportLibrary {
     name = "Android Navigation Runtime"
     publish = true
