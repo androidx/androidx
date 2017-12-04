@@ -40,9 +40,11 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ProviderInfo;
 import android.content.pm.Signature;
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.provider.FontsContractCompat.FontFamilyResult;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
 import android.util.Base64;
@@ -56,6 +58,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Unit tests for {@link FontsContractCompat}.
@@ -109,34 +113,6 @@ public class FontsContractCompatTest {
     public void tearDown() {
         MockFontProvider.cleanUpFontFiles(
                 InstrumentationRegistry.getInstrumentation().getTargetContext());
-    }
-
-    private static class TestCallback extends FontsContractCompat.FontRequestCallback {
-        private Typeface mTypeface;
-
-        private int mSuccessCallCount;
-        private int mFailedCallCount;
-
-        public void onTypefaceRetrieved(Typeface typeface) {
-            mTypeface = typeface;
-            mSuccessCallCount++;
-        }
-
-        public void onTypefaceRequestFailed(int reason) {
-            mFailedCallCount++;
-        }
-
-        public Typeface getTypeface() {
-            return mTypeface;
-        }
-
-        public int getSuccessCallCount() {
-            return mSuccessCallCount;
-        }
-
-        public int getFailedCallCount() {
-            return mFailedCallCount;
-        }
     }
 
     @Test
@@ -412,5 +388,44 @@ public class FontsContractCompatTest {
         packageInfo.signatures = new Signature[] { signature };
         when(packageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo);
         return info;
+    }
+
+    @Test
+    public void testGetFontSync_invalidUri() throws InterruptedException {
+        final Instrumentation inst = InstrumentationRegistry.getInstrumentation();
+        final FontRequest request = new FontRequest(
+                AUTHORITY, PACKAGE, MockFontProvider.INVALID_URI, SIGNATURE);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final FontCallback callback = new FontCallback(latch);
+
+        inst.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                FontsContractCompat.getFontSync(mContext, request, callback, null,
+                        false /* isBlockingFetch */, 300 /* timeout */, Typeface.NORMAL);
+            }
+        });
+        assertTrue(latch.await(5L, TimeUnit.SECONDS));
+        assertNull(callback.mTypeface);
+    }
+
+    public static class FontCallback extends ResourcesCompat.FontCallback {
+        private final CountDownLatch mLatch;
+        Typeface mTypeface;
+
+        FontCallback(CountDownLatch latch) {
+            mLatch = latch;
+        }
+
+        @Override
+        public void onFontRetrieved(@NonNull Typeface typeface) {
+            mTypeface = typeface;
+            mLatch.countDown();
+        }
+
+        @Override
+        public void onFontRetrievalFailed(int reason) {
+            mLatch.countDown();
+        }
     }
 }
