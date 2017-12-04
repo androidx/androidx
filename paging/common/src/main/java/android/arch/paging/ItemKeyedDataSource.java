@@ -108,6 +108,12 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
      * <p>
      * A callback can be called only once, and will throw if called again.
      * <p>
+     * If you can compute the number of items in the data set before and after the loaded range,
+     * call the three parameter {@link #onResult(List, int, int)} to pass that information. You
+     * can skip passing this information by calling the single parameter {@link #onResult(List)},
+     * either if it's difficult to compute, or if {@link LoadInitialParams#placeholdersEnabled} is
+     * {@code false}, so the positioning information will be ignored.
+     * <p>
      * It is always valid for a DataSource loading method that takes a callback to stash the
      * callback and call it later. This enables DataSources to be fully asynchronous, and to handle
      * temporary, recoverable error states (such as a network error that can be retried).
