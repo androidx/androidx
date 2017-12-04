@@ -22,12 +22,13 @@ import android.support.annotation.AnyThread;
 import android.support.annotation.IntRange;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-import android.support.text.emoji.flatbuffer.MetadataList;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
+import androidx.text.emoji.flatbuffer.MetadataList;
 
 /**
  * Reads the emoji metadata from a given InputStream or ByteBuffer.
