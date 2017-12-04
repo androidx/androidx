@@ -26,11 +26,12 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-import android.support.text.emoji.flatbuffer.MetadataItem;
-import android.support.text.emoji.flatbuffer.MetadataList;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import androidx.text.emoji.flatbuffer.MetadataItem;
+import androidx.text.emoji.flatbuffer.MetadataList;
 
 /**
  * Information about a single emoji.
