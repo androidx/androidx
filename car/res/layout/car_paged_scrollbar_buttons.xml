@@ -37,8 +37,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginBottom="@dimen/car_paged_list_view_scrollbar_thumb_margin"
-        android:layout_marginTop="@dimen/car_paged_list_view_scrollbar_thumb_margin" >
+        android:layout_marginBottom="@dimen/car_scroll_bar_thumb_margin"
+        android:layout_marginTop="@dimen/car_scroll_bar_thumb_margin" >
 
         <ImageView
             android:id="@+id/scrollbar_thumb"

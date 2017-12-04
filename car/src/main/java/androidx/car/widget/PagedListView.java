@@ -1003,7 +1003,7 @@ public class PagedListView extends FrameLayout {
             Resources res = context.getResources();
             mPaint = new Paint();
             mPaint.setColor(res.getColor(R.color.car_list_divider));
-            mDividerHeight = res.getDimensionPixelSize(R.dimen.car_divider_height);
+            mDividerHeight = res.getDimensionPixelSize(R.dimen.car_list_divider_height);
         }
 
         /** Updates the list divider color which may have changed due to a day night transition. */

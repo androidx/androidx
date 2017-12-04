@@ -14,6 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
+    <!-- Framework -->
+    <!-- Gutters -->
+    <dimen name="car_gutter_size">24dp</dimen>
+
+    <!-- Keylines -->
     <dimen name="car_keyline_1">32dp</dimen>
     <dimen name="car_keyline_2">108dp</dimen>
     <dimen name="car_keyline_3">128dp</dimen>
@@ -21,7 +26,5 @@ limitations under the License.
     <dimen name="car_keyline_1_neg">-32dp</dimen>
     <dimen name="car_keyline_2_neg">-108dp</dimen>
     <dimen name="car_keyline_3_neg">-128dp</dimen>
-
-    <!-- Margin -->
-    <dimen name="car_margin">112dp</dimen>
+    <dimen name="car_keyline_4_neg">-168dp</dimen>
 </resources>

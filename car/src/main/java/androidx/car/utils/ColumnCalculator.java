@@ -67,8 +67,8 @@ public class ColumnCalculator {
     private ColumnCalculator(Context context) {
         Resources res = context.getResources();
         int marginSize = res.getDimensionPixelSize(R.dimen.car_margin);
-        mGutterSize = res.getDimensionPixelSize(R.dimen.car_screen_gutter_size);
-        mNumOfColumns = res.getInteger(R.integer.car_screen_num_of_columns);
+        mGutterSize = res.getDimensionPixelSize(R.dimen.car_gutter_size);
+        mNumOfColumns = res.getInteger(R.integer.car_column_number);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, String.format("marginSize: %d; numOfColumns: %d; gutterSize: %d",
