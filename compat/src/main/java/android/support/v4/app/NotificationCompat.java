@@ -32,6 +32,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
@@ -116,7 +117,6 @@ public class NotificationCompat {
      * default stream type is {@link AudioManager#STREAM_NOTIFICATION}.
      */
     public static final int STREAM_DEFAULT = -1;
-
     /**
      * Bit set in the Notification flags field when LEDs should be turned on
      * for this notification.
@@ -437,6 +437,14 @@ public class NotificationCompat {
      */
     @ColorInt
     public static final int COLOR_DEFAULT = Color.TRANSPARENT;
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({AudioManager.STREAM_VOICE_CALL, AudioManager.STREAM_SYSTEM, AudioManager.STREAM_RING,
+            AudioManager.STREAM_MUSIC, AudioManager.STREAM_ALARM, AudioManager.STREAM_NOTIFICATION,
+            AudioManager.STREAM_DTMF, AudioManager.STREAM_ACCESSIBILITY})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface StreamType {}
 
     /** @hide */
     @Retention(SOURCE)
@@ -957,6 +965,12 @@ public class NotificationCompat {
         public Builder setSound(Uri sound) {
             mNotification.sound = sound;
             mNotification.audioStreamType = Notification.STREAM_DEFAULT;
+            if (Build.VERSION.SDK_INT >= 21) {
+                mNotification.audioAttributes = new AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                        .build();
+            }
             return this;
         }
 
@@ -971,9 +985,15 @@ public class NotificationCompat {
          * @see Notification#STREAM_DEFAULT
          * @see AudioManager for the <code>STREAM_</code> constants.
          */
-        public Builder setSound(Uri sound, int streamType) {
+        public Builder setSound(Uri sound, @StreamType int streamType) {
             mNotification.sound = sound;
             mNotification.audioStreamType = streamType;
+            if (Build.VERSION.SDK_INT >= 21) {
+                mNotification.audioAttributes = new AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setLegacyStreamType(streamType)
+                        .build();
+            }
             return this;
         }
 
