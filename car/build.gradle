@@ -22,6 +22,7 @@ dependencies {
     api project(':annotation')
     api project(':legacy-support-v4')
     api project(':recyclerview')
+    api project(':gridlayout')
 
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
     androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
