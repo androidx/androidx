@@ -26,9 +26,6 @@ import android.support.annotation.NonNull;
  */
 
 public class BatteryNotLowController extends ConstraintController<Boolean> {
-
-    private boolean mIsBatteryNotLow;
-
     public BatteryNotLowController(
             Context context,
             WorkDatabase workDatabase,
@@ -43,13 +40,7 @@ public class BatteryNotLowController extends ConstraintController<Boolean> {
     }
 
     @Override
-    boolean isConstrained() {
-        return !mIsBatteryNotLow;
-    }
-
-    @Override
-    public void onConstraintChanged(@NonNull Boolean isBatteryNotLow) {
-        mIsBatteryNotLow = isBatteryNotLow;
-        updateListener();
+    boolean isConstrained(@NonNull Boolean isBatteryNotLow) {
+        return !isBatteryNotLow;
     }
 }

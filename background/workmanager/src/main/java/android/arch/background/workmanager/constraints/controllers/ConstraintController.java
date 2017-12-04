@@ -25,6 +25,7 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -66,13 +67,13 @@ public abstract class ConstraintController<T> implements LifecycleObserver, Cons
     private ConstraintTracker<T> mTracker;
     private OnConstraintUpdatedCallback mOnConstraintUpdatedCallback;
     private List<WorkSpec> mMatchingWorkSpecs;
+    private T mCurrentValue;
 
     ConstraintController(
             LiveData<List<WorkSpec>> constraintLiveData,
             LifecycleOwner lifecycleOwner,
             ConstraintTracker<T> tracker,
             OnConstraintUpdatedCallback onConstraintUpdatedCallback) {
-
         mConstraintLiveData = LiveDataUtils.dedupedLiveDataFor(constraintLiveData);
         mLifecycleOwner = lifecycleOwner;
         mTracker = tracker;
@@ -111,24 +112,28 @@ public abstract class ConstraintController<T> implements LifecycleObserver, Cons
             Log.d(TAG, getClass().getSimpleName() + ": null matching workspecs");
             return true;
         }
-        return isConstrained() && mMatchingWorkSpecs.contains(workSpec);
+        if (mCurrentValue == null) {
+            Log.d(TAG, getClass().getSimpleName() + ": value not set");
+            return true;
+        }
+        return isConstrained(mCurrentValue) && mMatchingWorkSpecs.contains(workSpec);
     }
 
-    protected void updateListener() {
+    private void updateListener() {
         if (mMatchingWorkSpecs == null) {
             Log.d(TAG, getClass().getSimpleName() + ": updateListener - no workspecs!");
             return;
         }
 
         Log.d(TAG, getClass().getSimpleName() + ": updateListener");
-        if (isConstrained()) {
+        if (mCurrentValue == null || isConstrained(mCurrentValue)) {
             mOnConstraintUpdatedCallback.onConstraintNotMet(mMatchingWorkSpecs);
         } else {
             mOnConstraintUpdatedCallback.onConstraintMet(mMatchingWorkSpecs);
         }
     }
 
-    abstract boolean isConstrained();
+    abstract boolean isConstrained(@NonNull T currentValue);
 
     @Override
     public void onChanged(@Nullable List<WorkSpec> matchingWorkSpecs) {
@@ -143,5 +148,11 @@ public abstract class ConstraintController<T> implements LifecycleObserver, Cons
         } else {
             mTracker.removeListener(this);
         }
+    }
+
+    @Override
+    public void onConstraintChanged(@Nullable T newValue) {
+        mCurrentValue = newValue;
+        updateListener();
     }
 }
