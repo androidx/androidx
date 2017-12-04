@@ -56,8 +56,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Stack;
 
 /**
  * For API 24 and above, this class is delegating to the framework's {@link VectorDrawable}.
@@ -730,7 +730,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
         // Use a stack to help to build the group tree.
         // The top of the stack is always the current group.
-        final Stack<VGroup> groupStack = new Stack<VGroup>();
+        final ArrayDeque<VGroup> groupStack = new ArrayDeque<>();
         groupStack.push(pathRenderer.mRootGroup);
 
         int eventType = parser.getEventType();
@@ -785,14 +785,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         if (noPathTag) {
-            final StringBuffer tag = new StringBuffer();
-
-            if (tag.length() > 0) {
-                tag.append(" or ");
-            }
-            tag.append(SHAPE_PATH);
-
-            throw new XmlPullParserException("no " + tag + " defined");
+            throw new XmlPullParserException("no " + SHAPE_PATH + " defined");
         }
     }
 
