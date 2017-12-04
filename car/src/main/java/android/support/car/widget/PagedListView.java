@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IdRes;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -119,6 +120,39 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
+     * The possible values for @{link #setGutter}. The default value is actually
+     * {@link Gutter#BOTH}.
+     */
+    @IntDef({
+            Gutter.NONE,
+            Gutter.START,
+            Gutter.END,
+            Gutter.BOTH,
+    })
+    public @interface Gutter {
+        /**
+         * No gutter on either side of the list items. The items will span the full width of the
+         * {@link PagedListView}.
+         */
+        int NONE = 0;
+
+        /**
+         * Include a gutter only on the start side (that is, the same side as the scroll bar).
+         */
+        int START = 1;
+
+        /**
+         * Include a gutter only on the end side (that is, the opposite side of the scroll bar).
+         */
+        int END = 2;
+
+        /**
+         * Include a gutter on both sides of the list items. This is the default behaviour.
+         */
+        int BOTH = 3;
+    }
+
+    /**
      * Interface for a {@link android.support.v7.widget.RecyclerView.Adapter} to set the position
      * offset for the adapter to load the data.
      *
@@ -167,14 +201,17 @@ public class PagedListView extends FrameLayout {
         mRecyclerView.getRecycledViewPool().setMaxRecycledViews(0, 12);
         mRecyclerView.setItemAnimator(new CarItemAnimator(mLayoutManager));
 
-        boolean offsetScrollBar = a.getBoolean(R.styleable.PagedListView_offsetScrollBar, false);
-        if (offsetScrollBar) {
-            MarginLayoutParams params = (MarginLayoutParams) mRecyclerView.getLayoutParams();
-            params.setMarginStart(getResources().getDimensionPixelSize(
-                    R.dimen.car_margin));
-            params.setMarginEnd(
-                    a.getDimensionPixelSize(R.styleable.PagedListView_listEndMargin, 0));
-            mRecyclerView.setLayoutParams(params);
+        if (a.hasValue(R.styleable.PagedListView_gutter)) {
+            int gutter = a.getInt(R.styleable.PagedListView_gutter, Gutter.BOTH);
+            setGutter(gutter);
+        } else if (a.hasValue(R.styleable.PagedListView_offsetScrollBar)) {
+            boolean offsetScrollBar =
+                    a.getBoolean(R.styleable.PagedListView_offsetScrollBar, false);
+            if (offsetScrollBar) {
+                setGutter(Gutter.START);
+            }
+        } else {
+            setGutter(Gutter.BOTH);
         }
 
         if (a.getBoolean(R.styleable.PagedListView_showPagedListViewDivider, true)) {
@@ -284,6 +321,31 @@ public class PagedListView extends FrameLayout {
             return -1;
         }
         return mLayoutManager.getPosition(v);
+    }
+
+    /**
+     * Set the gutter to the specified value.
+     *
+     * The gutter is the space to the start/end of the list view items and will be equal in size
+     * to the scroll bars. By default, there is a gutter to both the left and right of the list
+     * view items, to account for the scroll bar.
+     *
+     * @param gutter A {@link Gutter} value that identifies which sides to apply the gutter to.
+     */
+    public void setGutter(@Gutter int gutter) {
+        int startPadding = 0;
+        int endPadding = 0;
+        if ((gutter & Gutter.START) != 0) {
+            startPadding = getResources().getDimensionPixelSize(R.dimen.car_margin);
+        }
+        if ((gutter & Gutter.END) != 0) {
+            endPadding = getResources().getDimensionPixelSize(R.dimen.car_margin);
+        }
+        mRecyclerView.setPaddingRelative(startPadding, 0, endPadding, 0);
+
+        // If there's a gutter, set ClipToPadding to false so that CardView's shadow will still
+        // appear outside of the padding.
+        mRecyclerView.setClipToPadding(startPadding == 0 && endPadding == 0);
     }
 
     @NonNull
