@@ -23,6 +23,7 @@ dependencies {
     api project(':annotation')
     api project(':legacy-support-v4')
     api project(':recyclerview')
+    api project(':gridlayout')
 
     androidTestImplementation jetifier.process(TEST_RUNNER, libs.exclude_support)
     androidTestImplementation jetifier.process(ESPRESSO_CORE, libs.exclude_support)

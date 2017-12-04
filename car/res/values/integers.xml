@@ -58,4 +58,8 @@ limitations under the License.
     <integer name="car_action_bar_expand_anim_duration">333</integer>
     <integer name="car_action_bar_collapse_anim_duration">233</integer>
 
+    <!-- The number of columns of buttons to display in the alpha jump overview. -->
+    <!-- TODO(deanh): this could be calculated dynamically, or something else to better support
+        adaptive/responsive. -->
+    <integer name="alpha_jump_button_columns">6</integer>
 </resources>
