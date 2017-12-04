@@ -35,9 +35,6 @@ import android.support.annotation.NonNull;
  */
 
 public class NetworkConnectedController extends ConstraintController<NetworkState> {
-
-    private boolean mIsConnectedAndUsable;
-
     public NetworkConnectedController(
             Context context,
             WorkDatabase workDatabase,
@@ -55,17 +52,11 @@ public class NetworkConnectedController extends ConstraintController<NetworkStat
     }
 
     @Override
-    boolean isConstrained() {
-        return !mIsConnectedAndUsable;
-    }
-
-    @Override
-    public void onConstraintChanged(@NonNull NetworkState state) {
+    boolean isConstrained(@NonNull NetworkState state) {
         if (Build.VERSION.SDK_INT >= 26) {
-            mIsConnectedAndUsable = state.isConnected() && state.isValidated();
+            return !state.isConnected() || !state.isValidated();
         } else {
-            mIsConnectedAndUsable = state.isConnected();
+            return !state.isConnected();
         }
-        updateListener();
     }
 }

@@ -17,9 +17,7 @@ package android.arch.background.workmanager.constraints.trackers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -97,14 +95,7 @@ public class ConstraintTrackerTest {
     }
 
     @Test
-    public void testAddListener_nullValue_doesNotNotifyAddedListener() {
-        ConstraintListener<Boolean> constraintListener = mock(ConstraintListener.class);
-        mTracker.addListener(constraintListener);
-        verifyNoMoreInteractions(constraintListener);
-    }
-
-    @Test
-    public void testAddListener_nonNullValue_notifiesAddedListener() {
+    public void testAddListener_notifiesAddedListener() {
         ConstraintListener<Boolean> constraintListener1 = mock(ConstraintListener.class);
         ConstraintListener<Boolean> constraintListener2 = mock(ConstraintListener.class);
 
@@ -118,20 +109,46 @@ public class ConstraintTrackerTest {
     }
 
     @Test
-    public void testSetState_notifiesAllListeners() {
+    public void testAddListener_constraintNotSet() {
         ConstraintListener<Boolean> constraintListener1 = mock(ConstraintListener.class);
         ConstraintListener<Boolean> constraintListener2 = mock(ConstraintListener.class);
 
         mTracker.addListener(constraintListener1);
         mTracker.addListener(constraintListener2);
-        verify(constraintListener1, never()).onConstraintChanged(anyBoolean());
-        verify(constraintListener2, never()).onConstraintChanged(anyBoolean());
+        verify(constraintListener1).onConstraintChanged(null);
+        verify(constraintListener2).onConstraintChanged(null);
+    }
+
+    @Test
+    public void testSetState_newState_notifiesAllListeners() {
+        ConstraintListener<Boolean> constraintListener1 = mock(ConstraintListener.class);
+        ConstraintListener<Boolean> constraintListener2 = mock(ConstraintListener.class);
+
+        mTracker.addListener(constraintListener1);
+        mTracker.addListener(constraintListener2);
+        verify(constraintListener1).onConstraintChanged(null);
+        verify(constraintListener2).onConstraintChanged(null);
 
         mTracker.setState(true);
         verify(constraintListener1).onConstraintChanged(true);
         verify(constraintListener2).onConstraintChanged(true);
+    }
 
-        mTracker.setState(true);
+    @Test
+    public void testSetState_sameState_doesNotNotify() {
+        ConstraintListener<Boolean> constraintListener1 = mock(ConstraintListener.class);
+        ConstraintListener<Boolean> constraintListener2 = mock(ConstraintListener.class);
+
+        mTracker.addListener(constraintListener1);
+        mTracker.addListener(constraintListener2);
+        verify(constraintListener1).onConstraintChanged(null);
+        verify(constraintListener2).onConstraintChanged(null);
+
+        mTracker.setState(false);
+        verify(constraintListener1).onConstraintChanged(false);
+        verify(constraintListener2).onConstraintChanged(false);
+
+        mTracker.setState(false);
         verifyNoMoreInteractions(constraintListener1);
         verifyNoMoreInteractions(constraintListener2);
     }

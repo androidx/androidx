@@ -29,9 +29,6 @@ import android.support.annotation.NonNull;
  */
 
 public class NetworkUnmeteredController extends ConstraintController<NetworkState> {
-
-    private boolean mIsConnectedAndUnmetered;
-
     public NetworkUnmeteredController(
             Context context,
             WorkDatabase workDatabase,
@@ -49,13 +46,7 @@ public class NetworkUnmeteredController extends ConstraintController<NetworkStat
     }
 
     @Override
-    boolean isConstrained() {
-        return !mIsConnectedAndUnmetered;
-    }
-
-    @Override
-    public void onConstraintChanged(@NonNull NetworkState state) {
-        mIsConnectedAndUnmetered = state.isConnected() && !state.isMetered();
-        updateListener();
+    boolean isConstrained(@NonNull NetworkState state) {
+        return !state.isConnected() || state.isMetered();
     }
 }

@@ -33,9 +33,6 @@ import android.util.Log;
 public class NetworkMeteredController extends ConstraintController<NetworkState> {
     private static final String TAG = "NetworkMeteredCtrlr";
 
-    private boolean mIsConnected;
-    private boolean mIsMetered;
-
     public NetworkMeteredController(
             Context context,
             WorkDatabase workDatabase,
@@ -57,19 +54,12 @@ public class NetworkMeteredController extends ConstraintController<NetworkState>
      * be consistent with JobScheduler functionality.
      */
     @Override
-    boolean isConstrained() {
+    boolean isConstrained(@NonNull NetworkState state) {
         if (Build.VERSION.SDK_INT < 26) {
             Log.d(TAG, "Metered network constraint is not supported before API 26, "
                     + "only checking for connected state.");
-            return !mIsConnected;
+            return !state.isConnected();
         }
-        return !mIsConnected || !mIsMetered;
-    }
-
-    @Override
-    public void onConstraintChanged(@NonNull NetworkState state) {
-        mIsConnected = state.isConnected();
-        mIsMetered = state.isMetered();
-        updateListener();
+        return !state.isConnected() || !state.isMetered();
     }
 }

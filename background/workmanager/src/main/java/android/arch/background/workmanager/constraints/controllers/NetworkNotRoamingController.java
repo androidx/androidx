@@ -33,9 +33,6 @@ import android.util.Log;
 public class NetworkNotRoamingController extends ConstraintController<NetworkState> {
     private static final String TAG = "NetworkNotRoamingCtrlr";
 
-    private boolean mIsConnected;
-    private boolean mIsNotRoaming;
-
     public NetworkNotRoamingController(
             Context context,
             WorkDatabase workDatabase,
@@ -57,19 +54,12 @@ public class NetworkNotRoamingController extends ConstraintController<NetworkSta
      * to be consistent with JobScheduler functionality.
      */
     @Override
-    boolean isConstrained() {
+    boolean isConstrained(@NonNull NetworkState state) {
         if (Build.VERSION.SDK_INT < 24) {
             Log.d(TAG, "Not-roaming network constraint is not supported before API 24, "
                     + "only checking for connected state.");
-            return !mIsConnected;
+            return !state.isConnected();
         }
-        return !mIsConnected || !mIsNotRoaming;
-    }
-
-    @Override
-    public void onConstraintChanged(@NonNull NetworkState state) {
-        mIsConnected = state.isConnected();
-        mIsNotRoaming = state.isNotRoaming();
-        updateListener();
+        return !state.isConnected() || !state.isNotRoaming();
     }
 }

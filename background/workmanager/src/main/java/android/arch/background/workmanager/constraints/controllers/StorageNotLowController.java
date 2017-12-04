@@ -26,9 +26,6 @@ import android.support.annotation.NonNull;
  */
 
 public class StorageNotLowController extends ConstraintController<Boolean> {
-
-    private boolean mIsStorageNotLow;
-
     public StorageNotLowController(
             Context context,
             WorkDatabase workDatabase,
@@ -43,13 +40,7 @@ public class StorageNotLowController extends ConstraintController<Boolean> {
     }
 
     @Override
-    boolean isConstrained() {
-        return !mIsStorageNotLow;
-    }
-
-    @Override
-    public void onConstraintChanged(@NonNull Boolean isStorageNotLow) {
-        mIsStorageNotLow = isStorageNotLow;
-        updateListener();
+    boolean isConstrained(@NonNull Boolean isStorageNotLow) {
+        return !isStorageNotLow;
     }
 }

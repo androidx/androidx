@@ -17,7 +17,6 @@ package android.arch.background.workmanager.constraints.trackers;
 
 import android.arch.background.workmanager.constraints.ConstraintListener;
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.LinkedHashSet;
@@ -55,9 +54,7 @@ public abstract class ConstraintTracker<T> {
                 Log.d(TAG, getClass().getSimpleName() + ": initial state = " + mCurrentState);
                 startTracking();
             }
-            if (mCurrentState != null) {
-                listener.onConstraintChanged(mCurrentState);
-            }
+            listener.onConstraintChanged(mCurrentState);
         }
     }
 
@@ -78,8 +75,9 @@ public abstract class ConstraintTracker<T> {
      *
      * @param newState new state of constraint
      */
-    public void setState(@NonNull T newState) {
-        if (mCurrentState != null && mCurrentState.equals(newState)) {
+    public void setState(T newState) {
+        if (mCurrentState == newState
+                || (mCurrentState != null && mCurrentState.equals(newState))) {
             return;
         }
         mCurrentState = newState;
@@ -90,7 +88,6 @@ public abstract class ConstraintTracker<T> {
 
     /**
      * Determines the initial state of the constraint being tracked.
-     * Return null if state could not be determined.
      */
     protected abstract T getInitialState();
 

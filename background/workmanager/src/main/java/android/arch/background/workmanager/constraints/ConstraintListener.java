@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.constraints;
 
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * The listener for constraint changes.
@@ -29,5 +29,5 @@ public interface ConstraintListener<T> {
      * Called when the value of a constraint has changed.
      * @param newValue the new value of the constraint
      */
-    void onConstraintChanged(@NonNull T newValue);
+    void onConstraintChanged(@Nullable T newValue);
 }
