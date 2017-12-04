@@ -14,59 +14,37 @@
 # limitations under the License.
 #
 
-#
-# A list of all source roots under frameworks/support.
-#
-FRAMEWORKS_SUPPORT_SUBDIRS := \
-    annotations \
-    compat \
-    core-ui \
-    core-utils \
-    customtabs \
-    design \
-    dynamic-animation \
-    exifinterface \
-    fragment \
-    media-compat \
-    percent \
-    recommendation \
-    textclassifier \
-    transition \
-    tv-provider \
-    v7/cardview \
-    v7/gridlayout \
-    v7/mediarouter \
-    v7/palette \
-    v7/preference \
-    v13 \
-    v14/preference \
-    v17/leanback \
-    v17/preference-leanback \
-    wear
-
-#
-# A version of FRAMEWORKS_SUPPORT_SUBDIRS that is expanded to full paths from
-# the root of the tree.
-#
-FRAMEWORKS_SUPPORT_JAVA_SRC_DIRS := \
-    $(addprefix frameworks/support/,$(FRAMEWORKS_SUPPORT_SUBDIRS)) \
-    frameworks/support/graphics/drawable/animated \
-    frameworks/support/graphics/drawable/static \
-    frameworks/support/v7/appcompat/src \
-    frameworks/support/v7/recyclerview/src \
-    frameworks/support/emoji/core/src \
-    frameworks/support/emoji/appcompat/src \
-    frameworks/support/emoji/bundled/src
-
-#
-# A list of support library modules.
-#
+# The list of support library modules made available to the platform docs build.
 FRAMEWORKS_SUPPORT_JAVA_LIBRARIES := \
-    $(foreach dir,$(FRAMEWORKS_SUPPORT_SUBDIRS),android-support-$(subst /,-,$(dir))) \
-    android-support-vectordrawable \
     android-support-animatedvectordrawable \
-    android-support-v7-appcompat \
-    android-support-v7-recyclerview \
+    android-support-annotations \
     android-support-emoji \
     android-support-emoji-appcompat \
-    android-support-emoji-bundled
+    android-support-emoji-bundled \
+    android-support-compat \
+    android-support-core-ui \
+    android-support-core-utils \
+    android-support-customtabs \
+    android-support-design \
+    android-support-dynamic-animation \
+    android-support-exifinterface \
+    android-support-fragment \
+    android-support-media-compat \
+    android-support-percent \
+    android-support-recommendation \
+    android-support-transition \
+    android-support-tv-provider \
+    android-support-v7-appcompat \
+    android-support-v7-cardview \
+    android-support-v7-gridlayout \
+    android-support-v7-mediarouter \
+    android-support-v7-palette \
+    android-support-v7-preference \
+    android-support-v7-recyclerview \
+    android-support-v13 \
+    android-support-v14-preference \
+    android-support-v17-leanback \
+    android-support-v17-preference-leanback \
+    android-support-vectordrawable \
+    android-support-wear
+
