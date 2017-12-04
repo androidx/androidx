@@ -390,11 +390,7 @@ class WindowAlignment {
 
     @Override
     public String toString() {
-        return new StringBuffer().append("horizontal=")
-                .append(horizontal.toString())
-                .append("; vertical=")
-                .append(vertical.toString())
-                .toString();
+        return "horizontal=" + horizontal + "; vertical=" + vertical;
     }
 
 }

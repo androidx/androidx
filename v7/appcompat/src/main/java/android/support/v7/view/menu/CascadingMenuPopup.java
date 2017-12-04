@@ -54,7 +54,6 @@ import android.widget.TextView;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -85,7 +84,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
     final Handler mSubMenuHoverHandler;
 
     /** List of menus that were added before this popup was shown. */
-    private final List<MenuBuilder> mPendingMenus = new LinkedList<>();
+    private final List<MenuBuilder> mPendingMenus = new ArrayList<>();
 
     /**
      * List of open menus. The first item is the root menu and each
