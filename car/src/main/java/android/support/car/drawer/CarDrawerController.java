@@ -34,7 +34,7 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
 
 /**
  * A controller that will handle the set up of the navigation drawer. It will hook up the
@@ -58,7 +58,7 @@ public class CarDrawerController {
      * this stack is the order that the user has visited each level. When the user navigates up,
      * the adapters are popped from this list.
      */
-    private final Stack<CarDrawerAdapter> mAdapterStack = new Stack<>();
+    private final ArrayDeque<CarDrawerAdapter> mAdapterStack = new ArrayDeque<>();
 
     private final Context mContext;
 
@@ -114,11 +114,10 @@ public class CarDrawerController {
         }
 
         // The root adapter is always the last item in the stack.
-        if (mAdapterStack.size() > 0) {
-            mAdapterStack.set(0, rootAdapter);
-        } else {
-            mAdapterStack.push(rootAdapter);
+        if (!mAdapterStack.isEmpty()) {
+            mAdapterStack.removeLast();
         }
+        mAdapterStack.addLast(rootAdapter);
 
         setToolbarTitleFrom(rootAdapter);
         mDrawerList.setAdapter(rootAdapter);

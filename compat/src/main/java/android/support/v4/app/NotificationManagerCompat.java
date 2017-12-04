@@ -43,10 +43,10 @@ import android.util.Log;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -560,7 +560,7 @@ public final class NotificationManagerCompat {
             /** The service stub provided by onServiceConnected */
             public INotificationSideChannel service;
             /** Queue of pending tasks to send to this listener service */
-            public LinkedList<Task> taskQueue = new LinkedList<Task>();
+            public ArrayDeque<Task> taskQueue = new ArrayDeque<>();
             /** Number of retries attempted while connecting to this listener service */
             public int retryCount = 0;
 

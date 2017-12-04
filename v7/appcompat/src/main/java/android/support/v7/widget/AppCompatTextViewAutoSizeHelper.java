@@ -45,8 +45,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class which encapsulates the logic for the TextView auto-size text feature added to
@@ -66,7 +66,8 @@ class AppCompatTextViewAutoSizeHelper {
     private static final int DEFAULT_AUTO_SIZE_GRANULARITY_IN_PX = 1;
     // Cache of TextView methods used via reflection; the key is the method name and the value is
     // the method itself or null if it can not be found.
-    private static Hashtable<String, Method> sTextViewMethodByNameCache = new Hashtable<>();
+    private static ConcurrentHashMap<String, Method> sTextViewMethodByNameCache =
+            new ConcurrentHashMap<>();
     // Use this to specify that any of the auto-size configuration int values have not been set.
     static final float UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1f;
     // Ported from TextView#VERY_WIDE. Represents a maximum width in pixels the TextView takes when
