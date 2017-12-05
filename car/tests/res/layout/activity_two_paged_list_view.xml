@@ -21,7 +21,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <android.support.car.widget.PagedListView
+    <androidx.car.widget.PagedListView
         android:id="@+id/paged_list_view_1"
         android:layout_weight="1"
         android:layout_width="0dp"
@@ -29,7 +29,7 @@
         app:showPagedListViewDivider="false"
         app:offsetScrollBar="true"/>
 
-    <android.support.car.widget.PagedListView
+    <androidx.car.widget.PagedListView
         android:id="@+id/paged_list_view_2"
         android:layout_weight="1"
         android:layout_width="0dp"

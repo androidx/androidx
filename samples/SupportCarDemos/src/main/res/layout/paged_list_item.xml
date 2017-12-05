@@ -14,7 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<android.support.car.widget.ColumnCardView
+<androidx.car.widget.ColumnCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="0dp"
@@ -27,4 +27,4 @@
         android:singleLine="true"
         android:ellipsize="end"
         android:textAppearance="@style/CarBody1"/>
-</android.support.car.widget.ColumnCardView>
+</androidx.car.widget.ColumnCardView>

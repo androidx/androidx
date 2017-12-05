@@ -15,12 +15,12 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.car.widget.test">
+          package="androidx.car.widget.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">
-        <activity android:name="android.support.car.widget.ColumnCardViewTestActivity"/>
-        <activity android:name="android.support.car.widget.PagedListViewSavedStateActivity"/>
-        <activity android:name="android.support.car.widget.PagedListViewTestActivity"/>
+        <activity android:name="androidx.car.widget.ColumnCardViewTestActivity"/>
+        <activity android:name="androidx.car.widget.PagedListViewSavedStateActivity"/>
+        <activity android:name="androidx.car.widget.PagedListViewTestActivity"/>
     </application>
 </manifest>
