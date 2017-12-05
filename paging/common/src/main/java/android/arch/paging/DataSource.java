@@ -30,11 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Base class for loading pages of snapshot data into a {@link PagedList}.
  * <p>
  * DataSource is queried to load pages of content into a {@link PagedList}. A PagedList can grow as
- * it loads more data, but the data loaded cannot be updated.
- * <p>
- * A PagedList / DataSource pair serve as a snapshot of the data set being loaded. If the
- * underlying data set is modified, a new PagedList / DataSource pair must be created to represent
- * the new data.
+ * it loads more data, but the data loaded cannot be updated. If the underlying data set is
+ * modified, a new PagedList / DataSource pair must be created to represent the new data.
  * <h4>Loading Pages</h4>
  * PagedList queries data from its DataSource in response to loading hints. {@link PagedListAdapter}
  * calls {@link PagedList#loadAround(int)} to load content as the user scrolls in a RecyclerView.
@@ -68,11 +65,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * copy changes, invalidate the previous DataSource, and a new one wrapping the new state of the
  * snapshot can be created.
  * <h4>Implementing a DataSource</h4>
- * To implement, extend either the {@link KeyedDataSource}, or {@link PositionalDataSource}
- * subclass. Choose based on whether each load operation is based on the position of the data in the
- * list.
+ * To implement, extend one of the subclasses: {@link PageKeyedDataSource},
+ * {@link ItemKeyedDataSource}, or {@link PositionalDataSource}.
  * <p>
- * Use {@link KeyedDataSource} if you need to use data from item {@code N-1} to load item
+ * Use {@link PageKeyedDataSource} if pages you load embed keys for loading adjacent pages. For
+ * example a network response that returns some items, and a next page and previous page links.
+ * <p>
+ * Use {@link ItemKeyedDataSource} if you need to use data from item {@code N-1} to load item
  * {@code N}. For example, if requesting the backend for the next comments in the list
  * requires the ID or timestamp of the most recent loaded comment, or if querying the next users
  * from a name-sorted database query requires the name and unique ID of the previous.
@@ -159,11 +158,11 @@ public abstract class DataSource<Key, Value> {
         private Executor mPostExecutor = null;
         private boolean mHasSignalled = false;
 
-        BaseLoadCallback(@PageResult.ResultType int resultType, @NonNull DataSource dataSource,
+        BaseLoadCallback(@NonNull DataSource dataSource, @PageResult.ResultType int resultType,
                 @Nullable Executor mainThreadExecutor, @NonNull PageResult.Receiver<T> receiver) {
+            mDataSource = dataSource;
             mResultType = resultType;
             mPostExecutor = mainThreadExecutor;
-            mDataSource = dataSource;
             mReceiver = receiver;
         }
 
