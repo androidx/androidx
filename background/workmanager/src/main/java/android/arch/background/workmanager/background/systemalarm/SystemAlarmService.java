@@ -18,7 +18,7 @@ package android.arch.background.workmanager.background.systemalarm;
 
 import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.WorkManager;
+import android.arch.background.workmanager.WorkManagerImpl;
 import android.arch.background.workmanager.background.BackgroundProcessor;
 import android.arch.lifecycle.LifecycleService;
 import android.content.Context;
@@ -44,9 +44,10 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
     public void onCreate() {
         super.onCreate();
         Context context = getApplicationContext();
-        WorkManager workManager = WorkManager.getInstance();
-        WorkDatabase database = workManager.getWorkDatabase();
-        mProcessor = new BackgroundProcessor(context, database, workManager.getScheduler(), this);
+        WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
+        WorkDatabase database = workManagerImpl.getWorkDatabase();
+        mProcessor =
+                new BackgroundProcessor(context, database, workManagerImpl.getScheduler(), this);
         ConstraintProxyController.startAll(context, database, this);
     }
 

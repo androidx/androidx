@@ -16,49 +16,15 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
-
-import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Arguments;
-import android.arch.background.workmanager.model.Dependency;
-import android.arch.background.workmanager.model.DependencyDao;
-import android.arch.background.workmanager.model.WorkSpec;
-import android.arch.background.workmanager.model.WorkSpecDao;
-import android.arch.background.workmanager.model.WorkTag;
-import android.arch.background.workmanager.utils.BaseWorkHelper;
-import android.arch.background.workmanager.utils.LiveDataUtils;
-import android.arch.background.workmanager.utils.PruneDatabaseRunnable;
-import android.arch.background.workmanager.utils.taskexecutor.TaskExecutor;
-import android.arch.background.workmanager.utils.taskexecutor.WorkManagerTaskExecutor;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ProcessLifecycleOwner;
-import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.WorkerThread;
-
-import java.util.List;
 
 /**
  * WorkManager is a class used to enqueue persisted work that is guaranteed to run after its
  * constraints are met.
  */
-public final class WorkManager {
-    private static final String TAG = "WorkManager";
-
-    private WorkDatabase mWorkDatabase;
-    private TaskExecutor mTaskExecutor;
-    private Processor mForegroundProcessor;
-    private Scheduler mBackgroundScheduler;
-
-    private static WorkManager sInstance = null;
-
-    static synchronized void init(Context context, WorkManagerConfiguration configuration) {
-        if (sInstance != null) {
-            throw new IllegalStateException("Trying to initialize WorkManager twice!");
-        }
-        sInstance = new WorkManager(context, configuration);
-    }
+public abstract class WorkManager {
 
     /**
      * Retrieves the singleton instance of {@link WorkManager}.
@@ -66,46 +32,7 @@ public final class WorkManager {
      * @return The singleton instance of {@link WorkManager}
      */
     public static synchronized WorkManager getInstance() {
-        if (sInstance == null) {
-            throw new IllegalStateException(
-                    "Accessing WorkManager before it has been initialized!");
-        }
-        return sInstance;
-    }
-
-    WorkManager(Context context, WorkManagerConfiguration configuration) {
-        // TODO(janclarin): Move ForegroundProcessor and TaskExecutor to WorkManagerConfiguration.
-        // TODO(janclarin): Remove context parameter.
-        Context appContext = context.getApplicationContext();
-        mWorkDatabase = configuration.getWorkDatabase();
-        mForegroundProcessor = new ForegroundProcessor(
-                appContext,
-                mWorkDatabase,
-                mBackgroundScheduler,
-                ProcessLifecycleOwner.get());
-        mBackgroundScheduler = configuration.getBackgroundScheduler();
-        mTaskExecutor = WorkManagerTaskExecutor.getInstance();
-    }
-
-    /**
-     * @return The {@link WorkDatabase} instance associated with this WorkManager.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public WorkDatabase getWorkDatabase() {
-        return mWorkDatabase;
-    }
-
-    /**
-     * @return The {@link Scheduler} associated with this WorkManager based on the device's
-     * capabilities, SDK version, etc.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @NonNull Scheduler getScheduler() {
-        return mBackgroundScheduler;
+        return WorkManagerImpl.getInstance();
     }
 
     /**
@@ -114,10 +41,7 @@ public final class WorkManager {
      * @param id The id of the {@link BaseWork}.
      * @return A {@link LiveData} of the status.
      */
-    public LiveData<Integer> getWorkStatus(String id) {
-        return LiveDataUtils.dedupedLiveDataFor(
-                mWorkDatabase.workSpecDao().getWorkSpecLiveDataStatus(id));
-    }
+    public abstract LiveData<Integer> getWorkStatus(String id);
 
     /**
      * Gets the output for a given work id.
@@ -125,9 +49,7 @@ public final class WorkManager {
      * @param id The id of the {@link BaseWork}.
      * @return A {@link LiveData} of the output.
      */
-    public LiveData<Arguments> getOutput(String id) {
-        return LiveDataUtils.dedupedLiveDataFor(mWorkDatabase.workSpecDao().getOutput(id));
-    }
+    public abstract LiveData<Arguments> getOutput(String id);
 
     /**
      * Enqueues one or more items for background processing.
@@ -136,9 +58,7 @@ public final class WorkManager {
      * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
      *         input work
      */
-    public WorkContinuation enqueue(Work... work) {
-        return enqueue(work, null);
-    }
+    public abstract WorkContinuation enqueue(Work... work);
 
     /**
      * Enqueues one or more items for background processing.
@@ -148,19 +68,15 @@ public final class WorkManager {
      * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
      *         input workerClasses
      */
-    @SafeVarargs
-    public final WorkContinuation enqueue(Class<? extends Worker>... workerClasses) {
-        return enqueue(BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses), null);
-    }
+    @SuppressWarnings("unchecked")
+    public abstract WorkContinuation enqueue(Class<? extends Worker>... workerClasses);
 
     /**
      * Enqueues one or more periodic work items for background processing.
      *
      * @param periodicWork One or more {@link PeriodicWork} to enqueue
      */
-    public void enqueue(PeriodicWork... periodicWork) {
-        mTaskExecutor.executeOnBackgroundThread(new EnqueueRunnable(periodicWork, null));
-    }
+    public abstract void enqueue(PeriodicWork... periodicWork);
 
     /**
      * Cancels all work with the given tag, regardless of the current state of the work.
@@ -169,116 +85,17 @@ public final class WorkManager {
      *
      * @param tag The tag used to identify the work
      */
-    public void cancelAllWorkWithTag(@NonNull final String tag) {
-        mTaskExecutor.executeOnBackgroundThread(new CancelWorkWithTagRunnable(tag));
-    }
+    public abstract void cancelAllWorkWithTag(@NonNull String tag);
 
     /**
      * Prunes the database of all non-pending work.  Any work that has cancelled, failed, or
      * succeeded that is not part of a pending chain of work will be deleted.  This includes all
      * outputs stored in the database.
      */
-    public void pruneDatabase() {
-        mTaskExecutor.executeOnBackgroundThread(new PruneDatabaseRunnable(mWorkDatabase));
-    }
+    public abstract void pruneDatabase();
 
-    WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {
-        WorkContinuation workContinuation = new WorkContinuation(this, work);
-        mTaskExecutor.executeOnBackgroundThread(new EnqueueRunnable(work, prerequisiteIds));
-        return workContinuation;
-    }
-
-    /**
-     * A Runnable to enqueue a {@link Work} in the database.
-     */
-    private class EnqueueRunnable implements Runnable {
-        private BaseWork[] mWorkArray;
-        private String[] mPrerequisiteIds;
-
-        EnqueueRunnable(BaseWork[] workArray, String[] prerequisiteIds) {
-            mWorkArray = workArray;
-            mPrerequisiteIds = prerequisiteIds;
-        }
-
-        @WorkerThread
-        @Override
-        public void run() {
-            mWorkDatabase.beginTransaction();
-            try {
-                boolean hasPrerequisite = (mPrerequisiteIds != null && mPrerequisiteIds.length > 0);
-                for (BaseWork work : mWorkArray) {
-                    WorkSpec workSpec = work.getWorkSpec();
-                    if (hasPrerequisite) {
-                        workSpec.setStatus(STATUS_BLOCKED);
-                    }
-                    mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
-
-                    if (hasPrerequisite) {
-                        for (String prerequisiteId : mPrerequisiteIds) {
-                            Dependency dep = new Dependency(work.getId(), prerequisiteId);
-                            mWorkDatabase.dependencyDao().insertDependency(dep);
-                        }
-                    }
-
-                    for (WorkTag workTag : work.getWorkTags()) {
-                        mWorkDatabase.workTagDao().insert(workTag);
-                    }
-                }
-                mWorkDatabase.setTransactionSuccessful();
-
-                // Schedule in the background if there are no prerequisites.  Foreground scheduling
-                // happens automatically because we instantiated ForegroundProcessor earlier.
-                if (!hasPrerequisite) {
-                    for (BaseWork work : mWorkArray) {
-                        mBackgroundScheduler.schedule(work.getWorkSpec());
-                    }
-                }
-            } finally {
-                mWorkDatabase.endTransaction();
-            }
-        }
-    }
-
-    /**
-     * A Runnable to cancel work with a given tag.
-     */
-    private class CancelWorkWithTagRunnable implements Runnable {
-
-        private String mTag;
-
-        CancelWorkWithTagRunnable(@NonNull String tag) {
-            mTag = tag;
-        }
-
-        @WorkerThread
-        @Override
-        public void run() {
-            mWorkDatabase.beginTransaction();
-            try {
-                WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-                List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithTag(mTag);
-                for (String workSpecId : workSpecIds) {
-                    recursivelyCancelWorkAndDependencies(workSpecId);
-                    mForegroundProcessor.cancel(workSpecId, true);
-                    mBackgroundScheduler.cancel(workSpecId);
-                }
-
-                mWorkDatabase.setTransactionSuccessful();
-            } finally {
-                mWorkDatabase.endTransaction();
-            }
-        }
-
-        private void recursivelyCancelWorkAndDependencies(String workSpecId) {
-            WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-            DependencyDao dependencyDao = mWorkDatabase.dependencyDao();
-
-            List<String> dependentIds = dependencyDao.getDependentWorkIds(workSpecId);
-            for (String id : dependentIds) {
-                recursivelyCancelWorkAndDependencies(id);
-            }
-            workSpecDao.setStatus(BaseWork.STATUS_CANCELLED, workSpecId);
-        }
+    WorkManager() {
+        // Package-private constructor.
     }
 }
 

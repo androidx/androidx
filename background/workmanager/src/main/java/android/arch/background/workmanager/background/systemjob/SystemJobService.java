@@ -21,7 +21,7 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.WorkManager;
+import android.arch.background.workmanager.WorkManagerImpl;
 import android.arch.background.workmanager.background.BackgroundProcessor;
 import android.content.Context;
 import android.os.PersistableBundle;
@@ -49,9 +49,10 @@ public class SystemJobService extends JobService implements ExecutionListener {
     public void onCreate() {
         super.onCreate();
         Context context = getApplicationContext();
-        WorkManager workManager = WorkManager.getInstance();
-        WorkDatabase database = workManager.getWorkDatabase();
-        mProcessor = new BackgroundProcessor(context, database, workManager.getScheduler(), this);
+        WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
+        WorkDatabase database = workManagerImpl.getWorkDatabase();
+        mProcessor =
+                new BackgroundProcessor(context, database, workManagerImpl.getScheduler(), this);
     }
 
     @Override
