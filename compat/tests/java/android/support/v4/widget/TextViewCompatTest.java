@@ -30,20 +30,43 @@ import static android.support.v4.testutils.TextViewActions.setTextAppearance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Looper;
 import android.support.annotation.ColorInt;
 import android.support.compat.test.R;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.testutils.TestUtils;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.view.menu.MenuBuilder;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
 
 @SmallTest
 public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTestActivity> {
@@ -410,5 +433,131 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
         assertEquals(drawableTop, drawablesRelative[1]);
         assertEquals(drawableEnd, drawablesRelative[2]);
         assertEquals(drawableBottom, drawablesRelative[3]);
+    }
+
+    @Test
+    public void testSetCustomSelectionActionModeCallback_doesNotIgnoreTheGivenCallback() {
+        // JB devices require the current thread to be prepared as a looper for this test.
+        // The test causes the creation of an Editor object, which uses an UserDictionaryListener
+        // that is handled on the main looper.
+        Looper.prepare();
+
+        final boolean[] callbackCalled = new boolean[4];
+        TextViewCompat.setCustomSelectionActionModeCallback(mTextView, new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                callbackCalled[0] = true;
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                callbackCalled[1] = true;
+                return true;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                callbackCalled[2] = true;
+                return true;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                callbackCalled[3] = true;
+            }
+        });
+        final Menu menu = new MenuBuilder(mTextView.getContext());
+        final MenuItem item = menu.add("Option");
+        mTextView.getCustomSelectionActionModeCallback().onCreateActionMode(null, menu);
+        mTextView.getCustomSelectionActionModeCallback().onPrepareActionMode(null, menu);
+        mTextView.getCustomSelectionActionModeCallback().onActionItemClicked(null, item);
+        mTextView.getCustomSelectionActionModeCallback().onDestroyActionMode(null);
+        for (boolean called : callbackCalled) {
+            assertTrue(called);
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26, maxSdkVersion =  27)
+    public void testSetCustomSelectionActionModeCallback_fixesBugInO() {
+        // Create mock context and package manager for the text view.
+        final PackageManager packageManagerMock = spy(mTextView.getContext().getPackageManager());
+        final Context contextMock = spy(mTextView.getContext());
+        when(contextMock.getPackageManager()).thenReturn(packageManagerMock);
+        final TextView tvMock = spy(mTextView);
+        // Set the new context on textViewMock by reflection, as TextView#getContext() is final.
+        try {
+            final Field contextField = View.class.getDeclaredField("mContext");
+            contextField.setAccessible(true);
+            contextField.set(tvMock, contextMock);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            // We should be able to set mContext by reflection.
+            assertTrue(false);
+        }
+        // Create fake activities able to handle the ACTION_PROCESS_TEXT intent.
+        final ResolveInfo info1 = new ResolveInfo();
+        info1.activityInfo = new ActivityInfo();
+        info1.activityInfo.packageName = contextMock.getPackageName();
+        info1.activityInfo.name = "Activity 1";
+        info1.nonLocalizedLabel = "Option 3";
+        final ResolveInfo info2 = new ResolveInfo();
+        info2.activityInfo = new ActivityInfo();
+        info2.activityInfo.packageName = contextMock.getPackageName();
+        info2.activityInfo.name = "Activity 2";
+        info2.nonLocalizedLabel = "Option 4";
+        final ResolveInfo info3 = new ResolveInfo();
+        info3.activityInfo = new ActivityInfo();
+        info3.activityInfo.packageName = contextMock.getPackageName();
+        info3.activityInfo.name = "Activity 3";
+        info3.nonLocalizedLabel = "Option 5";
+        final List<ResolveInfo> infos = Arrays.asList(info1, info2, info3);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final Intent intent = invocation.getArgument(0);
+                if (Intent.ACTION_PROCESS_TEXT.equals(intent.getAction())) {
+                    return infos;
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(packageManagerMock).queryIntentActivities((Intent) any(), anyInt());
+        // Set a no op callback on the mocked text view, which should fix the SDK26 bug.
+        TextViewCompat.setCustomSelectionActionModeCallback(tvMock, new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return true;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                return true;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+
+            }
+        });
+        // Create a fake menu with two non process text items and two process text items.
+        final Menu menu = new MenuBuilder(tvMock.getContext());
+        menu.add(Menu.NONE, Menu.NONE, 1, "Option 1");
+        menu.add(Menu.NONE, Menu.NONE, 2, "Option 2");
+        menu.add(Menu.NONE, Menu.NONE, 100, "Option 3")
+                .setIntent(new Intent(Intent.ACTION_PROCESS_TEXT));
+        menu.add(Menu.NONE, Menu.NONE, 101, "Option 5")
+                .setIntent(new Intent(Intent.ACTION_PROCESS_TEXT));
+        // Run the callback and verify that the menu was updated. Its size should have increased
+        // with 1, as now there are 3 process text options instead of 2 to be displayed.
+        tvMock.getCustomSelectionActionModeCallback().onPrepareActionMode(null, menu);
+        assertEquals(5, menu.size());
+        for (int i = 0; i < menu.size(); ++i) {
+            assertEquals("Option " + (i + 1), menu.getItem(i).getTitle());
+        }
     }
 }
