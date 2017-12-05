@@ -33,6 +33,8 @@ class WorkManagerConfiguration {
     private static final String TAG = "WMConfiguration";
     private static final String FIREBASE_SCHEDULER_CLASSNAME =
             "android.arch.background.workmanager.background.firebase.FirebaseJobScheduler";
+    private static final String FIREBASE_SERVICE_CLASSNAME =
+            "android.arch.background.workmanager.background.firebase.FirebaseJobService";
 
     private final WorkDatabase mWorkDatabase;
 
@@ -65,7 +67,7 @@ class WorkManagerConfiguration {
             // SystemJobService isn't available on older platforms.
             setComponentEnabled(context, SystemJobService.class, usingSystemJob);
         }
-        setComponentEnabled(context, FIREBASE_SCHEDULER_CLASSNAME, usingFirebase);
+        setComponentEnabled(context, FIREBASE_SERVICE_CLASSNAME, usingFirebase);
         setComponentEnabled(context, SystemAlarmService.class, usingSystemAlarm);
     }
 

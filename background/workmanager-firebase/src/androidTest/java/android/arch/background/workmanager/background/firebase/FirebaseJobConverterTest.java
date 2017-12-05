@@ -25,7 +25,9 @@ import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.utils.PackageManagerHelper;
 import android.arch.background.workmanager.worker.FirebaseTestWorker;
+import android.content.Context;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -55,8 +57,9 @@ public class FirebaseJobConverterTest {
 
     @Before
     public void setUp() {
-        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(
-                new GooglePlayDriver(InstrumentationRegistry.getTargetContext()));
+        Context context = InstrumentationRegistry.getTargetContext().getApplicationContext();
+        PackageManagerHelper.setComponentEnabled(context, FirebaseJobService.class, true);
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
         mConverter = new FirebaseJobConverter(dispatcher);
     }
 
