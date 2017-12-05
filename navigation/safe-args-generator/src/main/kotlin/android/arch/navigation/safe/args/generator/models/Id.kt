@@ -16,5 +16,4 @@
 
 package android.arch.navigation.safe.args.generator.models
 
-data class Action(val id: Id, val destination: Id, val args: List<Argument> = emptyList())
-
+data class Id(val packageName: String, val name: String)

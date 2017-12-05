@@ -19,6 +19,7 @@ package android.arch.navigation.safe.args.generator
 import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
+import android.arch.navigation.safe.args.generator.models.Id
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
@@ -80,7 +81,7 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
 fun generateDirectionsTypeSpec(packageName: String, destination: Destination): TypeSpec {
     val className = ClassName.get(packageName, "${destination.className.simpleName()}Directions")
     val actionTypes = destination.actions.map { action ->
-        action to generateDirectionsTypeSpec(packageName, action)
+        action to generateDirectionsTypeSpec(action)
     }
 
     val getters = actionTypes
@@ -88,7 +89,7 @@ fun generateDirectionsTypeSpec(packageName: String, destination: Destination): T
                 val constructor = actionType.methodSpecs.find(MethodSpec::isConstructor)!!
                 val params = constructor.parameters.joinToString(", ") { param -> param.name }
                 val actionTypeName = ClassName.get("", actionType.name)
-                MethodSpec.methodBuilder(action.id.trimId())
+                MethodSpec.methodBuilder(action.id.name)
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .addParameters(constructor.parameters)
                         .returns(actionTypeName)
@@ -103,7 +104,7 @@ fun generateDirectionsTypeSpec(packageName: String, destination: Destination): T
             .build()
 }
 
-fun generateDirectionsTypeSpec(packageName: String, action: Action): TypeSpec {
+fun generateDirectionsTypeSpec(action: Action): TypeSpec {
     val specs = ClassWithArgsSpecs(action.args)
 
     val constructor = MethodSpec.constructorBuilder()
@@ -117,7 +118,7 @@ fun generateDirectionsTypeSpec(packageName: String, action: Action): TypeSpec {
     val getDestIdMethod = MethodSpec.methodBuilder("getDestinationId")
             .addModifiers(Modifier.PUBLIC)
             .returns(Int::class.java)
-            .addStatement("return $N", "$packageName.R.id.${action.destination.trimId()}")
+            .addStatement("return $N", idAccessor(action.destination))
             .build()
 
     val getNavOptions = MethodSpec.methodBuilder("getOptions")
@@ -126,7 +127,7 @@ fun generateDirectionsTypeSpec(packageName: String, action: Action): TypeSpec {
             .addStatement("return null")
             .build()
 
-    val className = ClassName.get("", action.id.trimId().capitalize())
+    val className = ClassName.get("", action.id.name.capitalize())
     return TypeSpec.classBuilder(className)
             .addSuperinterface(NAV_DIRECTION_CLASSNAME)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -139,8 +140,7 @@ fun generateDirectionsTypeSpec(packageName: String, action: Action): TypeSpec {
             .build()
 }
 
-// obviously wrong thing to do
-private fun String.trimId() = this.substring(5)
+fun idAccessor(id: Id) = "${id.packageName}.R.id.${id.name}"
 
 fun generateDirectionsJavaFile(packageName: String, destination: Destination) =
         JavaFile.builder(packageName, generateDirectionsTypeSpec(packageName, destination)).build()
