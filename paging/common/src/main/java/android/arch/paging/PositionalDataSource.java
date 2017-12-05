@@ -134,7 +134,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
 
         LoadInitialCallback(@NonNull PositionalDataSource dataSource, boolean countingEnabled,
                 int pageSize, PageResult.Receiver<T> receiver) {
-            super(PageResult.INIT, dataSource, null, receiver);
+            super(dataSource, PageResult.INIT, null, receiver);
             mCountingEnabled = countingEnabled;
             mPageSize = pageSize;
             if (mPageSize < 1) {
@@ -214,7 +214,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
         private final int mPositionOffset;
         LoadRangeCallback(@NonNull PositionalDataSource dataSource, int positionOffset,
                 Executor mainThreadExecutor, PageResult.Receiver<T> receiver) {
-            super(PageResult.TILE, dataSource, mainThreadExecutor, receiver);
+            super(dataSource, PageResult.TILE, mainThreadExecutor, receiver);
             mPositionOffset = positionOffset;
         }
 

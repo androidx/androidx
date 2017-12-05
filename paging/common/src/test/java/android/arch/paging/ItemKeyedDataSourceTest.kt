@@ -30,7 +30,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 
 @RunWith(JUnit4::class)
-class KeyedDataSourceTest {
+class ItemKeyedDataSourceTest {
 
     // ----- STANDARD -----
 
@@ -185,11 +185,11 @@ class KeyedDataSourceTest {
     fun loadBefore() {
         val dataSource = ItemDataSource()
         @Suppress("UNCHECKED_CAST")
-        val callback = mock(KeyedDataSource.LoadCallback::class.java)
-                as KeyedDataSource.LoadCallback<Item>
+        val callback = mock(ItemKeyedDataSource.LoadCallback::class.java)
+                as ItemKeyedDataSource.LoadCallback<Item>
 
         dataSource.loadBefore(
-                KeyedDataSource.LoadParams(dataSource.getKey(ITEMS_BY_NAME_ID[5]), 5), callback)
+                ItemKeyedDataSource.LoadParams(dataSource.getKey(ITEMS_BY_NAME_ID[5]), 5), callback)
 
         @Suppress("UNCHECKED_CAST")
         val argument = ArgumentCaptor.forClass(List::class.java) as ArgumentCaptor<List<Item>>
@@ -208,7 +208,7 @@ class KeyedDataSourceTest {
 
     internal class ItemDataSource(private val counted: Boolean = true,
                                   private val items: List<Item> = ITEMS_BY_NAME_ID)
-            : KeyedDataSource<Key, Item>() {
+            : ItemKeyedDataSource<Key, Item>() {
 
         override fun loadInitial(
                 params: LoadInitialParams<Key>,
@@ -256,9 +256,9 @@ class KeyedDataSourceTest {
         }
     }
 
-    private fun performInitialLoad(
-            callbackInvoker: (callback: KeyedDataSource.LoadInitialCallback<String>) -> Unit) {
-        val dataSource = object : KeyedDataSource<String, String>() {
+    private fun performLoadInitial(
+            callbackInvoker: (callback: ItemKeyedDataSource.LoadInitialCallback<String>) -> Unit) {
+        val dataSource = object : ItemKeyedDataSource<String, String>() {
             override fun getKey(item: String): String {
                 return ""
             }
@@ -287,38 +287,38 @@ class KeyedDataSourceTest {
     }
 
     @Test
-    fun initialLoadCallbackSuccess() = performInitialLoad {
+    fun loadInitialCallbackSuccess() = performLoadInitial {
         // LoadInitialCallback correct usage
         it.onResult(listOf("a", "b"), 0, 2)
     }
 
     @Test
-    fun initialLoadCallbackNotPageSizeMultiple() = performInitialLoad {
+    fun loadInitialCallbackNotPageSizeMultiple() = performLoadInitial {
         // Keyed LoadInitialCallback *can* accept result that's not a multiple of page size
         val elevenLetterList = List(11) { "" + 'a' + it }
         it.onResult(elevenLetterList, 0, 12)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun initialLoadCallbackListTooBig() = performInitialLoad {
+    fun loadInitialCallbackListTooBig() = performLoadInitial {
         // LoadInitialCallback can't accept pos + list > totalCount
         it.onResult(listOf("a", "b", "c"), 0, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun initialLoadCallbackPositionTooLarge() = performInitialLoad {
+    fun loadInitialCallbackPositionTooLarge() = performLoadInitial {
         // LoadInitialCallback can't accept pos + list > totalCount
         it.onResult(listOf("a", "b"), 1, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun initialLoadCallbackPositionNegative() = performInitialLoad {
+    fun loadInitialCallbackPositionNegative() = performLoadInitial {
         // LoadInitialCallback can't accept negative position
         it.onResult(listOf("a", "b", "c"), -1, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun initialLoadCallbackEmptyCannotHavePlaceholders() = performInitialLoad {
+    fun loadInitialCallbackEmptyCannotHavePlaceholders() = performLoadInitial {
         // LoadInitialCallback can't accept empty result unless data set is empty
         it.onResult(emptyList(), 0, 2)
     }
