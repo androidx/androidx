@@ -24,4 +24,5 @@
     <item name="page_7" type="id"/>
     <item name="page_8" type="id"/>
     <item name="page_9" type="id"/>
+    <item name="anchor" type="id"/>
 </resources>

@@ -22,8 +22,10 @@ import android.app.Instrumentation;
 import android.support.design.testutils.CoordinatorLayoutUtils;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
+import android.support.test.rule.ActivityTestRule;
 import android.view.View;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -35,8 +37,9 @@ import java.util.List;
 
 @RunWith(Parameterized.class)
 @MediumTest
-public class CoordinatorLayoutSortTest
-        extends BaseInstrumentationTestCase<CoordinatorLayoutActivity> {
+public class CoordinatorLayoutSortTest {
+    @Rule
+    public final ActivityTestRule<CoordinatorLayoutActivity> mActivityTestRule;
 
     private static final int NUMBER_VIEWS_DEPENDENCY_SORT = 4;
 
@@ -60,7 +63,7 @@ public class CoordinatorLayoutSortTest
 
     public CoordinatorLayoutSortTest(int firstIndex, int secondIndex, int thirdIndex,
             int fourthIndex) {
-        super(CoordinatorLayoutActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(CoordinatorLayoutActivity.class);
         mFirstAddIndex = firstIndex;
         mSecondAddIndex = secondIndex;
         mThirdAddIndex = thirdIndex;
@@ -86,8 +89,8 @@ public class CoordinatorLayoutSortTest
 
             // Create a Behavior which depends on the previously added view
             View dependency = i > 0 ? views.get(i - 1) : null;
-            final CoordinatorLayout.Behavior<View> behavior
-                    = new CoordinatorLayoutUtils.DependentBehavior(dependency);
+            final CoordinatorLayout.Behavior<View> behavior =
+                    new CoordinatorLayoutUtils.DependentBehavior(dependency);
 
             // And set its LayoutParams to use the Behavior
             CoordinatorLayout.LayoutParams lp = col.generateDefaultLayoutParams();

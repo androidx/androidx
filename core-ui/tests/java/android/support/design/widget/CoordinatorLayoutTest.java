@@ -42,13 +42,15 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
-import android.support.design.test.R;
+import android.support.coreui.test.R;
 import android.support.design.testutils.CoordinatorLayoutUtils;
 import android.support.design.testutils.CoordinatorLayoutUtils.DependentBehavior;
 import android.support.design.widget.CoordinatorLayout.Behavior;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
@@ -59,19 +61,24 @@ import android.view.View.MeasureSpec;
 import android.widget.ImageView;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @MediumTest
-public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<CoordinatorLayoutActivity> {
+@RunWith(AndroidJUnit4.class)
+public class CoordinatorLayoutTest {
+    @Rule
+    public final ActivityTestRule<CoordinatorLayoutActivity> mActivityTestRule;
 
     private Instrumentation mInstrumentation;
 
     public CoordinatorLayoutTest() {
-        super(CoordinatorLayoutActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(CoordinatorLayoutActivity.class);
     }
 
     @Before
@@ -383,14 +390,14 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
         final View viewA = new View(col.getContext());
         final View viewB = new View(col.getContext());
         final CoordinatorLayout.LayoutParams lpB = col.generateDefaultLayoutParams();
-        final CoordinatorLayout.Behavior behavior
-                = new CoordinatorLayoutUtils.DependentBehavior(viewA) {
-            @Override
-            public void onDependentViewRemoved(CoordinatorLayout parent, View child,
-                    View dependency) {
-                parent.getDependencies(child);
-            }
-        };
+        final CoordinatorLayout.Behavior behavior =
+                new CoordinatorLayoutUtils.DependentBehavior(viewA) {
+                    @Override
+                    public void onDependentViewRemoved(
+                            CoordinatorLayout parent, View child, View dependency) {
+                        parent.getDependencies(child);
+                    }
+                };
         lpB.setBehavior(behavior);
 
         // Now add views
