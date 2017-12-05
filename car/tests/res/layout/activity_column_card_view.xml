@@ -21,13 +21,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.car.widget.ColumnCardView
+    <androidx.car.widget.ColumnCardView
         android:id="@+id/default_width_column_card"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <android.support.car.widget.ColumnCardView
+    <androidx.car.widget.ColumnCardView
         car:columnSpan="2"
         android:id="@+id/span_2_column_card"
         android:layout_gravity="center"
