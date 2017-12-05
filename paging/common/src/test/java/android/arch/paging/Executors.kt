@@ -23,8 +23,8 @@ import java.util.concurrent.Executor
 class TestExecutor : Executor {
     private val mTasks = LinkedList<Runnable>()
 
-    override fun execute(command: Runnable) {
-        mTasks.add(command)
+    override fun execute(runnable: Runnable) {
+        mTasks.add(runnable)
     }
 
     internal fun executeAll(): Boolean {
@@ -40,7 +40,7 @@ class TestExecutor : Executor {
 }
 
 class FailExecutor(val string: String = "Executor expected to be unused") : Executor {
-    override fun execute(p0: Runnable?) {
+    override fun execute(runnable: Runnable?) {
         fail(string)
     }
 }
