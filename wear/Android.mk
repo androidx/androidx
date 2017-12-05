@@ -42,7 +42,8 @@ LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-core-ui \
     android-support-percent \
     android-support-v7-recyclerview \
-    android-support-v4
+    android-support-v4 \
+    android-support-constraint-layout
 LOCAL_STATIC_JAVA_LIBRARIES := \
     prebuilt-com.google.android.wearable-stubs
 LOCAL_JAR_EXCLUDE_FILES := none
