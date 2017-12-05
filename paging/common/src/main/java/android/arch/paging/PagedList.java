@@ -578,7 +578,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * If data is supplied by a {@link PositionalDataSource}, the item returned from
      * <code>get(i)</code> has a position of <code>i + getPositionOffset()</code>.
      * <p>
-     * If the DataSource is a {@link KeyedDataSource}, and thus doesn't use positions, returns 0.
+     * If the DataSource is a {@link ItemKeyedDataSource} or {@link PageKeyedDataSource}, it
+     * doesn't use positions, returns 0.
      */
     public int getPositionOffset() {
         return mStorage.getPositionOffset();
@@ -858,11 +859,13 @@ public abstract class PagedList<T> extends AbstractList<T> {
             }
 
             /**
-             * Defines how many items to load when first load occurs, if you are using a
-             * {@link KeyedDataSource}.
+             * Defines how many items to load when first load occurs.
              * <p>
              * This value is typically larger than page size, so on first load data there's a large
              * enough range of content loaded to cover small scrolls.
+             * <p>
+             * When using a {@link PositionalDataSource}, the initial load size will be coerced to
+             * an integer multiple of pageSize, to enable efficient tiling.
              * <p>
              * If not set, defaults to three times page size.
              *
@@ -874,7 +877,6 @@ public abstract class PagedList<T> extends AbstractList<T> {
                 this.mInitialLoadSizeHint = initialLoadSizeHint;
                 return this;
             }
-
 
             /**
              * Creates a {@link Config} with the given parameters.

@@ -16,6 +16,7 @@
 
 package android.arch.paging;
 
+import android.support.annotation.GuardedBy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -23,34 +24,65 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * Incremental data loader for paging keyed content, where loaded content uses previously loaded
- * items as input to future loads.
+ * Incremental data loader for page-keyed content, where requests return keys for next/previous
+ * pages.
  * <p>
- * Implement a DataSource using KeyedDataSource if you need to use data from item {@code N - 1}
- * to load item {@code N}. This is common, for example, in sorted database queries where
- * attributes of the item such just before the next query define how to execute it.
+ * Implement a DataSource using PageKeyedDataSource if you need to use data from page {@code N - 1}
+ * to load page {@code N}. This is common, for example, in network APIs that include a next/previous
+ * link or key with each page load.
  *
  * @param <Key> Type of data used to query Value types out of the DataSource.
  * @param <Value> Type of items being loaded by the DataSource.
  */
-public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<Key, Value> {
+public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSource<Key, Value> {
+    private final Object mKeyLock = new Object();
+
+    @Nullable
+    @GuardedBy("mKeyLock")
+    private Key mNextKey = null;
+
+    @Nullable
+    @GuardedBy("mKeyLock")
+    private Key mPreviousKey = null;
+
+    private void initKeys(@Nullable Key previousKey, @Nullable Key nextKey) {
+        synchronized (mKeyLock) {
+            mPreviousKey = previousKey;
+            mNextKey = nextKey;
+        }
+    }
+
+    private void setPreviousKey(@Nullable Key previousKey) {
+        synchronized (mKeyLock) {
+            mPreviousKey = previousKey;
+        }
+    }
+
+    private void setNextKey(@Nullable Key nextKey) {
+        synchronized (mKeyLock) {
+            mNextKey = nextKey;
+        }
+    }
+
+    private @Nullable Key getPreviousKey() {
+        synchronized (mKeyLock) {
+            return mPreviousKey;
+        }
+    }
+
+    private @Nullable Key getNextKey() {
+        synchronized (mKeyLock) {
+            return mNextKey;
+        }
+    }
 
     /**
      * Holder object for inputs to {@link #loadInitial(LoadInitialParams, LoadInitialCallback)}.
      *
-     * @param <Key> Type of data used to query Value types out of the DataSource.
+     * @param <Key> Type of data used to query pages.
      */
     @SuppressWarnings("WeakerAccess")
     public static class LoadInitialParams<Key> {
-        /**
-         * Load items around this key, or at the beginning of the data set if {@code null} is
-         * passed.
-         * <p>
-         * Note that this key is generally a hint
-         */
-        @Nullable
-        public final Key requestedInitialKey;
-
         /**
          * Requested number of items to load.
          * <p>
@@ -60,24 +92,23 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
 
         /**
          * Defines whether placeholders are enabled, and whether the total count passed to
-         * {@link LoadInitialCallback#onResult(List, int, int)} will be ignored.
+         * {@link LoadInitialCallback#onResult(List, int, int, Key, Key)} will be ignored.
          */
         public final boolean placeholdersEnabled;
 
 
-        LoadInitialParams(@Nullable Key requestedInitialKey, int requestedLoadSize,
+        LoadInitialParams(int requestedLoadSize,
                 boolean placeholdersEnabled) {
-            this.requestedInitialKey = requestedInitialKey;
             this.requestedLoadSize = requestedLoadSize;
             this.placeholdersEnabled = placeholdersEnabled;
         }
     }
 
     /**
-     * Holder object for inputs to {@link #loadBefore(LoadParams, LoadCallback)}
-     * and {@link #loadAfter(LoadParams, LoadCallback)}.
+     * Holder object for inputs to {@link #loadBefore(LoadParams, LoadCallback)} and
+     * {@link #loadAfter(LoadParams, LoadCallback)}.
      *
-     * @param <Key> Type of data used to query Value types out of the DataSource.
+     * @param <Key> Type of data used to query pages.
      */
     @SuppressWarnings("WeakerAccess")
     public static class LoadParams<Key> {
@@ -87,6 +118,7 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
          * Returned data must begin directly adjacent to this position.
          */
         public final Key key;
+
         /**
          * Requested number of items to load.
          * <p>
@@ -111,13 +143,16 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
      * callback and call it later. This enables DataSources to be fully asynchronous, and to handle
      * temporary, recoverable error states (such as a network error that can be retried).
      *
+     * @param <Key> Type of data used to query pages.
      * @param <Value> Type of items being loaded.
      */
-    public static class LoadInitialCallback<Value> extends LoadCallback<Value> {
+    public static class LoadInitialCallback<Key, Value> extends BaseLoadCallback<Value> {
+        private final PageKeyedDataSource<Key, Value> mDataSource;
         private final boolean mCountingEnabled;
-        LoadInitialCallback(@NonNull KeyedDataSource dataSource, boolean countingEnabled,
-                @NonNull PageResult.Receiver<Value> receiver) {
+        LoadInitialCallback(@NonNull PageKeyedDataSource<Key, Value> dataSource,
+                boolean countingEnabled, @NonNull PageResult.Receiver<Value> receiver) {
             super(dataSource, PageResult.INIT, null, receiver);
+            mDataSource = dataSource;
             mCountingEnabled = countingEnabled;
         }
 
@@ -142,8 +177,12 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
          *                   as well as any items that can be loaded in front or behind of
          *                   {@code data}.
          */
-        public void onResult(@NonNull List<Value> data, int position, int totalCount) {
+        public void onResult(@NonNull List<Value> data, int position, int totalCount,
+                @Nullable Key previousPageKey, @Nullable Key nextPageKey) {
             validateInitialLoadParams(data, position, totalCount);
+
+            // setup keys before dispatching data, so guaranteed to be ready
+            mDataSource.initKeys(previousPageKey, nextPageKey);
 
             int trailingUnloadedCount = totalCount - position - data.size();
             if (mCountingEnabled) {
@@ -153,33 +192,9 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
                 dispatchResultToReceiver(new PageResult<>(data, position));
             }
         }
-    }
-
-    /**
-     * Callback for KeyedDataSource {@link #loadBefore(LoadParams, LoadCallback)}
-     * and {@link #loadAfter(LoadParams, LoadCallback)} to return data.
-     * <p>
-     * A callback can be called only once, and will throw if called again.
-     * <p>
-     * It is always valid for a DataSource loading method that takes a callback to stash the
-     * callback and call it later. This enables DataSources to be fully asynchronous, and to handle
-     * temporary, recoverable error states (such as a network error that can be retried).
-     *
-     * @param <Value> Type of items being loaded.
-     */
-    public static class LoadCallback<Value> extends BaseLoadCallback<Value> {
-        LoadCallback(@NonNull KeyedDataSource dataSource, @PageResult.ResultType int type,
-                @Nullable Executor mainThreadExecutor,
-                @NonNull PageResult.Receiver<Value> receiver) {
-            super(type, dataSource, mainThreadExecutor, receiver);
-        }
 
         /**
          * Called to pass loaded data from a DataSource.
-         * <p>
-         * Call this method from your KeyedDataSource's
-         * {@link #loadBefore(LoadParams, LoadCallback)} and
-         * {@link #loadAfter(LoadParams, LoadCallback)} methods to return data.
          * <p>
          * Call this from {@link #loadInitial(LoadInitialParams, LoadInitialCallback)} to
          * initialize without counting available data, or supporting placeholders.
@@ -187,30 +202,89 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
          * It is always valid to pass a different amount of data than what is requested. Pass an
          * empty list if there is no more data to load.
          *
-         * @param data List of items loaded from the KeyedDataSource.
+         * @param data List of items loaded from the PageKeyedDataSource.
+         * @param previousPageKey Key for page before the initial load result, or {@code null} if no
+         *                        more data can be loaded before.
+         * @param nextPageKey Key for page after the initial load result, or {@code null} if no
+         *                        more data can be loaded after.
          */
-        public void onResult(@NonNull List<Value> data) {
+        public void onResult(@NonNull List<Value> data, @Nullable Key previousPageKey,
+                @Nullable Key nextPageKey) {
             dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
+            mDataSource.initKeys(previousPageKey, nextPageKey);
+        }
+    }
+
+    /**
+     * Callback for PageKeyedDataSource {@link #loadBefore(LoadParams, LoadCallback)} and
+     * {@link #loadAfter(LoadParams, LoadCallback)} to return data.
+     * <p>
+     * A callback can be called only once, and will throw if called again.
+     * <p>
+     * It is always valid for a DataSource loading method that takes a callback to stash the
+     * callback and call it later. This enables DataSources to be fully asynchronous, and to handle
+     * temporary, recoverable error states (such as a network error that can be retried).
+     *
+     * @param <Key> Type of data used to query pages.
+     * @param <Value> Type of items being loaded.
+     */
+    public static class LoadCallback<Key, Value> extends BaseLoadCallback<Value> {
+        private final PageKeyedDataSource<Key, Value> mDataSource;
+        LoadCallback(@NonNull PageKeyedDataSource<Key, Value> dataSource,
+                @PageResult.ResultType int type, @Nullable Executor mainThreadExecutor,
+                @NonNull PageResult.Receiver<Value> receiver) {
+            super(dataSource, type, mainThreadExecutor, receiver);
+            mDataSource = dataSource;
+        }
+
+        /**
+         * Called to pass loaded data from a DataSource.
+         * <p>
+         * Call this method from your PageKeyedDataSource's
+         * {@link #loadBefore(LoadParams, LoadCallback)} and
+         * {@link #loadAfter(LoadParams, LoadCallback)} methods to return data.
+         * <p>
+         * It is always valid to pass a different amount of data than what is requested. Pass an
+         * empty list if there is no more data to load.
+         * <p>
+         * Pass the key for the subsequent page to load to adjacentPageKey. For example, if you've
+         * loaded a page in {@link #loadBefore(LoadParams, LoadCallback)}, pass the key for the
+         * previous page, or {@code null} if the loaded page is the first. If in
+         * {@link #loadAfter(LoadParams, LoadCallback)}, pass the key for the next page, or
+         * {@code null} if the loaded page is the last.
+         *
+         * @param data List of items loaded from the PageKeyedDataSource.
+         * @param adjacentPageKey Key for subsequent page load (previous page in {@link #loadBefore}
+         *                        / next page in {@link #loadAfter}), or {@code null} if there are
+         *                        no more pages to load in the current load direction.
+         */
+        public void onResult(@NonNull List<Value> data, @Nullable Key adjacentPageKey) {
+            dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
+
+            // Note: we currently ignore next key on loadBefore and prev key on loadAfter.
+            // We will need these once we start dropping pages, if we want to requery the first page
+            if (mResultType == PageResult.APPEND) {
+                mDataSource.setNextKey(adjacentPageKey);
+            } else {
+                mDataSource.setPreviousKey(adjacentPageKey);
+            }
         }
     }
 
     @Nullable
     @Override
     final Key getKey(int position, Value item) {
-        if (item == null) {
-            return null;
-        }
-
-        return getKey(item);
+        // don't attempt to persist keys, since we currently don't pass them to initial load
+        return null;
     }
 
     @Override
     final void dispatchLoadInitial(@Nullable Key key, int initialLoadSize, int pageSize,
             boolean enablePlaceholders, @NonNull Executor mainThreadExecutor,
             @NonNull PageResult.Receiver<Value> receiver) {
-        LoadInitialCallback<Value> callback =
+        LoadInitialCallback<Key, Value> callback =
                 new LoadInitialCallback<>(this, enablePlaceholders, receiver);
-        loadInitial(new LoadInitialParams<>(key, initialLoadSize, enablePlaceholders), callback);
+        loadInitial(new LoadInitialParams<Key>(initialLoadSize, enablePlaceholders), callback);
 
         // If initialLoad's callback is not called within the body, we force any following calls
         // to post to the UI thread. This constructor may be run on a background thread, but
@@ -218,20 +292,27 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
         callback.setPostExecutor(mainThreadExecutor);
     }
 
+
     @Override
     final void dispatchLoadAfter(int currentEndIndex, @NonNull Value currentEndItem,
             int pageSize, @NonNull Executor mainThreadExecutor,
             @NonNull PageResult.Receiver<Value> receiver) {
-        loadAfter(new LoadParams<>(getKey(currentEndItem), pageSize),
-                new LoadCallback<>(this, PageResult.APPEND, mainThreadExecutor, receiver));
+        @Nullable Key key = getNextKey();
+        if (key != null) {
+            loadAfter(new LoadParams<>(key, pageSize),
+                    new LoadCallback<>(this, PageResult.APPEND, mainThreadExecutor, receiver));
+        }
     }
 
     @Override
     final void dispatchLoadBefore(int currentBeginIndex, @NonNull Value currentBeginItem,
             int pageSize, @NonNull Executor mainThreadExecutor,
             @NonNull PageResult.Receiver<Value> receiver) {
-        loadBefore(new LoadParams<>(getKey(currentBeginItem), pageSize),
-                new LoadCallback<>(this, PageResult.PREPEND, mainThreadExecutor, receiver));
+        @Nullable Key key = getPreviousKey();
+        if (key != null) {
+            loadBefore(new LoadParams<>(key, pageSize),
+                    new LoadCallback<>(this, PageResult.PREPEND, mainThreadExecutor, receiver));
+        }
     }
 
     /**
@@ -240,81 +321,55 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
      * This method is called first to initialize a PagedList with data. If it's possible to count
      * the items that can be loaded by the DataSource, it's recommended to pass the loaded data to
      * the callback via the three-parameter
-     * {@link LoadInitialCallback#onResult(List, int, int)}. This enables PagedLists
+     * {@link LoadInitialCallback#onResult(List, int, int, Object, Object)}. This enables PagedLists
      * presenting data from this source to display placeholders to represent unloaded items.
      * <p>
-     * {@link LoadInitialParams#requestedInitialKey} and {@link LoadInitialParams#requestedLoadSize}
-     * are hints, not requirements, so they may be altered or ignored. Note that ignoring the
-     * {@code requestedInitialKey} can prevent subsequent PagedList/DataSource pairs from
-     * initializing at the same location. If your data source never invalidates (for example,
-     * loading from the network without the network ever signalling that old data must be reloaded),
-     * it's fine to ignore the {@code initialLoadKey} and always start from the beginning of the
-     * data set.
+     * {@link LoadInitialParams#requestedLoadSize} is a hint, not a requirement, so it may be may be
+     * altered or ignored.
      *
-     * @param params Parameters for initial load, including initial key and requested size.
+     * @param params Parameters for initial load, including requested load size.
      * @param callback Callback that receives initial load data.
      */
     public abstract void loadInitial(@NonNull LoadInitialParams<Key> params,
-            @NonNull LoadInitialCallback<Value> callback);
+            @NonNull LoadInitialCallback<Key, Value> callback);
 
     /**
-     * Load list data after the key specified in {@link LoadParams#key LoadParams.key}.
+     * Prepend page with the key specified by {@link LoadParams#key LoadParams.key}.
      * <p>
      * It's valid to return a different list size than the page size if it's easier, e.g. if your
      * backend defines page sizes. It is generally safer to increase the number loaded than reduce.
      * <p>
-     * Data may be passed synchronously during the loadAfter method, or deferred and called at a
+     * Data may be passed synchronously during the load method, or deferred and called at a
      * later time. Further loads going down will be blocked until the callback is called.
      * <p>
      * If data cannot be loaded (for example, if the request is invalid, or the data would be stale
      * and inconsistent, it is valid to call {@link #invalidate()} to invalidate the data source,
      * and prevent further loading.
      *
-     * @param params Parameters for the load, including the key to load after, and requested size.
+     * @param params Parameters for the load, including the key for the new page, and requested load
+     *               size.
      * @param callback Callback that receives loaded data.
      */
-    public abstract void loadAfter(@NonNull LoadParams<Key> params,
-            @NonNull LoadCallback<Value> callback);
+    public abstract void loadBefore(@NonNull LoadParams<Key> params,
+            @NonNull LoadCallback<Key, Value> callback);
 
     /**
-     * Load list data before the key specified in {@link LoadParams#key LoadParams.key}.
+     * Append page with the key specified by {@link LoadParams#key LoadParams.key}.
      * <p>
      * It's valid to return a different list size than the page size if it's easier, e.g. if your
      * backend defines page sizes. It is generally safer to increase the number loaded than reduce.
      * <p>
-     * <p class="note"><strong>Note:</strong> Data returned will be prepended just before the key
-     * passed, so if you vary size, ensure that the last item is adjacent to the passed key.
-     * <p>
-     * Data may be passed synchronously during the loadBefore method, or deferred and called at a
-     * later time. Further loads going up will be blocked until the callback is called.
+     * Data may be passed synchronously during the load method, or deferred and called at a
+     * later time. Further loads going down will be blocked until the callback is called.
      * <p>
      * If data cannot be loaded (for example, if the request is invalid, or the data would be stale
      * and inconsistent, it is valid to call {@link #invalidate()} to invalidate the data source,
      * and prevent further loading.
      *
-     * @param params Parameters for the load, including the key to load before, and requested size.
+     * @param params Parameters for the load, including the key for the new page, and requested load
+     *               size.
      * @param callback Callback that receives loaded data.
      */
-    public abstract void loadBefore(@NonNull LoadParams<Key> params,
-            @NonNull LoadCallback<Value> callback);
-
-    /**
-     * Return a key associated with the given item.
-     * <p>
-     * If your KeyedDataSource is loading from a source that is sorted and loaded by a unique
-     * integer ID, you would return {@code item.getID()} here. This key can then be passed to
-     * {@link #loadBefore(LoadParams, LoadCallback)} or
-     * {@link #loadAfter(LoadParams, LoadCallback)} to load additional items adjacent to the item
-     * passed to this function.
-     * <p>
-     * If your key is more complex, such as when you're sorting by name, then resolving collisions
-     * with integer ID, you'll need to return both. In such a case you would use a wrapper class,
-     * such as {@code Pair<String, Integer>} or, in Kotlin,
-     * {@code data class Key(val name: String, val id: Int)}
-     *
-     * @param item Item to get the key from.
-     * @return Key associated with given item.
-     */
-    @NonNull
-    public abstract Key getKey(@NonNull Value item);
+    public abstract void loadAfter(@NonNull LoadParams<Key> params,
+            @NonNull LoadCallback<Key, Value> callback);
 }
