@@ -303,5 +303,40 @@
         <attr name="showSeekBarValue" format="boolean" />
     </declare-styleable>
 
+    <declare-styleable name="SwitchPreference">
+        <!-- The summary for the Preference in a PreferenceActivity screen when the
+             SwitchPreference is checked. If separate on/off summaries are not
+             needed, the summary attribute can be used instead. -->
+        <attr name="summaryOn" />
+        <attr name="android:summaryOn" />
+        <!-- The summary for the Preference in a PreferenceActivity screen when the
+             SwitchPreference is unchecked. If separate on/off summaries are not
+             needed, the summary attribute can be used instead. -->
+        <attr name="summaryOff" />
+        <attr name="android:summaryOff" />
+        <!-- The text used on the switch itself when in the "on" state.
+             This should be a very SHORT string, as it appears in a small space. -->
+        <attr name="switchTextOn"/>
+        <attr name="android:switchTextOn"/>
+        <!-- The text used on the switch itself when in the "off" state.
+             This should be a very SHORT string, as it appears in a small space. -->
+        <attr name="switchTextOff" />
+        <attr name="android:switchTextOff" />
+        <!-- The state (true for on, or false for off) that causes dependents to be disabled. By default,
+             dependents will be disabled when this is unchecked, so the value of this preference is false. -->
+        <attr name="disableDependentsState" />
+        <attr name="android:disableDependentsState" />
+    </declare-styleable>
 
+    <!-- Base attributes available to PreferenceFragment. -->
+    <declare-styleable name="PreferenceFragment">
+        <!-- The layout for the PreferenceFragment. This should rarely need to be changed. -->
+        <attr name="android:layout" />
+        <!-- List separator to draw between preference views -->
+        <attr name="android:divider" />
+        <!-- List separator height -->
+        <attr name="android:dividerHeight" />
+        <!-- Whether a divider is allowed to draw after the last item -->
+        <attr name="allowDividerAfterLastItem" />
+    </declare-styleable>
 </resources>

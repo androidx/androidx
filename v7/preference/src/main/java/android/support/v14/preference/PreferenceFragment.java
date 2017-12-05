@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package android.support.v14.preference;
@@ -44,6 +44,7 @@ import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceRecyclerViewAccessibilityDelegate;
 import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.preference.PreferenceViewHolder;
+import android.support.v7.preference.R;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -145,7 +146,7 @@ public abstract class PreferenceFragment extends Fragment implements
     private final DividerDecoration mDividerDecoration = new DividerDecoration();
 
     private static final int MSG_BIND_PREFERENCES = 1;
-    private Handler mHandler = new Handler() {
+    private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -157,7 +158,7 @@ public abstract class PreferenceFragment extends Fragment implements
         }
     };
 
-    final private Runnable mRequestFocus = new Runnable() {
+    private final Runnable mRequestFocus = new Runnable() {
         @Override
         public void run() {
             mList.focusableViewAvailable(mList);
@@ -484,7 +485,7 @@ public abstract class PreferenceFragment extends Fragment implements
                 handled = ((OnPreferenceStartFragmentCallback) getCallbackFragment())
                         .onPreferenceStartFragment(this, preference);
             }
-            if (!handled && getActivity() instanceof OnPreferenceStartFragmentCallback){
+            if (!handled && getActivity() instanceof OnPreferenceStartFragmentCallback) {
                 handled = ((OnPreferenceStartFragmentCallback) getActivity())
                         .onPreferenceStartFragment(this, preference);
             }
@@ -656,8 +657,8 @@ public abstract class PreferenceFragment extends Fragment implements
         } else if (preference instanceof MultiSelectListPreference) {
             f = MultiSelectListPreferenceDialogFragment.newInstance(preference.getKey());
         } else {
-            throw new IllegalArgumentException("Tried to display dialog for unknown " +
-                    "preference type. Did you forget to override onDisplayPreferenceDialog()?");
+            throw new IllegalArgumentException("Tried to display dialog for unknown "
+                    + "preference type. Did you forget to override onDisplayPreferenceDialog()?");
         }
         f.setTargetFragment(this, 0);
         f.show(getFragmentManager(), DIALOG_FRAGMENT_TAG);
@@ -686,8 +687,7 @@ public abstract class PreferenceFragment extends Fragment implements
             @Override
             public void run() {
                 final RecyclerView.Adapter adapter = mList.getAdapter();
-                if (!(adapter instanceof
-                        PreferenceGroup.PreferencePositionCallback)) {
+                if (!(adapter instanceof PreferenceGroup.PreferencePositionCallback)) {
                     if (adapter != null) {
                         throw new IllegalStateException("Adapter must implement "
                                 + "PreferencePositionCallback");
@@ -726,7 +726,7 @@ public abstract class PreferenceFragment extends Fragment implements
         private final Preference mPreference;
         private final String mKey;
 
-        public ScrollToPreferenceObserver(RecyclerView.Adapter adapter, RecyclerView list,
+        ScrollToPreferenceObserver(RecyclerView.Adapter adapter, RecyclerView list,
                 Preference preference, String key) {
             mAdapter = adapter;
             mList = list;

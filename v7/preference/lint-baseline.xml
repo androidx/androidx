@@ -67,4 +67,37 @@
             column="9"/>
     </issue>
 
+    <issue
+        id="Suspicious0dp"
+        message="Suspicious size: this will make the view invisible, should be used with `layout_weight`"
+        errorLine1="        android:layout_width=&quot;0dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="res/layout-v17/preference_dropdown_material.xml"
+            line="32"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="Suspicious0dp"
+        message="Suspicious size: this will make the view invisible, should be used with `layout_weight`"
+        errorLine1="        android:layout_width=&quot;0dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="res/layout-v21/preference_dropdown_material.xml"
+            line="32"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="Suspicious0dp"
+        message="Suspicious size: this will make the view invisible, should be used with `layout_weight`"
+        errorLine1="        android:layout_width=&quot;0dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="res/layout/preference_dropdown_material.xml"
+            line="32"
+            column="9"/>
+    </issue>
+
 </issues>
