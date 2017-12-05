@@ -3,7 +3,10 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":design"))
+    implementation("com.android.support:design:28.0.0-SNAPSHOT", { transitive = false })
+    implementation(project(":transition"))
+    implementation(project(":recyclerview-v7"))
+    implementation(project(":appcompat-v7"))
 }
 
 android {
