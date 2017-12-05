@@ -22,6 +22,7 @@ import static android.view.View.SYSTEM_UI_FLAG_LOW_PROFILE;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewConfigurationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -46,6 +47,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
 
     private final View mAnchor;
     private final CharSequence mTooltipText;
+    private final int mHoverSlop;
 
     private final Runnable mShowRunnable = new Runnable() {
         @Override
@@ -104,6 +106,9 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
     private TooltipCompatHandler(View anchor, CharSequence tooltipText) {
         mAnchor = anchor;
         mTooltipText = tooltipText;
+        mHoverSlop = ViewConfigurationCompat.getScaledHoverSlop(
+                ViewConfiguration.get(mAnchor.getContext()));
+        clearAnchorPos();
 
         mAnchor.setOnLongClickListener(this);
         mAnchor.setOnHoverListener(this);
@@ -129,13 +134,12 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
         }
         switch (event.getAction()) {
             case MotionEvent.ACTION_HOVER_MOVE:
-                if (mAnchor.isEnabled() && mPopup == null) {
-                    mAnchorX = (int) event.getX();
-                    mAnchorY = (int) event.getY();
+                if (mAnchor.isEnabled() && mPopup == null && updateAnchorPos(event)) {
                     setPendingHandler(this);
                 }
                 break;
             case MotionEvent.ACTION_HOVER_EXIT:
+                clearAnchorPos();
                 hide();
                 break;
         }
@@ -188,6 +192,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
             if (mPopup != null) {
                 mPopup.hide();
                 mPopup = null;
+                clearAnchorPos();
                 mAnchor.removeOnAttachStateChangeListener(this);
             } else {
                 Log.e(TAG, "sActiveHandler.mPopup == null");
@@ -215,5 +220,32 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
 
     private void cancelPendingShow() {
         mAnchor.removeCallbacks(mShowRunnable);
+    }
+
+    /**
+     * Update the anchor position if it significantly (that is by at least mHoverSlope)
+     * different from the previously stored position. Ignoring insignificant changes
+     * filters out the jitter which is typical for such input sources as stylus.
+     *
+     * @return True if the position has been updated.
+     */
+    private boolean updateAnchorPos(MotionEvent event) {
+        final int newAnchorX = (int) event.getX();
+        final int newAnchorY = (int) event.getY();
+        if (Math.abs(newAnchorX - mAnchorX) <= mHoverSlop
+                && Math.abs(newAnchorY - mAnchorY) <= mHoverSlop) {
+            return false;
+        }
+        mAnchorX = newAnchorX;
+        mAnchorY = newAnchorY;
+        return true;
+    }
+
+    /**
+     *  Clear the anchor position to ensure that the next change is considered significant.
+     */
+    private void clearAnchorPos() {
+        mAnchorX = Integer.MAX_VALUE;
+        mAnchorY = Integer.MAX_VALUE;
     }
 }
