@@ -97,12 +97,12 @@ class ValidateJarInput extends DefaultTask {
                         if (i > 0) {
                             // If we get here, we know this is some timing issues.  The jar file is
                             // properly created, but only if we wait.
-                            log.error("Succeeded in opening jar file '$f' after $i retries.  Failing build.")
+                            logger.error("Succeeded in opening jar file '$f' after $i retries.  Failing build.")
                             throw new RuntimeException("Failed opening zip file earlier.")
                         }
                         break
                     } catch (ZipException e) {
-                        log.error("Error opening jar file '$f' (attempt: $i): $e.message")
+                        logger.error("Error opening jar file '$f' (attempt: $i): $e.message")
                         sleep(1000)
                     } finally {
                         if (zip != null) {
