@@ -50,8 +50,9 @@ public final class LiveDataReactiveStreams {
      * will buffer the latest item and emit it to the subscriber when data is again requested. Any
      * other items emitted during the time there was no backpressure requested will be dropped.
      */
+    @NonNull
     public static <T> Publisher<T> toPublisher(
-            final LifecycleOwner lifecycle, final LiveData<T> liveData) {
+            @NonNull LifecycleOwner lifecycle, @NonNull LiveData<T> liveData) {
 
         return new LiveDataPublisher<>(lifecycle, liveData);
     }
@@ -60,7 +61,7 @@ public final class LiveDataReactiveStreams {
         final LifecycleOwner mLifecycle;
         final LiveData<T> mLiveData;
 
-        LiveDataPublisher(final LifecycleOwner lifecycle, final LiveData<T> liveData) {
+        LiveDataPublisher(LifecycleOwner lifecycle, LiveData<T> liveData) {
             this.mLifecycle = lifecycle;
             this.mLiveData = liveData;
         }
@@ -91,7 +92,7 @@ public final class LiveDataReactiveStreams {
             }
 
             @Override
-            public void onChanged(T t) {
+            public void onChanged(@Nullable T t) {
                 if (mCanceled) {
                     return;
                 }
@@ -183,7 +184,8 @@ public final class LiveDataReactiveStreams {
      *
      * @param <T> The type of data hold by this instance.
      */
-    public static <T> LiveData<T> fromPublisher(final Publisher<T> publisher) {
+    @NonNull
+    public static <T> LiveData<T> fromPublisher(@NonNull Publisher<T> publisher) {
         return new PublisherLiveData<>(publisher);
     }
 
