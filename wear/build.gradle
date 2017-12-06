@@ -18,7 +18,7 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 
-    provided fileTree(dir: 'wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
+    compileOnly fileTree(dir: 'wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
 }
 
 android {
