@@ -108,18 +108,57 @@ public class CardView extends FrameLayout {
     final Rect mShadowBounds = new Rect();
 
     public CardView(@NonNull Context context) {
-        super(context);
-        initialize(context, null, 0);
+        this(context, null);
     }
 
     public CardView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        initialize(context, attrs, 0);
+        this(context, attrs, R.attr.cardViewStyle);
     }
 
     public CardView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initialize(context, attrs, defStyleAttr);
+
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CardView, defStyleAttr,
+                R.style.CardView);
+        ColorStateList backgroundColor;
+        if (a.hasValue(R.styleable.CardView_cardBackgroundColor)) {
+            backgroundColor = a.getColorStateList(R.styleable.CardView_cardBackgroundColor);
+        } else {
+            // There isn't one set, so we'll compute one based on the theme
+            final TypedArray aa = getContext().obtainStyledAttributes(COLOR_BACKGROUND_ATTR);
+            final int themeColorBackground = aa.getColor(0, 0);
+            aa.recycle();
+
+            // If the theme colorBackground is light, use our own light color, otherwise dark
+            final float[] hsv = new float[3];
+            Color.colorToHSV(themeColorBackground, hsv);
+            backgroundColor = ColorStateList.valueOf(hsv[2] > 0.5f
+                    ? getResources().getColor(R.color.cardview_light_background)
+                    : getResources().getColor(R.color.cardview_dark_background));
+        }
+        float radius = a.getDimension(R.styleable.CardView_cardCornerRadius, 0);
+        float elevation = a.getDimension(R.styleable.CardView_cardElevation, 0);
+        float maxElevation = a.getDimension(R.styleable.CardView_cardMaxElevation, 0);
+        mCompatPadding = a.getBoolean(R.styleable.CardView_cardUseCompatPadding, false);
+        mPreventCornerOverlap = a.getBoolean(R.styleable.CardView_cardPreventCornerOverlap, true);
+        int defaultPadding = a.getDimensionPixelSize(R.styleable.CardView_contentPadding, 0);
+        mContentPadding.left = a.getDimensionPixelSize(R.styleable.CardView_contentPaddingLeft,
+                defaultPadding);
+        mContentPadding.top = a.getDimensionPixelSize(R.styleable.CardView_contentPaddingTop,
+                defaultPadding);
+        mContentPadding.right = a.getDimensionPixelSize(R.styleable.CardView_contentPaddingRight,
+                defaultPadding);
+        mContentPadding.bottom = a.getDimensionPixelSize(R.styleable.CardView_contentPaddingBottom,
+                defaultPadding);
+        if (elevation > maxElevation) {
+            maxElevation = elevation;
+        }
+        mUserSetMinWidth = a.getDimensionPixelSize(R.styleable.CardView_android_minWidth, 0);
+        mUserSetMinHeight = a.getDimensionPixelSize(R.styleable.CardView_android_minHeight, 0);
+        a.recycle();
+
+        IMPL.initialize(mCardViewDelegate, context, backgroundColor, radius,
+                elevation, maxElevation);
     }
 
     @Override
@@ -218,50 +257,6 @@ public class CardView extends FrameLayout {
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
-    }
-
-    private void initialize(Context context, AttributeSet attrs, int defStyleAttr) {
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CardView, defStyleAttr,
-                R.style.CardView);
-        ColorStateList backgroundColor;
-        if (a.hasValue(R.styleable.CardView_cardBackgroundColor)) {
-            backgroundColor = a.getColorStateList(R.styleable.CardView_cardBackgroundColor);
-        } else {
-            // There isn't one set, so we'll compute one based on the theme
-            final TypedArray aa = getContext().obtainStyledAttributes(COLOR_BACKGROUND_ATTR);
-            final int themeColorBackground = aa.getColor(0, 0);
-            aa.recycle();
-
-            // If the theme colorBackground is light, use our own light color, otherwise dark
-            final float[] hsv = new float[3];
-            Color.colorToHSV(themeColorBackground, hsv);
-            backgroundColor = ColorStateList.valueOf(hsv[2] > 0.5f
-                    ? getResources().getColor(R.color.cardview_light_background)
-                    : getResources().getColor(R.color.cardview_dark_background));
-        }
-        float radius = a.getDimension(R.styleable.CardView_cardCornerRadius, 0);
-        float elevation = a.getDimension(R.styleable.CardView_cardElevation, 0);
-        float maxElevation = a.getDimension(R.styleable.CardView_cardMaxElevation, 0);
-        mCompatPadding = a.getBoolean(R.styleable.CardView_cardUseCompatPadding, false);
-        mPreventCornerOverlap = a.getBoolean(R.styleable.CardView_cardPreventCornerOverlap, true);
-        int defaultPadding = a.getDimensionPixelSize(R.styleable.CardView_contentPadding, 0);
-        mContentPadding.left = a.getDimensionPixelSize(R.styleable.CardView_contentPaddingLeft,
-                defaultPadding);
-        mContentPadding.top = a.getDimensionPixelSize(R.styleable.CardView_contentPaddingTop,
-                defaultPadding);
-        mContentPadding.right = a.getDimensionPixelSize(R.styleable.CardView_contentPaddingRight,
-                defaultPadding);
-        mContentPadding.bottom = a.getDimensionPixelSize(R.styleable.CardView_contentPaddingBottom,
-                defaultPadding);
-        if (elevation > maxElevation) {
-            maxElevation = elevation;
-        }
-        mUserSetMinWidth = a.getDimensionPixelSize(R.styleable.CardView_android_minWidth, 0);
-        mUserSetMinHeight = a.getDimensionPixelSize(R.styleable.CardView_android_minHeight, 0);
-        a.recycle();
-
-        IMPL.initialize(mCardViewDelegate, context, backgroundColor, radius,
-                elevation, maxElevation);
     }
 
     @Override
