@@ -278,28 +278,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
         @Override
         public void notifyChildrenChanged(final String parentId, final Bundle options) {
-            if (mMessenger == null) {
-                MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
-            } else {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (IBinder binder : mConnections.keySet()) {
-                            ConnectionRecord connection = mConnections.get(binder);
-                            List<Pair<IBinder, Bundle>> callbackList =
-                                    connection.subscriptions.get(parentId);
-                            if (callbackList != null) {
-                                for (Pair<IBinder, Bundle> callback : callbackList) {
-                                    if (MediaBrowserCompatUtils.hasDuplicatedItems(
-                                            options, callback.second)) {
-                                        performLoadChildren(parentId, connection, callback.second);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
+            notifyChildrenChangedForFramework(parentId, options);
+            notifyChildrenChangedForCompat(parentId, options);
         }
 
         @Override
@@ -373,6 +353,31 @@ public abstract class MediaBrowserServiceCompat extends Service {
             };
             MediaBrowserServiceCompat.this.onLoadChildren(parentId, result);
         }
+
+        void notifyChildrenChangedForFramework(final String parentId, final Bundle options) {
+            MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
+        }
+
+        void notifyChildrenChangedForCompat(final String parentId, final Bundle options) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    for (IBinder binder : mConnections.keySet()) {
+                        ConnectionRecord connection = mConnections.get(binder);
+                        List<Pair<IBinder, Bundle>> callbackList =
+                                connection.subscriptions.get(parentId);
+                        if (callbackList != null) {
+                            for (Pair<IBinder, Bundle> callback : callbackList) {
+                                if (MediaBrowserCompatUtils.hasDuplicatedItems(
+                                        options, callback.second)) {
+                                    performLoadChildren(parentId, connection, callback.second);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 
     @RequiresApi(23)
@@ -421,16 +426,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
 
         @Override
-        public void notifyChildrenChanged(final String parentId, final Bundle options) {
-            if (options == null) {
-                MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
-            } else {
-                MediaBrowserServiceCompatApi26.notifyChildrenChanged(mServiceObj, parentId,
-                        options);
-            }
-        }
-
-        @Override
         public void onLoadChildren(String parentId,
                 final MediaBrowserServiceCompatApi26.ResultWrapper resultWrapper, Bundle options) {
             final Result<List<MediaBrowserCompat.MediaItem>> result
@@ -465,6 +460,16 @@ public abstract class MediaBrowserServiceCompat extends Service {
                         : new Bundle(mCurConnection.rootHints);
             }
             return MediaBrowserServiceCompatApi26.getBrowserRootHints(mServiceObj);
+        }
+
+        @Override
+        void notifyChildrenChangedForFramework(final String parentId, final Bundle options) {
+            if (options != null) {
+                MediaBrowserServiceCompatApi26.notifyChildrenChanged(mServiceObj, parentId,
+                        options);
+            } else {
+                super.notifyChildrenChangedForFramework(parentId, options);
+            }
         }
     }
 

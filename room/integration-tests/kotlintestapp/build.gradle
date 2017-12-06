@@ -36,6 +36,14 @@ android {
             }
         }
     }
+
+    signingConfigs {
+        debug {
+            // Use a local debug keystore to avoid build server issues.
+            storeFile project.rootProject.init.debugKeystore
+        }
+    }
+
     testOptions {
         unitTests.returnDefaultValues = true
     }
@@ -59,11 +67,11 @@ dependencies {
     kapt project(":room:compiler")
     kaptAndroidTest project(":room:compiler")
 
-    androidTestCompile(libs.test_runner) {
+    androidTestImplementation(libs.test_runner) {
         exclude module: 'support-annotations'
         exclude module: 'hamcrest-core'
     }
-    androidTestCompile(libs.espresso_core, {
+    androidTestImplementation(libs.espresso_core, {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude module: "hamcrest-core"
     })

@@ -1,4 +1,9 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 ext {
     fontDir = project(':noto-emoji-compat').projectDir
@@ -29,13 +34,22 @@ android {
     }
 
     sourceSets {
-        main.res.srcDirs += 'src/main/res-public'
-        main.resources {
-            srcDirs = [fontDir.getAbsolutePath()]
-            includes = ["LICENSE_UNICODE", "LICENSE_OFL"]
+        main {
+            // We use a non-standard manifest path.
+            manifest.srcFile 'AndroidManifest.xml'
+            res.srcDirs += 'src/main/res-public'
+            resources {
+                srcDirs = [fontDir.getAbsolutePath()]
+                includes = ["LICENSE_UNICODE", "LICENSE_OFL"]
+            }
         }
 
         androidTest {
+            // We use a non-standard test directory structure.
+            root 'tests'
+            java.srcDir 'tests/src'
+            res.srcDir 'tests/res'
+            manifest.srcFile 'tests/AndroidManifest.xml'
             assets {
                 srcDirs = [new File(fontDir, "font").getAbsolutePath(),
                            new File(fontDir, "supported-emojis").getAbsolutePath()]
@@ -45,18 +59,20 @@ android {
 }
 
 supportLibrary {
-    name 'Android Emoji Compat'
-    publish true
-    inceptionYear '2017'
-    description 'Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters.'
+    name = "Android Emoji Compat"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2017"
+    description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
 
     license {
-        name 'SIL Open Font License, Version 1.1'
-        url  'http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web'
+        name = "SIL Open Font License, Version 1.1"
+        url = "http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
     }
 
     license {
-        name 'Unicode, Inc. License'
-        url 'http://www.unicode.org/copyright.html#License'
+        name = "Unicode, Inc. License"
+        url = "http://www.unicode.org/copyright.html#License"
     }
 }

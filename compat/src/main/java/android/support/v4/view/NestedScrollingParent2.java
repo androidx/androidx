@@ -18,7 +18,6 @@
 package android.support.v4.view;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat.NestedScrollType;
 import android.support.v4.view.ViewCompat.ScrollAxis;
 import android.view.MotionEvent;
@@ -144,7 +143,7 @@ public interface NestedScrollingParent2 extends NestedScrollingParent {
      * @param consumed Output. The horizontal and vertical scroll distance consumed by this parent
      * @param type the type of input which cause this scroll event
      */
-    void onNestedPreScroll(@NonNull View target, int dx, int dy, @Nullable int[] consumed,
+    void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed,
             @NestedScrollType int type);
 
 }

@@ -27,6 +27,14 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    signingConfigs {
+        debug {
+            // Use a local debug keystore to avoid build server issues.
+            storeFile project.rootProject.init.debugKeystore
+        }
+    }
+
     testOptions {
         unitTests.returnDefaultValues = true
     }
@@ -37,17 +45,17 @@ android {
 }
 
 dependencies {
-    compile project(':arch:runtime')
-    compile project(':arch:common')
-    compile project(':paging:common')
-    compile project(':lifecycle:extensions')
-    compile project(':lifecycle:runtime')
-    compile project(':lifecycle:common')
-    compile project(':paging:runtime')
-    compile 'com.android.support:multidex:1.0.1'
+    implementation project(':arch:runtime')
+    implementation project(':arch:common')
+    implementation project(':paging:common')
+    implementation project(':lifecycle:extensions')
+    implementation project(':lifecycle:runtime')
+    implementation project(':lifecycle:common')
+    implementation project(':paging:runtime')
+    implementation 'com.android.support:multidex:1.0.1'
 
-    compile libs.support.recyclerview, libs.support_exclude_config
-    compile libs.support.app_compat, libs.support_exclude_config
+    implementation libs.support.recyclerview, libs.support_exclude_config
+    implementation libs.support.app_compat, libs.support_exclude_config
 }
 
 createAndroidCheckstyle(project)

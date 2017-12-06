@@ -31,6 +31,8 @@ import android.support.v4.widget.AutoSizeableTextView;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 
 /**
@@ -360,5 +362,11 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
             }
         }
         return new int[0];
+    }
+
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        return AppCompatHintHelper.onCreateInputConnection(super.onCreateInputConnection(outAttrs),
+                outAttrs, this);
     }
 }

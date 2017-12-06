@@ -35,17 +35,17 @@ class PagedStorageDiffHelperTest {
     @Test
     fun sameListNoUpdates() {
         validateTwoListDiff(
-                PagedStorage(5, createPage("a", "b", "c"), 5),
-                PagedStorage(5, createPage("a", "b", "c"), 5)) {
+                PagedStorage(5, listOf("a", "b", "c"), 5),
+                PagedStorage(5, listOf("a", "b", "c"), 5)) {
             verifyZeroInteractions(it)
         }
     }
 
     @Test
     fun sameListNoUpdatesPlaceholder() {
-        val storageNoPlaceholder = PagedStorage(0, createPage("a", "b", "c"), 10)
+        val storageNoPlaceholder = PagedStorage(0, listOf("a", "b", "c"), 10)
 
-        val storageWithPlaceholder = PagedStorage(0, createPage("a", "b", "c"), 10)
+        val storageWithPlaceholder = PagedStorage(0, listOf("a", "b", "c"), 10)
         storageWithPlaceholder.allocatePlaceholders(3, 0, 3,
                 /* ignored */ mock(PagedStorage.Callback::class.java))
 
@@ -64,8 +64,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun appendFill() {
         validateTwoListDiff(
-                PagedStorage(5, createPage("a", "b"), 5),
-                PagedStorage(5, createPage("a", "b", "c"), 4)) {
+                PagedStorage(5, listOf("a", "b"), 5),
+                PagedStorage(5, listOf("a", "b", "c"), 4)) {
             verify(it).onRemoved(11, 1)
             verify(it).onInserted(7, 1)
             // NOTE: ideally would be onChanged(7, 1, null)
@@ -76,8 +76,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun prependFill() {
         validateTwoListDiff(
-                PagedStorage(5, createPage("b", "c"), 5),
-                PagedStorage(4, createPage("a", "b", "c"), 5)) {
+                PagedStorage(5, listOf("b", "c"), 5),
+                PagedStorage(4, listOf("a", "b", "c"), 5)) {
             verify(it).onRemoved(0, 1)
             verify(it).onInserted(4, 1)
             //NOTE: ideally would be onChanged(4, 1, null);
@@ -88,8 +88,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun change() {
         validateTwoListDiff(
-                PagedStorage(5, createPage("a1", "b1", "c1"), 5),
-                PagedStorage(5, createPage("a2", "b1", "c2"), 5)) {
+                PagedStorage(5, listOf("a1", "b1", "c1"), 5),
+                PagedStorage(5, listOf("a2", "b1", "c2"), 5)) {
             verify(it).onChanged(5, 1, null)
             verify(it).onChanged(7, 1, null)
             verifyNoMoreInteractions(it)
@@ -108,12 +108,8 @@ class PagedStorageDiffHelperTest {
             }
         }
 
-        private fun createPage(vararg items: String): Page<Int, String> {
-            return Page(items.toList())
-        }
-
-        private fun validateTwoListDiff(oldList: PagedStorage<*, String>,
-                                        newList: PagedStorage<*, String>,
+        private fun validateTwoListDiff(oldList: PagedStorage<String>,
+                                        newList: PagedStorage<String>,
                                         validator: (callback: ListUpdateCallback) -> Unit) {
             val diffResult = PagedStorageDiffHelper.computeDiff(
                     oldList, newList, DIFF_CALLBACK)

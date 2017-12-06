@@ -1,4 +1,9 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-annotations')
@@ -33,13 +38,11 @@ android {
 }
 
 supportLibrary {
-    name 'Android Wear Support UI'
-    publish true
-    inceptionYear '2016'
-    description 'Android Wear Support UI'
-
-    license {
-        name 'The Apache Software License, Version 2.0'
-        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    }
+    name = "Android Wear Support UI"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2016"
+    description = "Android Wear Support UI"
+    legacySourceLocation = true
 }

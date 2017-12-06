@@ -17,13 +17,13 @@
 package android.arch.paging
 
 class StringPagedList constructor(leadingNulls: Int, trailingNulls: Int, vararg items: String)
-        : PagedList<String>(PagedStorage<Int, String>(), TestExecutor(), TestExecutor(), null,
+        : PagedList<String>(PagedStorage<String>(), TestExecutor(), TestExecutor(), null,
                 PagedList.Config.Builder().setPageSize(1).build()), PagedStorage.Callback {
     init {
         @Suppress("UNCHECKED_CAST")
-        val keyedStorage = mStorage as PagedStorage<Int, String>
+        val keyedStorage = mStorage as PagedStorage<String>
         keyedStorage.init(leadingNulls,
-                Page<Int, String>(null, items.toList(), null),
+                items.toList(),
                 trailingNulls,
                 0,
                 this)
