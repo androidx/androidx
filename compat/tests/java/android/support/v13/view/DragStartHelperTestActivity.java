@@ -18,7 +18,7 @@ package android.support.v13.view;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v13.test.R;
+import android.support.compat.test.R;
 
 public class DragStartHelperTestActivity extends Activity {
     @Override
