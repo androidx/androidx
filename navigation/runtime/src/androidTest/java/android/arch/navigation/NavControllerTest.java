@@ -36,6 +36,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.TaskStackBuilder;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -291,7 +292,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateOptionPopUpTo() throws Throwable {
+    public void testNavigateOptionPopUpToInAction() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
@@ -304,6 +305,39 @@ public class NavControllerTest {
         navController.navigate(R.id.finish);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
         assertThat(navigator.mBackStack.size(), is(1));
+    }
+
+    @Test
+    public void testNavigateWithPopUpOptionsOnly() throws Throwable {
+        NavigationActivity activity = launchActivity();
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.navigation.nav_simple);
+        navController.navigate(R.id.second_test);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+                .getNavigator(TestNavigator.class);
+        assertThat(navigator.mBackStack.size(), is(2));
+
+        NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.start_test, false).build();
+        // the same as to call .navigate(R.id.finish)
+        navController.navigate(0, null, navOptions);
+
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+    }
+
+    @Test
+    public void testNoDestinationNoPopUpTo() throws Throwable {
+        NavigationActivity activity = launchActivity();
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.navigation.nav_simple);
+        NavOptions options = new NavOptions.Builder().build();
+        try {
+            navController.navigate(0, null, options);
+            Assert.fail("navController.navigate must throw");
+        } catch (IllegalArgumentException e) {
+            // expected exception
+        }
     }
 
     @Test

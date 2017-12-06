@@ -588,12 +588,17 @@ public class NavController {
                 navOptions = navAction.getNavOptions();
             }
             destId = navAction.getDestinationId();
-            if (destId == 0 && navOptions != null && navOptions.getPopUpTo() != 0) {
-                // Handle pop only actions here. Actions with a destinationId will be handled below
-                popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
-                return;
-            }
         }
+        if (destId == 0 && navOptions != null && navOptions.getPopUpTo() != 0) {
+            popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
+            return;
+        }
+
+        if (destId == 0) {
+            throw new IllegalArgumentException("Destination id == 0 can only be used"
+                    + " in conjunction with navOptions.popUpTo != 0");
+        }
+
         NavDestination node = findDestination(destId);
         if (node == null) {
             final String dest = Navigation.getDisplayName(mContext, destId);
