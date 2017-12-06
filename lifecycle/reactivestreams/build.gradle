@@ -39,7 +39,7 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(RX_JAVA)
-    testImplementation(TEST_RUNNER, libs.exclude_annotations)
+    testImplementation(TEST_RUNNER)
 
     androidTestImplementation libs.support.app_compat, libs.support_exclude_config
 }

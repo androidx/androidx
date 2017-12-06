@@ -27,7 +27,7 @@ dependencies {
     testImplementation(MOCKITO_CORE)
 
     androidTestImplementation(JUNIT)
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(TEST_RUNNER)
 }
 
 supportLibrary {
