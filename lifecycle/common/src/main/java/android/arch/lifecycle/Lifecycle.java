@@ -108,6 +108,7 @@ public abstract class Lifecycle {
      * @return The current state of the Lifecycle.
      */
     @MainThread
+    @NonNull
     public abstract State getCurrentState();
 
     @SuppressWarnings("WeakerAccess")
