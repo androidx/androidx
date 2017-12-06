@@ -30,8 +30,19 @@ import java.util.Arrays;
 
 /**
  * Helper for accessing features in {@link Fragment} in a backwards compatible fashion.
+ *
+ * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework fragment.
  */
+@Deprecated
 public class FragmentCompat {
+
+    /**
+     * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework fragment.
+     */
+    @Deprecated
+    public FragmentCompat() {
+    }
+
     interface FragmentCompatImpl {
         void setUserVisibleHint(Fragment f, boolean deferStart);
         void requestPermissions(Fragment fragment, String[] permissions, int requestCode);
@@ -48,7 +59,11 @@ public class FragmentCompat {
      *     to the compatibility methods in this class will first check whether the delegate can
      *     handle the method call, and invoke the corresponding method if it can.
      * </p>
+     *
+     * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework
+     * {@link Fragment}.
      */
+    @Deprecated
     public interface PermissionCompatDelegate {
 
         /**
@@ -66,7 +81,11 @@ public class FragmentCompat {
          *
          * @return Whether the delegate has handled the permission request.
          * @see FragmentCompat#requestPermissions(Fragment, String[], int)
+         *
+         * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework
+         * {@link Fragment}.
          */
+        @Deprecated
         boolean requestPermissions(Fragment fragment, String[] permissions, int requestCode);
     }
 
@@ -157,22 +176,34 @@ public class FragmentCompat {
      * delegate.
      *
      * @param delegate The delegate to be set. {@code null} to clear the set delegate.
+     *
+     * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework
+     * {@link Fragment}.
      */
+    @Deprecated
     public static void setPermissionCompatDelegate(PermissionCompatDelegate delegate) {
         sDelegate = delegate;
     }
 
     /**
      * @hide
+     *
+     * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework
+     * {@link Fragment}.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Deprecated
     public static PermissionCompatDelegate getPermissionCompatDelegate() {
         return sDelegate;
     }
 
     /**
      * This interface is the contract for receiving the results for permission requests.
+     *
+     * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework
+     * {@link Fragment}.
      */
+    @Deprecated
     public interface OnRequestPermissionsResultCallback {
 
         /**
@@ -188,7 +219,11 @@ public class FragmentCompat {
          *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
          *
          * @see #requestPermissions(android.app.Fragment, String[], int)
+         *
+         * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework
+         * {@link Fragment}.
          */
+        @Deprecated
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                 @NonNull int[] grantResults);
     }
@@ -197,7 +232,8 @@ public class FragmentCompat {
      * Call {@link Fragment#setMenuVisibility(boolean) Fragment.setMenuVisibility(boolean)}
      * if running on an appropriate version of the platform.
      *
-     * @deprecated Use {@link Fragment#setMenuVisibility(boolean)} directly.
+     * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework
+     * {@link Fragment}.
      */
     @Deprecated
     public static void setMenuVisibility(Fragment f, boolean visible) {
@@ -207,7 +243,11 @@ public class FragmentCompat {
     /**
      * Call {@link Fragment#setUserVisibleHint(boolean) setUserVisibleHint(boolean)}
      * if running on an appropriate version of the platform.
+     *
+     * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework
+     * {@link Fragment}.
      */
+    @Deprecated
     public static void setUserVisibleHint(Fragment f, boolean deferStart) {
         IMPL.setUserVisibleHint(f, deferStart);
     }
@@ -262,7 +302,11 @@ public class FragmentCompat {
      * @see android.support.v4.content.ContextCompat#checkSelfPermission(
      *     android.content.Context, String)
      * @see #shouldShowRequestPermissionRationale(android.app.Fragment, String)
+     *
+     * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework
+     * {@link Fragment}.
      */
+    @Deprecated
     public static void requestPermissions(@NonNull Fragment fragment,
             @NonNull String[] permissions, int requestCode) {
         if (sDelegate != null && sDelegate.requestPermissions(fragment, permissions, requestCode)) {
@@ -293,7 +337,11 @@ public class FragmentCompat {
      * @see android.support.v4.content.ContextCompat#checkSelfPermission(
      *     android.content.Context, String)
      * @see #requestPermissions(android.app.Fragment, String[], int)
+     *
+     * @deprecated Use {@link android.support.v4.app.Fragment} instead of the framework
+     * {@link Fragment}.
      */
+    @Deprecated
     public static boolean shouldShowRequestPermissionRationale(@NonNull Fragment fragment,
             @NonNull String permission) {
         return IMPL.shouldShowRequestPermissionRationale(fragment, permission);
