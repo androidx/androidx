@@ -29,12 +29,15 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.TextView;
+
+import java.lang.ref.WeakReference;
 
 @RequiresApi(9)
 class AppCompatTextHelper {
@@ -63,6 +66,7 @@ class AppCompatTextHelper {
 
     private int mStyle = Typeface.NORMAL;
     private Typeface mFontTypeface;
+    private boolean mAsyncFontPending;
 
     AppCompatTextHelper(TextView view) {
         mView = view;
@@ -209,12 +213,27 @@ class AppCompatTextHelper {
         if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)
                 || a.hasValue(R.styleable.TextAppearance_fontFamily)) {
             mFontTypeface = null;
-            int fontFamilyId = a.hasValue(R.styleable.TextAppearance_android_fontFamily)
-                    ? R.styleable.TextAppearance_android_fontFamily
-                    : R.styleable.TextAppearance_fontFamily;
+            int fontFamilyId = a.hasValue(R.styleable.TextAppearance_fontFamily)
+                    ? R.styleable.TextAppearance_fontFamily
+                    : R.styleable.TextAppearance_android_fontFamily;
             if (!context.isRestricted()) {
+                final WeakReference<TextView> textViewWeak = new WeakReference<>(mView);
+                ResourcesCompat.FontCallback replyCallback = new ResourcesCompat.FontCallback() {
+                    @Override
+                    public void onFontRetrieved(@NonNull Typeface typeface) {
+                        onAsyncTypefaceReceived(textViewWeak, typeface);
+                    }
+
+                    @Override
+                    public void onFontRetrievalFailed(int reason) {
+                        // Do nothing.
+                    }
+                };
                 try {
-                    mFontTypeface = a.getFont(fontFamilyId, mStyle);
+                    // Note the callback will be triggered on the UI thread.
+                    mFontTypeface = a.getFont(fontFamilyId, mStyle, replyCallback);
+                    // If this call gave us an immediate result, ignore any pending callbacks.
+                    mAsyncFontPending = mFontTypeface == null;
                 } catch (UnsupportedOperationException | Resources.NotFoundException e) {
                     // Expected if it is not a font resource.
                 }
@@ -222,12 +241,16 @@ class AppCompatTextHelper {
             if (mFontTypeface == null) {
                 // Try with String. This is done by TextView JB+, but fails in ICS
                 String fontFamilyName = a.getString(fontFamilyId);
-                mFontTypeface = Typeface.create(fontFamilyName, mStyle);
+                if (fontFamilyName != null) {
+                    mFontTypeface = Typeface.create(fontFamilyName, mStyle);
+                }
             }
             return;
         }
 
         if (a.hasValue(R.styleable.TextAppearance_android_typeface)) {
+            // Ignore previous pending fonts
+            mAsyncFontPending = false;
             int typefaceIndex = a.getInt(R.styleable.TextAppearance_android_typeface, SANS);
             switch (typefaceIndex) {
                 case SANS:
@@ -241,6 +264,16 @@ class AppCompatTextHelper {
                 case MONOSPACE:
                     mFontTypeface = Typeface.MONOSPACE;
                     break;
+            }
+        }
+    }
+
+    private void onAsyncTypefaceReceived(WeakReference<TextView> textViewWeak, Typeface typeface) {
+        if (mAsyncFontPending) {
+            mFontTypeface = typeface;
+            final TextView textView = textViewWeak.get();
+            if (textView != null) {
+                textView.setTypeface(typeface, mStyle);
             }
         }
     }

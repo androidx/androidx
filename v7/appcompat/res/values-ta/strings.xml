@@ -18,7 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_action_mode_done" msgid="4076576682505996667">"முடிந்தது"</string>
     <string name="abc_action_bar_home_description" msgid="4600421777120114993">"முகப்பிற்கு வழிசெலுத்து"</string>
-    <string name="abc_action_bar_up_description" msgid="1594238315039666878">"மேலே வழிசெலுத்து"</string>
+    <string name="abc_action_bar_up_description" msgid="1594238315039666878">"மேலே செல்"</string>
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"மேலும் விருப்பங்கள்"</string>
     <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"சுருக்கு"</string>
     <string name="abc_searchview_description_search" msgid="8264924765203268293">"தேடு"</string>

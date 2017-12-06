@@ -18,6 +18,7 @@ package android.support.text.emoji.widget;
 
 import static android.support.text.emoji.util.EmojiMatcher.sameCharSequence;
 
+import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertFalse;
 
 import static org.junit.Assert.assertEquals;
@@ -84,6 +85,21 @@ public class EmojiExtractTextLayoutTest {
         final ExtractButtonCompat extractButton = inputExtractAccessories.findViewById(
                 R.id.inputExtractAction);
         assertNotNull(extractButton);
+    }
+
+    @Test
+    @UiThreadTest
+    public void testSetKeyListener_withNull() {
+        final Context context = InstrumentationRegistry.getTargetContext();
+        final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
+                .inflate(android.support.text.emoji.test.R.layout.extract_view, null);
+
+        final EmojiExtractEditText extractEditText = layout.findViewById(
+                android.R.id.inputExtractEditText);
+        assertNotNull(extractEditText);
+
+        extractEditText.setKeyListener(null);
+        assertNull(extractEditText.getKeyListener());
     }
 
     @Test

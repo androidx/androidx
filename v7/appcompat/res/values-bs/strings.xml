@@ -26,7 +26,7 @@
     <string name="abc_searchview_description_query" msgid="2550479030709304392">"Pretraži upit"</string>
     <string name="abc_searchview_description_clear" msgid="3691816814315814921">"Obriši upit"</string>
     <string name="abc_searchview_description_submit" msgid="8928215447528550784">"Pošalji upit"</string>
-    <string name="abc_searchview_description_voice" msgid="893419373245838918">"Pretraživanje glasom"</string>
+    <string name="abc_searchview_description_voice" msgid="893419373245838918">"Glasovno pretraživanje"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"Odaberite aplikaciju"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"Prikaži sve"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"Podijeli koristeći aplikaciju <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>

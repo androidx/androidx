@@ -37,7 +37,6 @@ public class AmbientModeDemo extends FragmentActivity implements
         setContentView(R.layout.ambient_demo);
         mStateTextView = findViewById(R.id.ambient_text);
         AmbientMode.AmbientController controller = AmbientMode.attachAmbientSupport(this);
-        controller.setAutoResumeEnabled(true);
     }
 
     @Override

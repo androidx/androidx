@@ -33,7 +33,7 @@ limitations under the License.
     <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"‏عقب بردن %1$dX"</string>
     <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"رد شدن از بعدی"</string>
     <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"رد شدن از قبلی"</string>
-    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"عملکردهای بیشتر"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"کنش‌های بیشتر"</string>
     <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"لغو انتخاب رأی موافق"</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"انتخاب رأی موافق"</string>
     <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"لغو انتخاب رأی مخالف"</string>

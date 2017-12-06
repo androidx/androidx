@@ -22,7 +22,6 @@ apply plugin: android.support.SupportJavaLibraryPlugin
 sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
 }
-project.ext.noDocs = true
 dependencies {
     compile project(":room:common")
     compile libs.kotlin.stdlib
