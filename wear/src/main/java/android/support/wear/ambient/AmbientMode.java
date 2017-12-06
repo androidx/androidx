@@ -22,7 +22,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import com.google.android.wearable.compat.WearableActivityController;
 
@@ -45,7 +44,7 @@ import java.io.PrintWriter;
  * <p>
  * <pre class="prettyprint">{@code
  *     AmbientMode.AmbientController controller = AmbientMode.attachAmbientSupport(this);
- *     controller.setAutoResumeEnabled(true);
+ *     boolean isAmbient =  controller.isAmbient();
  * }</pre>
  */
 public final class AmbientMode extends Fragment {
@@ -261,20 +260,6 @@ public final class AmbientMode extends Fragment {
 
         // Do not initialize outside of this class.
         AmbientController() {}
-
-        /**
-         * Sets whether this activity's task should be moved to the front when the system exits
-         * ambient mode. If true, the activity's task may be moved to the front if it was the last
-         * activity to be running when ambient started, depending on how much time the system spent
-         * in ambient mode.
-         */
-        public void setAutoResumeEnabled(boolean enabled) {
-            if (mDelegate != null) {
-                mDelegate.setAutoResumeEnabled(enabled);
-            } else {
-                Log.w(TAG, "The fragment is not yet fully initialized, this call is a no-op");
-            }
-        }
 
         /**
          * @return {@code true} if the activity is currently in ambient.

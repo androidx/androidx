@@ -230,13 +230,13 @@ final class PagedStorage<K, V> extends AbstractList<V> {
 
     // ---------------- Contiguous API -------------------
 
-    V getFirstContiguousItem() {
+    V getFirstLoadedItem() {
         // safe to access first page's first item here:
         // If contiguous, mPages can't be empty, can't hold null Pages, and items can't be empty
         return mPages.get(0).items.get(0);
     }
 
-    V getLastContiguousItem() {
+    V getLastLoadedItem() {
         // safe to access last page's last item here:
         // If contiguous, mPages can't be empty, can't hold null Pages, and items can't be empty
         Page<K, V> page = mPages.get(mPages.size() - 1);

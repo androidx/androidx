@@ -16,8 +16,10 @@
 
 package android.arch.paging;
 
+import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import java.lang.ref.WeakReference;
@@ -93,15 +95,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @param <T> The type of the entries in the list.
  */
 public abstract class PagedList<T> extends AbstractList<T> {
+    @NonNull
     final Executor mMainThreadExecutor;
+    @NonNull
     final Executor mBackgroundThreadExecutor;
+    @Nullable
+    final BoundaryCallback<T> mBoundaryCallback;
+    @NonNull
     final Config mConfig;
-
     @NonNull
     final PagedStorage<?, T> mStorage;
 
     int mLastLoad = 0;
     T mLastItem = null;
+
+    // if set to true, mBoundaryCallback is non-null, and should
+    // be dispatched when nearby load has occurred
+    private boolean mBoundaryCallbackBeginDeferred = false;
+    private boolean mBoundaryCallbackEndDeferred = false;
+
+    // lowest and highest index accessed by loadAround. Used to
+    // decide when mBoundaryCallback should be dispatched
+    private int mLowestIndexAccessed = Integer.MAX_VALUE;
+    private int mHighestIndexAccessed = Integer.MIN_VALUE;
 
     private final AtomicBoolean mDetached = new AtomicBoolean(false);
 
@@ -110,10 +126,12 @@ public abstract class PagedList<T> extends AbstractList<T> {
     PagedList(@NonNull PagedStorage<?, T> storage,
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
+            @Nullable BoundaryCallback<T> boundaryCallback,
             @NonNull Config config) {
         mStorage = storage;
         mMainThreadExecutor = mainThreadExecutor;
         mBackgroundThreadExecutor = backgroundThreadExecutor;
+        mBoundaryCallback = boundaryCallback;
         mConfig = config;
     }
 
@@ -127,6 +145,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
      *                           Generally, this is the UI/main thread.
      * @param backgroundThreadExecutor Data loading will be done via this executor - should be a
      *                                 background thread.
+     * @param boundaryCallback Optional boundary callback to attach to the list.
      * @param config PagedList Config, which defines how the PagedList will load data.
      * @param <K> Key type that indicates to the DataSource what data to load.
      * @param <T> Type of items to be held and loaded by the PagedList.
@@ -137,9 +156,10 @@ public abstract class PagedList<T> extends AbstractList<T> {
     private static <K, T> PagedList<T> create(@NonNull DataSource<K, T> dataSource,
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
+            @Nullable BoundaryCallback<T> boundaryCallback,
             @NonNull Config config,
             @Nullable K key) {
-        if (dataSource.isContiguous() || !config.mEnablePlaceholders) {
+        if (dataSource.isContiguous() || !config.enablePlaceholders) {
             if (!dataSource.isContiguous()) {
                 //noinspection unchecked
                 dataSource = (DataSource<K, T>) ((TiledDataSource<T>) dataSource).getAsContiguous();
@@ -148,12 +168,14 @@ public abstract class PagedList<T> extends AbstractList<T> {
             return new ContiguousPagedList<>(contigDataSource,
                     mainThreadExecutor,
                     backgroundThreadExecutor,
+                    boundaryCallback,
                     config,
                     key);
         } else {
             return new TiledPagedList<>((TiledDataSource<T>) dataSource,
                     mainThreadExecutor,
                     backgroundThreadExecutor,
+                    boundaryCallback,
                     config,
                     (key != null) ? (Integer) key : 0);
         }
@@ -184,6 +206,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
         private DataSource<Key, Value> mDataSource;
         private Executor mMainThreadExecutor;
         private Executor mBackgroundThreadExecutor;
+        private BoundaryCallback mBoundaryCallback;
         private Config mConfig;
         private Key mInitialKey;
 
@@ -226,6 +249,14 @@ public abstract class PagedList<T> extends AbstractList<T> {
             mBackgroundThreadExecutor = backgroundThreadExecutor;
             return this;
         }
+
+        @NonNull
+        public Builder<Key, Value> setBoundaryCallback(
+                @Nullable BoundaryCallback boundaryCallback) {
+            mBoundaryCallback = boundaryCallback;
+            return this;
+        }
+
 
         /**
          * The Config defining how the PagedList should load from the DataSource.
@@ -282,10 +313,12 @@ public abstract class PagedList<T> extends AbstractList<T> {
                 throw new IllegalArgumentException("Config required");
             }
 
+            //noinspection unchecked
             return PagedList.create(
                     mDataSource,
                     mMainThreadExecutor,
                     mBackgroundThreadExecutor,
+                    mBoundaryCallback,
                     mConfig,
                     mInitialKey);
         }
@@ -310,7 +343,6 @@ public abstract class PagedList<T> extends AbstractList<T> {
         return item;
     }
 
-
     /**
      * Load adjacent items to passed index.
      *
@@ -319,8 +351,122 @@ public abstract class PagedList<T> extends AbstractList<T> {
     public void loadAround(int index) {
         mLastLoad = index + getPositionOffset();
         loadAroundInternal(index);
+
+        mLowestIndexAccessed = Math.min(mLowestIndexAccessed, index);
+        mHighestIndexAccessed = Math.max(mHighestIndexAccessed, index);
+
+        /*
+         * mLowestIndexAccessed / mHighestIndexAccessed have been updated, so check if we need to
+         * dispatch boundary callbacks. Boundary callbacks are deferred until last items are loaded,
+         * and accesses happen near the boundaries.
+         *
+         * Note: we post here, since RecyclerView may want to add items in response, and this
+         * call occurs in PagedListAdapter bind.
+         */
+        tryDispatchBoundaryCallbacks(true);
     }
 
+    // Creation thread for initial synchronous load, otherwise main thread
+    // Safe to access main thread only state - no other thread has reference during construction
+    @AnyThread
+    void deferBoundaryCallbacks(final boolean deferEmpty,
+            final boolean deferBegin, final boolean deferEnd) {
+        if (mBoundaryCallback == null) {
+            throw new IllegalStateException("Computing boundary");
+        }
+
+        /*
+         * If lowest/highest haven't been initialized, set them to storage size,
+         * since placeholders must already be computed by this point.
+         *
+         * This is just a minor optimization so that BoundaryCallback callbacks are sent immediately
+         * if the initial load size is smaller than the prefetch window (see
+         * TiledPagedListTest#boundaryCallback_immediate())
+         */
+        if (mLowestIndexAccessed == Integer.MAX_VALUE) {
+            mLowestIndexAccessed = mStorage.size();
+        }
+        if (mHighestIndexAccessed == Integer.MIN_VALUE) {
+            mHighestIndexAccessed = 0;
+        }
+
+        if (deferEmpty || deferBegin || deferEnd) {
+            // Post to the main thread, since we may be on creation thread currently
+            mMainThreadExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // on is dispatched immediately, since items won't be accessed
+                    //noinspection ConstantConditions
+                    if (deferEmpty) {
+                        mBoundaryCallback.onZeroItemsLoaded();
+                    }
+
+                    // for other callbacks, mark deferred, and only dispatch if loadAround
+                    // has been called near to the position
+                    if (deferBegin) {
+                        mBoundaryCallbackBeginDeferred = true;
+                    }
+                    if (deferEnd) {
+                        mBoundaryCallbackEndDeferred = true;
+                    }
+                    tryDispatchBoundaryCallbacks(false);
+                }
+            });
+        }
+    }
+
+    /**
+     * Call this when mLowest/HighestIndexAccessed are changed, or
+     * mBoundaryCallbackBegin/EndDeferred is set.
+     */
+    private void tryDispatchBoundaryCallbacks(boolean post) {
+        final boolean dispatchBegin = mBoundaryCallbackBeginDeferred
+                && mLowestIndexAccessed <= mConfig.prefetchDistance;
+        final boolean dispatchEnd = mBoundaryCallbackEndDeferred
+                && mHighestIndexAccessed >= size() - mConfig.prefetchDistance;
+
+        if (!dispatchBegin && !dispatchEnd) {
+            return;
+        }
+
+        if (dispatchBegin) {
+            mBoundaryCallbackBeginDeferred = false;
+        }
+        if (dispatchEnd) {
+            mBoundaryCallbackEndDeferred = false;
+        }
+        if (post) {
+            mMainThreadExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    dispatchBoundaryCallbacks(dispatchBegin, dispatchEnd);
+                }
+            });
+        } else {
+            dispatchBoundaryCallbacks(dispatchBegin, dispatchEnd);
+        }
+    }
+
+    private void dispatchBoundaryCallbacks(boolean begin, boolean end) {
+        // safe to deref mBoundaryCallback here, since we only defer if mBoundaryCallback present
+        if (begin) {
+            //noinspection ConstantConditions
+            mBoundaryCallback.onItemAtFrontLoaded(
+                    snapshot(), mStorage.getFirstLoadedItem(), mStorage.size());
+        }
+        if (end) {
+            //noinspection ConstantConditions
+            mBoundaryCallback.onItemAtEndLoaded(
+                    snapshot(), mStorage.getLastLoadedItem(), mStorage.size());
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    void offsetBoundaryAccessIndices(int offset) {
+        mLowestIndexAccessed += offset;
+        mHighestIndexAccessed += offset;
+    }
 
     /**
      * Returns size of the list, including any not-yet-loaded null padding.
@@ -349,6 +495,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
      *
      * @return Immutable snapshot of PagedList data.
      */
+    @SuppressWarnings("WeakerAccess")
     @NonNull
     public List<T> snapshot() {
         if (isImmutable()) {
@@ -359,6 +506,16 @@ public abstract class PagedList<T> extends AbstractList<T> {
     }
 
     abstract boolean isContiguous();
+
+    /**
+     * Return the Config used to construct this PagedList.
+     *
+     * @return the Config of this PagedList
+     */
+    @NonNull
+    public Config getConfig() {
+        return mConfig;
+    }
 
     /**
      * Return the key for the position passed most recently to {@link #loadAround(int)}.
@@ -480,6 +637,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
         if (count != 0) {
             for (int i = mCallbacks.size() - 1; i >= 0; i--) {
                 Callback callback = mCallbacks.get(i).get();
+
                 if (callback != null) {
                     callback.onChanged(position, count);
                 }
@@ -538,17 +696,41 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * {@link Builder#setPageSize(int)}, which defines number of items loaded at a time}.
      */
     public static class Config {
-        final int mPageSize;
-        final int mPrefetchDistance;
-        final boolean mEnablePlaceholders;
-        final int mInitialLoadSizeHint;
+        /**
+         * Size of each page loaded by the PagedList.
+         */
+        public final int pageSize;
+
+        /**
+         * Prefetch distance which defines how far ahead to load.
+         * <p>
+         * If this value is set to 50, the paged list will attempt to load 50 items in advance of
+         * data that's already been accessed.
+         *
+         * @see PagedList#loadAround(int)
+         */
+        @SuppressWarnings("WeakerAccess")
+        public final int prefetchDistance;
+
+        /**
+         * Defines whether the PagedList may display null placeholders, if the DataSource provides
+         * them.
+         */
+        @SuppressWarnings("WeakerAccess")
+        public final boolean enablePlaceholders;
+
+        /**
+         * Size hint for initial load of PagedList, often larger than a regular page.
+         */
+        @SuppressWarnings("WeakerAccess")
+        public final int initialLoadSizeHint;
 
         private Config(int pageSize, int prefetchDistance,
                 boolean enablePlaceholders, int initialLoadSizeHint) {
-            mPageSize = pageSize;
-            mPrefetchDistance = prefetchDistance;
-            mEnablePlaceholders = enablePlaceholders;
-            mInitialLoadSizeHint = initialLoadSizeHint;
+            this.pageSize = pageSize;
+            this.prefetchDistance = prefetchDistance;
+            this.enablePlaceholders = enablePlaceholders;
+            this.initialLoadSizeHint = initialLoadSizeHint;
         }
 
         /**
@@ -688,5 +870,16 @@ public abstract class PagedList<T> extends AbstractList<T> {
                         mEnablePlaceholders, mInitialLoadSizeHint);
             }
         }
+    }
+
+    /**
+     * WIP API for load-more-into-local-storage callbacks
+     */
+    public abstract static class BoundaryCallback<T> {
+        public abstract void onZeroItemsLoaded();
+        public abstract void onItemAtFrontLoaded(@NonNull List<T> pagedListSnapshot,
+                @NonNull T itemAtFront, int pagedListSize);
+        public abstract void onItemAtEndLoaded(@NonNull List<T> pagedListSnapshot,
+                @NonNull T itemAtEnd, int pagedListSize);
     }
 }
