@@ -24,7 +24,7 @@ dependencies {
     androidTestImplementation(project(":support-media-compat"))
     androidTestImplementation(project(":support-media-compat-test-lib"))
 
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(TEST_RUNNER)
 }
 
 android {

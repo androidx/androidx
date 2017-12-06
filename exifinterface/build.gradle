@@ -9,7 +9,7 @@ plugins {
 dependencies {
     api(project(":support-annotations"))
 
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(TEST_RUNNER)
 }
 
 android {
