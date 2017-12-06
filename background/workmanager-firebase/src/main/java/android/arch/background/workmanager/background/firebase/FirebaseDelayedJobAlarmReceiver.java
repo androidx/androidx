@@ -16,7 +16,7 @@
 package android.arch.background.workmanager.background.firebase;
 
 import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.WorkManager;
+import android.arch.background.workmanager.WorkManagerImpl;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -39,9 +39,10 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
         // TODO(xbhatnag): Avoid using getWorkDatabase() from WorkManager
         final PendingResult pendingResult = goAsync();
         final String workSpecId = intent.getStringExtra(WORKSPEC_ID_KEY);
-        final WorkManager workManager = WorkManager.getInstance();
-        final FirebaseJobScheduler scheduler = (FirebaseJobScheduler) workManager.getScheduler();
-        final WorkDatabase database = workManager.getWorkDatabase();
+        final WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
+        final FirebaseJobScheduler scheduler =
+                (FirebaseJobScheduler) workManagerImpl.getScheduler();
+        final WorkDatabase database = workManagerImpl.getWorkDatabase();
         new Thread(new Runnable() {
             @Override
             public void run() {

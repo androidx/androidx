@@ -59,7 +59,7 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerTest {
     private WorkDatabase mDatabase;
-    private WorkManager mWorkManager;
+    private WorkManagerImpl mWorkManagerImpl;
 
     @Rule
     public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
@@ -68,8 +68,8 @@ public class WorkManagerTest {
     public void setUp() {
         Context context = InstrumentationRegistry.getTargetContext();
         WorkManagerConfiguration configuration = new WorkManagerConfiguration(context, true);
-        mWorkManager = new WorkManager(context, configuration);
-        mDatabase = mWorkManager.getWorkDatabase();
+        mWorkManagerImpl = new WorkManagerImpl(context, configuration);
+        mDatabase = mWorkManagerImpl.getWorkDatabase();
     }
 
     @After
@@ -85,7 +85,7 @@ public class WorkManagerTest {
         for (int i = 0; i < workCount; ++i) {
             workArray[i] = new Work.Builder(TestWorker.class).build();
         }
-        mWorkManager.enqueue(workArray[0]).then(workArray[1]).then(workArray[2]);
+        mWorkManagerImpl.enqueue(workArray[0]).then(workArray[1]).then(workArray[2]);
 
         for (int i = 0; i < workCount; ++i) {
             String id = workArray[i].getId();
@@ -104,7 +104,7 @@ public class WorkManagerTest {
         Work work2 = new Work.Builder(TestWorker.class).build();
         Work work3 = new Work.Builder(TestWorker.class).build();
 
-        mWorkManager.enqueue(work1, work2, work3);
+        mWorkManagerImpl.enqueue(work1, work2, work3);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1.getId()), is(notNullValue()));
@@ -121,7 +121,7 @@ public class WorkManagerTest {
         Work work3a = new Work.Builder(TestWorker.class).build();
         Work work3b = new Work.Builder(TestWorker.class).build();
 
-        mWorkManager.enqueue(work1a, work1b).then(work2).then(work3a, work3b);
+        mWorkManagerImpl.enqueue(work1a, work1b).then(work2).then(work3a, work3b);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1a.getId()), is(notNullValue()));
@@ -165,7 +165,7 @@ public class WorkManagerTest {
                                 .build())
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
-        mWorkManager.enqueue(work0).then(work1);
+        mWorkManagerImpl.enqueue(work0).then(work1);
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -201,7 +201,7 @@ public class WorkManagerTest {
                 .withInitialDelay(expectedInitialDelay)
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
-        mWorkManager.enqueue(work0).then(work1);
+        mWorkManagerImpl.enqueue(work0).then(work1);
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -217,7 +217,7 @@ public class WorkManagerTest {
                 .withBackoffCriteria(Work.BACKOFF_POLICY_LINEAR, 50000)
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
-        mWorkManager.enqueue(work0).then(work1);
+        mWorkManagerImpl.enqueue(work0).then(work1);
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -239,7 +239,7 @@ public class WorkManagerTest {
         Work work0 = new Work.Builder(TestWorker.class).addTag(firstTag).addTag(secondTag).build();
         Work work1 = new Work.Builder(TestWorker.class).addTag(firstTag).build();
         Work work2 = new Work.Builder(TestWorker.class).build();
-        mWorkManager.enqueue(work0).then(work1).then(work2);
+        mWorkManagerImpl.enqueue(work0).then(work1).then(work2);
 
         WorkTagDao workTagDao = mDatabase.workTagDao();
         assertThat(workTagDao.getWorkSpecsWithTag(firstTag),
@@ -256,7 +256,7 @@ public class WorkManagerTest {
                         TestWorker.class,
                         PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
                         .build();
-        mWorkManager.enqueue(periodicWork);
+        mWorkManagerImpl.enqueue(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.isPeriodic(), is(true));
@@ -281,7 +281,7 @@ public class WorkManagerTest {
         insertWorkSpecAndTags(work2);
         insertWorkSpecAndTags(work3);
 
-        mWorkManager.cancelAllWorkWithTag(tagToClear);
+        mWorkManagerImpl.cancelAllWorkWithTag(tagToClear);
 
         assertThat(workSpecDao.getWorkSpecStatus(work0.getId()), is(STATUS_CANCELLED));
         assertThat(workSpecDao.getWorkSpecStatus(work1.getId()), is(STATUS_CANCELLED));
@@ -327,7 +327,7 @@ public class WorkManagerTest {
         dependencyDao.insertDependency(dependency10);
         dependencyDao.insertDependency(dependency40);
 
-        mWorkManager.cancelAllWorkWithTag(tag);
+        mWorkManagerImpl.cancelAllWorkWithTag(tag);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpecStatus(work0.getId()), is(STATUS_CANCELLED));
@@ -368,7 +368,7 @@ public class WorkManagerTest {
         dependencyDao.insertDependency(dependency21B);
         dependencyDao.insertDependency(dependencyFinal2);
 
-        mWorkManager.pruneDatabase();
+        mWorkManagerImpl.pruneDatabase();
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(enqueuedWork.getId()), is(not(nullValue())));

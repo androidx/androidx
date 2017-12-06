@@ -23,11 +23,11 @@ import android.arch.background.workmanager.utils.BaseWorkHelper;
 
 public class WorkContinuation {
 
-    private WorkManager mWorkManager;
+    private WorkManagerImpl mWorkManagerImpl;
     private String[] mPrerequisiteIds;
 
-    WorkContinuation(WorkManager workManager, Work[] prerequisiteWork) {
-        mWorkManager = workManager;
+    WorkContinuation(WorkManagerImpl workManagerImpl, Work[] prerequisiteWork) {
+        mWorkManagerImpl = workManagerImpl;
         mPrerequisiteIds = new String[prerequisiteWork.length];
         for (int i = 0; i < prerequisiteWork.length; ++i) {
             mPrerequisiteIds[i] = prerequisiteWork[i].getId();
@@ -42,7 +42,7 @@ public class WorkContinuation {
      *         input work
      */
     public final WorkContinuation then(Work... work) {
-        return mWorkManager.enqueue(work, mPrerequisiteIds);
+        return mWorkManagerImpl.enqueue(work, mPrerequisiteIds);
     }
 
     /**
@@ -55,7 +55,7 @@ public class WorkContinuation {
      */
     @SafeVarargs
     public final WorkContinuation then(Class<? extends Worker>... workerClasses) {
-        return mWorkManager.enqueue(
+        return mWorkManagerImpl.enqueue(
                 BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses),
                 mPrerequisiteIds);
     }
