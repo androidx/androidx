@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package android.arch.paging
 
 import org.junit.Assert.assertEquals
@@ -5,41 +21,66 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import java.util.Collections
 
-
+@Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
 class TiledDataSourceTest {
-    @Test
-    fun loadInitialEmpty() {
+
+    fun TiledDataSource<String>.loadInitial(startPosition: Int, count: Int, pageSize: Int)
+            : List<String> {
         @Suppress("UNCHECKED_CAST")
-        val receiver = mock(PageResult.Receiver::class.java) as PageResult.Receiver<Int, String>
-        val dataSource = EmptyDataSource()
-        dataSource.loadRangeInitial(0, 0, 1, 0, receiver)
+        val receiver = mock(PageResult.Receiver::class.java) as PageResult.Receiver<String>
+
+        val callback = DataSource.InitialLoadCallback(
+                DataSource.LOAD_COUNT_REQUIRED_TILED, pageSize, this, receiver)
+
+        this.loadInitial(startPosition, count, pageSize, callback)
 
         @Suppress("UNCHECKED_CAST")
         val argument = ArgumentCaptor.forClass(PageResult::class.java)
-                as ArgumentCaptor<PageResult<Int, String>>
-        verify(receiver).onPageResult(argument.capture())
+                as ArgumentCaptor<PageResult<String>>
+        verify(receiver).onPageResult(eq(PageResult.INIT), argument.capture())
         verifyNoMoreInteractions(receiver)
 
         val observed = argument.value
 
-        assertEquals(PageResult.INIT, observed.type)
-        assertEquals(Collections.EMPTY_LIST, observed.page.items)
+        return observed.page
     }
 
-    class EmptyDataSource : TiledDataSource<String>() {
-        override fun countItems(): Int {
-            return 0
+    @Test
+    fun loadInitialEmpty() {
+        class EmptyDataSource : TiledDataSource<String>() {
+            override fun countItems(): Int {
+                return 0
+            }
+
+            override fun loadRange(startPosition: Int, count: Int): List<String> {
+                return emptyList()
+            }
         }
 
-        override fun loadRange(startPosition: Int, count: Int): List<String> {
-            @Suppress("UNCHECKED_CAST")
-            return Collections.EMPTY_LIST as List<String>
+        assertEquals(Collections.EMPTY_LIST, EmptyDataSource().loadInitial(0, 1, 5))
+    }
+
+    @Test
+    fun loadInitialTooLong() {
+        val list = List(26) { "" + 'a' + it}
+        class AlphabetDataSource : TiledDataSource<String>() {
+            override fun countItems(): Int {
+                return list.size
+            }
+
+            override fun loadRange(startPosition: Int, count: Int): List<String> {
+                return list.subList(startPosition, startPosition + count)
+            }
         }
+        // baseline behavior
+        assertEquals(list, AlphabetDataSource().loadInitial(0, 26, 10))
+        assertEquals(list, AlphabetDataSource().loadInitial(50, 26, 10))
     }
 }

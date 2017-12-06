@@ -31,6 +31,7 @@ public class StubRemoteMediaBrowserServiceCompat extends MediaBrowserServiceComp
     static final String EXTRAS_VALUE = "test_extras_value";
 
     static final String MEDIA_ID_ROOT = "test_media_id_root";
+    static final String MEDIA_METADATA = "test_media_metadata";
 
     static final String[] MEDIA_ID_CHILDREN = new String[]{
             "test_media_id_children_0", "test_media_id_children_1",
@@ -62,6 +63,19 @@ public class StubRemoteMediaBrowserServiceCompat extends MediaBrowserServiceComp
             for (String id : MEDIA_ID_CHILDREN) {
                 mediaItems.add(createMediaItem(id));
             }
+            result.sendResult(mediaItems);
+        }
+    }
+
+    @Override
+    public void onLoadChildren(final String parentMediaId, final Result<List<MediaItem>> result,
+            final Bundle options) {
+        MediaMetadataCompat metadata = options.getParcelable(MEDIA_METADATA);
+        if (metadata == null) {
+            super.onLoadChildren(parentMediaId, result, options);
+        } else {
+            List<MediaItem> mediaItems = new ArrayList<>();
+            mediaItems.add(new MediaItem(metadata.getDescription(), MediaItem.FLAG_PLAYABLE));
             result.sendResult(mediaItems);
         }
     }

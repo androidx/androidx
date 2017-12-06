@@ -72,6 +72,7 @@ public class Room {
         return new RoomDatabase.Builder<>(context, klass, null);
     }
 
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "ClassNewInstance"})
     @NonNull
     static <T, C> T getGeneratedImplementation(Class<C> klass, String suffix) {
         final String fullPackage = klass.getPackage().getName();

@@ -559,7 +559,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
      * Gets the current state of the bottom sheet.
      *
      * @return One of {@link #STATE_EXPANDED}, {@link #STATE_COLLAPSED}, {@link #STATE_DRAGGING},
-     * and {@link #STATE_SETTLING}.
+     * {@link #STATE_SETTLING}, and {@link #STATE_HIDDEN}.
      */
     @State
     public final int getState() {

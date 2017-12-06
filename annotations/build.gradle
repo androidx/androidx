@@ -1,4 +1,9 @@
-apply plugin: android.support.SupportJavaLibraryPlugin
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportJavaLibraryPlugin")
+}
 
 jar {
     from sourceSets.main.output
@@ -45,8 +50,10 @@ artifacts {
 }
 
 supportLibrary {
-    name 'Android Support Library Annotations'
-    publish true
-    inceptionYear '2013'
-    description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
+    name = "Android Support Library Annotations"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2013"
+    description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
 }

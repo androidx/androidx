@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+import android.support.LibraryGroups
 import android.support.LibraryVersions;
 import android.support.SupportLibraryExtension;
 
-apply plugin: android.support.SupportJavaLibraryPlugin
+plugins {
+    id("SupportJavaLibraryPlugin")
+}
 
 dependencies {
     testCompile libs.junit
@@ -27,11 +30,12 @@ dependencies {
 
 createAndroidCheckstyle(project)
 
-version = LibraryVersions.LIFECYCLES_CORE.toString()
 supportLibrary {
-    name 'Android Lifecycle-Common'
-    publish true
-    inceptionYear '2017'
-    description "Android Lifecycle-Common"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Lifecycle-Common"
+    publish = true
+    mavenVersion = LibraryVersions.LIFECYCLES_CORE
+    mavenGroup = LibraryGroups.LIFECYCLE
+    inceptionYear = "2017"
+    description = "Android Lifecycle-Common"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

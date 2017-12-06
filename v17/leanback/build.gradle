@@ -1,4 +1,9 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-compat')
@@ -31,8 +36,11 @@ android {
 }
 
 supportLibrary {
-    name 'Android Support Leanback v17'
-    publish true
-    inceptionYear '2014'
-    description 'Android Support Leanback v17'
+    name = "Android Support Leanback v17"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2014"
+    description = "Android Support Leanback v17"
+    legacySourceLocation = true
 }

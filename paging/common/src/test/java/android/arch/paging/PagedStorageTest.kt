@@ -29,8 +29,8 @@ import org.mockito.Mockito.verifyNoMoreInteractions
 
 @RunWith(JUnit4::class)
 class PagedStorageTest {
-    private fun createPage(vararg strings: String): Page<Int, String> {
-        return Page(strings.asList())
+    private fun createPage(vararg strings: String): List<String> {
+        return strings.asList()
     }
 
     @Test
@@ -216,7 +216,7 @@ class PagedStorageTest {
     @Test
     fun insertOne() {
         val callback = mock(PagedStorage.Callback::class.java)
-        val storage = PagedStorage<Int, String>()
+        val storage = PagedStorage<String>()
 
         storage.init(2, createPage("c", "d"), 3, 0, callback)
 
@@ -236,7 +236,7 @@ class PagedStorageTest {
     @Test
     fun insertThree() {
         val callback = mock(PagedStorage.Callback::class.java)
-        val storage = PagedStorage<Int, String>()
+        val storage = PagedStorage<String>()
 
         storage.init(2, createPage("c", "d"), 3, 0, callback)
 
@@ -273,7 +273,7 @@ class PagedStorageTest {
     @Test
     fun insertLastFirst() {
         val callback = mock(PagedStorage.Callback::class.java)
-        val storage = PagedStorage<Int, String>()
+        val storage = PagedStorage<String>()
 
         storage.init(6, createPage("g"), 0, 0, callback)
 
@@ -294,7 +294,7 @@ class PagedStorageTest {
     @Test(expected = IllegalArgumentException::class)
     fun insertFailure_decreaseLast() {
         val callback = mock(PagedStorage.Callback::class.java)
-        val storage = PagedStorage<Int, String>()
+        val storage = PagedStorage<String>()
 
         storage.init(2, createPage("c", "d"), 0, 0, callback)
 
@@ -305,7 +305,7 @@ class PagedStorageTest {
     @Test(expected = IllegalArgumentException::class)
     fun insertFailure_increase() {
         val callback = mock(PagedStorage.Callback::class.java)
-        val storage = PagedStorage<Int, String>()
+        val storage = PagedStorage<String>()
 
         storage.init(0, createPage("a", "b"), 3, 0, callback)
 
@@ -316,7 +316,7 @@ class PagedStorageTest {
     @Test
     fun allocatePlaceholders_simple() {
         val callback = mock(PagedStorage.Callback::class.java)
-        val storage = PagedStorage<Int, String>()
+        val storage = PagedStorage<String>()
 
         storage.init(2, createPage("c"), 2, 0, callback)
 
@@ -334,7 +334,7 @@ class PagedStorageTest {
     @Test
     fun allocatePlaceholders_adoptPageSize() {
         val callback = mock(PagedStorage.Callback::class.java)
-        val storage = PagedStorage<Int, String>()
+        val storage = PagedStorage<String>()
 
         storage.init(4, createPage("e"), 0, 0, callback)
 
@@ -352,7 +352,7 @@ class PagedStorageTest {
     @Test(expected = IllegalArgumentException::class)
     fun allocatePlaceholders_cannotShrinkPageSize() {
         val callback = mock(PagedStorage.Callback::class.java)
-        val storage = PagedStorage<Int, String>()
+        val storage = PagedStorage<String>()
 
         storage.init(4, createPage("e", "f"), 0, 0, callback)
 
@@ -365,7 +365,7 @@ class PagedStorageTest {
     @Test(expected = IllegalArgumentException::class)
     fun allocatePlaceholders_cannotAdoptPageSize() {
         val callback = mock(PagedStorage.Callback::class.java)
-        val storage = PagedStorage<Int, String>()
+        val storage = PagedStorage<String>()
 
         storage.init(2, createPage("c", "d"), 2, 0, callback)
 
@@ -377,7 +377,7 @@ class PagedStorageTest {
     @Test
     fun get_placeholdersMulti() {
         val callback = mock(PagedStorage.Callback::class.java)
-        val storage = PagedStorage<Int, String>()
+        val storage = PagedStorage<String>()
 
         storage.init(2, createPage("c", "d"), 3, 0, callback)
 
@@ -392,7 +392,7 @@ class PagedStorageTest {
     @Test
     fun hasPage() {
         val callback = mock(PagedStorage.Callback::class.java)
-        val storage = PagedStorage<Int, String>()
+        val storage = PagedStorage<String>()
 
         storage.init(4, createPage("e"), 0, 0, callback)
 

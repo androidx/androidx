@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension;
 
-apply plugin: android.support.SupportJavaLibraryPlugin
-apply plugin: 'kotlin'
+plugins {
+    id("SupportJavaLibraryPlugin")
+    id("kotlin")
+}
 
 dependencies {
     compile libs.support.annotations
@@ -34,11 +37,12 @@ dependencies {
 createAndroidCheckstyle(project)
 createKotlinCheckstyle(project)
 
-version = LibraryVersions.PAGING.toString()
 supportLibrary {
-    name 'Android Paging-Common'
-    publish true
-    inceptionYear '2017'
-    description "Android Paging-Common"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Paging-Common"
+    publish = true
+    mavenVersion = LibraryVersions.PAGING
+    mavenGroup = LibraryGroups.PAGING
+    inceptionYear = "2017"
+    description = "Android Paging-Common"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

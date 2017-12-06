@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,223 +16,127 @@
 
 package android.arch.paging;
 
-import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
 /**
  * Incremental data loader for paging keyed content, where loaded content uses previously loaded
  * items as input to future loads.
  * <p>
- * Implement a DataSource using KeyedDataSource if you need to use data from item <code>N-1</code>
- * to load item <code>N</code>. This is common, for example, in sorted database queries where
+ * Implement a DataSource using KeyedDataSource if you need to use data from item {@code N - 1}
+ * to load item {@code N}. This is common, for example, in sorted database queries where
  * attributes of the item such just before the next query define how to execute it.
- * <p>
- * A compute usage pattern with Room SQL queries would look like this (though note, Room plans to
- * provide generation of much of this code in the future):
- * <pre>
- * {@literal @}Dao
- * interface UserDao {
- *     {@literal @}Query("SELECT * from user ORDER BY name DESC LIMIT :limit")
- *     public abstract List&lt;User> userNameInitial(int limit);
- *
- *     {@literal @}Query("SELECT * from user WHERE name &lt; :key ORDER BY name DESC LIMIT :limit")
- *     public abstract List&lt;User> userNameLoadAfter(String key, int limit);
- *
- *     {@literal @}Query("SELECT * from user WHERE name > :key ORDER BY name ASC LIMIT :limit")
- *     public abstract List&lt;User> userNameLoadBefore(String key, int limit);
- * }
- *
- * public class KeyedUserQueryDataSource extends KeyedDataSource&lt;String, User> {
- *     private MyDatabase mDb;
- *     private final UserDao mUserDao;
- *     {@literal @}SuppressWarnings("FieldCanBeLocal")
- *     private final InvalidationTracker.Observer mObserver;
- *
- *     public KeyedUserQueryDataSource(MyDatabase db) {
- *         mDb = db;
- *         mUserDao = db.getUserDao();
- *         mObserver = new InvalidationTracker.Observer("user") {
- *             {@literal @}Override
- *             public void onInvalidated({@literal @}NonNull Set&lt;String> tables) {
- *                 // the user table has been invalidated, invalidate the DataSource
- *                 invalidate();
- *             }
- *         };
- *         db.getInvalidationTracker().addWeakObserver(mObserver);
- *     }
- *
- *     {@literal @}Override
- *     public boolean isInvalid() {
- *         mDb.getInvalidationTracker().refreshVersionsSync();
- *         return super.isInvalid();
- *     }
- *
- *     {@literal @}Override
- *     public String getKey({@literal @}NonNull User item) {
- *         return item.getName();
- *     }
- *
- *     {@literal @}Override
- *     public List&lt;User> loadInitial(int pageSize) {
- *         return mUserDao.userNameInitial(pageSize);
- *     }
- *
- *     {@literal @}Override
- *     public List&lt;User> loadBefore({@literal @}NonNull String userName, int pageSize) {
- *         // Return items adjacent to 'userName' in reverse order
- *         // it's valid to return a different-sized list of items than pageSize, if it's easier
- *         return mUserDao.userNameLoadBefore(userName, pageSize);
- *     }
- *
- *     {@literal @}Override
- *     public List&lt;User> loadAfter({@literal @}Nullable String userName, int pageSize) {
- *         // Return items adjacent to 'userName'
- *         // it's valid to return a different-sized list of items than pageSize, if it's easier
- *         return mUserDao.userNameLoadAfter(userName, pageSize);
- *     }
- * }</pre>
  *
  * @param <Key> Type of data used to query Value types out of the DataSource.
  * @param <Value> Type of items being loaded by the DataSource.
  */
 public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<Key, Value> {
-
-    @Nullable
     @Override
-    List<Value> loadAfterImpl(int currentEndIndex, @NonNull Value currentEndItem, int pageSize) {
-        return loadAfter(getKey(currentEndItem), pageSize);
+    final void loadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize,
+            @NonNull LoadCallback<Value> callback) {
+        loadAfter(getKey(currentEndItem), pageSize, callback);
+    }
+
+    @Override
+    final void loadBefore(int currentBeginIndex, @NonNull Value currentBeginItem, int pageSize,
+            @NonNull LoadCallback<Value> callback) {
+        loadBefore(getKey(currentBeginItem), pageSize, callback);
     }
 
     @Nullable
     @Override
-    List<Value> loadBeforeImpl(
-            int currentBeginIndex, @NonNull Value currentBeginItem, int pageSize) {
-        List<Value> list = loadBefore(getKey(currentBeginItem), pageSize);
-
-        if (list != null && list.size() > 1) {
-            // TODO: move out of keyed entirely, into the DB DataSource.
-            list = new ArrayList<>(list);
-            Collections.reverse(list);
+    final Key getKey(int position, Value item) {
+        if (item == null) {
+            return null;
         }
-        return list;
+
+        return getKey(item);
     }
 
-
-    @Override
-    void loadInitial(Key key, int initialLoadSize, boolean enablePlaceholders,
-            @NonNull PageResult.Receiver<Key, Value> receiver) {
-
-        PageResult<Key, Value> pageResult =
-                loadInitialInternal(key, initialLoadSize, enablePlaceholders);
-        if (pageResult == null) {
-            // loading failed, return empty page
-            receiver.onPageResult(new PageResult<Key, Value>(PageResult.INIT));
-        } else {
-            receiver.onPageResult(pageResult);
-        }
-    }
 
     /**
-     * Try initial load, and either return the successful initial load to the receiver,
-     * or null if unsuccessful.
+     * Load initial data.
+     * <p>
+     * This method is called first to initialize a PagedList with data. If it's possible to count
+     * the items that can be loaded by the DataSource, it's recommended to pass the loaded data to
+     * the callback via the three-parameter
+     * {@link DataSource.InitialLoadCallback#onResult(List, int, int)}. This enables PagedLists
+     * presenting data from this source to display placeholders to represent unloaded items.
+     * <p>
+     * {@code initialLoadKey} and {@code requestedLoadSize} are hints, not requirements, so if it is
+     * difficult or impossible to respect them, they may be altered. Note that ignoring the
+     * {@code initialLoadKey} can prevent subsequent PagedList/DataSource pairs from initializing at
+     * the same location. If your data source never invalidates (for example, loading from the
+     * network without the network ever signalling that old data must be reloaded), it's fine to
+     * ignore the {@code initialLoadKey} and always start from the beginning of the data set.
+     *
+     * @param initialLoadKey Load items around this key, or at the beginning of the data set if null
+     *                       is passed.
+     * @param requestedLoadSize Suggested number of items to load.
+     * @param enablePlaceholders Signals whether counting is requested. If false, you can
+     *                           potentially save work by calling the single-parameter variant of
+     *                           {@link DataSource.LoadCallback#onResult(List)} and not counting the
+     *                           number of items in the data set.
+     * @param callback DataSource.LoadCallback that receives initial load data.
      */
-    @Nullable
-    private PageResult<Key, Value> loadInitialInternal(
-            @Nullable Key key, int initialLoadSize, boolean enablePlaceholders) {
-        // check if invalid at beginning, and before returning a valid list
-        if (isInvalid()) {
-            return null;
-        }
+    @Override
+    public abstract void loadInitial(@Nullable Key initialLoadKey, int requestedLoadSize,
+            boolean enablePlaceholders, @NonNull InitialLoadCallback<Value> callback);
 
-        List<Value> list;
-        if (key == null) {
-            // no key, so load initial.
-            list = loadInitial(initialLoadSize);
-            if (list == null) {
-                return null;
-            }
-        } else {
-            List<Value> after = loadAfter(key, initialLoadSize / 2);
-            if (after == null) {
-                return null;
-            }
+    /**
+     * Load list data after the specified item.
+     * <p>
+     * It's valid to return a different list size than the page size, if it's easier for this data
+     * source. It is generally safer to increase the number loaded than reduce.
+     * <p>
+     * Data may be passed synchronously during the loadAfter method, or deferred and called at a
+     * later time. Further loads going down will be blocked until the callback is called.
+     * <p>
+     * If data cannot be loaded (for example, if the request is invalid, or the data would be stale
+     * and inconsistent, it is valid to call {@link #invalidate()} to invalidate the data source,
+     * and prevent further loading.
+     *
+     * @param currentEndKey Load items after this key. May be null on initial load, to indicate load
+     *                      from beginning.
+     * @param pageSize Suggested number of items to load.
+     * @param callback DataSource.LoadCallback that receives loaded data.
+     */
+    public abstract void loadAfter(@NonNull Key currentEndKey, int pageSize,
+            @NonNull LoadCallback<Value> callback);
 
-            Key loadBeforeKey = after.isEmpty() ? key : getKey(after.get(0));
-            List<Value> before = loadBefore(loadBeforeKey, initialLoadSize / 2);
-            if (before == null) {
-                return null;
-            }
-            if (!after.isEmpty() || !before.isEmpty()) {
-                // one of the lists has data
-                if (after.isEmpty()) {
-                    // retry loading after, since it may be that the key passed points to the end of
-                    // the list, so we need to load after the last item in the before list
-                    after = loadAfter(getKey(before.get(0)), initialLoadSize / 2);
-                    if (after == null) {
-                        return null;
-                    }
-                }
-                // assemble full list
-                list = new ArrayList<>();
-                list.addAll(before);
-                // Note - we reverse the list instead of before, in case before is immutable
-                Collections.reverse(list);
-                list.addAll(after);
-            } else {
-                // load before(key) and load after(key) failed - try load initial to be *sure* we
-                // catch the case where there's only one item, which is loaded by the key case
-                list = loadInitial(initialLoadSize);
-                if (list == null) {
-                    return null;
-                }
-            }
-        }
-
-        final Page<Key, Value> page = new Page<>(list);
-
-        if (list.isEmpty()) {
-            if (isInvalid()) {
-                return null;
-            }
-            // wasn't able to load any items, but not invalid - return an empty page.
-            return new PageResult<>(PageResult.INIT, page, 0, 0, 0);
-        }
-
-        int itemsBefore = COUNT_UNDEFINED;
-        int itemsAfter = COUNT_UNDEFINED;
-        if (enablePlaceholders) {
-            itemsBefore = countItemsBefore(getKey(list.get(0)));
-            itemsAfter = countItemsAfter(getKey(list.get(list.size() - 1)));
-        }
-
-        if (isInvalid()) {
-            return null;
-        }
-        if (itemsBefore == COUNT_UNDEFINED || itemsAfter == COUNT_UNDEFINED) {
-            itemsBefore = 0;
-            itemsAfter = 0;
-        }
-        return new PageResult<>(
-                PageResult.INIT,
-                page,
-                itemsBefore,
-                itemsAfter,
-                0);
-    }
+    /**
+     * Load data before the currently loaded content.
+     * <p>
+     * It's valid to return a different list size than the page size, if it's easier for this data
+     * source. It is generally safer to increase the number loaded than reduce. Note that the last
+     * item returned must be directly adjacent to the key passed, so varying size from the pageSize
+     * requested should effectively grow or shrink the list by modifying the beginning, not the end.
+     * <p>
+     * Data may be passed synchronously during the loadBefore method, or deferred and called at a
+     * later time. Further loads going up will be blocked until the callback is called.
+     * <p>
+     * If data cannot be loaded (for example, if the request is invalid, or the data would be stale
+     * and inconsistent, it is valid to call {@link #invalidate()} to invalidate the data source,
+     * and prevent further loading.
+     * <p class="note"><strong>Note:</strong> Data must be returned in the order it will be
+     * presented in the list.
+     *
+     * @param currentBeginKey Load items before this key.
+     * @param pageSize Suggested number of items to load.
+     * @param callback DataSource.LoadCallback that receives loaded data.
+     */
+    public abstract void loadBefore(@NonNull Key currentBeginKey, int pageSize,
+            @NonNull LoadCallback<Value> callback);
 
     /**
      * Return a key associated with the given item.
      * <p>
      * If your KeyedDataSource is loading from a source that is sorted and loaded by a unique
      * integer ID, you would return {@code item.getID()} here. This key can then be passed to
-     * {@link #loadBefore(Key, int)} or {@link #loadAfter(Key, int)} to load additional items
-     * adjacent to the item passed to this function.
+     * {@link #loadBefore(Object, int, LoadCallback)} or
+     * {@link #loadAfter(Object, int, LoadCallback)} to load additional items adjacent to the item
+     * passed to this function.
      * <p>
      * If your key is more complex, such as when you're sorting by name, then resolving collisions
      * with integer ID, you'll need to return both. In such a case you would use a wrapper class,
@@ -243,101 +147,5 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
      * @return Key associated with given item.
      */
     @NonNull
-    @AnyThread
     public abstract Key getKey(@NonNull Value item);
-
-    /**
-     * Return the number of items that occur before the item uniquely identified by {@code key} in
-     * the data set.
-     * <p>
-     * For example, if you're loading items sorted by ID, then this would return the total number of
-     * items with ID less than {@code key}.
-     * <p>
-     * If you return {@link #COUNT_UNDEFINED} here, or from {@link #countItemsAfter(Key)}, your
-     * data source will not present placeholder null items in place of unloaded data.
-     *
-     * @param key A unique identifier of an item in the data set.
-     * @return Number of items in the data set before the item identified by {@code key}, or
-     *         {@link #COUNT_UNDEFINED}.
-     *
-     * @see #countItemsAfter(Key)
-     */
-    @WorkerThread
-    public int countItemsBefore(@NonNull Key key) {
-        return COUNT_UNDEFINED;
-    }
-
-    /**
-     * Return the number of items that occur after the item uniquely identified by {@code key} in
-     * the data set.
-     * <p>
-     * For example, if you're loading items sorted by ID, then this would return the total number of
-     * items with ID greater than {@code key}.
-     * <p>
-     * If you return {@link #COUNT_UNDEFINED} here, or from {@link #countItemsBefore(Key)}, your
-     * data source will not present placeholder null items in place of unloaded data.
-     *
-     * @param key A unique identifier of an item in the data set.
-     * @return Number of items in the data set after the item identified by {@code key}, or
-     *         {@link #COUNT_UNDEFINED}.
-     *
-     * @see #countItemsBefore(Key)
-     */
-    @WorkerThread
-    public int countItemsAfter(@NonNull Key key) {
-        return COUNT_UNDEFINED;
-    }
-
-    @WorkerThread
-    @Nullable
-    public abstract List<Value> loadInitial(int pageSize);
-
-    /**
-     * Load list data after the specified item.
-     * <p>
-     * It's valid to return a different list size than the page size, if it's easier for this data
-     * source. It is generally safer to increase the number loaded than reduce.
-     *
-     * @param currentEndKey Load items after this key. May be null on initial load, to indicate load
-     *                      from beginning.
-     * @param pageSize      Suggested number of items to load.
-     * @return List of items, starting after the specified item. Null if the data source is
-     * no longer valid, and should not be queried again.
-     */
-    @SuppressWarnings("WeakerAccess")
-    @WorkerThread
-    @Nullable
-    public abstract List<Value> loadAfter(@NonNull Key currentEndKey, int pageSize);
-
-    /**
-     * Load data before the currently loaded content, starting at the provided index,
-     * in reverse-display order.
-     * <p>
-     * It's valid to return a different list size than the page size, if it's easier for this data
-     * source. It is generally safer to increase the number loaded than reduce.
-     * <p class="note"><strong>Note:</strong> Items returned from loadBefore <em>must</em> be in
-     * reverse order from how they will be presented in the list. The first item in the return list
-     * will be prepended immediately before the current beginning of the list. This is so that the
-     * KeyedDataSource may return a different number of items from the requested {@code pageSize} by
-     * shortening or lengthening the return list as it desires.
-     * <p>
-     *
-     * @param currentBeginKey Load items before this key.
-     * @param pageSize         Suggested number of items to load.
-     * @return List of items, in descending order, starting after the specified item. Null if the
-     * data source is no longer valid, and should not be queried again.
-     */
-    @SuppressWarnings("WeakerAccess")
-    @WorkerThread
-    @Nullable
-    public abstract List<Value> loadBefore(@NonNull Key currentBeginKey, int pageSize);
-
-    @Nullable
-    @Override
-    Key getKey(int position, Value item) {
-        if (item == null) {
-            return null;
-        }
-        return getKey(item);
-    }
 }

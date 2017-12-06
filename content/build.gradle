@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-apply plugin: android.support.SupportAndroidLibraryPlugin
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-annotations')
@@ -32,8 +37,11 @@ android {
 }
 
 supportLibrary {
-    name 'Android Support Content'
-    publish true
-    inceptionYear '2017'
-    description 'Library providing support for paging across content exposed via a ContentProvider. Use of this library allows a client to avoid expensive interprocess "cursor window swaps" on the UI thread.'
+    name = "Android Support Content"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2017"
+    description = "Library providing support for paging across content exposed via a ContentProvider. Use of this library allows a client to avoid expensive interprocess \"cursor window swaps\" on the UI thread."
+    legacySourceLocation = true
 }
