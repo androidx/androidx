@@ -61,7 +61,10 @@ import android.view.ViewGroup;
  *
  * {@sample frameworks/support/samples/Support13Demos/src/main/res/layout/fragment_pager_list.xml
  *      complete}
+ *
+ * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
  */
+@Deprecated
 public abstract class FragmentPagerAdapter extends PagerAdapter {
     private static final String TAG = "FragmentPagerAdapter";
     private static final boolean DEBUG = false;
@@ -70,15 +73,26 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     private FragmentTransaction mCurTransaction = null;
     private Fragment mCurrentPrimaryItem = null;
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
+     */
+    @Deprecated
     public FragmentPagerAdapter(FragmentManager fm) {
         mFragmentManager = fm;
     }
 
     /**
      * Return the Fragment associated with a specified position.
+     *
+     * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
      */
+    @Deprecated
     public abstract Fragment getItem(int position);
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
+     */
+    @Deprecated
     @Override
     public void startUpdate(ViewGroup container) {
         if (container.getId() == View.NO_ID) {
@@ -87,6 +101,10 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         }
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
+     */
+    @Deprecated
     @SuppressWarnings("ReferenceEquality")
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
@@ -116,6 +134,10 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         return fragment;
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
+     */
+    @Deprecated
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         if (mCurTransaction == null) {
@@ -126,6 +148,10 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         mCurTransaction.detach((Fragment)object);
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
+     */
+    @Deprecated
     @SuppressWarnings("ReferenceEquality")
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
@@ -143,6 +169,10 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         }
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
+     */
+    @Deprecated
     @Override
     public void finishUpdate(ViewGroup container) {
         if (mCurTransaction != null) {
@@ -152,16 +182,28 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         }
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
+     */
+    @Deprecated
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return ((Fragment)object).getView() == view;
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
+     */
+    @Deprecated
     @Override
     public Parcelable saveState() {
         return null;
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
+     */
+    @Deprecated
     @Override
     public void restoreState(Parcelable state, ClassLoader loader) {
     }
@@ -174,7 +216,10 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
      *
      * @param position Position within this adapter
      * @return Unique identifier for the item at position
+     *
+     * @deprecated Use {@link android.support.v4.app.FragmentPagerAdapter} instead.
      */
+    @Deprecated
     public long getItemId(int position) {
         return position;
     }
