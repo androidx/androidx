@@ -225,6 +225,7 @@ public class LifecycleRegistry extends Lifecycle {
         return mObserverMap.size();
     }
 
+    @NonNull
     @Override
     public State getCurrentState() {
         return mState;
