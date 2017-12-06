@@ -46,11 +46,10 @@ dependencies {
     testImplementation(project(":arch:core-testing"))
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
-    testImplementation libs.support.annotations
 
     androidTestImplementation(JUNIT)
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE)
 }
 
 // Used by testCompile in room-compiler

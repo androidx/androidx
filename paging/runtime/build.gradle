@@ -41,8 +41,8 @@ dependencies {
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(KOTLIN_STDLIB)
 }
 
