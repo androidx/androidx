@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.impl;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
+import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.background.systemalarm.SystemAlarmScheduler;
 import android.arch.background.workmanager.background.systemjob.SystemJobScheduler;
 import android.content.Context;

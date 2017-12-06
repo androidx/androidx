@@ -19,7 +19,7 @@ package android.arch.background.workmanager.background;
 import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.Processor;
 import android.arch.background.workmanager.Scheduler;
-import android.arch.background.workmanager.WorkDatabase;
+import android.arch.background.workmanager.impl.WorkDatabase;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;

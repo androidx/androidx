@@ -16,16 +16,17 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_BLOCKED;
-import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
-import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
-import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
-import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_FAILURE;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_RETRY;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_SUCCESS;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_BLOCKED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_CANCELLED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_FAILED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_RUNNING;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_SUCCEEDED;
 
+import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.InputMerger;

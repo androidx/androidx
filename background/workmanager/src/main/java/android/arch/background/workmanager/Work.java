@@ -16,6 +16,7 @@
 
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.impl.BaseWork;
 import android.arch.background.workmanager.model.InputMerger;
 import android.arch.background.workmanager.model.OverwritingInputMerger;
 import android.support.annotation.RestrictTo;
@@ -52,7 +53,7 @@ public class Work extends BaseWork {
 
         @VisibleForTesting
         @Override
-        Builder withInitialRunAttemptCount(int runAttemptCount) {
+        public Builder withInitialRunAttemptCount(int runAttemptCount) {
             mWorkSpec.setRunAttemptCount(runAttemptCount);
             return this;
         }
@@ -80,7 +81,7 @@ public class Work extends BaseWork {
         }
 
         @Override
-        Builder getThis() {
+        protected Builder getThis() {
             return this;
         }
 

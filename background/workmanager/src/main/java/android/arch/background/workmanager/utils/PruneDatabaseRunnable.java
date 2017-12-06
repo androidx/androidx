@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.utils;
 
-import android.arch.background.workmanager.WorkDatabase;
+import android.arch.background.workmanager.impl.WorkDatabase;
 
 /**
  * A {@link Runnable} that prunes the database of all non-pending work.

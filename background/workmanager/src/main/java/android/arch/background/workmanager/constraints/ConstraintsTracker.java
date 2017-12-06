@@ -15,7 +15,6 @@
  */
 package android.arch.background.workmanager.constraints;
 
-import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.controllers.BatteryChargingController;
 import android.arch.background.workmanager.constraints.controllers.BatteryNotLowController;
 import android.arch.background.workmanager.constraints.controllers.ConstraintController;
@@ -24,6 +23,7 @@ import android.arch.background.workmanager.constraints.controllers.NetworkMetere
 import android.arch.background.workmanager.constraints.controllers.NetworkNotRoamingController;
 import android.arch.background.workmanager.constraints.controllers.NetworkUnmeteredController;
 import android.arch.background.workmanager.constraints.controllers.StorageNotLowController;
+import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;

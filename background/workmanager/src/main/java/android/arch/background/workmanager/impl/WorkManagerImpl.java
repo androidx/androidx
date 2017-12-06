@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_BLOCKED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_BLOCKED;
 
+import android.arch.background.workmanager.PeriodicWork;
+import android.arch.background.workmanager.Processor;
+import android.arch.background.workmanager.Scheduler;
+import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.WorkContinuation;
+import android.arch.background.workmanager.WorkManager;
+import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Dependency;
@@ -150,7 +157,7 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {
-        WorkContinuation workContinuation = new WorkContinuation(this, work);
+        WorkContinuation workContinuation = new WorkContinuationImpl(this, work);
         mTaskExecutor.executeOnBackgroundThread(new EnqueueRunnable(work, prerequisiteIds));
         return workContinuation;
     }

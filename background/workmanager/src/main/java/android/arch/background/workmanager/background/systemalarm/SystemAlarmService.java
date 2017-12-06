@@ -17,9 +17,9 @@
 package android.arch.background.workmanager.background.systemalarm;
 
 import android.arch.background.workmanager.ExecutionListener;
-import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.WorkManagerImpl;
 import android.arch.background.workmanager.background.BackgroundProcessor;
+import android.arch.background.workmanager.impl.WorkDatabase;
+import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.lifecycle.LifecycleService;
 import android.content.Context;
 import android.content.Intent;

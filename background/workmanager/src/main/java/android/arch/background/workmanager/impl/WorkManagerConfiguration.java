@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.impl;
 
 import static android.arch.background.workmanager.utils.PackageManagerHelper.setComponentEnabled;
 
+import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.background.systemalarm.SystemAlarmScheduler;
 import android.arch.background.workmanager.background.systemalarm.SystemAlarmService;
 import android.arch.background.workmanager.background.systemjob.SystemJobScheduler;

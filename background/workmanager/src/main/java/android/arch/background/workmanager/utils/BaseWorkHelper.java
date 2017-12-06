@@ -15,9 +15,9 @@
  */
 package android.arch.background.workmanager.utils;
 
-import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.Worker;
+import android.arch.background.workmanager.impl.BaseWork;
 import android.support.annotation.RestrictTo;
 
 /**

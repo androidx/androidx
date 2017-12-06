@@ -22,7 +22,7 @@
 
     <application>
         <provider
-            android:name="android.arch.background.workmanager.WorkManagerInitializer"
+            android:name="android.arch.background.workmanager.impl.WorkManagerInitializer"
             android:authorities="${applicationId}.workmanager-trojan"
             android:exported="false"
             android:multiprocess="true" />

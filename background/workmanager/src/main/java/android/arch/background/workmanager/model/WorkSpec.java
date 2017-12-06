@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.model;
 
-import android.arch.background.workmanager.BaseWork;
+import android.arch.background.workmanager.impl.BaseWork;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
