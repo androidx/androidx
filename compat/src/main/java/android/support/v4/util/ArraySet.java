@@ -16,9 +16,6 @@
 
 package android.support.v4.util;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
-import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.lang.reflect.Array;
@@ -74,7 +71,6 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     static Object[] sTwiceBaseCache;
     static int sTwiceBaseCacheSize;
 
-    final boolean mIdentityHashCode;
     int[] mHashes;
     Object[] mArray;
     int mSize;
@@ -238,19 +234,13 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * will grow once items are added to it.
      */
     public ArraySet() {
-        this(0, false);
+        this(0);
     }
 
     /**
      * Create a new ArraySet with a given initial capacity.
      */
     public ArraySet(int capacity) {
-        this(capacity, false);
-    }
-
-    /** {@hide} */
-    public ArraySet(int capacity, boolean identityHashCode) {
-        mIdentityHashCode = identityHashCode;
         if (capacity == 0) {
             mHashes = INT;
             mArray = OBJECT;
@@ -264,14 +254,6 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * Create a new ArraySet with the mappings from the given ArraySet.
      */
     public ArraySet(ArraySet<E> set) {
-        this();
-        if (set != null) {
-            addAll(set);
-        }
-    }
-
-    /** {@hide} */
-    public ArraySet(Collection<E> set) {
         this();
         if (set != null) {
             addAll(set);
@@ -326,8 +308,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @return Returns the index of the value if it exists, else a negative integer.
      */
     public int indexOf(Object key) {
-        return key == null ? indexOfNull()
-                : indexOf(key, mIdentityHashCode ? System.identityHashCode(key) : key.hashCode());
+        return key == null ? indexOfNull() : indexOf(key, key.hashCode());
     }
 
     /**
@@ -364,7 +345,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
             hash = 0;
             index = indexOfNull();
         } else {
-            hash = mIdentityHashCode ? System.identityHashCode(value) : value.hashCode();
+            hash = value.hashCode();
             index = indexOf(value, hash);
         }
         if (index >= 0) {
@@ -403,36 +384,6 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
         mArray[index] = value;
         mSize++;
         return true;
-    }
-
-    /**
-     * Special fast path for appending items to the end of the array without validation.
-     * The array must already be large enough to contain the item.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void append(E value) {
-        final int index = mSize;
-        final int hash = value == null ? 0
-                : (mIdentityHashCode ? System.identityHashCode(value) : value.hashCode());
-        if (index >= mHashes.length) {
-            throw new IllegalStateException("Array is full");
-        }
-        if (index > 0 && mHashes[index - 1] > hash) {
-            // Cannot optimize since it would break the sorted order - fallback to add()
-            if (DEBUG) {
-                RuntimeException e = new RuntimeException("here");
-                e.fillInStackTrace();
-                Log.w(TAG, "New hash " + hash
-                        + " is before end of array hash " + mHashes[index - 1]
-                        + " at index " + index, e);
-            }
-            add(value);
-            return;
-        }
-        mSize = index + 1;
-        mHashes[index] = hash;
-        mArray[index] = value;
     }
 
     /**
