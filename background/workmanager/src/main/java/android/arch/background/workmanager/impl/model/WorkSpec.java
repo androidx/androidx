@@ -78,6 +78,9 @@ public class WorkSpec {
     @ColumnInfo(name = "backoff_delay_duration")
     long mBackoffDelayDuration = BaseWork.DEFAULT_BACKOFF_DELAY_MILLIS;
 
+    @ColumnInfo(name = "period_start_time")
+    long mPeriodStartTime;
+
     public WorkSpec(@NonNull String id) {
         mId = id;
     }
@@ -209,6 +212,18 @@ public class WorkSpec {
 
     public int getRunAttemptCount() {
         return mRunAttemptCount;
+    }
+
+    /**
+     * For one-off work, this is the time that the work was unblocked by prerequisites.
+     * For periodic work, this is the time that the period started.
+     */
+    public long getPeriodStartTime() {
+        return mPeriodStartTime;
+    }
+
+    public void setPeriodStartTime(long periodStartTime) {
+        mPeriodStartTime = periodStartTime;
     }
 
     /**
