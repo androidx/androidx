@@ -16,11 +16,11 @@
 
 package android.arch.background.workmanager.model;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
-import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
-import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.Work.STATUS_RUNNING;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_CANCELLED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_FAILED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_SUCCEEDED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.background.workmanager.Work;

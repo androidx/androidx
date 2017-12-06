@@ -15,6 +15,7 @@
  */
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.impl.BaseWork;
 import android.util.Log;
 
 /**
@@ -112,7 +113,7 @@ public class PeriodicWork extends BaseWork {
         }
 
         @Override
-        Builder getThis() {
+        protected Builder getThis() {
             return this;
         }
 

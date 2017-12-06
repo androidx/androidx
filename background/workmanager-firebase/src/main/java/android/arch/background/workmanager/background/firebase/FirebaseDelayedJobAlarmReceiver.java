@@ -15,8 +15,8 @@
  */
 package android.arch.background.workmanager.background.firebase;
 
-import android.arch.background.workmanager.WorkDatabase;
-import android.arch.background.workmanager.WorkManagerImpl;
+import android.arch.background.workmanager.impl.WorkDatabase;
+import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.BroadcastReceiver;
 import android.content.Context;

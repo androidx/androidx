@@ -15,24 +15,13 @@
  */
 package android.arch.background.workmanager;
 
-import android.arch.background.workmanager.utils.BaseWorkHelper;
-
 /**
  * An opaque class that allows you to chain together {@link Work}.
  */
 
-public class WorkContinuation {
+public abstract class WorkContinuation {
 
-    private WorkManagerImpl mWorkManagerImpl;
-    private String[] mPrerequisiteIds;
 
-    WorkContinuation(WorkManagerImpl workManagerImpl, Work[] prerequisiteWork) {
-        mWorkManagerImpl = workManagerImpl;
-        mPrerequisiteIds = new String[prerequisiteWork.length];
-        for (int i = 0; i < prerequisiteWork.length; ++i) {
-            mPrerequisiteIds[i] = prerequisiteWork[i].getId();
-        }
-    }
 
     /**
      * Add new {@link Work} items that depend on the items added in the previous step.
@@ -41,9 +30,7 @@ public class WorkContinuation {
      * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
      *         input work
      */
-    public final WorkContinuation then(Work... work) {
-        return mWorkManagerImpl.enqueue(work, mPrerequisiteIds);
-    }
+    public abstract WorkContinuation then(Work... work);
 
     /**
      * Add new {@link Work} items that depend on the items added in the previous step.
@@ -53,10 +40,5 @@ public class WorkContinuation {
      * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
      *         input workerClasses
      */
-    @SafeVarargs
-    public final WorkContinuation then(Class<? extends Worker>... workerClasses) {
-        return mWorkManagerImpl.enqueue(
-                BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses),
-                mPrerequisiteIds);
-    }
+    public abstract WorkContinuation then(Class<? extends Worker>... workerClasses);
 }

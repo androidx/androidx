@@ -16,9 +16,9 @@
 
 package android.arch.background.workmanager.constraints.controllers;
 
-import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.NetworkState;
 import android.arch.background.workmanager.constraints.trackers.Trackers;
+import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;

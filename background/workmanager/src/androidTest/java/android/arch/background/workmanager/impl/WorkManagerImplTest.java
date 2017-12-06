@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
-import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
-import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_CANCELLED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_RUNNING;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -29,6 +29,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 
+import android.arch.background.workmanager.PeriodicWork;
+import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.Dependency;
@@ -57,7 +59,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class WorkManagerTest {
+public class WorkManagerImplTest {
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
 
@@ -395,7 +397,7 @@ public class WorkManagerTest {
         assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(STATUS_ENQUEUED));
     }
 
-    private void insertWorkSpecAndTags(Work work) {
+    private void insertWorkSpecAndTags(BaseWork work) {
         mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
         for (WorkTag workTag : work.getWorkTags()) {
             mDatabase.workTagDao().insert(workTag);

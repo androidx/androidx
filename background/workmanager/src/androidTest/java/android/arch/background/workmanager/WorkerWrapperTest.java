@@ -16,12 +16,12 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_BLOCKED;
-import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
-import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
-import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
-import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_BLOCKED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_CANCELLED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_FAILED;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_RUNNING;
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

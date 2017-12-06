@@ -15,6 +15,7 @@
  */
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.impl.WorkDatabase;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;

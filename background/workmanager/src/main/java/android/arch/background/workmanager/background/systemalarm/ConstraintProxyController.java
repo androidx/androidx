@@ -19,7 +19,7 @@ import static android.arch.background.workmanager.utils.PackageManagerHelper
         .isComponentExplicitlyEnabled;
 import static android.arch.background.workmanager.utils.PackageManagerHelper.setComponentEnabled;
 
-import android.arch.background.workmanager.WorkDatabase;
+import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.lifecycle.LifecycleOwner;

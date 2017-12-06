@@ -16,6 +16,8 @@
 
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.impl.BaseWork;
+import android.arch.background.workmanager.impl.WorkDatabase;
 import android.support.test.InstrumentationRegistry;
 
 import org.junit.After;

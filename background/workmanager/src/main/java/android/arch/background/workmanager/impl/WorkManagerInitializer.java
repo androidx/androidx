@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.impl;
 
+import android.arch.background.workmanager.WorkManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;

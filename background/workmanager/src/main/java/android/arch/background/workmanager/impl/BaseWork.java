@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.impl;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
@@ -78,7 +80,7 @@ public abstract class BaseWork {
     private List<WorkTag> mWorkTags;
 
     @SuppressWarnings("unchecked")
-    BaseWork(Builder builder) {
+    public BaseWork(Builder builder) {
         mWorkSpec = builder.mWorkSpec;
         mWorkTags = new ArrayList<>(builder.mTags.size());
         for (String tag : (Set<String>) builder.mTags) {
@@ -116,22 +118,34 @@ public abstract class BaseWork {
      */
     public abstract static class Builder<W extends BaseWork, B extends Builder<W, B>> {
         private boolean mBackoffCriteriaSet = false;
-        WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
-        Set<String> mTags = new HashSet<>();
-        Arguments mArguments = Arguments.EMPTY;
+        protected WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
+        protected Set<String> mTags = new HashSet<>();
+        protected Arguments mArguments = Arguments.EMPTY;
 
         protected Builder(Class<? extends Worker> workerClass) {
             mWorkSpec.setWorkerClassName(workerClass.getName());
         }
 
+        /**
+         * Set the initial status for this {@link BaseWork}.  Used in testing only.
+         *
+         * @param status The {@link WorkStatus} to set
+         * @return The current {@link Builder}
+         */
         @VisibleForTesting
-        B withInitialStatus(@Work.WorkStatus int status) {
+        public B withInitialStatus(@WorkStatus int status) {
             mWorkSpec.setStatus(status);
             return getThis();
         }
 
+        /**
+         * Set the initial run attempt count for this {@link BaseWork}.  Used in testing only.
+         *
+         * @param runAttemptCount The initial run attempt count
+         * @return The current {@link Builder}
+         */
         @VisibleForTesting
-        B withInitialRunAttemptCount(int runAttemptCount) {
+        public B withInitialRunAttemptCount(int runAttemptCount) {
             mWorkSpec.setRunAttemptCount(runAttemptCount);
             return getThis();
         }
@@ -196,7 +210,7 @@ public abstract class BaseWork {
             return getThis();
         }
 
-        abstract B getThis();
+        protected abstract B getThis();
 
         /**
          * Builds this {@link BaseWork} object.
