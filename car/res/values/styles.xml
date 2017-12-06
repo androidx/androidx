@@ -15,25 +15,25 @@ limitations under the License.
 -->
 <resources>
     <!-- The styling for title text. The color of this text changes based on day/night mode. -->
-    <style name="CarTitle" >
+    <style name="CarTitle">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_title_size</item>
         <item name="android:textColor">@color/car_title</item>
     </style>
 
     <!-- Title text that is permanently a dark color. -->
-    <style name="CarTitle.Dark" >
+    <style name="CarTitle.Dark">
         <item name="android:textColor">@color/car_title_dark</item>
     </style>
 
     <!-- Title text that is permanently a light color. -->
-    <style name="CarTitle.Light" >
+    <style name="CarTitle.Light">
         <item name="android:textColor">@color/car_title_light</item>
     </style>
 
     <!-- The styling for the main headline text. The color of this text changes based on the
          day/night mode. -->
-    <style name="CarHeadline1" >
+    <style name="CarHeadline1">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_headline1_size</item>
         <item name="android:textColor">@color/car_headline1</item>
@@ -41,7 +41,7 @@ limitations under the License.
 
     <!-- The styling for a sub-headline text. The color of this text changes based on the
          day/night mode. -->
-    <style name="CarHeadline2" >
+    <style name="CarHeadline2">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_headline2_size</item>
         <item name="android:textColor">@color/car_headline2</item>
@@ -49,7 +49,7 @@ limitations under the License.
 
     <!-- The styling for a smaller alternate headline text. The color of this text changes based on
          the day/night mode. -->
-    <style name="CarHeadline3" >
+    <style name="CarHeadline3">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_headline3_size</item>
         <item name="android:textColor">@color/car_headline3</item>
@@ -57,14 +57,14 @@ limitations under the License.
 
     <!-- The styling for the smallest headline text. The color of this text changes based on the
          day/night mode. -->
-    <style name="CarHeadline4" >
+    <style name="CarHeadline4">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_headline4_size</item>
         <item name="android:textColor">@color/car_headline4</item>
     </style>
 
     <!-- The styling for body text. The color of this text changes based on the day/night mode. -->
-    <style name="CarBody1" >
+    <style name="CarBody1">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body1_size</item>
         <item name="android:textColor">@color/car_body1</item>
@@ -72,7 +72,7 @@ limitations under the License.
 
     <!-- An alternate styling for body text that is both a different color and size than
          CarBody1. -->
-    <style name="CarBody2" >
+    <style name="CarBody2">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body2_size</item>
         <item name="android:textColor">@color/car_body2</item>
@@ -80,7 +80,7 @@ limitations under the License.
 
     <!-- A smaller styling for body text. The color of this text changes based on the day/night
          mode. -->
-    <style name="CarBody3" >
+    <style name="CarBody3">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body3_size</item>
         <item name="android:textColor">@color/car_body3</item>
@@ -88,7 +88,7 @@ limitations under the License.
 
     <!-- The smallest styling for body text. The color of this text changes based on the day/night
          mode. -->
-    <style name="CarBody4" >
+    <style name="CarBody4">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body4_size</item>
         <item name="android:textColor">@color/car_body4</item>
@@ -119,14 +119,17 @@ limitations under the License.
         <item name="android:background">@drawable/car_button_background</item>
     </style>
 
-    <style name="CarBorderlessButton" parent="android:Widget.Material.Button.Borderless">
+    <style name="CarButton.Borderless" parent="android:Widget.Material.Button.Borderless">
         <item name="android:layout_height">@dimen/car_button_height</item>
-        <item name="android:minWidth">@dimen/car_button_min_width</item>
-        <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
-        <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
+        <item name="android:paddingStart">@dimen/car_borderless_button_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/car_borderless_button_horizontal_padding</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_action1_size</item>
-        <item name="android:textColor">@drawable/car_button_text_color</item>
+        <item name="android:textColor">@drawable/car_borderless_button_text_color</item>
         <item name="android:textAllCaps">true</item>
     </style>
+
+    <!-- Style for the progress bars -->
+    <style name="CarProgressBar.Horizontal"
+           parent="android:Widget.Material.ProgressBar.Horizontal"/>
 </resources>

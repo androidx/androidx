@@ -85,8 +85,10 @@ public class PagedScrollBarView extends FrameLayout
         mScrollThumb = (ImageView) findViewById(R.id.scrollbar_thumb);
         mFiller = findViewById(R.id.filler);
 
-        mMinThumbLength = getResources().getDimensionPixelSize(R.dimen.min_thumb_height);
-        mMaxThumbLength = getResources().getDimensionPixelSize(R.dimen.max_thumb_height);
+        mMinThumbLength = getResources()
+                .getDimensionPixelSize(R.dimen.car_min_scroll_bar_thumb_height);
+        mMaxThumbLength = getResources()
+                .getDimensionPixelSize(R.dimen.car_max_scroll_bar_thumb_height);
     }
 
     @Override

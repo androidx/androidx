@@ -14,10 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <!-- The number of columns that appear on-screen. -->
-    <integer name="car_screen_num_of_columns">4</integer>
+    <!-- Framework -->
+    <!-- Columns -->
+    <integer name="car_column_number">4</integer>
 
-    <!-- The default number of columns that a ColumnCardView will span if columnSpan is not
-         specified.-->
+    <!-- Application Components -->
+    <!-- Action Bar -->
+    <integer name="action_bar_column_number">@integer/car_column_number</integer>
+
+    <!-- Cards -->
     <integer name="column_card_default_column_span">4</integer>
+
+    <!-- Dialogs -->
+    <integer name="car_dialog_column_number">10</integer>
+
+    <!-- Slide Up Menu -->
+    <integer name="car_slide_up_menu_column_number">4</integer>
 </resources>

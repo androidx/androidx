@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
+    <!-- Car Component Dimensions -->
     <!-- Type Sizings -->
     <dimen name="car_title2_size">40sp</dimen>
     <dimen name="car_headline1_size">56sp</dimen>
@@ -22,17 +23,31 @@ limitations under the License.
     <dimen name="car_body2_size">32sp</dimen>
     <dimen name="car_action1_size">32sp</dimen>
 
-    <!-- Car Component Dimensions -->
-    <!-- Application Bar Height -->
-    <dimen name="car_app_bar_height">112dp</dimen>
-
-    <dimen name="car_touch_target">96dp</dimen>
-
-    <!-- Icon dimensions -->
+    <!-- Icons and Buttons -->
+    <!-- Icons -->
     <dimen name="car_primary_icon_size">56dp</dimen>
     <dimen name="car_secondary_icon_size">36dp</dimen>
 
-    <!-- Line heights -->
+    <!-- Avatars -->
+    <dimen name="car_avatar_size">96dp</dimen>
+
+    <!-- Minimum touch target size. -->
+    <dimen name="car_touch_target_size">96dp</dimen>
+
+    <!-- Application Bar -->
+    <dimen name="car_app_bar_height">112dp</dimen>
+
+    <!-- List Items -->
     <dimen name="car_single_line_list_item_height">128dp</dimen>
     <dimen name="car_double_line_list_item_height">128dp</dimen>
+
+    <!-- Cards -->
+    <dimen name="car_card_header_height">96dp</dimen>
+    <dimen name="car_card_action_bar_height">96dp</dimen>
+
+    <!-- Slide Up Menu -->
+    <dimen name="car_slide_up_menu_initial_height">128dp</dimen>
+
+    <!-- Sub Header -->
+    <dimen name="car_sub_header_height">96dp</dimen>
 </resources>

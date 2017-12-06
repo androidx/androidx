@@ -14,5 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <dimen name="car_screen_margin_size">24dp</dimen>
+    <!-- Application Components -->
+    <!-- Cards -->
+    <integer name="column_card_default_column_span">10</integer>
+
+    <!-- Dialogs -->
+    <integer name="car_dialog_column_number">10</integer>
 </resources>

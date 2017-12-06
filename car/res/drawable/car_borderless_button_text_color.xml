@@ -14,18 +14,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!-- Default background styles for car buttons when enabled/disabled. -->
+<!-- Default text colors for car buttons when enabled/disabled. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false">
-        <shape android:shape="rectangle">
-            <corners android:radius="@dimen/car_button_radius"/>
-            <solid android:color="@color/car_grey_300"/>
-        </shape>
-    </item>
-    <item>
-        <shape android:shape="rectangle">
-            <corners android:radius="@dimen/car_button_radius"/>
-            <solid android:color="?android:attr/colorPrimary"/>
-        </shape>
-    </item>
+    <item android:color="@color/car_grey_700" android:state_enabled="false"/>
+    <item android:color="?android:attr/colorPrimary"/>
 </selector>

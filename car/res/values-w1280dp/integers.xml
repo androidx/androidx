@@ -14,6 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <integer name="car_screen_num_of_columns">8</integer>
-    <integer name="column_card_default_column_span">6</integer>
+    <!-- Application Components -->
+    <!-- Cards -->
+    <integer name="column_card_default_column_span">8</integer>
+
+    <!-- Dialogs -->
+    <integer name="car_dialog_column_number">8</integer>
 </resources>
