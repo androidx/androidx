@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
@@ -45,7 +46,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
     private Context mContext;
     private Activity mHostActivity;
 
-    public ActivityNavigator(Context context) {
+    public ActivityNavigator(@NonNull Context context) {
         mContext = context;
         while (context instanceof ContextWrapper) {
             if (context instanceof Activity) {
@@ -56,6 +57,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         }
     }
 
+    @NonNull
     @Override
     public Destination createDestination() {
         return new Destination(this);
@@ -77,7 +79,8 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
     }
 
     @Override
-    public void navigate(Destination destination, Bundle args, NavOptions navOptions) {
+    public void navigate(@NonNull Destination destination, @Nullable Bundle args,
+            @Nullable NavOptions navOptions) {
         if (destination.getIntent() == null) {
             throw new IllegalStateException("Destination " + destination.getId()
                     + " does not have an Intent set.");
@@ -181,7 +184,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         }
 
         @Override
-        public void onInflate(Context context, AttributeSet attrs) {
+        public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs) {
             super.onInflate(context, attrs);
             TypedArray a = context.getResources().obtainAttributes(attrs,
                     R.styleable.ActivityNavigator);

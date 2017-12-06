@@ -18,6 +18,7 @@ package android.arch.navigation;
 
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.Nullable;
 
 /**
  * Navigation actions provide a level of indirection between your navigation code and the
@@ -53,7 +54,7 @@ public class NavAction {
      *                      action is used.
      * @param navOptions special options for this action that should be used by default
      */
-    public NavAction(@IdRes int destinationId, NavOptions navOptions) {
+    public NavAction(@IdRes int destinationId, @Nullable NavOptions navOptions) {
         mDestinationId = destinationId;
         mNavOptions = navOptions;
     }
@@ -70,13 +71,14 @@ public class NavAction {
      *
      * @param navOptions special options for this action that should be used by default
      */
-    public void setNavOptions(NavOptions navOptions) {
+    public void setNavOptions(@Nullable NavOptions navOptions) {
         mNavOptions = navOptions;
     }
 
     /**
      * Gets the NavOptions to be used by default when navigating to this action.
      */
+    @Nullable
     public NavOptions getNavOptions() {
         return mNavOptions;
     }

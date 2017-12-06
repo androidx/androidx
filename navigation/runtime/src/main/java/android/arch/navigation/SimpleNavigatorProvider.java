@@ -16,6 +16,8 @@
 
 package android.arch.navigation;
 
+import android.support.annotation.NonNull;
+
 import java.util.HashMap;
 
 /**
@@ -28,7 +30,7 @@ class SimpleNavigatorProvider implements NavigatorProvider {
 
     @Override
     public Navigator<? extends NavDestination> getNavigator(
-            Class<? extends Navigator> navigatorClass) {
+            @NonNull Class<? extends Navigator> navigatorClass) {
         Navigator.Name annotation = navigatorClass.getAnnotation(Navigator.Name.class);
         String name = annotation != null ? annotation.value() : null;
         if (!validateName(name)) {
@@ -40,16 +42,16 @@ class SimpleNavigatorProvider implements NavigatorProvider {
     }
 
     @Override
-    public Navigator<? extends NavDestination> getNavigator(String name) {
+    public Navigator<? extends NavDestination> getNavigator(@NonNull String name) {
         if (!validateName(name)) {
-            throw new IllegalArgumentException("navigator name cannot be null");
+            throw new IllegalArgumentException("navigator name cannot be an empty string");
         }
 
         return mNavigators.get(name);
     }
 
     @Override
-    public void addNavigator(Navigator<? extends NavDestination> navigator) {
+    public void addNavigator(@NonNull Navigator<? extends NavDestination> navigator) {
         Navigator.Name annotation = navigator.getClass().getAnnotation(Navigator.Name.class);
         String name = annotation != null ? annotation.value() : null;
         if (!validateName(name)) {
@@ -61,9 +63,10 @@ class SimpleNavigatorProvider implements NavigatorProvider {
     }
 
     @Override
-    public void addNavigator(String name, Navigator<? extends NavDestination> navigator) {
+    public void addNavigator(@NonNull String name,
+            @NonNull Navigator<? extends NavDestination> navigator) {
         if (!validateName(name)) {
-            throw new IllegalArgumentException("navigator name cannot be null");
+            throw new IllegalArgumentException("navigator name cannot be an empty string");
         }
         mNavigators.put(name, navigator);
     }

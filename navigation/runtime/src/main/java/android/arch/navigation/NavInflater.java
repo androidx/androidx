@@ -22,6 +22,8 @@ import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import android.support.annotation.NavigationRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -64,7 +66,7 @@ public class NavInflater {
     private Context mContext;
     private NavigatorProvider mNavigatorProvider;
 
-    public NavInflater(Context c, NavigatorProvider navigatorProvider) {
+    public NavInflater(@NonNull Context c, @NonNull NavigatorProvider navigatorProvider) {
         mContext = c;
         mNavigatorProvider = navigatorProvider;
     }
@@ -76,7 +78,8 @@ public class NavInflater {
      * @param name
      * @return
      */
-    public Navigator getNavigator(String name) {
+    @Nullable
+    public Navigator getNavigator(@NonNull String name) {
         return mNavigatorProvider.getNavigator(name);
     }
 
@@ -92,6 +95,7 @@ public class NavInflater {
      *
      * @see #METADATA_KEY_GRAPH
      */
+    @Nullable
     public NavGraph inflateMetadataGraph() {
         final Bundle metaData = mContext.getApplicationInfo().metaData;
         if (metaData != null) {

@@ -71,7 +71,7 @@ public class NavDestination {
      * @param attrs attrs to parse during inflation
      */
     @CallSuper
-    public void onInflate(Context context, AttributeSet attrs) {
+    public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs) {
         final TypedArray a = context.getResources().obtainAttributes(attrs,
                 R.styleable.Navigator);
         setId(a.getResourceId(R.styleable.Navigator_android_id, 0));
@@ -88,6 +88,7 @@ public class NavDestination {
      * destination is added to a NavGraph via {@link NavGraph#addDestination}.
      * @return
      */
+    @Nullable
     public NavGraph getParent() {
         return mParent;
     }
@@ -118,13 +119,14 @@ public class NavDestination {
      *
      * @param label A descriptive label of this destination.
      */
-    public void setLabel(CharSequence label) {
+    public void setLabel(@Nullable CharSequence label) {
         mLabel = label;
     }
 
     /**
      * Gets the descriptive label of this destination.
      */
+    @Nullable
     public CharSequence getLabel() {
         return mLabel;
     }
@@ -134,6 +136,7 @@ public class NavDestination {
      *
      * @return this destination's navigator
      */
+    @NonNull
     public Navigator getNavigator() {
         return mNavigator;
     }
@@ -155,7 +158,7 @@ public class NavDestination {
      *
      * @param args the new bundle to set
      */
-    public void setDefaultArguments(Bundle args) {
+    public void setDefaultArguments(@Nullable Bundle args) {
         mDefaultArgs = args;
     }
 
@@ -165,7 +168,7 @@ public class NavDestination {
      *
      * @param args arguments to add
      */
-    public void addDefaultArguments(Bundle args) {
+    public void addDefaultArguments(@NonNull Bundle args) {
         getDefaultArguments().putAll(args);
     }
 
@@ -251,6 +254,7 @@ public class NavDestination {
      * @param id action ID to fetch
      * @return destination ID mapped to the given action id, or 0 if none
      */
+    @Nullable
     public NavAction getAction(@IdRes int id) {
         NavAction destination = mActions == null ? null : mActions.get(id);
         // Search the parent for the given action if it is not found in this destination
@@ -307,7 +311,7 @@ public class NavDestination {
      * @param args arguments to the new destination
      * @param navOptions options for navigation
      */
-    public void navigate(Bundle args, NavOptions navOptions) {
+    public void navigate(@Nullable Bundle args, @Nullable NavOptions navOptions) {
         Bundle defaultArgs = getDefaultArguments();
         Bundle finalArgs = new Bundle();
         finalArgs.putAll(defaultArgs);

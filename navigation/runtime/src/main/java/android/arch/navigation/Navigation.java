@@ -22,6 +22,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewParent;
@@ -48,7 +49,7 @@ public class Navigation {
      * a valid resource
      */
     @NonNull
-    static String getDisplayName(Context context, int id) {
+    static String getDisplayName(@NonNull Context context, int id) {
         try {
             return context.getResources().getResourceName(id);
         } catch (Resources.NotFoundException e) {
@@ -68,7 +69,7 @@ public class Navigation {
      * @param fragment the locally scoped Fragment for navigation
      * @return the locally scoped {@link NavController} for navigating from this {@link Fragment}
      */
-    public static NavController findController(Fragment fragment) {
+    public static NavController findController(@Nullable Fragment fragment) {
         if (fragment == null) {
             return null;
         }
@@ -101,7 +102,8 @@ public class Navigation {
      * @param viewId The id of the view to search from
      * @return the {@link NavController} associated with the view referenced by id
      */
-    public static NavController findController(Activity activity, @IdRes int viewId) {
+    @Nullable
+    public static NavController findController(@NonNull Activity activity, @IdRes int viewId) {
         return Navigation.findController(activity.findViewById(viewId));
     }
 
@@ -116,7 +118,8 @@ public class Navigation {
      * @param view the view to search from
      * @return the locally scoped {@link NavController} to the given view
      */
-    public static NavController findController(View view) {
+    @Nullable
+    public static NavController findController(@Nullable View view) {
         if (view == null) {
             return null;
         }
@@ -140,6 +143,7 @@ public class Navigation {
      *              navigate to when the view is clicked
      * @return a new click listener for setting on an arbitrary view
      */
+    @NonNull
     public static View.OnClickListener createNavigateOnClickListener(@IdRes final int resId) {
         return createNavigateOnClickListener(resId, null);
     }
@@ -154,8 +158,9 @@ public class Navigation {
      * @param args arguments to pass to the final destination
      * @return a new click listener for setting on an arbitrary view
      */
+    @NonNull
     public static View.OnClickListener createNavigateOnClickListener(@IdRes final int resId,
-                                                                     final Bundle args) {
+            @Nullable final Bundle args) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -181,7 +186,8 @@ public class Navigation {
      * @param controller The controller you wish to later retrieve via
      *                   {@link #findController(View)}
      */
-    public static void setViewNavController(View view, NavController controller) {
+    public static void setViewNavController(@NonNull View view,
+            @Nullable NavController controller) {
         view.setTag(R.id.nav_controller_view_tag, controller);
     }
 

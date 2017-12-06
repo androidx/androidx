@@ -25,6 +25,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -105,6 +107,7 @@ public abstract class Navigator<D extends NavDestination> {
      * it is not guaranteed that every destination will be created through this method.</p>
      * @return a new NavDestination
      */
+    @NonNull
     public abstract D createDestination();
 
     /**
@@ -121,8 +124,8 @@ public abstract class Navigator<D extends NavDestination> {
      * @param args arguments to use for navigation
      * @param navOptions additional options for navigation
      */
-    public abstract void navigate(D destination, Bundle args,
-                                     NavOptions navOptions);
+    public abstract void navigate(@NonNull D destination, @Nullable Bundle args,
+                                     @Nullable NavOptions navOptions);
 
     /**
      * Attempt to pop this navigator's back stack, performing the appropriate navigation.
@@ -145,7 +148,8 @@ public abstract class Navigator<D extends NavDestination> {
      *
      * @param listener listener to add
      */
-    public final void addOnNavigatorNavigatedListener(OnNavigatorNavigatedListener listener) {
+    public final void addOnNavigatorNavigatedListener(
+            @NonNull OnNavigatorNavigatedListener listener) {
         mOnNavigatedListeners.add(listener);
     }
 
@@ -155,7 +159,8 @@ public abstract class Navigator<D extends NavDestination> {
      *
      * @param listener listener to remove
      */
-    public final void removeOnNavigatorNavigatedListener(OnNavigatorNavigatedListener listener) {
+    public final void removeOnNavigatorNavigatedListener(
+            @NonNull OnNavigatorNavigatedListener listener) {
         mOnNavigatedListeners.remove(listener);
     }
 
@@ -185,7 +190,7 @@ public abstract class Navigator<D extends NavDestination> {
          * @param destId
          * @param backStackEffect
          */
-        void onNavigatorNavigated(Navigator navigator, @IdRes int destId,
+        void onNavigatorNavigated(@NonNull Navigator navigator, @IdRes int destId,
                 @BackStackEffect int backStackEffect);
     }
 }

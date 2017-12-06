@@ -255,6 +255,7 @@ public class NavOptions {
          *
          * @param singleTop true to launch as single-top
          */
+        @NonNull
         public Builder setLaunchSingleTop(boolean singleTop) {
             if (singleTop) {
                 mLaunchMode |= LAUNCH_SINGLE_TOP;
@@ -275,6 +276,7 @@ public class NavOptions {
          *
          * @param launchDocument true to launch a new document task
          */
+        @NonNull
         public Builder setLaunchDocument(boolean launchDocument) {
             if (launchDocument) {
                 mLaunchMode |= LAUNCH_DOCUMENT;
@@ -292,6 +294,7 @@ public class NavOptions {
          * @param clearTask
          * @return
          */
+        @NonNull
         public Builder setClearTask(boolean clearTask) {
             if (clearTask) {
                 mLaunchMode |= LAUNCH_CLEAR_TASK;
@@ -311,6 +314,7 @@ public class NavOptions {
          * @see NavOptions#getPopUpTo
          * @see NavOptions#isPopUpToInclusive
          */
+        @NonNull
         public Builder setPopUpTo(@IdRes int destinationId, boolean inclusive) {
             mPopUpTo = destinationId;
             mPopUpToInclusive = inclusive;
@@ -338,6 +342,7 @@ public class NavOptions {
          * @return this Builder
          * @see NavOptions#getExitAnim()
          */
+        @NonNull
         public Builder setExitAnim(@AnimRes @AnimatorRes int exitAnim) {
             mExitAnim = exitAnim;
             return this;
@@ -352,6 +357,7 @@ public class NavOptions {
          * @return this Builder
          * @see NavOptions#getPopEnterAnim()
          */
+        @NonNull
         public Builder setPopEnterAnim(@AnimRes @AnimatorRes int popEnterAnim) {
             mPopEnterAnim = popEnterAnim;
             return this;
@@ -366,6 +372,7 @@ public class NavOptions {
          * @return this Builder
          * @see NavOptions#getPopExitAnim()
          */
+        @NonNull
         public Builder setPopExitAnim(@AnimRes @AnimatorRes int popExitAnim) {
             mPopExitAnim = popExitAnim;
             return this;
@@ -374,6 +381,7 @@ public class NavOptions {
         /**
          * @return a constructed NavOptions
          */
+        @NonNull
         public NavOptions build() {
             return new NavOptions(mLaunchMode, mPopUpTo, mPopUpToInclusive,
                     mEnterAnim, mExitAnim, mPopEnterAnim, mPopExitAnim);

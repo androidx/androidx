@@ -71,7 +71,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
     }
 
     @Override
-    public void onInflate(Context context, AttributeSet attrs) {
+    public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs) {
         super.onInflate(context, attrs);
         TypedArray a = context.getResources().obtainAttributes(attrs,
                 R.styleable.NavGraphNavigator);
@@ -228,7 +228,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      * @param other collection of destinations to add. All destinations will be removed from this
      * graph after being added to this graph.
      */
-    public void addAll(NavGraph other) {
+    public void addAll(@NonNull NavGraph other) {
         Iterator<NavDestination> iterator = other.iterator();
         while (iterator.hasNext()) {
             NavDestination destination = iterator.next();
@@ -242,7 +242,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      *
      * @param node the destination to remove.
      */
-    public void remove(NavDestination node) {
+    public void remove(@NonNull NavDestination node) {
         int index = mNodes.indexOfKey(node.getId());
         if (index >= 0) {
             mNodes.valueAt(index).setParent(null);
