@@ -38,7 +38,10 @@ import java.util.ArrayList;
  * Version of {@link android.support.v4.app.FragmentTabHost} that can be
  * used with the platform {@link android.app.Fragment} APIs.  You will not
  * normally use this, instead using action bar tabs.
+ *
+ * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
  */
+@Deprecated
 public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListener {
     private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
     private FrameLayout mRealTabContent;
@@ -117,6 +120,10 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
         };
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
+     */
+    @Deprecated
     public FragmentTabHost(Context context) {
         // Note that we call through to the version that takes an AttributeSet,
         // because the simple Context construct can result in a broken object!
@@ -124,6 +131,10 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
         initFragmentTabHost(context, null);
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
+     */
+    @Deprecated
     public FragmentTabHost(Context context, AttributeSet attrs) {
         super(context, attrs);
         initFragmentTabHost(context, attrs);
@@ -167,9 +178,7 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Don't call the original TabHost setup, you must instead
-     * call {@link #setup(Context, FragmentManager)} or
-     * {@link #setup(Context, FragmentManager, int)}.
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
      */
     @Override
     @Deprecated
@@ -178,6 +187,10 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
                 "Must call setup() that takes a Context and FragmentManager");
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
+     */
+    @Deprecated
     public void setup(Context context, FragmentManager manager) {
         ensureHierarchy(context);  // Ensure views required by super.setup()
         super.setup();
@@ -186,6 +199,10 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
         ensureContent();
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
+     */
+    @Deprecated
     public void setup(Context context, FragmentManager manager, int containerId) {
         ensureHierarchy(context);  // Ensure views required by super.setup()
         super.setup();
@@ -212,11 +229,19 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
         }
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
+     */
+    @Deprecated
     @Override
     public void setOnTabChangedListener(OnTabChangeListener l) {
         mOnTabChangeListener = l;
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
+     */
+    @Deprecated
     public void addTab(TabHost.TabSpec tabSpec, Class<?> clss, Bundle args) {
         tabSpec.setContent(new DummyTabFactory(mContext));
         String tag = tabSpec.getTag();
@@ -239,6 +264,10 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
         addTab(tabSpec);
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
+     */
+    @Deprecated
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -278,12 +307,20 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
         }
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
+     */
+    @Deprecated
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mAttached = false;
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
+     */
+    @Deprecated
     @Override
     protected Parcelable onSaveInstanceState() {
         Parcelable superState = super.onSaveInstanceState();
@@ -292,6 +329,10 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
         return ss;
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
+     */
+    @Deprecated
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
         if (!(state instanceof SavedState)) {
@@ -303,6 +344,10 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
         setCurrentTabByTag(ss.curTab);
     }
 
+    /**
+     * @deprecated Use {@link android.support.v4.app.FragmentTabHost} instead.
+     */
+    @Deprecated
     @Override
     public void onTabChanged(String tabId) {
         if (mAttached) {
