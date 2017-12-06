@@ -1816,8 +1816,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * use the same value as set in {@link #setEnterTransition(Object)}.
      *
      * @param transition The Transition to use to move Views out of the Scene when the Fragment
-     *                   is preparing to close. <code>transition</code> must be an
-     *                   android.transition.Transition.
+     *         is preparing to close. <code>transition</code> must be an
+     *         {@link android.transition.Transition android.transition.Transition} or
+     *         {@link android.support.transition.Transition android.support.transition.Transition}.
      */
     public void setReturnTransition(@Nullable Object transition) {
         ensureAnimationInfo().mReturnTransition = transition;
@@ -1854,8 +1855,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * remain unaffected.
      *
      * @param transition The Transition to use to move Views out of the Scene when the Fragment
-     *                   is being closed not due to popping the back stack. <code>transition</code>
-     *                   must be an android.transition.Transition.
+     *          is being closed not due to popping the back stack. <code>transition</code>
+     *          must be an
+     *          {@link android.transition.Transition android.transition.Transition} or
+     *          {@link android.support.transition.Transition android.support.transition.Transition}.
      */
     public void setExitTransition(@Nullable Object transition) {
         ensureAnimationInfo().mExitTransition = transition;
@@ -1891,8 +1894,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * transition as {@link #setExitTransition(Object)}.
      *
      * @param transition The Transition to use to move Views into the scene when reentering from a
-     *                   previously-started Activity. <code>transition</code>
-     *                   must be an android.transition.Transition.
+     *          previously-started Activity. <code>transition</code>
+     *          must be an
+     *          {@link android.transition.Transition android.transition.Transition} or
+     *          {@link android.support.transition.Transition android.support.transition.Transition}.
      */
     public void setReenterTransition(@Nullable Object transition) {
         ensureAnimationInfo().mReenterTransition = transition;
@@ -1925,7 +1930,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * value will cause transferred shared elements to blink to the final position.
      *
      * @param transition The Transition to use for shared elements transferred into the content
-     *                   Scene.  <code>transition</code> must be an android.transition.Transition.
+     *          Scene.  <code>transition</code> must be an
+     *          {@link android.transition.Transition android.transition.Transition} or
+     *          {@link android.support.transition.Transition android.support.transition.Transition}.
      */
     public void setSharedElementEnterTransition(@Nullable Object transition) {
         ensureAnimationInfo().mSharedElementEnterTransition = transition;
@@ -1958,7 +1965,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link #setSharedElementEnterTransition(Object)}.
      *
      * @param transition The Transition to use for shared elements transferred out of the content
-     *                   Scene. <code>transition</code> must be an android.transition.Transition.
+     *          Scene. <code>transition</code> must be an
+     *          {@link android.transition.Transition android.transition.Transition} or
+     *          {@link android.support.transition.Transition android.support.transition.Transition}.
      */
     public void setSharedElementReturnTransition(@Nullable Object transition) {
         ensureAnimationInfo().mSharedElementReturnTransition = transition;
