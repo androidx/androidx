@@ -11,8 +11,8 @@ dependencies {
     api(project(":support-compat"))
     api project(':support-core-utils')
 
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_support)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation project(':support-testutils'), {
