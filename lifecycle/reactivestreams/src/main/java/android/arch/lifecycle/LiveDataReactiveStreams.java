@@ -211,10 +211,10 @@ public final class LiveDataReactiveStreams {
      * @param <T> The type of data hold by this instance.
      */
     private static class PublisherLiveData<T> extends LiveData<T> {
-        private final Publisher mPublisher;
+        private final Publisher<T> mPublisher;
         final AtomicReference<LiveDataSubscriber> mSubscriber;
 
-        PublisherLiveData(@NonNull final Publisher publisher) {
+        PublisherLiveData(@NonNull Publisher<T> publisher) {
             mPublisher = publisher;
             mSubscriber = new AtomicReference<>();
         }
