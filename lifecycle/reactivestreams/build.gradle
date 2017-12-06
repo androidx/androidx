@@ -29,21 +29,19 @@ android {
     }
 }
 
-allprojects {
-    dependencies {
-        api(project(":arch:common"))
-        api(project(":lifecycle:common"))
-        api(project(":lifecycle:extensions"))
-        api(project(":lifecycle:runtime"))
-        api libs.support.annotations
-        api(REACTIVE_STREAMS)
+dependencies {
+    api(project(":arch:common"))
+    api(project(":lifecycle:common"))
+    api(project(":lifecycle:extensions"))
+    api(project(":lifecycle:runtime"))
+    api libs.support.annotations
+    api(REACTIVE_STREAMS)
 
-        testImplementation(JUNIT)
-        testImplementation(RX_JAVA)
-        testImplementation(TEST_RUNNER, libs.exclude_annotations)
+    testImplementation(JUNIT)
+    testImplementation(RX_JAVA)
+    testImplementation(TEST_RUNNER, libs.exclude_annotations)
 
-        androidTestImplementation libs.support.app_compat, libs.support_exclude_config
-    }
+    androidTestImplementation libs.support.app_compat, libs.support_exclude_config
 }
 
 supportLibrary {
