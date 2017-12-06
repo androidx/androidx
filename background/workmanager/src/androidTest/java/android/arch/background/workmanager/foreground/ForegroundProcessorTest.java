@@ -82,10 +82,12 @@ public class ForegroundProcessorTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testProcess_singleWorker() throws InterruptedException {
+    public void testProcess_singleWorker() throws TimeoutException, InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
         insertBaseWork(work);
+        drain();
         mForegroundProcessor.process(work.getId(), 0L);
+        drain();
         assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
                 is(Work.STATUS_SUCCEEDED));
     }
@@ -119,6 +121,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
         drain();
         Work work = new Work.Builder(TestWorker.class).build();
         insertBaseWork(work);
+        drain();
         mForegroundProcessor.process(work.getId(), 0L);
         drain();
         assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
