@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NavigationRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.util.Pair;
@@ -135,7 +136,7 @@ public class NavController {
          * @param controller the controller that navigated
          * @param destination the new destination
          */
-        void onNavigated(NavController controller, NavDestination destination);
+        void onNavigated(@NonNull NavController controller, @NonNull NavDestination destination);
     }
 
     /**
@@ -185,6 +186,7 @@ public class NavController {
      * </p>
      * @return The {@link NavigatorProvider} used by this NavController.
      */
+    @NonNull
     public NavigatorProvider getNavigatorProvider() {
         return mNavigatorProvider;
     }
@@ -197,7 +199,7 @@ public class NavController {
      *
      * @param listener the listener to receive events
      */
-    public void addOnNavigatedListener(OnNavigatedListener listener) {
+    public void addOnNavigatedListener(@NonNull OnNavigatedListener listener) {
         // Inform the new listener of our current state, if any
         if (!mBackStack.isEmpty()) {
             listener.onNavigated(this, mBackStack.peekLast());
@@ -211,7 +213,7 @@ public class NavController {
      *
      * @param listener the listener to remove
      */
-    public void removeOnNavigatedListener(OnNavigatedListener listener) {
+    public void removeOnNavigatedListener(@NonNull OnNavigatedListener listener) {
         mOnNavigatedListeners.remove(listener);
     }
 
@@ -353,6 +355,7 @@ public class NavController {
      *
      * @return inflater for loading navigation resources
      */
+    @NonNull
     public NavInflater getNavInflater() {
         if (mInflater == null) {
             mInflater = new NavInflater(mContext, mNavigatorProvider);
@@ -388,7 +391,7 @@ public class NavController {
      * @see #setGraph(int)
      * @see #getGraph
      */
-    public void setGraph(NavGraph graph) {
+    public void setGraph(@NonNull NavGraph graph) {
         mGraph = graph;
         mGraphId = 0;
         onGraphCreated();
@@ -436,7 +439,7 @@ public class NavController {
      * @return True if the navigation controller found a valid deep link and navigated to it.
      * @see NavDestination#addDeepLink(String)
      */
-    public boolean onHandleDeepLink(Intent intent) {
+    public boolean onHandleDeepLink(@Nullable Intent intent) {
         if (intent == null) {
             return false;
         }
@@ -563,7 +566,7 @@ public class NavController {
      *              navigate to
      * @param args arguments to pass to the destination
      */
-    public final void navigate(@IdRes int resId, Bundle args) {
+    public final void navigate(@IdRes int resId, @Nullable Bundle args) {
         navigate(resId, args, null);
     }
 
@@ -576,7 +579,7 @@ public class NavController {
      * @param args arguments to pass to the destination
      * @param navOptions special options for this navigation operation
      */
-    public void navigate(@IdRes int resId, Bundle args, NavOptions navOptions) {
+    public void navigate(@IdRes int resId, @Nullable Bundle args, @Nullable NavOptions navOptions) {
         NavDestination currentNode = mBackStack.isEmpty() ? mGraph : mBackStack.peekLast();
         if (currentNode == null) {
             throw new IllegalStateException("no current navigation node");
@@ -588,12 +591,17 @@ public class NavController {
                 navOptions = navAction.getNavOptions();
             }
             destId = navAction.getDestinationId();
-            if (destId == 0 && navOptions != null && navOptions.getPopUpTo() != 0) {
-                // Handle pop only actions here. Actions with a destinationId will be handled below
-                popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
-                return;
-            }
         }
+        if (destId == 0 && navOptions != null && navOptions.getPopUpTo() != 0) {
+            popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
+            return;
+        }
+
+        if (destId == 0) {
+            throw new IllegalArgumentException("Destination id == 0 can only be used"
+                    + " in conjunction with navOptions.popUpTo != 0");
+        }
+
         NavDestination node = findDestination(destId);
         if (node == null) {
             final String dest = Navigation.getDisplayName(mContext, destId);
@@ -623,7 +631,7 @@ public class NavController {
      * @param directions directions that describe this navigation operation
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void navigate(NavDirections directions) {
+    public void navigate(@NonNull NavDirections directions) {
         navigate(directions.getDestinationId(), directions.getArguments(), directions.getOptions());
     }
 
@@ -646,6 +654,7 @@ public class NavController {
      *
      * @return saved state for this controller
      */
+    @Nullable
     public Bundle saveState() {
         Bundle b = null;
         if (mGraphId != 0) {
@@ -675,7 +684,7 @@ public class NavController {
      *
      * @param navState state bundle to restore
      */
-    public void restoreState(Bundle navState) {
+    public void restoreState(@Nullable Bundle navState) {
         if (navState == null) {
             return;
         }

@@ -19,6 +19,7 @@ package android.arch.navigation;
 
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 /**
@@ -41,10 +42,12 @@ public interface NavDirections {
     /**
      * Returns arguments to pass to the destination
      */
+    @Nullable
     Bundle getArguments();
 
     /**
      * Returns special options for this navigation operation
      */
+    @Nullable
     NavOptions getOptions();
 }

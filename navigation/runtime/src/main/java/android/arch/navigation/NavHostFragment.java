@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.annotation.NavigationRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
@@ -178,19 +179,20 @@ public class NavHostFragment extends Fragment {
      * subclasses.
      * @return a new instance of a FragmentNavigator
      */
+    @NonNull
     protected Navigator<? extends FragmentNavigator.Destination> createFragmentNavigator() {
         return new FragmentNavigator(getContext(), getChildFragmentManager(), getId());
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return new FrameLayout(inflater.getContext());
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (!(view instanceof ViewGroup)) {
             throw new IllegalStateException("created host view " + view + " is not a ViewGroup");
@@ -219,7 +221,7 @@ public class NavHostFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         Bundle navState = mNavController.saveState();
         if (navState != null) {

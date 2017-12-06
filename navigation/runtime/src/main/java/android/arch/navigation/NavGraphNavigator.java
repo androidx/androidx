@@ -18,6 +18,8 @@ package android.arch.navigation;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * A Navigator built specifically for {@link NavGraph} elements. Handles navigating to the
@@ -32,7 +34,7 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
      * destination within a {@link NavGraph}.
      * @param context
      */
-    public NavGraphNavigator(Context context) {
+    public NavGraphNavigator(@NonNull Context context) {
         mContext = context;
     }
 
@@ -40,13 +42,15 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
      * Creates a new {@link NavGraph} associated with this navigator.
      * @return
      */
+    @NonNull
     @Override
     public NavGraph createDestination() {
         return new NavGraph(this);
     }
 
     @Override
-    public void navigate(NavGraph destination, Bundle args, NavOptions navOptions) {
+    public void navigate(@NonNull NavGraph destination, @Nullable Bundle args,
+            @Nullable NavOptions navOptions) {
         int startId = destination.getStartDestination();
         if (startId == 0) {
             throw new IllegalStateException("no start destination defined via"

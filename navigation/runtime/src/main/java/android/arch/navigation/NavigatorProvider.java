@@ -16,6 +16,9 @@
 
 package android.arch.navigation;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 /**
  * A NavigationProvider stores a set of {@link Navigator}s that are valid ways to navigate
  * to a destination.
@@ -30,7 +33,9 @@ public interface NavigatorProvider {
      *
      * @see #addNavigator(Navigator)
      */
-    Navigator<? extends NavDestination> getNavigator(Class<? extends Navigator> navigatorClass);
+    @Nullable
+    Navigator<? extends NavDestination> getNavigator(
+            @NonNull Class<? extends Navigator> navigatorClass);
 
     /**
      * Retrieves a registered {@link Navigator} by name.
@@ -40,7 +45,8 @@ public interface NavigatorProvider {
      *
      * @see #addNavigator(String, Navigator)
      */
-    Navigator<? extends NavDestination> getNavigator(String name);
+    @Nullable
+    Navigator<? extends NavDestination> getNavigator(@NonNull String name);
 
     /**
      * Register a navigator using the name provided by the
@@ -50,7 +56,7 @@ public interface NavigatorProvider {
      *
      * @param navigator navigator to add
      */
-    void addNavigator(Navigator<? extends NavDestination> navigator);
+    void addNavigator(@NonNull Navigator<? extends NavDestination> navigator);
 
     /**
      * Register a navigator by name. {@link NavDestination destinations} may refer to any
@@ -60,5 +66,5 @@ public interface NavigatorProvider {
      * @param name name for this navigator
      * @param navigator navigator to add
      */
-    void addNavigator(String name, Navigator<? extends NavDestination> navigator);
+    void addNavigator(@NonNull String name, @NonNull Navigator<? extends NavDestination> navigator);
 }

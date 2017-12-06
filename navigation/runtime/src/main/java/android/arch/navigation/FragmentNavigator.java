@@ -66,7 +66,8 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 }
             };
 
-    public FragmentNavigator(Context context, FragmentManager manager, int containerId) {
+    public FragmentNavigator(@NonNull Context context, @NonNull FragmentManager manager,
+            int containerId) {
         mContext = context;
         mFragmentManager = manager;
         mContainerId = containerId;
@@ -80,6 +81,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         return mFragmentManager.popBackStackImmediate();
     }
 
+    @NonNull
     @Override
     public Destination createDestination() {
         return new Destination(this);
@@ -93,8 +95,8 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     }
 
     @Override
-    public void navigate(Destination destination, Bundle args,
-                            NavOptions navOptions) {
+    public void navigate(@NonNull Destination destination, @Nullable Bundle args,
+                            @Nullable NavOptions navOptions) {
         final Fragment frag = destination.createFragment(args);
         final FragmentTransaction ft = mFragmentManager.beginTransaction();
 
@@ -184,7 +186,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         }
 
         @Override
-        public void onInflate(Context context, AttributeSet attrs) {
+        public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs) {
             super.onInflate(context, attrs);
             TypedArray a = context.getResources().obtainAttributes(attrs,
                     R.styleable.FragmentNavigator);
