@@ -31,6 +31,8 @@ import android.util.Log;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 /**
  * A class that schedules work using {@link FirebaseJobDispatcher}.
@@ -47,8 +49,12 @@ public class FirebaseJobScheduler implements Scheduler {
     private Context mAppContext;
 
     public FirebaseJobScheduler(Context context) {
-        // TODO(xbhatnag): Check for Play Services. Throw Exception if not found.
         mAppContext = context.getApplicationContext();
+        boolean isPlayServicesAvailable = GoogleApiAvailability.getInstance()
+                .isGooglePlayServicesAvailable(mAppContext) == ConnectionResult.SUCCESS;
+        if (!isPlayServicesAvailable) {
+            throw new IllegalStateException("Google Play Services not available");
+        }
         mDispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(mAppContext));
         mJobConverter = new FirebaseJobConverter(mDispatcher);
     }

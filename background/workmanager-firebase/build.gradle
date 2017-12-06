@@ -43,6 +43,7 @@ android {
 
 dependencies {
     api(project(":background:workmanager"))
+    api(PLAY_SERVICES, libs.support_exclude_config)
     api(FIREBASE_JOBDISPATCHER, libs.support_exclude_config)
     // Tempory workaround to the fact that FIREBASE_JOBDISPATCHER imports v4 of 25.0.0, but we pull
     // in 26.1.0 on some of the dependencies of v4, but not support-media-compat.
