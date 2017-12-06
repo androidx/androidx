@@ -36,6 +36,5 @@
         <item name="editTextPreferenceStyle">@style/Preference.DialogPreference.EditTextPreference.Material</item>
         <item name="dropdownPreferenceStyle">@style/Preference.DropDown.Material</item>
         <item name="preferenceFragmentListStyle">@style/PreferenceFragmentList.Material</item>
-        <item name="android:scrollbars">vertical</item>
     </style>
 </resources>
