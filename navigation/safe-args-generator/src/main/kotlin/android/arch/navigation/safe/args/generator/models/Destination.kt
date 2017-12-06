@@ -19,6 +19,7 @@ package android.arch.navigation.safe.args.generator.models
 import com.squareup.javapoet.ClassName
 
 data class Destination(
+        val id: Id?,
         val type: String,
         private val name: String,
         val args: List<Argument>,

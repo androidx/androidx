@@ -41,6 +41,7 @@ private const val NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/androi
 private fun parseDestination(parser: XmlPullParser, defaultPackageName: String): Destination {
     val type = parser.name
     val name = parser.attrValue(NAMESPACE_ANDROID, ATTRIBUTE_NAME) ?: ""
+    val idValue = parser.attrValue(NAMESPACE_ANDROID, ATTRIBUTE_ID)
     val args = mutableListOf<Argument>()
     val actions = mutableListOf<Action>()
     val nested = mutableListOf<Destination>()
@@ -52,7 +53,8 @@ private fun parseDestination(parser: XmlPullParser, defaultPackageName: String):
         }
     }
 
-    return Destination(type, name, args, actions, nested)
+    return Destination(parseNullableId(idValue, defaultPackageName), type, name, args, actions,
+            nested)
 }
 
 private fun parseArgument(parser: XmlPullParser): Argument {
@@ -63,7 +65,7 @@ private fun parseArgument(parser: XmlPullParser): Argument {
 
 private fun parseAction(parser: XmlPullParser, defaultPackageName: String): Action {
     val idValue = parser.attrValueOrThrow(NAMESPACE_ANDROID, ATTRIBUTE_ID)
-    val destValue = parser.attrValueOrThrow(NAMESPACE_RES_AUTO, ATTRIBUTE_DESTINATION)
+    val destValue = parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_DESTINATION)
     val args = mutableListOf<Argument>()
     parser.traverseInnerStartTags {
         if (parser.name == TAG_ARGUMENT) {
@@ -71,7 +73,7 @@ private fun parseAction(parser: XmlPullParser, defaultPackageName: String): Acti
         }
     }
     return Action(parseId(idValue, defaultPackageName),
-            parseId(destValue, defaultPackageName), args)
+            parseNullableId(destValue, defaultPackageName), args)
 }
 
 fun parseNavigationFile(navigationXml: File, packageName: String): Destination {
@@ -98,4 +100,8 @@ internal fun parseId(xmlId: String, defaultPackageName: String): Id {
             .removeSuffix("id").removeSuffix(":")
 
     return Id(if (packageName.isNotEmpty()) packageName else defaultPackageName, resourceName)
+}
+
+internal fun parseNullableId(xmlId: String?, defaultPackageName: String): Id? = xmlId?.let {
+    parseId(it, defaultPackageName)
 }

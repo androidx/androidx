@@ -14,7 +14,27 @@
  * limitations under the License.
  */
 
-package android.arch.navigation.safe.args.generator.models
+package a.b;
 
-data class Action(val id: Id, val destination: Id?, val args: List<Argument> = emptyList())
+import android.arch.navigation.NavDirections;
+import android.arch.navigation.NavOptions;
+import android.os.Bundle;
 
+public static class Finish implements NavDirections {
+
+    public Finish() {
+    }
+
+    public Bundle getArguments() {
+        Bundle __outBundle = new Bundle();
+        return __outBundle;
+    }
+
+    public int getDestinationId() {
+        return 0;
+    }
+
+    public NavOptions getOptions() {
+        return null;
+    }
+}

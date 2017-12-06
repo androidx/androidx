@@ -30,5 +30,6 @@
               android:name="android.arch.navigation.testapp.NextFragment">
         <argument android:name="myarg2" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+        <action android:id="@+id/finish" app:popUpTo="@id/first_screen" />
     </fragment>
 </navigation>

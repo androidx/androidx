@@ -140,7 +140,7 @@ fun generateDirectionsTypeSpec(action: Action): TypeSpec {
             .build()
 }
 
-fun idAccessor(id: Id) = "${id.packageName}.R.id.${id.name}"
+fun idAccessor(id: Id?) = id?.let { "${id.packageName}.R.id.${id.name}" } ?: "0"
 
 fun generateDirectionsJavaFile(packageName: String, destination: Destination) =
         JavaFile.builder(packageName, generateDirectionsTypeSpec(packageName, destination)).build()
