@@ -69,8 +69,8 @@ import android.view.View;
  * </pre>
  */
 public class DragStartHelper {
-    final private View mView;
-    final private OnDragStartListener mListener;
+    private final View mView;
+    private final OnDragStartListener mListener;
 
     private int mLastTouchX, mLastTouchY;
     private boolean mDragging;
