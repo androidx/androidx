@@ -19,6 +19,7 @@ package android.arch.navigation.safe.args.generator
 import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
+import android.arch.navigation.safe.args.generator.models.Id
 import android.arch.navigation.safe.args.generator.models.Type
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubject
@@ -47,10 +48,12 @@ class WriterTest {
         return JavaFileObjects.forSourceString(fullClassName, code)
     }
 
+    private fun id(id: String) = Id("a.b", id)
+
     @Test
     fun testDirectionClassGeneration() {
         val destination = workingDir.newFolder()
-        val actionSpec = generateDirectionsTypeSpec("a.b", Action("@+id/next", "@+id/destA",
+        val actionSpec = generateDirectionsTypeSpec(Action(id("next"), id("destA"),
                 listOf(
                         Argument("main", Type.STRING),
                         Argument("optional", Type.STRING, "bla"))))
@@ -66,12 +69,12 @@ class WriterTest {
     fun testDirectionsClassGeneration() {
         val destination = workingDir.newFolder()
 
-        val nextAction = Action("@+id/next", "@+id/destA",
+        val nextAction = Action(id("next"), id("destA"),
                 listOf(
                         Argument("main", Type.STRING),
                         Argument("optional", Type.STRING, "bla")))
 
-        val prevAction = Action("@+id/previous", "@+id/destB",
+        val prevAction = Action(id("previous"), id("destB"),
                 listOf(
                         Argument("arg1", Type.STRING),
                         Argument("arg2", Type.STRING)))
