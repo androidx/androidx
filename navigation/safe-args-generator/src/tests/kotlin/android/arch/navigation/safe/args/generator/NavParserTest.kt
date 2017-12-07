@@ -38,18 +38,18 @@ class NavParserTest {
 
         val nameFirst = "android.arch.navigation.testapp.MainFragment"
         val nameNext = "android.arch.navigation.testapp.NextFragment"
-
-        val expectedFirst = Destination("fragment", nameFirst,
+        val expectedFirst = Destination(id("first_screen"), "fragment", nameFirst,
                 listOf(Argument("myarg1", Type.STRING, "one")),
                 listOf(Action(id("next"), id("next_fragment"), listOf(
                         Argument("myarg2", Type.STRING),
                         Argument("randomArgument", Type.STRING)))))
 
-        val expectedNext = Destination("fragment", nameNext,
+        val expectedNext = Destination(id("next_fragment"), "fragment", nameNext,
                 listOf(Argument("myarg2", Type.STRING)),
-                listOf(Action(id("next"), id("first_screen"))))
+                listOf(Action(id("next"), id("first_screen")),
+                        Action(id("finish"), null)))
 
-        val expectedGraph = Destination("navigation", "", emptyList(), emptyList(),
+        val expectedGraph = Destination(null, "navigation", "", emptyList(), emptyList(),
                 listOf(expectedFirst, expectedNext))
         assertThat(navGraph, `is`(expectedGraph))
     }

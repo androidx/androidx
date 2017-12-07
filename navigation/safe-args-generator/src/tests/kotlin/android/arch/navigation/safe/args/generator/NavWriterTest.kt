@@ -38,6 +38,7 @@ import javax.tools.JavaFileObject
 @RunWith(JUnit4::class)
 class WriterTest {
 
+    @Suppress("MemberVisibilityCanPrivate")
     @get:Rule
     val workingDir = TemporaryFolder()
 
@@ -66,6 +67,18 @@ class WriterTest {
     }
 
     @Test
+    fun testDirectionNoIdClassGeneration() {
+        val destination = workingDir.newFolder()
+        val actionSpec = generateDirectionsTypeSpec(Action(id("finish"), null, emptyList()))
+        JavaFile.builder("a.b", actionSpec).build().writeTo(destination)
+        val expected = load("a.b.Finish", "expected")
+        val generated = File(destination, "/a/b/Finish.java")
+        MatcherAssert.assertThat(generated.exists(), CoreMatchers.`is`(true))
+        val actual = JavaFileObjects.forResource(generated.toURI().toURL())
+        JavaSourcesSubject.assertThat(actual).parsesAs(expected)
+    }
+
+    @Test
     fun testDirectionsClassGeneration() {
         val destination = workingDir.newFolder()
 
@@ -79,7 +92,7 @@ class WriterTest {
                         Argument("arg1", Type.STRING),
                         Argument("arg2", Type.STRING)))
 
-        val dest = Destination("fragment", "a.b.MainFragment", listOf(),
+        val dest = Destination(null, "fragment", "a.b.MainFragment", listOf(),
                 listOf(prevAction, nextAction))
 
         generateDirectionsJavaFile("a.b", dest).writeTo(destination)
