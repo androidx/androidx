@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension;
 
-apply plugin: android.support.SupportJavaLibraryPlugin
+plugins {
+    id("SupportJavaLibraryPlugin")
+}
 
 sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
@@ -31,11 +34,12 @@ dependencies {
     testCompile libs.mockito_core
 }
 
-version = LibraryVersions.ROOM.toString()
 supportLibrary {
-    name 'Android Room Migration'
-    publish true
-    inceptionYear '2017'
-    description "Android Room Migration"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Room Migration"
+    publish = true
+    mavenVersion = LibraryVersions.ROOM
+    mavenGroup = LibraryGroups.ROOM
+    inceptionYear = "2017"
+    description = "Android Room Migration"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

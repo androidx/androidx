@@ -1,4 +1,9 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 ext {
     fontDir = project(':noto-emoji-compat').projectDir
@@ -19,18 +24,21 @@ dependencies {
 }
 
 supportLibrary {
-    name 'Android Emoji Compat'
-    publish true
-    inceptionYear '2017'
-    description 'Library bundled with assets to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters.'
+    name = "Android Emoji Compat"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2017"
+    description = "Library bundled with assets to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
 
     license {
-        name 'SIL Open Font License, Version 1.1'
-        url  'http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web'
+        name = "SIL Open Font License, Version 1.1"
+        url = "http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
     }
 
     license {
-        name 'Unicode, Inc. License'
-        url 'http://www.unicode.org/copyright.html#License'
+        name = "Unicode, Inc. License"
+        url = "http://www.unicode.org/copyright.html#License"
     }
+    legacySourceLocation = true
 }

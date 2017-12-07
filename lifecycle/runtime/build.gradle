@@ -1,37 +1,29 @@
+import android.support.LibraryGroups
 import android.support.LibraryVersions
-
 import android.support.SupportLibraryExtension
 
-apply plugin: android.support.FlatfootAndroidLibraryPlugin
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 android {
-    compileSdkVersion tools.current_sdk
-    buildToolsVersion tools.build_tools_version
-
     defaultConfig {
         minSdkVersion flatfoot.min_sdk
-        targetSdkVersion tools.current_sdk
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
 }
 
 dependencies {
-    compile project(":lifecycle:common")
-    compile project(":arch:common")
+    api project(":lifecycle:common")
+    api project(":arch:common")
     // necessary for IJ to resolve dependencies.
-    compile libs.support.annotations
+    api libs.support.annotations
 
-    testCompile libs.junit
-    testCompile libs.mockito_core
+    testImplementation libs.junit
+    testImplementation libs.mockito_core
 
     androidTestImplementation libs.junit
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
@@ -39,10 +31,11 @@ dependencies {
 
 createAndroidCheckstyle(project)
 
-version = LibraryVersions.LIFECYCLES_RUNTIME.toString()
 supportLibrary {
     name 'Android Lifecycle Runtime'
     publish true
+    mavenVersion = LibraryVersions.LIFECYCLES_RUNTIME
+    mavenGroup LibraryGroups.LIFECYCLE
     inceptionYear '2017'
     description "Android Lifecycle Runtime"
     url SupportLibraryExtension.ARCHITECTURE_URL

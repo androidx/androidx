@@ -63,12 +63,12 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
         validateUsersAsPagedList(new LivePagedListFactory() {
             @Override
             public LiveData<PagedList<User>> create() {
-                return new LivePagedListBuilder<Integer, User>()
-                        .setPagingConfig(new PagedList.Config.Builder()
+                return new LivePagedListBuilder<>(
+                        mUserDao.loadPagedByAge(3),
+                        new PagedList.Config.Builder()
                                 .setPageSize(10)
                                 .setPrefetchDistance(1)
                                 .setInitialLoadSizeHint(10).build())
-                        .setDataSourceFactory(mUserDao.loadPagedByAge(3))
                         .build();
             }
         });

@@ -1,4 +1,9 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-annotations')
@@ -20,8 +25,11 @@ android {
 }
 
 supportLibrary {
-    name 'Android Support VectorDrawable'
-    publish true
-    inceptionYear '2015'
-    description 'Android Support VectorDrawable'
+    name = "Android Support VectorDrawable"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2015"
+    description = "Android Support VectorDrawable"
+    legacySourceLocation = true
 }

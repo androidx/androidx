@@ -45,6 +45,7 @@ public abstract class EntityDeletionOrUpdateAdapter<T> extends SharedSQLiteState
      *
      * @return An SQL query that can delete or update instances of T.
      */
+    @Override
     protected abstract String createQuery();
 
     /**
