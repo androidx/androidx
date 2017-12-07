@@ -25,8 +25,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A {@link Processor} that handles execution of work in the background.
@@ -49,7 +49,7 @@ public class BackgroundProcessor extends Processor {
                 workDatabase,
                 scheduler,
                 outerListener,
-                Executors.newSingleThreadScheduledExecutor());
+                Executors.newSingleThreadExecutor());
     }
 
     @VisibleForTesting
@@ -58,7 +58,7 @@ public class BackgroundProcessor extends Processor {
             WorkDatabase workDatabase,
             Scheduler scheduler,
             ExecutionListener outerListener,
-            ScheduledExecutorService executorService) {
+            ExecutorService executorService) {
         super(appContext, workDatabase, scheduler, executorService);
         mOuterListener = outerListener;
     }

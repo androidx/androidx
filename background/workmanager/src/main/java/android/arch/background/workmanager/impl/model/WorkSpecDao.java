@@ -122,14 +122,14 @@ public interface WorkSpecDao {
 
     /**
      * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED}, have no constraints,
-     * and are not periodic.
+     * no initial delay, and are not periodic.
      *
      * @return A {@link LiveData} list of {@link WorkSpec}s.
      */
     @Query("SELECT * FROM workspec WHERE status=" + STATUS_ENQUEUED + " AND "
-            + " requires_charging=0 AND requires_device_idle=0 AND requires_battery_not_low=0 AND "
-            + " requires_storage_not_low=0 AND required_network_type=0 AND interval_duration=0 AND"
-            + " content_uri_triggers IS NULL")
+            + " requires_charging=0 AND requires_device_idle=0 AND content_uri_triggers IS NULL"
+            + " AND requires_battery_not_low=0 AND requires_storage_not_low=0"
+            + " AND required_network_type=0 AND initial_delay=0 AND interval_duration=0")
     LiveData<List<WorkSpec>> getForegroundEligibleWorkSpecs();
 
     /**
@@ -173,9 +173,10 @@ public interface WorkSpecDao {
             + "id NOT IN (SELECT DISTINCT prerequisite_id FROM dependency)")
     int pruneLeaves();
 
-    String CONSTRAINT_SUFFIX =
-            " AND (status=" + STATUS_ENQUEUED + " OR status=" + STATUS_RUNNING + ") AND "
-            + "(interval_duration=0 OR (:allowPeriodic AND interval_duration>0))";
+    // TODO(xbhatnag): Separate Proxies and SystemAlarm from this query.
+    String CONSTRAINT_SUFFIX = " AND (status=" + STATUS_ENQUEUED + " OR status=" + STATUS_RUNNING
+            + ") AND initial_delay=0 AND (interval_duration=0"
+            + " OR (:allowPeriodic AND interval_duration>0))";
 
     /**
      * Returns work items that have a battery charging constraint.

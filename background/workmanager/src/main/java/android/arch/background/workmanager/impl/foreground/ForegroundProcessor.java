@@ -35,9 +35,9 @@ import android.util.Log;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A {@link Processor} that handles execution when the app is in the foreground.
@@ -64,7 +64,7 @@ public class ForegroundProcessor extends Processor
                 workDatabase,
                 scheduler,
                 lifecycleOwner,
-                Executors.newScheduledThreadPool(4));
+                Executors.newFixedThreadPool(4));
 
     }
 
@@ -74,7 +74,7 @@ public class ForegroundProcessor extends Processor
             WorkDatabase workDatabase,
             Scheduler scheduler,
             LifecycleOwner lifecycleOwner,
-            ScheduledExecutorService executorService) {
+            ExecutorService executorService) {
         super(appContext, workDatabase, scheduler, executorService);
         mLifecycleOwner = lifecycleOwner;
         mLifecycleOwner.getLifecycle().addObserver(this);
@@ -94,10 +94,10 @@ public class ForegroundProcessor extends Processor
     }
 
     @Override
-    public void process(String id, long delay) {
-        Log.d(TAG, "Trying to process " + id + " with delay " + delay);
+    public void process(String id) {
+        Log.d(TAG, "Trying to process " + id);
         if (isActive()) {
-            super.process(id, delay);
+            super.process(id);
         } else {
             Log.d(TAG, "Inactive lifecycle; not processing " + id);
         }
@@ -112,7 +112,7 @@ public class ForegroundProcessor extends Processor
         Log.d(TAG, "Enqueued WorkSpecs updated. Size : " + workSpecs.size());
         for (WorkSpec workSpec : workSpecs) {
             if (!mEnqueuedWorkMap.containsKey(workSpec.getId())) {
-                process(workSpec.getId(), workSpec.calculateDelay());
+                process(workSpec.getId());
             }
         }
     }
@@ -138,7 +138,7 @@ public class ForegroundProcessor extends Processor
     @Override
     public void onAllConstraintsMet(List<WorkSpec> workSpecs) {
         for (WorkSpec workSpec : workSpecs) {
-            process(workSpec.getId(), workSpec.calculateDelay());
+            process(workSpec.getId());
         }
     }
 

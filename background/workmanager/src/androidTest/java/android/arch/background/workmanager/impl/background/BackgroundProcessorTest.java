@@ -62,7 +62,7 @@ public class BackgroundProcessorTest extends DatabaseTest {
         String workSpecId = work.getId();
 
         insertBaseWork(work);
-        mProcessor.process(workSpecId, 0L);
+        mProcessor.process(workSpecId);
 
         verify(mMockListener).onExecuted(workSpecId, false);
     }

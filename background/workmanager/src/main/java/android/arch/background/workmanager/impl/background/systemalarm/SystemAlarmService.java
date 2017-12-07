@@ -56,7 +56,7 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
         // TODO(janclarin): Keep wakelock.
         super.onStartCommand(intent, flags, startId);
         String workSpecId = intent.getStringExtra(EXTRA_WORK_ID);
-        mProcessor.process(workSpecId, 0L);
+        mProcessor.process(workSpecId);
         return START_NOT_STICKY;
     }
 

@@ -63,7 +63,7 @@ public class ProcessorTest extends DatabaseTest {
     public void testProcess_noWorkInitialDelay() throws InterruptedException {
         Work work = new Work.Builder(InfiniteTestWorker.class).build();
         insertBaseWork(work);
-        mProcessor.process(work.getId(), work.getWorkSpec().calculateDelay());
+        mProcessor.process(work.getId());
         Thread.sleep(ASYNC_WAIT_DURATION);
         assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
                 is(Work.STATUS_RUNNING));
@@ -83,10 +83,10 @@ public class ProcessorTest extends DatabaseTest {
         Work work = new Work.Builder(InfiniteTestWorker.class).build();
         String id = work.getId();
         insertBaseWork(work);
-        mProcessor.process(id, 0);
+        mProcessor.process(id);
         assertThat(mProcessor.mEnqueuedWorkMap, hasKey(id));
         Future future = mProcessor.mEnqueuedWorkMap.get(id);
-        mProcessor.process(id, 0);
+        mProcessor.process(id);
         assertThat(mProcessor.mEnqueuedWorkMap, hasKey(id));
         assertThat(mProcessor.mEnqueuedWorkMap.get(id), is(future));
     }
@@ -98,7 +98,7 @@ public class ProcessorTest extends DatabaseTest {
         insertBaseWork(work);
 
         assertThat(mProcessor.hasWork(), is(false));
-        mProcessor.process(work.getId(), 0L);
+        mProcessor.process(work.getId());
         assertThat(mProcessor.hasWork(), is(true));
     }
 }

@@ -86,7 +86,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
         Work work = new Work.Builder(TestWorker.class).build();
         insertBaseWork(work);
         drain();
-        mForegroundProcessor.process(work.getId(), 0L);
+        mForegroundProcessor.process(work.getId());
         drain();
         assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
                 is(Work.STATUS_SUCCEEDED));
@@ -105,7 +105,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
         mDatabase.dependencyDao().insertDependency(
                 new Dependency(workSpec.getId(), prerequisite.getId()));
         drain();
-        mForegroundProcessor.process(prerequisite.getId(), 0L);
+        mForegroundProcessor.process(prerequisite.getId());
         drain();
 
         assertThat(mDatabase.workSpecDao().getWorkSpecStatus(prerequisite.getId()),
@@ -122,7 +122,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
         Work work = new Work.Builder(TestWorker.class).build();
         insertBaseWork(work);
         drain();
-        mForegroundProcessor.process(work.getId(), 0L);
+        mForegroundProcessor.process(work.getId());
         drain();
         assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
                 is(Work.STATUS_ENQUEUED));

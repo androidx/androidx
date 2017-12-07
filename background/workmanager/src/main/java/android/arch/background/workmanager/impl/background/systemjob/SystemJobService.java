@@ -73,9 +73,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
         Log.d(TAG, workSpecId + " started on JobScheduler");
         mJobParameters.put(workSpecId, params);
-
-        // Delay has already occurred via JobScheduler.
-        mProcessor.process(workSpecId, 0L);
+        mProcessor.process(workSpecId);
         return true;
     }
 

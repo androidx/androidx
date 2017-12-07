@@ -63,8 +63,7 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
         Log.d(TAG, workSpecId + " started on FirebaseJobDispatcher");
         mJobParameters.put(workSpecId, params);
 
-        // Delay has already occurred via FirebaseJobDispatcher.
-        mProcessor.process(workSpecId, 0L);
+        mProcessor.process(workSpecId);
         return true;
     }
 

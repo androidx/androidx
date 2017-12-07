@@ -22,9 +22,8 @@ import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A Processor can intelligently schedule and execute work on demand.
@@ -39,13 +38,13 @@ public abstract class Processor implements ExecutionListener {
 
     protected Map<String, Future<?>> mEnqueuedWorkMap;
     protected Scheduler mScheduler;
-    protected ScheduledExecutorService mExecutorService;
+    protected ExecutorService mExecutorService;
 
     protected Processor(
             Context appContext,
             WorkDatabase workDatabase,
             Scheduler scheduler,
-            ScheduledExecutorService executorService) {
+            ExecutorService executorService) {
         mAppContext = appContext;
         mWorkDatabase = workDatabase;
         mEnqueuedWorkMap = new HashMap<>();
@@ -57,9 +56,8 @@ public abstract class Processor implements ExecutionListener {
      * Processes a given unit of work in the background.
      *
      * @param id    The work id to execute.
-     * @param delay The delay (in milliseconds) to execute this work with.
      */
-    public void process(String id, long delay) {
+    public void process(String id) {
         // Work may get triggered multiple times if they have passing constraints and new work with
         // those constraints are added.
         if (mEnqueuedWorkMap.containsKey(id)) {
@@ -70,7 +68,7 @@ public abstract class Processor implements ExecutionListener {
                 .withListener(this)
                 .withScheduler(mScheduler)
                 .build();
-        Future<?> future = mExecutorService.schedule(workWrapper, delay, TimeUnit.MILLISECONDS);
+        Future<?> future = mExecutorService.submit(workWrapper);
         mEnqueuedWorkMap.put(id, future);
         Log.d(TAG, getClass().getSimpleName() + " submitted " + id + " to ExecutorService");
     }
