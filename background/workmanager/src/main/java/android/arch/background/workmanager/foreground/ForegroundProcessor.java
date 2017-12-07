@@ -15,10 +15,10 @@
  */
 package android.arch.background.workmanager.foreground;
 
-import android.arch.background.workmanager.Processor;
-import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.constraints.ConstraintsMetCallback;
 import android.arch.background.workmanager.constraints.ConstraintsTracker;
+import android.arch.background.workmanager.impl.Processor;
+import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.utils.LiveDataUtils;

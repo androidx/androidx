@@ -19,10 +19,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.arch.background.workmanager.DatabaseTest;
-import android.arch.background.workmanager.ExecutionListener;
-import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.executors.SynchronousExecutorService;
+import android.arch.background.workmanager.impl.ExecutionListener;
+import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.utils.taskexecutor.InstantTaskExecutorRule;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.content.Context;

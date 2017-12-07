@@ -23,10 +23,10 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
 import android.arch.background.workmanager.DatabaseTest;
-import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.TestLifecycleOwner;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.executors.SynchronousExecutorService;
+import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.arch.core.executor.ArchTaskExecutor;

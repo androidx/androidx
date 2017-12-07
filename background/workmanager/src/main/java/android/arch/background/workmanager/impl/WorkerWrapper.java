@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.impl;
 
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_FAILURE;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_RETRY;
@@ -26,7 +26,7 @@ import static android.arch.background.workmanager.impl.BaseWork.STATUS_FAILED;
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_RUNNING;
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_SUCCEEDED;
 
-import android.arch.background.workmanager.impl.WorkDatabase;
+import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.InputMerger;
@@ -39,6 +39,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,7 +133,7 @@ public class WorkerWrapper implements Runnable {
             arguments = (inputMerger != null) ? inputMerger.merge(inputs) : Arguments.EMPTY;
         }
 
-        mWorker = Worker.fromWorkSpec(mAppContext, mWorkSpec, arguments);
+        mWorker = workerFromWorkSpec(mAppContext, mWorkSpec, arguments);
         if (mWorker == null) {
             Log.e(TAG, "Could not create Worker " + mWorkSpec.getWorkerClassName());
             mWorkSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
@@ -261,6 +262,26 @@ public class WorkerWrapper implements Runnable {
         } finally {
             mWorkDatabase.endTransaction();
         }
+    }
+
+    @SuppressWarnings("ClassNewInstance")
+    static Worker workerFromWorkSpec(@NonNull Context context,
+            @NonNull WorkSpec workSpec,
+            @NonNull Arguments arguments) {
+        Context appContext = context.getApplicationContext();
+        String workerClassName = workSpec.getWorkerClassName();
+        try {
+            Class<?> clazz = Class.forName(workerClassName);
+            Worker worker = (Worker) clazz.newInstance();
+            Method internalInitMethod = Worker.class.getDeclaredMethod(
+                    "internalInit", Context.class, Arguments.class);
+            internalInitMethod.setAccessible(true);
+            internalInitMethod.invoke(worker, appContext, arguments);
+            return worker;
+        } catch (Exception e) {
+            Log.e(TAG, "Trouble instantiating " + workerClassName, e);
+        }
+        return null;
     }
 
     /**

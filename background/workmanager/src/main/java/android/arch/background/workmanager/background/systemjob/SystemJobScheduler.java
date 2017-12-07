@@ -18,7 +18,7 @@ package android.arch.background.workmanager.background.systemjob;
 import android.annotation.TargetApi;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
-import android.arch.background.workmanager.Scheduler;
+import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.NonNull;

@@ -20,7 +20,7 @@ import static android.app.AlarmManager.RTC_WAKEUP;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.arch.background.workmanager.Scheduler;
+import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.utils.IdGenerator;
 import android.content.Context;

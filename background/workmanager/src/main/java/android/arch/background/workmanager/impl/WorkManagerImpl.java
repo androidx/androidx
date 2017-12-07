@@ -19,8 +19,6 @@ package android.arch.background.workmanager.impl;
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_BLOCKED;
 
 import android.arch.background.workmanager.PeriodicWork;
-import android.arch.background.workmanager.Processor;
-import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManager;
