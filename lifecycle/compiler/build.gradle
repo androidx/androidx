@@ -41,7 +41,7 @@ task jarTestLibrarySource(type: Jar, dependsOn: compileTestLibrarySource) {
 supportLibrary {
     name = "Android Lifecycles Compiler"
     publish = true
-    mavenVersion = LibraryVersions.LIFECYCLES_CORE
+    mavenVersion = LibraryVersions.LIFECYCLES_EXT
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycles annotation processor"
