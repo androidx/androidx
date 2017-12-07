@@ -210,8 +210,8 @@ public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSour
          */
         public void onResult(@NonNull List<Value> data, @Nullable Key previousPageKey,
                 @Nullable Key nextPageKey) {
-            dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
             mDataSource.initKeys(previousPageKey, nextPageKey);
+            dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
         }
     }
 
@@ -259,15 +259,12 @@ public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSour
          *                        no more pages to load in the current load direction.
          */
         public void onResult(@NonNull List<Value> data, @Nullable Key adjacentPageKey) {
-            dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
-
-            // Note: we currently ignore next key on loadBefore and prev key on loadAfter.
-            // We will need these once we start dropping pages, if we want to requery the first page
             if (mResultType == PageResult.APPEND) {
                 mDataSource.setNextKey(adjacentPageKey);
             } else {
                 mDataSource.setPreviousKey(adjacentPageKey);
             }
+            dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
         }
     }
 
