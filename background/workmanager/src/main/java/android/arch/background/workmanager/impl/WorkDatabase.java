@@ -19,8 +19,8 @@ package android.arch.background.workmanager.impl;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.Work.STATUS_RUNNING;
 
-import android.arch.background.workmanager.model.Arguments;
-import android.arch.background.workmanager.model.ContentUriTriggers;
+import android.arch.background.workmanager.Arguments;
+import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;

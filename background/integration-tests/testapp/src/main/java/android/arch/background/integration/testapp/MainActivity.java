@@ -18,9 +18,9 @@ package android.arch.background.integration.testapp;
 
 import android.arch.background.integration.testapp.imageprocessing.ImageProcessingActivity;
 import android.arch.background.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
+import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkManager;
-import android.arch.background.workmanager.model.Constraints;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.MediaStore;

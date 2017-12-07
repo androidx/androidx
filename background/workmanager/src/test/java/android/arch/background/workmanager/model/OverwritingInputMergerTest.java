@@ -19,6 +19,8 @@ package android.arch.background.workmanager.model;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.arch.background.workmanager.Arguments;
+import android.arch.background.workmanager.OverwritingInputMerger;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Before;

@@ -21,9 +21,9 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 
+import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
-import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.utils.PackageManagerHelper;
 import android.arch.background.workmanager.worker.FirebaseTestWorker;

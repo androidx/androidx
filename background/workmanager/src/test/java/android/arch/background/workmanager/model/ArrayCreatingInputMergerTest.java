@@ -20,6 +20,8 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.arch.background.workmanager.Arguments;
+import android.arch.background.workmanager.ArrayCreatingInputMerger;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Before;

@@ -17,8 +17,8 @@ package android.arch.background.integration.testapp.sherlockholmes;
 
 import android.arch.background.integration.testapp.db.TestDatabase;
 import android.arch.background.integration.testapp.db.WordCount;
+import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.Worker;
-import android.arch.background.workmanager.model.Arguments;
 import android.util.Log;
 
 import java.io.DataInputStream;

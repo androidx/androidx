@@ -18,7 +18,6 @@ package android.arch.background.workmanager;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.arch.background.workmanager.model.Arguments;
 import android.content.Context;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;

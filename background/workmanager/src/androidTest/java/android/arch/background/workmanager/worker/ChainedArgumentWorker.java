@@ -16,8 +16,8 @@
 
 package android.arch.background.workmanager.worker;
 
+import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.Worker;
-import android.arch.background.workmanager.model.Arguments;
 
 /**
  * Created by sumir on 11/22/17.

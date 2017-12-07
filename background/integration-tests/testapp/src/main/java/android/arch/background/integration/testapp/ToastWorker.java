@@ -15,9 +15,9 @@
  */
 package android.arch.background.integration.testapp;
 
+import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.Worker;
-import android.arch.background.workmanager.model.Arguments;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;

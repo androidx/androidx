@@ -32,12 +32,12 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import android.arch.background.workmanager.Arguments;
+import android.arch.background.workmanager.ArrayCreatingInputMerger;
 import android.arch.background.workmanager.DatabaseTest;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.Worker;
-import android.arch.background.workmanager.model.Arguments;
-import android.arch.background.workmanager.model.ArrayCreatingInputMerger;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;

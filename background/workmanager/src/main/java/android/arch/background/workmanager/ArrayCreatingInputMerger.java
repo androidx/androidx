@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager.model;
+package android.arch.background.workmanager;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;

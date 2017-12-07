@@ -18,7 +18,6 @@ package android.arch.background.workmanager;
 
 import android.arch.background.workmanager.impl.BaseWork;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
-import android.arch.background.workmanager.model.Arguments;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 

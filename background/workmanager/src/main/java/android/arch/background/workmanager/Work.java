@@ -17,8 +17,6 @@
 package android.arch.background.workmanager;
 
 import android.arch.background.workmanager.impl.BaseWork;
-import android.arch.background.workmanager.model.InputMerger;
-import android.arch.background.workmanager.model.OverwritingInputMerger;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 

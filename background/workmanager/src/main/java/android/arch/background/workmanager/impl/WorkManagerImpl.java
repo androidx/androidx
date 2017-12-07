@@ -18,13 +18,13 @@ package android.arch.background.workmanager.impl;
 
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_BLOCKED;
 
+import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
-import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;

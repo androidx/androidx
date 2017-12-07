@@ -17,10 +17,10 @@ package android.arch.background.workmanager.impl;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.arch.background.workmanager.Arguments;
+import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.Worker;
-import android.arch.background.workmanager.model.Arguments;
-import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkTag;
 import android.support.annotation.IntDef;

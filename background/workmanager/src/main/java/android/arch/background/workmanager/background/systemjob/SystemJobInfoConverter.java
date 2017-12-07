@@ -19,9 +19,9 @@ package android.arch.background.workmanager.background.systemjob;
 import static android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 
 import android.app.job.JobInfo;
+import android.arch.background.workmanager.Constraints;
+import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.Work;
-import android.arch.background.workmanager.model.Constraints;
-import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.utils.IdGenerator;
 import android.content.ComponentName;

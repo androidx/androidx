@@ -18,9 +18,9 @@ package android.arch.background.integration.testapp.imageprocessing;
 
 import android.arch.background.integration.testapp.db.Image;
 import android.arch.background.integration.testapp.db.TestDatabase;
+import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.Worker;
-import android.arch.background.workmanager.model.Arguments;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;

@@ -19,7 +19,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.background.workmanager.impl.BaseWork;
-import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;

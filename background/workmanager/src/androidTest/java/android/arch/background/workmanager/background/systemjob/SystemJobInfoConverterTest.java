@@ -23,9 +23,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.app.job.JobInfo;
+import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
-import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.utils.IdGenerator;
 import android.arch.background.workmanager.worker.TestWorker;

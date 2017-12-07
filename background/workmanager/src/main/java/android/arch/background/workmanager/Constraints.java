@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager.model;
+package android.arch.background.workmanager;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.persistence.room.ColumnInfo;
 import android.net.Uri;
 import android.support.annotation.IntDef;

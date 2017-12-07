@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager.model;
+package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.persistence.room.TypeConverter;
 import android.net.Uri;
 import android.support.annotation.NonNull;

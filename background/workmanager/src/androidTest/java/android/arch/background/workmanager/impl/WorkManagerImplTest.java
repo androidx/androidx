@@ -29,10 +29,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 
+import android.arch.background.workmanager.Constraints;
+import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
-import android.arch.background.workmanager.model.Constraints;
-import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;

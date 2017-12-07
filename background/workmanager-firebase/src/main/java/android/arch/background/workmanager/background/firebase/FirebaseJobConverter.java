@@ -16,9 +16,9 @@
 
 package android.arch.background.workmanager.background.firebase;
 
+import android.arch.background.workmanager.Constraints;
+import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.Work;
-import android.arch.background.workmanager.model.Constraints;
-import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.util.Log;
 
