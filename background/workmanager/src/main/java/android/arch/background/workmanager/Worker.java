@@ -19,12 +19,10 @@ package android.arch.background.workmanager;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.arch.background.workmanager.model.Arguments;
-import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
-import android.util.Log;
 
 import java.lang.annotation.Retention;
 
@@ -48,11 +46,11 @@ public abstract class Worker {
     private @NonNull Arguments mArguments;
     private Arguments mOutput;
 
-    protected final Context getAppContext() {
+    public final Context getAppContext() {
         return mAppContext;
     }
 
-    protected final @NonNull Arguments getArguments() {
+    public final @NonNull Arguments getArguments() {
         return mArguments;
     }
 
@@ -90,7 +88,7 @@ public abstract class Worker {
         mOutput = output;
     }
 
-    Arguments getOutput() {
+    public final Arguments getOutput() {
         return mOutput;
     }
 
@@ -109,22 +107,5 @@ public abstract class Worker {
      */
     protected final boolean isInterrupted() {
         return Thread.currentThread().isInterrupted();
-    }
-
-    @SuppressWarnings("ClassNewInstance")
-    static Worker fromWorkSpec(@NonNull Context context,
-            @NonNull WorkSpec workSpec,
-            @NonNull Arguments arguments) {
-        Context appContext = context.getApplicationContext();
-        String workerClassName = workSpec.getWorkerClassName();
-        try {
-            Class<?> clazz = Class.forName(workerClassName);
-            Worker worker = (Worker) clazz.newInstance();
-            worker.internalInit(appContext, arguments);
-            return worker;
-        } catch (Exception e) {
-            Log.e(TAG, "Trouble instantiating " + workerClassName, e);
-        }
-        return null;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package android.arch.background.workmanager.impl;
 
-package android.arch.background.workmanager;
-
+import android.arch.background.workmanager.model.WorkSpec;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 /**
- * Listener that reports the result of a {@link Worker}s execution.
+ * An interface for classes responsible for scheduling background work.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface ExecutionListener {
+public interface Scheduler {
+
     /**
-     * Called when a {@link Worker} has executed.
-     * @param workSpecId work id corresponding to the {@link Worker}
-     * @param needsReschedule {@code true} if work should be rescheduled
-     *                        according to backoff policy.
+     * Schedule the given {@link WorkSpec}s for background execution.  The Scheduler does NOT need
+     * to check if there are any dependencies.
+     *
+     * @param workSpecs The array of {@link WorkSpec}s to schedule.
      */
-    void onExecuted(@NonNull String workSpecId, boolean needsReschedule);
+    void schedule(WorkSpec... workSpecs);
+
+    /**
+     * Cancel the work identified by the given {@link WorkSpec} id.
+     *
+     * @param workSpecId The id of the work to cancel.
+     */
+    void cancel(@NonNull String workSpecId);
 }

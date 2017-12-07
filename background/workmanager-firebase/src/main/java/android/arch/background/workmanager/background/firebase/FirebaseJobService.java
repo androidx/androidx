@@ -16,8 +16,8 @@
 
 package android.arch.background.workmanager.background.firebase;
 
-import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.background.BackgroundProcessor;
+import android.arch.background.workmanager.impl.ExecutionListener;
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.content.Context;

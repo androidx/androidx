@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.impl;
 
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_BLOCKED;
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_CANCELLED;
@@ -23,13 +23,19 @@ import static android.arch.background.workmanager.impl.BaseWork.STATUS_FAILED;
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_RUNNING;
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_SUCCEEDED;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import android.arch.background.workmanager.DatabaseTest;
+import android.arch.background.workmanager.PeriodicWork;
+import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.ArrayCreatingInputMerger;
 import android.arch.background.workmanager.model.Dependency;
@@ -378,5 +384,36 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .run();
 
         verify(mockScheduler).schedule();
+    }
+
+    @Test
+    @SmallTest
+    public void testFromWorkSpec_hasAppContext() throws InterruptedException {
+        Work work = new Work.Builder(TestWorker.class).build();
+        Worker worker =
+                WorkerWrapper.workerFromWorkSpec(mContext, work.getWorkSpec(), Arguments.EMPTY);
+
+        assertThat(worker, is(notNullValue()));
+        assertThat(worker.getAppContext(), is(equalTo(mContext.getApplicationContext())));
+    }
+
+    @Test
+    @SmallTest
+    public void testFromWorkSpec_hasCorrectArguments() throws InterruptedException {
+        String key = "KEY";
+        String expectedValue = "VALUE";
+        Arguments arguments = new Arguments.Builder().putString(key, expectedValue).build();
+
+        Work work = new Work.Builder(TestWorker.class).withArguments(arguments).build();
+        Worker worker = WorkerWrapper.workerFromWorkSpec(mContext, work.getWorkSpec(), arguments);
+
+        assertThat(worker, is(notNullValue()));
+        assertThat(worker.getArguments().getString(key, null), is(expectedValue));
+
+        work = new Work.Builder(TestWorker.class).build();
+        worker = WorkerWrapper.workerFromWorkSpec(mContext, work.getWorkSpec(), Arguments.EMPTY);
+
+        assertThat(worker, is(notNullValue()));
+        assertThat(worker.getArguments().size(), is(0));
     }
 }

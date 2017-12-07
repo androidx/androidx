@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
+import android.arch.background.workmanager.DatabaseTest;
+import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.worker.InfiniteTestWorker;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
