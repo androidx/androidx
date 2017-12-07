@@ -30,6 +30,12 @@ import java.util.concurrent.Executor;
  * Implement a DataSource using PageKeyedDataSource if you need to use data from page {@code N - 1}
  * to load page {@code N}. This is common, for example, in network APIs that include a next/previous
  * link or key with each page load.
+ * <p>
+ * The {@code InMemoryByPageRepository} in the
+ * <a href="https://github.com/googlesamples/android-architecture-components/blob/master/PagingWithNetworkSample/README.md">PagingWithNetworkSample</a>
+ * shows how to implement a network PageKeyedDataSource using
+ * <a href="https://square.github.io/retrofit/">Retrofit</a>, while
+ * handling swipe-to-refresh, network errors, and retry.
  *
  * @param <Key> Type of data used to query Value types out of the DataSource.
  * @param <Value> Type of items being loaded by the DataSource.
@@ -138,6 +144,13 @@ public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSour
      * to return data and, optionally, position/count information.
      * <p>
      * A callback can be called only once, and will throw if called again.
+     * <p>
+     * If you can compute the number of items in the data set before and after the loaded range,
+     * call the five parameter {@link #onResult(List, int, int, Object, Object)} to pass that
+     * information. You can skip passing this information by calling the three parameter
+     * {@link #onResult(List, Object, Object)}, either if it's difficult to compute, or if
+     * {@link LoadInitialParams#placeholdersEnabled} is {@code false}, so the positioning
+     * information will be ignored.
      * <p>
      * It is always valid for a DataSource loading method that takes a callback to stash the
      * callback and call it later. This enables DataSources to be fully asynchronous, and to handle

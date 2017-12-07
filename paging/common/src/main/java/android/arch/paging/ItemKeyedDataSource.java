@@ -29,6 +29,12 @@ import java.util.concurrent.Executor;
  * Implement a DataSource using ItemKeyedDataSource if you need to use data from item {@code N - 1}
  * to load item {@code N}. This is common, for example, in sorted database queries where
  * attributes of the item such just before the next query define how to execute it.
+ * <p>
+ * The {@code InMemoryByItemRepository} in the
+ * <a href="https://github.com/googlesamples/android-architecture-components/blob/master/PagingWithNetworkSample/README.md">PagingWithNetworkSample</a>
+ * shows how to implement a network ItemKeyedDataSource using
+ * <a href="https://square.github.io/retrofit/">Retrofit</a>, while
+ * handling swipe-to-refresh, network errors, and retry.
  *
  * @param <Key> Type of data used to query Value types out of the DataSource.
  * @param <Value> Type of items being loaded by the DataSource.
@@ -107,6 +113,12 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
      * to return data and, optionally, position/count information.
      * <p>
      * A callback can be called only once, and will throw if called again.
+     * <p>
+     * If you can compute the number of items in the data set before and after the loaded range,
+     * call the three parameter {@link #onResult(List, int, int)} to pass that information. You
+     * can skip passing this information by calling the single parameter {@link #onResult(List)},
+     * either if it's difficult to compute, or if {@link LoadInitialParams#placeholdersEnabled} is
+     * {@code false}, so the positioning information will be ignored.
      * <p>
      * It is always valid for a DataSource loading method that takes a callback to stash the
      * callback and call it later. This enables DataSources to be fully asynchronous, and to handle
