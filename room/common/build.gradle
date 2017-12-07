@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension;
 
-apply plugin: android.support.SupportJavaLibraryPlugin
+plugins {
+    id("SupportJavaLibraryPlugin")
+}
 
 dependencies {
     compile libs.support.annotations
@@ -27,11 +30,12 @@ dependencies {
 
 createAndroidCheckstyle(project)
 
-version = LibraryVersions.ROOM.toString()
 supportLibrary {
-    name 'Android Room-Common'
-    publish true
-    inceptionYear '2017'
-    description "Android Room-Common"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Room-Common"
+    publish = true
+    mavenVersion = LibraryVersions.ROOM
+    mavenGroup = LibraryGroups.ROOM
+    inceptionYear = "2017"
+    description = "Android Room-Common"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

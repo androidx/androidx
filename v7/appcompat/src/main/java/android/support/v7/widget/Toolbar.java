@@ -56,6 +56,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -2366,12 +2367,20 @@ public class Toolbar extends ViewGroup {
         @Override
         public boolean expandItemActionView(MenuBuilder menu, MenuItemImpl item) {
             ensureCollapseButtonView();
-            if (mCollapseButtonView.getParent() != Toolbar.this) {
+            ViewParent collapseButtonParent = mCollapseButtonView.getParent();
+            if (collapseButtonParent != Toolbar.this) {
+                if (collapseButtonParent instanceof ViewGroup) {
+                    ((ViewGroup) collapseButtonParent).removeView(mCollapseButtonView);
+                }
                 addView(mCollapseButtonView);
             }
             mExpandedActionView = item.getActionView();
             mCurrentExpandedItem = item;
-            if (mExpandedActionView.getParent() != Toolbar.this) {
+            ViewParent expandedActionParent = mExpandedActionView.getParent();
+            if (expandedActionParent != Toolbar.this) {
+                if (expandedActionParent instanceof ViewGroup) {
+                    ((ViewGroup) expandedActionParent).removeView(mExpandedActionView);
+                }
                 final LayoutParams lp = generateDefaultLayoutParams();
                 lp.gravity = GravityCompat.START | (mButtonGravity & Gravity.VERTICAL_GRAVITY_MASK);
                 lp.mViewType = LayoutParams.EXPANDED;

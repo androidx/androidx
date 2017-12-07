@@ -16,7 +16,6 @@
 
 package android.arch.paging
 
-import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -24,6 +23,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
@@ -33,31 +33,20 @@ class KeyedDataSourceTest {
 
     // ----- STANDARD -----
 
-    @Test
-    fun loadInitial_validateTestDataSource() {
-        val dataSource = ItemDataSource()
-
-        // all
-        assertEquals(ITEMS_BY_NAME_ID, dataSource.loadInitial(ITEMS_BY_NAME_ID.size))
-
-        // 10
-        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), dataSource.loadInitial(10))
-
-        // too many
-        assertEquals(ITEMS_BY_NAME_ID, dataSource.loadInitial(ITEMS_BY_NAME_ID.size + 10))
-    }
-
     private fun loadInitial(dataSource: ItemDataSource, key: Key?, initialLoadSize: Int,
-            enablePlaceholders: Boolean): PageResult<Key, Item> {
+            enablePlaceholders: Boolean): PageResult<Item> {
         @Suppress("UNCHECKED_CAST")
-        val receiver = mock(PageResult.Receiver::class.java) as PageResult.Receiver<Key, Item>
+        val receiver = mock(PageResult.Receiver::class.java) as PageResult.Receiver<Item>
         @Suppress("UNCHECKED_CAST")
         val captor = ArgumentCaptor.forClass(PageResult::class.java)
-                as ArgumentCaptor<PageResult<Key, Item>>
+                as ArgumentCaptor<PageResult<Item>>
 
-        dataSource.loadInitial(key, initialLoadSize, enablePlaceholders, receiver)
+        val callback = DataSource.InitialLoadCallback(
+                DataSource.LOAD_COUNT_ACCEPTED, /* ignored page size */ 10, dataSource, receiver)
 
-        verify(receiver).onPageResult(captor.capture())
+        dataSource.loadInitial(key, initialLoadSize, enablePlaceholders, callback)
+
+        verify(receiver).onPageResult(anyInt(), captor.capture())
         verifyNoMoreInteractions(receiver)
         assertNotNull(captor.value)
         return captor.value
@@ -69,7 +58,7 @@ class KeyedDataSourceTest {
         val result = loadInitial(dataSource, dataSource.getKey(ITEMS_BY_NAME_ID[49]), 10, true)
 
         assertEquals(45, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page.items)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page)
         assertEquals(45, result.trailingNulls)
     }
 
@@ -81,7 +70,7 @@ class KeyedDataSourceTest {
         val result = loadInitial(dataSource, dataSource.getKey(ITEMS_BY_NAME_ID[0]), 20, true)
 
         assertEquals(0, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(0, 1), result.page.items)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 1), result.page)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -93,8 +82,8 @@ class KeyedDataSourceTest {
         val key = dataSource.getKey(ITEMS_BY_NAME_ID.last())
         val result = loadInitial(dataSource, key, 20, true)
 
-        assertEquals(89, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(89, 100), result.page.items)
+        assertEquals(90, result.leadingNulls)
+        assertEquals(ITEMS_BY_NAME_ID.subList(90, 100), result.page)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -106,7 +95,7 @@ class KeyedDataSourceTest {
         val result = loadInitial(dataSource, null, 10, true)
 
         assertEquals(0, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.page.items)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.page)
         assertEquals(90, result.trailingNulls)
     }
 
@@ -122,7 +111,7 @@ class KeyedDataSourceTest {
         // do: load after was empty, so pass full size to load before, since this can incur larger
         // loads than requested (see keyMatchesLastItem test)
         assertEquals(95, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(95, 100), result.page.items)
+        assertEquals(ITEMS_BY_NAME_ID.subList(95, 100), result.page)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -137,7 +126,7 @@ class KeyedDataSourceTest {
         val result = loadInitial(dataSource, key, 10, false)
 
         assertEquals(0, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page.items)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -150,7 +139,7 @@ class KeyedDataSourceTest {
         val result = loadInitial(dataSource, key, 10, true)
 
         assertEquals(0, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page.items)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -162,7 +151,7 @@ class KeyedDataSourceTest {
         val result = loadInitial(dataSource, null, 10, true)
 
         assertEquals(0, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.page.items)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.page)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -177,7 +166,7 @@ class KeyedDataSourceTest {
         val result = loadInitial(dataSource, key, 10, true)
 
         assertEquals(0, result.leadingNulls)
-        assertTrue(result.page.items.isEmpty())
+        assertTrue(result.page.isEmpty())
         assertEquals(0, result.trailingNulls)
     }
 
@@ -187,7 +176,7 @@ class KeyedDataSourceTest {
         val result = loadInitial(dataSource, null, 10, true)
 
         assertEquals(0, result.leadingNulls)
-        assertTrue(result.page.items.isEmpty())
+        assertTrue(result.page.isEmpty())
         assertEquals(0, result.trailingNulls)
     }
 
@@ -197,21 +186,18 @@ class KeyedDataSourceTest {
     fun loadBefore() {
         val dataSource = ItemDataSource()
         @Suppress("UNCHECKED_CAST")
-        val receiver = mock(PageResult.Receiver::class.java)
-                as PageResult.Receiver<Key, Item>
+        val callback = mock(DataSource.LoadCallback::class.java) as DataSource.LoadCallback<Item>
 
-        dataSource.loadBefore(5, ITEMS_BY_NAME_ID[5], 5, receiver)
+        dataSource.loadBefore(5, ITEMS_BY_NAME_ID[5], 5, callback)
 
         @Suppress("UNCHECKED_CAST")
-        val argument = ArgumentCaptor.forClass(PageResult::class.java)
-                as ArgumentCaptor<PageResult<Key, Item>>
-        verify(receiver).postOnPageResult(argument.capture())
-        verifyNoMoreInteractions(receiver)
+        val argument = ArgumentCaptor.forClass(List::class.java) as ArgumentCaptor<List<Item>>
+        verify(callback).onResult(argument.capture())
+        verifyNoMoreInteractions(callback)
 
         val observed = argument.value
 
-        assertEquals(PageResult.PREPEND, observed.type)
-        assertEquals(ITEMS_BY_NAME_ID.subList(0, 5), observed.page.items)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 5), observed)
     }
 
     internal data class Key(val name: String, val id: Int)
@@ -219,61 +205,52 @@ class KeyedDataSourceTest {
     internal data class Item(
             val name: String, val id: Int, val balance: Double, val address: String)
 
-    internal class ItemDataSource(val counted: Boolean = true,
-                                  val items: List<Item> = ITEMS_BY_NAME_ID)
+    internal class ItemDataSource(private val counted: Boolean = true,
+                                  private val items: List<Item> = ITEMS_BY_NAME_ID)
             : KeyedDataSource<Key, Item>() {
+        override fun loadInitial(initialLoadKey: Key?, initialLoadSize: Int,
+                enablePlaceholders: Boolean, callback: InitialLoadCallback<Item>) {
+            val key = initialLoadKey ?: Key("", Integer.MAX_VALUE)
+            val start = Math.max(0, findFirstIndexAfter(key) - initialLoadSize / 2)
+            val endExclusive = Math.min(start + initialLoadSize, items.size)
+
+
+            if (enablePlaceholders && counted) {
+                callback.onResult(items.subList(start, endExclusive), start, items.size)
+            } else {
+                callback.onResult(items.subList(start, endExclusive))
+            }
+        }
+
+        override fun loadAfter(currentEndKey: Key, pageSize: Int, callback: LoadCallback<Item>) {
+            val start = findFirstIndexAfter(currentEndKey)
+            val endExclusive = Math.min(start + pageSize, items.size)
+
+            callback.onResult(items.subList(start, endExclusive))
+        }
+
+        override fun loadBefore(currentBeginKey: Key, pageSize: Int, callback: LoadCallback<Item>) {
+            val firstIndexBefore = findFirstIndexBefore(currentBeginKey)
+            val endExclusive = Math.max(0, firstIndexBefore + 1)
+            val start = Math.max(0, firstIndexBefore - pageSize + 1)
+
+            callback.onResult(items.subList(start, endExclusive))
+        }
 
         override fun getKey(item: Item): Key {
             return Key(item.name, item.id)
         }
 
-        override fun loadInitial(pageSize: Int): List<Item>? {
-            // call loadAfter with a default key
-            return loadAfter(Key("", Integer.MAX_VALUE), pageSize)
-        }
-
-        fun findFirstIndexAfter(key: Key): Int {
+        private fun findFirstIndexAfter(key: Key): Int {
             return items.indices.firstOrNull {
                 KEY_COMPARATOR.compare(key, getKey(items[it])) < 0
             } ?: items.size
         }
 
-        fun findFirstIndexBefore(key: Key): Int {
+        private fun findFirstIndexBefore(key: Key): Int {
             return items.indices.reversed().firstOrNull {
                 KEY_COMPARATOR.compare(key, getKey(items[it])) > 0
             } ?: -1
-        }
-
-        override fun countItemsBefore(key: Key): Int {
-            if (!counted) {
-                return DataSource.COUNT_UNDEFINED
-            }
-
-            return findFirstIndexBefore(key) + 1
-        }
-
-        override fun countItemsAfter(key: Key): Int {
-            if (!counted) {
-                return DataSource.COUNT_UNDEFINED
-            }
-
-            return items.size - findFirstIndexAfter(key)
-        }
-
-        override fun loadAfter(key: Key, pageSize: Int): List<Item>? {
-            val start = findFirstIndexAfter(key)
-            val endExclusive = Math.min(start + pageSize, items.size)
-
-            return items.subList(start, endExclusive)
-        }
-
-        override fun loadBefore(key: Key, pageSize: Int): List<Item>? {
-            val firstIndexBefore = findFirstIndexBefore(key)
-            val endExclusive = Math.max(0, firstIndexBefore + 1)
-            val start = Math.max(0, firstIndexBefore - pageSize + 1)
-
-            val list = items.subList(start, endExclusive)
-            return list.reversed()
         }
     }
 

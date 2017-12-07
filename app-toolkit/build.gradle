@@ -18,10 +18,11 @@ buildscript {
     ext.supportRootFolder = new File(project.projectDir, "../")
     apply from: 'buildSrc/repos.gradle'
     apply from: 'init.gradle'
+    apply from: "buildSrc/build_dependencies.gradle"
     repos.addMavenRepositories(repositories)
     dependencies {
-        classpath libs.jacoco
-        classpath libs.gradle
-        classpath libs.kotlin.gradle_plugin
+        classpath build_libs.jacoco
+        classpath build_libs.gradle
+        classpath build_libs.kotlin.gradle_plugin
     }
 }

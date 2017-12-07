@@ -1,4 +1,9 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-annotations')
@@ -44,8 +49,11 @@ android {
 }
 
 supportLibrary {
-    name 'Android Transition Support Library'
-    publish true
-    inceptionYear '2016'
-    description 'Android Transition Support Library'
+    name = "Android Transition Support Library"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2016"
+    description = "Android Transition Support Library"
+    legacySourceLocation = true
 }

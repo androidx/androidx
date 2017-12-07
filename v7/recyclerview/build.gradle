@@ -1,4 +1,9 @@
-apply plugin: android.support.SupportAndroidLibraryPlugin
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
 
 dependencies {
     api project(':support-annotations')
@@ -26,18 +31,17 @@ android {
         main.res.srcDirs 'res', 'res-public'
     }
 
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
 }
 
 supportLibrary {
-    name 'Android Support RecyclerView v7'
-    publish true
-    inceptionYear '2014'
-    description 'Android Support RecyclerView v7'
+    name = "Android Support RecyclerView v7"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2014"
+    description = "Android Support RecyclerView v7"
+    legacySourceLocation = true
 }

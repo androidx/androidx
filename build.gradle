@@ -17,14 +17,14 @@
 buildscript {
     ext.supportRootFolder = project.projectDir
     apply from: 'buildSrc/repos.gradle'
-
     apply from: 'buildSrc/init.gradle'
+    apply from: 'buildSrc/build_dependencies.gradle'
     init.setSdkInLocalPropertiesFile()
     repos.addMavenRepositories(repositories)
 
     dependencies {
-        classpath libs.gradle
-        classpath libs.jacoco
+        classpath build_libs.gradle
+        classpath build_libs.jacoco
     }
 }
 

@@ -1,3 +1,4 @@
+import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
 apply plugin: android.support.SupportKotlinLibraryPlugin
@@ -40,9 +41,11 @@ task jarTestLibrarySource(type: Jar, dependsOn: compileTestLibrarySource) {
 }
 
 supportLibrary {
-    name 'Android Lifecycles Compiler'
-    publish true
-    inceptionYear '2017'
-    description "Android Lifecycles annotation processor"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Lifecycles Compiler"
+    publish = true
+    mavenVersion = LibraryVersions.LIFECYCLES_CORE
+    mavenGroup = LibraryGroups.LIFECYCLE
+    inceptionYear = "2017"
+    description = "Android Lifecycles annotation processor"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+import android.support.LibraryGroups
 import android.support.LibraryVersions
 import android.support.SupportLibraryExtension;
 
-apply plugin: android.support.SupportJavaLibraryPlugin
+plugins {
+    id("SupportJavaLibraryPlugin")
+}
 
 dependencies {
     compile libs.support.annotations
@@ -28,11 +31,12 @@ dependencies {
 
 createAndroidCheckstyle(project)
 
-version = LibraryVersions.ARCH_CORE.toString()
 supportLibrary {
-    name 'Android Arch-Common'
-    publish true
-    inceptionYear '2017'
-    description "Android Arch-Common"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    name = "Android Arch-Common"
+    publish = true
+    mavenVersion = LibraryVersions.ARCH_CORE
+    mavenGroup = LibraryGroups.ARCH_CORE
+    inceptionYear = "2017"
+    description = "Android Arch-Common"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
 }

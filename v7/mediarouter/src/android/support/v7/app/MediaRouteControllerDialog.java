@@ -201,12 +201,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     public MediaRouteControllerDialog(Context context, int theme) {
-        // If we pass theme ID of 0 to AppCompatDialog, it will apply dialogTheme on the context,
-        // which may override our style settings. Passes our uppermost theme ID to prevent this.
-        super(MediaRouterThemeHelper.createThemedContext(context,
-                MediaRouterThemeHelper.getAlertDialogResolvedTheme(context, theme)), theme == 0
-                ? MediaRouterThemeHelper.createThemeForDialog(context, MediaRouterThemeHelper
-                        .getAlertDialogResolvedTheme(context, theme)) : theme);
+        super(context = MediaRouterThemeHelper.createThemedDialogContext(context, theme, true),
+                MediaRouterThemeHelper.createThemedDialogStyle(context));
         mContext = getContext();
 
         mControllerCallback = new MediaControllerCallback();

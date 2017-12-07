@@ -92,14 +92,6 @@ zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
 buildServerAnchorTask.dependsOn createDiffArchive
 buildServerAnchorTask.dependsOn createArchive
 
-rootProject.ext.flatfootProjectGroups = [
-        "room" : "android.arch.persistence.room",
-        "persistence" : "android.arch.persistence",
-        "lifecycle" : "android.arch.lifecycle",
-        "arch" : "android.arch.core",
-        "paging" : "android.arch.paging",
-        "navigation" : "android.arch.navigation"]
-
 subprojects {
     repos.addMavenRepositories(project.repositories)
     if (project.name == 'doclava' || project.name == 'jdiff') {
@@ -110,18 +102,6 @@ subprojects {
         }
         return
     }
-
-    def projectPath = project.getPath().split(":")
-    def mavenGroup = projectPath[1]
-    def finalGroup = rootProject.flatfootProjectGroups[mavenGroup]
-
-    if (finalGroup == null) {
-        return
-    }
-    if (projectPath.size() == 2) {// root project.
-        return
-    }
-    project.group = finalGroup
 
     if (project.getPath().contains("integration-tests")) {
         // disable upload tasks

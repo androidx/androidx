@@ -341,7 +341,7 @@ public class MigrationTestHelper extends TestWatcher {
         return 0;
     }
 
-    class MigratingDelegate extends RoomOpenHelperDelegate {
+    static class MigratingDelegate extends RoomOpenHelperDelegate {
         private final boolean mVerifyDroppedTables;
 
         MigratingDelegate(DatabaseBundle databaseBundle, boolean verifyDroppedTables) {
