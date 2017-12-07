@@ -69,16 +69,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link ItemKeyedDataSource}, or {@link PositionalDataSource}.
  * <p>
  * Use {@link PageKeyedDataSource} if pages you load embed keys for loading adjacent pages. For
- * example a network response that returns some items, and a next page and previous page links.
+ * example a network response that returns some items, and a next/previous page links.
  * <p>
  * Use {@link ItemKeyedDataSource} if you need to use data from item {@code N-1} to load item
  * {@code N}. For example, if requesting the backend for the next comments in the list
  * requires the ID or timestamp of the most recent loaded comment, or if querying the next users
  * from a name-sorted database query requires the name and unique ID of the previous.
  * <p>
- * Use {@link PositionalDataSource} if you can load arbitrary pages based solely on position
- * information, and can provide a fixed item count. PositionalDataSource supports querying pages at
- * arbitrary positions, so can provide data to PagedLists in arbitrary order.
+ * Use {@link PositionalDataSource} if you can load pages of a requested size at arbitrary
+ * positions, and provide a fixed item count. PositionalDataSource supports querying pages at
+ * arbitrary positions, so can provide data to PagedLists in arbitrary order. Note that
+ * PositionalDataSource is required to respect page size for efficient tiling. If you want to
+ * override page size (e.g. when network page size constraints are only known at runtime), use one
+ * of the other DataSource classes.
  * <p>
  * Because a {@code null} item indicates a placeholder in {@link PagedList}, DataSource may not
  * return {@code null} items in lists that it loads. This is so that users of the PagedList
@@ -114,8 +117,13 @@ public abstract class DataSource<Key, Value> {
         /**
          * Create a DataSource.
          * <p>
-         * The DataSource should invalidate itself if the snapshot is no longer valid, and a new
-         * DataSource should be queried from the Factory.
+         * The DataSource should invalidate itself if the snapshot is no longer valid. If a
+         * DataSource becomes invalid, the only way to query more data is to create a new DataSource
+         * from the Factory.
+         * <p>
+         * {@link LivePagedListBuilder} for example will construct a new PagedList and DataSource
+         * when the current DataSource is invalidated, and pass the new PagedList through the
+         * {@code LiveData<PagedList>} to observers.
          *
          * @return the new DataSource.
          */
