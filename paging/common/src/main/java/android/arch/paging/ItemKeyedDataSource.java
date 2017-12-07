@@ -29,6 +29,12 @@ import java.util.concurrent.Executor;
  * Implement a DataSource using ItemKeyedDataSource if you need to use data from item {@code N - 1}
  * to load item {@code N}. This is common, for example, in sorted database queries where
  * attributes of the item such just before the next query define how to execute it.
+ * <p>
+ * The {@code InMemoryByItemRepository} in the
+ * <a href="https://github.com/googlesamples/android-architecture-components/blob/master/PagingWithNetworkSample/README.md">PagingWithNetworkSample</a>
+ * shows how to implement a network ItemKeyedDataSource using
+ * <a href="https://square.github.io/retrofit/">Retrofit</a>, while
+ * handling swipe-to-refresh, network errors, and retry.
  *
  * @param <Key> Type of data used to query Value types out of the DataSource.
  * @param <Value> Type of items being loaded by the DataSource.

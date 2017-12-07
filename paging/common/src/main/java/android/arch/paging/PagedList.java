@@ -928,6 +928,12 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * passed, since it may not be fully computed by the DataSource if placeholders are not
      * supplied. Keys are not known because the BoundaryCallback is independent of the
      * DataSource-specific keys, which may be different for local vs remote storage.
+     * <p>
+     * The database + network Repository in the
+     * <a href="https://github.com/googlesamples/android-architecture-components/blob/master/PagingWithNetworkSample/README.md">PagingWithNetworkSample</a>
+     * shows how to implement a network BoundaryCallback using
+     * <a href="https://square.github.io/retrofit/">Retrofit</a>, while
+     * handling swipe-to-refresh, network errors, and retry.
      *
      * @param <T> Type loaded by the PagedList.
      */

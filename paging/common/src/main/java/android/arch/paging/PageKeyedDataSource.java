@@ -30,6 +30,12 @@ import java.util.concurrent.Executor;
  * Implement a DataSource using PageKeyedDataSource if you need to use data from page {@code N - 1}
  * to load page {@code N}. This is common, for example, in network APIs that include a next/previous
  * link or key with each page load.
+ * <p>
+ * The {@code InMemoryByPageRepository} in the
+ * <a href="https://github.com/googlesamples/android-architecture-components/blob/master/PagingWithNetworkSample/README.md">PagingWithNetworkSample</a>
+ * shows how to implement a network PageKeyedDataSource using
+ * <a href="https://square.github.io/retrofit/">Retrofit</a>, while
+ * handling swipe-to-refresh, network errors, and retry.
  *
  * @param <Key> Type of data used to query Value types out of the DataSource.
  * @param <Value> Type of items being loaded by the DataSource.
