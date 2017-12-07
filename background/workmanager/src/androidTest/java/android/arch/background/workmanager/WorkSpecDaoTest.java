@@ -23,9 +23,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 
-import android.arch.background.workmanager.model.Dependency;
-import android.arch.background.workmanager.model.DependencyDao;
-import android.arch.background.workmanager.model.WorkSpecDao;
+import android.arch.background.workmanager.impl.model.Dependency;
+import android.arch.background.workmanager.impl.model.DependencyDao;
+import android.arch.background.workmanager.impl.model.WorkSpecDao;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;

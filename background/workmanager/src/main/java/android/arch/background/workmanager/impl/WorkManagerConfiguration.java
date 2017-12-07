@@ -16,12 +16,12 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.utils.PackageManagerHelper.setComponentEnabled;
+import static android.arch.background.workmanager.impl.utils.PackageManagerHelper.setComponentEnabled;
 
-import android.arch.background.workmanager.background.systemalarm.SystemAlarmScheduler;
-import android.arch.background.workmanager.background.systemalarm.SystemAlarmService;
-import android.arch.background.workmanager.background.systemjob.SystemJobScheduler;
-import android.arch.background.workmanager.background.systemjob.SystemJobService;
+import android.arch.background.workmanager.impl.background.systemalarm.SystemAlarmScheduler;
+import android.arch.background.workmanager.impl.background.systemalarm.SystemAlarmService;
+import android.arch.background.workmanager.impl.background.systemjob.SystemJobScheduler;
+import android.arch.background.workmanager.impl.background.systemjob.SystemJobService;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -32,9 +32,9 @@ class WorkManagerConfiguration {
 
     private static final String TAG = "WMConfiguration";
     private static final String FIREBASE_SCHEDULER_CLASSNAME =
-            "android.arch.background.workmanager.background.firebase.FirebaseJobScheduler";
+            "android.arch.background.workmanager.impl.background.firebase.FirebaseJobScheduler";
     private static final String FIREBASE_SERVICE_CLASSNAME =
-            "android.arch.background.workmanager.background.firebase.FirebaseJobService";
+            "android.arch.background.workmanager.impl.background.firebase.FirebaseJobService";
 
     private final WorkDatabase mWorkDatabase;
 

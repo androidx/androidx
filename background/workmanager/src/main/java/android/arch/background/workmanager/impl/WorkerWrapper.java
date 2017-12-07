@@ -29,10 +29,10 @@ import static android.arch.background.workmanager.impl.BaseWork.STATUS_SUCCEEDED
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.InputMerger;
 import android.arch.background.workmanager.Worker;
-import android.arch.background.workmanager.model.DependencyDao;
-import android.arch.background.workmanager.model.WorkSpec;
-import android.arch.background.workmanager.model.WorkSpecDao;
-import android.arch.background.workmanager.utils.taskexecutor.WorkManagerTaskExecutor;
+import android.arch.background.workmanager.impl.model.DependencyDao;
+import android.arch.background.workmanager.impl.model.WorkSpec;
+import android.arch.background.workmanager.impl.model.WorkSpecDao;
+import android.arch.background.workmanager.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
