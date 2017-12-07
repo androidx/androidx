@@ -25,15 +25,19 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * Position-based data loader for a fixed-size, countable data set, supporting loads at arbitrary
- * positions.
+ * Position-based data loader for a fixed-size, countable data set, supporting fixed-size loads at
+ * arbitrary page positions.
  * <p>
- * Extend PositionalDataSource if you can support counting your data set, and loading based on
- * position information.
+ * Extend PositionalDataSource if you can load pages of a requested size at arbitrary
+ * positions, and provide a fixed item count. If your data source can't support loading arbitrary
+ * requested page sizes (e.g. when network page size constraints are only known at runtime), use
+ * either {@link PageKeyedDataSource} or {@link ItemKeyedDataSource} instead.
  * <p>
  * Note that unless {@link PagedList.Config#enablePlaceholders placeholders are disabled}
- * PositionalDataSource requires counting the size of the dataset. This allows pages to be tiled in
+ * PositionalDataSource requires counting the size of the data set. This allows pages to be tiled in
  * at arbitrary, non-contiguous locations based upon what the user observes in a {@link PagedList}.
+ * If placeholders are disabled, initialize with the two parameter
+ * {@link LoadInitialCallback#onResult(List, int)}.
  * <p>
  * Room can generate a Factory of PositionalDataSources for you:
  * <pre>
@@ -148,7 +152,9 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
          * Call this method from your DataSource's {@code loadInitial} function to return data,
          * and inform how many placeholders should be shown before and after. If counting is cheap
          * to compute (for example, if a network load returns the information regardless), it's
-         * recommended to pass data back through this method.
+         * recommended to pass the total size to the totalCount parameter. If placeholders are not
+         * requested (when {@link LoadInitialParams#placeholdersEnabled} is false), you can instead
+         * call {@link #onResult(List, int)}.
          *
          * @param data List of items loaded from the DataSource. If this is empty, the DataSource
          *             is treated as empty, and no further loads will occur.
@@ -179,11 +185,14 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
         }
 
         /**
-         * Called to pass initial load state from a DataSource without supporting placeholders.
+         * Called to pass initial load state from a DataSource without total count,
+         * when placeholders aren't requested.
+         * <p class="note"><strong>Note:</strong> This method can only be called when placeholders
+         * are disabled ({@link LoadInitialParams#placeholdersEnabled} is false).
          * <p>
          * Call this method from your DataSource's {@code loadInitial} function to return data,
-         * if position is known but total size is not. If counting is not expensive, consider
-         * calling the three parameter variant: {@link #onResult(List, int, int)}.
+         * if position is known but total size is not. If placeholders are requested, call the three
+         * parameter variant: {@link #onResult(List, int, int)}.
          *
          * @param data List of items loaded from the DataSource. If this is empty, the DataSource
          *             is treated as empty, and no further loads will occur.
@@ -191,10 +200,21 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
          *                 items before the items in data that can be provided by this DataSource,
          *                 pass {@code N}.
          */
-        void onResult(@NonNull List<T> data, int position) {
-            // not counting, don't need to check mAcceptCount
-            dispatchResultToReceiver(new PageResult<>(
-                    data, 0, 0, position));
+        @SuppressWarnings("WeakerAccess")
+        public void onResult(@NonNull List<T> data, int position) {
+            if (position < 0) {
+                throw new IllegalArgumentException("Position must be non-negative");
+            }
+            if (data.isEmpty() && position != 0) {
+                throw new IllegalArgumentException(
+                        "Initial result cannot be empty if items are present in data set.");
+            }
+            if (mCountingEnabled) {
+                throw new IllegalStateException("Placeholders requested, but totalCount not"
+                        + " provided. Please call the three-parameter onResult method, or disable"
+                        + " placeholders in the PagedList.Config");
+            }
+            dispatchResultToReceiver(new PageResult<>(data, position));
         }
     }
 
@@ -237,7 +257,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
                 new LoadInitialCallback<>(this, acceptCount, pageSize, receiver);
 
         LoadInitialParams params = new LoadInitialParams(
-                requestedStartPosition, requestedLoadSize, pageSize, true);
+                requestedStartPosition, requestedLoadSize, pageSize, acceptCount);
         loadInitial(params, callback);
 
         // If initialLoad's callback is not called within the body, we force any following calls

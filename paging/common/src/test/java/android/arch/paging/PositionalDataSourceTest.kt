@@ -80,6 +80,7 @@ class PositionalDataSourceTest {
     }
 
     private fun performInitialLoad(
+            enablePlaceholders: Boolean = true,
             callbackInvoker: (callback: PositionalDataSource.LoadInitialCallback<String>) -> Unit) {
         val dataSource = object : PositionalDataSource<String>() {
             override fun loadInitial(
@@ -93,12 +94,16 @@ class PositionalDataSourceTest {
             }
         }
 
-        TiledPagedList(
-                dataSource, FailExecutor(), FailExecutor(), null,
-                PagedList.Config.Builder()
-                        .setPageSize(10)
-                        .build(),
-                0)
+        val config = PagedList.Config.Builder()
+                .setPageSize(10)
+                .setEnablePlaceholders(enablePlaceholders)
+                .build()
+        if (enablePlaceholders) {
+            TiledPagedList(dataSource, FailExecutor(), FailExecutor(), null, config, 0)
+        } else {
+            ContiguousPagedList(dataSource.wrapAsContiguousWithoutPlaceholders(),
+                    FailExecutor(), FailExecutor(), null, config, null)
+        }
     }
 
     @Test
@@ -136,5 +141,29 @@ class PositionalDataSourceTest {
     fun initialLoadCallbackEmptyCannotHavePlaceholders() = performInitialLoad {
         // LoadInitialCallback can't accept empty result unless data set is empty
         it.onResult(emptyList(), 0, 2)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun initialLoadCallbackRequireTotalCount() = performInitialLoad(enablePlaceholders = true) {
+        // LoadInitialCallback requires 3 args when placeholders enabled
+        it.onResult(listOf("a", "b"), 0)
+    }
+
+    @Test
+    fun initialLoadCallbackSuccessTwoArg() = performInitialLoad(enablePlaceholders = false) {
+        // LoadInitialCallback correct 2 arg usage
+        it.onResult(listOf("a", "b"), 0)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackPosNegativeTwoArg() = performInitialLoad(enablePlaceholders = false) {
+        // LoadInitialCallback can't accept negative position
+        it.onResult(listOf("a", "b"), -1)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun initialLoadCallbackEmptyWithOffset() = performInitialLoad(enablePlaceholders = false) {
+        // LoadInitialCallback can't accept empty result unless pos is 0
+        it.onResult(emptyList(), 1)
     }
 }

@@ -908,13 +908,32 @@ public abstract class PagedList<T> extends AbstractList<T> {
     /**
      * Signals when a PagedList has reached the end of available data.
      * <p>
-     * This can be used to implement paging from the network into a local database - when the
-     * database has no more data to present, a BoundaryCallback can be used to fetch more data.
+     * When local storage is a cache of network data, it's common to set up a streaming pipeline:
+     * Network data is paged into the database, database is paged into UI. Paging from the database
+     * to UI can be done with a {@code LiveData<PagedList>}, but it's still necessary to know when
+     * to trigger network loads.
      * <p>
-     * If an instance is shared across multiple PagedLists (e.g. when passed to
+     * BoundaryCallback does this signaling - when a DataSource runs out of data at the end of
+     * the list, {@link #onItemAtEndLoaded(Object)} is called, and you can start an async network
+     * load that will write the result directly to the database. Because the database is being
+     * observed, the UI bound to the {@code LiveData<PagedList>} will update automatically to
+     * account for the new items.
+     * <p>
+     * Note that a BoundaryCallback instance shared across multiple PagedLists (e.g. when passed to
      * {@link LivePagedListBuilder#setBoundaryCallback}), the callbacks may be issued multiple
      * times. If for example {@link #onItemAtEndLoaded(Object)} triggers a network load, it should
      * avoid triggering it again while the load is ongoing.
+     * <p>
+     * BoundaryCallback only passes the item at front or end of the list. Number of items is not
+     * passed, since it may not be fully computed by the DataSource if placeholders are not
+     * supplied. Keys are not known because the BoundaryCallback is independent of the
+     * DataSource-specific keys, which may be different for local vs remote storage.
+     * <p>
+     * The database + network Repository in the
+     * <a href="https://github.com/googlesamples/android-architecture-components/blob/master/PagingWithNetworkSample/README.md">PagingWithNetworkSample</a>
+     * shows how to implement a network BoundaryCallback using
+     * <a href="https://square.github.io/retrofit/">Retrofit</a>, while
+     * handling swipe-to-refresh, network errors, and retry.
      *
      * @param <T> Type loaded by the PagedList.
      */
