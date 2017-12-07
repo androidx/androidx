@@ -37,6 +37,7 @@ import android.os.Build;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.v4.view.AccessibilityDelegateCompat;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.util.StateSet;
 import android.view.View;
@@ -789,6 +790,118 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         assertTrue("control against adding too many children due to bad layout state preparation."
                         + " initial:" + childCount + ", current:" + mRecyclerView.getChildCount(),
                 mRecyclerView.getChildCount() <= childCount + 3 /*1 for removed view, 2 for its size*/);
+    }
+
+    void waitOneCycle() throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            }
+        });
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
+    @Test
+    public void hiddenNoneRemoveViewAccessibility() throws Throwable {
+        final Config config = new Config();
+        int adapterSize = 1000;
+        final boolean[] firstItemSpecialSize = new boolean[] {false};
+        TestAdapter adapter = new TestAdapter(adapterSize) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+                if (!(lp instanceof ViewGroup.MarginLayoutParams)) {
+                    lp = new ViewGroup.MarginLayoutParams(0, 0);
+                    holder.itemView.setLayoutParams(lp);
+                }
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
+                final int maxSize;
+                if (config.mOrientation == HORIZONTAL) {
+                    maxSize = mRecyclerView.getWidth();
+                    mlp.height = ViewGroup.MarginLayoutParams.MATCH_PARENT;
+                } else {
+                    maxSize = mRecyclerView.getHeight();
+                    mlp.width = ViewGroup.MarginLayoutParams.MATCH_PARENT;
+                }
+
+                final int desiredSize;
+                if (position == 0 && firstItemSpecialSize[0]) {
+                    desiredSize = maxSize / 3;
+                } else {
+                    desiredSize = maxSize / 8;
+                }
+                if (config.mOrientation == HORIZONTAL) {
+                    mlp.width = desiredSize;
+                } else {
+                    mlp.height = desiredSize;
+                }
+            }
+
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position, List<Object> payloads) {
+                onBindViewHolder(holder, position);
+            }
+        };
+        adapter.setHasStableIds(false);
+        config.adapter(adapter);
+        setupByConfig(config, true);
+        final DummyItemAnimator itemAnimator = new DummyItemAnimator();
+        mRecyclerView.setItemAnimator(itemAnimator);
+
+        // push last item out by increasing first item's size
+        final int childBeingPushOut = mLayoutManager.getChildCount() - 1;
+        RecyclerView.ViewHolder itemViewHolder = mRecyclerView
+                .findViewHolderForAdapterPosition(childBeingPushOut);
+        final int originalAccessibility = ViewCompat.getImportantForAccessibility(
+                itemViewHolder.itemView);
+        assertTrue(ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO == originalAccessibility
+                || ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES == originalAccessibility);
+
+        itemAnimator.expect(DummyItemAnimator.MOVE_START, 1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                firstItemSpecialSize[0] = true;
+                mTestAdapter.notifyItemChanged(0, "XXX");
+            }
+        });
+        // wait till itemAnimator starts which will block itemView's accessibility
+        itemAnimator.waitFor(DummyItemAnimator.MOVE_START);
+        // RV Changes accessiblity after onMoveStart, so wait one more cycle.
+        waitOneCycle();
+        assertTrue(itemAnimator.getMovesAnimations().contains(itemViewHolder));
+        assertEquals(ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
+                ViewCompat.getImportantForAccessibility(itemViewHolder.itemView));
+
+        // notify Change again to run predictive animation.
+        mLayoutManager.expectLayouts(2);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTestAdapter.notifyItemChanged(0, "XXX");
+            }
+        });
+        mLayoutManager.waitForLayout(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                itemAnimator.endAnimations();
+            }
+        });
+        // scroll to the view being pushed out, it should get same view from cache as the item
+        // in adapter does not change.
+        smoothScrollToPosition(childBeingPushOut);
+        RecyclerView.ViewHolder itemViewHolder2 = mRecyclerView
+                .findViewHolderForAdapterPosition(childBeingPushOut);
+        assertSame(itemViewHolder, itemViewHolder2);
+        // the important for accessibility should be reset to YES/AUTO:
+        final int newAccessibility = ViewCompat.getImportantForAccessibility(
+                itemViewHolder.itemView);
+        assertTrue(ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO == newAccessibility
+                || ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES == newAccessibility);
     }
 
     @Test
