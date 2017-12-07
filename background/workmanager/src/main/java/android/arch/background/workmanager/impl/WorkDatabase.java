@@ -21,12 +21,12 @@ import static android.arch.background.workmanager.Work.STATUS_RUNNING;
 
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.ContentUriTriggers;
-import android.arch.background.workmanager.model.Dependency;
-import android.arch.background.workmanager.model.DependencyDao;
-import android.arch.background.workmanager.model.WorkSpec;
-import android.arch.background.workmanager.model.WorkSpecDao;
-import android.arch.background.workmanager.model.WorkTag;
-import android.arch.background.workmanager.model.WorkTagDao;
+import android.arch.background.workmanager.impl.model.Dependency;
+import android.arch.background.workmanager.impl.model.DependencyDao;
+import android.arch.background.workmanager.impl.model.WorkSpec;
+import android.arch.background.workmanager.impl.model.WorkSpecDao;
+import android.arch.background.workmanager.impl.model.WorkTag;
+import android.arch.background.workmanager.impl.model.WorkTagDao;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;

@@ -18,7 +18,7 @@ package android.arch.background.workmanager;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.persistence.room.ColumnInfo;
 import android.net.Uri;
 import android.support.annotation.IntDef;

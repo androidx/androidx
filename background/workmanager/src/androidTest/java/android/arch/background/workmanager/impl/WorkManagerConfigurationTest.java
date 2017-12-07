@@ -20,8 +20,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
-import android.arch.background.workmanager.background.systemalarm.SystemAlarmScheduler;
-import android.arch.background.workmanager.background.systemjob.SystemJobScheduler;
+import android.arch.background.workmanager.impl.background.systemalarm.SystemAlarmScheduler;
+import android.arch.background.workmanager.impl.background.systemjob.SystemJobScheduler;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
