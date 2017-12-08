@@ -37,6 +37,7 @@ import android.util.Log;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemAlarmService extends LifecycleService implements ExecutionListener {
     public static final String EXTRA_WORK_ID = "EXTRA_WORK_ID";
+    public static final String ACTION_CONSTRAINT_CHANGED = "CONSTRAINT_CHANGED";
     private static final String TAG = "SystemAlarmService";
     private BackgroundProcessor mProcessor;
 
@@ -55,8 +56,7 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
         // TODO(janclarin): Keep wakelock.
         // TODO(xbhatnag): Update proxies when delay met.
         super.onStartCommand(intent, flags, startId);
-        String workSpecId = intent.getStringExtra(EXTRA_WORK_ID);
-        mProcessor.process(workSpecId);
+        // TODO(xbhatnag): Handle intent actions.
         return START_NOT_STICKY;
     }
 

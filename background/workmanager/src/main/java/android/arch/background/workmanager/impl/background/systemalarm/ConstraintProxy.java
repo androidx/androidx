@@ -31,7 +31,9 @@ abstract class ConstraintProxy extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive : " + intent);
-        // TODO(xbhatnag): Start SystemAlarmService here.
+        Intent constraintChangedIntent = new Intent(context, SystemAlarmService.class);
+        constraintChangedIntent.setAction(SystemAlarmService.ACTION_CONSTRAINT_CHANGED);
+        context.startService(constraintChangedIntent);
     }
 
     /**
@@ -77,6 +79,11 @@ abstract class ConstraintProxy extends BroadcastReceiver {
             storageNotLowProxyEnabled |= constraints.requiresStorageNotLow();
             networkStateProxyEnabled |=
                     constraints.getRequiredNetworkType() != Constraints.NETWORK_NOT_REQUIRED;
+
+            if (batteryNotLowProxyEnabled && batteryChargingProxyEnabled
+                    && storageNotLowProxyEnabled && networkStateProxyEnabled) {
+                break;
+            }
         }
 
         PackageManagerHelper.setComponentEnabled(context, BatteryNotLowProxy.class,
