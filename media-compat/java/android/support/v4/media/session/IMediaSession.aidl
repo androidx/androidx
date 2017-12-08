@@ -30,7 +30,7 @@ import android.view.KeyEvent;
 import java.util.List;
 
 /**
- * Interface to a MediaSessionCompat. This is only used on pre-Lollipop systems.
+ * Interface to a MediaSessionCompat.
  * @hide
  */
 interface IMediaSession {
