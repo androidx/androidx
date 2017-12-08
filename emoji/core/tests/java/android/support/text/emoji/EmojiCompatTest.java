@@ -87,8 +87,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @SmallTest
@@ -727,6 +729,58 @@ public class EmojiCompatTest {
         verifyNoMoreInteractions(editable);
 
         assertFalse(EmojiCompat.handleOnKeyDown(editable, event.getKeyCode(), event));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testUseEmojiAsDefaultStyle_whenEmojiInTheMiddle() {
+        final Config config = new TestConfig().setReplaceAll(true);
+        EmojiCompat.reset(config);
+        String s = new TestString(0x0061, CHAR_DEFAULT_TEXT_STYLE, 0x0062).toString();
+        // no span should be added as the emoji is text style presented by default
+        assertThat(EmojiCompat.get().process(s), not(hasEmoji()));
+        // a span should be added when we use the emoji style presentation as default
+        EmojiCompat.reset(config.setUseEmojiAsDefaultStyle(true));
+        assertThat(EmojiCompat.get().process(s), hasEmojiAt(DEFAULT_TEXT_STYLE, 1, 2));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testUseEmojiAsDefaultStyle_whenEmojiAtTheEnd() {
+        final Config config = new TestConfig().setReplaceAll(true);
+        EmojiCompat.reset(config);
+        String s = new TestString(0x0061, CHAR_DEFAULT_TEXT_STYLE).toString();
+        // no span should be added as the emoji is text style presented by default
+        assertThat(EmojiCompat.get().process(s), not(hasEmoji()));
+        // a span should be added when we use the emoji style presentation as default
+        EmojiCompat.reset(config.setUseEmojiAsDefaultStyle(true));
+        assertThat(EmojiCompat.get().process(s), hasEmojiAt(DEFAULT_TEXT_STYLE, 1, 2));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testUseEmojiAsDefaultStyle_noEmojisAdded_whenMarkedAsException() {
+        final String s = new TestString(CHAR_DEFAULT_TEXT_STYLE).toString();
+        final List<Integer> exceptions =
+                Arrays.asList(CHAR_DEFAULT_TEXT_STYLE + 1, CHAR_DEFAULT_TEXT_STYLE);
+        final Config config = new TestConfig().setReplaceAll(true)
+                .setUseEmojiAsDefaultStyle(true, exceptions);
+        EmojiCompat.reset(config);
+        // no span should be added as the text style codepoint is marked as exception
+        assertThat(EmojiCompat.get().process(s), not(hasEmoji()));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testUseEmojiAsDefaultStyle_emojisAdded_whenNotMarkedAsException() {
+        final String s = new TestString(CHAR_DEFAULT_TEXT_STYLE).toString();
+        final List<Integer> exceptions =
+                Arrays.asList(CHAR_DEFAULT_TEXT_STYLE - 1, CHAR_DEFAULT_TEXT_STYLE + 1);
+        final Config config = new TestConfig().setReplaceAll(true)
+                .setUseEmojiAsDefaultStyle(true, exceptions);
+        EmojiCompat.reset(config);
+        // a span should be added as the codepoint is not included in the set of exceptions
+        assertThat(EmojiCompat.get().process(s), hasEmojiAt(DEFAULT_TEXT_STYLE, 0, 1));
     }
 
     private void assertCodePointMatch(EmojiMapping emoji) {
