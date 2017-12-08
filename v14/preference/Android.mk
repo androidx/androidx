@@ -27,6 +27,7 @@ LOCAL_PATH := $(call my-dir)
 # in their makefiles to include the resources in their package.
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
+LOCAL_AAPT2_ONLY := true
 LOCAL_MODULE := android-support-v14-preference
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under,src/main/java)
