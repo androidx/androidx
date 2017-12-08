@@ -156,14 +156,16 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
          *                   {@code data}.
          */
         public void onResult(@NonNull List<Value> data, int position, int totalCount) {
-            validateInitialLoadParams(data, position, totalCount);
+            if (!dispatchInvalidResultIfInvalid()) {
+                validateInitialLoadParams(data, position, totalCount);
 
-            int trailingUnloadedCount = totalCount - position - data.size();
-            if (mCountingEnabled) {
-                dispatchResultToReceiver(new PageResult<>(
-                        data, position, trailingUnloadedCount, 0));
-            } else {
-                dispatchResultToReceiver(new PageResult<>(data, position));
+                int trailingUnloadedCount = totalCount - position - data.size();
+                if (mCountingEnabled) {
+                    dispatchResultToReceiver(new PageResult<>(
+                            data, position, trailingUnloadedCount, 0));
+                } else {
+                    dispatchResultToReceiver(new PageResult<>(data, position));
+                }
             }
         }
     }
@@ -203,7 +205,9 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
          * @param data List of items loaded from the ItemKeyedDataSource.
          */
         public void onResult(@NonNull List<Value> data) {
-            dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
+            if (!dispatchInvalidResultIfInvalid()) {
+                dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
+            }
         }
     }
 

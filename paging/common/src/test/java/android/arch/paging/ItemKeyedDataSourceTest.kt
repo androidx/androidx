@@ -257,6 +257,7 @@ class ItemKeyedDataSourceTest {
     }
 
     private fun performLoadInitial(
+            invalidateDataSource: Boolean = false,
             callbackInvoker: (callback: ItemKeyedDataSource.LoadInitialCallback<String>) -> Unit) {
         val dataSource = object : ItemKeyedDataSource<String, String>() {
             override fun getKey(item: String): String {
@@ -266,6 +267,10 @@ class ItemKeyedDataSourceTest {
             override fun loadInitial(
                     params: LoadInitialParams<String>,
                     callback: LoadInitialCallback<String>) {
+                if (invalidateDataSource) {
+                    // invalidate data source so it's invalid when onResult() called
+                    invalidate()
+                }
                 callbackInvoker(callback)
             }
 
@@ -321,6 +326,12 @@ class ItemKeyedDataSourceTest {
     fun loadInitialCallbackEmptyCannotHavePlaceholders() = performLoadInitial {
         // LoadInitialCallback can't accept empty result unless data set is empty
         it.onResult(emptyList(), 0, 2)
+    }
+
+    @Test
+    fun initialLoadCallbackInvalidThreeArg() = performLoadInitial(invalidateDataSource = true) {
+        // LoadInitialCallback doesn't throw on invalid args if DataSource is invalid
+        it.onResult(emptyList(), 0, 1)
     }
 
     companion object {

@@ -79,13 +79,18 @@ class PositionalDataSourceTest {
                 totalCount = 100))
     }
 
-    private fun performInitialLoad(
+    private fun performLoadInitial(
             enablePlaceholders: Boolean = true,
+            invalidateDataSource: Boolean = false,
             callbackInvoker: (callback: PositionalDataSource.LoadInitialCallback<String>) -> Unit) {
         val dataSource = object : PositionalDataSource<String>() {
             override fun loadInitial(
                     params: LoadInitialParams,
                     callback: LoadInitialCallback<String>) {
+                if (invalidateDataSource) {
+                    // invalidate data source so it's invalid when onResult() called
+                    invalidate()
+                }
                 callbackInvoker(callback)
             }
 
@@ -107,63 +112,75 @@ class PositionalDataSourceTest {
     }
 
     @Test
-    fun initialLoadCallbackSuccess() = performInitialLoad {
+    fun initialLoadCallbackSuccess() = performLoadInitial {
         // LoadInitialCallback correct usage
         it.onResult(listOf("a", "b"), 0, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun initialLoadCallbackNotPageSizeMultiple() = performInitialLoad {
+    fun initialLoadCallbackNotPageSizeMultiple() = performLoadInitial {
         // Positional LoadInitialCallback can't accept result that's not a multiple of page size
         val elevenLetterList = List(11) { "" + 'a' + it }
         it.onResult(elevenLetterList, 0, 12)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun initialLoadCallbackListTooBig() = performInitialLoad {
+    fun initialLoadCallbackListTooBig() = performLoadInitial {
         // LoadInitialCallback can't accept pos + list > totalCount
         it.onResult(listOf("a", "b", "c"), 0, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun initialLoadCallbackPositionTooLarge() = performInitialLoad {
+    fun initialLoadCallbackPositionTooLarge() = performLoadInitial {
         // LoadInitialCallback can't accept pos + list > totalCount
         it.onResult(listOf("a", "b"), 1, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun initialLoadCallbackPositionNegative() = performInitialLoad {
+    fun initialLoadCallbackPositionNegative() = performLoadInitial {
         // LoadInitialCallback can't accept negative position
         it.onResult(listOf("a", "b", "c"), -1, 2)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun initialLoadCallbackEmptyCannotHavePlaceholders() = performInitialLoad {
+    fun initialLoadCallbackEmptyCannotHavePlaceholders() = performLoadInitial {
         // LoadInitialCallback can't accept empty result unless data set is empty
         it.onResult(emptyList(), 0, 2)
     }
 
     @Test(expected = IllegalStateException::class)
-    fun initialLoadCallbackRequireTotalCount() = performInitialLoad(enablePlaceholders = true) {
+    fun initialLoadCallbackRequireTotalCount() = performLoadInitial(enablePlaceholders = true) {
         // LoadInitialCallback requires 3 args when placeholders enabled
         it.onResult(listOf("a", "b"), 0)
     }
 
     @Test
-    fun initialLoadCallbackSuccessTwoArg() = performInitialLoad(enablePlaceholders = false) {
+    fun initialLoadCallbackSuccessTwoArg() = performLoadInitial(enablePlaceholders = false) {
         // LoadInitialCallback correct 2 arg usage
         it.onResult(listOf("a", "b"), 0)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun initialLoadCallbackPosNegativeTwoArg() = performInitialLoad(enablePlaceholders = false) {
+    fun initialLoadCallbackPosNegativeTwoArg() = performLoadInitial(enablePlaceholders = false) {
         // LoadInitialCallback can't accept negative position
         it.onResult(listOf("a", "b"), -1)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun initialLoadCallbackEmptyWithOffset() = performInitialLoad(enablePlaceholders = false) {
+    fun initialLoadCallbackEmptyWithOffset() = performLoadInitial(enablePlaceholders = false) {
         // LoadInitialCallback can't accept empty result unless pos is 0
         it.onResult(emptyList(), 1)
+    }
+
+    @Test
+    fun initialLoadCallbackInvalidTwoArg() = performLoadInitial(invalidateDataSource = true) {
+        // LoadInitialCallback doesn't throw on invalid args if DataSource is invalid
+        it.onResult(emptyList(), 1)
+    }
+
+    @Test
+    fun initialLoadCallbackInvalidThreeArg() = performLoadInitial(invalidateDataSource = true) {
+        // LoadInitialCallback doesn't throw on invalid args if DataSource is invalid
+        it.onResult(emptyList(), 0, 1)
     }
 }
