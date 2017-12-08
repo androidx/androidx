@@ -182,7 +182,6 @@ public interface WorkSpecDao {
             + "id NOT IN (SELECT DISTINCT prerequisite_id FROM dependency)")
     int pruneLeaves();
 
-    // TODO(xbhatnag): Separate Proxies and SystemAlarm from this query.
     String CONSTRAINT_SUFFIX = " AND (status=" + STATUS_ENQUEUED + " OR status=" + STATUS_RUNNING
             + ") AND initial_delay=0 AND (interval_duration=0"
             + " OR (:allowPeriodic AND interval_duration>0))";

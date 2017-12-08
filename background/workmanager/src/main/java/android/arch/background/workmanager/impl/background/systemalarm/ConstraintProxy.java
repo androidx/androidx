@@ -15,10 +15,15 @@
  */
 package android.arch.background.workmanager.impl.background.systemalarm;
 
+import android.arch.background.workmanager.Constraints;
+import android.arch.background.workmanager.impl.model.WorkSpec;
+import android.arch.background.workmanager.impl.utils.PackageManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import java.util.List;
 
 abstract class ConstraintProxy extends BroadcastReceiver {
     private static final String TAG = "ConstraintProxy";
@@ -39,5 +44,30 @@ abstract class ConstraintProxy extends BroadcastReceiver {
      * Proxy for Battery Charging constraint
      */
     public static class BatteryChargingProxy extends ConstraintProxy {
+    }
+
+    /**
+     * Enables/Disables proxies based on constraints in {@link WorkSpec}s
+     *
+     * @param context   {@link Context}
+     * @param workSpecs list of {@link WorkSpec}s to update proxies against
+     */
+    static void updateAll(Context context, List<WorkSpec> workSpecs) {
+        // TODO(xbhatnag): Add all proxies.
+        boolean batteryNotLowProxyEnabled = false;
+        boolean batteryChargingProxyEnabled = false;
+
+        for (WorkSpec workSpec : workSpecs) {
+            Constraints constraints = workSpec.getConstraints();
+            batteryNotLowProxyEnabled =
+                    constraints.requiresBatteryNotLow() || batteryNotLowProxyEnabled;
+            batteryChargingProxyEnabled =
+                    constraints.requiresCharging() || batteryChargingProxyEnabled;
+        }
+
+        PackageManagerHelper.setComponentEnabled(context, BatteryNotLowProxy.class,
+                batteryNotLowProxyEnabled);
+        PackageManagerHelper.setComponentEnabled(context, BatteryChargingProxy.class,
+                batteryChargingProxyEnabled);
     }
 }

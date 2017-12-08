@@ -48,12 +48,12 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
         WorkDatabase database = workManagerImpl.getWorkDatabase();
         mProcessor =
                 new BackgroundProcessor(context, database, workManagerImpl.getScheduler(), this);
-        ConstraintProxyController.startAll(context, database, this);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // TODO(janclarin): Keep wakelock.
+        // TODO(xbhatnag): Update proxies when delay met.
         super.onStartCommand(intent, flags, startId);
         String workSpecId = intent.getStringExtra(EXTRA_WORK_ID);
         mProcessor.process(workSpecId);
@@ -64,7 +64,7 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         Log.d(TAG, workSpecId + " executed on AlarmManager");
         // TODO(janclarin): Handle rescheduling if needed or if periodic.
-        // TODO(xbhatnag): Query WorkSpecs and disable proxies as needed.
+        // TODO(xbhatnag): Update proxies when work has executed.
 
         if (!mProcessor.hasWork()) {
             // TODO(janclarin): Release wakelock.
