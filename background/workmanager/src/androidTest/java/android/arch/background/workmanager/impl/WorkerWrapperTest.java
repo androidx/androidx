@@ -29,6 +29,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -306,6 +307,81 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(arguments.size(), is(1));
         assertThat(Arrays.asList(arguments.getStringArray(key)),
                 containsInAnyOrder(value1, value2));
+    }
+
+    @Test
+    @SmallTest
+    public void testDependencies_setsPeriodStartTimesForUnblockedWork() {
+        Work prerequisiteWork = new Work.Builder(TestWorker.class).build();
+        Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_BLOCKED).build();
+        Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
+
+        mDatabase.beginTransaction();
+        try {
+            insertBaseWork(prerequisiteWork);
+            insertBaseWork(work);
+            mDependencyDao.insertDependency(dependency);
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            mDatabase.endTransaction();
+        }
+
+        long beforeUnblockedTime = System.currentTimeMillis();
+
+        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
+                .withListener(mMockListener)
+                .withScheduler(mMockScheduler)
+                .build()
+                .run();
+
+        WorkSpec workSpec = mWorkSpecDao.getWorkSpec(work.getId());
+        assertThat(workSpec.getPeriodStartTime(), is(greaterThan(beforeUnblockedTime)));
+    }
+
+    @Test
+    @SmallTest
+    public void testRun_periodicWork_success_updatesPeriodStartTime() {
+        long intervalDuration = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
+        long periodStartTime = System.currentTimeMillis();
+        long expectedNextPeriodStartTime = periodStartTime + intervalDuration;
+
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                TestWorker.class, intervalDuration).build();
+
+        periodicWork.getWorkSpec().setPeriodStartTime(periodStartTime);
+
+        insertBaseWork(periodicWork);
+
+        new WorkerWrapper.Builder(mContext, mDatabase, periodicWork.getId())
+                .withListener(mMockListener)
+                .build()
+                .run();
+
+        WorkSpec updatedWorkSpec = mWorkSpecDao.getWorkSpec(periodicWork.getId());
+        assertThat(updatedWorkSpec.getPeriodStartTime(), is(expectedNextPeriodStartTime));
+    }
+
+    @Test
+    @SmallTest
+    public void testRun_periodicWork_failure_updatesPeriodStartTime() {
+        long intervalDuration = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
+        long periodStartTime = System.currentTimeMillis();
+        long expectedNextPeriodStartTime = periodStartTime + intervalDuration;
+
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                FailureWorker.class, intervalDuration).build();
+
+        periodicWork.getWorkSpec().setPeriodStartTime(periodStartTime);
+
+        insertBaseWork(periodicWork);
+
+        new WorkerWrapper.Builder(mContext, mDatabase, periodicWork.getId())
+                .withListener(mMockListener)
+                .build()
+                .run();
+
+        WorkSpec updatedWorkSpec = mWorkSpecDao.getWorkSpec(periodicWork.getId());
+        assertThat(updatedWorkSpec.getPeriodStartTime(), is(expectedNextPeriodStartTime));
     }
 
     @Test

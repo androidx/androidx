@@ -28,6 +28,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
+import static org.hamcrest.Matchers.greaterThan;
 
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.ContentUriTriggers;
@@ -264,6 +265,37 @@ public class WorkManagerImplTest {
         assertThat(workSpec.isPeriodic(), is(true));
         assertThat(workSpec.getIntervalDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
         assertThat(workSpec.getFlexDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
+    }
+
+    @Test
+    @SmallTest
+    public void testEnqueued_work_setsPeriodStartTime() {
+        Work work = new Work.Builder(TestWorker.class).build();
+        assertThat(work.getWorkSpec().getPeriodStartTime(), is(0L));
+
+        long beforeEnqueueTime = System.currentTimeMillis();
+
+        mWorkManagerImpl.enqueue(work);
+
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
+        assertThat(workSpec.getPeriodStartTime(), is(greaterThan(beforeEnqueueTime)));
+    }
+
+    @Test
+    @SmallTest
+    public void testEnqueued_periodicWork_setsPeriodStartTime() {
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                TestWorker.class,
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
+                .build();
+        assertThat(periodicWork.getWorkSpec().getPeriodStartTime(), is(0L));
+
+        long beforeEnqueueTime = System.currentTimeMillis();
+
+        mWorkManagerImpl.enqueue(periodicWork);
+
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
+        assertThat(workSpec.getPeriodStartTime(), is(greaterThan(beforeEnqueueTime)));
     }
 
     @Test

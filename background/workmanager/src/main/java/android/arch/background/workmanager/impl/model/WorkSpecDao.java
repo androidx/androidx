@@ -84,6 +84,15 @@ public interface WorkSpecDao {
     void setOutput(String id, Arguments output);
 
     /**
+     * Updates the period start time of a {@link WorkSpec}.
+     *
+     * @param id The {@link WorkSpec} identifier to update
+     * @param periodStartTime The time when the period started.
+     */
+    @Query("UPDATE workspec SET period_start_time=:periodStartTime WHERE id=:id")
+    void setPeriodStartTime(String id, long periodStartTime);
+
+    /**
      * Increment run attempt count of a {@link WorkSpec}.
      *
      * @param id The identifier for the {@link WorkSpec}

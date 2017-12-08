@@ -177,12 +177,20 @@ public class WorkManagerImpl extends WorkManager {
         public void run() {
             mWorkDatabase.beginTransaction();
             try {
+                long currentTimeMillis = System.currentTimeMillis();
                 boolean hasPrerequisite = (mPrerequisiteIds != null && mPrerequisiteIds.length > 0);
+
                 for (BaseWork work : mWorkArray) {
                     WorkSpec workSpec = work.getWorkSpec();
+
                     if (hasPrerequisite) {
                         workSpec.setStatus(STATUS_BLOCKED);
+                    } else {
+                        // Set scheduled times only for work without prerequisites. Dependent work
+                        // will set their scheduled times when they are unblocked.
+                        workSpec.setPeriodStartTime(currentTimeMillis);
                     }
+
                     mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
 
                     if (hasPrerequisite) {

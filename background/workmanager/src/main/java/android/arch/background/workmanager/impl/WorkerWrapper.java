@@ -187,7 +187,7 @@ public class WorkerWrapper implements Runnable {
             case WORKER_RESULT_SUCCESS: {
                 Log.d(TAG, "Worker result SUCCESS for " + mWorkSpecId);
                 if (mWorkSpec.isPeriodic()) {
-                    setEnqueuedAndResetRunAttemptCount();
+                    resetPeriodicWork();
                 } else {
                     setSuccessAndUpdateDependencies();
                 }
@@ -206,7 +206,7 @@ public class WorkerWrapper implements Runnable {
             default: {
                 Log.d(TAG, "Worker result FAILURE for " + mWorkSpecId);
                 if (mWorkSpec.isPeriodic()) {
-                    setEnqueuedAndResetRunAttemptCount();
+                    resetPeriodicWork();
                 } else {
                     mWorkSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
                 }
@@ -216,9 +216,12 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    private void setEnqueuedAndResetRunAttemptCount() {
+    private void resetPeriodicWork() {
         mWorkDatabase.beginTransaction();
         try {
+            long currentPeriodStartTime = mWorkSpec.getPeriodStartTime();
+            long nextPeriodStartTime = currentPeriodStartTime + mWorkSpec.getIntervalDuration();
+            mWorkSpecDao.setPeriodStartTime(mWorkSpecId, nextPeriodStartTime);
             mWorkSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);
             mWorkSpecDao.resetWorkSpecRunAttemptCount(mWorkSpecId);
             mWorkDatabase.setTransactionSuccessful();
@@ -238,12 +241,14 @@ public class WorkerWrapper implements Runnable {
                 mWorkSpecDao.setOutput(mWorkSpecId, outputArgs);
             }
 
+            long currentTimeMillis = System.currentTimeMillis();
             List<String> dependentWorkIds = mDependencyDao.getDependentWorkIds(mWorkSpecId);
             List<String> unblockedWorkIds = new ArrayList<>();
             for (String dependentWorkId : dependentWorkIds) {
                 if (mDependencyDao.hasCompletedAllPrerequisites(dependentWorkId)) {
                     Log.d(TAG, "Setting status to enqueued for " + dependentWorkId);
                     mWorkSpecDao.setStatus(STATUS_ENQUEUED, dependentWorkId);
+                    mWorkSpecDao.setPeriodStartTime(dependentWorkId, currentTimeMillis);
                     unblockedWorkIds.add(dependentWorkId);
                 }
             }
