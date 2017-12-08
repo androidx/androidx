@@ -89,6 +89,9 @@ limitations under the License.
     <dimen name="car_single_line_list_item_height">76dp</dimen>
     <dimen name="car_double_line_list_item_height">96dp</dimen>
     <dimen name="car_list_divider_height">1dp</dimen>
+    <!-- The height of a vertical line divider. -->
+    <dimen name="car_vertical_line_divider_height">60dp</dimen>
+    <dimen name="car_vertical_line_divider_width">1dp</dimen>
 
     <!-- Cards -->
     <dimen name="car_card_header_height">76dp</dimen>
