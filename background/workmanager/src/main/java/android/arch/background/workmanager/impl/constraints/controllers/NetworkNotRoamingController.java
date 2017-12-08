@@ -16,11 +16,11 @@
 
 package android.arch.background.workmanager.impl.constraints.controllers;
 
-import android.arch.background.workmanager.Constraints;
-import android.arch.background.workmanager.impl.WorkDatabase;
+import static android.arch.background.workmanager.Constraints.NETWORK_NOT_ROAMING;
+
 import android.arch.background.workmanager.impl.constraints.NetworkState;
 import android.arch.background.workmanager.impl.constraints.trackers.Trackers;
-import android.arch.lifecycle.LifecycleOwner;
+import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -33,20 +33,13 @@ import android.util.Log;
 public class NetworkNotRoamingController extends ConstraintController<NetworkState> {
     private static final String TAG = "NetworkNotRoamingCtrlr";
 
-    public NetworkNotRoamingController(
-            Context context,
-            WorkDatabase workDatabase,
-            LifecycleOwner lifecycleOwner,
-            OnConstraintUpdatedCallback onConstraintUpdatedCallback,
-            boolean allowPeriodic) {
-        super(
-                workDatabase.workSpecDao().getIdsForNetworkTypeController(
-                        Constraints.NETWORK_NOT_ROAMING,
-                        allowPeriodic),
-                lifecycleOwner,
-                Trackers.getInstance(context).getNetworkStateTracker(),
-                onConstraintUpdatedCallback
-        );
+    public NetworkNotRoamingController(Context context, OnConstraintUpdatedCallback callback) {
+        super(Trackers.getInstance(context).getNetworkStateTracker(), callback);
+    }
+
+    @Override
+    boolean hasConstraint(@NonNull WorkSpec workSpec) {
+        return workSpec.getConstraints().getRequiredNetworkType() == NETWORK_NOT_ROAMING;
     }
 
     /**

@@ -15,9 +15,8 @@
  */
 package android.arch.background.workmanager.impl.constraints.controllers;
 
-import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.constraints.trackers.Trackers;
-import android.arch.lifecycle.LifecycleOwner;
+import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -26,17 +25,13 @@ import android.support.annotation.NonNull;
  */
 
 public class BatteryChargingController extends ConstraintController<Boolean> {
-    public BatteryChargingController(
-            Context context,
-            WorkDatabase workDatabase,
-            LifecycleOwner lifecycleOwner,
-            OnConstraintUpdatedCallback onConstraintUpdatedCallback,
-            boolean allowPeriodic) {
-        super(
-                workDatabase.workSpecDao().getIdsForBatteryChargingController(allowPeriodic),
-                lifecycleOwner,
-                Trackers.getInstance(context).getBatteryChargingTracker(),
-                onConstraintUpdatedCallback);
+    public BatteryChargingController(Context context, OnConstraintUpdatedCallback callback) {
+        super(Trackers.getInstance(context).getBatteryChargingTracker(), callback);
+    }
+
+    @Override
+    boolean hasConstraint(@NonNull WorkSpec workSpec) {
+        return workSpec.getConstraints().requiresCharging();
     }
 
     @Override

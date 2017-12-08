@@ -15,9 +15,8 @@
  */
 package android.arch.background.workmanager.impl.constraints.controllers;
 
-import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.constraints.trackers.Trackers;
-import android.arch.lifecycle.LifecycleOwner;
+import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -26,17 +25,13 @@ import android.support.annotation.NonNull;
  */
 
 public class StorageNotLowController extends ConstraintController<Boolean> {
-    public StorageNotLowController(
-            Context context,
-            WorkDatabase workDatabase,
-            LifecycleOwner lifecycleOwner,
-            OnConstraintUpdatedCallback onConstraintUpdatedCallback,
-            boolean allowPeriodic) {
-        super(
-                workDatabase.workSpecDao().getIdsForStorageNotLowController(allowPeriodic),
-                lifecycleOwner,
-                Trackers.getInstance(context).getStorageNotLowTracker(),
-                onConstraintUpdatedCallback);
+    public StorageNotLowController(Context context, OnConstraintUpdatedCallback callback) {
+        super(Trackers.getInstance(context).getStorageNotLowTracker(), callback);
+    }
+
+    @Override
+    boolean hasConstraint(@NonNull WorkSpec workSpec) {
+        return workSpec.getConstraints().requiresStorageNotLow();
     }
 
     @Override

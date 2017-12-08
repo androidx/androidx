@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @SmallTest
@@ -64,6 +65,19 @@ public class ConstraintsTrackerTest {
     public void setUp() {
         ConstraintController[] controllers = new ConstraintController[] {mMockController};
         mConstraintsTracker = new ConstraintsTracker(mCallback, controllers);
+    }
+
+    @Test
+    public void testReplace() {
+        List<WorkSpec> emptyList = Collections.emptyList();
+        mConstraintsTracker.replace(emptyList);
+        verify(mMockController).replace(emptyList);
+    }
+
+    @Test
+    public void testReset() {
+        mConstraintsTracker.reset();
+        verify(mMockController).reset();
     }
 
     @Test
