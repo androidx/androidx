@@ -19,6 +19,8 @@ package androidx.car.widget;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorRes;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -49,13 +51,16 @@ public class PagedScrollBarView extends FrameLayout
 
     private final ImageView mUpButton;
     private final ImageView mDownButton;
-    private final ImageView mScrollThumb;
+    @VisibleForTesting
+    final ImageView mScrollThumb;
     /** The "filler" view between the up and down buttons */
     private final View mFiller;
 
     private final Interpolator mPaginationInterpolator = new AccelerateDecelerateInterpolator();
     private final int mMinThumbLength;
     private final int mMaxThumbLength;
+    private boolean mUseCustomThumbBackground;
+    @ColorRes private int mCustomThumbBackgroundResId;
     private PaginationListener mPaginationListener;
 
     public PagedScrollBarView(Context context, AttributeSet attrs) {
@@ -199,43 +204,65 @@ public class PagedScrollBarView extends FrameLayout
         return mDownButton.isEnabled();
     }
 
+    /**
+     * Sets the color of thumb.
+     *
+     * <p>Custom thumb color ignores {@link DayNightStyle}. Calling {@link #resetThumbColor} resets
+     * to default color.
+     *
+     * @param color Resource identifier of the color.
+     */
+    public void setThumbColor(@ColorRes int color) {
+        mUseCustomThumbBackground = true;
+        mCustomThumbBackgroundResId = color;
+        reloadColors();
+    }
+
+    /**
+     * Resets the color of thumb to default.
+     */
+    public void resetThumbColor() {
+        mUseCustomThumbBackground = false;
+        reloadColors();
+    }
+
     /** Reload the colors for the current {@link DayNightStyle}. */
     private void reloadColors() {
-        int tint;
-        int thumbBackground;
+        int tintResId;
+        int thumbBackgroundResId;
         int upDownBackgroundResId;
 
         switch (mDayNightStyle) {
             case DayNightStyle.AUTO:
-                tint = ContextCompat.getColor(getContext(), R.color.car_tint);
-                thumbBackground = ContextCompat.getColor(getContext(),
-                        R.color.car_scrollbar_thumb);
+                tintResId = R.color.car_tint;
+                thumbBackgroundResId = R.color.car_scrollbar_thumb;
                 upDownBackgroundResId = R.drawable.car_pagination_background;
                 break;
             case DayNightStyle.AUTO_INVERSE:
-                tint = ContextCompat.getColor(getContext(), R.color.car_tint_inverse);
-                thumbBackground = ContextCompat.getColor(getContext(),
-                        R.color.car_scrollbar_thumb_inverse);
+                tintResId = R.color.car_tint_inverse;
+                thumbBackgroundResId = R.color.car_scrollbar_thumb_inverse;
                 upDownBackgroundResId = R.drawable.car_pagination_background_inverse;
                 break;
             case DayNightStyle.FORCE_NIGHT:
-                tint = ContextCompat.getColor(getContext(), R.color.car_tint_light);
-                thumbBackground = ContextCompat.getColor(getContext(),
-                        R.color.car_scrollbar_thumb_light);
+                tintResId = R.color.car_tint_light;
+                thumbBackgroundResId = R.color.car_scrollbar_thumb_light;
                 upDownBackgroundResId = R.drawable.car_pagination_background_night;
                 break;
             case DayNightStyle.FORCE_DAY:
-                tint = ContextCompat.getColor(getContext(), R.color.car_tint_dark);
-                thumbBackground = ContextCompat.getColor(getContext(),
-                        R.color.car_scrollbar_thumb_dark);
+                tintResId =  R.color.car_tint_dark;
+                thumbBackgroundResId = R.color.car_scrollbar_thumb_dark;
                 upDownBackgroundResId = R.drawable.car_pagination_background_day;
                 break;
             default:
                 throw new IllegalArgumentException("Unknown DayNightStyle: " + mDayNightStyle);
         }
 
-        mScrollThumb.setBackgroundColor(thumbBackground);
+        if (mUseCustomThumbBackground) {
+            thumbBackgroundResId = mCustomThumbBackgroundResId;
+        }
+        mScrollThumb.setBackgroundColor(ContextCompat.getColor(getContext(), thumbBackgroundResId));
 
+        int tint = ContextCompat.getColor(getContext(), tintResId);
         mUpButton.setColorFilter(tint, PorterDuff.Mode.SRC_IN);
         mUpButton.setBackgroundResource(upDownBackgroundResId);
 
