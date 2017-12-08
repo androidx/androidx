@@ -16,9 +16,6 @@
 
 package androidx.app.slice.core;
 
-import static android.app.slice.Slice.HINT_ACTIONS;
-import static android.app.slice.Slice.HINT_LIST;
-import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -53,7 +50,7 @@ public class SliceQuery {
 
     /**
      * @return Whether this item is appropriate to be considered a "start" item, i.e. go in the
-     *         front slot of a small slice.
+     *         front slot of a row.
      */
     public static boolean isStartType(SliceItem item) {
         final String type = item.getFormat();
@@ -145,25 +142,6 @@ public class SliceQuery {
         return true;
     }
 
-    /**
-     */
-    public static SliceItem getPrimaryIcon(Slice slice) {
-        for (SliceItem item : slice.getItems()) {
-            if (FORMAT_IMAGE.equals(item.getFormat())) {
-                return item;
-            }
-            if (!(FORMAT_SLICE.equals(item.getFormat()) && item.hasHint(HINT_LIST))
-                    && !item.hasHint(HINT_ACTIONS)
-                    && !item.hasHint(HINT_LIST_ITEM)
-                    && !FORMAT_ACTION.equals(item.getFormat())) {
-                SliceItem icon = SliceQuery.find(item, FORMAT_IMAGE);
-                if (icon != null) {
-                    return icon;
-                }
-            }
-        }
-        return null;
-    }
 
     /**
      */
@@ -283,8 +261,8 @@ public class SliceQuery {
         }).findFirst().orElse(null);
     }
 
-        /**
-         */
+    /**
+     */
     public static SliceItem find(SliceItem s, final String format, final String[] hints,
             final String[] nonHints) {
         return stream(s).filter(new Predicate<SliceItem>() {

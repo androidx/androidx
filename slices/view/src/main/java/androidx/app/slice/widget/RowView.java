@@ -41,6 +41,7 @@ import android.support.annotation.RestrictTo;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -65,7 +66,7 @@ import androidx.app.slice.view.R;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @TargetApi(23)
-public class RowView extends SliceView.SliceModeView implements
+public class RowView extends FrameLayout implements SliceView.SliceModeView,
         LargeSliceAdapter.SliceListView, View.OnClickListener {
 
     private static final String TAG = "RowView";
@@ -102,6 +103,11 @@ public class RowView extends SliceView.SliceModeView implements
         mSecondaryText = (TextView) findViewById(android.R.id.summary);
         mDivider = findViewById(R.id.divider);
         mEndContainer = (LinearLayout) findViewById(android.R.id.widget_frame);
+    }
+
+    @Override
+    public View getView() {
+        return this;
     }
 
     @Override
@@ -304,7 +310,9 @@ public class RowView extends SliceView.SliceModeView implements
         int itemCount = 0;
         for (int i = 0; i < endItems.size(); i++) {
             SliceItem item = endItems.get(i);
-            if (itemCount <= MAX_END_ITEMS) {
+            if (item == null) {
+                // do nothing
+            } else if (itemCount <= MAX_END_ITEMS) {
                 if (FORMAT_ACTION.equals(item.getFormat())
                         && itemCount == 0
                         && SliceQuery.hasHints(item.getSlice(), SliceHints.SUBTYPE_TOGGLE)

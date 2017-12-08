@@ -16,10 +16,33 @@
   -->
 
 <resources>
+    <!-- General -->
+    <!-- Size of normal icons / images in a slice -->
+    <dimen name="abc_slice_icon_size">24dp</dimen>
+    <!-- Size of large icons / images in a slice -->
+    <dimen name="abc_slice_large_icon_size">48dp</dimen>
+    <!-- Standard padding used in a slice -->
+    <dimen name="abc_slice_padding">16dp</dimen>
+
     <!-- Size of a slice shortcut view -->
     <dimen name="abc_slice_shortcut_size">56dp</dimen>
-    <!-- Size of action icons in a slice -->
-    <dimen name="abc_slice_icon_size">24dp</dimen>
-    <!-- Standard padding used in a slice view -->
-    <dimen name="abc_slice_padding">16dp</dimen>
+
+    <!-- Height of a large template -->
+    <dimen name="abc_slice_large_height">240dp</dimen>
+
+    <!-- Row view sizes-->
+    <!-- Min height of row view; default size if one line of text -->
+    <dimen name="abc_slice_row_min_height">48dp</dimen>
+    <!-- Max height of row view; default size if two lines of text -->
+    <dimen name="abc_slice_row_max_height">60dp</dimen>
+    <!-- Min height of a row showing an input field that is active -->
+    <dimen name="abc_slice_row_active_input_height">120dp</dimen>
+
+    <!-- Grid view sizes-->
+    <!-- Height of a grid row displaying only images -->
+    <dimen name="abc_slice_grid_image_only_height">86dp</dimen>
+    <!-- Height of a grid row showing text and images -->
+    <dimen name="abc_slice_grid_height">120dp</dimen>
+    <!-- Height of expanded grid row if showing a single large image -->
+    <dimen name="abc_slice_grid_big_picture_height">180dp</dimen>
 </resources>
