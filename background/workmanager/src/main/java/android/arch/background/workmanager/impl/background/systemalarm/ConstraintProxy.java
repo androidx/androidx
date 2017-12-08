@@ -47,27 +47,45 @@ abstract class ConstraintProxy extends BroadcastReceiver {
     }
 
     /**
+     * Proxy for Storage Not Low constraint
+     */
+    public static class StorageNotLowProxy extends ConstraintProxy {
+    }
+
+    /**
+     * Proxy for Network State constraints
+     */
+    public static class NetworkStateProxy extends ConstraintProxy {
+    }
+
+    /**
      * Enables/Disables proxies based on constraints in {@link WorkSpec}s
      *
      * @param context   {@link Context}
      * @param workSpecs list of {@link WorkSpec}s to update proxies against
      */
     static void updateAll(Context context, List<WorkSpec> workSpecs) {
-        // TODO(xbhatnag): Add all proxies.
         boolean batteryNotLowProxyEnabled = false;
         boolean batteryChargingProxyEnabled = false;
+        boolean storageNotLowProxyEnabled = false;
+        boolean networkStateProxyEnabled = false;
 
         for (WorkSpec workSpec : workSpecs) {
             Constraints constraints = workSpec.getConstraints();
-            batteryNotLowProxyEnabled =
-                    constraints.requiresBatteryNotLow() || batteryNotLowProxyEnabled;
-            batteryChargingProxyEnabled =
-                    constraints.requiresCharging() || batteryChargingProxyEnabled;
+            batteryNotLowProxyEnabled |= constraints.requiresBatteryNotLow();
+            batteryChargingProxyEnabled |= constraints.requiresCharging();
+            storageNotLowProxyEnabled |= constraints.requiresStorageNotLow();
+            networkStateProxyEnabled |=
+                    constraints.getRequiredNetworkType() != Constraints.NETWORK_NOT_REQUIRED;
         }
 
         PackageManagerHelper.setComponentEnabled(context, BatteryNotLowProxy.class,
                 batteryNotLowProxyEnabled);
         PackageManagerHelper.setComponentEnabled(context, BatteryChargingProxy.class,
                 batteryChargingProxyEnabled);
+        PackageManagerHelper.setComponentEnabled(context, StorageNotLowProxy.class,
+                storageNotLowProxyEnabled);
+        PackageManagerHelper.setComponentEnabled(context, NetworkStateProxy.class,
+                networkStateProxyEnabled);
     }
 }
