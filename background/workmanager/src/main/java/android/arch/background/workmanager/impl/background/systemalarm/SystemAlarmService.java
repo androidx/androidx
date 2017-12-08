@@ -36,8 +36,10 @@ import android.util.Log;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemAlarmService extends LifecycleService implements ExecutionListener {
-    public static final String EXTRA_WORK_ID = "EXTRA_WORK_ID";
-    public static final String ACTION_CONSTRAINT_CHANGED = "CONSTRAINT_CHANGED";
+    private static final String EXTRA_WORK_ID = "EXTRA_WORK_ID";
+    private static final String ACTION_CONSTRAINT_CHANGED = "CONSTRAINT_CHANGED";
+    private static final String ACTION_DELAY_MET = "DELAY_MET";
+    private static final String ACTION_CANCEL_WORK = "CANCEL_WORK";
     private static final String TAG = "SystemAlarmService";
     private BackgroundProcessor mProcessor;
 
@@ -54,9 +56,31 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // TODO(janclarin): Keep wakelock.
-        // TODO(xbhatnag): Update proxies when delay met.
         super.onStartCommand(intent, flags, startId);
-        // TODO(xbhatnag): Handle intent actions.
+        String action = intent.getAction();
+        String workSpecId = intent.getStringExtra(EXTRA_WORK_ID);
+
+        if (action == null) {
+            Log.e(TAG, "No action provided!");
+            return START_NOT_STICKY;
+        }
+
+        switch (action) {
+            case ACTION_DELAY_MET:
+                // TODO(xbhatnag): Don't process immediately. Update ConstraintsTracker and Proxies.
+                Log.d(TAG, "Processing work " + workSpecId);
+                mProcessor.process(workSpecId);
+                break;
+            case ACTION_CANCEL_WORK:
+                Log.d(TAG, "Cancelling work " + workSpecId);
+                mProcessor.cancel(workSpecId, true);
+                break;
+            case ACTION_CONSTRAINT_CHANGED:
+                Log.d(TAG, "Constraint Changed. Service woken");
+                break;
+            default:
+                Log.e(TAG, "Unknown action");
+        }
         return START_NOT_STICKY;
     }
 
@@ -64,7 +88,7 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         Log.d(TAG, workSpecId + " executed on AlarmManager");
         // TODO(janclarin): Handle rescheduling if needed or if periodic.
-        // TODO(xbhatnag): Update proxies when work has executed.
+        // TODO(xbhatnag): Update ConstraintsTracker and Proxies.
 
         if (!mProcessor.hasWork()) {
             // TODO(janclarin): Release wakelock.
@@ -84,5 +108,25 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
     public void onDestroy() {
         Log.d(TAG, "Destroyed");
         super.onDestroy();
+    }
+
+    static Intent createConstraintChangedIntent(Context context) {
+        Intent intent = new Intent(context, SystemAlarmService.class);
+        intent.setAction(SystemAlarmService.ACTION_CONSTRAINT_CHANGED);
+        return intent;
+    }
+
+    static Intent createDelayMetIntent(Context context, String workSpecId) {
+        Intent intent = new Intent(context, SystemAlarmService.class);
+        intent.setAction(SystemAlarmService.ACTION_DELAY_MET);
+        intent.putExtra(EXTRA_WORK_ID, workSpecId);
+        return intent;
+    }
+
+    static Intent createCancelWorkIntent(Context context, String workSpecId) {
+        Intent intent = new Intent(context, SystemAlarmService.class);
+        intent.setAction(SystemAlarmService.ACTION_CANCEL_WORK);
+        intent.putExtra(EXTRA_WORK_ID, workSpecId);
+        return intent;
     }
 }

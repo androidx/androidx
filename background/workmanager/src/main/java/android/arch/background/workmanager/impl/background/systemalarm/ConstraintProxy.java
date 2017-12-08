@@ -31,8 +31,7 @@ abstract class ConstraintProxy extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive : " + intent);
-        Intent constraintChangedIntent = new Intent(context, SystemAlarmService.class);
-        constraintChangedIntent.setAction(SystemAlarmService.ACTION_CONSTRAINT_CHANGED);
+        Intent constraintChangedIntent = SystemAlarmService.createConstraintChangedIntent(context);
         context.startService(constraintChangedIntent);
     }
 

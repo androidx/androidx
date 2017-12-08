@@ -51,13 +51,17 @@ public class SystemAlarmScheduler implements Scheduler {
 
     @Override
     public void schedule(WorkSpec... workSpecs) {
-        // TODO(xbhatnag): Initial delay and periodic work with AlarmManager
+        for (WorkSpec workSpec : workSpecs) {
+            scheduleWorkSpec(workSpec);
+        }
     }
 
     @Override
     public void cancel(@NonNull String workSpecId) {
         // TODO(janclarin): Retrieve alarm id mapping for work spec id.
         // TODO(xbhatnag): Cancel pending alarms via AlarmManager.
+        Intent cancelIntent = SystemAlarmService.createCancelWorkIntent(mAppContext, workSpecId);
+        mAppContext.startService(cancelIntent);
     }
 
     /**
@@ -68,10 +72,8 @@ public class SystemAlarmScheduler implements Scheduler {
         // TODO(janclarin): Store alarm id mapping for work spec in the database for cancelling.
         long triggerAtMillis = System.currentTimeMillis() + getDelayMillis(workSpec);
         int nextAlarmId = mIdGenerator.nextAlarmManagerId();
-        PendingIntent pendingIntent = createPendingIntent(workSpec.getId(), nextAlarmId);
-
-        setExactAlarm(triggerAtMillis, pendingIntent);
-
+        Intent intent = SystemAlarmService.createDelayMetIntent(mAppContext, workSpec.getId());
+        setExactAlarm(nextAlarmId, triggerAtMillis, intent);
         Log.d(TAG, "Scheduled work with ID: " + workSpec.getId());
     }
 
@@ -80,13 +82,9 @@ public class SystemAlarmScheduler implements Scheduler {
         return workSpec.isPeriodic() ? workSpec.getIntervalDuration() : workSpec.calculateDelay();
     }
 
-    private PendingIntent createPendingIntent(@NonNull String workSpecId, int alarmId) {
-        Intent intent = new Intent(mAppContext, SystemAlarmService.class);
-        intent.putExtra(SystemAlarmService.EXTRA_WORK_ID, workSpecId);
-        return PendingIntent.getService(mAppContext, alarmId, intent, PendingIntent.FLAG_ONE_SHOT);
-    }
-
-    private void setExactAlarm(long triggerAtMillis, @NonNull PendingIntent pendingIntent) {
+    private void setExactAlarm(int alarmId, long triggerAtMillis, @NonNull Intent intent) {
+        PendingIntent pendingIntent = PendingIntent.getService(mAppContext, alarmId, intent,
+                PendingIntent.FLAG_ONE_SHOT);
         if (Build.VERSION.SDK_INT >= 19) {
             mAlarmManager.setExact(RTC_WAKEUP, triggerAtMillis, pendingIntent);
         } else {
