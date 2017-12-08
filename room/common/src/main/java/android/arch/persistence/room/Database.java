@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  * <pre>
  * // User and Book are classes annotated with {@literal @}Entity.
  * {@literal @}Database(version = 1, entities = {User.class, Book.class})
- * abstract class AppDatabase extends RoomDatabase() {
+ * abstract class AppDatabase extends RoomDatabase {
  *     // BookDao is a class annotated with {@literal @}Dao.
  *     abstract public BookDao bookDao();
  *     // UserDao is a class annotated with {@literal @}Dao.
