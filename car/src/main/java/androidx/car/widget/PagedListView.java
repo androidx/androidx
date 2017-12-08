@@ -1033,8 +1033,18 @@ public class PagedListView extends FrameLayout {
                     continue;
                 }
 
-                int left = mDividerStartMargin + startChild.getLeft();
-                int right = endChild.getRight();
+                Rect containerRect = new Rect();
+                container.getGlobalVisibleRect(containerRect);
+
+                Rect startRect = new Rect();
+                startChild.getGlobalVisibleRect(startRect);
+
+                Rect endRect = new Rect();
+                endChild.getGlobalVisibleRect(endRect);
+
+                int left = container.getLeft() + mDividerStartMargin
+                        + (startRect.left - containerRect.left);
+                int right = container.getRight() - (endRect.right - containerRect.right);
                 int bottom = container.getBottom() + spacing / 2 + mDividerHeight / 2;
                 int top = bottom - mDividerHeight;
 
