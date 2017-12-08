@@ -159,7 +159,7 @@ public class WorkerWrapper implements Runnable {
             }
         } catch (InterruptedException e) {
             Log.d(TAG, "Work interrupted for " + mWorkSpecId);
-            mWorkSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);
+            reschedule();
             notifyListener(true);
         }
     }
@@ -197,7 +197,7 @@ public class WorkerWrapper implements Runnable {
 
             case WORKER_RESULT_RETRY: {
                 Log.d(TAG, "Worker result RETRY for " + mWorkSpecId);
-                mWorkSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);
+                reschedule();
                 notifyListener(true);
                 break;
             }
@@ -213,6 +213,18 @@ public class WorkerWrapper implements Runnable {
                 notifyListener(false);
                 break;
             }
+        }
+    }
+
+    private void reschedule() {
+        mWorkDatabase.beginTransaction();
+        try {
+            mWorkSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);
+            // TODO(xbhatnag): Period Start Time is confusing for non-periodic work. Rename.
+            mWorkSpecDao.setPeriodStartTime(mWorkSpecId, System.currentTimeMillis());
+            mWorkDatabase.setTransactionSuccessful();
+        } finally {
+            mWorkDatabase.endTransaction();
         }
     }
 

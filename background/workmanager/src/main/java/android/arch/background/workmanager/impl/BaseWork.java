@@ -151,6 +151,18 @@ public abstract class BaseWork {
         }
 
         /**
+         * Set the period start time for this {@link BaseWork}. Used in testing only.
+         *
+         * @param periodStartTime the period start time
+         * @return The current {@link Builder}
+         */
+        @VisibleForTesting
+        public B withPeriodStartTime(long periodStartTime) {
+            mWorkSpec.setPeriodStartTime(periodStartTime);
+            return getThis();
+        }
+
+        /**
          * Change backoff policy and delay for the {@link BaseWork}.
          * Default is {@value Work#BACKOFF_POLICY_EXPONENTIAL} and 30 seconds.
          * Maximum backoff delay duration is {@value #MAX_BACKOFF_MILLIS}.

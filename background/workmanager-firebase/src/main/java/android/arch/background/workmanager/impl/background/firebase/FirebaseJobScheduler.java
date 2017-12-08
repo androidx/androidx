@@ -62,7 +62,7 @@ public class FirebaseJobScheduler implements Scheduler {
     @Override
     public void schedule(WorkSpec... workSpecs) {
         for (WorkSpec workSpec : workSpecs) {
-            if (workSpec.calculateDelay() > 0) {
+            if (workSpec.calculateNextRunTime() > System.currentTimeMillis()) {
                 scheduleLater(workSpec);
             } else {
                 scheduleNow(workSpec);
@@ -94,9 +94,9 @@ public class FirebaseJobScheduler implements Scheduler {
         Log.d(TAG, "Scheduling work later, ID: " + workSpec.getId());
         PendingIntent pendingIntent = createScheduleLaterPendingIntent(workSpec);
 
-        // This wakes up the device at exactly System Current Time + Calculated Delay.
+        // This wakes up the device at exactly the next run time.
         // A wakeup is necessary because the device could be sleeping when this alarm is fired.
-        long triggerAtMillis = System.currentTimeMillis() + workSpec.calculateDelay();
+        long triggerAtMillis = workSpec.calculateNextRunTime();
         if (Build.VERSION.SDK_INT >= 19) {
             mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
         } else {

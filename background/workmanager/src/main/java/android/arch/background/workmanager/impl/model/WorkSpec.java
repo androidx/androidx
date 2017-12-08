@@ -170,6 +170,10 @@ public class WorkSpec {
         return mIntervalDuration != 0L;
     }
 
+    public boolean isBackedOff() {
+        return mRunAttemptCount > 0;
+    }
+
     /**
      * Sets the periodic interval for this unit of work.
      *
@@ -227,37 +231,41 @@ public class WorkSpec {
     }
 
     /**
-     * Calculates delay with which this Work item should be executed.
-     *
-     * If the run attempt count is 0, the initial delay is returned.
+     * Calculates the UTC time at which this {@link WorkSpec} should be allowed to run.
+     * This method accounts for work that is backed off or periodic.
      *
      * If Backoff Policy is set to {@link BaseWork#BACKOFF_POLICY_EXPONENTIAL}, then delay
      * increases at an exponential rate with respect to the run attempt count and is capped at
      * {@link BaseWork#MAX_BACKOFF_MILLIS}.
      *
-     * if Backoff Policy is set to {@link BaseWork#BACKOFF_POLICY_LINEAR}, then delay
+     * If Backoff Policy is set to {@link BaseWork#BACKOFF_POLICY_LINEAR}, then delay
      * increases at an linear rate with respect to the run attempt count and is capped at
      * {@link BaseWork#MAX_BACKOFF_MILLIS}.
      *
      * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/services/core/java/com/android/server/job/JobSchedulerService.java#1125}
      *
-     * Note that this delay is for WorkManager internal use and may not match what the OS considers
-     * to be the current delay.
+     * Note that this runtime is for WorkManager internal use and may not match what the OS
+     * considers to be the next runtime.
      *
-     * @return non-negative delay to execute this item with (in milliseconds)
+     * For jobs with constraints, this represents the earliest time at which constraints
+     * should be monitored for this work.
+     *
+     * For jobs without constraints, this represents the earliest time at which this work is
+     * allowed to run.
+     *
+     * @return UTC time at which this {@link WorkSpec} should be allowed to run.
      */
-    public long calculateDelay() {
-        if (mRunAttemptCount <= 0) {
-            return mInitialDelay;
-        }
-        long delay;
-        if (mBackoffPolicy == BaseWork.BACKOFF_POLICY_LINEAR) {
-            delay = mBackoffDelayDuration * mRunAttemptCount;
+    public long calculateNextRunTime() {
+        if (isBackedOff()) {
+            boolean isLinearBackoff = (mBackoffPolicy == BaseWork.BACKOFF_POLICY_LINEAR);
+            long delay = isLinearBackoff ? (mBackoffDelayDuration * mRunAttemptCount)
+                    : (long) Math.scalb(mBackoffDelayDuration, mRunAttemptCount - 1);
+            return mPeriodStartTime + Math.min(BaseWork.MAX_BACKOFF_MILLIS, delay);
+        } else if (isPeriodic()) {
+            return mPeriodStartTime + mIntervalDuration - mFlexDuration;
         } else {
-            // default to exponential backoff policy
-            delay = (long) Math.scalb(mBackoffDelayDuration, mRunAttemptCount - 1);
+            return mPeriodStartTime + mInitialDelay;
         }
-        return Math.min(BaseWork.MAX_BACKOFF_MILLIS, delay);
     }
 
     @Override
