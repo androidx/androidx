@@ -39,6 +39,8 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
 import android.support.annotation.RestrictTo;
+import android.view.View;
+import android.widget.FrameLayout;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
@@ -50,7 +52,7 @@ import androidx.app.slice.view.R;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @TargetApi(23)
-public class ShortcutView extends androidx.app.slice.widget.SliceView.SliceModeView {
+public class ShortcutView extends FrameLayout implements SliceView.SliceModeView {
 
     private static final String TAG = "ShortcutView";
 
@@ -67,6 +69,11 @@ public class ShortcutView extends androidx.app.slice.widget.SliceView.SliceModeV
         final Resources res = getResources();
         mSmallIconSize = res.getDimensionPixelSize(R.dimen.abc_slice_icon_size);
         mLargeIconSize = res.getDimensionPixelSize(R.dimen.abc_slice_shortcut_size);
+    }
+
+    @Override
+    public View getView() {
+        return this;
     }
 
     @Override

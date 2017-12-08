@@ -18,7 +18,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="?android:attr/listPreferredItemHeightSmall"
+    android:minHeight="@dimen/abc_slice_grid_image_only_height"
     android:gravity="center_vertical"
     android:background="?android:attr/activatedBackgroundIndicator"
     android:clipToPadding="false">
