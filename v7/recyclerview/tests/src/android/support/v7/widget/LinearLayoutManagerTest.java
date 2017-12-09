@@ -905,6 +905,58 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
     }
 
     @Test
+    public void layoutFrozenBug70402422() throws Throwable {
+        final Config config = new Config();
+        TestAdapter adapter = new TestAdapter(2);
+        adapter.setHasStableIds(false);
+        config.adapter(adapter);
+        setupByConfig(config, true);
+        final DummyItemAnimator itemAnimator = new DummyItemAnimator();
+        mRecyclerView.setItemAnimator(itemAnimator);
+
+        final View firstItemView = mRecyclerView
+                .findViewHolderForAdapterPosition(0).itemView;
+
+        itemAnimator.expect(DummyItemAnimator.REMOVE_START, 1);
+        mTestAdapter.deleteAndNotify(1, 1);
+        itemAnimator.waitFor(DummyItemAnimator.REMOVE_START);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.setLayoutFrozen(true);
+            }
+        });
+        // requestLayout during item animation, which should be eaten by setLayoutFrozen(true)
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                firstItemView.requestLayout();
+            }
+        });
+        assertTrue(firstItemView.isLayoutRequested());
+        assertFalse(mRecyclerView.isLayoutRequested());
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                itemAnimator.endAnimations();
+            }
+        });
+        // When setLayoutFrozen(false), the firstItemView should run a layout pass and clear
+        // isLayoutRequested() flag.
+        mLayoutManager.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.setLayoutFrozen(false);
+            }
+        });
+        mLayoutManager.waitForLayout(1);
+        assertFalse(firstItemView.isLayoutRequested());
+        assertFalse(mRecyclerView.isLayoutRequested());
+    }
+
+    @Test
     public void keepFocusOnRelayout() throws Throwable {
         setupByConfig(new Config(VERTICAL, false, false).itemCount(500), true);
         int center = (mLayoutManager.findLastVisibleItemPosition()
