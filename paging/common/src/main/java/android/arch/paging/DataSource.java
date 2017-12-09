@@ -180,6 +180,19 @@ public abstract class DataSource<Key, Value> {
             }
         }
 
+        /**
+         * Call before verifying args, or dispatching actul results
+         *
+         * @return true if DataSource was invalid, and invalid result dispatched
+         */
+        boolean dispatchInvalidResultIfInvalid() {
+            if (mDataSource.isInvalid()) {
+                dispatchResultToReceiver(PageResult.<T>getInvalidResult());
+                return true;
+            }
+            return false;
+        }
+
         void dispatchResultToReceiver(final @NonNull PageResult<T> result) {
             Executor executor;
             synchronized (mSignalLock) {
@@ -190,9 +203,6 @@ public abstract class DataSource<Key, Value> {
                 mHasSignalled = true;
                 executor = mPostExecutor;
             }
-
-            final PageResult<T> resolvedResult =
-                    mDataSource.isInvalid() ? PageResult.<T>getInvalidResult() : result;
 
             if (executor != null) {
                 executor.execute(new Runnable() {

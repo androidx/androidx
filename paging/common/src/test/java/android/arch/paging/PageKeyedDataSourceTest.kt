@@ -75,12 +75,17 @@ class PageKeyedDataSourceTest {
         assertEquals(ITEM_LIST, pagedList)
     }
 
-    private fun performLoadInitial(callbackInvoker:
-            (callback: PageKeyedDataSource.LoadInitialCallback<String, String>) -> Unit) {
+    private fun performLoadInitial(invalidateDataSource: Boolean = false,
+            callbackInvoker:
+                    (callback: PageKeyedDataSource.LoadInitialCallback<String, String>) -> Unit) {
         val dataSource = object : PageKeyedDataSource<String, String>() {
             override fun loadInitial(
                     params: LoadInitialParams<String>,
                     callback: LoadInitialCallback<String, String>) {
+                if (invalidateDataSource) {
+                    // invalidate data source so it's invalid when onResult() called
+                    invalidate()
+                }
                 callbackInvoker(callback)
             }
 
@@ -140,6 +145,12 @@ class PageKeyedDataSourceTest {
     fun loadInitialCallbackEmptyCannotHavePlaceholders() = performLoadInitial {
         // LoadInitialCallback can't accept empty result unless data set is empty
         it.onResult(emptyList(), 0, 2, null, null)
+    }
+
+    @Test
+    fun initialLoadCallbackInvalidThreeArg() = performLoadInitial(invalidateDataSource = true) {
+        // LoadInitialCallback doesn't throw on invalid args if DataSource is invalid
+        it.onResult(emptyList(), 0, 1, null, null)
     }
 
     companion object {
