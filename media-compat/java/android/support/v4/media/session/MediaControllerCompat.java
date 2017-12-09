@@ -1919,6 +1919,7 @@ public final class MediaControllerCompat {
                 }
             } else {
                 synchronized (mPendingCallbacks) {
+                    callback.mHasExtraCallback = false;
                     mPendingCallbacks.add(callback);
                 }
             }
@@ -1931,6 +1932,7 @@ public final class MediaControllerCompat {
                 try {
                     ExtraCallback extraCallback = mCallbackMap.remove(callback);
                     if (extraCallback != null) {
+                        callback.mHasExtraCallback = false;
                         mExtraBinder.unregisterCallbackListener(extraCallback);
                     }
                 } catch (RemoteException e) {
