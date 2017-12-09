@@ -192,17 +192,19 @@ public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSour
          */
         public void onResult(@NonNull List<Value> data, int position, int totalCount,
                 @Nullable Key previousPageKey, @Nullable Key nextPageKey) {
-            validateInitialLoadParams(data, position, totalCount);
+            if (!dispatchInvalidResultIfInvalid()) {
+                validateInitialLoadParams(data, position, totalCount);
 
-            // setup keys before dispatching data, so guaranteed to be ready
-            mDataSource.initKeys(previousPageKey, nextPageKey);
+                // setup keys before dispatching data, so guaranteed to be ready
+                mDataSource.initKeys(previousPageKey, nextPageKey);
 
-            int trailingUnloadedCount = totalCount - position - data.size();
-            if (mCountingEnabled) {
-                dispatchResultToReceiver(new PageResult<>(
-                        data, position, trailingUnloadedCount, 0));
-            } else {
-                dispatchResultToReceiver(new PageResult<>(data, position));
+                int trailingUnloadedCount = totalCount - position - data.size();
+                if (mCountingEnabled) {
+                    dispatchResultToReceiver(new PageResult<>(
+                            data, position, trailingUnloadedCount, 0));
+                } else {
+                    dispatchResultToReceiver(new PageResult<>(data, position));
+                }
             }
         }
 
@@ -223,8 +225,10 @@ public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSour
          */
         public void onResult(@NonNull List<Value> data, @Nullable Key previousPageKey,
                 @Nullable Key nextPageKey) {
-            mDataSource.initKeys(previousPageKey, nextPageKey);
-            dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
+            if (!dispatchInvalidResultIfInvalid()) {
+                mDataSource.initKeys(previousPageKey, nextPageKey);
+                dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
+            }
         }
     }
 
@@ -272,12 +276,14 @@ public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSour
          *                        no more pages to load in the current load direction.
          */
         public void onResult(@NonNull List<Value> data, @Nullable Key adjacentPageKey) {
-            if (mResultType == PageResult.APPEND) {
-                mDataSource.setNextKey(adjacentPageKey);
-            } else {
-                mDataSource.setPreviousKey(adjacentPageKey);
+            if (!dispatchInvalidResultIfInvalid()) {
+                if (mResultType == PageResult.APPEND) {
+                    mDataSource.setNextKey(adjacentPageKey);
+                } else {
+                    mDataSource.setPreviousKey(adjacentPageKey);
+                }
+                dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
             }
-            dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
         }
     }
 

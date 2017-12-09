@@ -167,20 +167,22 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
          *                   {@code data}.
          */
         public void onResult(@NonNull List<T> data, int position, int totalCount) {
-            validateInitialLoadParams(data, position, totalCount);
-            if (position + data.size() != totalCount
-                    && data.size() % mPageSize != 0) {
-                throw new IllegalArgumentException("PositionalDataSource requires initial load size"
-                        + " to be a multiple of page size to support internal tiling.");
-            }
+            if (!dispatchInvalidResultIfInvalid()) {
+                validateInitialLoadParams(data, position, totalCount);
+                if (position + data.size() != totalCount
+                        && data.size() % mPageSize != 0) {
+                    throw new IllegalArgumentException("PositionalDataSource requires initial load"
+                            + " size to be a multiple of page size to support internal tiling.");
+                }
 
-            if (mCountingEnabled) {
-                int trailingUnloadedCount = totalCount - position - data.size();
-                dispatchResultToReceiver(
-                        new PageResult<>(data, position, trailingUnloadedCount, 0));
-            } else {
-                // Only occurs when wrapped as contiguous
-                dispatchResultToReceiver(new PageResult<>(data, position));
+                if (mCountingEnabled) {
+                    int trailingUnloadedCount = totalCount - position - data.size();
+                    dispatchResultToReceiver(
+                            new PageResult<>(data, position, trailingUnloadedCount, 0));
+                } else {
+                    // Only occurs when wrapped as contiguous
+                    dispatchResultToReceiver(new PageResult<>(data, position));
+                }
             }
         }
 
@@ -202,19 +204,21 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
          */
         @SuppressWarnings("WeakerAccess")
         public void onResult(@NonNull List<T> data, int position) {
-            if (position < 0) {
-                throw new IllegalArgumentException("Position must be non-negative");
+            if (!dispatchInvalidResultIfInvalid()) {
+                if (position < 0) {
+                    throw new IllegalArgumentException("Position must be non-negative");
+                }
+                if (data.isEmpty() && position != 0) {
+                    throw new IllegalArgumentException(
+                            "Initial result cannot be empty if items are present in data set.");
+                }
+                if (mCountingEnabled) {
+                    throw new IllegalStateException("Placeholders requested, but totalCount not"
+                            + " provided. Please call the three-parameter onResult method, or"
+                            + " disable placeholders in the PagedList.Config");
+                }
+                dispatchResultToReceiver(new PageResult<>(data, position));
             }
-            if (data.isEmpty() && position != 0) {
-                throw new IllegalArgumentException(
-                        "Initial result cannot be empty if items are present in data set.");
-            }
-            if (mCountingEnabled) {
-                throw new IllegalStateException("Placeholders requested, but totalCount not"
-                        + " provided. Please call the three-parameter onResult method, or disable"
-                        + " placeholders in the PagedList.Config");
-            }
-            dispatchResultToReceiver(new PageResult<>(data, position));
         }
     }
 
@@ -245,8 +249,10 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
          *             unless at end of list.
          */
         public void onResult(@NonNull List<T> data) {
-            dispatchResultToReceiver(new PageResult<>(
-                    data, 0, 0, mPositionOffset));
+            if (!dispatchInvalidResultIfInvalid()) {
+                dispatchResultToReceiver(new PageResult<>(
+                        data, 0, 0, mPositionOffset));
+            }
         }
     }
 
