@@ -31,6 +31,23 @@ limitations under the License.
         <item name="android:textColor">@color/car_title_light</item>
     </style>
 
+    <!-- The styling for title2 text. The color of this text changes based on day/night mode. -->
+    <style name="CarTitle2">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_title2_size</item>
+        <item name="android:textColor">@color/car_title2</item>
+    </style>
+
+    <!-- Title2 text that is permanently a dark color. -->
+    <style name="CarTitle2.Dark">
+        <item name="android:textColor">@color/car_title2_dark</item>
+    </style>
+
+    <!-- Title2 text that is permanently a light color. -->
+    <style name="CarTitle2.Light">
+        <item name="android:textColor">@color/car_title2_light</item>
+    </style>
+
     <!-- The styling for the main headline text. The color of this text changes based on the
          day/night mode. -->
     <style name="CarHeadline1">
