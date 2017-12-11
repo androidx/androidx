@@ -28,12 +28,14 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.ColorRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.UiThread;
+import android.support.annotation.VisibleForTesting;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -73,7 +75,8 @@ public class PagedListView extends FrameLayout {
     protected final PagedLayoutManager mLayoutManager;
     protected final Handler mHandler = new Handler();
     private final boolean mScrollBarEnabled;
-    private final PagedScrollBarView mScrollBarView;
+    @VisibleForTesting
+    final PagedScrollBarView mScrollBarView;
 
     private int mRowsPerPage = -1;
     protected RecyclerView.Adapter<? extends RecyclerView.ViewHolder> mAdapter;
@@ -514,6 +517,25 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
+     * Sets the color of scrollbar.
+     *
+     * <p>Custom color ignores {@link DayNightStyle}. Calling {@link #resetScrollbarColor} resets to
+     * default color.
+     *
+     * @param color Resource identifier of the color.
+     */
+    public void setScrollbarColor(@ColorRes int color) {
+        mScrollBarView.setThumbColor(color);
+    }
+
+    /**
+     * Resets the color of scrollbar to default.
+     */
+    public void resetScrollbarColor() {
+        mScrollBarView.resetThumbColor();
+    }
+
+    /**
      * Adds an {@link android.support.v7.widget.RecyclerView.OnItemTouchListener} to this
      * PagedListView.
      *
@@ -536,6 +558,7 @@ public class PagedListView extends FrameLayout {
     public void removeOnItemTouchListener(@NonNull RecyclerView.OnItemTouchListener touchListener) {
         mRecyclerView.removeOnItemTouchListener(touchListener);
     }
+
     /**
      * Sets how this {@link PagedListView} responds to day/night configuration changes. By
      * default, the PagedListView is darker in the day and lighter at night.

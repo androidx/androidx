@@ -35,7 +35,9 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingResource;
@@ -365,6 +367,43 @@ public final class PagedListViewTest {
         ImageView downButton = mPagedListView.findViewById(R.id.page_down);
         ViewMatchers.assertThat(downButton.getDrawable().getConstantState(),
                 is(equalTo(downDrawable.getConstantState())));
+    }
+
+    @Test
+    public void testSettingAndResettingScrollbarColor() {
+        setUpPagedListView(0);
+
+        final int color = R.color.car_teal_700;
+
+        // Setting non-zero res ID changes color.
+        mPagedListView.setScrollbarColor(color);
+        assertThat(((ColorDrawable)
+                        mPagedListView.mScrollBarView.mScrollThumb.getBackground()).getColor(),
+                is(equalTo(InstrumentationRegistry.getContext().getColor(color))));
+
+        // Resets to default color.
+        mPagedListView.resetScrollbarColor();
+        assertThat(((ColorDrawable)
+                        mPagedListView.mScrollBarView.mScrollThumb.getBackground()).getColor(),
+                is(equalTo(InstrumentationRegistry.getContext().getColor(
+                        R.color.car_scrollbar_thumb))));
+    }
+
+    @Test
+    public void testSettingScrollbarColorIgnoresDayNightStyle() {
+        setUpPagedListView(0);
+
+        final int color = R.color.car_teal_700;
+        mPagedListView.setScrollbarColor(color);
+
+        for (int style : new int[] {DayNightStyle.AUTO, DayNightStyle.AUTO_INVERSE,
+                DayNightStyle.FORCE_NIGHT, DayNightStyle.FORCE_DAY}) {
+            mPagedListView.setDayNightStyle(style);
+
+            assertThat(((ColorDrawable)
+                            mPagedListView.mScrollBarView.mScrollThumb.getBackground()).getColor(),
+                    is(equalTo(InstrumentationRegistry.getContext().getColor(color))));
+        }
     }
 
     private static String itemText(int index) {
