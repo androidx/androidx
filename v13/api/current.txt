@@ -1,8 +1,7 @@
 package android.support.v13.app {
 
-  public class ActivityCompat extends android.support.v4.app.ActivityCompat {
-    ctor protected ActivityCompat();
-    method public static android.support.v13.view.DragAndDropPermissionsCompat requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent);
+  public deprecated class ActivityCompat extends android.support.v4.app.ActivityCompat {
+    ctor protected deprecated ActivityCompat();
   }
 
   public deprecated class FragmentCompat {
@@ -68,58 +67,7 @@ package android.support.v13.app {
 
 package android.support.v13.view {
 
-  public final class DragAndDropPermissionsCompat {
-    method public void release();
-  }
-
-  public class DragStartHelper {
-    ctor public DragStartHelper(android.view.View, android.support.v13.view.DragStartHelper.OnDragStartListener);
-    method public void attach();
-    method public void detach();
-    method public void getTouchPosition(android.graphics.Point);
-    method public boolean onLongClick(android.view.View);
-    method public boolean onTouch(android.view.View, android.view.MotionEvent);
-  }
-
-  public static abstract interface DragStartHelper.OnDragStartListener {
-    method public abstract boolean onDragStart(android.view.View, android.support.v13.view.DragStartHelper);
-  }
-
   public deprecated class ViewCompat extends android.support.v4.view.ViewCompat {
-  }
-
-}
-
-package android.support.v13.view.inputmethod {
-
-  public final class EditorInfoCompat {
-    ctor public EditorInfoCompat();
-    method public static java.lang.String[] getContentMimeTypes(android.view.inputmethod.EditorInfo);
-    method public static void setContentMimeTypes(android.view.inputmethod.EditorInfo, java.lang.String[]);
-    field public static final int IME_FLAG_FORCE_ASCII = -2147483648; // 0x80000000
-    field public static final int IME_FLAG_NO_PERSONALIZED_LEARNING = 16777216; // 0x1000000
-  }
-
-  public final class InputConnectionCompat {
-    ctor public InputConnectionCompat();
-    method public static boolean commitContent(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, android.support.v13.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle);
-    method public static android.view.inputmethod.InputConnection createWrapper(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, android.support.v13.view.inputmethod.InputConnectionCompat.OnCommitContentListener);
-    field public static int INPUT_CONTENT_GRANT_READ_URI_PERMISSION;
-  }
-
-  public static abstract interface InputConnectionCompat.OnCommitContentListener {
-    method public abstract boolean onCommitContent(android.support.v13.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle);
-  }
-
-  public final class InputContentInfoCompat {
-    ctor public InputContentInfoCompat(android.net.Uri, android.content.ClipDescription, android.net.Uri);
-    method public android.net.Uri getContentUri();
-    method public android.content.ClipDescription getDescription();
-    method public android.net.Uri getLinkUri();
-    method public void releasePermission();
-    method public void requestPermission();
-    method public java.lang.Object unwrap();
-    method public static android.support.v13.view.inputmethod.InputContentInfoCompat wrap(java.lang.Object);
   }
 
 }
