@@ -177,6 +177,20 @@ public class WorkerWrapperTest extends DatabaseTest {
 
     @Test
     @SmallTest
+    public void testPermanentErrorWithInvalidInputMergerClass() throws InterruptedException {
+        Work work = new Work.Builder(TestWorker.class).build();
+        work.getWorkSpec().setInputMergerClassName("INVALID_CLASS_NAME");
+        insertBaseWork(work);
+        new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .withListener(mMockListener)
+                .build()
+                .run();
+        verify(mMockListener).onExecuted(work.getId(), false);
+        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_FAILED));
+    }
+
+    @Test
+    @SmallTest
     public void testFailed() throws InterruptedException {
         Work work = new Work.Builder(FailureWorker.class).build();
         insertBaseWork(work);
