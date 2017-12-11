@@ -65,7 +65,7 @@ public class WorkSpec {
     long mFlexDuration;
 
     @Embedded
-    Constraints mConstraints = new Constraints.Builder().build();
+    Constraints mConstraints = Constraints.NONE;
 
     @ColumnInfo(name = "run_attempt_count")
     int mRunAttemptCount;

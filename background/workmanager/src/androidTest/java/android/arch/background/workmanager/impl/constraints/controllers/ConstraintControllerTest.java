@@ -67,7 +67,7 @@ public class ConstraintControllerTest {
     }
 
     private WorkSpec createNoConstraintWorkSpec() {
-        return createTestWorkSpec(new Constraints.Builder().build());
+        return createTestWorkSpec(Constraints.NONE);
     }
 
     @Test

@@ -36,6 +36,8 @@ public class Constraints {
     public @interface NetworkType {
     }
 
+    public static final Constraints NONE = new Constraints.Builder().build();
+
     public static final int NETWORK_NOT_REQUIRED = 0;
     public static final int NETWORK_CONNECTED = 1;
     public static final int NETWORK_UNMETERED = 2;
