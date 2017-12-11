@@ -18,17 +18,11 @@ package android.arch.background.workmanager.impl.constraints.controllers;
 import android.arch.background.workmanager.impl.constraints.ConstraintListener;
 import android.arch.background.workmanager.impl.constraints.trackers.ConstraintTracker;
 import android.arch.background.workmanager.impl.model.WorkSpec;
-import android.arch.background.workmanager.impl.utils.LiveDataUtils;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,8 +31,7 @@ import java.util.List;
  * @param <T> the constraint data type managed by this controller.
  */
 
-public abstract class ConstraintController<T> implements LifecycleObserver, ConstraintListener<T>,
-        Observer<List<WorkSpec>> {
+public abstract class ConstraintController<T> implements ConstraintListener<T> {
 
     /**
      * A callback for when a constraint changes.
@@ -62,97 +55,81 @@ public abstract class ConstraintController<T> implements LifecycleObserver, Cons
 
     private static final String TAG = "ConstraintCtrlr";
 
-    private LiveData<List<WorkSpec>> mConstraintLiveData;
-    private LifecycleOwner mLifecycleOwner;
-    private ConstraintTracker<T> mTracker;
-    private OnConstraintUpdatedCallback mOnConstraintUpdatedCallback;
-    private List<WorkSpec> mMatchingWorkSpecs;
+    private final List<WorkSpec> mMatchingWorkSpecs = new ArrayList<>();
+
     private T mCurrentValue;
+    private ConstraintTracker<T> mTracker;
+    private OnConstraintUpdatedCallback mCallback;
 
-    ConstraintController(
-            LiveData<List<WorkSpec>> constraintLiveData,
-            LifecycleOwner lifecycleOwner,
-            ConstraintTracker<T> tracker,
-            OnConstraintUpdatedCallback onConstraintUpdatedCallback) {
-        mConstraintLiveData = LiveDataUtils.dedupedLiveDataFor(constraintLiveData);
-        mLifecycleOwner = lifecycleOwner;
+    ConstraintController(ConstraintTracker<T> tracker, OnConstraintUpdatedCallback callback) {
         mTracker = tracker;
-        mOnConstraintUpdatedCallback = onConstraintUpdatedCallback;
-        mLifecycleOwner.getLifecycle().addObserver(this);
+        mCallback = callback;
     }
 
-    /**
-     * Registers the {@link Observer}.
-     */
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    public void onLifecycleStart() {
-        mConstraintLiveData.observe(mLifecycleOwner, this);
-    }
-
-    /**
-     * Removes the {@link Observer} and stops tracking on the {@link ConstraintTracker}.
-     */
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void shutdown() {
-        mConstraintLiveData.removeObserver(this);
-        mTracker.removeListener(this);
-    }
-
-    /**
-     * Determines if a particular {@link android.arch.background.workmanager.impl.model.WorkSpec} is
-     * considered constrained.  A constrained WorkSpec is one that is known to this controller and
-     * the constraint for this controller is not met.  Note that if this controller has not yet
-     * received a list of matching WorkSpec ids, *everything* is considered constrained.
-     *
-     * @param workSpec the {@link WorkSpec} to check
-     * @return {@code true} if the WorkSpec is considered constrained
-     */
-    public boolean isWorkSpecConstrained(WorkSpec workSpec) {
-        if (mMatchingWorkSpecs == null) {
-            Log.d(TAG, getClass().getSimpleName() + ": null matching workspecs");
-            return true;
-        }
-        if (mCurrentValue == null) {
-            Log.d(TAG, getClass().getSimpleName() + ": value not set");
-            return true;
-        }
-        return isConstrained(mCurrentValue) && mMatchingWorkSpecs.contains(workSpec);
-    }
-
-    private void updateListener() {
-        if (mMatchingWorkSpecs == null) {
-            Log.d(TAG, getClass().getSimpleName() + ": updateListener - no workspecs!");
-            return;
-        }
-
-        Log.d(TAG, getClass().getSimpleName() + ": updateListener");
-        if (mCurrentValue == null || isConstrained(mCurrentValue)) {
-            mOnConstraintUpdatedCallback.onConstraintNotMet(mMatchingWorkSpecs);
-        } else {
-            mOnConstraintUpdatedCallback.onConstraintMet(mMatchingWorkSpecs);
-        }
-    }
+    abstract boolean hasConstraint(@NonNull WorkSpec workSpec);
 
     abstract boolean isConstrained(@NonNull T currentValue);
 
-    @Override
-    public void onChanged(@Nullable List<WorkSpec> matchingWorkSpecs) {
-        Log.d(
-                TAG,
-                ConstraintController.this.getClass().getSimpleName() + ": "
-                        + matchingWorkSpecs);
-        mMatchingWorkSpecs = matchingWorkSpecs;
-        if (matchingWorkSpecs != null && matchingWorkSpecs.size() > 0) {
-            mTracker.addListener(this);
-            updateListener();
-        } else {
+    /**
+     * Replaces the list of {@link WorkSpec}s to monitor constraints for.
+     *
+     * @param workSpecs A list of {@link WorkSpec}s to monitor constraints for
+     */
+    public void replace(@NonNull List<WorkSpec> workSpecs) {
+        mMatchingWorkSpecs.clear();
+
+        for (WorkSpec workSpec : workSpecs) {
+            if (hasConstraint(workSpec)) {
+                mMatchingWorkSpecs.add(workSpec);
+            }
+        }
+
+        if (mMatchingWorkSpecs.isEmpty()) {
             mTracker.removeListener(this);
+        } else {
+            mTracker.addListener(this);
+        }
+        updateCallback();
+    }
+
+    /**
+     * Clears all tracked {@link WorkSpec}s.
+     */
+    public void reset() {
+        if (!mMatchingWorkSpecs.isEmpty()) {
+            mMatchingWorkSpecs.clear();
+            mTracker.removeListener(this);
+        }
+    }
+
+    /**
+     * Determines if a particular {@link WorkSpec} is constrained. It is constrained if it is
+     * tracked by this controller, and the controller constraint was set, but not satisfied.
+     *
+     * @param workSpec The {@link WorkSpec} to check if it is constrained.
+     * @return {@code true} if the WorkSpec is considered constrained
+     */
+    public boolean isWorkSpecConstrained(WorkSpec workSpec) {
+        return mCurrentValue != null && isConstrained(mCurrentValue)
+                && mMatchingWorkSpecs.contains(workSpec);
+    }
+
+    private void updateCallback() {
+        Log.d(TAG, getClass().getSimpleName() + ": updateCallback");
+        if (mMatchingWorkSpecs.isEmpty()) {
+            return;
+        }
+
+        if (mCurrentValue == null || isConstrained(mCurrentValue)) {
+            mCallback.onConstraintNotMet(mMatchingWorkSpecs);
+        } else {
+            mCallback.onConstraintMet(mMatchingWorkSpecs);
         }
     }
 
     @Override
     public void onConstraintChanged(@Nullable T newValue) {
         mCurrentValue = newValue;
-        updateListener();
+        updateCallback();
     }
 }

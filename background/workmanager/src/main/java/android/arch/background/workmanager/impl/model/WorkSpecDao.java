@@ -16,6 +16,7 @@
 
 package android.arch.background.workmanager.impl.model;
 
+import static android.arch.background.workmanager.Constraints.NETWORK_NOT_REQUIRED;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.Work.STATUS_RUNNING;
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_CANCELLED;
@@ -24,7 +25,6 @@ import static android.arch.background.workmanager.impl.BaseWork.STATUS_SUCCEEDED
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.background.workmanager.Arguments;
-import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.Work;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
@@ -130,6 +130,19 @@ public interface WorkSpecDao {
     LiveData<Integer> getWorkSpecLiveDataStatus(String id);
 
     /**
+     * Retrieves {@link WorkSpec}s that have have status {@code STATUS_ENQUEUED} or
+     * {@code STATUS_RUNNING} at least one constraint, no initial delay, and are not periodic.
+     *
+     * @return A {@link LiveData} list of {@link WorkSpec}s.
+     */
+    @Query("SELECT * FROM workspec WHERE ("
+            + "requires_battery_not_low=1 OR requires_charging=1 OR requires_storage_not_low=1 OR "
+            + "required_network_type!=" + NETWORK_NOT_REQUIRED + ") AND "
+            + "(status=" + STATUS_ENQUEUED + " OR status=" + STATUS_RUNNING + ") AND "
+            + "initial_delay=0 AND interval_duration=0")
+    LiveData<List<WorkSpec>> getConstraintsTrackerEligibleWorkSpecs();
+
+    /**
      * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED}, have no constraints,
      * no initial delay, and are not periodic.
      *
@@ -181,46 +194,4 @@ public interface WorkSpecDao {
             + "(" + STATUS_CANCELLED + ", " + STATUS_FAILED + ", " + STATUS_SUCCEEDED + ") AND "
             + "id NOT IN (SELECT DISTINCT prerequisite_id FROM dependency)")
     int pruneLeaves();
-
-    String CONSTRAINT_SUFFIX = " AND (status=" + STATUS_ENQUEUED + " OR status=" + STATUS_RUNNING
-            + ") AND initial_delay=0 AND (interval_duration=0"
-            + " OR (:allowPeriodic AND interval_duration>0))";
-
-    /**
-     * Returns work items that have a battery charging constraint.
-     *
-     * @param allowPeriodic {@code true} to allow periodic jobs to be returned
-     * @return A list of {@link WorkSpec}s that have a battery charging constraint.
-     */
-    @Query("SELECT * FROM workspec WHERE requires_charging=1" + CONSTRAINT_SUFFIX)
-    LiveData<List<WorkSpec>> getIdsForBatteryChargingController(boolean allowPeriodic);
-
-    /**
-     * Returns work items that have a battery not low constraint.
-     *
-     * @param allowPeriodic {@code true} to allow periodic jobs to be returned
-     * @return A list of {@link WorkSpec}s that have a battery not low constraint.
-     */
-    @Query("SELECT * FROM workspec WHERE requires_battery_not_low=1" + CONSTRAINT_SUFFIX)
-    LiveData<List<WorkSpec>> getIdsForBatteryNotLowController(boolean allowPeriodic);
-
-    /**
-     * Returns work items that have a storage not low constraint.
-     *
-     * @param allowPeriodic {@code true} to allow periodic jobs to be returned
-     * @return A list of {@link WorkSpec}s that have a storage not low constraint.
-     */
-    @Query("SELECT * FROM workspec WHERE requires_storage_not_low=1" + CONSTRAINT_SUFFIX)
-    LiveData<List<WorkSpec>> getIdsForStorageNotLowController(boolean allowPeriodic);
-
-    /**
-     * Returns work items that have the required {@code networkType} constraint.
-     *
-     * @param networkType The {@link Constraints.NetworkType} network type
-     * @param allowPeriodic {@code true} to allow periodic jobs to be returned
-     * @return A list of {@link WorkSpec}s that have the {@code networkType} constraint.
-     */
-    @Query("SELECT * FROM workspec WHERE required_network_type=:networkType" + CONSTRAINT_SUFFIX)
-    LiveData<List<WorkSpec>> getIdsForNetworkTypeController(
-            @Constraints.NetworkType int networkType, boolean allowPeriodic);
 }

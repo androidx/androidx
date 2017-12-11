@@ -82,8 +82,7 @@ public class ForegroundProcessor extends Processor
                 mAppContext,
                 mLifecycleOwner,
                 mWorkDatabase,
-                this,
-                false);
+                this);
         LiveDataUtils.dedupedLiveDataFor(
                 mWorkDatabase.workSpecDao().getForegroundEligibleWorkSpecs())
                 .observe(mLifecycleOwner, this);

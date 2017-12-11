@@ -16,11 +16,11 @@
 
 package android.arch.background.workmanager.impl.constraints.controllers;
 
-import android.arch.background.workmanager.Constraints;
-import android.arch.background.workmanager.impl.WorkDatabase;
+import static android.arch.background.workmanager.Constraints.NETWORK_METERED;
+
 import android.arch.background.workmanager.impl.constraints.NetworkState;
 import android.arch.background.workmanager.impl.constraints.trackers.Trackers;
-import android.arch.lifecycle.LifecycleOwner;
+import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -33,20 +33,13 @@ import android.util.Log;
 public class NetworkMeteredController extends ConstraintController<NetworkState> {
     private static final String TAG = "NetworkMeteredCtrlr";
 
-    public NetworkMeteredController(
-            Context context,
-            WorkDatabase workDatabase,
-            LifecycleOwner lifecycleOwner,
-            OnConstraintUpdatedCallback onConstraintUpdatedCallback,
-            boolean allowPeriodic) {
-        super(
-                workDatabase.workSpecDao().getIdsForNetworkTypeController(
-                        Constraints.NETWORK_METERED,
-                        allowPeriodic),
-                lifecycleOwner,
-                Trackers.getInstance(context).getNetworkStateTracker(),
-                onConstraintUpdatedCallback
-        );
+    public NetworkMeteredController(Context context, OnConstraintUpdatedCallback callback) {
+        super(Trackers.getInstance(context).getNetworkStateTracker(), callback);
+    }
+
+    @Override
+    boolean hasConstraint(@NonNull WorkSpec workSpec) {
+        return workSpec.getConstraints().getRequiredNetworkType() == NETWORK_METERED;
     }
 
     /**

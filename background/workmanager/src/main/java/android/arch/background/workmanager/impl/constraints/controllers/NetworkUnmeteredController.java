@@ -16,11 +16,11 @@
 
 package android.arch.background.workmanager.impl.constraints.controllers;
 
-import android.arch.background.workmanager.Constraints;
-import android.arch.background.workmanager.impl.WorkDatabase;
+import static android.arch.background.workmanager.Constraints.NETWORK_UNMETERED;
+
 import android.arch.background.workmanager.impl.constraints.NetworkState;
 import android.arch.background.workmanager.impl.constraints.trackers.Trackers;
-import android.arch.lifecycle.LifecycleOwner;
+import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -29,20 +29,13 @@ import android.support.annotation.NonNull;
  */
 
 public class NetworkUnmeteredController extends ConstraintController<NetworkState> {
-    public NetworkUnmeteredController(
-            Context context,
-            WorkDatabase workDatabase,
-            LifecycleOwner lifecycleOwner,
-            OnConstraintUpdatedCallback onConstraintUpdatedCallback,
-            boolean allowPeriodic) {
-        super(
-                workDatabase.workSpecDao().getIdsForNetworkTypeController(
-                        Constraints.NETWORK_UNMETERED,
-                        allowPeriodic),
-                lifecycleOwner,
-                Trackers.getInstance(context).getNetworkStateTracker(),
-                onConstraintUpdatedCallback
-        );
+    public NetworkUnmeteredController(Context context, OnConstraintUpdatedCallback callback) {
+        super(Trackers.getInstance(context).getNetworkStateTracker(), callback);
+    }
+
+    @Override
+    boolean hasConstraint(@NonNull WorkSpec workSpec) {
+        return workSpec.getConstraints().getRequiredNetworkType() == NETWORK_UNMETERED;
     }
 
     @Override
