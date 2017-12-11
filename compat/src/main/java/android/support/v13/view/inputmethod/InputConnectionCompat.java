@@ -16,7 +16,6 @@
 
 package android.support.v13.view.inputmethod;
 
-import android.support.annotation.RequiresApi;
 import android.content.ClipDescription;
 import android.net.Uri;
 import android.os.Build;
@@ -36,138 +35,50 @@ import android.view.inputmethod.InputContentInfo;
  */
 public final class InputConnectionCompat {
 
-    private interface InputConnectionCompatImpl {
-        boolean commitContent(@NonNull InputConnection inputConnection,
-                @NonNull InputContentInfoCompat inputContentInfo, int flags, @Nullable Bundle opts);
+    private static final String COMMIT_CONTENT_ACTION =
+            "android.support.v13.view.inputmethod.InputConnectionCompat.COMMIT_CONTENT";
+    private static final String COMMIT_CONTENT_CONTENT_URI_KEY =
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_URI";
+    private static final String COMMIT_CONTENT_DESCRIPTION_KEY =
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_DESCRIPTION";
+    private static final String COMMIT_CONTENT_LINK_URI_KEY =
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_LINK_URI";
+    private static final String COMMIT_CONTENT_OPTS_KEY =
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_OPTS";
+    private static final String COMMIT_CONTENT_FLAGS_KEY =
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_FLAGS";
+    private static final String COMMIT_CONTENT_RESULT_RECEIVER =
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_RESULT_RECEIVER";
 
-        @NonNull
-        InputConnection createWrapper(@NonNull InputConnection ic,
-                @NonNull EditorInfo editorInfo, @NonNull OnCommitContentListener callback);
-    }
-
-    static final class InputContentInfoCompatBaseImpl implements InputConnectionCompatImpl {
-
-        private static String COMMIT_CONTENT_ACTION =
-                "android.support.v13.view.inputmethod.InputConnectionCompat.COMMIT_CONTENT";
-        private static String COMMIT_CONTENT_CONTENT_URI_KEY =
-                "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_URI";
-        private static String COMMIT_CONTENT_DESCRIPTION_KEY =
-                "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_DESCRIPTION";
-        private static String COMMIT_CONTENT_LINK_URI_KEY =
-                "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_LINK_URI";
-        private static String COMMIT_CONTENT_OPTS_KEY =
-                "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_OPTS";
-        private static String COMMIT_CONTENT_FLAGS_KEY =
-                "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_FLAGS";
-        private static String COMMIT_CONTENT_RESULT_RECEIVER =
-                "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_RESULT_RECEIVER";
-
-        @Override
-        public boolean commitContent(@NonNull InputConnection inputConnection,
-                @NonNull InputContentInfoCompat inputContentInfo, int flags,
-                @Nullable Bundle opts) {
-            final Bundle params = new Bundle();
-            params.putParcelable(COMMIT_CONTENT_CONTENT_URI_KEY, inputContentInfo.getContentUri());
-            params.putParcelable(COMMIT_CONTENT_DESCRIPTION_KEY, inputContentInfo.getDescription());
-            params.putParcelable(COMMIT_CONTENT_LINK_URI_KEY, inputContentInfo.getLinkUri());
-            params.putInt(COMMIT_CONTENT_FLAGS_KEY, flags);
-            params.putParcelable(COMMIT_CONTENT_OPTS_KEY, opts);
-            // TODO: Support COMMIT_CONTENT_RESULT_RECEIVER.
-            return inputConnection.performPrivateCommand(COMMIT_CONTENT_ACTION, params);
+    static boolean handlePerformPrivateCommand(
+            @Nullable String action,
+            @NonNull Bundle data,
+            @NonNull OnCommitContentListener onCommitContentListener) {
+        if (!TextUtils.equals(COMMIT_CONTENT_ACTION, action)) {
+            return false;
         }
-
-        @NonNull
-        @Override
-        public InputConnection createWrapper(@NonNull InputConnection ic,
-                @NonNull EditorInfo editorInfo,
-                @NonNull OnCommitContentListener onCommitContentListener) {
-            String[] contentMimeTypes = EditorInfoCompat.getContentMimeTypes(editorInfo);
-            if (contentMimeTypes.length == 0) {
-                return ic;
+        if (data == null) {
+            return false;
+        }
+        ResultReceiver resultReceiver = null;
+        boolean result = false;
+        try {
+            resultReceiver = data.getParcelable(COMMIT_CONTENT_RESULT_RECEIVER);
+            final Uri contentUri = data.getParcelable(COMMIT_CONTENT_CONTENT_URI_KEY);
+            final ClipDescription description = data.getParcelable(
+                    COMMIT_CONTENT_DESCRIPTION_KEY);
+            final Uri linkUri = data.getParcelable(COMMIT_CONTENT_LINK_URI_KEY);
+            final int flags = data.getInt(COMMIT_CONTENT_FLAGS_KEY);
+            final Bundle opts = data.getParcelable(COMMIT_CONTENT_OPTS_KEY);
+            final InputContentInfoCompat inputContentInfo =
+                    new InputContentInfoCompat(contentUri, description, linkUri);
+            result = onCommitContentListener.onCommitContent(inputContentInfo, flags, opts);
+        } finally {
+            if (resultReceiver != null) {
+                resultReceiver.send(result ? 1 : 0, null);
             }
-            final OnCommitContentListener listener = onCommitContentListener;
-            return new InputConnectionWrapper(ic, false /* mutable */) {
-                @Override
-                public boolean performPrivateCommand(String action, Bundle data) {
-                    if (InputContentInfoCompatBaseImpl.handlePerformPrivateCommand(action, data,
-                            listener)) {
-                        return true;
-                    }
-                    return super.performPrivateCommand(action, data);
-                }
-            };
         }
-
-        static boolean handlePerformPrivateCommand(
-                @Nullable String action,
-                @NonNull Bundle data,
-                @NonNull OnCommitContentListener onCommitContentListener) {
-            if (!TextUtils.equals(COMMIT_CONTENT_ACTION, action)) {
-                return false;
-            }
-            if (data == null) {
-                return false;
-            }
-            ResultReceiver resultReceiver = null;
-            boolean result = false;
-            try {
-                resultReceiver = data.getParcelable(COMMIT_CONTENT_RESULT_RECEIVER);
-                final Uri contentUri = data.getParcelable(COMMIT_CONTENT_CONTENT_URI_KEY);
-                final ClipDescription description = data.getParcelable(
-                        COMMIT_CONTENT_DESCRIPTION_KEY);
-                final Uri linkUri = data.getParcelable(COMMIT_CONTENT_LINK_URI_KEY);
-                final int flags = data.getInt(COMMIT_CONTENT_FLAGS_KEY);
-                final Bundle opts = data.getParcelable(COMMIT_CONTENT_OPTS_KEY);
-                final InputContentInfoCompat inputContentInfo =
-                        new InputContentInfoCompat(contentUri, description, linkUri);
-                result = onCommitContentListener.onCommitContent(inputContentInfo, flags, opts);
-            } finally {
-                if (resultReceiver != null) {
-                    resultReceiver.send(result ? 1 : 0, null);
-                }
-            }
-            return result;
-        }
-    }
-
-    @RequiresApi(25)
-    private static final class InputContentInfoCompatApi25Impl
-            implements InputConnectionCompatImpl {
-        @Override
-        public boolean commitContent(@NonNull InputConnection inputConnection,
-                @NonNull InputContentInfoCompat inputContentInfo, int flags,
-                @Nullable Bundle opts) {
-            return inputConnection.commitContent((InputContentInfo) inputContentInfo.unwrap(),
-                    flags, opts);
-        }
-
-        @Nullable
-        @Override
-        public InputConnection createWrapper(
-                @Nullable InputConnection inputConnection, @NonNull EditorInfo editorInfo,
-                @Nullable OnCommitContentListener onCommitContentListener) {
-            final OnCommitContentListener listener = onCommitContentListener;
-            return new InputConnectionWrapper(inputConnection, false /* mutable */) {
-                @Override
-                public boolean commitContent(InputContentInfo inputContentInfo, int flags,
-                        Bundle opts) {
-                    if (listener.onCommitContent(InputContentInfoCompat.wrap(inputContentInfo),
-                            flags, opts)) {
-                        return true;
-                    }
-                    return super.commitContent(inputContentInfo, flags, opts);
-                }
-            };
-        }
-    }
-
-    private static final InputConnectionCompatImpl IMPL;
-    static {
-        if (Build.VERSION.SDK_INT >= 25) {
-            IMPL = new InputContentInfoCompatApi25Impl();
-        } else {
-            IMPL = new InputContentInfoCompatBaseImpl();
-        }
+        return result;
     }
 
     /**
@@ -196,7 +107,19 @@ public final class InputConnectionCompat {
             return false;
         }
 
-        return IMPL.commitContent(inputConnection, inputContentInfo, flags, opts);
+        if (Build.VERSION.SDK_INT >= 25) {
+            return inputConnection.commitContent(
+                    (InputContentInfo) inputContentInfo.unwrap(), flags, opts);
+        } else {
+            final Bundle params = new Bundle();
+            params.putParcelable(COMMIT_CONTENT_CONTENT_URI_KEY, inputContentInfo.getContentUri());
+            params.putParcelable(COMMIT_CONTENT_DESCRIPTION_KEY, inputContentInfo.getDescription());
+            params.putParcelable(COMMIT_CONTENT_LINK_URI_KEY, inputContentInfo.getLinkUri());
+            params.putInt(COMMIT_CONTENT_FLAGS_KEY, flags);
+            params.putParcelable(COMMIT_CONTENT_OPTS_KEY, opts);
+            // TODO: Support COMMIT_CONTENT_RESULT_RECEIVER.
+            return inputConnection.performPrivateCommand(COMMIT_CONTENT_ACTION, params);
+        }
     }
 
     /**
@@ -276,7 +199,35 @@ public final class InputConnectionCompat {
         if (onCommitContentListener == null) {
             throw new IllegalArgumentException("onCommitContentListener must be non-null");
         }
-        return IMPL.createWrapper(inputConnection, editorInfo, onCommitContentListener);
+        if (Build.VERSION.SDK_INT >= 25) {
+            final OnCommitContentListener listener = onCommitContentListener;
+            return new InputConnectionWrapper(inputConnection, false /* mutable */) {
+                @Override
+                public boolean commitContent(InputContentInfo inputContentInfo, int flags,
+                        Bundle opts) {
+                    if (listener.onCommitContent(InputContentInfoCompat.wrap(inputContentInfo),
+                            flags, opts)) {
+                        return true;
+                    }
+                    return super.commitContent(inputContentInfo, flags, opts);
+                }
+            };
+        } else {
+            String[] contentMimeTypes = EditorInfoCompat.getContentMimeTypes(editorInfo);
+            if (contentMimeTypes.length == 0) {
+                return inputConnection;
+            }
+            final OnCommitContentListener listener = onCommitContentListener;
+            return new InputConnectionWrapper(inputConnection, false /* mutable */) {
+                @Override
+                public boolean performPrivateCommand(String action, Bundle data) {
+                    if (InputConnectionCompat.handlePerformPrivateCommand(action, data, listener)) {
+                        return true;
+                    }
+                    return super.performPrivateCommand(action, data);
+                }
+            };
+        }
     }
 
 }

@@ -538,6 +538,7 @@ public class ActivityCompat extends ContextCompat {
      * URIs. {@code null} if no content URIs are associated with the event or if permissions could
      * not be granted.
      */
+    @Nullable
     public static DragAndDropPermissionsCompat requestDragAndDropPermissions(Activity activity,
             DragEvent dragEvent) {
         return DragAndDropPermissionsCompat.request(activity, dragEvent);
