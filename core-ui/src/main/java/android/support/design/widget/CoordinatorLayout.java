@@ -400,6 +400,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             lp.resetTouchBehaviorTracking();
         }
+        mBehaviorTouchView = null;
         mDisallowInterceptReset = false;
     }
 
