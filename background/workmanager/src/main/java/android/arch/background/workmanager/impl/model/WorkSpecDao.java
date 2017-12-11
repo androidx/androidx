@@ -16,7 +16,6 @@
 
 package android.arch.background.workmanager.impl.model;
 
-import static android.arch.background.workmanager.Constraints.NETWORK_NOT_REQUIRED;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.Work.STATUS_RUNNING;
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_CANCELLED;
@@ -130,28 +129,13 @@ public interface WorkSpecDao {
     LiveData<Integer> getWorkSpecLiveDataStatus(String id);
 
     /**
-     * Retrieves {@link WorkSpec}s that have have status {@code STATUS_ENQUEUED} or
-     * {@code STATUS_RUNNING} at least one constraint, no initial delay, and are not periodic.
+     * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED} or
+     * {@code STATUS_RUNNING}, no initial delay, and are not periodic.
      *
      * @return A {@link LiveData} list of {@link WorkSpec}s.
      */
-    @Query("SELECT * FROM workspec WHERE ("
-            + "requires_battery_not_low=1 OR requires_charging=1 OR requires_storage_not_low=1 OR "
-            + "required_network_type!=" + NETWORK_NOT_REQUIRED + ") AND "
-            + "(status=" + STATUS_ENQUEUED + " OR status=" + STATUS_RUNNING + ") AND "
-            + "initial_delay=0 AND interval_duration=0")
-    LiveData<List<WorkSpec>> getConstraintsTrackerEligibleWorkSpecs();
-
-    /**
-     * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED}, have no constraints,
-     * no initial delay, and are not periodic.
-     *
-     * @return A {@link LiveData} list of {@link WorkSpec}s.
-     */
-    @Query("SELECT * FROM workspec WHERE status=" + STATUS_ENQUEUED + " AND "
-            + " requires_charging=0 AND requires_device_idle=0 AND content_uri_triggers IS NULL"
-            + " AND requires_battery_not_low=0 AND requires_storage_not_low=0"
-            + " AND required_network_type=0 AND initial_delay=0 AND interval_duration=0")
+    @Query("SELECT * FROM workspec WHERE (status=" + STATUS_ENQUEUED + " OR status="
+            + STATUS_RUNNING + ") AND initial_delay=0 AND interval_duration=0")
     LiveData<List<WorkSpec>> getForegroundEligibleWorkSpecs();
 
     /**

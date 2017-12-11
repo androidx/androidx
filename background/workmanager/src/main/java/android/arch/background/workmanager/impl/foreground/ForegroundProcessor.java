@@ -15,6 +15,9 @@
  */
 package android.arch.background.workmanager.impl.foreground;
 
+import static android.arch.background.workmanager.impl.BaseWork.STATUS_ENQUEUED;
+
+import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.impl.Processor;
 import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkDatabase;
@@ -79,11 +82,7 @@ public class ForegroundProcessor extends Processor
         super(appContext, workDatabase, scheduler, executorService);
         mLifecycleOwner = lifecycleOwner;
         mLifecycleOwner.getLifecycle().addObserver(this);
-        mConstraintsTracker = new ConstraintsTracker(
-                mAppContext,
-                mLifecycleOwner,
-                mWorkDatabase,
-                this);
+        mConstraintsTracker = new ConstraintsTracker(mAppContext, this);
         LiveDataUtils.dedupedLiveDataFor(
                 mWorkDatabase.workSpecDao().getForegroundEligibleWorkSpecs())
                 .observe(mLifecycleOwner, this);
@@ -111,10 +110,15 @@ public class ForegroundProcessor extends Processor
         // status as well.
         Log.d(TAG, "Enqueued WorkSpecs updated. Size : " + workSpecs.size());
         for (WorkSpec workSpec : workSpecs) {
-            if (!mEnqueuedWorkMap.containsKey(workSpec.getId())) {
+            if (workSpec.getStatus() == STATUS_ENQUEUED
+                    && Constraints.NONE.equals(workSpec.getConstraints())) {
+                Log.d(TAG, workSpec + " can be processed immediately");
                 process(workSpec.getId());
             }
         }
+        // ConstraintsTracker will only consider WorkSpecs which have constraints that it can
+        // monitor. The rest will be ignored.
+        mConstraintsTracker.replace(workSpecs);
     }
 
     /**
@@ -123,6 +127,7 @@ public class ForegroundProcessor extends Processor
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onLifecycleStop() {
         Log.d(TAG, "onLifecycleStop");
+        mConstraintsTracker.reset();
         Iterator<Map.Entry<String, Future<?>>> it = mEnqueuedWorkMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Future<?>> entry = it.next();
