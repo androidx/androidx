@@ -13,18 +13,28 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false">
 
+    <android.support.constraint.Guideline
+        android:id="@+id/ws_nav_drawer_guide_start"
+        app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_2_items_start"
+        style="@style/WsVerticalGuideStyle" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/ws_nav_drawer_guide_end"
+        app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_2_items_end"
+        style="@style/WsVerticalGuideStyle" />
+
     <android.support.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_0"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        app:layout_marginStartPercent="@fraction/ws_nav_drawer_margin_2_items"
+        app:layout_constraintStart_toStartOf="@id/ws_nav_drawer_guide_start"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
@@ -32,13 +42,12 @@
         android:id="@+id/ws_nav_drawer_icon_1"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        app:layout_marginEndPercent="@fraction/ws_nav_drawer_margin_2_items"
+        app:layout_constraintEnd_toEndOf="@id/ws_nav_drawer_guide_end"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
-    <TextView
-        android:id="@+id/ws_nav_drawer_text"
-        android:layout_below="@id/ws_nav_drawer_icon_1"
-        style="@style/WsSinglePageNavDrawerTextStyle"/>
+    <include layout="@layout/ws_single_page_nav_drawer_text" />
 
-</android.support.percent.PercentRelativeLayout>
+</android.support.constraint.ConstraintLayout>
