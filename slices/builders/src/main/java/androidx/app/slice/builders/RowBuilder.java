@@ -66,6 +66,10 @@ public class RowBuilder extends TemplateSliceBuilder {
     private SliceItem mSubtitleItem;
     private SliceItem mStartItem;
     private ArrayList<SliceItem> mEndItems = new ArrayList<>();
+    private boolean mHasToggle;
+    private boolean mHasEndAction;
+    private boolean mHasEndImage;
+    private boolean mHasTimestamp;
 
     public RowBuilder(ListBuilder parent) {
         super(parent.createChildBuilder());
@@ -76,9 +80,8 @@ public class RowBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Sets this row to be considered the header of the slice. This means that when the slice is
-     * requested to be show in small format, it will display only the contents specified in this
-     * row. If a slice has no header specified, the first row item will be used in the small format.
+     * Sets this row to be the header of the slice. This item will be displayed at the
+     * top of the slice and other items in the slice will scroll below it.
      */
     public RowBuilder setIsHeader(boolean isHeader) {
         mIsHeader = isHeader;
@@ -86,13 +89,19 @@ public class RowBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Sets the title item to be the provided timestamp.
+     * Sets the title item to be the provided timestamp. Only one timestamp can be added, if
+     * one is already added this will throw {@link IllegalArgumentException}.
      * <p>
      * There can only be one title item, this will replace any other title
      * items that may have been set.
      */
     public RowBuilder setTitleItem(long timeStamp) {
+        if (mHasTimestamp) {
+            throw new IllegalArgumentException("Trying to add a timestamp when one has "
+                    + "already been added");
+        }
         mStartItem = new SliceItem(timeStamp, FORMAT_TIMESTAMP, null, new String[0]);
+        mHasTimestamp = true;
         return this;
     }
 
@@ -144,29 +153,50 @@ public class RowBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Adds a timestamp to be displayed at the end of the row.
+     * Adds a timestamp to be displayed at the end of the row. Only one timestamp can be added, if
+     * one is already added this will throw {@link IllegalArgumentException}.
      */
     public RowBuilder addEndItem(long timeStamp) {
-        // TODO -- should multiple timestamps be allowed at the end of the row?
+        if (mHasTimestamp) {
+            throw new IllegalArgumentException("Trying to add a timestamp when one has "
+                    + "already been added");
+        }
         mEndItems.add(new SliceItem(timeStamp, FORMAT_TIMESTAMP, null, new String[0]));
+        mHasTimestamp = true;
         return this;
     }
 
     /**
-     * Adds an icon to be displayed at the end of the row.
+     * Adds an icon to be displayed at the end of the row. A mixture of icons and tappable
+     * icons is not permitted, if an action has already been added this will throw
+     * {@link IllegalArgumentException}.
      */
     public RowBuilder addEndItem(Icon icon) {
+        if (mHasEndAction) {
+            throw new IllegalArgumentException("Trying to add an icon to end items when an action "
+                    + "has already been added. End items cannot have a mixture of "
+                    + "tappable icons and icons.");
+        }
         mEndItems.add(new SliceItem(icon, FORMAT_IMAGE, null,
                 new String[] {HINT_NO_TINT, HINT_LARGE}));
+        mHasEndImage = true;
         return this;
     }
 
     /**
-     * Adds a tappable icon to be displayed at the end of the row.
+     * Adds a tappable icon to be displayed at the end of the row. A mixture of icons and tappable
+     * icons is not permitted, if an icon has already been added this will throw
+     * {@link IllegalArgumentException}.
      */
     public RowBuilder addEndItem(@NonNull PendingIntent action, @NonNull Icon icon) {
+        if (mHasEndImage) {
+            throw new IllegalArgumentException("Trying to add an action to end items when an icon "
+                            + "has already been added. End items cannot have a mixture of "
+                            + "tappable icons and icons.");
+        }
         Slice actionSlice = new Slice.Builder(getBuilder()).addIcon(icon, null).build();
         mEndItems.add(new SliceItem(action, actionSlice, FORMAT_ACTION, null, new String[0]));
+        mHasEndAction = true;
         return this;
     }
 
@@ -175,11 +205,16 @@ public class RowBuilder extends TemplateSliceBuilder {
      * that were added will not be shown.
      */
     public RowBuilder addToggle(@NonNull PendingIntent action, boolean isChecked) {
+        if (mHasToggle) {
+            throw new IllegalArgumentException("Trying to add a toggle when one has already "
+                    + "been added.");
+        }
         @Slice.SliceHint String[] hints = isChecked
                 ? new String[] {SUBTYPE_TOGGLE, HINT_SELECTED}
                 : new String[] {SUBTYPE_TOGGLE};
         Slice s = new Slice.Builder(getBuilder()).addHints(hints).build();
         mEndItems.add(0, new SliceItem(action, s, FORMAT_ACTION, null, hints));
+        mHasToggle = true;
         return this;
     }
 
@@ -189,6 +224,10 @@ public class RowBuilder extends TemplateSliceBuilder {
      */
     public RowBuilder addToggle(@NonNull PendingIntent action, @NonNull Icon icon,
             boolean isChecked) {
+        if (mHasToggle) {
+            throw new IllegalArgumentException("Trying to add a toggle when one has already "
+                    + "been added.");
+        }
         @Slice.SliceHint String[] hints = isChecked
                 ? new String[] {SliceHints.SUBTYPE_TOGGLE, HINT_SELECTED}
                 : new String[] {SliceHints.SUBTYPE_TOGGLE};
@@ -196,6 +235,7 @@ public class RowBuilder extends TemplateSliceBuilder {
                 .addIcon(icon, null)
                 .addHints(hints).build();
         mEndItems.add(0, new SliceItem(action, actionSlice, FORMAT_ACTION, null, hints));
+        mHasToggle = true;
         return this;
     }
 

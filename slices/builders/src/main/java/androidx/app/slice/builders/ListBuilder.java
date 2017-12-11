@@ -18,6 +18,8 @@ package androidx.app.slice.builders;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import static androidx.app.slice.core.SliceHints.HINT_SUMMARY;
+
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -37,7 +39,7 @@ import java.util.function.Consumer;
  * <ul>
  *     <li>Shortcut - The slice is displayed as an icon with a text label.</li>
  *     <li>Small - Only a single row of content is displayed in small format, to specify which
- *         row to display in small format see {@link RowBuilder#setIsHeader(boolean)}.</li>
+ *         row to display in small format see {@link #addSummaryRow(RowBuilder)}.</li>
  *     <li>Large - As many rows of content are shown as possible. If the presenter of the slice
  *         allows scrolling then all rows of content will be displayed in a scrollable view.</li>
  * </ul>
@@ -46,6 +48,8 @@ import java.util.function.Consumer;
  * @see RowBuilder
  */
 public class ListBuilder extends TemplateSliceBuilder {
+
+    private boolean mHasSummary;
 
     public ListBuilder(@NonNull Uri uri) {
         super(uri);
@@ -76,6 +80,47 @@ public class ListBuilder extends TemplateSliceBuilder {
         RowBuilder b = new RowBuilder(this);
         c.accept(b);
         return add(b);
+    }
+
+    /**
+     * Add a summary row for this template. The summary content is displayed
+     * when the slice is displayed in small format.
+     * <p>
+     * Only one summary row can be added, this throws {@link IllegalArgumentException} if
+     * called more than once.
+     * </p>
+     */
+    public ListBuilder addSummaryRow(RowBuilder builder) {
+        if (mHasSummary) {
+            throw new IllegalArgumentException("Trying to add summary row when one has "
+                    + "already been added");
+        }
+        builder.getBuilder().addHints(HINT_SUMMARY);
+        getBuilder().addSubSlice(builder.build(), null);
+        mHasSummary = true;
+        return this;
+    }
+
+    /**
+     * Add a summary row for this template. The summary content is displayed
+     * when the slice is displayed in small format.
+     * <p>
+     * Only one summary row can be added, this throws {@link IllegalArgumentException} if
+     * called more than once.
+     * </p>
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public ListBuilder addSummaryRow(Consumer<RowBuilder> c) {
+        if (mHasSummary) {
+            throw new IllegalArgumentException("Trying to add summary row when one has "
+                    + "already been added");
+        }
+        RowBuilder b = new RowBuilder(this);
+        c.accept(b);
+        b.getBuilder().addHints(HINT_SUMMARY);
+        getBuilder().addSubSlice(b.build(), null);
+        mHasSummary = true;
+        return this;
     }
 
     /**

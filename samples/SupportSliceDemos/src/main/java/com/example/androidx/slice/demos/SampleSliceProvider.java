@@ -122,6 +122,13 @@ public class SampleSliceProvider extends SliceProvider {
     private Slice createRideSlice(Uri sliceUri) {
         return new ListBuilder(sliceUri)
                 .setColor(0xff1b5e20)
+                .addSummaryRow(b -> b
+                    .setTitle("Get ride")
+                    .setSubtitle("Multiple cars 4 minutes away")
+                    .addEndItem(getBroadcastIntent(ACTION_TOAST, "home"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_home))
+                    .addEndItem(getBroadcastIntent(ACTION_TOAST, "work"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_work)))
                 .add(b -> b
                     .setContentIntent(getBroadcastIntent(ACTION_TOAST, "work"))
                     .setTitle("Work")
@@ -131,8 +138,7 @@ public class SampleSliceProvider extends SliceProvider {
                     .setContentIntent(getBroadcastIntent(ACTION_TOAST, "home"))
                     .setTitle("Home")
                     .setSubtitle("2 hours 33 min via 101")
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_home))
-                    .setIsHeader(true))
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_home)))
                 .add(b -> b
                     .setContentIntent(getBroadcastIntent(ACTION_TOAST, "book ride"))
                     .setTitle("Book ride")
