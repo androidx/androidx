@@ -16,6 +16,7 @@
   -->
 <resources>
     <color name="car_title">@color/car_title_light</color>
+    <color name="car_title2">@color/car_title2_light</color>
     <color name="car_body1">@color/car_body1_light</color>
     <color name="car_body2">@color/car_body2_light</color>
 
