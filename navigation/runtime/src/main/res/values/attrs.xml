@@ -33,13 +33,13 @@
     </declare-styleable>
 
     <declare-styleable name="NavArgument">
-        <attr name="android:name" format="string" />
+        <attr name="android:name" />
         <attr name="android:defaultValue" />
     </declare-styleable>
 
     <declare-styleable name="NavDeepLink">
         <attr name="uri" format="string" />
-        <attr name="android:autoVerify" format="boolean" />
+        <attr name="android:autoVerify" />
     </declare-styleable>
 
     <declare-styleable name="NavAction">
