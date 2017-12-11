@@ -269,7 +269,7 @@ public class SliceItem {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    public boolean hasAnyHints(@Slice.SliceHint String[] hints) {
+    public boolean hasAnyHints(@Slice.SliceHint String... hints) {
         if (hints == null) return false;
         for (String hint : hints) {
             if (ArrayUtils.contains(mHints, hint)) {

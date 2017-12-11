@@ -24,6 +24,8 @@ import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+import static androidx.app.slice.core.SliceHints.HINT_SUMMARY;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
@@ -101,7 +103,7 @@ public class LargeTemplateView extends FrameLayout implements SliceView.SliceMod
             slice.getItems().forEach(new Consumer<SliceItem>() {
                 @Override
                 public void accept(SliceItem item) {
-                    if (item.hasHint(HINT_ACTIONS)) {
+                    if (item.hasAnyHints(HINT_ACTIONS, HINT_SUMMARY)) {
                         return;
                     } else if (FORMAT_COLOR.equals(item.getFormat())) {
                         return;
