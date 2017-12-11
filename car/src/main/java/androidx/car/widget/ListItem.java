@@ -276,6 +276,8 @@ public class ListItem {
          * margin otherwise align center vertically.
          */
         private void setPrimaryIconLayout() {
+            // Set all relevant fields in layout params to avoid carried over params when the item
+            // gets bound to a recycled view holder.
             switch (mPrimaryActionType) {
                 case PRIMARY_ACTION_TYPE_SMALL_ICON:
                     mBinders.add(vh -> {
@@ -293,11 +295,13 @@ public class ListItem {
 
                         if (!TextUtils.isEmpty(mBody)) {
                             // Set top margin.
+                            layoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
                             layoutParams.topMargin = mContext.getResources().getDimensionPixelSize(
                                     R.dimen.car_padding_4);
                         } else {
                             // Centered vertically.
                             layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+                            layoutParams.topMargin = 0;
                         }
                         vh.getPrimaryIcon().setLayoutParams(layoutParams);
                     });
@@ -317,6 +321,7 @@ public class ListItem {
 
                         // Always centered vertically.
                         layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+                        layoutParams.topMargin = 0;
 
                         vh.getPrimaryIcon().setLayoutParams(layoutParams);
                     });
@@ -396,12 +401,15 @@ public class ListItem {
          * Sets top/bottom margins of {@code Title} and {@code Body}.
          */
         private void setTextVerticalMargin() {
+            // Set all relevant fields in layout params to avoid carried over params when the item
+            // gets bound to a recycled view holder.
             if (!TextUtils.isEmpty(mTitle) && TextUtils.isEmpty(mBody)) {
                 // Title only - view is aligned center vertically by itself.
                 mBinders.add(vh -> {
                     RelativeLayout.LayoutParams layoutParams =
                             (RelativeLayout.LayoutParams) vh.getTitle().getLayoutParams();
                     layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+                    layoutParams.topMargin = 0;
                     vh.getTitle().setLayoutParams(layoutParams);
                 });
             } else if (TextUtils.isEmpty(mTitle) && !TextUtils.isEmpty(mBody)) {
@@ -412,6 +420,7 @@ public class ListItem {
                     RelativeLayout.LayoutParams layoutParams =
                             (RelativeLayout.LayoutParams) vh.getBody().getLayoutParams();
                     layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+                    layoutParams.removeRule(RelativeLayout.BELOW);
                     layoutParams.topMargin = margin;
                     layoutParams.bottomMargin = margin;
                     vh.getBody().setLayoutParams(layoutParams);
@@ -422,13 +431,16 @@ public class ListItem {
                     Resources resources = mContext.getResources();
                     int padding1 = resources.getDimensionPixelSize(R.dimen.car_padding_1);
                     int padding3 = resources.getDimensionPixelSize(R.dimen.car_padding_3);
+
                     RelativeLayout.LayoutParams titleLayoutParams =
                             (RelativeLayout.LayoutParams) vh.getTitle().getLayoutParams();
+                    titleLayoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
                     titleLayoutParams.topMargin = padding3;
                     vh.getTitle().setLayoutParams(titleLayoutParams);
                     // Body is below title with a margin, and has bottom margin.
                     RelativeLayout.LayoutParams bodyLayoutParams =
                             (RelativeLayout.LayoutParams) vh.getBody().getLayoutParams();
+                    bodyLayoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
                     bodyLayoutParams.addRule(RelativeLayout.BELOW, R.id.title);
                     bodyLayoutParams.topMargin = padding1;
                     bodyLayoutParams.bottomMargin = padding3;

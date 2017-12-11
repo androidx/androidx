@@ -42,6 +42,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import org.hamcrest.Matcher;
 import org.junit.Before;
@@ -495,6 +496,46 @@ public class ListItemTest {
                 is(equalTo(bodyPrimary.getBody().getTextSize())));
         assertThat(titlePrimary.getTitle().getTextColors(),
                 is(equalTo(bodyPrimary.getBody().getTextColors())));
+    }
+
+    @Test
+    public void testNoCarriedOverLayoutParamsForTextView() throws Throwable {
+        ListItem singleLine = new ListItem.Builder(mActivity).withTitle("t").build();
+        setupPagedListView(Arrays.asList(singleLine));
+
+        // Manually rebind the view holder of a single line item to a double line item.
+        ListItem doubleLine = new ListItem.Builder(mActivity).withTitle("t").withBody("b").build();
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        mActivityRule.runOnUiThread(() -> doubleLine.bind(viewHolder));
+
+        RelativeLayout.LayoutParams titleLayoutParams =
+                (RelativeLayout.LayoutParams) viewHolder.getTitle().getLayoutParams();
+        RelativeLayout.LayoutParams bodyLayoutParams =
+                (RelativeLayout.LayoutParams) viewHolder.getTitle().getLayoutParams();
+        assertThat(titleLayoutParams.getRule(RelativeLayout.CENTER_VERTICAL), is(equalTo(0)));
+        assertThat(bodyLayoutParams.getRule(RelativeLayout.CENTER_VERTICAL), is(equalTo(0)));
+    }
+
+    @Test
+    public void testNoCarriedOverLayoutParamsForPrimaryIcon() throws Throwable {
+        ListItem smallIcon = new ListItem.Builder(mActivity)
+                .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
+                .withBody("body")  // Small icon of items with body text should use top margin.
+                .build();
+        setupPagedListView(Arrays.asList(smallIcon));
+
+        // Manually rebind the view holder.
+        ListItem largeIcon = new ListItem.Builder(mActivity)
+                .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
+                .build();
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        mActivityRule.runOnUiThread(() -> largeIcon.bind(viewHolder));
+
+        RelativeLayout.LayoutParams iconLayoutParams =
+                (RelativeLayout.LayoutParams) viewHolder.getPrimaryIcon().getLayoutParams();
+        assertThat(iconLayoutParams.getRule(RelativeLayout.CENTER_VERTICAL),
+                is(equalTo(RelativeLayout.TRUE)));
+        assertThat(iconLayoutParams.topMargin, is(equalTo(0)));
     }
 
     private static ViewAction clickChildViewWithId(final int id) {
