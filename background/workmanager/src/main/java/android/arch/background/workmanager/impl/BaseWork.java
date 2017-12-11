@@ -120,7 +120,6 @@ public abstract class BaseWork {
         private boolean mBackoffCriteriaSet = false;
         protected WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
         protected Set<String> mTags = new HashSet<>();
-        protected Arguments mArguments = Arguments.EMPTY;
 
         protected Builder(Class<? extends Worker> workerClass) {
             mWorkSpec.setWorkerClassName(workerClass.getName());
