@@ -70,16 +70,11 @@ public class SystemAlarmScheduler implements Scheduler {
      */
     private void scheduleWorkSpec(@NonNull WorkSpec workSpec) {
         // TODO(janclarin): Store alarm id mapping for work spec in the database for cancelling.
-        long triggerAtMillis = System.currentTimeMillis() + getDelayMillis(workSpec);
+        long triggerAtMillis = workSpec.calculateNextRunTime();
         int nextAlarmId = mIdGenerator.nextAlarmManagerId();
         Intent intent = SystemAlarmService.createDelayMetIntent(mAppContext, workSpec.getId());
         setExactAlarm(nextAlarmId, triggerAtMillis, intent);
         Log.d(TAG, "Scheduled work with ID: " + workSpec.getId());
-    }
-
-    private static long getDelayMillis(@NonNull WorkSpec workSpec) {
-        // Ignores flex duration for periodic work to ensure that individual runs do not overlap.
-        return workSpec.isPeriodic() ? workSpec.getIntervalDuration() : workSpec.calculateDelay();
     }
 
     private void setExactAlarm(int alarmId, long triggerAtMillis, @NonNull Intent intent) {
