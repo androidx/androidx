@@ -41,21 +41,21 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
         /**
          * Called when a constraint is met.
          *
-         * @param workSpecs The list of {@link WorkSpec}s that may have become eligible to run
+         * @param workSpecIds A list of {@link WorkSpec} IDs that may have become eligible to run
          */
-        void onConstraintMet(List<WorkSpec> workSpecs);
+        void onConstraintMet(@NonNull List<String> workSpecIds);
 
         /**
          * Called when a constraint is not met.
          *
-         * @param workSpecs The list of {@link WorkSpec}s that have become ineligible to run
+         * @param workSpecIds A list of {@link WorkSpec} IDs that have become ineligible to run
          */
-        void onConstraintNotMet(List<WorkSpec> workSpecs);
+        void onConstraintNotMet(@NonNull List<String> workSpecIds);
     }
 
     private static final String TAG = "ConstraintCtrlr";
 
-    private final List<WorkSpec> mMatchingWorkSpecs = new ArrayList<>();
+    private final List<String> mMatchingWorkSpecIds = new ArrayList<>();
 
     private T mCurrentValue;
     private ConstraintTracker<T> mTracker;
@@ -76,15 +76,15 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
      * @param workSpecs A list of {@link WorkSpec}s to monitor constraints for
      */
     public void replace(@NonNull List<WorkSpec> workSpecs) {
-        mMatchingWorkSpecs.clear();
+        mMatchingWorkSpecIds.clear();
 
         for (WorkSpec workSpec : workSpecs) {
             if (hasConstraint(workSpec)) {
-                mMatchingWorkSpecs.add(workSpec);
+                mMatchingWorkSpecIds.add(workSpec.getId());
             }
         }
 
-        if (mMatchingWorkSpecs.isEmpty()) {
+        if (mMatchingWorkSpecIds.isEmpty()) {
             mTracker.removeListener(this);
         } else {
             mTracker.addListener(this);
@@ -96,8 +96,8 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
      * Clears all tracked {@link WorkSpec}s.
      */
     public void reset() {
-        if (!mMatchingWorkSpecs.isEmpty()) {
-            mMatchingWorkSpecs.clear();
+        if (!mMatchingWorkSpecIds.isEmpty()) {
+            mMatchingWorkSpecIds.clear();
             mTracker.removeListener(this);
         }
     }
@@ -106,24 +106,24 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
      * Determines if a particular {@link WorkSpec} is constrained. It is constrained if it is
      * tracked by this controller, and the controller constraint was set, but not satisfied.
      *
-     * @param workSpec The {@link WorkSpec} to check if it is constrained.
-     * @return {@code true} if the WorkSpec is considered constrained
+     * @param workSpecId The ID of the {@link WorkSpec} to check if it is constrained.
+     * @return {@code true} if the {@link WorkSpec} is considered constrained
      */
-    public boolean isWorkSpecConstrained(WorkSpec workSpec) {
+    public boolean isWorkSpecConstrained(@NonNull String workSpecId) {
         return mCurrentValue != null && isConstrained(mCurrentValue)
-                && mMatchingWorkSpecs.contains(workSpec);
+                && mMatchingWorkSpecIds.contains(workSpecId);
     }
 
     private void updateCallback() {
         Log.d(TAG, getClass().getSimpleName() + ": updateCallback");
-        if (mMatchingWorkSpecs.isEmpty()) {
+        if (mMatchingWorkSpecIds.isEmpty()) {
             return;
         }
 
         if (mCurrentValue == null || isConstrained(mCurrentValue)) {
-            mCallback.onConstraintNotMet(mMatchingWorkSpecs);
+            mCallback.onConstraintNotMet(mMatchingWorkSpecIds);
         } else {
-            mCallback.onConstraintMet(mMatchingWorkSpecs);
+            mCallback.onConstraintMet(mMatchingWorkSpecIds);
         }
     }
 
