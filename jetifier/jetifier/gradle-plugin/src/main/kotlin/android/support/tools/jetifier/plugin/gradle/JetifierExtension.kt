@@ -26,7 +26,7 @@ import java.nio.file.Paths
  * Defines methods that can be used in gradle on the "jetifier" object and triggers [JetifyLibsTask]
  * or [JetifyGlobalTask] based on its usage.
  */
-open class JetifierExtension(val project : Project) {
+open class JetifierExtension(val project: Project) {
 
     /**
      * Adds dependency defined via string notation to be processed by jetifyLibs task.
@@ -42,11 +42,43 @@ open class JetifierExtension(val project : Project) {
     }
 
     /**
+     * Adds dependency defined via string notation to be processed by jetifyLibs task while also
+     * applying the given exclude rules.
+     *
+     *
+     * Example usage in Gradle:
+     * dependencies {
+     *   compile jetifier.processAndExclude('groupId:artifactId:1.0',
+     *     [group: 'some.package', module: 'moduleName'])
+     * }
+     */
+    fun processAndExclude(
+        dependencyNotation: String,
+        vararg excludes: Map<String, String>
+    ): FileCollection {
+        return processAndExclude(project.dependencies.create(dependencyNotation), *excludes)
+    }
+
+    /**
      * Adds dependency to be processed by jetifyLibs task.
      */
     fun process(dependency: Dependency): FileCollection {
         val configuration = project.configurations.detachedConfiguration()
         configuration.dependencies.add(dependency)
+        return process(configuration)
+    }
+
+    /**
+     * Adds dependency to be processed by jetifyLibs task while also applying the given excludes
+     * rules.
+     */
+    fun processAndExclude(
+        dependency: Dependency,
+        vararg excludes: Map<String, String>
+    ): FileCollection {
+        val configuration = project.configurations.detachedConfiguration()
+        configuration.dependencies.add(dependency)
+        excludes.forEach { configuration.exclude(it) }
         return process(configuration)
     }
 
@@ -113,5 +145,4 @@ open class JetifierExtension(val project : Project) {
     fun setConfigFile(configFilePath: String) {
         TasksCommon.configFilePath = Paths.get(configFilePath)
     }
-
 }
