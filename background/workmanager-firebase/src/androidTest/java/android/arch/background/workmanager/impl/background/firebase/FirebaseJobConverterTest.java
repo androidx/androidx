@@ -21,9 +21,10 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 
+import android.arch.background.workmanager.Constants;
 import android.arch.background.workmanager.Constraints;
-import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.WorkManagerTest;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.PackageManagerHelper;
 import android.arch.background.workmanager.worker.FirebaseTestWorker;
@@ -52,7 +53,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
-public class FirebaseJobConverterTest {
+public class FirebaseJobConverterTest extends WorkManagerTest {
     private FirebaseJobConverter mConverter;
 
     @Before
@@ -83,7 +84,7 @@ public class FirebaseJobConverterTest {
         long givenBackoffDelayDuration = 50000L;
         WorkSpec workSpec = new WorkSpec("id");
         workSpec.setBackoffDelayDuration(givenBackoffDelayDuration);
-        workSpec.setBackoffPolicy(Work.BACKOFF_POLICY_LINEAR);
+        workSpec.setBackoffPolicy(Constants.BACKOFF_POLICY_LINEAR);
         Job job = mConverter.convert(workSpec);
 
         int expectedBackoffDelayDuration = (int) TimeUnit.SECONDS
@@ -110,12 +111,11 @@ public class FirebaseJobConverterTest {
         final Uri expectedUri = Uri.parse("TEST_URI");
         final ObservedUri expectedObservedUri =
                 new ObservedUri(expectedUri, ObservedUri.Flags.FLAG_NOTIFY_FOR_DESCENDANTS);
-        WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = getWorkSpec(Work.newBuilder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .addContentUriTrigger(expectedUri, true)
                         .build())
-                .build()
-                .getWorkSpec();
+                .build());
         Job job = mConverter.convert(workSpec);
 
         JobTrigger.ContentUriTrigger trigger = (JobTrigger.ContentUriTrigger) job.getTrigger();
@@ -126,11 +126,11 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_requiresCharging() {
-        WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = getWorkSpec(Work.newBuilder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)
                         .build())
-                .build().getWorkSpec();
+                .build());
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.DEVICE_CHARGING);
     }
@@ -138,8 +138,8 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_periodic() {
-        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
-        long testFlex = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
+        long testInterval = Constants.MIN_PERIODIC_INTERVAL_MILLIS;
+        long testFlex = Constants.MIN_PERIODIC_INTERVAL_MILLIS;
 
         int expectedWindowEndSeconds =
                 FirebaseJobConverter.convertMillisecondsToSeconds(testInterval);
@@ -159,12 +159,11 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_requiresDeviceIdle() {
-        WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = getWorkSpec(Work.newBuilder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiresDeviceIdle(true)
                         .build())
-                .build()
-                .getWorkSpec();
+                .build());
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.DEVICE_IDLE);
     }
@@ -172,12 +171,11 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_requiresNetworkAny() {
-        WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = getWorkSpec(Work.newBuilder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiredNetworkType(Constraints.NETWORK_CONNECTED)
                         .build())
-                .build()
-                .getWorkSpec();
+                .build());
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.ON_ANY_NETWORK);
     }
@@ -185,12 +183,11 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_requiresNetworkMetered_unsupported() {
-        WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = getWorkSpec(Work.newBuilder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiredNetworkType(Constraints.NETWORK_METERED)
                         .build())
-                .build()
-                .getWorkSpec();
+                .build());
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.ON_ANY_NETWORK);
     }
@@ -198,12 +195,11 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_requiresNetworkNotRoaming_unsupported() {
-        WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = getWorkSpec(Work.newBuilder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiredNetworkType(Constraints.NETWORK_NOT_ROAMING)
                         .build())
-                .build()
-                .getWorkSpec();
+                .build());
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.ON_ANY_NETWORK);
     }
@@ -211,12 +207,11 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_requiresNetworkUnmetered() {
-        WorkSpec workSpec = new Work.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = getWorkSpec(Work.newBuilder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiredNetworkType(Constraints.NETWORK_UNMETERED)
                         .build())
-                .build()
-                .getWorkSpec();
+                .build());
         Job job = mConverter.convert(workSpec);
         assertHasIntInArray(job.getConstraints(), Constraint.ON_UNMETERED_NETWORK);
     }

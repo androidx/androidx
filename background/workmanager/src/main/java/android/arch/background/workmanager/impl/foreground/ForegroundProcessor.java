@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.impl.foreground;
 
-import static android.arch.background.workmanager.impl.BaseWork.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.Constants.STATUS_ENQUEUED;
 
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.impl.Processor;

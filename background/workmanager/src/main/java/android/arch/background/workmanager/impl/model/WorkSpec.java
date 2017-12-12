@@ -16,14 +16,20 @@
 
 package android.arch.background.workmanager.impl.model;
 
+import static android.arch.background.workmanager.Constants.MAX_BACKOFF_MILLIS;
+import static android.arch.background.workmanager.Constants.MIN_BACKOFF_MILLIS;
+import static android.arch.background.workmanager.Constants.MIN_PERIODIC_FLEX_MILLIS;
+import static android.arch.background.workmanager.Constants.MIN_PERIODIC_INTERVAL_MILLIS;
+
 import android.arch.background.workmanager.Arguments;
+import android.arch.background.workmanager.Constants;
 import android.arch.background.workmanager.Constraints;
-import android.arch.background.workmanager.impl.BaseWork;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 /**
  * Stores information about a logical unit of work.
@@ -38,8 +44,8 @@ public class WorkSpec {
     String mId;
 
     @ColumnInfo(name = "status")
-    @BaseWork.WorkStatus
-    int mStatus = BaseWork.STATUS_ENQUEUED;
+    @Constants.WorkStatus
+    int mStatus = Constants.STATUS_ENQUEUED;
 
     @ColumnInfo(name = "worker_class_name")
     String mWorkerClassName;
@@ -72,11 +78,11 @@ public class WorkSpec {
 
     // TODO(sumir): Should Backoff be disabled by default?
     @ColumnInfo(name = "backoff_policy")
-    @BaseWork.BackoffPolicy
-    int mBackoffPolicy = BaseWork.BACKOFF_POLICY_EXPONENTIAL;
+    @Constants.BackoffPolicy
+    int mBackoffPolicy = Constants.BACKOFF_POLICY_EXPONENTIAL;
 
     @ColumnInfo(name = "backoff_delay_duration")
-    long mBackoffDelayDuration = BaseWork.DEFAULT_BACKOFF_DELAY_MILLIS;
+    long mBackoffDelayDuration = Constants.DEFAULT_BACKOFF_DELAY_MILLIS;
 
     @ColumnInfo(name = "period_start_time")
     long mPeriodStartTime;
@@ -155,6 +161,14 @@ public class WorkSpec {
     }
 
     public void setBackoffDelayDuration(long backoffDelayDuration) {
+        if (backoffDelayDuration > MAX_BACKOFF_MILLIS) {
+            Log.w(TAG, "Backoff delay duration exceeds maximum value");
+            backoffDelayDuration = MAX_BACKOFF_MILLIS;
+        }
+        if (backoffDelayDuration < MIN_BACKOFF_MILLIS) {
+            Log.w(TAG, "Backoff delay duration less than minimum value");
+            backoffDelayDuration = MIN_BACKOFF_MILLIS;
+        }
         mBackoffDelayDuration = backoffDelayDuration;
     }
 
@@ -180,6 +194,11 @@ public class WorkSpec {
      * @param intervalDuration The interval in milliseconds
      */
     public void setPeriodic(long intervalDuration) {
+        if (intervalDuration < MIN_PERIODIC_INTERVAL_MILLIS) {
+            Log.w(TAG, "Interval duration lesser than minimum allowed value; "
+                    + "Changed to " + MIN_PERIODIC_INTERVAL_MILLIS);
+            intervalDuration = MIN_PERIODIC_INTERVAL_MILLIS;
+        }
         setPeriodic(intervalDuration, intervalDuration);
     }
 
@@ -190,6 +209,21 @@ public class WorkSpec {
      * @param flexDuration The flex duration in milliseconds
      */
     public void setPeriodic(long intervalDuration, long flexDuration) {
+        if (intervalDuration < MIN_PERIODIC_INTERVAL_MILLIS) {
+            Log.w(TAG, "Interval duration lesser than minimum allowed value; "
+                    + "Changed to " + MIN_PERIODIC_INTERVAL_MILLIS);
+            intervalDuration = MIN_PERIODIC_INTERVAL_MILLIS;
+        }
+        if (flexDuration < MIN_PERIODIC_FLEX_MILLIS) {
+            Log.w(TAG, "Flex duration lesser than minimum allowed value; "
+                    + "Changed to " + MIN_PERIODIC_FLEX_MILLIS);
+            flexDuration = MIN_PERIODIC_FLEX_MILLIS;
+        }
+        if (flexDuration > intervalDuration) {
+            Log.w(TAG, "Flex duration greater than interval duration; "
+                    + "Changed to " + intervalDuration);
+            flexDuration = intervalDuration;
+        }
         mIntervalDuration = intervalDuration;
         mFlexDuration = flexDuration;
     }
@@ -234,13 +268,13 @@ public class WorkSpec {
      * Calculates the UTC time at which this {@link WorkSpec} should be allowed to run.
      * This method accounts for work that is backed off or periodic.
      *
-     * If Backoff Policy is set to {@link BaseWork#BACKOFF_POLICY_EXPONENTIAL}, then delay
+     * If Backoff Policy is set to {@link Constants#BACKOFF_POLICY_EXPONENTIAL}, then delay
      * increases at an exponential rate with respect to the run attempt count and is capped at
-     * {@link BaseWork#MAX_BACKOFF_MILLIS}.
+     * {@link Constants#MAX_BACKOFF_MILLIS}.
      *
-     * If Backoff Policy is set to {@link BaseWork#BACKOFF_POLICY_LINEAR}, then delay
+     * If Backoff Policy is set to {@link Constants#BACKOFF_POLICY_LINEAR}, then delay
      * increases at an linear rate with respect to the run attempt count and is capped at
-     * {@link BaseWork#MAX_BACKOFF_MILLIS}.
+     * {@link Constants#MAX_BACKOFF_MILLIS}.
      *
      * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/services/core/java/com/android/server/job/JobSchedulerService.java#1125}
      *
@@ -257,10 +291,10 @@ public class WorkSpec {
      */
     public long calculateNextRunTime() {
         if (isBackedOff()) {
-            boolean isLinearBackoff = (mBackoffPolicy == BaseWork.BACKOFF_POLICY_LINEAR);
+            boolean isLinearBackoff = (mBackoffPolicy == Constants.BACKOFF_POLICY_LINEAR);
             long delay = isLinearBackoff ? (mBackoffDelayDuration * mRunAttemptCount)
                     : (long) Math.scalb(mBackoffDelayDuration, mRunAttemptCount - 1);
-            return mPeriodStartTime + Math.min(BaseWork.MAX_BACKOFF_MILLIS, delay);
+            return mPeriodStartTime + Math.min(Constants.MAX_BACKOFF_MILLIS, delay);
         } else if (isPeriodic()) {
             return mPeriodStartTime + mIntervalDuration - mFlexDuration;
         } else {

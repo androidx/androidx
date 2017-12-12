@@ -50,7 +50,7 @@ public class ImageSetupWorker extends Worker {
 
     static Work createWork(String uriString) {
         Arguments arguments = new Arguments.Builder().putString(URI_KEY, uriString).build();
-        return new Work.Builder(ImageSetupWorker.class)
+        return Work.newBuilder(ImageSetupWorker.class)
                 .withArguments(arguments)
                 .build();
     }

@@ -28,58 +28,61 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class WorkSpecTest {
+public class WorkSpecTest extends WorkManagerTest {
     private static final long DEFAULT_INITIAL_DELAY_TIME_MS = 5000L;
     private static final long DEFAULT_BACKOFF_DELAY_TIME_MS = 5000L;
     private static final long DEFAULT_PERIOD_START_TIME = 10000L;
-    private static final long DEFAULT_FLEX_TIME_MS = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 5000L;
+    private static final long DEFAULT_FLEX_TIME_MS = Constants.MIN_PERIODIC_FLEX_MILLIS + 5000L;
     private static final long DEFAULT_INTERVAL_TIME_MS =
-            PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 5000L;
+            Constants.MIN_PERIODIC_INTERVAL_MILLIS + 5000L;
 
     @Test
     @SmallTest
     public void testCalculateNextRunTime_firstRunAttempt_oneOff() {
-        Work work = new Work.Builder(InfiniteTestWorker.class)
+        Work work = Work.newBuilder(InfiniteTestWorker.class)
                 .withInitialDelay(DEFAULT_INITIAL_DELAY_TIME_MS)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        long actualDelay = work.getWorkSpec().calculateNextRunTime();
+        long actualDelay = getWorkSpec(work).calculateNextRunTime();
         assertThat(actualDelay, is(DEFAULT_PERIOD_START_TIME + DEFAULT_INITIAL_DELAY_TIME_MS));
     }
 
     @Test
     @SmallTest
     public void testCalculateNextRunTime_firstRunAttempt_periodic() {
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        PeriodicWork periodicWork = PeriodicWork.newBuilder(
                 InfiniteTestWorker.class, DEFAULT_INTERVAL_TIME_MS, DEFAULT_FLEX_TIME_MS)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        assertThat(periodicWork.getWorkSpec().calculateNextRunTime(),
+        assertThat(getWorkSpec(periodicWork).calculateNextRunTime(),
                 is(DEFAULT_PERIOD_START_TIME + DEFAULT_INTERVAL_TIME_MS - DEFAULT_FLEX_TIME_MS));
     }
 
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_exponential() {
-        Work work1 = new Work.Builder(InfiniteTestWorker.class)
-                .withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, DEFAULT_BACKOFF_DELAY_TIME_MS)
+        Work work1 = Work.newBuilder(InfiniteTestWorker.class)
+                .withBackoffCriteria(
+                        Constants.BACKOFF_POLICY_EXPONENTIAL, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(1)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        Work work2 = new Work.Builder(InfiniteTestWorker.class)
-                .withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, DEFAULT_BACKOFF_DELAY_TIME_MS)
+        Work work2 = Work.newBuilder(InfiniteTestWorker.class)
+                .withBackoffCriteria(
+                        Constants.BACKOFF_POLICY_EXPONENTIAL, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(2)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        Work work3 = new Work.Builder(InfiniteTestWorker.class)
-                .withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, DEFAULT_BACKOFF_DELAY_TIME_MS)
+        Work work3 = Work.newBuilder(InfiniteTestWorker.class)
+                .withBackoffCriteria(
+                        Constants.BACKOFF_POLICY_EXPONENTIAL, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(3)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
 
-        long nextRunTime1 = work1.getWorkSpec().calculateNextRunTime();
-        long nextRunTime2 = work2.getWorkSpec().calculateNextRunTime();
-        long nextRunTime3 = work3.getWorkSpec().calculateNextRunTime();
+        long nextRunTime1 = getWorkSpec(work1).calculateNextRunTime();
+        long nextRunTime2 = getWorkSpec(work2).calculateNextRunTime();
+        long nextRunTime3 = getWorkSpec(work3).calculateNextRunTime();
 
         long nextRunTimeDeltaBetweenWork2AndWork1 = nextRunTime2 - nextRunTime1;
         long nextRunTimeDeltaBetweenWork3AndWork2 = nextRunTime3 - nextRunTime2;
@@ -91,25 +94,25 @@ public class WorkSpecTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_linear() {
-        Work work1 = new Work.Builder(InfiniteTestWorker.class)
-                .withBackoffCriteria(Work.BACKOFF_POLICY_LINEAR, DEFAULT_BACKOFF_DELAY_TIME_MS)
+        Work work1 = Work.newBuilder(InfiniteTestWorker.class)
+                .withBackoffCriteria(Constants.BACKOFF_POLICY_LINEAR, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(1)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        Work work2 = new Work.Builder(InfiniteTestWorker.class)
-                .withBackoffCriteria(Work.BACKOFF_POLICY_LINEAR, DEFAULT_BACKOFF_DELAY_TIME_MS)
+        Work work2 = Work.newBuilder(InfiniteTestWorker.class)
+                .withBackoffCriteria(Constants.BACKOFF_POLICY_LINEAR, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(2)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        Work work3 = new Work.Builder(InfiniteTestWorker.class)
-                .withBackoffCriteria(Work.BACKOFF_POLICY_LINEAR, DEFAULT_BACKOFF_DELAY_TIME_MS)
+        Work work3 = Work.newBuilder(InfiniteTestWorker.class)
+                .withBackoffCriteria(Constants.BACKOFF_POLICY_LINEAR, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(3)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
 
-        long nextRunTime1 = work1.getWorkSpec().calculateNextRunTime();
-        long nextRunTime2 = work2.getWorkSpec().calculateNextRunTime();
-        long nextRunTime3 = work3.getWorkSpec().calculateNextRunTime();
+        long nextRunTime1 = getWorkSpec(work1).calculateNextRunTime();
+        long nextRunTime2 = getWorkSpec(work2).calculateNextRunTime();
+        long nextRunTime3 = getWorkSpec(work3).calculateNextRunTime();
 
         long nextRunTimeDeltaBetweenWork2AndWork1 = nextRunTime2 - nextRunTime1;
         long nextRunTimeDeltaBetweenWork3AndWork2 = nextRunTime3 - nextRunTime2;
@@ -120,24 +123,26 @@ public class WorkSpecTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_linear_upperBound() {
-        Work work = new Work.Builder(InfiniteTestWorker.class)
-                .withBackoffCriteria(Work.BACKOFF_POLICY_LINEAR, Work.MAX_BACKOFF_MILLIS + 1)
+        Work work = Work.newBuilder(InfiniteTestWorker.class)
+                .withBackoffCriteria(
+                        Constants.BACKOFF_POLICY_LINEAR, Constants.MAX_BACKOFF_MILLIS + 1)
                 .withInitialRunAttemptCount(1)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        assertThat(work.getWorkSpec().calculateNextRunTime(),
-                is(DEFAULT_PERIOD_START_TIME + Work.MAX_BACKOFF_MILLIS));
+        assertThat(getWorkSpec(work).calculateNextRunTime(),
+                is(DEFAULT_PERIOD_START_TIME + Constants.MAX_BACKOFF_MILLIS));
     }
 
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_exponential_upperBound() {
-        Work work = new Work.Builder(InfiniteTestWorker.class)
-                .withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, Work.MAX_BACKOFF_MILLIS + 1)
+        Work work = Work.newBuilder(InfiniteTestWorker.class)
+                .withBackoffCriteria(
+                        Constants.BACKOFF_POLICY_EXPONENTIAL, Constants.MAX_BACKOFF_MILLIS + 1)
                 .withInitialRunAttemptCount(1)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        assertThat(work.getWorkSpec().calculateNextRunTime(),
-                is(DEFAULT_PERIOD_START_TIME + Work.MAX_BACKOFF_MILLIS));
+        assertThat(getWorkSpec(work).calculateNextRunTime(),
+                is(DEFAULT_PERIOD_START_TIME + Constants.MAX_BACKOFF_MILLIS));
     }
 }

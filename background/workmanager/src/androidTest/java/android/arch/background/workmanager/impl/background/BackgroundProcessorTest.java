@@ -58,10 +58,10 @@ public class BackgroundProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testOnExecuted() throws InterruptedException {
-        Work work = new Work.Builder(TestWorker.class).build();
+        Work work = Work.newBuilder(TestWorker.class).build();
         String workSpecId = work.getId();
 
-        insertBaseWork(work);
+        insertWork(work);
         mProcessor.process(workSpecId);
 
         verify(mMockListener).onExecuted(workSpecId, false);

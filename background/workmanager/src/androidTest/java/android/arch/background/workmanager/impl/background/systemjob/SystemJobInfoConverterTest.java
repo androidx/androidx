@@ -23,9 +23,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.app.job.JobInfo;
+import android.arch.background.workmanager.Constants;
 import android.arch.background.workmanager.Constraints;
-import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.WorkManagerTest;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.IdGenerator;
 import android.arch.background.workmanager.worker.TestWorker;
@@ -42,11 +43,11 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 23)
-public class SystemJobInfoConverterTest {
+public class SystemJobInfoConverterTest extends WorkManagerTest {
 
     private static final long TEST_INTERVAL_DURATION =
-            PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 1232L;
-    private static final long TEST_FLEX_DURATION = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 112L;
+            Constants.MIN_PERIODIC_INTERVAL_MILLIS + 1232L;
+    private static final long TEST_FLEX_DURATION = Constants.MIN_PERIODIC_FLEX_MILLIS + 112L;
 
     private IdGenerator mMockIdGenerator;
     private SystemJobInfoConverter mConverter;
@@ -99,7 +100,7 @@ public class SystemJobInfoConverterTest {
         long expectedBackoffDelayDuration = 50000;
         WorkSpec workSpec = new WorkSpec("id");
         workSpec.setBackoffDelayDuration(expectedBackoffDelayDuration);
-        workSpec.setBackoffPolicy(Work.BACKOFF_POLICY_LINEAR);
+        workSpec.setBackoffPolicy(Constants.BACKOFF_POLICY_LINEAR);
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.getInitialBackoffMillis(), is(expectedBackoffDelayDuration));
         assertThat(jobInfo.getBackoffPolicy(), is(JobInfo.BACKOFF_POLICY_LINEAR));
@@ -281,9 +282,6 @@ public class SystemJobInfoConverterTest {
     }
 
     private WorkSpec getTestWorkSpecWithConstraints(Constraints constraints) {
-        return new Work.Builder(TestWorker.class)
-                .withConstraints(constraints)
-                .build()
-                .getWorkSpec();
+        return getWorkSpec(Work.newBuilder(TestWorker.class).withConstraints(constraints).build());
     }
 }

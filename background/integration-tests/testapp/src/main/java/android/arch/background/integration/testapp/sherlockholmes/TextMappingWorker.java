@@ -49,7 +49,7 @@ public class TextMappingWorker extends Worker {
         Arguments args = new Arguments.Builder()
                 .putString(INPUT_FILE, inputFile)
                 .build();
-        return new Work.Builder(TextMappingWorker.class).withArguments(args);
+        return Work.newBuilder(TextMappingWorker.class).withArguments(args);
     }
 
     @Override

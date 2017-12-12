@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.WorkManagerTest;
 import android.arch.background.workmanager.impl.constraints.trackers.ConstraintTracker;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.worker.TestWorker;
@@ -41,7 +42,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class ConstraintControllerTest {
+public class ConstraintControllerTest extends WorkManagerTest {
     private TestDeviceIdleConstraintController mTestIdleController;
     private ConstraintTracker<Boolean> mMockTracker = mock(ConstraintTracker.class);
     private ConstraintController.OnConstraintUpdatedCallback mCallback =
@@ -53,10 +54,9 @@ public class ConstraintControllerTest {
     }
 
     private WorkSpec createTestWorkSpec(Constraints constraints) {
-        return new Work.Builder(TestWorker.class)
+        return getWorkSpec(Work.newBuilder(TestWorker.class)
                 .withConstraints(constraints)
-                .build()
-                .getWorkSpec();
+                .build());
     }
 
     private WorkSpec createTestConstraintWorkSpec() {

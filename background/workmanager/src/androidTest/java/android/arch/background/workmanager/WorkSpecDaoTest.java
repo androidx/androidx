@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.impl.BaseWork.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.Constants.STATUS_SUCCEEDED;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -39,21 +39,21 @@ public class WorkSpecDaoTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testPruneLeaves() {
-        Work enqueuedWork = new Work.Builder(TestWorker.class).build();
+        Work enqueuedWork = Work.newBuilder(TestWorker.class).build();
         Work finishedPrerequisiteWork1A =
-                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedPrerequisiteWork1B =
-                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedPrerequisiteWork2 =
-                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedFinalWork =
-                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
 
-        insertBaseWork(enqueuedWork);
-        insertBaseWork(finishedPrerequisiteWork1A);
-        insertBaseWork(finishedPrerequisiteWork1B);
-        insertBaseWork(finishedPrerequisiteWork2);
-        insertBaseWork(finishedFinalWork);
+        insertWork(enqueuedWork);
+        insertWork(finishedPrerequisiteWork1A);
+        insertWork(finishedPrerequisiteWork1B);
+        insertWork(finishedPrerequisiteWork2);
+        insertWork(finishedFinalWork);
 
         Dependency dependency21A = new Dependency(
                 finishedPrerequisiteWork2.getId(), finishedPrerequisiteWork1A.getId());

@@ -16,7 +16,6 @@
 
 package android.arch.background.workmanager;
 
-import android.arch.background.workmanager.impl.BaseWork;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
@@ -37,9 +36,9 @@ public abstract class WorkManager {
     }
 
     /**
-     * Gets the {@link BaseWork.WorkStatus} for a given work id.
+     * Gets the {@link Constants.WorkStatus} for a given work id.
      *
-     * @param id The id of the {@link BaseWork}.
+     * @param id The id of the work.
      * @return A {@link LiveData} of the status.
      */
     public abstract LiveData<Integer> getWorkStatus(String id);
@@ -47,7 +46,7 @@ public abstract class WorkManager {
     /**
      * Gets the output for a given work id.
      *
-     * @param id The id of the {@link BaseWork}.
+     * @param id The id of the work.
      * @return A {@link LiveData} of the output.
      */
     public abstract LiveData<Arguments> getOutput(String id);
@@ -94,5 +93,13 @@ public abstract class WorkManager {
      * outputs stored in the database.
      */
     public abstract void pruneDatabase();
+
+    protected abstract Work.Builder newWorkBuilder(Class<? extends Worker> workerClass);
+
+    protected abstract PeriodicWork.Builder newPeriodicWorkBuilder(
+            Class<? extends Worker> workerClass, long intervalMillis);
+
+    protected abstract PeriodicWork.Builder newPeriodicWorkBuilder(
+            Class<? extends Worker> workerClass, long intervalMillis, long flexMillis);
 }
 

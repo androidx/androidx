@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 @SmallTest
-public class WorkTest {
+public class WorkTest extends WorkManagerTest {
     @Rule
     public ExpectedException mThrown = ExpectedException.none();
 
@@ -36,32 +36,32 @@ public class WorkTest {
 
     @Before
     public void setUp() {
-        mBuilder = new Work.Builder(TestWorker.class);
+        mBuilder = Work.newBuilder(TestWorker.class);
     }
 
     @Test
     public void testBuild_withInitialDelay() {
         final long expectedInitialDelay = 123L;
         Work work = mBuilder.withInitialDelay(expectedInitialDelay).build();
-        assertThat(work.getWorkSpec().getInitialDelay(), is(expectedInitialDelay));
+        assertThat(getWorkSpec(work).getInitialDelay(), is(expectedInitialDelay));
     }
 
     @Test
     public void testBuild_setBackoffCriteria_exceedMaxBackoffDuration() {
-        final long backoffDuration = Work.MAX_BACKOFF_MILLIS + 123L;
+        final long backoffDuration = Constants.MAX_BACKOFF_MILLIS + 123L;
         Work work = mBuilder
-                .withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, backoffDuration)
+                .withBackoffCriteria(Constants.BACKOFF_POLICY_EXPONENTIAL, backoffDuration)
                 .build();
-        assertThat(work.getWorkSpec().getBackoffDelayDuration(), is(Work.MAX_BACKOFF_MILLIS));
+        assertThat(getWorkSpec(work).getBackoffDelayDuration(), is(Constants.MAX_BACKOFF_MILLIS));
     }
 
     @Test
     public void testBuild_setBackoffCriteria_lessThanMinBackoffDuration() {
-        final long backoffDuration = Work.MIN_BACKOFF_MILLIS - 123L;
+        final long backoffDuration = Constants.MIN_BACKOFF_MILLIS - 123L;
         Work work = mBuilder
-                .withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, backoffDuration)
+                .withBackoffCriteria(Constants.BACKOFF_POLICY_EXPONENTIAL, backoffDuration)
                 .build();
-        assertThat(work.getWorkSpec().getBackoffDelayDuration(), is(Work.MIN_BACKOFF_MILLIS));
+        assertThat(getWorkSpec(work).getBackoffDelayDuration(), is(Constants.MIN_BACKOFF_MILLIS));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class WorkTest {
         Constraints constraints = new Constraints.Builder()
                 .setRequiresDeviceIdle(true)
                 .build();
-        mBuilder.withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, 123L)
+        mBuilder.withBackoffCriteria(Constants.BACKOFF_POLICY_EXPONENTIAL, 123L)
                 .withConstraints(constraints)
                 .build();
     }

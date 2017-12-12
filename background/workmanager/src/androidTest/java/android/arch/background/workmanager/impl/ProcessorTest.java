@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
+import android.arch.background.workmanager.Constants;
 import android.arch.background.workmanager.DatabaseTest;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.worker.InfiniteTestWorker;
@@ -61,12 +62,12 @@ public class ProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testProcess_noWorkInitialDelay() throws InterruptedException {
-        Work work = new Work.Builder(InfiniteTestWorker.class).build();
-        insertBaseWork(work);
+        Work work = Work.newBuilder(InfiniteTestWorker.class).build();
+        insertWork(work);
         mProcessor.process(work.getId());
         Thread.sleep(ASYNC_WAIT_DURATION);
         assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
-                is(Work.STATUS_RUNNING));
+                is(Constants.STATUS_RUNNING));
     }
 
     @Test
@@ -80,9 +81,9 @@ public class ProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testProcess_doesNotProcessTwice() {
-        Work work = new Work.Builder(InfiniteTestWorker.class).build();
+        Work work = Work.newBuilder(InfiniteTestWorker.class).build();
         String id = work.getId();
-        insertBaseWork(work);
+        insertWork(work);
         mProcessor.process(id);
         assertThat(mProcessor.mEnqueuedWorkMap, hasKey(id));
         Future future = mProcessor.mEnqueuedWorkMap.get(id);
@@ -94,8 +95,8 @@ public class ProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testHasWork() {
-        Work work = new Work.Builder(InfiniteTestWorker.class).build();
-        insertBaseWork(work);
+        Work work = Work.newBuilder(InfiniteTestWorker.class).build();
+        insertWork(work);
 
         assertThat(mProcessor.hasWork(), is(false));
         mProcessor.process(work.getId());

@@ -20,6 +20,7 @@ import android.arch.background.integration.testapp.R;
 import android.arch.background.integration.testapp.db.TestDatabase;
 import android.arch.background.integration.testapp.db.WordCount;
 import android.arch.background.workmanager.ArrayCreatingInputMerger;
+import android.arch.background.workmanager.Constants;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.lifecycle.Observer;
@@ -75,7 +76,7 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
     private void enqueueWork() {
         WorkManager workManager = WorkManager.getInstance();
 
-        Work textReducingWork = new Work.Builder(TextReducingWorker.class)
+        Work textReducingWork = Work.newBuilder(TextReducingWorker.class)
                 .withInputMerger(ArrayCreatingInputMerger.class)
                 .build();
 
@@ -94,8 +95,8 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
                     @Override
                     public void onChanged(@Nullable Integer status) {
                         boolean loading = (status != null
-                                && status != Work.STATUS_SUCCEEDED
-                                && status != Work.STATUS_FAILED);
+                                && status != Constants.STATUS_SUCCEEDED
+                                && status != Constants.STATUS_FAILED);
                         mProgressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
                         mResultsView.setVisibility(loading ? View.GONE : View.VISIBLE);
                     }

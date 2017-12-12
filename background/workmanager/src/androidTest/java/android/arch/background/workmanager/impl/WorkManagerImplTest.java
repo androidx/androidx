@@ -16,10 +16,10 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.impl.BaseWork.STATUS_CANCELLED;
-import static android.arch.background.workmanager.impl.BaseWork.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.impl.BaseWork.STATUS_RUNNING;
-import static android.arch.background.workmanager.impl.BaseWork.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.Constants.STATUS_CANCELLED;
+import static android.arch.background.workmanager.Constants.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.Constants.STATUS_RUNNING;
+import static android.arch.background.workmanager.Constants.STATUS_SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -30,10 +30,12 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.greaterThan;
 
+import android.arch.background.workmanager.Constants;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.WorkManagerTest;
 import android.arch.background.workmanager.impl.model.Dependency;
 import android.arch.background.workmanager.impl.model.DependencyDao;
 import android.arch.background.workmanager.impl.model.WorkSpec;
@@ -60,7 +62,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class WorkManagerImplTest {
+public class WorkManagerImplTest extends WorkManagerTest {
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
 
@@ -86,7 +88,7 @@ public class WorkManagerImplTest {
         final int workCount = 3;
         final Work[] workArray = new Work[workCount];
         for (int i = 0; i < workCount; ++i) {
-            workArray[i] = new Work.Builder(TestWorker.class).build();
+            workArray[i] = Work.newBuilder(TestWorker.class).build();
         }
         mWorkManagerImpl.enqueue(workArray[0]).then(workArray[1]).then(workArray[2]);
 
@@ -103,9 +105,9 @@ public class WorkManagerImplTest {
     @Test
     @SmallTest
     public void testEnqueue_insertMultipleWork() throws InterruptedException {
-        Work work1 = new Work.Builder(TestWorker.class).build();
-        Work work2 = new Work.Builder(TestWorker.class).build();
-        Work work3 = new Work.Builder(TestWorker.class).build();
+        Work work1 = Work.newBuilder(TestWorker.class).build();
+        Work work2 = Work.newBuilder(TestWorker.class).build();
+        Work work3 = Work.newBuilder(TestWorker.class).build();
 
         mWorkManagerImpl.enqueue(work1, work2, work3);
 
@@ -118,11 +120,11 @@ public class WorkManagerImplTest {
     @Test
     @SmallTest
     public void testEnqueue_insertWithDependencies() throws InterruptedException {
-        Work work1a = new Work.Builder(TestWorker.class).build();
-        Work work1b = new Work.Builder(TestWorker.class).build();
-        Work work2 = new Work.Builder(TestWorker.class).build();
-        Work work3a = new Work.Builder(TestWorker.class).build();
-        Work work3b = new Work.Builder(TestWorker.class).build();
+        Work work1a = Work.newBuilder(TestWorker.class).build();
+        Work work1b = Work.newBuilder(TestWorker.class).build();
+        Work work2 = Work.newBuilder(TestWorker.class).build();
+        Work work3a = Work.newBuilder(TestWorker.class).build();
+        Work work3b = Work.newBuilder(TestWorker.class).build();
 
         mWorkManagerImpl.enqueue(work1a, work1b).then(work2).then(work3a, work3b);
 
@@ -155,7 +157,7 @@ public class WorkManagerImplTest {
         Uri testUri1 = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         Uri testUri2 = MediaStore.Images.Media.INTERNAL_CONTENT_URI;
 
-        Work work0 = new Work.Builder(TestWorker.class)
+        Work work0 = Work.newBuilder(TestWorker.class)
                 .withConstraints(
                         new Constraints.Builder()
                                 .setRequiresCharging(true)
@@ -167,7 +169,7 @@ public class WorkManagerImplTest {
                                 .addContentUriTrigger(testUri2, false)
                                 .build())
                 .build();
-        Work work1 = new Work.Builder(TestWorker.class).build();
+        Work work1 = Work.newBuilder(TestWorker.class).build();
         mWorkManagerImpl.enqueue(work0).then(work1);
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
@@ -200,10 +202,10 @@ public class WorkManagerImplTest {
     @SmallTest
     public void testEnqueue_insertWorkInitialDelay() throws InterruptedException {
         final long expectedInitialDelay = 5000L;
-        Work work0 = new Work.Builder(TestWorker.class)
+        Work work0 = Work.newBuilder(TestWorker.class)
                 .withInitialDelay(expectedInitialDelay)
                 .build();
-        Work work1 = new Work.Builder(TestWorker.class).build();
+        Work work1 = Work.newBuilder(TestWorker.class).build();
         mWorkManagerImpl.enqueue(work0).then(work1);
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
@@ -216,20 +218,20 @@ public class WorkManagerImplTest {
     @Test
     @SmallTest
     public void testEnqueue_insertWorkBackoffPolicy() throws InterruptedException {
-        Work work0 = new Work.Builder(TestWorker.class)
-                .withBackoffCriteria(Work.BACKOFF_POLICY_LINEAR, 50000)
+        Work work0 = Work.newBuilder(TestWorker.class)
+                .withBackoffCriteria(Constants.BACKOFF_POLICY_LINEAR, 50000)
                 .build();
-        Work work1 = new Work.Builder(TestWorker.class).build();
+        Work work1 = Work.newBuilder(TestWorker.class).build();
         mWorkManagerImpl.enqueue(work0).then(work1);
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertThat(workSpec0.getBackoffPolicy(), is(Work.BACKOFF_POLICY_LINEAR));
+        assertThat(workSpec0.getBackoffPolicy(), is(Constants.BACKOFF_POLICY_LINEAR));
         assertThat(workSpec0.getBackoffDelayDuration(), is(50000L));
 
-        assertThat(workSpec1.getBackoffPolicy(), is(Work.BACKOFF_POLICY_EXPONENTIAL));
-        assertThat(workSpec1.getBackoffDelayDuration(), is(Work.DEFAULT_BACKOFF_DELAY_MILLIS));
+        assertThat(workSpec1.getBackoffPolicy(), is(Constants.BACKOFF_POLICY_EXPONENTIAL));
+        assertThat(workSpec1.getBackoffDelayDuration(), is(Constants.DEFAULT_BACKOFF_DELAY_MILLIS));
     }
 
     @Test
@@ -239,9 +241,9 @@ public class WorkManagerImplTest {
         final String secondTag = "second_tag";
         final String thirdTag = "third_tag";
 
-        Work work0 = new Work.Builder(TestWorker.class).addTag(firstTag).addTag(secondTag).build();
-        Work work1 = new Work.Builder(TestWorker.class).addTag(firstTag).build();
-        Work work2 = new Work.Builder(TestWorker.class).build();
+        Work work0 = Work.newBuilder(TestWorker.class).addTag(firstTag).addTag(secondTag).build();
+        Work work1 = Work.newBuilder(TestWorker.class).addTag(firstTag).build();
+        Work work2 = Work.newBuilder(TestWorker.class).build();
         mWorkManagerImpl.enqueue(work0).then(work1).then(work2);
 
         WorkTagDao workTagDao = mDatabase.workTagDao();
@@ -254,24 +256,23 @@ public class WorkManagerImplTest {
     @Test
     @SmallTest
     public void testEnqueue_insertPeriodicWork() throws InterruptedException {
-        PeriodicWork periodicWork =
-                new PeriodicWork.Builder(
-                        TestWorker.class,
-                        PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
-                        .build();
+        PeriodicWork periodicWork = PeriodicWork.newBuilder(
+                TestWorker.class,
+                Constants.MIN_PERIODIC_INTERVAL_MILLIS)
+                .build();
         mWorkManagerImpl.enqueue(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.isPeriodic(), is(true));
-        assertThat(workSpec.getIntervalDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
-        assertThat(workSpec.getFlexDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
+        assertThat(workSpec.getIntervalDuration(), is(Constants.MIN_PERIODIC_INTERVAL_MILLIS));
+        assertThat(workSpec.getFlexDuration(), is(Constants.MIN_PERIODIC_INTERVAL_MILLIS));
     }
 
     @Test
     @SmallTest
     public void testEnqueued_work_setsPeriodStartTime() {
-        Work work = new Work.Builder(TestWorker.class).build();
-        assertThat(work.getWorkSpec().getPeriodStartTime(), is(0L));
+        Work work = Work.newBuilder(TestWorker.class).build();
+        assertThat(getWorkSpec(work).getPeriodStartTime(), is(0L));
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
@@ -284,11 +285,11 @@ public class WorkManagerImplTest {
     @Test
     @SmallTest
     public void testEnqueued_periodicWork_setsPeriodStartTime() {
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        PeriodicWork periodicWork = PeriodicWork.newBuilder(
                 TestWorker.class,
-                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
+                Constants.MIN_PERIODIC_INTERVAL_MILLIS)
                 .build();
-        assertThat(periodicWork.getWorkSpec().getPeriodStartTime(), is(0L));
+        assertThat(getWorkSpec(periodicWork).getPeriodStartTime(), is(0L));
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
@@ -306,10 +307,10 @@ public class WorkManagerImplTest {
         final String tagToClear = "tag_to_clear";
         final String tagNotToClear = "tag_not_to_clear";
 
-        Work work0 = new Work.Builder(TestWorker.class).addTag(tagToClear).build();
-        Work work1 = new Work.Builder(TestWorker.class).addTag(tagToClear).build();
-        Work work2 = new Work.Builder(TestWorker.class).addTag(tagNotToClear).build();
-        Work work3 = new Work.Builder(TestWorker.class).addTag(tagNotToClear).build();
+        Work work0 = Work.newBuilder(TestWorker.class).addTag(tagToClear).build();
+        Work work1 = Work.newBuilder(TestWorker.class).addTag(tagToClear).build();
+        Work work2 = Work.newBuilder(TestWorker.class).addTag(tagNotToClear).build();
+        Work work3 = Work.newBuilder(TestWorker.class).addTag(tagNotToClear).build();
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
         insertWorkSpecAndTags(work2);
@@ -328,11 +329,11 @@ public class WorkManagerImplTest {
     public void testCancelAllWorkWithTag_deletesDependentWork() throws InterruptedException {
         String tag = "tag";
 
-        Work work0 = new Work.Builder(TestWorker.class).addTag(tag).build();
-        Work work1 = new Work.Builder(TestWorker.class).build();
-        Work work2 = new Work.Builder(TestWorker.class).build();
-        Work work3 = new Work.Builder(TestWorker.class).build();
-        Work work4 = new Work.Builder(TestWorker.class).build();
+        Work work0 = Work.newBuilder(TestWorker.class).addTag(tag).build();
+        Work work1 = Work.newBuilder(TestWorker.class).build();
+        Work work2 = Work.newBuilder(TestWorker.class).build();
+        Work work3 = Work.newBuilder(TestWorker.class).build();
+        Work work4 = Work.newBuilder(TestWorker.class).build();
 
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
@@ -374,15 +375,15 @@ public class WorkManagerImplTest {
     @Test
     @SmallTest
     public void testPruneDatabase() {
-        Work enqueuedWork = new Work.Builder(TestWorker.class).build();
+        Work enqueuedWork = Work.newBuilder(TestWorker.class).build();
         Work finishedPrerequisiteWork1A =
-                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedPrerequisiteWork1B =
-                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedPrerequisiteWork2 =
-                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedFinalWork =
-                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
 
         insertWorkSpecAndTags(enqueuedWork);
         insertWorkSpecAndTags(finishedPrerequisiteWork1A);
@@ -417,8 +418,8 @@ public class WorkManagerImplTest {
     public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
-        Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_RUNNING).build();
-        workSpecDao.insertWorkSpec(work.getWorkSpec());
+        Work work = Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_RUNNING).build();
+        workSpecDao.insertWorkSpec(getWorkSpec(work));
 
         assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(STATUS_RUNNING));
 
@@ -429,10 +430,10 @@ public class WorkManagerImplTest {
         assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(STATUS_ENQUEUED));
     }
 
-    private void insertWorkSpecAndTags(BaseWork work) {
-        mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
-        for (WorkTag workTag : work.getWorkTags()) {
-            mDatabase.workTagDao().insert(workTag);
+    private void insertWorkSpecAndTags(Work work) {
+        mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(work));
+        for (String tag : getTags(work)) {
+            mDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
         }
     }
 }

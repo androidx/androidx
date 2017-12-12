@@ -16,9 +16,10 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.impl.BaseWork.STATUS_BLOCKED;
+import static android.arch.background.workmanager.Constants.STATUS_BLOCKED;
 
 import android.arch.background.workmanager.Arguments;
+import android.arch.background.workmanager.Constants;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
@@ -141,7 +142,8 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public void enqueue(PeriodicWork... periodicWork) {
-        mTaskExecutor.executeOnBackgroundThread(new EnqueueRunnable(periodicWork, null));
+        mTaskExecutor.executeOnBackgroundThread(
+                new EnqueueRunnable(periodicWork, null));
     }
 
     @Override
@@ -154,9 +156,27 @@ public class WorkManagerImpl extends WorkManager {
         mTaskExecutor.executeOnBackgroundThread(new PruneDatabaseRunnable(mWorkDatabase));
     }
 
+    @Override
+    protected Work.Builder newWorkBuilder(Class<? extends Worker> workerClass) {
+        return new WorkImpl.Builder(workerClass);
+    }
+
+    @Override
+    protected PeriodicWork.Builder newPeriodicWorkBuilder(
+            Class<? extends Worker> workerClass, long intervalMillis) {
+        return new PeriodicWorkImpl.Builder(workerClass, intervalMillis);
+    }
+
+    @Override
+    protected PeriodicWork.Builder newPeriodicWorkBuilder(Class<? extends Worker> workerClass,
+            long intervalMillis, long flexMillis) {
+        return new PeriodicWorkImpl.Builder(workerClass, intervalMillis, flexMillis);
+    }
+
     WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {
         WorkContinuation workContinuation = new WorkContinuationImpl(this, work);
-        mTaskExecutor.executeOnBackgroundThread(new EnqueueRunnable(work, prerequisiteIds));
+        mTaskExecutor.executeOnBackgroundThread(
+                new EnqueueRunnable(work, prerequisiteIds));
         return workContinuation;
     }
 
@@ -164,11 +184,15 @@ public class WorkManagerImpl extends WorkManager {
      * A Runnable to enqueue a {@link Work} in the database.
      */
     private class EnqueueRunnable implements Runnable {
-        private BaseWork[] mWorkArray;
+
+        private InternalWorkImpl[] mWorkArray;
         private String[] mPrerequisiteIds;
 
-        EnqueueRunnable(BaseWork[] workArray, String[] prerequisiteIds) {
-            mWorkArray = workArray;
+        EnqueueRunnable(Object[] workArray, String[] prerequisiteIds) {
+            mWorkArray = new InternalWorkImpl[workArray.length];
+            for (int i = 0; i < workArray.length; ++i) {
+                mWorkArray[i] = (InternalWorkImpl) workArray[i];
+            }
             mPrerequisiteIds = prerequisiteIds;
         }
 
@@ -180,7 +204,7 @@ public class WorkManagerImpl extends WorkManager {
                 long currentTimeMillis = System.currentTimeMillis();
                 boolean hasPrerequisite = (mPrerequisiteIds != null && mPrerequisiteIds.length > 0);
 
-                for (BaseWork work : mWorkArray) {
+                for (InternalWorkImpl work : mWorkArray) {
                     WorkSpec workSpec = work.getWorkSpec();
 
                     if (hasPrerequisite) {
@@ -200,8 +224,8 @@ public class WorkManagerImpl extends WorkManager {
                         }
                     }
 
-                    for (WorkTag workTag : work.getWorkTags()) {
-                        mWorkDatabase.workTagDao().insert(workTag);
+                    for (String tag : work.getTags()) {
+                        mWorkDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
                     }
                 }
                 mWorkDatabase.setTransactionSuccessful();
@@ -209,7 +233,7 @@ public class WorkManagerImpl extends WorkManager {
                 // Schedule in the background if there are no prerequisites.  Foreground scheduling
                 // happens automatically because we instantiated ForegroundProcessor earlier.
                 if (!hasPrerequisite) {
-                    for (BaseWork work : mWorkArray) {
+                    for (InternalWorkImpl work : mWorkArray) {
                         mBackgroundScheduler.schedule(work.getWorkSpec());
                     }
                 }
@@ -257,7 +281,7 @@ public class WorkManagerImpl extends WorkManager {
             for (String id : dependentIds) {
                 recursivelyCancelWorkAndDependencies(id);
             }
-            workSpecDao.setStatus(BaseWork.STATUS_CANCELLED, workSpecId);
+            workSpecDao.setStatus(Constants.STATUS_CANCELLED, workSpecId);
         }
     }
 }
