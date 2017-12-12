@@ -29,7 +29,6 @@
         android:background="@drawable/car_pagination_background"
         android:focusable="false"
         android:hapticFeedbackEnabled="false"
-        android:scaleType="center"
         android:src="@drawable/ic_up" />
 
     <FrameLayout
@@ -55,6 +54,5 @@
         android:background="@drawable/car_pagination_background"
         android:focusable="false"
         android:hapticFeedbackEnabled="false"
-        android:scaleType="center"
         android:src="@drawable/ic_down" />
 </LinearLayout>
