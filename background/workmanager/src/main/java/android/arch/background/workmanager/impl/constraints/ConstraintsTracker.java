@@ -15,7 +15,6 @@
  */
 package android.arch.background.workmanager.impl.constraints;
 
-import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.constraints.controllers.BatteryChargingController;
 import android.arch.background.workmanager.impl.constraints.controllers.BatteryNotLowController;
 import android.arch.background.workmanager.impl.constraints.controllers.ConstraintController;
@@ -25,16 +24,8 @@ import android.arch.background.workmanager.impl.constraints.controllers.NetworkN
 import android.arch.background.workmanager.impl.constraints.controllers.NetworkUnmeteredController;
 import android.arch.background.workmanager.impl.constraints.controllers.StorageNotLowController;
 import android.arch.background.workmanager.impl.model.WorkSpec;
-import android.arch.background.workmanager.impl.utils.LiveDataUtils;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
@@ -45,19 +36,14 @@ import java.util.List;
  * A class to update the current status of various constraints.
  */
 
-public class ConstraintsTracker implements LifecycleObserver, Observer<List<WorkSpec>>,
-        ConstraintController.OnConstraintUpdatedCallback {
+public class ConstraintsTracker implements ConstraintController.OnConstraintUpdatedCallback {
 
     private static final String TAG = "ConstraintsTracker";
 
     private final ConstraintsMetCallback mCallback;
     private final ConstraintController[] mConstraintControllers;
 
-    public ConstraintsTracker(
-            Context context,
-            LifecycleOwner lifecycleOwner,
-            WorkDatabase workDatabase,
-            ConstraintsMetCallback callback) {
+    public ConstraintsTracker(Context context, ConstraintsMetCallback callback) {
         Context appContext = context.getApplicationContext();
         mCallback = callback;
         mConstraintControllers = new ConstraintController[] {
@@ -69,13 +55,6 @@ public class ConstraintsTracker implements LifecycleObserver, Observer<List<Work
                 new NetworkNotRoamingController(appContext, this),
                 new NetworkMeteredController(appContext, this)
         };
-
-        // TODO(janclarin): Move to ForegroundProcessor/SystemAlarmService.
-        LiveData<List<WorkSpec>> workSpecLiveData = LiveDataUtils.dedupedLiveDataFor(
-                workDatabase.workSpecDao().getConstraintsTrackerEligibleWorkSpecs());
-
-        workSpecLiveData.observe(lifecycleOwner, this);
-        lifecycleOwner.getLifecycle().addObserver(this);
     }
 
     @VisibleForTesting
@@ -102,22 +81,6 @@ public class ConstraintsTracker implements LifecycleObserver, Observer<List<Work
         for (ConstraintController controller : mConstraintControllers) {
             controller.reset();
         }
-    }
-
-    @Override
-    public void onChanged(@Nullable List<WorkSpec> workSpecs) {
-        // TODO(janclarin): Remove when LiveData moved out of ConstraintsTracker.
-        if (workSpecs != null) {
-            replace(workSpecs);
-        } else {
-            reset();
-        }
-    }
-
-    // TODO(janclarin): Remove when LiveData moved out.
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    private void onLifecycleStop() {
-        reset();
     }
 
     private boolean areAllConstraintsMet(@NonNull String workSpecId) {
