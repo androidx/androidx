@@ -18,6 +18,7 @@ package android.arch.background.workmanager.impl.model;
 
 import static android.arch.background.workmanager.BaseWork.MAX_BACKOFF_MILLIS;
 import static android.arch.background.workmanager.BaseWork.MIN_BACKOFF_MILLIS;
+import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.PeriodicWork.MIN_PERIODIC_FLEX_MILLIS;
 import static android.arch.background.workmanager.PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
 
@@ -185,7 +186,7 @@ public class WorkSpec {
     }
 
     public boolean isBackedOff() {
-        return mRunAttemptCount > 0;
+        return mStatus == STATUS_ENQUEUED && mRunAttemptCount > 0;
     }
 
     /**
