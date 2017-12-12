@@ -46,6 +46,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -1532,7 +1533,33 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     @Test
     public void scrollToPositionCallback() throws Throwable {
-        RecyclerView recyclerView = new RecyclerView(getActivity());
+
+        class TestRecyclerView extends RecyclerView {
+
+            private CountDownLatch mDrawLatch;
+
+            TestRecyclerView(Context context) {
+                super(context);
+            }
+
+            public void expectDraws(int count) {
+                mDrawLatch = new CountDownLatch(count);
+            }
+
+            public void waitForDraw(int seconds) throws InterruptedException {
+                mDrawLatch.await(seconds, TimeUnit.SECONDS);
+            }
+
+            @Override
+            public void onDraw(Canvas c) {
+                super.onDraw(c);
+                if (mDrawLatch != null) {
+                    mDrawLatch.countDown();
+                }
+            }
+        }
+
+        TestRecyclerView recyclerView = new TestRecyclerView(getActivity());
         TestLayoutManager tlm = new TestLayoutManager() {
             int scrollPos = RecyclerView.NO_POSITION;
 
@@ -1562,7 +1589,6 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 rvCounter.incrementAndGet();
-                super.onScrolled(recyclerView, dx, dy);
             }
         });
 
@@ -1574,13 +1600,16 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     }
                 });
 
+        recyclerView.expectDraws(1);
         tlm.expectLayouts(1);
         setRecyclerView(recyclerView);
         tlm.waitForLayout(2);
-
+        recyclerView.waitForDraw(2);
         assertEquals("RV on scroll should be called for initialization", 1, rvCounter.get());
         assertEquals("VTO on scroll should be called for initialization", 1,
                 viewGroupCounter.get());
+
+        recyclerView.expectDraws(1);
         tlm.expectLayouts(1);
         freezeLayout(true);
         scrollToPosition(3);
@@ -1588,13 +1617,15 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         freezeLayout(false);
         scrollToPosition(3);
         tlm.waitForLayout(2);
+        recyclerView.waitForDraw(2);
         assertEquals("RV on scroll should be called", 2, rvCounter.get());
         assertEquals("VTO on scroll should be called", 2, viewGroupCounter.get());
+
+        recyclerView.expectDraws(1);
         tlm.expectLayouts(1);
         requestLayoutOnUIThread(recyclerView);
         tlm.waitForLayout(2);
-        // wait for draw :/
-        Thread.sleep(1000);
+        recyclerView.waitForDraw(2);
         assertEquals("on scroll should NOT be called", 2, rvCounter.get());
         assertEquals("on scroll should NOT be called", 2, viewGroupCounter.get());
     }
