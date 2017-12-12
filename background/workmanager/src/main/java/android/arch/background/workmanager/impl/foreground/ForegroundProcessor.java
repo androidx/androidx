@@ -28,6 +28,7 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
@@ -135,16 +136,16 @@ public class ForegroundProcessor extends Processor
     }
 
     @Override
-    public void onAllConstraintsMet(List<WorkSpec> workSpecs) {
-        for (WorkSpec workSpec : workSpecs) {
-            process(workSpec.getId());
+    public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
+        for (String workSpecId : workSpecIds) {
+            process(workSpecId);
         }
     }
 
     @Override
-    public void onAllConstraintsNotMet(List<WorkSpec> workSpecs) {
-        for (WorkSpec workSpec : workSpecs) {
-            cancel(workSpec.getId(), true);
+    public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
+        for (String workSpecId : workSpecIds) {
+            cancel(workSpecId, true);
         }
     }
 }

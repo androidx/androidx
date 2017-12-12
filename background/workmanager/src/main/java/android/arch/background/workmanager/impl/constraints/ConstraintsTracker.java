@@ -120,10 +120,10 @@ public class ConstraintsTracker implements LifecycleObserver, Observer<List<Work
         reset();
     }
 
-    private boolean areAllConstraintsMet(WorkSpec workSpec) {
+    private boolean areAllConstraintsMet(@NonNull String workSpecId) {
         for (ConstraintController constraintController : mConstraintControllers) {
-            if (constraintController.isWorkSpecConstrained(workSpec)) {
-                Log.d(TAG, "Work " + workSpec + " constrained by "
+            if (constraintController.isWorkSpecConstrained(workSpecId)) {
+                Log.d(TAG, "Work " + workSpecId + " constrained by "
                         + constraintController.getClass().getSimpleName());
                 return false;
             }
@@ -132,19 +132,19 @@ public class ConstraintsTracker implements LifecycleObserver, Observer<List<Work
     }
 
     @Override
-    public void onConstraintMet(List<WorkSpec> workSpecs) {
-        List<WorkSpec> unconstrainedWorkSpecs = new ArrayList<>();
-        for (WorkSpec workSpec : workSpecs) {
-            if (areAllConstraintsMet(workSpec)) {
-                Log.d(TAG, "Constraints met for " + workSpec);
-                unconstrainedWorkSpecs.add(workSpec);
+    public void onConstraintMet(@NonNull List<String> workSpecIds) {
+        List<String> unconstrainedWorkSpecIds = new ArrayList<>();
+        for (String workSpecId : workSpecIds) {
+            if (areAllConstraintsMet(workSpecId)) {
+                Log.d(TAG, "Constraints met for " + workSpecId);
+                unconstrainedWorkSpecIds.add(workSpecId);
             }
         }
-        mCallback.onAllConstraintsMet(unconstrainedWorkSpecs);
+        mCallback.onAllConstraintsMet(unconstrainedWorkSpecIds);
     }
 
     @Override
-    public void onConstraintNotMet(List<WorkSpec> workSpecs) {
-        mCallback.onAllConstraintsNotMet(workSpecs);
+    public void onConstraintNotMet(@NonNull List<String> workSpecIds) {
+        mCallback.onAllConstraintsNotMet(workSpecIds);
     }
 }
