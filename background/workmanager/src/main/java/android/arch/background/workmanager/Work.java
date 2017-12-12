@@ -16,35 +16,29 @@
 
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.impl.WorkImpl;
 import android.support.annotation.NonNull;
 
 /**
  * A class to create a logical unit of non-repeating work.
  */
 
-public abstract class Work {
-
-    /**
-     * Gets the unique identifier associated with this unit of work.
-     *
-     * @return The identifier for this unit of work
-     */
-    public abstract String getId();
+public abstract class Work implements BaseWork {
 
     /**
      * Creates a {@link Work} that runs once.
      *
      * @param workerClass The {@link Worker} class to run with this job
-     * @return A {@link Work.Builder} used to construct the {@link Work}
+     * @return A {@link Builder} used to construct the {@link Work}
      */
     public static Builder newBuilder(Class<? extends Worker> workerClass) {
-        return WorkManager.getInstance().newWorkBuilder(workerClass);
+        return new WorkImpl.Builder(workerClass);
     }
 
     /**
      * Builder for {@link Work} class.
      */
-    public abstract static class Builder implements BaseWorkBuilder<Work, Work.Builder> {
+    public abstract static class Builder implements BaseWork.Builder<Work, Builder> {
 
         /**
          * Creates a {@link Work} that runs once.

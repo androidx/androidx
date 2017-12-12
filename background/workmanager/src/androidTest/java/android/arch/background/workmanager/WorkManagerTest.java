@@ -23,19 +23,11 @@ import java.util.Set;
 
 public abstract class WorkManagerTest {
 
-    protected WorkSpec getWorkSpec(Work work) {
+    protected WorkSpec getWorkSpec(BaseWork work) {
         return ((InternalWorkImpl) work).getWorkSpec();
     }
 
-    protected Set<String> getTags(Work work) {
+    protected Set<String> getTags(BaseWork work) {
         return ((InternalWorkImpl) work).getTags();
-    }
-
-    protected WorkSpec getWorkSpec(PeriodicWork periodicWork) {
-        return ((InternalWorkImpl) periodicWork).getWorkSpec();
-    }
-
-    protected Set<String> getTags(PeriodicWork periodicWork) {
-        return ((InternalWorkImpl) periodicWork).getTags();
     }
 }

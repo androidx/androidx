@@ -15,14 +15,14 @@
  */
 package android.arch.background.workmanager.impl.utils;
 
-import android.arch.background.workmanager.Constants;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.WorkImpl;
 import android.support.annotation.RestrictTo;
 
 /**
- * A helper class for {@link Constants} classes.
+ * A helper class for {@link BaseWork} classes.
  *
  * @hide
  */

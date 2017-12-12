@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
-import android.arch.background.workmanager.Constants;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.DatabaseTest;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.worker.InfiniteTestWorker;
@@ -67,7 +67,7 @@ public class ProcessorTest extends DatabaseTest {
         mProcessor.process(work.getId());
         Thread.sleep(ASYNC_WAIT_DURATION);
         assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
-                is(Constants.STATUS_RUNNING));
+                is(BaseWork.STATUS_RUNNING));
     }
 
     @Test

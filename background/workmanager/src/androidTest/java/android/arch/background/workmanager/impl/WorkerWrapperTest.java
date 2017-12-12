@@ -16,12 +16,12 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.Constants.STATUS_BLOCKED;
-import static android.arch.background.workmanager.Constants.STATUS_CANCELLED;
-import static android.arch.background.workmanager.Constants.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.Constants.STATUS_FAILED;
-import static android.arch.background.workmanager.Constants.STATUS_RUNNING;
-import static android.arch.background.workmanager.Constants.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.STATUS_BLOCKED;
+import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
+import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
+import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
+import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -35,7 +35,6 @@ import static org.mockito.Mockito.verify;
 
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.ArrayCreatingInputMerger;
-import android.arch.background.workmanager.Constants;
 import android.arch.background.workmanager.DatabaseTest;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
@@ -356,7 +355,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testRun_periodicWork_success_updatesPeriodStartTime() {
-        long intervalDuration = Constants.MIN_PERIODIC_INTERVAL_MILLIS;
+        long intervalDuration = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
         long periodStartTime = System.currentTimeMillis();
         long expectedNextPeriodStartTime = periodStartTime + intervalDuration;
 
@@ -379,7 +378,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testRun_periodicWork_failure_updatesPeriodStartTime() {
-        long intervalDuration = Constants.MIN_PERIODIC_INTERVAL_MILLIS;
+        long intervalDuration = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
         long periodStartTime = System.currentTimeMillis();
         long expectedNextPeriodStartTime = periodStartTime + intervalDuration;
 
@@ -404,7 +403,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     public void testPeriodicWork_success() throws InterruptedException {
         PeriodicWork periodicWork = PeriodicWork.newBuilder(
                 TestWorker.class,
-                Constants.MIN_PERIODIC_INTERVAL_MILLIS)
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
                 .build();
 
         final String periodicWorkId = periodicWork.getId();
@@ -425,7 +424,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     public void testPeriodicWork_fail() throws InterruptedException {
         PeriodicWork periodicWork = PeriodicWork.newBuilder(
                 FailureWorker.class,
-                Constants.MIN_PERIODIC_INTERVAL_MILLIS)
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
                 .build();
 
         final String periodicWorkId = periodicWork.getId();
@@ -446,7 +445,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     public void testPeriodicWork_retry() throws InterruptedException {
         PeriodicWork periodicWork = PeriodicWork.newBuilder(
                 RetryWorker.class,
-                Constants.MIN_PERIODIC_INTERVAL_MILLIS)
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
                 .build();
 
         final String periodicWorkId = periodicWork.getId();

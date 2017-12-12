@@ -17,7 +17,7 @@
 package android.arch.background.workmanager.impl;
 
 import android.arch.background.workmanager.Arguments;
-import android.arch.background.workmanager.Constants;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Worker;
@@ -66,8 +66,6 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
         WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
         Set<String> mTags = new HashSet<>();
 
-        private static final String TAG = "PeriodicWorkBuilder";
-
         public Builder(Class<? extends Worker> workerClass, long intervalMillis) {
             super(workerClass, intervalMillis);
             mWorkSpec.setWorkerClassName(workerClass.getName());
@@ -84,7 +82,7 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
         }
 
         @Override
-        public PeriodicWork.Builder withInitialStatus(@Constants.WorkStatus int status) {
+        public PeriodicWork.Builder withInitialStatus(@BaseWork.WorkStatus int status) {
             mWorkSpec.setStatus(status);
             return this;
         }
@@ -103,7 +101,7 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
 
         @Override
         public PeriodicWork.Builder withBackoffCriteria(
-                @Constants.BackoffPolicy int backoffPolicy,
+                @BaseWork.BackoffPolicy int backoffPolicy,
                 long backoffDelayMillis) {
             mBackoffCriteriaSet = true;
             mWorkSpec.setBackoffPolicy(backoffPolicy);

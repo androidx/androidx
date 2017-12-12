@@ -16,10 +16,10 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.Constants.STATUS_CANCELLED;
-import static android.arch.background.workmanager.Constants.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.Constants.STATUS_RUNNING;
-import static android.arch.background.workmanager.Constants.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
+import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
+import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.greaterThan;
 
-import android.arch.background.workmanager.Constants;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.PeriodicWork;
@@ -219,7 +219,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @SmallTest
     public void testEnqueue_insertWorkBackoffPolicy() throws InterruptedException {
         Work work0 = Work.newBuilder(TestWorker.class)
-                .withBackoffCriteria(Constants.BACKOFF_POLICY_LINEAR, 50000)
+                .withBackoffCriteria(BaseWork.BACKOFF_POLICY_LINEAR, 50000)
                 .build();
         Work work1 = Work.newBuilder(TestWorker.class).build();
         mWorkManagerImpl.enqueue(work0).then(work1);
@@ -227,11 +227,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertThat(workSpec0.getBackoffPolicy(), is(Constants.BACKOFF_POLICY_LINEAR));
+        assertThat(workSpec0.getBackoffPolicy(), is(BaseWork.BACKOFF_POLICY_LINEAR));
         assertThat(workSpec0.getBackoffDelayDuration(), is(50000L));
 
-        assertThat(workSpec1.getBackoffPolicy(), is(Constants.BACKOFF_POLICY_EXPONENTIAL));
-        assertThat(workSpec1.getBackoffDelayDuration(), is(Constants.DEFAULT_BACKOFF_DELAY_MILLIS));
+        assertThat(workSpec1.getBackoffPolicy(), is(BaseWork.BACKOFF_POLICY_EXPONENTIAL));
+        assertThat(workSpec1.getBackoffDelayDuration(), is(BaseWork.DEFAULT_BACKOFF_DELAY_MILLIS));
     }
 
     @Test
@@ -258,14 +258,14 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testEnqueue_insertPeriodicWork() throws InterruptedException {
         PeriodicWork periodicWork = PeriodicWork.newBuilder(
                 TestWorker.class,
-                Constants.MIN_PERIODIC_INTERVAL_MILLIS)
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
                 .build();
         mWorkManagerImpl.enqueue(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.isPeriodic(), is(true));
-        assertThat(workSpec.getIntervalDuration(), is(Constants.MIN_PERIODIC_INTERVAL_MILLIS));
-        assertThat(workSpec.getFlexDuration(), is(Constants.MIN_PERIODIC_INTERVAL_MILLIS));
+        assertThat(workSpec.getIntervalDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
+        assertThat(workSpec.getFlexDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
     }
 
     @Test
@@ -287,7 +287,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testEnqueued_periodicWork_setsPeriodStartTime() {
         PeriodicWork periodicWork = PeriodicWork.newBuilder(
                 TestWorker.class,
-                Constants.MIN_PERIODIC_INTERVAL_MILLIS)
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
                 .build();
         assertThat(getWorkSpec(periodicWork).getPeriodStartTime(), is(0L));
 

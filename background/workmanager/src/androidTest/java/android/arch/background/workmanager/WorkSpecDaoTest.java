@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.Constants.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 
 import static org.hamcrest.CoreMatchers.is;

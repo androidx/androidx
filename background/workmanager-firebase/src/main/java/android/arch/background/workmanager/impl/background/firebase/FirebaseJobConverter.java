@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.impl.background.firebase;
 
-import android.arch.background.workmanager.Constants;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.impl.model.WorkSpec;
@@ -97,12 +97,12 @@ class FirebaseJobConverter {
     }
 
     private RetryStrategy createRetryStrategy(WorkSpec workSpec) {
-        int policy = workSpec.getBackoffPolicy() == Constants.BACKOFF_POLICY_LINEAR
+        int policy = workSpec.getBackoffPolicy() == BaseWork.BACKOFF_POLICY_LINEAR
                 ? RetryStrategy.RETRY_POLICY_LINEAR : RetryStrategy.RETRY_POLICY_EXPONENTIAL;
         int initialBackoff = (int) TimeUnit.SECONDS
                 .convert(workSpec.getBackoffDelayDuration(), TimeUnit.MILLISECONDS);
         int maxBackoff = (int) TimeUnit.SECONDS
-                .convert(Constants.MAX_BACKOFF_MILLIS, TimeUnit.MILLISECONDS);
+                .convert(BaseWork.MAX_BACKOFF_MILLIS, TimeUnit.MILLISECONDS);
         return mDispatcher.newRetryStrategy(policy, initialBackoff, maxBackoff);
     }
 

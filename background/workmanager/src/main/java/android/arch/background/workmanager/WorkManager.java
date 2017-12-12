@@ -36,7 +36,7 @@ public abstract class WorkManager {
     }
 
     /**
-     * Gets the {@link Constants.WorkStatus} for a given work id.
+     * Gets the {@link BaseWork.WorkStatus} for a given work id.
      *
      * @param id The id of the work.
      * @return A {@link LiveData} of the status.
@@ -93,13 +93,5 @@ public abstract class WorkManager {
      * outputs stored in the database.
      */
     public abstract void pruneDatabase();
-
-    protected abstract Work.Builder newWorkBuilder(Class<? extends Worker> workerClass);
-
-    protected abstract PeriodicWork.Builder newPeriodicWorkBuilder(
-            Class<? extends Worker> workerClass, long intervalMillis);
-
-    protected abstract PeriodicWork.Builder newPeriodicWorkBuilder(
-            Class<? extends Worker> workerClass, long intervalMillis, long flexMillis);
 }
 

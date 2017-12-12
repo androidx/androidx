@@ -17,7 +17,7 @@
 package android.arch.background.workmanager.impl;
 
 import android.arch.background.workmanager.Arguments;
-import android.arch.background.workmanager.Constants;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.InputMerger;
 import android.arch.background.workmanager.OverwritingInputMerger;
@@ -75,7 +75,7 @@ public class WorkImpl extends Work implements InternalWorkImpl {
         }
 
         @Override
-        public Work.Builder withInitialStatus(@Constants.WorkStatus int status) {
+        public Work.Builder withInitialStatus(@BaseWork.WorkStatus int status) {
             mWorkSpec.setStatus(status);
             return this;
         }
@@ -94,7 +94,7 @@ public class WorkImpl extends Work implements InternalWorkImpl {
 
         @Override
         public Work.Builder withBackoffCriteria(
-                @Constants.BackoffPolicy int backoffPolicy,
+                @BaseWork.BackoffPolicy int backoffPolicy,
                 long backoffDelayMillis) {
             mBackoffCriteriaSet = true;
             mWorkSpec.setBackoffPolicy(backoffPolicy);

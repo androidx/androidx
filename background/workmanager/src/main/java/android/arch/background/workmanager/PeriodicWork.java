@@ -15,34 +15,40 @@
  */
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.impl.PeriodicWorkImpl;
+
 /**
  * A class to create a logical unit of repeating work.
  */
 
-public abstract class PeriodicWork {
+public abstract class PeriodicWork implements BaseWork {
 
     /**
-     * Gets the unique identifier associated with this unit of work.
-     *
-     * @return The identifier for this unit of work
+     * The minimum interval duration for {@link PeriodicWork}, in milliseconds.
+     * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#110}.
      */
-    public abstract String getId();
+    public static final long MIN_PERIODIC_INTERVAL_MILLIS = 15 * 60 * 1000L; // 15 minutes.
+    /**
+     * The minimum flex duration for {@link PeriodicWork}, in milliseconds.
+     * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#113}.
+     */
+    public static final long MIN_PERIODIC_FLEX_MILLIS = 5 * 60 * 1000L; // 5 minutes.
 
     /**
      * Creates a {@link PeriodicWork} to run periodically once every interval period. The
      * {@link PeriodicWork} is guaranteed to run exactly one time during this interval. The
      * {@code intervalMillis} must be greater than or equal to
-     * {@link Constants#MIN_PERIODIC_INTERVAL_MILLIS}. It may run immediately, at the end of the
+     * {@link PeriodicWork#MIN_PERIODIC_INTERVAL_MILLIS}. It may run immediately, at the end of the
      * period, or any time in between so long as the other conditions are satisfied at the time. The
      * run time of the {@link PeriodicWork} can be restricted to a flex period within an interval.
      *
      * @param workerClass The {@link Worker} class to run with this job
      * @param intervalMillis Duration in milliseconds for which {@link Work} repeats
-     * @return A {@link PeriodicWork.Builder} used to construct the {@link PeriodicWork}
+     * @return A {@link Builder} used to construct the {@link PeriodicWork}
      */
     public static Builder newBuilder(
             Class<? extends Worker> workerClass, long intervalMillis) {
-        return WorkManager.getInstance().newPeriodicWorkBuilder(workerClass, intervalMillis);
+        return new PeriodicWorkImpl.Builder(workerClass, intervalMillis);
     }
 
     /**
@@ -50,8 +56,8 @@ public abstract class PeriodicWork {
      * <strong>flex period</strong> of every interval period. See diagram below. The flex period
      * begins at {@code intervalMillis - flexMillis} to the end of the interval.
      * {@code intervalMillis} must be greater than or equal to
-     * {@link Constants#MIN_PERIODIC_INTERVAL_MILLIS} and {@code flexMillis} must
-     * be greater than or equal to {@link Constants#MIN_PERIODIC_FLEX_MILLIS}.
+     * {@link PeriodicWork#MIN_PERIODIC_INTERVAL_MILLIS} and {@code flexMillis} must
+     * be greater than or equal to {@link PeriodicWork#MIN_PERIODIC_FLEX_MILLIS}.
      *
      * <p><pre>
      * [     before flex     |     flex     ][     before flex     |     flex     ]...
@@ -64,25 +70,23 @@ public abstract class PeriodicWork {
      * @param intervalMillis Duration in milliseconds of the interval
      * @param flexMillis Duration in milliseconds for which {@link Work} repeats from the end of
      *                   the interval
-     * @return A {@link PeriodicWork.Builder} used to construct the {@link PeriodicWork}
+     * @return A {@link Builder} used to construct the {@link PeriodicWork}
      */
     public static Builder newBuilder(
             Class<? extends Worker> workerClass, long intervalMillis, long flexMillis) {
-        return WorkManager.getInstance().newPeriodicWorkBuilder(
-                workerClass, intervalMillis, flexMillis);
+        return new PeriodicWorkImpl.Builder(workerClass, intervalMillis, flexMillis);
     }
 
     /**
      * Builder for {@link PeriodicWork} class.
      */
-    public abstract static class Builder
-            implements BaseWorkBuilder<PeriodicWork, PeriodicWork.Builder> {
+    public abstract static class Builder implements BaseWork.Builder<PeriodicWork, Builder> {
 
         /**
          * Creates a {@link PeriodicWork} to run periodically once every interval period. The
          * {@link PeriodicWork} is guaranteed to run exactly one time during this interval. The
          * {@code intervalMillis} must be greater than or equal to
-         * {@link Constants#MIN_PERIODIC_INTERVAL_MILLIS}. It may run immediately, at the end of
+         * {@link PeriodicWork#MIN_PERIODIC_INTERVAL_MILLIS}. It may run immediately, at the end of
          * the period, or any time in between so long as the other conditions are satisfied at the
          * time. The run time of the {@link PeriodicWork} can be restricted to a flex period within
          * an interval.
@@ -98,8 +102,8 @@ public abstract class PeriodicWork {
          * <strong>flex period</strong> of every interval period. See diagram below. The flex period
          * begins at {@code intervalMillis - flexMillis} to the end of the interval.
          * {@code intervalMillis} must be greater than or equal to
-         * {@link Constants#MIN_PERIODIC_INTERVAL_MILLIS} and {@code flexMillis} must
-         * be greater than or equal to {@link Constants#MIN_PERIODIC_FLEX_MILLIS}.
+         * {@link PeriodicWork#MIN_PERIODIC_INTERVAL_MILLIS} and {@code flexMillis} must
+         * be greater than or equal to {@link PeriodicWork#MIN_PERIODIC_FLEX_MILLIS}.
          *
          * <p><pre>
          * [     before flex     |     flex     ][     before flex     |     flex     ]...

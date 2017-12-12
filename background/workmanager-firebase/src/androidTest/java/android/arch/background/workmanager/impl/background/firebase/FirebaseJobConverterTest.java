@@ -21,8 +21,9 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 
-import android.arch.background.workmanager.Constants;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
+import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkManagerTest;
 import android.arch.background.workmanager.impl.model.WorkSpec;
@@ -84,7 +85,7 @@ public class FirebaseJobConverterTest extends WorkManagerTest {
         long givenBackoffDelayDuration = 50000L;
         WorkSpec workSpec = new WorkSpec("id");
         workSpec.setBackoffDelayDuration(givenBackoffDelayDuration);
-        workSpec.setBackoffPolicy(Constants.BACKOFF_POLICY_LINEAR);
+        workSpec.setBackoffPolicy(BaseWork.BACKOFF_POLICY_LINEAR);
         Job job = mConverter.convert(workSpec);
 
         int expectedBackoffDelayDuration = (int) TimeUnit.SECONDS
@@ -138,8 +139,8 @@ public class FirebaseJobConverterTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testConvert_periodic() {
-        long testInterval = Constants.MIN_PERIODIC_INTERVAL_MILLIS;
-        long testFlex = Constants.MIN_PERIODIC_INTERVAL_MILLIS;
+        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
+        long testFlex = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
 
         int expectedWindowEndSeconds =
                 FirebaseJobConverter.convertMillisecondsToSeconds(testInterval);

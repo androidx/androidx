@@ -16,10 +16,10 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.Constants.STATUS_BLOCKED;
+import static android.arch.background.workmanager.BaseWork.STATUS_BLOCKED;
 
 import android.arch.background.workmanager.Arguments;
-import android.arch.background.workmanager.Constants;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
@@ -156,23 +156,6 @@ public class WorkManagerImpl extends WorkManager {
         mTaskExecutor.executeOnBackgroundThread(new PruneDatabaseRunnable(mWorkDatabase));
     }
 
-    @Override
-    protected Work.Builder newWorkBuilder(Class<? extends Worker> workerClass) {
-        return new WorkImpl.Builder(workerClass);
-    }
-
-    @Override
-    protected PeriodicWork.Builder newPeriodicWorkBuilder(
-            Class<? extends Worker> workerClass, long intervalMillis) {
-        return new PeriodicWorkImpl.Builder(workerClass, intervalMillis);
-    }
-
-    @Override
-    protected PeriodicWork.Builder newPeriodicWorkBuilder(Class<? extends Worker> workerClass,
-            long intervalMillis, long flexMillis) {
-        return new PeriodicWorkImpl.Builder(workerClass, intervalMillis, flexMillis);
-    }
-
     WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {
         WorkContinuation workContinuation = new WorkContinuationImpl(this, work);
         mTaskExecutor.executeOnBackgroundThread(
@@ -188,7 +171,7 @@ public class WorkManagerImpl extends WorkManager {
         private InternalWorkImpl[] mWorkArray;
         private String[] mPrerequisiteIds;
 
-        EnqueueRunnable(Object[] workArray, String[] prerequisiteIds) {
+        EnqueueRunnable(BaseWork[] workArray, String[] prerequisiteIds) {
             mWorkArray = new InternalWorkImpl[workArray.length];
             for (int i = 0; i < workArray.length; ++i) {
                 mWorkArray[i] = (InternalWorkImpl) workArray[i];
@@ -281,7 +264,7 @@ public class WorkManagerImpl extends WorkManager {
             for (String id : dependentIds) {
                 recursivelyCancelWorkAndDependencies(id);
             }
-            workSpecDao.setStatus(Constants.STATUS_CANCELLED, workSpecId);
+            workSpecDao.setStatus(BaseWork.STATUS_CANCELLED, workSpecId);
         }
     }
 }

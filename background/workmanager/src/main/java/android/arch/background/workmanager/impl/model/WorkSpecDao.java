@@ -16,15 +16,15 @@
 
 package android.arch.background.workmanager.impl.model;
 
-import static android.arch.background.workmanager.Constants.STATUS_CANCELLED;
-import static android.arch.background.workmanager.Constants.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.Constants.STATUS_FAILED;
-import static android.arch.background.workmanager.Constants.STATUS_RUNNING;
-import static android.arch.background.workmanager.Constants.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
+import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
+import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
+import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.background.workmanager.Arguments;
-import android.arch.background.workmanager.Constants;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
@@ -71,7 +71,7 @@ public interface WorkSpecDao {
      * @return The number of rows that were updated
      */
     @Query("UPDATE workspec SET status=:status WHERE id IN (:ids)")
-    int setStatus(@Constants.WorkStatus int status, String... ids);
+    int setStatus(@BaseWork.WorkStatus int status, String... ids);
 
     /**
      * Updates the output of a {@link WorkSpec}.
@@ -116,7 +116,7 @@ public interface WorkSpecDao {
      * @return The status of the {@link WorkSpec}
      */
     @Query("SELECT status FROM workspec WHERE id=:id")
-    @Constants.WorkStatus
+    @BaseWork.WorkStatus
     int getWorkSpecStatus(String id);
 
     /**

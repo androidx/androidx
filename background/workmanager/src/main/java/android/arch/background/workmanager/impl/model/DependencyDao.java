@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.impl.model;
 
-import static android.arch.background.workmanager.Constants.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.persistence.room.Dao;
