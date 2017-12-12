@@ -2474,7 +2474,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 assertThat(hidden, CoreMatchers.notNullValue());
                 assertThat(updated, CoreMatchers.notNullValue());
 
-                mRecyclerView.eatRequestLayout();
+                mRecyclerView.startInterceptRequestLayout();
 
                 // first put the hidden child back
                 int index1 = mRecyclerView.indexOfChild(hidden.itemView);
