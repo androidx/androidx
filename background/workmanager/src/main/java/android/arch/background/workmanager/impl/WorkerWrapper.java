@@ -19,7 +19,6 @@ package android.arch.background.workmanager.impl;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_FAILURE;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_RETRY;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_SUCCESS;
-import static android.arch.background.workmanager.impl.BaseWork.STATUS_BLOCKED;
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_CANCELLED;
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.impl.BaseWork.STATUS_FAILED;
@@ -85,82 +84,60 @@ public class WorkerWrapper implements Runnable {
             return;
         }
 
-        switch (mWorkSpec.getStatus()) {
-            case STATUS_RUNNING: {
-                Log.d(TAG, "Status for " + mWorkSpecId + " is RUNNING; "
-                        + "not doing any work and rescheduling for later execution");
-                notifyListener(true);
-                return;
-            }
-
-            case STATUS_BLOCKED: {
-                Log.e(TAG,
-                        "Status for " + mWorkSpecId + " is BLOCKED - why is it trying to be "
-                                + "executed?  This is a recoverable error, so not doing any work",
-                        new Exception());
-                notifyListener(false);
-                return;
-            }
-
-            case STATUS_SUCCEEDED: {
-                Log.d(TAG, "Status for " + mWorkSpecId + " is succeeded; not doing any work");
-                notifyListener(false);
-                return;
-            }
-
-            case STATUS_FAILED: {
-                Log.d(TAG, "Status for " + mWorkSpecId + " is failed; not doing any work");
-                notifyListener(false);
-                return;
-            }
-
-            case STATUS_CANCELLED: {
-                Log.d(TAG, "Status for " + mWorkSpecId + " is cancelled; not doing any work");
-                notifyListener(false);
-                return;
-            }
+        if (mWorkSpec.getStatus() != STATUS_ENQUEUED) {
+            notifyIncorrectStatus();
+            return;
         }
 
         Arguments arguments;
         if (mWorkSpec.isPeriodic()) {
             arguments = mWorkSpec.getArguments();
         } else {
+            InputMerger inputMerger = InputMerger.fromClassName(
+                    mWorkSpec.getInputMergerClassName());
+            if (inputMerger == null) {
+                Log.e(TAG, "Could not create Input Merger " + mWorkSpec.getInputMergerClassName());
+                setFailedAndNotify();
+                return;
+            }
             List<Arguments> inputs = new ArrayList<>();
             inputs.add(mWorkSpec.getArguments());
             inputs.addAll(mWorkSpecDao.getInputsFromPrerequisites(mWorkSpecId));
-            InputMerger inputMerger = InputMerger.fromClassName(
-                    mWorkSpec.getInputMergerClassName());
-            arguments = (inputMerger != null) ? inputMerger.merge(inputs) : Arguments.EMPTY;
+            arguments = inputMerger.merge(inputs);
         }
+
 
         mWorker = workerFromWorkSpec(mAppContext, mWorkSpec, arguments);
         if (mWorker == null) {
             Log.e(TAG, "Could not create Worker " + mWorkSpec.getWorkerClassName());
-            mWorkSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
-            notifyListener(false);
+            setFailedAndNotify();
             return;
         }
 
-        mWorkDatabase.beginTransaction();
-        try {
-            mWorkSpecDao.setStatus(STATUS_RUNNING, mWorkSpecId);
-            mWorkSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);
-            mWorkDatabase.setTransactionSuccessful();
-        } finally {
-            mWorkDatabase.endTransaction();
-        }
+        setRunning();
 
         try {
             checkForInterruption();
             int result = mWorker.doWork();
             if (mWorkSpecDao.getWorkSpecStatus(mWorkSpecId) != STATUS_CANCELLED) {
                 checkForInterruption();
-                setStatusAndNotify(result);
+                handleResult(result);
             }
         } catch (InterruptedException e) {
             Log.d(TAG, "Work interrupted for " + mWorkSpecId);
-            reschedule();
+            rescheduleAndNotify();
+        }
+    }
+
+    private void notifyIncorrectStatus() {
+        int status = mWorkSpec.getStatus();
+        if (status == STATUS_RUNNING) {
+            Log.d(TAG, "Status for " + mWorkSpecId + " is RUNNING; "
+                    + "not doing any work and rescheduling for later execution");
             notifyListener(true);
+        } else {
+            Log.e(TAG, "Status for " + mWorkSpecId + " is " + status + "; not doing any work");
+            notifyListener(false);
         }
     }
 
@@ -182,23 +159,21 @@ public class WorkerWrapper implements Runnable {
         });
     }
 
-    private void setStatusAndNotify(@Worker.WorkerResult int result) {
+    private void handleResult(@Worker.WorkerResult int result) {
         switch (result) {
             case WORKER_RESULT_SUCCESS: {
                 Log.d(TAG, "Worker result SUCCESS for " + mWorkSpecId);
                 if (mWorkSpec.isPeriodic()) {
-                    resetPeriodicWork();
+                    resetPeriodicAndNotify();
                 } else {
-                    setSuccessAndUpdateDependencies();
+                    setSucceededAndNotify();
                 }
-                notifyListener(false);
                 break;
             }
 
             case WORKER_RESULT_RETRY: {
                 Log.d(TAG, "Worker result RETRY for " + mWorkSpecId);
-                reschedule();
-                notifyListener(true);
+                rescheduleAndNotify();
                 break;
             }
 
@@ -206,17 +181,31 @@ public class WorkerWrapper implements Runnable {
             default: {
                 Log.d(TAG, "Worker result FAILURE for " + mWorkSpecId);
                 if (mWorkSpec.isPeriodic()) {
-                    resetPeriodicWork();
+                    resetPeriodicAndNotify();
                 } else {
-                    mWorkSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
+                    setFailedAndNotify();
                 }
-                notifyListener(false);
-                break;
             }
         }
     }
 
-    private void reschedule() {
+    private void setRunning() {
+        mWorkDatabase.beginTransaction();
+        try {
+            mWorkSpecDao.setStatus(STATUS_RUNNING, mWorkSpecId);
+            mWorkSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);
+            mWorkDatabase.setTransactionSuccessful();
+        } finally {
+            mWorkDatabase.endTransaction();
+        }
+    }
+
+    private void setFailedAndNotify() {
+        mWorkSpecDao.setStatus(STATUS_FAILED, mWorkSpecId);
+        notifyListener(false);
+    }
+
+    private void rescheduleAndNotify() {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setStatus(STATUS_ENQUEUED, mWorkSpecId);
@@ -225,10 +214,11 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
+            notifyListener(true);
         }
     }
 
-    private void resetPeriodicWork() {
+    private void resetPeriodicAndNotify() {
         mWorkDatabase.beginTransaction();
         try {
             long currentPeriodStartTime = mWorkSpec.getPeriodStartTime();
@@ -239,10 +229,11 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
+            notifyListener(false);
         }
     }
 
-    private void setSuccessAndUpdateDependencies() {
+    private void setSucceededAndNotify() {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setStatus(STATUS_SUCCEEDED, mWorkSpecId);
@@ -253,6 +244,7 @@ public class WorkerWrapper implements Runnable {
                 mWorkSpecDao.setOutput(mWorkSpecId, outputArgs);
             }
 
+            // Unblock Dependencies and set Period Start Time
             long currentTimeMillis = System.currentTimeMillis();
             List<String> dependentWorkIds = mDependencyDao.getDependentWorkIds(mWorkSpecId);
             List<String> unblockedWorkIds = new ArrayList<>();
@@ -278,6 +270,7 @@ public class WorkerWrapper implements Runnable {
             }
         } finally {
             mWorkDatabase.endTransaction();
+            notifyListener(false);
         }
     }
 
