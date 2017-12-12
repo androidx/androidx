@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 WorkManager.getInstance().enqueue(
-                        new Work.Builder(InfiniteWorker.class)
+                        Work.newBuilder(InfiniteWorker.class)
                                 .withConstraints(new Constraints.Builder()
                                         .setRequiresCharging(true)
                                         .build())

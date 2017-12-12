@@ -15,13 +15,14 @@
  */
 package android.arch.background.workmanager.impl.utils;
 
+import android.arch.background.workmanager.Constants;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.Worker;
-import android.arch.background.workmanager.impl.BaseWork;
+import android.arch.background.workmanager.impl.WorkImpl;
 import android.support.annotation.RestrictTo;
 
 /**
- * A helper class for {@link BaseWork} classes.
+ * A helper class for {@link Constants} classes.
  *
  * @hide
  */
@@ -38,7 +39,7 @@ public class BaseWorkHelper {
             Class<? extends Worker>[] workerClasses) {
         Work[] workArray = new Work[workerClasses.length];
         for (int i = 0; i < workerClasses.length; ++i) {
-            workArray[i] = new Work.Builder(workerClasses[i]).build();
+            workArray[i] = new WorkImpl.Builder(workerClasses[i]).build();
         }
         return workArray;
     }

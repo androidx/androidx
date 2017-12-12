@@ -16,56 +16,51 @@
 
 package android.arch.background.workmanager;
 
-import android.arch.background.workmanager.impl.BaseWork;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
+import android.support.annotation.NonNull;
 
 /**
  * A class to create a logical unit of non-repeating work.
  */
 
-public class Work extends BaseWork {
+public abstract class Work {
 
-    Work(Builder builder) {
-        super(builder);
+    /**
+     * Gets the unique identifier associated with this unit of work.
+     *
+     * @return The identifier for this unit of work
+     */
+    public abstract String getId();
+
+    /**
+     * Creates a {@link Work} that runs once.
+     *
+     * @param workerClass The {@link Worker} class to run with this job
+     * @return A {@link Work.Builder} used to construct the {@link Work}
+     */
+    public static Builder newBuilder(Class<? extends Worker> workerClass) {
+        return WorkManager.getInstance().newWorkBuilder(workerClass);
     }
 
     /**
      * Builder for {@link Work} class.
      */
-    public static class Builder extends BaseWork.Builder<Work, Work.Builder> {
-        public Builder(Class<? extends Worker> workerClass) {
-            super(workerClass);
-            mWorkSpec.setInputMergerClassName(OverwritingInputMerger.class.getName());
-        }
+    public abstract static class Builder implements BaseWorkBuilder<Work, Work.Builder> {
 
         /**
-         * @hide
+         * Creates a {@link Work} that runs once.
+         *
+         * @param workerClass The {@link Worker} class to run with this job
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @Override
-        public Builder withInitialStatus(@WorkStatus int status) {
-            mWorkSpec.setStatus(status);
-            return this;
-        }
-
-        @VisibleForTesting
-        @Override
-        public Builder withInitialRunAttemptCount(int runAttemptCount) {
-            mWorkSpec.setRunAttemptCount(runAttemptCount);
-            return this;
+        public Builder(Class<? extends Worker> workerClass) {
         }
 
         /**
          * Specify whether {@link Work} should run with an initial delay. Default is 0ms.
          *
          * @param duration initial delay before running WorkSpec (in milliseconds)
-         * @return The current {@link Builder}.
+         * @return The current {@link Builder}
          */
-        public Builder withInitialDelay(long duration) {
-            mWorkSpec.setInitialDelay(duration);
-            return this;
-        }
+        public abstract Builder withInitialDelay(long duration);
 
         /**
          * Specify an {@link InputMerger}.  The default is {@link OverwritingInputMerger}.
@@ -73,24 +68,6 @@ public class Work extends BaseWork {
          * @param inputMerger The class name of the {@link InputMerger} to use for this {@link Work}
          * @return The current {@link Builder}
          */
-        public Builder withInputMerger(Class<? extends InputMerger> inputMerger) {
-            mWorkSpec.setInputMergerClassName(inputMerger.getName());
-            return this;
-        }
-
-        @Override
-        protected Builder getThis() {
-            return this;
-        }
-
-        /**
-         * Generates the {@link Work} from {@link Builder}.
-         *
-         * @return new {@link Work}
-         */
-        @Override
-        public Work build() {
-            return new Work(this);
-        }
+        public abstract Builder withInputMerger(@NonNull Class<? extends InputMerger> inputMerger);
     }
 }

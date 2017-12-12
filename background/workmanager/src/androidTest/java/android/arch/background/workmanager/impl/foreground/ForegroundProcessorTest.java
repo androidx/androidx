@@ -15,8 +15,9 @@
  */
 package android.arch.background.workmanager.impl.foreground;
 
-import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
-import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.Constants.STATUS_BLOCKED;
+import static android.arch.background.workmanager.Constants.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.Constants.STATUS_SUCCEEDED;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -83,25 +84,25 @@ public class ForegroundProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testProcess_singleWorker() throws TimeoutException, InterruptedException {
-        Work work = new Work.Builder(TestWorker.class).build();
-        insertBaseWork(work);
+        Work work = Work.newBuilder(TestWorker.class).build();
+        insertWork(work);
         drain();
         mForegroundProcessor.process(work.getId());
         drain();
         assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
-                is(Work.STATUS_SUCCEEDED));
+                is(STATUS_SUCCEEDED));
     }
 
     @Test
     @SmallTest
     public void testProcess_dependentWorkers() throws TimeoutException, InterruptedException {
-        Work prerequisite = new Work.Builder(TestWorker.class).build();
-        Work workSpec = new Work.Builder(TestWorker.class)
+        Work prerequisite = Work.newBuilder(TestWorker.class).build();
+        Work workSpec = Work.newBuilder(TestWorker.class)
                 .withInitialStatus(STATUS_BLOCKED)
                 .build();
 
-        insertBaseWork(prerequisite);
-        insertBaseWork(workSpec);
+        insertWork(prerequisite);
+        insertWork(workSpec);
         mDatabase.dependencyDao().insertDependency(
                 new Dependency(workSpec.getId(), prerequisite.getId()));
         drain();
@@ -119,13 +120,13 @@ public class ForegroundProcessorTest extends DatabaseTest {
     public void testProcess_processorInactive() throws TimeoutException, InterruptedException {
         postLifecycleStopOnMainThread();
         drain();
-        Work work = new Work.Builder(TestWorker.class).build();
-        insertBaseWork(work);
+        Work work = Work.newBuilder(TestWorker.class).build();
+        insertWork(work);
         drain();
         mForegroundProcessor.process(work.getId());
         drain();
         assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
-                is(Work.STATUS_ENQUEUED));
+                is(STATUS_ENQUEUED));
     }
 
     private void postLifecycleStopOnMainThread() {

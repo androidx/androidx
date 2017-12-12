@@ -16,7 +16,6 @@
 
 package android.arch.background.workmanager;
 
-import android.arch.background.workmanager.impl.BaseWork;
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.support.test.InstrumentationRegistry;
 
@@ -26,7 +25,7 @@ import org.junit.Before;
 /**
  * An abstract class for getting an in-memory instance of the {@link WorkDatabase}.
  */
-public abstract class DatabaseTest {
+public abstract class DatabaseTest extends WorkManagerTest {
     protected WorkDatabase mDatabase;
 
     @Before
@@ -39,7 +38,11 @@ public abstract class DatabaseTest {
         mDatabase.close();
     }
 
-    protected void insertBaseWork(BaseWork baseWork) {
-        mDatabase.workSpecDao().insertWorkSpec(baseWork.getWorkSpec());
+    protected void insertWork(Work work) {
+        mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(work));
+    }
+
+    protected void insertWork(PeriodicWork periodicWork) {
+        mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(periodicWork));
     }
 }

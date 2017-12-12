@@ -37,7 +37,7 @@ public class ToastWorker extends Worker {
      */
     public static Work.Builder create(String message) {
         Arguments args = new Arguments.Builder().putString(ARG_MESSAGE, message).build();
-        return new Work.Builder(ToastWorker.class).withArguments(args);
+        return Work.newBuilder(ToastWorker.class).withArguments(args);
     }
 
     @Override
