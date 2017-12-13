@@ -184,6 +184,16 @@ public class EmojiCompat {
     private final boolean mReplaceAll;
 
     /**
+     * @see Config#setUseEmojiAsDefaultStyle(boolean)
+     */
+    private final boolean mUseEmojiAsDefaultStyle;
+
+    /**
+     * @see Config#setUseEmojiAsDefaultStyle(boolean, List)
+     */
+    private final int[] mEmojiAsDefaultStyleExceptions;
+
+    /**
      * @see Config#setEmojiSpanIndicatorEnabled(boolean)
      */
     private final boolean mEmojiSpanIndicatorEnabled;
@@ -201,6 +211,8 @@ public class EmojiCompat {
     private EmojiCompat(@NonNull final Config config) {
         mInitLock = new ReentrantReadWriteLock();
         mReplaceAll = config.mReplaceAll;
+        mUseEmojiAsDefaultStyle = config.mUseEmojiAsDefaultStyle;
+        mEmojiAsDefaultStyleExceptions = config.mEmojiAsDefaultStyleExceptions;
         mEmojiSpanIndicatorEnabled = config.mEmojiSpanIndicatorEnabled;
         mEmojiSpanIndicatorColor = config.mEmojiSpanIndicatorColor;
         mMetadataLoader = config.mMetadataLoader;
@@ -787,6 +799,8 @@ public class EmojiCompat {
     public abstract static class Config {
         private final MetadataRepoLoader mMetadataLoader;
         private boolean mReplaceAll;
+        private boolean mUseEmojiAsDefaultStyle;
+        private int[] mEmojiAsDefaultStyleExceptions;
         private Set<InitCallback> mInitCallbacks;
         private boolean mEmojiSpanIndicatorEnabled;
         private int mEmojiSpanIndicatorColor = Color.GREEN;
@@ -845,6 +859,56 @@ public class EmojiCompat {
          */
         public Config setReplaceAll(final boolean replaceAll) {
             mReplaceAll = replaceAll;
+            return this;
+        }
+
+        /**
+         * Determines whether EmojiCompat should use the emoji presentation style for emojis
+         * that have text style as default. By default, the text style would be used, unless these
+         * are followed by the U+FE0F variation selector.
+         * Details about emoji presentation and text presentation styles can be found here:
+         * http://unicode.org/reports/tr51/#Presentation_Style
+         * If useEmojiAsDefaultStyle is true, the emoji presentation style will be used for all
+         * emojis, including potentially unexpected ones (such as digits or other keycap emojis). If
+         * this is not the expected behaviour, method
+         * {@link #setUseEmojiAsDefaultStyle(boolean, List)} can be used to specify the
+         * exception emojis that should be still presented as text style.
+         *
+         * @param useEmojiAsDefaultStyle whether to use the emoji style presentation for all emojis
+         *                               that would be presented as text style by default
+         */
+        public Config setUseEmojiAsDefaultStyle(final boolean useEmojiAsDefaultStyle) {
+            return setUseEmojiAsDefaultStyle(useEmojiAsDefaultStyle, null);
+        }
+
+        /**
+         * @see #setUseEmojiAsDefaultStyle(boolean)
+         *
+         * @param emojiAsDefaultStyleExceptions Contains the exception emojis which will be still
+         *                                      presented as text style even if the
+         *                                      useEmojiAsDefaultStyle flag is set to {@code true}.
+         *                                      This list will be ignored if useEmojiAsDefaultStyle
+         *                                      is {@code false}. Note that emojis with default
+         *                                      emoji style presentation will remain emoji style
+         *                                      regardless the value of useEmojiAsDefaultStyle or
+         *                                      whether they are included in the exceptions list or
+         *                                      not. When no exception is wanted, the method
+         *                                      {@link #setUseEmojiAsDefaultStyle(boolean)} should
+         *                                      be used instead.
+         */
+        public Config setUseEmojiAsDefaultStyle(final boolean useEmojiAsDefaultStyle,
+                @Nullable final List<Integer> emojiAsDefaultStyleExceptions) {
+            mUseEmojiAsDefaultStyle = useEmojiAsDefaultStyle;
+            if (mUseEmojiAsDefaultStyle && emojiAsDefaultStyleExceptions != null) {
+                mEmojiAsDefaultStyleExceptions = new int[emojiAsDefaultStyleExceptions.size()];
+                int i = 0;
+                for (Integer exception : emojiAsDefaultStyleExceptions) {
+                    mEmojiAsDefaultStyleExceptions[i++] = exception;
+                }
+                Arrays.sort(mEmojiAsDefaultStyleExceptions);
+            } else {
+                mEmojiAsDefaultStyleExceptions = null;
+            }
             return this;
         }
 
@@ -1020,7 +1084,9 @@ public class EmojiCompat {
             }
 
             mMetadataRepo = metadataRepo;
-            mProcessor = new EmojiProcessor(mMetadataRepo, new SpanFactory());
+            mProcessor = new EmojiProcessor(mMetadataRepo, new SpanFactory(),
+                    mEmojiCompat.mUseEmojiAsDefaultStyle,
+                    mEmojiCompat.mEmojiAsDefaultStyleExceptions);
 
             mEmojiCompat.onMetadataLoadSuccess();
         }
