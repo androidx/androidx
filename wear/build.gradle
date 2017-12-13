@@ -45,5 +45,4 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2016"
     description = "Android Wear Support UI"
-    legacySourceLocation = true
 }

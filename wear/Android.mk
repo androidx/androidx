@@ -32,9 +32,11 @@ include $(BUILD_MULTI_PREBUILT)
 
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
+LOCAL_AAPT2_ONLY := true
 LOCAL_MODULE := android-support-wear
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under,src/main/java)
+LOCAL_MANIFEST_FILE := src/main/AndroidManifest.xml
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SHARED_ANDROID_LIBRARIES := \
         android-support-core-ui \

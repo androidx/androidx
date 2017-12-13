@@ -152,9 +152,9 @@ public class DrawerTestActivity extends Activity {
             DrawerStyle.ONLY_ACTION_DRAWER_WITH_TITLE
     })
     public @interface DrawerStyle {
-    int BOTH_DRAWER_NAV_SINGLE_PAGE = 0;
-    int BOTH_DRAWER_NAV_MULTI_PAGE = 1;
-    int ONLY_ACTION_DRAWER_WITH_TITLE = 2;
+        int BOTH_DRAWER_NAV_SINGLE_PAGE = 0;
+        int BOTH_DRAWER_NAV_MULTI_PAGE = 1;
+        int ONLY_ACTION_DRAWER_WITH_TITLE = 2;
     }
 
     /**
