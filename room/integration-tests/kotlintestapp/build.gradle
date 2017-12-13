@@ -20,8 +20,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android'
 
-project.ext.noDocs = true
-
 android {
     compileSdkVersion tools.current_sdk
     buildToolsVersion tools.build_tools_version
