@@ -18,47 +18,12 @@ import android.support.DacOptions
 import android.support.LibraryVersions
 import org.gradle.internal.os.OperatingSystem
 
-def root = ext.supportRootFolder
 ext.inAppToolkitProject = rootProject.name == "app-toolkit"
 
 if (ext.inAppToolkitProject) {
     apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
     init.setSdkInLocalPropertiesFile()
 }
-
-def checkoutRoot = "${root}/../.."
-ext.checkoutRoot = checkoutRoot
-ext.prebuiltsRoot = "$checkoutRoot/prebuilts"
-ext.prebuiltsRootUri = "file://${prebuiltsRoot}"
-
-final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
-final String fullSdkPath = new File("${checkoutRoot}/prebuilts/fullsdk-${platform}").getCanonicalPath()
-System.setProperty('android.home', fullSdkPath)
-File props = file("local.properties")
-props.write "sdk.dir=${fullSdkPath}"
-
-def buildDir
-def distDir
-def supportLibBuildDir
-
-if (ext.runningInBuildServer) {
-    supportLibBuildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile();
-    buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/app-toolkit/build').getCanonicalFile()
-    distDir = new File(System.env.DIST_DIR).getCanonicalFile()
-} else {
-    supportLibBuildDir = file("${checkoutRoot}/out/host/gradle/frameworks/support/build")
-    buildDir = file("${checkoutRoot}/out/host/gradle/frameworks/app-toolkit/build")
-    distDir = file("${checkoutRoot}/out/dist")
-}
-
-def localMavenRepo = "file://${new File(buildDir, "flatfoot_repo").absolutePath}"
-ext.testApkDistOut = distDir
-ext.testResultsDistDir = new File(distDir, "host-test-reports")
-ext.localMavenRepo = localMavenRepo
-file(localMavenRepo).delete()
-file(localMavenRepo).mkdirs()
-
-ext.repoNames += ["file://${new File(supportLibBuildDir, "support_repo").absolutePath}"]
 
 apply from: "${ext.supportRootFolder}/app-toolkit/dependencies.gradle"
 
@@ -77,6 +42,8 @@ if (ext.inAppToolkitProject) {
     rootProject.tasks["generateDocs"].exclude '**/R.java'
 }
 
+ext.testApkDistOut = distDir
+ext.testResultsDistDir = new File(distDir, "host-test-reports")
 
 // flatfoot docs
 def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArchive", type : Zip) {
@@ -92,23 +59,6 @@ buildServerAnchorTask.dependsOn createArchive
 
 subprojects {
     repos.addMavenRepositories(project.repositories)
-    if (project.name == 'doclava' || project.name == 'jdiff') {
-        project.tasks.whenTaskAdded { task ->
-            if (task instanceof org.gradle.api.tasks.testing.Test) {
-                task.enabled = false
-            }
-        }
-        return
-    }
-
-    if (project.getPath().contains("integration-tests")) {
-        // disable upload tasks
-        project.tasks.whenTaskAdded { task ->
-            if (task instanceof Upload || task.name == "generateSourceProps") {
-                task.enabled = false
-            }
-        }
-    }
 
 
     project.tasks.whenTaskAdded { task ->
