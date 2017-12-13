@@ -23,8 +23,6 @@ limitations under the License.
 
     <!-- The configurable attributes in PagedListView. -->
     <declare-styleable name="PagedListView">
-        <!-- Fade duration in ms -->
-        <attr name="fadeLastItem" format="boolean" />
         <!-- Set to true/false to offset rows as they slide off screen. Defaults to true -->
         <attr name="offsetRows" format="boolean" />
         <!-- Whether or not to offset the list view by the width of scroll bar. Setting this to

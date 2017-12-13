@@ -42,7 +42,7 @@
         <ImageView
             android:id="@+id/scrollbar_thumb"
             android:layout_width="@dimen/car_scroll_bar_thumb_width"
-            android:layout_height="0dp"
+            android:layout_height="@dimen/car_min_scroll_bar_thumb_height"
             android:layout_gravity="center_horizontal"
             android:background="@color/car_scrollbar_thumb" />
     </FrameLayout>

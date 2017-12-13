@@ -16,8 +16,6 @@
 
 package androidx.car.widget;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -25,34 +23,49 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.ColorRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 import android.support.annotation.UiThread;
 import android.support.annotation.VisibleForTesting;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.car.R;
 
 /**
- * Custom {@link android.support.v7.widget.RecyclerView} that displays a list of items that
- * resembles a {@link android.widget.ListView} but also has page up and page down arrows on the
- * left side.
+ * View that wraps a {@link android.support.v7.widget.RecyclerView} and a scroll bar that has
+ * page up and down arrows. Interaction with this view is similar to a {@code RecyclerView} as it
+ * takes the same adapter.
+ *
+ * <p>By default, this PagedListView utilizes a vertical {@link LinearLayoutManager} to display
+ * its items.
  */
 public class PagedListView extends FrameLayout {
+    /**
+     * The key used to save the state of this PagedListView's super class in
+     * {@link #onSaveInstanceState()}.
+     */
+    private static final String SAVED_SUPER_STATE_KEY = "PagedListViewSuperState";
+
+    /**
+     * The key used to save the state of {@link #mRecyclerView} so that it can be restored
+     * on configuration change. The actual saving of state will be controlled by the LayoutManager
+     * of the RecyclerView; this value simply ensures the state is passed on to the LayoutManager.
+     */
+    private static final String SAVED_RECYCLER_VIEW_STATE_KEY = "RecyclerViewState";
+
     /** Default maximum number of clicks allowed on a list */
     public static final int DEFAULT_MAX_CLICKS = 6;
 
@@ -66,31 +79,47 @@ public class PagedListView extends FrameLayout {
      * The amount of time after settling to wait before autoscrolling to the next page when the user
      * holds down a pagination button.
      */
-    protected static final int PAGINATION_HOLD_DELAY_MS = 400;
+    private static final int PAGINATION_HOLD_DELAY_MS = 400;
+
+    /**
+     * A fling distance to use when the up button is pressed. This value is arbitrary and just needs
+     * to be large enough so that the maximum amount of fling is applied. The
+     * {@link PagedSnapHelper} will handle capping this value so that the RecyclerView is scrolled
+     * one page upwards.
+     */
+    private static final int FLING_UP_DISTANCE = -10000;
+
+    /**
+     * A fling distance to use when the down button is pressed. This value is arbitrary and just
+     * needs to be large enough so that the maximum amount of fling is applied. The
+     * {@link PagedSnapHelper} will handle capping this value so that the RecyclerView is scrolled
+     * one page downwards.
+     */
+    private static final int FLING_DOWN_DISTANCE = 10000;
 
     private static final String TAG = "PagedListView";
     private static final int INVALID_RESOURCE_ID = -1;
 
-    protected final CarRecyclerView mRecyclerView;
-    protected final PagedLayoutManager mLayoutManager;
-    protected final Handler mHandler = new Handler();
+    private final RecyclerView mRecyclerView;
+    private final PagedSnapHelper mSnapHelper;
+    private final Handler mHandler = new Handler();
     private final boolean mScrollBarEnabled;
     @VisibleForTesting
     final PagedScrollBarView mScrollBarView;
 
     private int mRowsPerPage = -1;
-    protected RecyclerView.Adapter<? extends RecyclerView.ViewHolder> mAdapter;
+    private RecyclerView.Adapter<? extends RecyclerView.ViewHolder> mAdapter;
 
     /** Maximum number of pages to show. */
     private int mMaxPages;
 
-    protected OnScrollListener mOnScrollListener;
+    private OnScrollListener mOnScrollListener;
 
     /** Number of visible rows per page */
     private int mDefaultMaxPages = DEFAULT_MAX_CLICKS;
 
     /** Used to check if there are more items added to the list. */
-    private int mLastItemCount = 0;
+    private int mLastItemCount;
 
     private boolean mNeedsFocus;
 
@@ -191,19 +220,19 @@ public class PagedListView extends FrameLayout {
 
         TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.PagedListView, defStyleAttrs, defStyleRes);
-        mRecyclerView = (CarRecyclerView) findViewById(R.id.recycler_view);
-        boolean fadeLastItem = a.getBoolean(R.styleable.PagedListView_fadeLastItem, false);
-        mRecyclerView.setFadeLastItem(fadeLastItem);
-        boolean offsetRows = a.getBoolean(R.styleable.PagedListView_offsetRows, false);
+        mRecyclerView = findViewById(R.id.recycler_view);
 
         mMaxPages = getDefaultMaxPages();
 
-        mLayoutManager = new PagedLayoutManager(context);
-        mLayoutManager.setOffsetRows(offsetRows);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        RecyclerView.LayoutManager layoutManager =
+                new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(layoutManager);
+
+        mSnapHelper = new PagedSnapHelper();
+        mSnapHelper.attachToRecyclerView(mRecyclerView);
+
         mRecyclerView.setOnScrollListener(mRecyclerViewOnScrollListener);
         mRecyclerView.getRecycledViewPool().setMaxRecycledViews(0, 12);
-        mRecyclerView.setItemAnimator(new CarItemAnimator(mLayoutManager));
 
         if (a.hasValue(R.styleable.PagedListView_gutter)) {
             int gutter = a.getInt(R.styleable.PagedListView_gutter, Gutter.BOTH);
@@ -247,25 +276,24 @@ public class PagedListView extends FrameLayout {
 
         mScrollBarEnabled = a.getBoolean(R.styleable.PagedListView_scrollBarEnabled, true);
         mScrollBarView = (PagedScrollBarView) findViewById(R.id.paged_scroll_view);
-        mScrollBarView.setPaginationListener(
-                new PagedScrollBarView.PaginationListener() {
-                    @Override
-                    public void onPaginate(int direction) {
-                        if (direction == PagedScrollBarView.PaginationListener.PAGE_UP) {
-                            mRecyclerView.pageUp();
-                            if (mOnScrollListener != null) {
-                                mOnScrollListener.onScrollUpButtonClicked();
-                            }
-                        } else if (direction == PagedScrollBarView.PaginationListener.PAGE_DOWN) {
-                            mRecyclerView.pageDown();
-                            if (mOnScrollListener != null) {
-                                mOnScrollListener.onScrollDownButtonClicked();
-                            }
-                        } else {
-                            Log.e(TAG, "Unknown pagination direction (" + direction + ")");
-                        }
+        mScrollBarView.setPaginationListener(direction -> {
+            switch (direction) {
+                case PagedScrollBarView.PaginationListener.PAGE_UP:
+                    pageUp();
+                    if (mOnScrollListener != null) {
+                        mOnScrollListener.onScrollUpButtonClicked();
                     }
-                });
+                    break;
+                case PagedScrollBarView.PaginationListener.PAGE_DOWN:
+                    pageDown();
+                    if (mOnScrollListener != null) {
+                        mOnScrollListener.onScrollDownButtonClicked();
+                    }
+                    break;
+                default:
+                    Log.e(TAG, "Unknown pagination direction (" + direction + ")");
+            }
+        });
 
         Drawable upButtonIcon = a.getDrawable(R.styleable.PagedListView_upButtonIcon);
         if (upButtonIcon != null) {
@@ -296,24 +324,6 @@ public class PagedListView extends FrameLayout {
         mHandler.removeCallbacks(mUpdatePaginationRunnable);
     }
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent e) {
-        if (e.getAction() == MotionEvent.ACTION_DOWN) {
-            // The user has interacted with the list using touch. All movements will now paginate
-            // the list.
-            mLayoutManager.setRowOffsetMode(PagedLayoutManager.ROW_OFFSET_MODE_PAGE);
-        }
-        return super.onInterceptTouchEvent(e);
-    }
-
-    @Override
-    public void requestChildFocus(View child, View focused) {
-        super.requestChildFocus(child, focused);
-        // The user has interacted with the list using the controller. Movements through the list
-        // will now be one row at a time.
-        mLayoutManager.setRowOffsetMode(PagedLayoutManager.ROW_OFFSET_MODE_INDIVIDUAL);
-    }
-
     /**
      * Returns the position of the given View in the list.
      *
@@ -321,10 +331,11 @@ public class PagedListView extends FrameLayout {
      * @return The position or -1 if the given View is {@code null} or not in the list.
      */
     public int positionOf(@Nullable View v) {
-        if (v == null || v.getParent() != mRecyclerView) {
+        if (v == null || v.getParent() != mRecyclerView
+                || mRecyclerView.getLayoutManager() == null) {
             return -1;
         }
-        return mLayoutManager.getPosition(v);
+        return mRecyclerView.getLayoutManager().getPosition(v);
     }
 
     /**
@@ -353,7 +364,7 @@ public class PagedListView extends FrameLayout {
     }
 
     @NonNull
-    public CarRecyclerView getRecyclerView() {
+    public RecyclerView getRecyclerView() {
         return mRecyclerView;
     }
 
@@ -363,10 +374,17 @@ public class PagedListView extends FrameLayout {
      * @param position The position in the list to scroll to.
      */
     public void scrollToPosition(int position) {
-        mLayoutManager.scrollToPosition(position);
+        if (mRecyclerView.getLayoutManager() == null) {
+            return;
+        }
+
+        PagedSmoothScroller smoothScroller = new PagedSmoothScroller(getContext());
+        smoothScroller.setTargetPosition(position);
+
+        mRecyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
 
         // Sometimes #scrollToPosition doesn't change the scroll state so we need to make sure
-        // the pagination arrows actually get updated. See b/http://b/15801119
+        // the pagination arrows actually get updated. See b/15801119
         mHandler.post(mUpdatePaginationRunnable);
     }
 
@@ -392,13 +410,6 @@ public class PagedListView extends FrameLayout {
         mAdapter = adapter;
         mRecyclerView.setAdapter(adapter);
         updateMaxItems();
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
-    @NonNull
-    public PagedLayoutManager getLayoutManager() {
-        return mLayoutManager;
     }
 
     @Nullable
@@ -449,22 +460,6 @@ public class PagedListView extends FrameLayout {
     public void resetMaxPages() {
         mMaxPages = getDefaultMaxPages();
         updateMaxItems();
-    }
-
-    /**
-     * @return The position of first visible child in the list. -1 will be returned if there is no
-     *     child.
-     */
-    public int getFirstFullyVisibleChildPosition() {
-        return mLayoutManager.getFirstFullyVisibleChildPosition();
-    }
-
-    /**
-     * @return The position of last visible child in the list. -1 will be returned if there is no
-     *     child.
-     */
-    public int getLastFullyVisibleChildPosition() {
-        return mLayoutManager.getLastFullyVisibleChildPosition();
     }
 
     /**
@@ -580,30 +575,6 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Returns the {@link android.support.v7.widget.RecyclerView.ViewHolder} that corresponds to the
-     * last child in the PagedListView that is fully visible.
-     *
-     * @return The corresponding ViewHolder or {@code null} if none exists.
-     */
-    @Nullable
-    public RecyclerView.ViewHolder getLastViewHolder() {
-        View lastFullyVisible = mLayoutManager.getLastFullyVisibleChild();
-        if (lastFullyVisible == null) {
-            return null;
-        }
-        int lastFullyVisibleAdapterPosition = mLayoutManager.getPosition(lastFullyVisible);
-        RecyclerView.ViewHolder lastViewHolder = getRecyclerView()
-                .findViewHolderForAdapterPosition(lastFullyVisibleAdapterPosition + 1);
-        // We want to get the very last ViewHolder in the list, even if it's only fully visible
-        // If it doesn't exist, return the last fully visible ViewHolder.
-        if (lastViewHolder == null) {
-            lastViewHolder = getRecyclerView()
-                    .findViewHolderForAdapterPosition(lastFullyVisibleAdapterPosition);
-        }
-        return lastViewHolder;
-    }
-
-    /**
      * Sets the {@link OnScrollListener} that will be notified of scroll events within the
      * PagedListView.
      *
@@ -611,7 +582,6 @@ public class PagedListView extends FrameLayout {
      */
     public void setOnScrollListener(OnScrollListener listener) {
         mOnScrollListener = listener;
-        mLayoutManager.setOnScrollListener(mOnScrollListener);
     }
 
     /** Returns the page the given position is on, starting with page 0. */
@@ -623,6 +593,16 @@ public class PagedListView extends FrameLayout {
             return 0;
         }
         return position / mRowsPerPage;
+    }
+
+    /** Scrolls the contents of the RecyclerView up a page. */
+    private void pageUp() {
+        mRecyclerView.fling(0, FLING_UP_DISTANCE);
+    }
+
+    /** Scrolls the contents of the RecyclerView down a page. */
+    private void pageDown() {
+        mRecyclerView.fling(0, FLING_DOWN_DISTANCE);
     }
 
     /**
@@ -639,7 +619,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /** Returns the default number of pages the list should have */
-    protected int getDefaultMaxPages() {
+    private int getDefaultMaxPages() {
         // assume list shown in response to a click, so, reduce number of clicks by one
         return mDefaultMaxPages - 1;
     }
@@ -657,11 +637,16 @@ public class PagedListView extends FrameLayout {
         // if the focus is not on the formerly first item, then we don't need to do anything. Let
         // the layout manager do the job and scroll the viewport so the currently focused item
         // is visible.
+        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
+
+        if (layoutManager == null) {
+            return;
+        }
 
         // we need to calculate whether we want to request focus here, before the super call,
         // because after the super call, the first born might be changed.
-        View focusedChild = mLayoutManager.getFocusedChild();
-        View firstBorn = mLayoutManager.getChildAt(0);
+        View focusedChild = layoutManager.getFocusedChild();
+        View firstBorn = layoutManager.getChildAt(0);
 
         super.onLayout(changed, left, top, right, bottom);
 
@@ -697,22 +682,12 @@ public class PagedListView extends FrameLayout {
             }
             mLastItemCount = itemCount;
         }
+
         // We need to update the scroll buttons after layout has happened.
         // Determining if a scrollbar is necessary requires looking at the layout of the child
         // views. Therefore, this determination can only be done after layout has happened.
         // Note: don't animate here to prevent b/26849677
         updatePaginationButtons(false /*animate*/);
-    }
-
-    /**
-     * Returns the View at the given position within the list.
-     *
-     * @param position A position within the list.
-     * @return The View or {@code null} if no View exists at the given position.
-     */
-    @Nullable
-    public View findViewByPosition(int position) {
-        return mLayoutManager.findViewByPosition(position);
     }
 
     /**
@@ -725,39 +700,55 @@ public class PagedListView extends FrameLayout {
      * @param animate {@code true} if the scrollbar should animate to its new position.
      *                {@code false} if no animation is used
      */
-    protected void updatePaginationButtons(boolean animate) {
+    private void updatePaginationButtons(boolean animate) {
         if (!mScrollBarEnabled) {
             // Don't change the visibility of the ScrollBar unless it's enabled.
             return;
         }
 
-        if ((mLayoutManager.isAtTop() && mLayoutManager.isAtBottom())
-                || mLayoutManager.getItemCount() == 0) {
+        boolean isAtStart = isAtStart();
+        boolean isAtEnd = isAtEnd();
+        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
+
+        if ((isAtStart && isAtEnd) || layoutManager == null || layoutManager.getItemCount() == 0) {
             mScrollBarView.setVisibility(View.INVISIBLE);
         } else {
             mScrollBarView.setVisibility(View.VISIBLE);
         }
-        mScrollBarView.setUpEnabled(shouldEnablePageUpButton());
-        mScrollBarView.setDownEnabled(shouldEnablePageDownButton());
+        mScrollBarView.setUpEnabled(!isAtStart);
+        mScrollBarView.setDownEnabled(!isAtEnd);
 
-        mScrollBarView.setParameters(
-                mRecyclerView.computeVerticalScrollRange(),
-                mRecyclerView.computeVerticalScrollOffset(),
-                mRecyclerView.computeVerticalScrollExtent(),
-                animate);
+        if (layoutManager == null) {
+            return;
+        }
+
+        if (mRecyclerView.getLayoutManager().canScrollVertically()) {
+            mScrollBarView.setParameters(
+                    mRecyclerView.computeVerticalScrollRange(),
+                    mRecyclerView.computeVerticalScrollOffset(),
+                    mRecyclerView.computeHorizontalScrollExtent(), animate);
+        } else {
+            mScrollBarView.setParameters(
+                    mRecyclerView.computeHorizontalScrollRange(),
+                    mRecyclerView.computeHorizontalScrollOffset(),
+                    mRecyclerView.computeHorizontalScrollRange(), animate);
+        }
+
         invalidate();
     }
 
-    protected boolean shouldEnablePageUpButton() {
-        return !mLayoutManager.isAtTop();
+    /** Returns {@code true} if the RecyclerView is completely displaying the first item. */
+    public boolean isAtStart() {
+        return mSnapHelper.isAtStart(mRecyclerView.getLayoutManager());
     }
 
-    protected boolean shouldEnablePageDownButton() {
-        return !mLayoutManager.isAtBottom();
+    /** Returns {@code true} if the RecyclerView is completely displaying the last item. */
+    public boolean isAtEnd() {
+        return mSnapHelper.isAtEnd(mRecyclerView.getLayoutManager());
     }
 
     @UiThread
-    protected void updateMaxItems() {
+    private void updateMaxItems() {
         if (mAdapter == null) {
             return;
         }
@@ -784,8 +775,13 @@ public class PagedListView extends FrameLayout {
         }
     }
 
-    protected int calculateMaxItemCount() {
-        final View firstChild = mLayoutManager.getChildAt(0);
+    private int calculateMaxItemCount() {
+        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
+        if (layoutManager == null) {
+            return -1;
+        }
+
+        View firstChild = layoutManager.getChildAt(0);
         if (firstChild == null || firstChild.getHeight() == 0) {
             return -1;
         } else {
@@ -797,8 +793,14 @@ public class PagedListView extends FrameLayout {
      * Updates the rows number per current page, which is used for calculating how many items we
      * want to show.
      */
-    protected void updateRowsPerPage() {
-        final View firstChild = mLayoutManager.getChildAt(0);
+    private void updateRowsPerPage() {
+        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
+        if (layoutManager == null) {
+            mRowsPerPage = 1;
+            return;
+        }
+
+        View firstChild = layoutManager.getChildAt(0);
         if (firstChild == null || firstChild.getHeight() == 0) {
             mRowsPerPage = 1;
         } else {
@@ -807,24 +809,36 @@ public class PagedListView extends FrameLayout {
     }
 
     @Override
-    protected Parcelable onSaveInstanceState() {
-        SavedState savedState = new SavedState(super.onSaveInstanceState());
-        savedState.mLayoutManagerState = mLayoutManager.onSaveInstanceState();
-        return savedState;
+    public Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(SAVED_SUPER_STATE_KEY, super.onSaveInstanceState());
+
+        SparseArray<Parcelable> recyclerViewState = new SparseArray<>();
+        mRecyclerView.saveHierarchyState(recyclerViewState);
+        bundle.putSparseParcelableArray(SAVED_RECYCLER_VIEW_STATE_KEY, recyclerViewState);
+
+        return bundle;
     }
 
     @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        SavedState savedState = (SavedState) state;
-        mLayoutManager.onRestoreInstanceState(savedState.mLayoutManagerState);
-        super.onRestoreInstanceState(savedState.getSuperState());
+    public void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof Bundle)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        Bundle bundle = (Bundle) state;
+        mRecyclerView.restoreHierarchyState(
+                bundle.getSparseParcelableArray(SAVED_RECYCLER_VIEW_STATE_KEY));
+
+        super.onRestoreInstanceState(bundle.getParcelable(SAVED_SUPER_STATE_KEY));
     }
 
     @Override
     protected void dispatchSaveInstanceState(SparseArray<Parcelable> container) {
         // There is the possibility of multiple PagedListViews on a page. This means that the ids
         // of the child Views of PagedListView are no longer unique, and onSaveInstanceState()
-        // cannot be used. As a result, PagedListViews needs to manually dispatch the instance
+        // cannot be used as is. As a result, PagedListViews needs to manually dispatch the instance
         // states. Call dispatchFreezeSelfOnly() so that no child views have onSaveInstanceState()
         // called by the system.
         dispatchFreezeSelfOnly(container);
@@ -838,56 +852,15 @@ public class PagedListView extends FrameLayout {
         dispatchThawSelfOnly(container);
     }
 
-    /** The state that will be saved across configuration changes. */
-    private static class SavedState extends BaseSavedState {
-        /** The state of the {@link #mLayoutManager} of this PagedListView. */
-        Parcelable mLayoutManagerState;
-
-        SavedState(Parcelable superState) {
-            super(superState);
-        }
-
-        private SavedState(Parcel in) {
-            super(in);
-            mLayoutManagerState =
-                    in.readParcelable(PagedLayoutManager.SavedState.class.getClassLoader());
-        }
-
-        @Override
-        public void writeToParcel(Parcel out, int flags) {
-            super.writeToParcel(out, flags);
-            out.writeParcelable(mLayoutManagerState, flags);
-        }
-
-        public static final ClassLoaderCreator<SavedState> CREATOR =
-                new ClassLoaderCreator<SavedState>() {
-                    @Override
-                    public SavedState createFromParcel(Parcel source, ClassLoader loader) {
-                        return new SavedState(source);
-                    }
-
-                    @Override
-                    public SavedState createFromParcel(Parcel source) {
-                        return createFromParcel(source, null /* loader */);
-                    }
-
-                    @Override
-                    public SavedState[] newArray(int size) {
-                        return new SavedState[size];
-                    }
-                };
-    }
-
     private final RecyclerView.OnScrollListener mRecyclerViewOnScrollListener =
             new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     if (mOnScrollListener != null) {
                         mOnScrollListener.onScrolled(recyclerView, dx, dy);
-                        if (!mLayoutManager.isAtTop() && mLayoutManager.isAtBottom()) {
+
+                        if (!isAtStart() && isAtEnd()) {
                             mOnScrollListener.onReachBottom();
-                        } else if (mLayoutManager.isAtTop() || !mLayoutManager.isAtBottom()) {
-                            mOnScrollListener.onLeaveBottom();
                         }
                     }
                     updatePaginationButtons(false);
@@ -904,7 +877,7 @@ public class PagedListView extends FrameLayout {
                 }
             };
 
-    protected final Runnable mPaginationRunnable =
+    private final Runnable mPaginationRunnable =
             new Runnable() {
                 @Override
                 public void run() {
@@ -914,35 +887,24 @@ public class PagedListView extends FrameLayout {
                         return;
                     }
                     if (upPressed) {
-                        mRecyclerView.pageUp();
+                        pageUp();
                     } else if (downPressed) {
-                        mRecyclerView.pageDown();
+                        pageDown();
                     }
                 }
             };
 
     private final Runnable mUpdatePaginationRunnable =
-            new Runnable() {
-                @Override
-                public void run() {
-                    updatePaginationButtons(true /*animate*/);
-                }
-            };
+            () -> updatePaginationButtons(true /*animate*/);
 
     /** Used to listen for {@code PagedListView} scroll events. */
     public abstract static class OnScrollListener {
         /** Called when menu reaches the bottom */
         public void onReachBottom() {}
-        /** Called when menu leaves the bottom */
-        public void onLeaveBottom() {}
         /** Called when scroll up button is clicked */
         public void onScrollUpButtonClicked() {}
         /** Called when scroll down button is clicked */
         public void onScrollDownButtonClicked() {}
-        /** Called when scrolling to the previous page via up gesture */
-        public void onGestureUp() {}
-        /** Called when scrolling to the next page via down gesture */
-        public void onGestureDown() {}
 
         /**
          * Called when RecyclerView.OnScrollListener#onScrolled is called. See
@@ -952,12 +914,6 @@ public class PagedListView extends FrameLayout {
 
         /** See RecyclerView.OnScrollListener */
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {}
-
-        /** Called when the view scrolls up a page */
-        public void onPageUp() {}
-
-        /** Called when the view scrolls down a page */
-        public void onPageDown() {}
     }
 
     /**
@@ -965,32 +921,31 @@ public class PagedListView extends FrameLayout {
      * between each item in the RecyclerView that it is added to.
      */
     private static class ItemSpacingDecoration extends RecyclerView.ItemDecoration {
-
-        private int mHalfItemSpacing;
+        private int mItemSpacing;
 
         private ItemSpacingDecoration(int itemSpacing) {
-            mHalfItemSpacing = itemSpacing / 2;
+            mItemSpacing = itemSpacing;
         }
 
         @Override
         public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
                 RecyclerView.State state) {
             super.getItemOffsets(outRect, view, parent, state);
-            // Skip top offset for first item and bottom offset for last.
             int position = parent.getChildAdapterPosition(view);
-            if (position > 0) {
-                outRect.top = mHalfItemSpacing;
+
+            // Skip offset for last item.
+            if (position == state.getItemCount() - 1) {
+                return;
             }
-            if (position < state.getItemCount() - 1) {
-                outRect.bottom = mHalfItemSpacing;
-            }
+
+            outRect.bottom = mItemSpacing;
         }
 
         /**
          * @param itemSpacing sets spacing between each item.
          */
         public void setItemSpacing(int itemSpacing) {
-            mHalfItemSpacing = itemSpacing / 2;
+            mItemSpacing = itemSpacing;
         }
     }
 
