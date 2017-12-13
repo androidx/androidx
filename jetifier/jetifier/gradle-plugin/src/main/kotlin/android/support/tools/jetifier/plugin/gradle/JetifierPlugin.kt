@@ -16,20 +16,45 @@
 
 package android.support.tools.jetifier.plugin.gradle
 
+import android.support.tools.jetifier.core.utils.Log
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
  * This serves as the main entry point of this plugin and registers the extension object.
  */
-open class JetifierPlugin : Plugin<Project>  {
+open class JetifierPlugin : Plugin<Project> {
 
     companion object {
-        const val GROOVY_OBJECT_NAME : String = "jetifier"
+        const val GROOVY_OBJECT_NAME: String = "jetifier"
     }
 
     override fun apply(project: Project) {
         project.extensions.create(GROOVY_OBJECT_NAME, JetifierExtension::class.java, project)
-    }
 
+        project.afterEvaluate({
+            val jetifyLibs = it.tasks.findByName(JetifyLibsTask.TASK_NAME)
+            val jetifyGlobal = it.tasks.findByName(JetifyGlobalTask.TASK_NAME)
+
+            if (jetifyLibs == null && jetifyGlobal == null) {
+                return@afterEvaluate
+            }
+
+            if (jetifyLibs != null && jetifyGlobal != null) {
+                jetifyGlobal.dependsOn(jetifyLibs)
+            }
+
+            val preBuildTask = it.tasks.findByName("preBuild")
+            if (preBuildTask == null) {
+                Log.e("TAG", "Failed to hook jetifier tasks. PreBuild task was not found.")
+                return@afterEvaluate
+            }
+
+            if (jetifyGlobal != null) {
+                preBuildTask.dependsOn(jetifyGlobal)
+            } else {
+                preBuildTask.dependsOn(jetifyLibs)
+            }
+        })
+    }
 }
