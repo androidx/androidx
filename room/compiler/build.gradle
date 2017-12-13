@@ -27,7 +27,6 @@ sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
     main.java.srcDirs += antlrOut
 }
-project.ext.noDocs = true
 
 // Temporary hack to stop AS to adding two guavas into test's classpath
 configurations.all {
@@ -80,6 +79,7 @@ tasks.findByName("compileKotlin").dependsOn(":persistence:db:jarDebug")
 supportLibrary {
     name = "Android Room Compiler"
     publish = true
+    generateDocs = false
     mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
