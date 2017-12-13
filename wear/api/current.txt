@@ -1,6 +1,6 @@
 package android.support.wear.ambient {
 
-  public final class AmbientMode extends android.app.Fragment {
+  public final deprecated class AmbientMode extends android.app.Fragment {
     ctor public AmbientMode();
     method public static <T extends android.app.Activity> android.support.wear.ambient.AmbientMode.AmbientController attachAmbientSupport(T);
     field public static final java.lang.String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
@@ -20,6 +20,29 @@ package android.support.wear.ambient {
   }
 
   public final class AmbientMode.AmbientController {
+    method public boolean isAmbient();
+  }
+
+  public final class AmbientModeSupport extends android.support.v4.app.Fragment {
+    ctor public AmbientModeSupport();
+    method public static <T extends android.support.v4.app.FragmentActivity> android.support.wear.ambient.AmbientModeSupport.AmbientController attach(T);
+    field public static final java.lang.String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
+    field public static final java.lang.String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
+    field public static final java.lang.String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
+  }
+
+  public static abstract class AmbientModeSupport.AmbientCallback {
+    ctor public AmbientModeSupport.AmbientCallback();
+    method public void onEnterAmbient(android.os.Bundle);
+    method public void onExitAmbient();
+    method public void onUpdateAmbient();
+  }
+
+  public static abstract interface AmbientModeSupport.AmbientCallbackProvider {
+    method public abstract android.support.wear.ambient.AmbientModeSupport.AmbientCallback getAmbientCallback();
+  }
+
+  public final class AmbientModeSupport.AmbientController {
     method public boolean isAmbient();
   }
 
