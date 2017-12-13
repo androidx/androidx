@@ -15,8 +15,8 @@
  */
 
 import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryVersions
 import android.support.LibraryGroups
+import android.support.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -25,6 +25,8 @@ plugins {
 dependencies {
     implementation project(":support-annotations")
     implementation project(":appcompat-v7")
+
+    androidTestImplementation(TEST_RUNNER)
 }
 
 android {

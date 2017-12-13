@@ -25,6 +25,10 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Convert between {@link androidx.app.slice.Slice} and {@link android.app.slice.Slice}
@@ -39,6 +43,7 @@ public class SliceConvert {
         android.app.slice.Slice.Builder builder = new android.app.slice.Slice.Builder(
                 slice.getUri());
         builder.addHints(slice.getHints());
+        builder.setSpec(unwrap(slice.getSpec()));
         for (androidx.app.slice.SliceItem item : slice.getItems()) {
             switch (item.getFormat()) {
                 case FORMAT_SLICE:
@@ -68,6 +73,20 @@ public class SliceConvert {
         return builder.build();
     }
 
+    private static android.app.slice.SliceSpec unwrap(androidx.app.slice.SliceSpec spec) {
+        if (spec == null) return null;
+        return new android.app.slice.SliceSpec(spec.getType(), spec.getRevision());
+    }
+
+    static List<android.app.slice.SliceSpec> unwrap(
+            List<androidx.app.slice.SliceSpec> supportedSpecs) {
+        List<android.app.slice.SliceSpec> ret = new ArrayList<>();
+        for (androidx.app.slice.SliceSpec spec : supportedSpecs) {
+            ret.add(unwrap(spec));
+        }
+        return ret;
+    }
+
     /**
      * Convert {@link android.app.slice.Slice} to {@link androidx.app.slice.Slice}
      */
@@ -75,6 +94,7 @@ public class SliceConvert {
         androidx.app.slice.Slice.Builder builder = new androidx.app.slice.Slice.Builder(
                 slice.getUri());
         builder.addHints(slice.getHints());
+        builder.setSpec(wrap(slice.getSpec()));
         for (android.app.slice.SliceItem item : slice.getItems()) {
             switch (item.getFormat()) {
                 case FORMAT_SLICE:
@@ -102,5 +122,23 @@ public class SliceConvert {
             }
         }
         return builder.build();
+    }
+
+    private static androidx.app.slice.SliceSpec wrap(android.app.slice.SliceSpec spec) {
+        if (spec == null) return null;
+        return new androidx.app.slice.SliceSpec(spec.getType(), spec.getRevision());
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static List<androidx.app.slice.SliceSpec> wrap(
+            List<android.app.slice.SliceSpec> supportedSpecs) {
+        List<androidx.app.slice.SliceSpec> ret = new ArrayList<>();
+        for (android.app.slice.SliceSpec spec : supportedSpecs) {
+            ret.add(wrap(spec));
+        }
+        return ret;
     }
 }

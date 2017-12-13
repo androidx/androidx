@@ -33,6 +33,8 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
+import static androidx.app.slice.SliceConvert.unwrap;
+
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
@@ -52,11 +54,11 @@ import android.support.v4.os.BuildCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import androidx.app.slice.compat.SliceProviderCompat;
 import androidx.app.slice.core.SliceHints;
-import androidx.app.slice.core.SliceSpecs;
 
 /**
  * A slice is a piece of app content and actions that can be surfaced outside of the app.
@@ -69,6 +71,9 @@ public final class Slice {
     private static final String HINTS = "hints";
     private static final String ITEMS = "items";
     private static final String URI = "uri";
+    private static final String SPEC_TYPE = "type";
+    private static final String SPEC_REVISION = "revision";
+    private final SliceSpec mSpec;
 
     /**
      * @hide
@@ -87,10 +92,12 @@ public final class Slice {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    Slice(ArrayList<SliceItem> items, @SliceHint String[] hints, Uri uri) {
+    Slice(ArrayList<SliceItem> items, @SliceHint String[] hints, Uri uri,
+            SliceSpec spec) {
         mHints = hints;
         mItems = items.toArray(new SliceItem[items.size()]);
         mUri = uri;
+        mSpec = spec;
     }
 
     /**
@@ -107,6 +114,9 @@ public final class Slice {
             }
         }
         mUri = in.getParcelable(URI);
+        mSpec = in.containsKey(SPEC_TYPE)
+                ? new SliceSpec(in.getString(SPEC_TYPE), in.getInt(SPEC_REVISION))
+                : null;
     }
 
     /**
@@ -122,7 +132,20 @@ public final class Slice {
         }
         b.putParcelableArray(ITEMS, p);
         b.putParcelable(URI, mUri);
+        if (mSpec != null) {
+            b.putString(SPEC_TYPE, mSpec.getType());
+            b.putInt(SPEC_REVISION, mSpec.getRevision());
+        }
         return b;
+    }
+
+    /**
+     * @return The spec for this slice
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @Nullable SliceSpec getSpec() {
+        return mSpec;
     }
 
     /**
@@ -162,6 +185,7 @@ public final class Slice {
         private final Uri mUri;
         private ArrayList<SliceItem> mItems = new ArrayList<>();
         private @SliceHint ArrayList<String> mHints = new ArrayList<>();
+        private SliceSpec mSpec;
 
         /**
          * Create a builder which will construct a {@link Slice} for the Given Uri.
@@ -179,6 +203,16 @@ public final class Slice {
         public Builder(@NonNull Slice.Builder parent) {
             mUri = parent.mUri.buildUpon().appendPath("_gen")
                     .appendPath(String.valueOf(mItems.size())).build();
+        }
+
+        /**
+         * Add the spec for this slice.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder setSpec(SliceSpec spec) {
+            mSpec = spec;
+            return this;
         }
 
         /**
@@ -344,7 +378,7 @@ public final class Slice {
          * Construct the slice.
          */
         public Slice build() {
-            return new Slice(mItems, mHints.toArray(new String[mHints.size()]), mUri);
+            return new Slice(mItems, mHints.toArray(new String[mHints.size()]), mUri, mSpec);
         }
     }
 
@@ -387,17 +421,19 @@ public final class Slice {
      */
     @SuppressWarnings("NewApi")
     public static @Nullable Slice bindSlice(Context context, @NonNull Uri uri) {
+        // TODO: Hide this and only allow binding through SliceView.
         if (BuildCompat.isAtLeastP()) {
-            return callBindSlice(context, uri);
+            return callBindSlice(context, uri, Collections.<SliceSpec>emptyList());
         } else {
-            return SliceProviderCompat.bindSlice(context, uri);
+            return SliceProviderCompat.bindSlice(context, uri, Collections.<SliceSpec>emptyList());
         }
     }
 
     @TargetApi(28)
-    private static Slice callBindSlice(Context context, Uri uri) {
+    private static Slice callBindSlice(Context context, Uri uri,
+            List<SliceSpec> supportedSpecs) {
         return SliceConvert.wrap(android.app.slice.Slice.bindSlice(
-                context.getContentResolver(), uri, SliceSpecs.SUPPORTED_SPECS));
+                context.getContentResolver(), uri, unwrap(supportedSpecs)));
     }
 
 
@@ -415,16 +451,19 @@ public final class Slice {
      */
     @SuppressWarnings("NewApi")
     public static @Nullable Slice bindSlice(Context context, @NonNull Intent intent) {
+        // TODO: Hide this and only allow binding through SliceView.
         if (BuildCompat.isAtLeastP()) {
-            return callBindSlice(context, intent);
+            return callBindSlice(context, intent, Collections.<SliceSpec>emptyList());
         } else {
-            return SliceProviderCompat.bindSlice(context, intent);
+            return SliceProviderCompat.bindSlice(context, intent,
+                    Collections.<SliceSpec>emptyList());
         }
     }
 
     @TargetApi(28)
-    private static Slice callBindSlice(Context context, Intent intent) {
+    private static Slice callBindSlice(Context context, Intent intent,
+            List<SliceSpec> supportedSpecs) {
         return SliceConvert.wrap(android.app.slice.Slice.bindSlice(
-                context, intent, SliceSpecs.SUPPORTED_SPECS));
+                context, intent, unwrap(supportedSpecs)));
     }
 }
