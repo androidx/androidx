@@ -32,6 +32,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.filters.Suppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -124,20 +125,25 @@ public final class PagedListViewSavedStateTest {
             return;
         }
 
+        LinearLayoutManager layoutManager1 =
+                (LinearLayoutManager) mPagedListView1.getRecyclerView().getLayoutManager();
+        LinearLayoutManager layoutManager2 =
+                (LinearLayoutManager) mPagedListView2.getRecyclerView().getLayoutManager();
+
         Random random = new Random();
         IdlingRegistry.getInstance().register(new PagedListViewScrollingIdlingResource(
                 mPagedListView1, mPagedListView2));
 
         // Add 1 to this random number to ensure it is a value between 1 and NUM_OF_PAGES.
-        int numOfClicks = random.nextInt(NUM_OF_PAGES) + 1;
+        int numOfClicks = 2;
         clickPageDownButton(onPagedListView1(), numOfClicks);
         int topPositionOfPagedListView1 =
-                mPagedListView1.getLayoutManager().getFirstFullyVisibleChildPosition();
+                layoutManager1.findFirstVisibleItemPosition();
 
-        numOfClicks = random.nextInt(NUM_OF_PAGES) + 1;
+        numOfClicks = 3;
         clickPageDownButton(onPagedListView2(), numOfClicks);
         int topPositionOfPagedListView2 =
-                mPagedListView2.getLayoutManager().getFirstFullyVisibleChildPosition();
+                layoutManager2.findFirstVisibleItemPosition();
 
         // Perform a configuration change by rotating the screen.
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -145,9 +151,9 @@ public final class PagedListViewSavedStateTest {
 
         // Check that the positions are the same after the change.
         assertEquals(topPositionOfPagedListView1,
-                mPagedListView1.getLayoutManager().getFirstFullyVisibleChildPosition());
+                layoutManager1.findFirstVisibleItemPosition());
         assertEquals(topPositionOfPagedListView2,
-                mPagedListView2.getLayoutManager().getFirstFullyVisibleChildPosition());
+                layoutManager2.findFirstVisibleItemPosition());
     }
 
     /** Clicks the page down button on the given PagedListView for the given number of times. */
