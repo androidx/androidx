@@ -28,12 +28,6 @@ dependencies {
     androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
 supportLibrary {
     legacySourceLocation = true
 }

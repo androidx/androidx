@@ -31,12 +31,6 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
 supportLibrary {
     name = "Android Support Content"
     publish = true

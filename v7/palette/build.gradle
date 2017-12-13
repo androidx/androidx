@@ -13,12 +13,6 @@ dependencies {
     androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
 supportLibrary {
     name = "Android Support Palette v7"
     publish = true
