@@ -104,7 +104,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testEnqueue_insertMultipleWork() throws InterruptedException {
+    public void testEnqueue_insertMultipleWork() {
         Work work1 = Work.newBuilder(TestWorker.class).build();
         Work work2 = Work.newBuilder(TestWorker.class).build();
         Work work3 = Work.newBuilder(TestWorker.class).build();
@@ -119,7 +119,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testEnqueue_insertWithDependencies() throws InterruptedException {
+    public void testEnqueue_insertWithDependencies() {
         Work work1a = Work.newBuilder(TestWorker.class).build();
         Work work1b = Work.newBuilder(TestWorker.class).build();
         Work work2 = Work.newBuilder(TestWorker.class).build();
@@ -153,7 +153,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testEnqueue_insertWorkConstraints() throws InterruptedException {
+    public void testEnqueue_insertWorkConstraints() {
         Uri testUri1 = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         Uri testUri2 = MediaStore.Images.Media.INTERNAL_CONTENT_URI;
 
@@ -200,7 +200,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testEnqueue_insertWorkInitialDelay() throws InterruptedException {
+    public void testEnqueue_insertWorkInitialDelay() {
         final long expectedInitialDelay = 5000L;
         Work work0 = Work.newBuilder(TestWorker.class)
                 .withInitialDelay(expectedInitialDelay)
@@ -217,7 +217,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testEnqueue_insertWorkBackoffPolicy() throws InterruptedException {
+    public void testEnqueue_insertWorkBackoffPolicy() {
         Work work0 = Work.newBuilder(TestWorker.class)
                 .withBackoffCriteria(BaseWork.BACKOFF_POLICY_LINEAR, 50000)
                 .build();
@@ -236,7 +236,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testEnqueue_insertWorkTags() throws InterruptedException {
+    public void testEnqueue_insertWorkTags() {
         final String firstTag = "first_tag";
         final String secondTag = "second_tag";
         final String thirdTag = "third_tag";
@@ -255,7 +255,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testEnqueue_insertPeriodicWork() throws InterruptedException {
+    public void testEnqueue_insertPeriodicWork() {
         PeriodicWork periodicWork = PeriodicWork.newBuilder(
                 TestWorker.class,
                 PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
@@ -301,7 +301,23 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testCancelAllWorkWithTag() throws InterruptedException {
+    public void testCancelWorkForId() {
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        Work work0 = Work.newBuilder(TestWorker.class).build();
+        Work work1 = Work.newBuilder(TestWorker.class).build();
+        insertWorkSpecAndTags(work0);
+        insertWorkSpecAndTags(work1);
+
+        mWorkManagerImpl.cancelWorkForId(work0.getId());
+
+        assertThat(workSpecDao.getWorkSpecStatus(work0.getId()), is(STATUS_CANCELLED));
+        assertThat(workSpecDao.getWorkSpecStatus(work1.getId()), is(not(STATUS_CANCELLED)));
+    }
+
+    @Test
+    @SmallTest
+    public void testCancelAllWorkWithTag() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         final String tagToClear = "tag_to_clear";
@@ -326,7 +342,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testCancelAllWorkWithTag_deletesDependentWork() throws InterruptedException {
+    public void testCancelAllWorkWithTag_deletesDependentWork() {
         String tag = "tag";
 
         Work work0 = Work.newBuilder(TestWorker.class).addTag(tag).build();

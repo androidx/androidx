@@ -38,18 +38,18 @@ public abstract class WorkManager {
     /**
      * Gets the {@link BaseWork.WorkStatus} for a given work id.
      *
-     * @param id The id of the work.
-     * @return A {@link LiveData} of the status.
+     * @param id The id of the work
+     * @return A {@link LiveData} of the status
      */
-    public abstract LiveData<Integer> getWorkStatus(String id);
+    public abstract LiveData<Integer> getStatusForId(@NonNull String id);
 
     /**
      * Gets the output for a given work id.
      *
-     * @param id The id of the work.
-     * @return A {@link LiveData} of the output.
+     * @param id The id of the work
+     * @return A {@link LiveData} of the output
      */
-    public abstract LiveData<Arguments> getOutput(String id);
+    public abstract LiveData<Arguments> getOutput(@NonNull String id);
 
     /**
      * Enqueues one or more items for background processing.
@@ -77,6 +77,14 @@ public abstract class WorkManager {
      * @param periodicWork One or more {@link PeriodicWork} to enqueue
      */
     public abstract void enqueue(PeriodicWork... periodicWork);
+
+    /**
+     * Cancels work with the given id, regardless of the current state of the work.  Note that
+     * cancellation is a best-effort policy and work that is already executing may continue to run.
+     *
+     * @param id The id of the work
+     */
+    public abstract void cancelWorkForId(@NonNull String id);
 
     /**
      * Cancels all work with the given tag, regardless of the current state of the work.

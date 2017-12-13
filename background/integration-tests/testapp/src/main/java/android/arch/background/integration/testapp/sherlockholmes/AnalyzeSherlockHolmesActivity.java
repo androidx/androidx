@@ -89,7 +89,7 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
                         TextMappingWorker.create("retn.txt").build())
                 .then(textReducingWork);
 
-        workManager.getWorkStatus(textReducingWork.getId()).observe(
+        workManager.getStatusForId(textReducingWork.getId()).observe(
                 this,
                 new Observer<Integer>() {
                     @Override

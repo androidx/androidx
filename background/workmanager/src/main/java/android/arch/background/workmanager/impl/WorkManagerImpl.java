@@ -119,13 +119,13 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public LiveData<Integer> getWorkStatus(String id) {
+    public LiveData<Integer> getStatusForId(@NonNull String id) {
         return LiveDataUtils.dedupedLiveDataFor(
                 mWorkDatabase.workSpecDao().getWorkSpecLiveDataStatus(id));
     }
 
     @Override
-    public LiveData<Arguments> getOutput(String id) {
+    public LiveData<Arguments> getOutput(@NonNull String id) {
         return LiveDataUtils.dedupedLiveDataFor(mWorkDatabase.workSpecDao().getOutput(id));
     }
 
@@ -147,8 +147,13 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
+    public void cancelWorkForId(@NonNull String id) {
+        mTaskExecutor.executeOnBackgroundThread(new CancelWorkRunnable(id, null));
+    }
+
+    @Override
     public void cancelAllWorkWithTag(@NonNull final String tag) {
-        mTaskExecutor.executeOnBackgroundThread(new CancelWorkWithTagRunnable(tag));
+        mTaskExecutor.executeOnBackgroundThread(new CancelWorkRunnable(null, tag));
     }
 
     @Override
@@ -227,13 +232,15 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
-     * A Runnable to cancel work with a given tag.
+     * A Runnable to cancel work.
      */
-    private class CancelWorkWithTagRunnable implements Runnable {
+    private class CancelWorkRunnable implements Runnable {
 
+        private String mId;
         private String mTag;
 
-        CancelWorkWithTagRunnable(@NonNull String tag) {
+        CancelWorkRunnable(String id, String tag) {
+            mId = id;
             mTag = tag;
         }
 
@@ -243,17 +250,24 @@ public class WorkManagerImpl extends WorkManager {
             mWorkDatabase.beginTransaction();
             try {
                 WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-                List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithTag(mTag);
-                for (String workSpecId : workSpecIds) {
-                    recursivelyCancelWorkAndDependencies(workSpecId);
-                    mForegroundProcessor.cancel(workSpecId, true);
-                    mBackgroundScheduler.cancel(workSpecId);
+                if (mTag != null) {
+                    List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithTag(mTag);
+                    for (String workSpecId : workSpecIds) {
+                        cancel(workSpecId);
+                    }
+                } else if (mId != null) {
+                    cancel(mId);
                 }
-
                 mWorkDatabase.setTransactionSuccessful();
             } finally {
                 mWorkDatabase.endTransaction();
             }
+        }
+
+        private void cancel(String workSpecId) {
+            recursivelyCancelWorkAndDependencies(workSpecId);
+            mForegroundProcessor.cancel(workSpecId, true);
+            mBackgroundScheduler.cancel(workSpecId);
         }
 
         private void recursivelyCancelWorkAndDependencies(String workSpecId) {
