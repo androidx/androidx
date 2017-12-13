@@ -20,6 +20,7 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.swipeDown;
 import static android.support.test.espresso.action.ViewActions.swipeUp;
+import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static android.support.test.espresso.contrib.RecyclerViewActions.scrollToPosition;
@@ -28,10 +29,10 @@ import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import android.content.pm.PackageManager;
@@ -42,10 +43,10 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.matcher.ViewMatchers;
-import android.support.test.filters.SmallTest;
-import android.support.test.filters.Suppress;
+import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,7 +67,7 @@ import androidx.car.test.R;
 
 /** Unit tests for {@link PagedListView}. */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public final class PagedListViewTest {
 
     /**
@@ -102,19 +103,17 @@ public final class PagedListViewTest {
         }
     }
 
+    /** Returns {@code true} if the testing device has the automotive feature flag. */
     private boolean isAutoDevice() {
         PackageManager packageManager = mActivityRule.getActivity().getPackageManager();
         return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
     }
 
+    /** Sets up {@link #mPagedListView} with the given number of items. */
     private void setUpPagedListView(int itemCount) {
-        setUpPagedListView(itemCount, PagedListView.ItemCap.UNLIMITED);
-    }
-
-    private void setUpPagedListView(int itemCount, int maxPages) {
         try {
             mActivityRule.runOnUiThread(() -> {
-                mPagedListView.setMaxPages(maxPages);
+                mPagedListView.setMaxPages(PagedListView.ItemCap.UNLIMITED);
                 mPagedListView.setAdapter(
                         new TestAdapter(itemCount, mPagedListView.getMeasuredHeight()));
             });
@@ -124,124 +123,39 @@ public final class PagedListViewTest {
         }
     }
 
-    /** Initializes {@link #mPagedListView} with an adapter that does not implement ItemCap. */
-    public void setUpNonItemCapPagedListView(int itemCount, int maxPages) {
-        try {
-            mActivityRule.runOnUiThread(() -> {
-                mPagedListView.setMaxPages(maxPages);
-                mPagedListView.setAdapter(
-                        new NoItemCapAdapter(itemCount, mPagedListView.getMeasuredHeight()));
-            });
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-            throw new RuntimeException(throwable);
-        }
-    }
-
     @Test
-    public void scrollBarIsInvisibleIfItemsDoNotFillOnePage() {
-        setUpPagedListView(1 /* itemCount */);
+    public void testScrollBarIsInvisibleIfItemsDoNotFillOnePage() {
+        if (!isAutoDevice()) {
+            return;
+        }
 
+        setUpPagedListView(1 /* itemCount */);
         onView(withId(R.id.paged_scroll_view)).check(matches(not(isDisplayed())));
     }
 
     @Test
-    public void pageUpDownButtonIsDisabledOnListEnds() throws Throwable {
-        final int itemCount = ITEMS_PER_PAGE * 3;
+    public void testPageUpButtonDisabledAtTop() {
+        if (!isAutoDevice()) {
+            return;
+        }
+
+        int itemCount = ITEMS_PER_PAGE * 3;
         setUpPagedListView(itemCount);
+
         // Initially page_up button is disabled.
         onView(withId(R.id.page_up)).check(matches(not(isEnabled())));
 
-        // Moving to middle of list enables page_up button.
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(itemCount / 2));
+        // Moving down, should enable the up bottom.
+        onView(withId(R.id.page_down)).perform(click());
         onView(withId(R.id.page_up)).check(matches(isEnabled()));
 
-        // Moving to page end, page_down button is disabled.
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(itemCount));
-        onView(withId(R.id.page_down)).check(matches(not(isEnabled())));
+        // Move back up; this should disable the up bottom again.
+        onView(withId(R.id.page_up)).perform(click())
+                .check(matches(not(isEnabled())));
     }
 
     @Test
-    public void testMaxPageGetterSetterDefaultValue() {
-        final int maxPages = 2;
-        final int defaultMaxPages = 3;
-
-        // setMaxPages
-        setUpPagedListView(ITEMS_PER_PAGE, maxPages);
-        assertThat(mPagedListView.getMaxPages(), is(equalTo(maxPages)));
-
-        // resetMaxPages
-        mPagedListView.resetMaxPages();
-        // Max pages is equal to max clicks - 1
-        assertThat(mPagedListView.getMaxPages(), is(equalTo(PagedListView.DEFAULT_MAX_CLICKS - 1)));
-
-        // setDefaultMaxPages
-        mPagedListView.setDefaultMaxPages(defaultMaxPages);
-        mPagedListView.resetMaxPages();
-        assertThat(mPagedListView.getMaxPages(), is(equalTo(defaultMaxPages - 1)));
-    }
-
-    @Test
-    public void setMaxPagesLimitsNumberOfClicks() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
-        setUpPagedListView(ITEMS_PER_PAGE * 3 /* itemCount */, 2 /* maxPages */);
-
-        onView(withId(R.id.page_down)).perform(click());
-        onView(withId(R.id.page_down)).check(matches(not(isEnabled())));
-    }
-
-    @Test
-    public void testMaxPagesDoesNothingIfAdapterDoesNotImplementItemCap() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
-        int numOfPages = 20;
-        int maxPages = 2;
-
-        setUpNonItemCapPagedListView(ITEMS_PER_PAGE * numOfPages, maxPages);
-
-        // There should be no limit on the scroll even though a max number of pages was set.
-        for (int i = 0; i < maxPages; i++) {
-            onView(withId(R.id.page_down)).perform(click());
-        }
-        onView(withId(R.id.page_down)).check(matches(isEnabled()));
-
-        // Next scroll all the way to bottom and check this is possible.
-        for (int i = 0; i < numOfPages - maxPages; i++) {
-            onView(withId(R.id.page_down)).perform(click());
-        }
-        onView(withId(R.id.page_down)).check(matches(not(isEnabled())));
-    }
-
-    @Suppress
-    @Test
-    public void resetMaxPagesToDefaultUnlimitedExtendsList() throws Throwable {
-        if (!isAutoDevice()) {
-            return;
-        }
-
-        final int itemCount = ITEMS_PER_PAGE * 4;
-        setUpPagedListView(itemCount, 2 /* maxPages */);
-
-        // Move to next page - should reach end of list.
-        onView(withId(R.id.page_down)).perform(click()).check(matches(not(isEnabled())));
-
-        // After resetting max pages (default unlimited), we scroll to the known total number of
-        // items.
-        mActivityRule.runOnUiThread(() -> mPagedListView.resetMaxPages());
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(itemCount - 1));
-
-        // Verify the last item that would've been hidden due to max pages is now shown.
-        onView(allOf(withId(R.id.text_view), withText(itemText(itemCount - 1))))
-                .check(matches(isDisplayed()));
-    }
-
-    @Test
-    public void scrollbarKeepsItemSnappedToTopOfList() {
+    public void testItemSnappedToTopOfListOnScroll() throws InterruptedException {
         if (!isAutoDevice()) {
             return;
         }
@@ -252,25 +166,31 @@ public final class PagedListViewTest {
         // Going down one page and first item is snapped to top
         onView(withId(R.id.page_down)).perform(click());
         verifyItemSnappedToListTop();
+    }
 
-        // Go down another page and we reach the last page.
+    @Test
+    public void testLastItemSnappedWhenBottomReached() {
+        if (!isAutoDevice()) {
+            return;
+        }
+
+        // 2.5 so last page is not full
+        setUpPagedListView((int) (ITEMS_PER_PAGE * 2.5 /* itemCount */));
+
+        // Go down 2 pages so the bottom is reached.
+        onView(withId(R.id.page_down)).perform(click());
         onView(withId(R.id.page_down)).perform(click()).check(matches(not(isEnabled())));
-        verifyItemSnappedToListTop();
+
+        LinearLayoutManager layoutManager =
+                (LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager();
+
+        // Check that the last item is completely visible.
+        assertEquals(layoutManager.findLastCompletelyVisibleItemPosition(),
+                layoutManager.getItemCount() - 1);
     }
 
-    @Suppress
     @Test
-    public void swipeUpKeepsItemSnappedToTopOfList() {
-        setUpPagedListView(ITEMS_PER_PAGE * 2 /* itemCount */);
-
-        onView(withId(R.id.recycler_view)).perform(actionOnItemAtPosition(1, swipeUp()));
-
-        verifyItemSnappedToListTop();
-    }
-
-    @Suppress
-    @Test
-    public void swipeDownKeepsItemSnappedToTopOfList() throws Throwable {
+    public void testSwipeDownKeepsItemSnappedToTopOfList() {
         setUpPagedListView(ITEMS_PER_PAGE * 2 /* itemCount */);
 
         // Go down one page, then swipe down (going up).
@@ -282,7 +202,18 @@ public final class PagedListViewTest {
     }
 
     @Test
-    public void pageUpAndDownMoveSameDistance() {
+    public void testSwipeUpKeepsItemSnappedToTopOfList() {
+        setUpPagedListView(ITEMS_PER_PAGE * 2 /* itemCount */);
+
+        // Swipe up (going down).
+        onView(withId(R.id.recycler_view))
+                .perform(actionOnItemAtPosition(ITEMS_PER_PAGE, swipeUp()));
+
+        verifyItemSnappedToListTop();
+    }
+
+    @Test
+    public void testPageUpAndDownMoveSameDistance() {
         if (!isAutoDevice()) {
             return;
         }
@@ -291,27 +222,36 @@ public final class PagedListViewTest {
 
         // Move down one page so there will be sufficient pages for up and downs.
         onView(withId(R.id.page_down)).perform(click());
-        final int topPosition = mPagedListView.getFirstFullyVisibleChildPosition();
+
+        LinearLayoutManager layoutManager =
+                (LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager();
+
+        int topPosition = layoutManager.findFirstVisibleItemPosition();
 
         for (int i = 0; i < 3; i++) {
             onView(withId(R.id.page_down)).perform(click());
             onView(withId(R.id.page_up)).perform(click());
         }
 
-        assertThat(mPagedListView.getFirstFullyVisibleChildPosition(), is(equalTo(topPosition)));
+        assertThat(layoutManager.findFirstVisibleItemPosition(), is(equalTo(topPosition)));
     }
 
-    @Suppress
     @Test
     public void setItemSpacing() throws Throwable {
+        if (!isAutoDevice()) {
+            return;
+        }
+
         final int itemCount = 3;
         setUpPagedListView(itemCount /* itemCount */);
+        RecyclerView.LayoutManager layoutManager =
+                mPagedListView.getRecyclerView().getLayoutManager();
 
         // Initial spacing is 0.
         final View[] views = new View[itemCount];
         mActivityRule.runOnUiThread(() -> {
-            for (int i = 0; i < itemCount; i++) {
-                views[i] = mPagedListView.findViewByPosition(i);
+            for (int i = 0; i < layoutManager.getChildCount(); i++) {
+                views[i] = layoutManager.getChildAt(i);
             }
         });
         for (int i = 0; i < itemCount - 1; i++) {
@@ -325,8 +265,8 @@ public final class PagedListViewTest {
             mPagedListView.setItemSpacing(itemSpacing);
         });
         mActivityRule.runOnUiThread(() -> {
-            for (int i = 0; i < itemCount; i++) {
-                views[i] = mPagedListView.findViewByPosition(i);
+            for (int i = 0; i < layoutManager.getChildCount(); i++) {
+                views[i] = layoutManager.getChildAt(i);
             }
         });
         for (int i = 0; i < itemCount - 1; i++) {
@@ -338,8 +278,8 @@ public final class PagedListViewTest {
             mPagedListView.setItemSpacing(0);
         });
         mActivityRule.runOnUiThread(() -> {
-            for (int i = 0; i < itemCount; i++) {
-                views[i] = mPagedListView.findViewByPosition(i);
+            for (int i = 0; i < layoutManager.getChildCount(); i++) {
+                views[i] = layoutManager.getChildAt(i);
             }
         });
         for (int i = 0; i < itemCount - 1; i++) {
@@ -350,6 +290,10 @@ public final class PagedListViewTest {
     @Test
     @UiThreadTest
     public void testSetScrollBarButtonIcons() throws Throwable {
+        if (!isAutoDevice()) {
+            return;
+        }
+
         // Set up a pagedListView with a large item count to ensure the scroll bar buttons are
         // always showing.
         setUpPagedListView(100 /* itemCount */);
@@ -410,21 +354,27 @@ public final class PagedListViewTest {
         return "Data " + index;
     }
 
+    /**
+     * Checks that the first item in the list is completely shown and no part of a previous item
+     * is shown.
+     */
     private void verifyItemSnappedToListTop() {
-        int firstVisiblePosition = mPagedListView.getFirstFullyVisibleChildPosition();
+        LinearLayoutManager layoutManager =
+                (LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager();
+        int firstVisiblePosition = layoutManager.findFirstCompletelyVisibleItemPosition();
         if (firstVisiblePosition > 1) {
             int lastInPreviousPagePosition = firstVisiblePosition - 1;
             onView(withText(itemText(lastInPreviousPagePosition)))
-                    .check(matches(not(isDisplayed())));
+                    .check(doesNotExist());
         }
     }
 
     /** A base adapter that will handle inflating the test view and binding data to it. */
-    private abstract class BaseTestAdapter extends RecyclerView.Adapter<TestViewHolder> {
-        protected List<String> mData;
-        protected int mParentHeight;
+    private class TestAdapter extends RecyclerView.Adapter<TestViewHolder> {
+        private List<String> mData;
+        private int mParentHeight;
 
-        BaseTestAdapter(int itemCount, int parentHeight) {
+        TestAdapter(int itemCount, int parentHeight) {
             mData = new ArrayList<>();
             for (int i = 0; i < itemCount; i++) {
                 mData.add(itemText(i));
@@ -444,33 +394,6 @@ public final class PagedListViewTest {
             int height = (int) Math.floor(mParentHeight / ITEMS_PER_PAGE);
             holder.itemView.setMinimumHeight(height);
             holder.bind(mData.get(position));
-        }
-    }
-
-    private class TestAdapter extends BaseTestAdapter implements PagedListView.ItemCap {
-        private int mMaxItems;
-
-        TestAdapter(int itemCount, int parentHeight) {
-            super(itemCount, parentHeight);
-        }
-
-        @Override
-        public void setMaxItems(int maxItems) {
-            mMaxItems = maxItems;
-        }
-
-        @Override
-        public int getItemCount() {
-            return mMaxItems > 0 ? Math.min(mData.size(), mMaxItems) : mData.size();
-        }
-    }
-
-    /**
-     * A variant of a {@link BaseTestAdapter} that does not implement {@link PagedListView.ItemCap}.
-     */
-    private class NoItemCapAdapter extends BaseTestAdapter {
-        NoItemCapAdapter(int itemCount, int parentHeight) {
-            super(itemCount, parentHeight);
         }
 
         @Override
@@ -492,8 +415,11 @@ public final class PagedListViewTest {
         }
     }
 
+    /**
+     * An {@link IdlingResource} that will prevent assertions from running while the
+     * {@link #mPagedListView} is scrolling.
+     */
     private class PagedListViewScrollingIdlingResource implements IdlingResource {
-
         private boolean mIdle = true;
         private ResourceCallback mResourceCallback;
 

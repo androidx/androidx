@@ -258,6 +258,7 @@ package android.support.v7.widget {
     method public abstract int getEnd();
     method public abstract int getEndAfterPadding();
     method public abstract int getEndPadding();
+    method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
     method public abstract int getMode();
     method public abstract int getModeInOther();
     method public abstract int getStartAfterPadding();

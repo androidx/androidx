@@ -40,6 +40,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -113,7 +114,7 @@ public class ListItemTest {
     public void testEmptyItemHidesAllViews() {
         ListItem item = new ListItem.Builder(mActivity).build();
         setupPagedListView(Arrays.asList(item));
-        verifyViewIsHidden(mPagedListView.findViewByPosition(0));
+        verifyViewIsHidden(mPagedListView.getRecyclerView().getLayoutManager().getChildAt(0));
     }
 
     @Test
@@ -269,8 +270,10 @@ public class ListItemTest {
         double singleLineHeight = InstrumentationRegistry.getContext().getResources().getDimension(
                 R.dimen.car_single_line_list_item_height);
 
+        LinearLayoutManager layoutManager =
+                (LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager();
         for (int i = 0; i < items.size(); i++) {
-            assertThat((double) mPagedListView.findViewByPosition(i).getHeight(),
+            assertThat((double) layoutManager.findViewByPosition(i).getHeight(),
                     is(closeTo(singleLineHeight, 1.0d)));
         }
     }
@@ -297,8 +300,10 @@ public class ListItemTest {
                 (int) InstrumentationRegistry.getContext().getResources().getDimension(
                         R.dimen.car_double_line_list_item_height);
 
+        LinearLayoutManager layoutManager =
+                (LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager();
         for (int i = 0; i < items.size(); i++) {
-            assertThat(mPagedListView.findViewByPosition(i).getHeight(),
+            assertThat(layoutManager.findViewByPosition(i).getHeight(),
                     is(greaterThanOrEqualTo(doubleLineHeight)));
         }
     }
