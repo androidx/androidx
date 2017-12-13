@@ -59,9 +59,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
 
     static final boolean DEBUG = false;
 
-    public static final int HORIZONTAL = OrientationHelper.HORIZONTAL;
+    public static final int HORIZONTAL = RecyclerView.HORIZONTAL;
 
-    public static final int VERTICAL = OrientationHelper.VERTICAL;
+    public static final int VERTICAL = RecyclerView.VERTICAL;
 
     /**
      * Does not do anything to hide gaps.

@@ -217,6 +217,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     public static final int HORIZONTAL = LinearLayout.HORIZONTAL;
     public static final int VERTICAL = LinearLayout.VERTICAL;
 
+    static final int DEFAULT_ORIENTATION = VERTICAL;
     public static final int NO_POSITION = -1;
     public static final long NO_ID = -1;
     public static final int INVALID_TYPE = -1;
@@ -10121,7 +10122,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
                     defStyleAttr, defStyleRes);
             properties.orientation = a.getInt(R.styleable.RecyclerView_android_orientation,
-                    VERTICAL);
+                    DEFAULT_ORIENTATION);
             properties.spanCount = a.getInt(R.styleable.RecyclerView_spanCount, 1);
             properties.reverseLayout = a.getBoolean(R.styleable.RecyclerView_reverseLayout, false);
             properties.stackFromEnd = a.getBoolean(R.styleable.RecyclerView_stackFromEnd, false);
