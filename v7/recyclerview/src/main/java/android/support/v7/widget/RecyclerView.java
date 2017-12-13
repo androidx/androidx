@@ -2000,7 +2000,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             mEatRequestLayout = 1;
         }
-        if (!performLayoutChildren) {
+        if (!performLayoutChildren && !mLayoutFrozen) {
             // Reset the layout request eaten counter.
             // This is necessary since eatRequest calls can be nested in which case the other
             // call will override the inner one.
