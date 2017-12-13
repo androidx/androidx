@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 
 /**
- * Simple Navigation Activity.
+ * Base Navigation Activity.
  *
  * <p>You must call {@link NavController#setGraph(int)}
  * to set the appropriate graph for your test.</p>
  */
-public class NavigationActivity extends FragmentActivity {
+public abstract class BaseNavigationActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.navigation_activity);
     }
 
     public NavController getNavController() {

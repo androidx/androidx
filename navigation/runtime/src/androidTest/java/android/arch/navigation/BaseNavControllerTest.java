@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Instrumentation;
-import android.arch.navigation.activity.NavigationActivity;
+import android.arch.navigation.activity.BaseNavigationActivity;
 import android.arch.navigation.test.R;
 import android.content.ComponentName;
 import android.content.Context;
@@ -42,16 +42,21 @@ import org.junit.Rule;
 import org.junit.Test;
 
 @SmallTest
-public class NavControllerTest {
+public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
     private static final String TEST_ARG = "test";
     private static final String TEST_ARG_VALUE = "value";
     private static final String TEST_OVERRIDDEN_VALUE_ARG = "test_overriden_value";
     private static final String TEST_OVERRIDDEN_VALUE_ARG_VALUE = "override";
     private static final String TEST_DEEP_LINK_ACTION = "deep_link";
 
+    /**
+     * @return The concrete Activity class under test
+     */
+    protected abstract Class<A> getActivityClass();
+
     @Rule
-    public ActivityTestRule<NavigationActivity> mActivityRule =
-            new ActivityTestRule<>(NavigationActivity.class, false, false);
+    public ActivityTestRule<A> mActivityRule =
+            new ActivityTestRule<>(getActivityClass(), false, false);
 
     private Instrumentation mInstrumentation;
 
@@ -100,7 +105,7 @@ public class NavControllerTest {
 
     @Test
     public void testSetGraph() throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         assertThat(navController.getGraph(), is(nullValue(NavGraph.class)));
 
@@ -111,7 +116,7 @@ public class NavControllerTest {
 
     @Test
     public void testNavigate() throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
         TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
@@ -207,7 +212,7 @@ public class NavControllerTest {
     }
 
     private Bundle navigateWithArgs(Bundle args) throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_arguments);
 
@@ -223,7 +228,7 @@ public class NavControllerTest {
 
     @Test
     public void testNavigateThenPop() throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
         TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
@@ -242,7 +247,7 @@ public class NavControllerTest {
 
     @Test
     public void testNavigateThenNavigateUp() throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
         TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
@@ -262,7 +267,7 @@ public class NavControllerTest {
 
     @Test
     public void testNavigateViaAction() throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
@@ -277,7 +282,7 @@ public class NavControllerTest {
 
     @Test
     public void testNavigateOptionSingleTop() throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
@@ -293,7 +298,7 @@ public class NavControllerTest {
 
     @Test
     public void testNavigateOptionPopUpToInAction() throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
@@ -309,7 +314,7 @@ public class NavControllerTest {
 
     @Test
     public void testNavigateWithPopUpOptionsOnly() throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
@@ -328,7 +333,7 @@ public class NavControllerTest {
 
     @Test
     public void testNoDestinationNoPopUpTo() throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
         NavOptions options = new NavOptions.Builder().build();
@@ -342,7 +347,7 @@ public class NavControllerTest {
 
     @Test
     public void testNavigateOptionPopSelf() throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
@@ -358,7 +363,7 @@ public class NavControllerTest {
 
     @Test
     public void testNavigateViaActionWithArgs() throws Throwable {
-        NavigationActivity activity = launchActivity();
+        BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_arguments);
 
@@ -385,7 +390,7 @@ public class NavControllerTest {
 
     @Test
     public void testDeeplink() throws Throwable {
-        NavigationActivity activity = launchDeepLink(R.navigation.nav_deep_link,
+        BaseNavigationActivity activity = launchDeepLink(R.navigation.nav_deep_link,
                 R.id.deep_link_test, null);
         NavController navController = activity.getNavController();
 
@@ -420,7 +425,7 @@ public class NavControllerTest {
     public void testDeeplinkWithArgs() throws Throwable {
         Bundle args = new Bundle();
         args.putString(TEST_ARG, TEST_ARG_VALUE);
-        NavigationActivity activity = launchDeepLink(R.navigation.nav_deep_link,
+        BaseNavigationActivity activity = launchDeepLink(R.navigation.nav_deep_link,
                 R.id.deep_link_test, args);
         NavController navController = activity.getNavController();
 
@@ -443,9 +448,9 @@ public class NavControllerTest {
         Uri deepLinkUri = Uri.parse("http://www.example.com/" + TEST_ARG_VALUE);
         Intent intent = new Intent(Intent.ACTION_VIEW, deepLinkUri)
                 .setComponent(new ComponentName(mInstrumentation.getContext(),
-                        NavigationActivity.class))
+                        getActivityClass()))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        NavigationActivity activity = launchActivity(intent);
+        BaseNavigationActivity activity = launchActivity(intent);
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_deep_link);
 
@@ -463,13 +468,13 @@ public class NavControllerTest {
         assertThat(deepLinkIntent.getData(), is(deepLinkUri));
     }
 
-    private NavigationActivity launchActivity() throws Throwable {
+    private BaseNavigationActivity launchActivity() throws Throwable {
         return launchActivity(new Intent(mInstrumentation.getTargetContext(),
-                NavigationActivity.class));
+                getActivityClass()));
     }
 
-    private NavigationActivity launchActivity(Intent intent) throws Throwable {
-        NavigationActivity activity = mActivityRule.launchActivity(intent);
+    private BaseNavigationActivity launchActivity(Intent intent) throws Throwable {
+        BaseNavigationActivity activity = mActivityRule.launchActivity(intent);
         mInstrumentation.waitForIdleSync();
         NavController navController = activity.getNavController();
         assertThat(navController, is(notNullValue(NavController.class)));
@@ -478,7 +483,7 @@ public class NavControllerTest {
         return activity;
     }
 
-    private NavigationActivity launchDeepLink(@NavigationRes int graphId, @IdRes int destId,
+    private BaseNavigationActivity launchDeepLink(@NavigationRes int graphId, @IdRes int destId,
             Bundle args) throws Throwable {
         TaskStackBuilder intents = new NavDeepLinkBuilder(mInstrumentation.getTargetContext())
                 .setGraph(graphId)
@@ -489,7 +494,7 @@ public class NavControllerTest {
         intent.setAction(TEST_DEEP_LINK_ACTION);
 
         // Now launch the deeplink Intent
-        NavigationActivity deeplinkActivity = launchActivity(intent);
+        BaseNavigationActivity deeplinkActivity = launchActivity(intent);
         NavController navController = deeplinkActivity.getNavController();
         navController.setGraph(graphId);
 

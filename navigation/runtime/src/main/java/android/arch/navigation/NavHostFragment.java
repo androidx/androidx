@@ -188,7 +188,13 @@ public class NavHostFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return new FrameLayout(inflater.getContext());
+        FrameLayout frameLayout = new FrameLayout(inflater.getContext());
+        // When added via XML, this has no effect (since this FrameLayout is given the ID
+        // automatically), but this ensures that the View exists as part of this Fragment's View
+        // hierarchy in cases where the NavHostFragment is added programmatically as is required
+        // for child fragment transactions
+        frameLayout.setId(getId());
+        return frameLayout;
     }
 
     @Override
@@ -197,7 +203,11 @@ public class NavHostFragment extends Fragment {
         if (!(view instanceof ViewGroup)) {
             throw new IllegalStateException("created host view " + view + " is not a ViewGroup");
         }
-        Navigation.setViewNavController(view, mNavController);
+        // When added via XML, the parent is null and our view is the root of the NavHostFragment
+        // but when added programmatically, we need to set the NavController on the parent - i.e.,
+        // the View that has the ID matching this NavHostFragment.
+        View rootView = view.getParent() != null ? (View) view.getParent() : view;
+        Navigation.setViewNavController(rootView, mNavController);
     }
 
     @Override
