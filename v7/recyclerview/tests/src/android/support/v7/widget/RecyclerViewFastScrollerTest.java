@@ -32,13 +32,13 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.recyclerview.R;
 import android.support.v7.util.TouchUtils;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -52,14 +52,6 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
     private static final int FLAG_VERTICAL = 1 << 1;
     private int mScrolledByY = -1000;
     private int mScrolledByX = -1000;
-    private int mVerticalScrollRange;
-    private int mVerticalScrollExtent;
-    private int mVerticalScrollOffset;
-    private int mHorizontalScrollRange;
-    private int mHorizontalScrollExtent;
-    private int mHorizontalScrollOffset;
-    private int mWidth;
-    private int mHeight;
     private FastScroller mScroller;
     private boolean mHide;
 
@@ -73,127 +65,50 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
         });
     }
 
-    @Before
-    public void setup() throws Exception {
-        mWidth = 500;
-        mHeight = 500;
-        mVerticalScrollRange = 1000;
-        mVerticalScrollOffset = 250;
-        mVerticalScrollExtent = 500;
-        mHorizontalScrollRange = 1000;
-        mHorizontalScrollExtent = 500;
-        mHorizontalScrollOffset = 250;
-        mRecyclerView = new RecyclerView(getActivity()) {
-            @Override
-            public int computeVerticalScrollRange() {
-                return mVerticalScrollRange;
-            }
+    @Test
+    public void xml_fastScrollEnabled_startsInvisibleAndAtTop() throws Throwable {
+        arrangeWithXml();
 
-            @Override
-            public int computeVerticalScrollExtent() {
-                return mVerticalScrollExtent;
-            }
-
-            @Override
-            public int computeVerticalScrollOffset() {
-                return mVerticalScrollOffset;
-            }
-
-            @Override
-            public int computeHorizontalScrollRange() {
-                return mHorizontalScrollRange;
-            }
-
-            @Override
-            public int computeHorizontalScrollExtent() {
-                return mHorizontalScrollExtent;
-            }
-
-            @Override
-            public int computeHorizontalScrollOffset() {
-                return mHorizontalScrollOffset;
-            }
-
-            @Override
-            public void scrollBy(int x, int y) {
-                mScrolledByY = y;
-                mScrolledByX = x;
-            }
-        };
-        mRecyclerView.setAdapter(new TestAdapter(50));
-        mRecyclerView.measure(
-                View.MeasureSpec.makeMeasureSpec(mWidth, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(mHeight, View.MeasureSpec.EXACTLY));
-        mRecyclerView.layout(0, 0, mWidth, mHeight);
-
-        Resources res = getActivity().getResources();
-        mScroller = new FastScroller(mRecyclerView, (StateListDrawable) res.getDrawable(
-                android.support.v7.recyclerview.test.R.drawable.fast_scroll_thumb_drawable),
-                res.getDrawable(
-                        android.support.v7.recyclerview.test.R.drawable.fast_scroll_track_drawable),
-                (StateListDrawable) res.getDrawable(
-                        android.support.v7.recyclerview.test.R.drawable.fast_scroll_thumb_drawable),
-                res.getDrawable(
-                        android.support.v7.recyclerview.test.R.drawable.fast_scroll_track_drawable),
-                res.getDimensionPixelSize(R.dimen.fastscroll_default_thickness),
-                res.getDimensionPixelSize(R.dimen.fastscroll_minimum_range),
-                res.getDimensionPixelOffset(R.dimen.fastscroll_margin)) {
-            @Override
-            public void show() {
-                // Overriden to avoid animation calls in instrumentation thread
-            }
-
-            @Override
-            public void hide(int duration) {
-                mHide = true;
-            }
-        };
-        mRecyclerView.mEnableFastScroller = true;
-
-        // Draw it once so height/width gets updated
-        mScroller.onDrawOver(null, mRecyclerView, null);
+        assertTrue("Expected centerY to start == 0", mScroller.mVerticalThumbCenterY == 0);
+        assertFalse("Expected thumb to start invisible", mScroller.isVisible());
     }
 
     @Test
-    public void sanityScrollingInstrumentation() throws Throwable {
-        mRecyclerView = new RecyclerView(getActivity());
-        final Activity activity = mActivityRule.getActivity();
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                activity.setContentView(
-                        android.support.v7.recyclerview.test.R.layout.fast_scrollbar_test_rv);
-                mRecyclerView = (RecyclerView) activity.findViewById(
-                        android.support.v7.recyclerview.test.R.id.recycler_view);
-                LinearLayoutManager layout = new LinearLayoutManager(activity.getBaseContext());
-                layout.setOrientation(VERTICAL);
-                mRecyclerView.setLayoutManager(layout);
-                mRecyclerView.setAdapter(new TestAdapter(50));
-                mScroller = (FastScroller) mRecyclerView.getItemDecorationAt(0);
-                assertTrue("Expected centerY to start == 0", mScroller.mVerticalThumbCenterY == 0);
-                assertFalse("Expected thumb to start invisible", mScroller.isVisible());
-            }
-        });
-        waitForIdleScroll(mRecyclerView);
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+    public void scrollBy_displaysAndMovesFastScrollerThumb() throws Throwable {
+        arrangeWithXml();
+
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mRecyclerView.scrollBy(0, 400);
-                assertTrue("Expected centerY to be > 0" + mScroller.mVerticalThumbCenterY,
-                        mScroller.mVerticalThumbCenterY > 0);
-                assertTrue("Expected thumb to be visible", mScroller.isVisible());
-
             }
         });
-        int oldOffset = mRecyclerView.computeVerticalScrollOffset();
+
+        assertTrue("Expected centerY to be > 0" + mScroller.mVerticalThumbCenterY,
+                mScroller.mVerticalThumbCenterY > 0);
+        assertTrue("Expected thumb to be visible", mScroller.isVisible());
+    }
+
+    @Test
+    public void ui_dragsThumb_scrollsRecyclerView() throws Throwable {
+        arrangeWithXml();
+
+        // RecyclerView#scrollBy(int, int) used to cause the scroller thumb to show up.
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.scrollBy(0, 1);
+                mRecyclerView.scrollBy(0, -1);
+            }
+        });
         int[] absoluteCoords = new int[2];
         mRecyclerView.getLocationOnScreen(absoluteCoords);
         TouchUtils.drag(InstrumentationRegistry.getInstrumentation(), mRecyclerView.getWidth() - 10,
                 mRecyclerView.getWidth() - 10, mScroller.mVerticalThumbCenterY + absoluteCoords[1],
                 mRecyclerView.getHeight() + absoluteCoords[1], 100);
+
         assertTrue("Expected dragging thumb to move recyclerView",
-                mRecyclerView.computeVerticalScrollOffset() > oldOffset);
+                mRecyclerView.computeVerticalScrollOffset() > 0);
     }
 
     @Test
@@ -288,6 +203,8 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
     @UiThreadTest
     @Test
     public void initWithBadDrawables() throws Throwable {
+        arrangeWithCode();
+
         Throwable exception = null;
         try {
             mRecyclerView.initFastScroller(null, null, null, null);
@@ -308,6 +225,7 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
     }
 
     private void scrollUpdatesFastScrollThumb(int direction) throws Throwable {
+        arrangeWithCode();
         mScroller.updateScrollPosition(direction == FLAG_VERTICAL ? 0 : 250,
                 direction == FLAG_VERTICAL ? 250 : 0);
         if (direction == FLAG_VERTICAL) {
@@ -341,6 +259,7 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
 
     @Test
     public void draggingDoesNotTriggerFastScrollIfNotInThumb() throws Throwable {
+        arrangeWithCode();
         mScroller.updateScrollPosition(0, 250);
         final MotionEvent downEvent = MotionEvent.obtain(10, 10, MotionEvent.ACTION_DOWN, 250, 250,
                 0);
@@ -361,6 +280,7 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
     }
 
     private void draggingFastScrollThumbDoesActualScrolling(int direction) throws Throwable {
+        arrangeWithCode();
         mScroller.updateScrollPosition(direction == FLAG_VERTICAL ? 0 : 250,
                 direction == FLAG_VERTICAL ? 250 : 0);
         final MotionEvent downEvent = MotionEvent.obtain(10, 10, MotionEvent.ACTION_DOWN,
@@ -377,7 +297,105 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
         }
     }
 
-    static class TestAdapter extends RecyclerView.Adapter {
+    private void arrangeWithXml() throws Throwable {
+
+        final TestActivity activity = mActivityRule.getActivity();
+        final TestedFrameLayout testedFrameLayout = activity.getContainer();
+
+        RecyclerView recyclerView = (RecyclerView) LayoutInflater.from(activity).inflate(
+                android.support.v7.recyclerview.test.R.layout.fast_scrollbar_test_rv,
+                testedFrameLayout,
+                false);
+
+        LinearLayoutManager layout = new LinearLayoutManager(activity.getBaseContext());
+        layout.setOrientation(VERTICAL);
+        recyclerView.setLayoutManager(layout);
+
+        recyclerView.setAdapter(new TestAdapter(50));
+
+        mScroller = (FastScroller) recyclerView.getItemDecorationAt(0);
+
+        testedFrameLayout.expectDraws(1);
+        setRecyclerView(recyclerView);
+        testedFrameLayout.waitForDraw(2);
+    }
+
+    private void arrangeWithCode() throws Exception {
+        final int width = 500;
+        final int height = 500;
+
+        mRecyclerView = new RecyclerView(getActivity()) {
+            @Override
+            public int computeVerticalScrollRange() {
+                return 1000;
+            }
+
+            @Override
+            public int computeVerticalScrollExtent() {
+                return 500;
+            }
+
+            @Override
+            public int computeVerticalScrollOffset() {
+                return 250;
+            }
+
+            @Override
+            public int computeHorizontalScrollRange() {
+                return 1000;
+            }
+
+            @Override
+            public int computeHorizontalScrollExtent() {
+                return 500;
+            }
+
+            @Override
+            public int computeHorizontalScrollOffset() {
+                return 250;
+            }
+
+            @Override
+            public void scrollBy(int x, int y) {
+                mScrolledByY = y;
+                mScrolledByX = x;
+            }
+        };
+        mRecyclerView.setAdapter(new TestAdapter(50));
+        mRecyclerView.measure(
+                View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
+        mRecyclerView.layout(0, 0, width, height);
+
+        Resources res = getActivity().getResources();
+        mScroller = new FastScroller(mRecyclerView, (StateListDrawable) res.getDrawable(
+                android.support.v7.recyclerview.test.R.drawable.fast_scroll_thumb_drawable),
+                res.getDrawable(
+                        android.support.v7.recyclerview.test.R.drawable.fast_scroll_track_drawable),
+                (StateListDrawable) res.getDrawable(
+                        android.support.v7.recyclerview.test.R.drawable.fast_scroll_thumb_drawable),
+                res.getDrawable(
+                        android.support.v7.recyclerview.test.R.drawable.fast_scroll_track_drawable),
+                res.getDimensionPixelSize(R.dimen.fastscroll_default_thickness),
+                res.getDimensionPixelSize(R.dimen.fastscroll_minimum_range),
+                res.getDimensionPixelOffset(R.dimen.fastscroll_margin)) {
+            @Override
+            public void show() {
+                // Overriden to avoid animation calls in instrumentation thread
+            }
+
+            @Override
+            public void hide(int duration) {
+                mHide = true;
+            }
+        };
+        mRecyclerView.mEnableFastScroller = true;
+
+        // Draw it once so height/width gets updated
+        mScroller.onDrawOver(null, mRecyclerView, null);
+    }
+
+    private static class TestAdapter extends RecyclerView.Adapter {
         private int mItemCount;
 
         public static class ViewHolder extends RecyclerView.ViewHolder {
