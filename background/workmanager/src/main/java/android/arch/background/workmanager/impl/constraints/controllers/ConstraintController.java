@@ -20,7 +20,6 @@ import android.arch.background.workmanager.impl.constraints.trackers.ConstraintT
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +51,6 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
          */
         void onConstraintNotMet(@NonNull List<String> workSpecIds);
     }
-
-    private static final String TAG = "ConstraintCtrlr";
 
     private final List<String> mMatchingWorkSpecIds = new ArrayList<>();
 
@@ -115,7 +112,6 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
     }
 
     private void updateCallback() {
-        Log.d(TAG, getClass().getSimpleName() + ": updateCallback");
         if (mMatchingWorkSpecIds.isEmpty()) {
             return;
         }
