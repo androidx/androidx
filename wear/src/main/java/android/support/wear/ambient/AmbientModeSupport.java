@@ -16,13 +16,14 @@
 package android.support.wear.ambient;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
 import com.google.android.wearable.compat.WearableActivityController;
@@ -36,22 +37,20 @@ import java.io.PrintWriter;
  * The application that uses this should add the {@link android.Manifest.permission#WAKE_LOCK}
  * permission to its manifest.
  * <p>
- * The primary entry  point for this code is the {@link #attachAmbientSupport(Activity)} method.
- * It should be called with an {@link Activity} as an argument and that {@link Activity} will then
- * be able to receive ambient lifecycle events through an {@link AmbientCallback}. The
- * {@link Activity} will also receive a {@link AmbientController} object from the attachment which
- * can be used to query the current status of the ambient mode.
- * An example of how to attach {@link AmbientMode} to your {@link Activity} and use
- * the {@link AmbientController} can be found below:
+ * The primary entry  point for this code is the {@link #attach(FragmentActivity)} method.
+ * It should be called with an {@link FragmentActivity} as an argument and that
+ * {@link FragmentActivity} will then be able to receive ambient lifecycle events through
+ * an {@link AmbientCallback}. The {@link FragmentActivity} will also receive a
+ * {@link AmbientController} object from the attachment which can be used to query the current
+ * status of the ambient mode. An example of how to attach {@link AmbientModeSupport} to your
+ * {@link FragmentActivity} and use the {@link AmbientController} can be found below:
  * <p>
  * <pre class="prettyprint">{@code
  *     AmbientMode.AmbientController controller = AmbientMode.attachAmbientSupport(this);
  *     boolean isAmbient =  controller.isAmbient();
  * }</pre>
- * @deprecated please use {@link AmbientModeSupport} instead.
  */
-@Deprecated
-public final class AmbientMode extends Fragment {
+public final class AmbientModeSupport extends Fragment {
     private static final String TAG = "AmbientMode";
 
     /**
@@ -75,15 +74,15 @@ public final class AmbientMode extends Fragment {
             WearableActivityController.EXTRA_LOWBIT_AMBIENT;
 
     /**
-     * Fragment tag used by default when adding {@link AmbientMode} to add ambient support to an
-     * {@link Activity}.
+     * Fragment tag used by default when adding {@link AmbientModeSupport} to add ambient support to
+     * a {@link FragmentActivity}.
      */
     public static final String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
 
     /**
      * Interface for any {@link Activity} that wishes to implement Ambient Mode. Use the
      * {@link #getAmbientCallback()} method to return and {@link AmbientCallback} which can be used
-     * to bind the {@link AmbientMode} to the instantiation of this interface.
+     * to bind the {@link AmbientModeSupport} to the instantiation of this interface.
      * <p>
      * <pre class="prettyprint">{@code
      * return new AmbientMode.AmbientCallback() {
@@ -159,7 +158,7 @@ public final class AmbientMode extends Fragment {
     /**
      * Constructor
      */
-    public AmbientMode() {
+    public AmbientModeSupport() {
         mController = new AmbientController();
     }
 
@@ -234,11 +233,12 @@ public final class AmbientMode extends Fragment {
      * @return the associated {@link AmbientController} which can be used to query the state of
      * ambient mode.
      */
-    public static <T extends Activity> AmbientController attachAmbientSupport(T activity) {
-        FragmentManager fragmentManager = activity.getFragmentManager();
-        AmbientMode ambientFragment = (AmbientMode) fragmentManager.findFragmentByTag(FRAGMENT_TAG);
+    public static <T extends FragmentActivity> AmbientController attach(T activity) {
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        AmbientModeSupport ambientFragment =
+                (AmbientModeSupport) fragmentManager.findFragmentByTag(FRAGMENT_TAG);
         if (ambientFragment == null) {
-            AmbientMode fragment = new AmbientMode();
+            AmbientModeSupport fragment = new AmbientModeSupport();
             fragmentManager
                     .beginTransaction()
                     .add(fragment, FRAGMENT_TAG)
@@ -263,7 +263,7 @@ public final class AmbientMode extends Fragment {
     /**
      * A class for interacting with the ambient mode on a wearable device. This class can be used to
      * query the current state of ambient mode. An instance of this class is returned to the user
-     * when they attach their {@link Activity} to {@link AmbientMode}.
+     * when they attach their {@link Activity} to {@link AmbientModeSupport}.
      */
     public final class AmbientController {
         private static final String TAG = "AmbientController";
