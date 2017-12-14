@@ -464,6 +464,8 @@ public class ListItem {
                         vh.getSupplementalIcon().setImageResource(mSupplementalIconResId);
                         vh.getSupplementalIcon().setOnClickListener(
                                 mSupplementalIconOnClickListener);
+                        vh.getSupplementalIcon().setClickable(
+                                mSupplementalIconOnClickListener != null);
                     });
                     break;
                 case SUPPLEMENTAL_ACTION_TWO_ACTIONS:
@@ -656,6 +658,9 @@ public class ListItem {
             if (TextUtils.isEmpty(text)) {
                 throw new IllegalArgumentException("Action text cannot be empty.");
             }
+            if (listener == null) {
+                throw new IllegalArgumentException("Action OnClickListener cannot be null.");
+            }
             mSupplementalActionType = SUPPLEMENTAL_ACTION_ONE_ACTION;
 
             mAction1Text = text;
@@ -676,11 +681,11 @@ public class ListItem {
                 View.OnClickListener action1OnClickListener,
                 String action2Text, boolean showAction2Divider,
                 View.OnClickListener action2OnClickListener) {
-            if (TextUtils.isEmpty(action1Text)) {
-                throw new IllegalArgumentException("Action1 text cannot be empty.");
+            if (TextUtils.isEmpty(action1Text) || TextUtils.isEmpty(action2Text)) {
+                throw new IllegalArgumentException("Action text cannot be empty.");
             }
-            if (TextUtils.isEmpty(action2Text)) {
-                throw new IllegalArgumentException("Action2 text cannot be empty.");
+            if (action1OnClickListener == null || action2OnClickListener == null) {
+                throw new IllegalArgumentException("Action OnClickListener cannot be null.");
             }
             mSupplementalActionType = SUPPLEMENTAL_ACTION_TWO_ACTIONS;
 
