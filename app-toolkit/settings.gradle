@@ -108,15 +108,6 @@ project (':navigation:safe-args-generator').projectDir = new File(supportRoot, "
 
 /////////////////////////////
 //
-// SupportLib
-//
-/////////////////////////////
-if (inAppToolkitProject && System.getenv("USE_SUPPORT_LIB_SOURCE")) {
-    apply from: "${supportRoot.absolutePath}/app-toolkit/settings_support_lib.gradle"
-}
-
-/////////////////////////////
-//
 // External
 //
 /////////////////////////////

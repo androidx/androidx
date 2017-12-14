@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
+
 apply plugin: 'com.android.application'
 
 project.ext.noDocs = true
@@ -43,8 +45,8 @@ android {
 }
 
 dependencies {
-    implementation project(":navigation:runtime")
-    implementation libs.support.design
+    implementation(project(":navigation:runtime"))
+    implementation(SUPPORT_DESIGN)
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])

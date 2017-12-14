@@ -30,7 +30,7 @@ dependencies {
     api(project(":persistence:db-framework"))
     api(project(":room:migration"))
     api(project(":arch:runtime"))
-    api libs.support.core_utils, libs.support_exclude_config
+    api(SUPPORT_CORE_UTILS, libs.support_exclude_config)
     api(JUNIT)
 }
 

@@ -30,8 +30,8 @@ android {
 }
 
 dependencies {
-    compile libs.support.core_utils
-    compile libs.support.fragments
+    api(SUPPORT_CORE_UTILS)
+    api(SUPPORT_FRAGMENTS)
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
