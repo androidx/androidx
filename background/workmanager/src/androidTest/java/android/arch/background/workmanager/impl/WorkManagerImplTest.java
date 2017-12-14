@@ -29,11 +29,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.PeriodicWork;
+import android.arch.background.workmanager.TestLifecycleOwner;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkManagerTest;
 import android.arch.background.workmanager.impl.model.Dependency;
@@ -44,11 +49,16 @@ import android.arch.background.workmanager.impl.model.WorkTag;
 import android.arch.background.workmanager.impl.model.WorkTagDao;
 import android.arch.background.workmanager.impl.utils.taskexecutor.InstantTaskExecutorRule;
 import android.arch.background.workmanager.worker.TestWorker;
+import android.arch.core.executor.ArchTaskExecutor;
+import android.arch.core.executor.TaskExecutor;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.content.Context;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -58,8 +68,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest extends WorkManagerTest {
@@ -75,11 +89,29 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkManagerConfiguration configuration = new WorkManagerConfiguration(context, true);
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
+
+        ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
+            @Override
+            public void executeOnDiskIO(@NonNull Runnable runnable) {
+                runnable.run();
+            }
+
+            @Override
+            public void postToMainThread(@NonNull Runnable runnable) {
+                runnable.run();
+            }
+
+            @Override
+            public boolean isMainThread() {
+                return true;
+            }
+        });
     }
 
     @After
     public void tearDown() {
         mDatabase.close();
+        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
     @Test
@@ -297,6 +329,55 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.getPeriodStartTime(), is(greaterThan(beforeEnqueueTime)));
+    }
+
+    @Test
+    @SmallTest
+    @SuppressWarnings("unchecked")
+    public void testGetStatuses() {
+        Work work0 = Work.newBuilder(TestWorker.class).build();
+        Work work1 = Work.newBuilder(TestWorker.class).build();
+        insertWorkSpecAndTags(work0);
+        insertWorkSpecAndTags(work1);
+
+        Observer<Map<String, Integer>> mockObserver = mock(Observer.class);
+
+        TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
+        LiveData<Map<String, Integer>> liveData =
+                mWorkManagerImpl.getStatusesFor(Arrays.asList(work0.getId(), work1.getId()));
+        liveData.observe(testLifecycleOwner, mockObserver);
+
+        ArgumentCaptor<Map<String, Integer>> captor = ArgumentCaptor.forClass(Map.class);
+        verify(mockObserver).onChanged(captor.capture());
+        assertThat(captor.getValue(), is(not(nullValue())));
+        assertThat(captor.getValue().size(), is(2));
+
+        Map expectedMap = new HashMap(2);
+        expectedMap.put(work0.getId(), STATUS_ENQUEUED);
+        expectedMap.put(work1.getId(), STATUS_ENQUEUED);
+        assertThat(captor.getValue(), is(expectedMap));
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        workSpecDao.setStatus(STATUS_RUNNING, work0.getId());
+
+        verify(mockObserver, times(2)).onChanged(captor.capture());
+        assertThat(captor.getValue(), is(not(nullValue())));
+        assertThat(captor.getValue().size(), is(2));
+
+        expectedMap.put(work0.getId(), STATUS_RUNNING);
+        assertThat(captor.getValue(), is(expectedMap));
+
+        clearInvocations(mockObserver);
+        workSpecDao.setStatus(STATUS_RUNNING, work1.getId());
+
+        verify(mockObserver).onChanged(captor.capture());
+        assertThat(captor.getValue(), is(not(nullValue())));
+        assertThat(captor.getValue().size(), is(2));
+
+        expectedMap.put(work1.getId(), STATUS_RUNNING);
+        assertThat(captor.getValue(), is(expectedMap));
+
+        liveData.removeObservers(testLifecycleOwner);
     }
 
     @Test

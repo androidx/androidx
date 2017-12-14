@@ -20,7 +20,13 @@ import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.utils.BaseWorkHelper;
+import android.arch.lifecycle.LiveData;
 import android.support.annotation.RestrictTo;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A concrete implementation of {@link WorkContinuation}.
@@ -32,6 +38,7 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     private WorkManagerImpl mWorkManagerImpl;
     private String[] mPrerequisiteIds;
+    private List<String> mAllEnqueuedIds = new ArrayList<>();
 
     WorkContinuationImpl(WorkManagerImpl workManagerImpl, Work[] prerequisiteWork) {
         mWorkManagerImpl = workManagerImpl;
@@ -39,6 +46,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         for (int i = 0; i < prerequisiteWork.length; ++i) {
             mPrerequisiteIds[i] = prerequisiteWork[i].getId();
         }
+        Collections.addAll(mAllEnqueuedIds, mPrerequisiteIds);
     }
 
     @Override
@@ -52,5 +60,10 @@ public class WorkContinuationImpl extends WorkContinuation {
         return mWorkManagerImpl.enqueue(
                 BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses),
                 mPrerequisiteIds);
+    }
+
+    @Override
+    public LiveData<Map<String, Integer>> getStatuses() {
+        return mWorkManagerImpl.getStatusesFor(mAllEnqueuedIds);
     }
 }

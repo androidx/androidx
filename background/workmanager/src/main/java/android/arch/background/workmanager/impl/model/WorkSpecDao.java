@@ -120,6 +120,17 @@ public interface WorkSpecDao {
     int getWorkSpecStatus(String id);
 
     /**
+     * For a list of {@link WorkSpec} identifiers, retrieves a {@link LiveData} list of their ids
+     * and corresponding {@link android.arch.background.workmanager.BaseWork.WorkStatus}.
+     *
+     * @param ids The identifiers of the {@link WorkSpec}s
+     * @return A {@link LiveData} list of {@link WorkSpec.IdAndStatus} with each identifier and its
+     * status
+     */
+    @Query("SELECT id, status FROM workspec WHERE id IN (:ids)")
+    LiveData<List<WorkSpec.IdAndStatus>> getWorkSpecStatuses(List<String> ids);
+
+    /**
      * Retrieves a {@link LiveData} status of a {@link WorkSpec}
      *
      * @param id The identifier for the {@link WorkSpec}
@@ -150,9 +161,10 @@ public interface WorkSpecDao {
     List<Arguments> getInputsFromPrerequisites(String id);
 
     /**
-     * Retrieves a {@link LiveData} of the output for a {@link WorkSpec}
-     * @param id
-     * @return
+     * Retrieves a {@link LiveData} of the output for a {@link WorkSpec}.
+     *
+     * @param id The identifier of a {@link WorkSpec}
+     * @return The {@link LiveData} output of that unit of work
      */
     @Query("SELECT output FROM workspec WHERE id=:id")
     LiveData<Arguments> getOutput(String id);
@@ -160,8 +172,8 @@ public interface WorkSpecDao {
     /**
      * Retrieves work ids for unfinished work with a given tag.
      *
-     * @param tag The tag used to identify the work.
-     * @return A list of work ids.
+     * @param tag The tag used to identify the work
+     * @return A list of work ids
      */
     @Query("SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND status!="
             + STATUS_FAILED + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
