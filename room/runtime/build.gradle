@@ -24,10 +24,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion flatfoot.min_sdk
-    }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
