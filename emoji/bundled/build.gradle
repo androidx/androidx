@@ -10,10 +10,6 @@ ext {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-
     sourceSets {
         main.assets.srcDirs new File(fontDir, "font").getAbsolutePath()
     }
