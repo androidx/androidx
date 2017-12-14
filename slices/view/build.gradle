@@ -29,12 +29,6 @@ dependencies {
     implementation(project(":lifecycle:extensions"))
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 19
-    }
-}
-
 supportLibrary {
     name = "Slice views"
     publish = true
@@ -42,4 +36,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.SLICES
     inceptionYear = "2017"
     description = "A library that handles rendering of slice content into supported templates"
+    minSdkVersion = 19
 }
