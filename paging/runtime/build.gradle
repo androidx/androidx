@@ -28,7 +28,7 @@ dependencies {
     api(project(":arch:runtime"))
     api(project(":paging:common"))
     api(project(":lifecycle:runtime"))
-    api(project(":lifecycle:extensions"))
+    api(project(":lifecycle:livedata"))
 
     api(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
 
