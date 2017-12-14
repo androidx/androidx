@@ -22,10 +22,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 23
-    }
-
     sourceSets {
         main.res.srcDirs 'res', 'res-public'
         main.resources {
@@ -46,4 +42,5 @@ supportLibrary {
     inceptionYear = "2016"
     description = "Android Wear Support UI"
     legacySourceLocation = true
+    minSdkVersion = 23
 }

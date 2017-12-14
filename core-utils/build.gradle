@@ -16,12 +16,6 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
 supportLibrary {
     name = "Android Support Library core utils"
     publish = true

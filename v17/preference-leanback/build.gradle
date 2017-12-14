@@ -15,10 +15,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 17
-    }
-
     sourceSets {
         main.java.srcDirs = [
                 'api21',
@@ -36,4 +32,5 @@ supportLibrary {
     inceptionYear = "2015"
     description = "Android Support Leanback Preference v17"
     legacySourceLocation = true
+    minSdkVersion = 17
 }

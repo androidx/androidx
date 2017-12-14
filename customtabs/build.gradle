@@ -17,10 +17,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion(15)
-    }
-
     sourceSets {
         main.aidl.srcDirs = ["src/main/java"]
     }
@@ -34,4 +30,5 @@ supportLibrary {
     inceptionYear = "2015"
     description = "Android Support Custom Tabs"
     legacySourceLocation = true
+    minSdkVersion = 15
 }

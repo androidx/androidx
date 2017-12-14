@@ -14,10 +14,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-
     sourceSets {
         main.res.srcDir 'res'
     }

@@ -13,12 +13,6 @@ dependencies {
     androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 21
-    }
-}
-
 supportLibrary {
     name = "Android Support TV Provider"
     publish = true
@@ -27,4 +21,5 @@ supportLibrary {
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"
     legacySourceLocation = true
+    minSdkVersion = 21
 }
