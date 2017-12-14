@@ -32,10 +32,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-
     sourceSets {
         main {
             // We use a non-standard manifest path.

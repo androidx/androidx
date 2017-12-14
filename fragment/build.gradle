@@ -21,12 +21,6 @@ dependencies {
     }
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
 supportLibrary {
     name = "Android Support Library fragment"
     publish = true

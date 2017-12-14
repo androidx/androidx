@@ -16,7 +16,6 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion(14)
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
     }

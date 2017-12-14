@@ -23,17 +23,12 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-
     sourceSets {
         main.res.srcDirs = [
                 'res',
                 'res-public'
         ]
     }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }

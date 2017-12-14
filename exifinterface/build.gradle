@@ -12,12 +12,6 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
 supportLibrary {
     name = "Android Support ExifInterface"
     publish = true

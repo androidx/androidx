@@ -24,12 +24,6 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    defaultConfig {
-        minSdkVersion flatfoot.min_sdk
-    }
-}
-
 dependencies {
     api(project(":arch:runtime"))
     api(project(":paging:common"))
