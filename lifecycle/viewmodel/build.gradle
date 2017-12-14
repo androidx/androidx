@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,29 +30,18 @@ android {
 }
 
 dependencies {
-    api(project(":lifecycle:runtime"))
-    api(project(":arch:common"))
-    api(project(":arch:runtime"))
-    api(SUPPORT_FRAGMENTS, libs.support_exclude_config)
-    api(project(":lifecycle:common"))
-    api(project(":lifecycle:livedata"))
-    api(project(":lifecycle:viewmodel"))
+    api(SUPPORT_ANNOTATIONS)
 
-    testImplementation(project(":arch:core-testing"))
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
-
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
 }
 
 supportLibrary {
-    name = "Android Lifecycle Extensions"
+    name = "Android Lifecycle ViewModel"
     publish = true
-    mavenVersion = LibraryVersions.LIFECYCLES_EXT
+    mavenVersion = LibraryVersions.LIFECYCLES_VIEWMODEL
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
-    description = "Android Lifecycle Extensions"
+    description = "Android Lifecycle ViewModel"
     url = SupportLibraryExtension.ARCHITECTURE_URL
 }

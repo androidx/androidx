@@ -1,0 +1,55 @@
+package android.arch.lifecycle {
+
+  public class AndroidViewModel extends android.arch.lifecycle.ViewModel {
+    ctor public AndroidViewModel(android.app.Application);
+    method public <T extends android.app.Application> T getApplication();
+  }
+
+  public deprecated class LifecycleActivity extends android.support.v4.app.FragmentActivity {
+    ctor public LifecycleActivity();
+  }
+
+  public deprecated class LifecycleFragment extends android.support.v4.app.Fragment {
+    ctor public LifecycleFragment();
+  }
+
+  public class LifecycleService extends android.app.Service implements android.arch.lifecycle.LifecycleOwner {
+    ctor public LifecycleService();
+    method public android.arch.lifecycle.Lifecycle getLifecycle();
+    method public android.os.IBinder onBind(android.content.Intent);
+    method public void onStart(android.content.Intent, int);
+  }
+
+  public class ProcessLifecycleOwner implements android.arch.lifecycle.LifecycleOwner {
+    method public static android.arch.lifecycle.LifecycleOwner get();
+    method public android.arch.lifecycle.Lifecycle getLifecycle();
+  }
+
+  public class ServiceLifecycleDispatcher {
+    ctor public ServiceLifecycleDispatcher(android.arch.lifecycle.LifecycleOwner);
+    method public android.arch.lifecycle.Lifecycle getLifecycle();
+    method public void onServicePreSuperOnBind();
+    method public void onServicePreSuperOnCreate();
+    method public void onServicePreSuperOnDestroy();
+    method public void onServicePreSuperOnStart();
+  }
+
+  public class ViewModelProviders {
+    ctor public ViewModelProviders();
+    method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.Fragment);
+    method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.FragmentActivity);
+    method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.Fragment, android.arch.lifecycle.ViewModelProvider.Factory);
+    method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.FragmentActivity, android.arch.lifecycle.ViewModelProvider.Factory);
+  }
+
+  public static class ViewModelProviders.DefaultFactory extends android.arch.lifecycle.ViewModelProvider.NewInstanceFactory {
+    ctor public ViewModelProviders.DefaultFactory(android.app.Application);
+  }
+
+  public class ViewModelStores {
+    method public static android.arch.lifecycle.ViewModelStore of(android.support.v4.app.FragmentActivity);
+    method public static android.arch.lifecycle.ViewModelStore of(android.support.v4.app.Fragment);
+  }
+
+}
+
