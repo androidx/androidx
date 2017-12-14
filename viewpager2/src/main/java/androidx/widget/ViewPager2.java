@@ -62,7 +62,7 @@ public class ViewPager2 extends ViewGroup {
 
     @TargetApi(21)
     public ViewPager2(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        // TODO: handle attrs, defStyleAttr, defStyleRes
+        // TODO(b/70663531): handle attrs, defStyleAttr, defStyleRes
         super(context, attrs, defStyleAttr, defStyleRes);
         initialize(context);
     }
@@ -71,21 +71,22 @@ public class ViewPager2 extends ViewGroup {
         mRecyclerView = new RecyclerView(context);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-        // TODO: add support for vertical layout and RTL
+        // TODO(b/69103581): add support for vertical layout
+        // TODO(b/69398856): add support for RTL
         layoutManager.setOrientation(RecyclerView.HORIZONTAL);
         mRecyclerView.setLayoutManager(layoutManager);
 
         mRecyclerView.setLayoutParams(
                 new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-        // TODO: verify behaviour when changing orientation
+        // TODO(b/70666992): add automated test for orientation change
         new PagerSnapHelper().attachToRecyclerView(mRecyclerView);
 
         attachViewToParent(mRecyclerView, 0, mRecyclerView.getLayoutParams());
     }
 
     /**
-     * TODO: decide on an Adapter class (for now reusing RecyclerView.Adapter)
+     * TODO(b/70663708): decide on an Adapter class (for now reusing RecyclerView.Adapter)
      *
      * @see RecyclerView#setAdapter(Adapter)
      */
@@ -100,8 +101,8 @@ public class ViewPager2 extends ViewGroup {
 
                 LayoutParams layoutParams = viewHolder.itemView.getLayoutParams();
                 if ((layoutParams.width | layoutParams.height) != LayoutParams.MATCH_PARENT) {
-                    // TODO: decide if throw an exception or wrap in FrameLayout ourselves
-                    // TODO: consider accepting exact size equal to parent's exact size
+                    // TODO(b/70666614): decide if throw an exception or wrap in FrameLayout
+                    // ourselves; consider accepting exact size equal to parent's exact size
                     throw new IllegalStateException(String.format(
                             "Item's root view must fill the whole %s (use match_parent)",
                             ViewPager2.this.getClass().getSimpleName()));
@@ -124,7 +125,7 @@ public class ViewPager2 extends ViewGroup {
 
     @Override
     public void onViewAdded(View child) {
-        // TODO: consider adding a support for Decor views
+        // TODO(b/70666620): consider adding a support for Decor views
         throw new IllegalStateException(
                 getClass().getSimpleName() + " does not support direct child views");
     }
@@ -136,9 +137,9 @@ public class ViewPager2 extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // TODO: consider margin support
-        // TODO: consider delegating all this to RecyclerView
-        // TODO: write tests for this
+        // TODO(b/70666622): consider margin support
+        // TODO(b/70666626): consider delegating all this to RecyclerView
+        // TODO(b/70666625): write automated tests for this
 
         measureChild(mRecyclerView, widthMeasureSpec, heightMeasureSpec);
         int width = mRecyclerView.getMeasuredWidth();
@@ -161,8 +162,8 @@ public class ViewPager2 extends ViewGroup {
         int width = mRecyclerView.getMeasuredWidth();
         int height = mRecyclerView.getMeasuredHeight();
 
-        // TODO: consider delegating padding handling to the RecyclerView to avoid an unnatural
-        // page transition effect: http://shortn/_Vnug3yZpQT
+        // TODO(b/70666626): consider delegating padding handling to the RecyclerView to avoid
+        // an unnatural page transition effect: http://shortn/_Vnug3yZpQT
         mTmpContainerRect.left = getPaddingLeft();
         mTmpContainerRect.right = r - l - getPaddingRight();
         mTmpContainerRect.top = getPaddingTop();
