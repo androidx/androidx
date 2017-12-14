@@ -17,7 +17,7 @@ dependencies {
     api(project(":lifecycle:common"))
     api(project(":arch:common"))
     // necessary for IJ to resolve dependencies.
-    api libs.support.annotations
+    api(SUPPORT_ANNOTATIONS)
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)

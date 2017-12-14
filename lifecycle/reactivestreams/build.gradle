@@ -28,14 +28,14 @@ dependencies {
     api(project(":lifecycle:common"))
     api(project(":lifecycle:extensions"))
     api(project(":lifecycle:runtime"))
-    api libs.support.annotations
+    api(SUPPORT_ANNOTATIONS)
     api(REACTIVE_STREAMS)
 
     testImplementation(JUNIT)
     testImplementation(RX_JAVA)
     testImplementation(TEST_RUNNER)
 
-    androidTestImplementation libs.support.app_compat, libs.support_exclude_config
+    androidTestImplementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
 }
 
 supportLibrary {
