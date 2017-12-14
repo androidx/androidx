@@ -85,6 +85,9 @@ project(':transition').projectDir = new File(rootDir, 'transition')
 include ':support-dynamic-animation'
 project(':support-dynamic-animation').projectDir = new File(rootDir, 'dynamic-animation')
 
+include ':viewpager2'
+project(':viewpager2').projectDir = new File(rootDir, 'viewpager2')
+
 include ':exifinterface'
 project(':exifinterface').projectDir = new File(rootDir, 'exifinterface')
 
@@ -155,6 +158,9 @@ project(':support-vector-drawable-demos').projectDir = new File(samplesRoot, 'Su
 
 include ':support-animation-demos'
 project(':support-animation-demos').projectDir = new File(samplesRoot, 'SupportAnimationDemos')
+
+include ':viewpager2-demos'
+project(':viewpager2-demos').projectDir = new File(samplesRoot, 'ViewPager2Demos')
 
 include ':support-wear-demos'
 project(':support-wear-demos').projectDir = new File(samplesRoot, 'SupportWearDemos')
