@@ -22,12 +22,6 @@ plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
-android {
-    defaultConfig {
-        minSdkVersion flatfoot.min_sdk
-    }
-}
-
 dependencies {
     api libs.support.annotations
 }
