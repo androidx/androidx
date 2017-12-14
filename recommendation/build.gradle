@@ -9,12 +9,6 @@ dependencies {
     api(project(":support-annotations"))
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 21
-    }
-}
-
 supportLibrary {
     name = "Android Support Recommendation"
     publish = true
@@ -23,4 +17,5 @@ supportLibrary {
     inceptionYear = "2015"
     description = "Android Support Recommendation"
     legacySourceLocation = true
+    minSdkVersion = 21
 }

@@ -27,12 +27,6 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
 supportLibrary {
     legacySourceLocation = true
 }

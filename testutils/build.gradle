@@ -32,9 +32,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 14
-    }
     lintOptions {
         disable 'InvalidPackage' // Lint is unhappy about junit package
     }
