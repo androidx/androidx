@@ -37,7 +37,7 @@ dependencies {
     api(project(":lifecycle:runtime"))
     api(project(":arch:common"))
     api(project(":arch:runtime"))
-    api libs.support.fragments, libs.support_exclude_config
+    api(SUPPORT_FRAGMENTS, libs.support_exclude_config)
     api(project(":lifecycle:common"))
 
     testImplementation(project(":arch:core-testing"))
@@ -46,7 +46,7 @@ dependencies {
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation libs.support.app_compat, libs.support_exclude_config
+    androidTestImplementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
 }
 
 supportLibrary {

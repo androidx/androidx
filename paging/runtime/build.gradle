@@ -36,7 +36,7 @@ dependencies {
     api(project(":lifecycle:runtime"))
     api(project(":lifecycle:extensions"))
 
-    api libs.support.recyclerview, libs.support_exclude_config
+    api(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
 
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
