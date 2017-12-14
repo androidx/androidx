@@ -800,7 +800,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         });
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     public void hiddenNoneRemoveViewAccessibility() throws Throwable {
         final Config config = new Config();
