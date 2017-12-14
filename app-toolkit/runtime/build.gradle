@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.SupportLibraryExtension
 import android.support.LibraryVersions
@@ -23,7 +24,7 @@ plugins {
 }
 
 dependencies {
-    api libs.support.annotations
+    api(SUPPORT_ANNOTATIONS)
     api(project(":arch:common"))
 }
 

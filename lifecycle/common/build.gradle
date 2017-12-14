@@ -26,7 +26,7 @@ plugins {
 dependencies {
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)
-    compile libs.support.annotations
+    compile(SUPPORT_ANNOTATIONS)
 }
 
 supportLibrary {
