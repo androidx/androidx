@@ -139,6 +139,16 @@ public interface WorkSpecDao {
     LiveData<List<WorkSpec>> getForegroundEligibleWorkSpecs();
 
     /**
+     * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED} or
+     * {@code STATUS_RUNNING}
+     *
+     * @return A {@link LiveData} list of {@link WorkSpec}s.
+     */
+    @Query("SELECT * FROM workspec WHERE status=" + STATUS_ENQUEUED + " OR status="
+            + STATUS_RUNNING)
+    LiveData<List<WorkSpec>> getSystemAlarmEligibleWorkSpecs();
+
+    /**
      * Gets all inputs coming from prerequisites for a particular {@link WorkSpec}.  These are
      * {@link Arguments} set via {@code Worker#setOutput()}.
      *

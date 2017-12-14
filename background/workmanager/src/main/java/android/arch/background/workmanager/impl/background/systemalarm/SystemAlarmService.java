@@ -16,11 +16,19 @@
 
 package android.arch.background.workmanager.impl.background.systemalarm;
 
+import android.arch.background.workmanager.BaseWork;
+import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.impl.ExecutionListener;
+import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.background.BackgroundProcessor;
+import android.arch.background.workmanager.impl.constraints.ConstraintsMetCallback;
+import android.arch.background.workmanager.impl.constraints.ConstraintsTracker;
+import android.arch.background.workmanager.impl.model.WorkSpec;
+import android.arch.background.workmanager.impl.utils.LiveDataUtils;
 import android.arch.lifecycle.LifecycleService;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
@@ -29,19 +37,28 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Service invoked by {@link android.app.AlarmManager} to run work tasks.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class SystemAlarmService extends LifecycleService implements ExecutionListener {
+public class SystemAlarmService extends LifecycleService implements ExecutionListener,
+        Observer<List<WorkSpec>>, ConstraintsMetCallback {
     private static final String EXTRA_WORK_ID = "EXTRA_WORK_ID";
     private static final String ACTION_CONSTRAINT_CHANGED = "CONSTRAINT_CHANGED";
     private static final String ACTION_DELAY_MET = "DELAY_MET";
     private static final String ACTION_CANCEL_WORK = "CANCEL_WORK";
     private static final String TAG = "SystemAlarmService";
+    private final List<WorkSpec> mObservedWorkSpecs = new LinkedList<>();
+    private final List<WorkSpec> mDelayNotMetWorkSpecs = new LinkedList<>();
+    private final Object mLock = new Object();
     private BackgroundProcessor mProcessor;
+    private ConstraintsTracker mConstraintsTracker;
 
     @Override
     public void onCreate() {
@@ -49,8 +66,11 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
         Context context = getApplicationContext();
         WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
         WorkDatabase database = workManagerImpl.getWorkDatabase();
-        mProcessor =
-                new BackgroundProcessor(context, database, workManagerImpl.getScheduler(), this);
+        Scheduler scheduler = workManagerImpl.getScheduler();
+        mProcessor = new BackgroundProcessor(context, database, scheduler, this);
+        mConstraintsTracker = new ConstraintsTracker(context, this);
+        LiveDataUtils.dedupedLiveDataFor(database.workSpecDao().getSystemAlarmEligibleWorkSpecs())
+                .observe(this, this);
     }
 
     @Override
@@ -67,9 +87,7 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
 
         switch (action) {
             case ACTION_DELAY_MET:
-                // TODO(xbhatnag): Don't process immediately. Update ConstraintsTracker and Proxies.
-                Log.d(TAG, "Processing work " + workSpecId);
-                mProcessor.process(workSpecId);
+                onDelayMet(workSpecId);
                 break;
             case ACTION_CANCEL_WORK:
                 Log.d(TAG, "Cancelling work " + workSpecId);
@@ -84,17 +102,112 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
         return START_NOT_STICKY;
     }
 
+    /**
+     * This method is invoked via Intent when the delay of a WorkSpec is met.
+     * This will find the WorkSpec in mDelayNotMetWorkSpecs and either observe constraints
+     * or process immediately.
+     * This method may be invoked before the LiveData is ready and mDelayNotMetWorkSpecs would be
+     * empty. When LiveData is ready, the delays of all WorkSpecs will be checked against
+     * current time.
+     *
+     * @param workSpecId ID of {@link WorkSpec} whose delay has been met
+     */
+    private void onDelayMet(String workSpecId) {
+        Log.d(TAG, "Delay Met intent received for " + workSpecId);
+        synchronized (mLock) {
+            WorkSpec workSpec = removeWorkSpecWithId(workSpecId, mDelayNotMetWorkSpecs);
+            if (workSpec == null) {
+                Log.d(TAG, "Could not find " + workSpecId + " in Delay Not Met list. "
+                        + "Is LiveData initialized right now?");
+            } else if (hasConstraints(workSpec)) {
+                Log.d(TAG, "Observing constraints for " + workSpec);
+                mObservedWorkSpecs.add(workSpec);
+                updateConstraintsTrackerAndProxy();
+            } else if (isEnqueued(workSpec)) {
+                Log.d(TAG, "Processing " + workSpec + " immediately");
+                mProcessor.process(workSpec.getId());
+            } else {
+                Log.d(TAG, workSpec + " is unconstrained and currently running");
+            }
+        }
+    }
+
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         Log.d(TAG, workSpecId + " executed on AlarmManager");
         // TODO(janclarin): Handle rescheduling if needed or if periodic.
-        // TODO(xbhatnag): Update ConstraintsTracker and Proxies.
+
+        synchronized (mLock) {
+            WorkSpec executedWorkSpec = removeWorkSpecWithId(workSpecId, mObservedWorkSpecs);
+            if (executedWorkSpec != null) {
+                updateConstraintsTrackerAndProxy();
+            } else {
+                Log.d(TAG, workSpecId + " not in Observed WorkSpecs list");
+            }
+        }
 
         if (!mProcessor.hasWork()) {
             // TODO(janclarin): Release wakelock.
             Log.d(TAG, "Stopping self");
             stopSelf();
         }
+    }
+
+    /**
+     * This method is invoked when the list of {@link WorkSpec}s is updated.
+     * The scheduled time is checked with respect to current time.
+     * As time goes on and delays are met, {@link #onDelayMet(String)} will be invoked
+     * and the {@link WorkSpec} will be handled correctly.
+     *
+     * @param workSpecs updated {@link WorkSpec}s
+     */
+    @Override
+    public void onChanged(@Nullable List<WorkSpec> workSpecs) {
+        if (workSpecs == null) {
+            return;
+        }
+        Log.d(TAG, "onChanged; # workspecs = " + workSpecs.size());
+
+        synchronized (mLock) {
+            mObservedWorkSpecs.clear();
+            mDelayNotMetWorkSpecs.clear();
+
+            for (WorkSpec workSpec : workSpecs) {
+                if (!isDelayMet(workSpec)) {
+                    Log.d(TAG, "Delay not met for " + workSpec);
+                    mDelayNotMetWorkSpecs.add(workSpec);
+                } else if (hasConstraints(workSpec)) {
+                    Log.d(TAG, "Observing constraints for " + workSpec);
+                    mObservedWorkSpecs.add(workSpec);
+                } else if (isEnqueued(workSpec)) {
+                    Log.d(TAG, "Processing " + workSpec + " immediately");
+                    mProcessor.process(workSpec.getId());
+                } else {
+                    Log.d(TAG, workSpec + " is unconstrained and currently running");
+                }
+            }
+
+            updateConstraintsTrackerAndProxy();
+        }
+    }
+
+    @Override
+    public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
+        for (String workSpecId : workSpecIds) {
+            mProcessor.process(workSpecId);
+        }
+    }
+
+    @Override
+    public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
+        for (String workSpecId : workSpecIds) {
+            mProcessor.cancel(workSpecId, true);
+        }
+    }
+
+    private void updateConstraintsTrackerAndProxy() {
+        mConstraintsTracker.replace(mObservedWorkSpecs);
+        ConstraintProxy.updateAll(getApplicationContext(), mObservedWorkSpecs);
     }
 
     @Nullable
@@ -128,5 +241,29 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
         intent.setAction(SystemAlarmService.ACTION_CANCEL_WORK);
         intent.putExtra(EXTRA_WORK_ID, workSpecId);
         return intent;
+    }
+
+    private static boolean isEnqueued(@NonNull WorkSpec workSpec) {
+        return workSpec.getStatus() == BaseWork.STATUS_ENQUEUED;
+    }
+
+    private static boolean hasConstraints(@NonNull WorkSpec workSpec) {
+        return !Constraints.NONE.equals(workSpec.getConstraints());
+    }
+
+    private static boolean isDelayMet(@NonNull WorkSpec workSpec) {
+        return workSpec.calculateNextRunTime() <= System.currentTimeMillis();
+    }
+
+    private static WorkSpec removeWorkSpecWithId(String workSpecId, List<WorkSpec> workSpecs) {
+        Iterator<WorkSpec> iterator = workSpecs.iterator();
+        while (iterator.hasNext()) {
+            WorkSpec workSpec = iterator.next();
+            if (workSpec.getId().equals(workSpecId)) {
+                iterator.remove();
+                return workSpec;
+            }
+        }
+        return null;
     }
 }
