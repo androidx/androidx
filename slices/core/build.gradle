@@ -28,9 +28,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 19
-    }
     sourceSets {
         main.res.srcDirs = [
                 'res',
@@ -46,4 +43,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.SLICES
     inceptionYear = "2017"
     description = "The slices core library provides utilities for the slices view and provider libraries"
+    minSdkVersion = 19
 }

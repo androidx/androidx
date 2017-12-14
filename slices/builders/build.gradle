@@ -27,12 +27,6 @@ dependencies {
     implementation(SUPPORT_ANNOTATIONS, libs.support_exclude_config)
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 19
-    }
-}
-
 supportLibrary {
     name = "Slice builders"
     publish = true
@@ -40,4 +34,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.SLICES
     inceptionYear = "2017"
     description = "A set of builders to create templates using SliceProvider APIs"
+    minSdkVersion = 19
 }
