@@ -1,0 +1,714 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="ScrollViewSize"
+        message="This RelativeLayout should use `android:layout_height=&quot;wrap_content&quot;`"
+        errorLine1="            android:layout_height=&quot;match_parent&quot;>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_bottom_navigation_view.xml"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="            android:elevation=&quot;@dimen/bottom_sheet_elevation&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_bottom_sheet_hideable.xml"
+            line="57"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="            android:elevation=&quot;24dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_bottom_sheet_hideable.xml"
+            line="74"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="            android:elevation=&quot;@dimen/bottom_sheet_elevation&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_bottom_sheet_persistent.xml"
+            line="42"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="            android:elevation=&quot;@dimen/bottom_sheet_elevation&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_bottom_sheet_scroll.xml"
+            line="62"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="        android:elevation=&quot;8dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_bottom_sheet_with_fab.xml"
+            line="53"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="        android:elevation=&quot;8dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_coordinatorlayout_inset.xml"
+            line="38"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `BottomSheetBehavior.STATE_DRAGGING`, `BottomSheetBehavior.STATE_SETTLING`"
+        errorLine1="                switch (newState) {"
+        errorLine2="                ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/BottomSheetHideable.java"
+            line="54"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `BottomSheetBehavior.STATE_DRAGGING`, `BottomSheetBehavior.STATE_SETTLING`"
+        errorLine1="                switch (newState) {"
+        errorLine2="                ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/BottomSheetWithFab.java"
+            line="65"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: BaseTransientBottomBar.LENGTH_INDEFINITE, BaseTransientBottomBar.LENGTH_SHORT, BaseTransientBottomBar.LENGTH_LONG or value must be ≥ 1 (was -1)"
+        errorLine1="        Snackbar.make(mContentView, &quot;Short snackbar message&quot;, Snackbar.LENGTH_SHORT).show();"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/SnackbarUsage.java"
+            line="48"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: BaseTransientBottomBar.LENGTH_INDEFINITE, BaseTransientBottomBar.LENGTH_SHORT, BaseTransientBottomBar.LENGTH_LONG or value must be ≥ 1 (was -1)"
+        errorLine1="        Snackbar.make(mContentView, &quot;Short snackbar message&quot;, Snackbar.LENGTH_SHORT)"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/SnackbarUsage.java"
+            line="52"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: BaseTransientBottomBar.LENGTH_INDEFINITE, BaseTransientBottomBar.LENGTH_SHORT, BaseTransientBottomBar.LENGTH_LONG or value must be ≥ 1 (was -1)"
+        errorLine1="                + &quot;makes the Snackbar taller&quot;, Snackbar.LENGTH_SHORT).show();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/SnackbarUsage.java"
+            line="64"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: BaseTransientBottomBar.LENGTH_INDEFINITE, BaseTransientBottomBar.LENGTH_SHORT, BaseTransientBottomBar.LENGTH_LONG or value must be ≥ 1 (was -1)"
+        errorLine1="                + &quot;makes the Snackbar taller&quot;, Snackbar.LENGTH_SHORT)"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/SnackbarUsage.java"
+            line="69"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: BaseTransientBottomBar.LENGTH_INDEFINITE, BaseTransientBottomBar.LENGTH_SHORT, BaseTransientBottomBar.LENGTH_LONG or value must be ≥ 1 (was -1)"
+        errorLine1="                + &quot;makes the Snackbar taller&quot;, Snackbar.LENGTH_SHORT)"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/SnackbarUsage.java"
+            line="81"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/include_appbar_scrollview_with_image.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/design_bottom_navigation_view.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/design_fab.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/colorPrimary` with a theme that also paints a background (inferred theme is `@style/Theme.DesignDemos`)"
+        errorLine1="    android:background=&quot;?attr/colorPrimary&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/action_layout_custom.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `#ccc` with a theme that also paints a background (inferred theme is `@style/Theme.DesignDemos`)"
+        errorLine1="        android:background=&quot;#ccc&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_bottom_sheet_fragment.xml"
+            line="22"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.navigation_open` appears to be unused"
+        errorLine1="    &lt;string name=&quot;navigation_open&quot;>Open&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="41"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.navigation_close` appears to be unused"
+        errorLine1="    &lt;string name=&quot;navigation_close&quot;>Close&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="42"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-hdpi`: ic_add.png (found in drawable-xxhdpi)">
+        <location
+            file="src/main/res/drawable-hdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-mdpi`: ic_add.png (found in drawable-xxhdpi)">
+        <location
+            file="src/main/res/drawable-mdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xhdpi`: app_sample_code.png, ic_add.png">
+        <location
+            file="src/main/res/drawable-xhdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xxhdpi`: app_sample_code.png (found in drawable-hdpi, drawable-mdpi)">
+        <location
+            file="src/main/res/drawable-xxhdpi"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/design_tabs_viewpager.xml"
+            line="55"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/design_tabs_viewpager.xml"
+            line="62"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/design_tabs_viewpager.xml"
+            line="69"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="            &lt;Button"
+        errorLine2="            ^">
+        <location
+            file="src/main/res/layout/design_text_input.xml"
+            line="47"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="            &lt;Button"
+        errorLine2="            ^">
+        <location
+            file="src/main/res/layout/design_text_input.xml"
+            line="53"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="            &lt;Button"
+        errorLine2="            ^">
+        <location
+            file="src/main/res/layout/design_text_input.xml"
+            line="59"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="            &lt;Button"
+        errorLine2="            ^">
+        <location
+            file="src/main/res/layout/design_text_input.xml"
+            line="135"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="            &lt;Button"
+        errorLine2="            ^">
+        <location
+            file="src/main/res/layout/design_text_input.xml"
+            line="141"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingWarning"
+        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/custom_snackbar_include.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/custom_snackbar_include.xml"
+            line="33"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageView"
+        errorLine2="            ^">
+        <location
+            file="src/main/res/layout/design_appbar_toolbar_collapse_with_image.xml"
+            line="38"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageView"
+        errorLine2="            ^">
+        <location
+            file="src/main/res/layout/design_appbar_toolbar_collapse_with_image_insets.xml"
+            line="40"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageView"
+        errorLine2="            ^">
+        <location
+            file="src/main/res/layout/design_appbar_toolbar_parallax_overlap.xml"
+            line="39"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView android:layout_width=&quot;72dp&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/include_appbar_scrollview_with_image.xml"
+            line="30"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="            android:clickable=&quot;true&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_snackbar_with_fab.xml"
+            line="43"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="            android:clickable=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_appbar_toolbar_collapse_pin_with_fab.xml"
+            line="56"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="        android:clickable=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_bottom_sheet_with_fab.xml"
+            line="68"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="                android:clickable=&quot;true&quot; />"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_fab.xml"
+            line="52"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="                android:clickable=&quot;true&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_fab.xml"
+            line="66"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="            android:clickable=&quot;true&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_snackbar_with_fab.xml"
+            line="67"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                                selectedItem.setText(&quot;Entering searching mode&quot;);"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/BottomNavigationViewUsage.java"
+            line="107"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                                selectedItem.setText(&quot;Entering settings!?!&quot;);"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/BottomNavigationViewUsage.java"
+            line="110"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                                selectedItem.setText(&quot;Play some music&quot;);"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/BottomNavigationViewUsage.java"
+            line="113"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                                selectedItem.setText(&quot;Selected &quot; + item.getTitle());"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/BottomNavigationViewUsage.java"
+            line="116"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                                selectedItem.setText(&quot;Selected &quot; + item.getTitle());"
+        errorLine2="                                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/BottomNavigationViewUsage.java"
+            line="116"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                        selectedItem.setText(&quot;Reselected &quot; + item.getTitle());"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/BottomNavigationViewUsage.java"
+            line="125"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                        selectedItem.setText(&quot;Reselected &quot; + item.getTitle());"
+        errorLine2="                                             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/BottomNavigationViewUsage.java"
+            line="125"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        holder.mTextView.setText(position + &quot;: &quot; + mValues.get(position));"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/design/widget/SimpleStringRecyclerViewAdapter.java"
+            line="78"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_snackbar_include.xml"
+            line="29"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_marginEnd=&quot;8dp&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_marginRight=&quot;8dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_snackbar_include.xml"
+            line="30"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_snackbar_include.xml"
+            line="37"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/custom_snackbar_image_leading&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_toRightOf=&quot;@id/custom_snackbar_image_leading&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_snackbar_include.xml"
+            line="45"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toStartOf=&quot;@id/custom_snackbar_image_trailing&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_toLeftOf=&quot;@id/custom_snackbar_image_trailing&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_snackbar_include.xml"
+            line="46"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/custom_snackbar_image_leading&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_toRightOf=&quot;@id/custom_snackbar_image_leading&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_snackbar_include.xml"
+            line="56"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toStartOf=&quot;@id/custom_snackbar_image_trailing&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_toLeftOf=&quot;@id/custom_snackbar_image_trailing&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_snackbar_include.xml"
+            line="57"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_marginEnd=&quot;16dp&quot;` to better support right-to-left layouts"
+        errorLine1="            android:layout_marginRight=&quot;16dp&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_appbar_toolbar_collapse_pin_with_fab.xml"
+            line="55"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="            android:layout_gravity=&quot;top|right&quot;"
+        errorLine2="                                    ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/design_bottom_sheet_hideable.xml"
+            line="72"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_marginStart=&quot;16dp&quot;` to better support right-to-left layouts"
+        errorLine1="                   android:layout_marginLeft=&quot;16dp&quot;/>"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/include_appbar_scrollview_with_image.xml"
+            line="33"
+            column="20"/>
+    </issue>
+
+</issues>

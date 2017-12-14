@@ -1,4 +1,6 @@
-apply plugin: 'com.android.application'
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
 
 dependencies {
     implementation(project(":transition"))
@@ -6,30 +8,6 @@ dependencies {
 }
 
 android {
-    compileSdkVersion project.ext.currentSdk
-
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion project.ext.currentSdk
-    }
-
-    lintOptions {
-        abortOnError true
-        check 'NewApi'
-    }
-
-    signingConfigs {
-        debug {
-            // Use a local debug keystore to avoid build server issues.
-            storeFile project.rootProject.init.debugKeystore
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
     aaptOptions {
         additionalParameters "--no-version-transitions"
     }

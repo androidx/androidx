@@ -16,41 +16,19 @@
 
 import static android.support.dependencies.DependenciesKt.*
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android'
+plugins {
+    id("SupportAndroidTestAppPlugin")
+    id("kotlin-kapt")
+    id("kotlin-android")
+}
 
 android {
-    compileSdkVersion tools.current_sdk
-    buildToolsVersion tools.build_tools_version
-
     defaultConfig {
-        minSdkVersion flatfoot.min_sdk
-        targetSdkVersion tools.current_sdk
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
-    }
-
-    signingConfigs {
-        debug {
-            // Use a local debug keystore to avoid build server issues.
-            storeFile project.rootProject.init.debugKeystore
-        }
-    }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
     }
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
