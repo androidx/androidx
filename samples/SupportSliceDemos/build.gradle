@@ -21,10 +21,11 @@ apply plugin: 'com.android.application'
 dependencies {
     implementation(project(":slices-view"))
     implementation(project(":slices-builders"))
-    implementation(project(":lifecycle:extensions"))
-    implementation(SUPPORT_DESIGN, libs.support_exclude_config)
-    implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
-    implementation(SUPPORT_CARDVIEW, libs.support_exclude_config)
+    implementation(project(":slices-core"))
+    implementation(project(":design"))
+    implementation(project(":appcompat-v7"))
+    implementation(project(":cardview-v7"))
+    api(ARCH_LIFECYCLE_EXTENSIONS, libs.exclude_annotations_transitive)
 }
 
 android {

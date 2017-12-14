@@ -115,6 +115,15 @@ project(':car').projectDir = new File(rootDir, 'car')
 include ':webkit'
 project(':webkit').projectDir = new File(rootDir, 'webkit')
 
+include ':slices-core'
+project(':slices-core').projectDir = new File(rootDir, 'slices/core')
+
+include ':slices-view'
+project(':slices-view').projectDir = new File(rootDir, 'slices/view')
+
+include ':slices-builders'
+project(':slices-builders').projectDir = new File(rootDir, 'slices/builders')
+
 /////////////////////////////
 //
 // Samples
@@ -173,6 +182,10 @@ project(':support-emoji-demos').projectDir = new File(samplesRoot, 'SupportEmoji
 
 include ':support-car-demos'
 project(':support-car-demos').projectDir = new File(samplesRoot, 'SupportCarDemos')
+
+include ':support-slices-demos'
+project(':support-slices-demos').projectDir = new File(samplesRoot, 'SupportSliceDemos')
+
 /////////////////////////////
 //
 // Testing libraries

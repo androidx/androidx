@@ -25,8 +25,8 @@ plugins {
 dependencies {
     implementation(project(":slices-core"))
     implementation(project(":slices-builders"))
-    implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
-    implementation(project(":lifecycle:extensions"))
+    implementation(project(":recyclerview-v7"))
+    api(ARCH_LIFECYCLE_EXTENSIONS, libs.exclude_annotations_transitive)
 }
 
 supportLibrary {
