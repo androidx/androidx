@@ -17,10 +17,7 @@
 package androidx.app.slice.core;
 
 import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_IMAGE;
-import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import android.annotation.TargetApi;
 import android.support.annotation.RestrictTo;
@@ -47,61 +44,6 @@ import androidx.app.slice.SliceItem;
 // TODO: Not expect 24.
 @TargetApi(24)
 public class SliceQuery {
-
-    /**
-     * @return Whether this item is appropriate to be considered a "start" item, i.e. go in the
-     *         front slot of a row.
-     */
-    public static boolean isStartType(SliceItem item) {
-        final String type = item.getFormat();
-        return (!item.hasHint(SliceHints.SUBTYPE_TOGGLE)
-                && (FORMAT_ACTION.equals(type) && (find(item, FORMAT_IMAGE) != null)))
-                || FORMAT_IMAGE.equals(type)
-                || FORMAT_TIMESTAMP.equals(type);
-    }
-
-    /**
-     * @return Finds the first slice that has non-slice children.
-     */
-    public static SliceItem findFirstSlice(SliceItem slice) {
-        if (!FORMAT_SLICE.equals(slice.getFormat())) {
-            return slice;
-        }
-        List<SliceItem> items = slice.getSlice().getItems();
-        for (int i = 0; i < items.size(); i++) {
-            if (FORMAT_SLICE.equals(items.get(i).getFormat())) {
-                SliceItem childSlice = items.get(i);
-                return findFirstSlice(childSlice);
-            } else {
-                // Doesn't have slice children so return it
-                return slice;
-            }
-        }
-        // Slices all the way down, just return it
-        return slice;
-    }
-
-    /**
-     * @return Whether this item is a simple action, i.e. an action that only has an icon.
-     */
-    public static boolean isSimpleAction(SliceItem item) {
-        if (FORMAT_ACTION.equals(item.getFormat())) {
-            List<SliceItem> items = item.getSlice().getItems();
-            boolean hasImage = false;
-            for (int i = 0; i < items.size(); i++) {
-                SliceItem child = items.get(i);
-                if (FORMAT_IMAGE.equals(child.getFormat()) && !hasImage) {
-                    hasImage = true;
-                } else if (FORMAT_INT.equals(child.getFormat())) {
-                    continue;
-                } else {
-                    return false;
-                }
-            }
-            return hasImage;
-        }
-        return false;
-    }
 
     /**
      */
@@ -141,7 +83,6 @@ public class SliceQuery {
         }
         return true;
     }
-
 
     /**
      */

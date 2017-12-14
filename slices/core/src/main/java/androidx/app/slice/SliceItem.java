@@ -348,4 +348,34 @@ public class SliceItem {
         }
         return "Unrecognized format: " + format;
     }
+
+    /**
+     * @hide
+     * @return A string representation of this slice item.
+     */
+    @RestrictTo(Scope.LIBRARY)
+    @Override
+    public String toString() {
+        return toString("");
+    }
+
+    private String toString(String indent) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(indent);
+        if (FORMAT_SLICE.equals(mFormat)) {
+            sb.append("slice:\n");
+            sb.append(getSlice().toString(indent + "   "));
+        } else if (FORMAT_ACTION.equals(mFormat)) {
+            sb.append("action:\n");
+            sb.append(getSlice().toString(indent + "   "));
+        } else if (FORMAT_TEXT.equals(mFormat)) {
+            sb.append("text: ");
+            sb.append(getText());
+            sb.append("\n");
+        } else {
+            sb.append(SliceItem.typeToString(getFormat()));
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 }
