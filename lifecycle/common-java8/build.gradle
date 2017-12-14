@@ -24,10 +24,11 @@ plugins {
 }
 
 dependencies {
+    compile(project(":lifecycle:common"))
+    compile(SUPPORT_ANNOTATIONS)
+
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)
-    compile(project(":lifecycle:common"))
-    compile libs.support.annotations
 }
 
 supportLibrary {

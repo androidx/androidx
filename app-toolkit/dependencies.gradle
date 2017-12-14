@@ -14,41 +14,6 @@
  * limitations under the License.
  */
 
-def ffLibs
-if (hasProperty("libs")) {
-    ffLibs = libs
-} else {
-    apply from: "${ext.supportRootFolder}/buildSrc/dependencies.gradle"
-    ffLibs = libs
-}
-def ffVersions = [:]
-ffVersions.support_lib = "26.1.0"
-
-def getSupportLib(String name, String version, String artifactName = null) {
-    def sourceProject = findProject(name)
-    if (sourceProject != null) {
-        return sourceProject
-    }
-    if (artifactName == null) {
-        artifactName = name
-    }
-    return "com.android.support$artifactName:$version"
-}
-ffLibs.support = [
-        annotations : getSupportLib(":support-annotations", ffVersions.support_lib),
-        core_utils : getSupportLib(':support-core-utils', ffVersions.support_lib),
-        fragments : getSupportLib(':support-fragment', ffVersions.support_lib),
-        app_compat : getSupportLib(':appcompat-v7', ffVersions.support_lib),
-        design : getSupportLib(':design', ffVersions.support_lib),
-        recyclerview : getSupportLib(':recyclerview-v7', ffVersions.support_lib),
-        cardview : getSupportLib(':cardview-v7', ffVersions.support_lib)
-]
-
-ffLibs.support_exclude_config = {
-    exclude group: 'android.arch.core'
-    exclude group: 'android.arch.lifecycle'
-}
-
 ext.tools = [:]
 ext.tools.current_sdk = gradle.ext.currentSdk
 ext.tools.build_tools_version = rootProject.ext.buildToolsVersion

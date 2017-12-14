@@ -110,15 +110,6 @@ project(':support-slices-demos').projectDir = new File(supportRoot, 'samples/Sup
 
 /////////////////////////////
 //
-// SupportLib
-//
-/////////////////////////////
-if (inAppToolkitProject && System.getenv("USE_SUPPORT_LIB_SOURCE")) {
-    apply from: "${supportRoot.absolutePath}/app-toolkit/settings_support_lib.gradle"
-}
-
-/////////////////////////////
-//
 // External
 //
 /////////////////////////////

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryVersions
 import android.support.LibraryGroups
 
@@ -22,8 +23,8 @@ plugins {
 }
 
 dependencies {
-    compile project(path: ':slices-core')
-    implementation libs.support.annotations, libs.support_exclude_config
+    compile(project(":slices-core"))
+    implementation(SUPPORT_ANNOTATIONS, libs.support_exclude_config)
 }
 
 android {
@@ -33,11 +34,10 @@ android {
 }
 
 supportLibrary {
-    name 'Slice builders'
-    publish true
+    name = "Slice builders"
+    publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SLICES
-    inceptionYear '2017'
-    description "A set of builders to create templates using SliceProvider APIs"
-    java8Library false
+    inceptionYear = "2017"
+    description = "A set of builders to create templates using SliceProvider APIs"
 }

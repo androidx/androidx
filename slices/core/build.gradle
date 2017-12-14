@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryVersions
 import android.support.LibraryGroups
 
@@ -22,8 +23,8 @@ plugins {
 }
 
 dependencies {
-    implementation libs.support.annotations, libs.support_exclude_config
-    implementation libs.support.app_compat, libs.support_exclude_config
+    implementation(SUPPORT_ANNOTATIONS, libs.support_exclude_config)
+    implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
 }
 
 android {
@@ -39,11 +40,10 @@ android {
 }
 
 supportLibrary {
-    name 'Common utilities for slices'
-    publish true
+    name = "Common utilities for slices"
+    publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SLICES
-    inceptionYear '2017'
-    description "The slices core library provides utilities for the slices view and provider libraries"
-    java8Library false
+    inceptionYear = "2017"
+    description = "The slices core library provides utilities for the slices view and provider libraries"
 }

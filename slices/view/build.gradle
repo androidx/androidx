@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryVersions
 import android.support.LibraryGroups
 
@@ -22,10 +23,10 @@ plugins {
 }
 
 dependencies {
-    implementation project(":slices-core")
-    implementation project(":slices-builders")
-    implementation libs.support.recyclerview, libs.support_exclude_config
-    implementation project(':lifecycle:extensions')
+    implementation(project(":slices-core"))
+    implementation(project(":slices-builders"))
+    implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
+    implementation(project(":lifecycle:extensions"))
 }
 
 android {
@@ -35,11 +36,10 @@ android {
 }
 
 supportLibrary {
-    name 'Slice views'
-    publish true
+    name = "Slice views"
+    publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SLICES
-    inceptionYear '2017'
-    description "A library that handles rendering of slice content into supported templates"
-    java8Library false
+    inceptionYear = "2017"
+    description = "A library that handles rendering of slice content into supported templates"
 }
