@@ -23,8 +23,8 @@ plugins {
 }
 
 dependencies {
-    compile(project(":slices-core"))
-    implementation(SUPPORT_ANNOTATIONS, libs.support_exclude_config)
+    implementation(project(":slices-core"))
+    implementation project(":support-annotations")
 }
 
 supportLibrary {

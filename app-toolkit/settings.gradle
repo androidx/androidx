@@ -96,18 +96,6 @@ project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "r
 include ':room:integration-tests:kotlintestapp'
 project(':room:integration-tests:kotlintestapp').projectDir = new File(supportRoot, "room/integration-tests/kotlintestapp")
 
-include ':slices-core'
-project(':slices-core').projectDir = new File(supportRoot, 'slices/core')
-
-include ':slices-view'
-project(':slices-view').projectDir = new File(supportRoot, 'slices/view')
-
-include ':slices-builders'
-project(':slices-builders').projectDir = new File(supportRoot, 'slices/builders')
-
-include ':support-slices-demos'
-project(':support-slices-demos').projectDir = new File(supportRoot, 'samples/SupportSliceDemos')
-
 /////////////////////////////
 //
 // External

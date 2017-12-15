@@ -23,8 +23,8 @@ plugins {
 }
 
 dependencies {
-    implementation(SUPPORT_ANNOTATIONS, libs.support_exclude_config)
-    implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
+    implementation project(":support-annotations")
+    implementation project(":appcompat-v7")
 }
 
 android {
