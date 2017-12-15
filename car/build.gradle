@@ -1,5 +1,6 @@
 import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
+import android.support.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -28,6 +29,7 @@ android {
 supportLibrary {
     name = "Android Car Support UI"
     publish = false
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "Android Car Support UI"
