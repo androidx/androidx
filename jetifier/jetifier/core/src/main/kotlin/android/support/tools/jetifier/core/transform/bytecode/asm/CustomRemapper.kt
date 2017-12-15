@@ -24,14 +24,23 @@ import org.objectweb.asm.commons.Remapper
 /**
  * Extends [Remapper] with a capability to rewrite field names together with their owner.
  */
-class CustomRemapper(val remapperImpl: CoreRemapper) : Remapper() {
+class CustomRemapper(private val remapper: CoreRemapper) : Remapper() {
 
     override fun map(typeName: String): String {
-        return remapperImpl.rewriteType(JavaType(typeName)).fullName
+        return remapper.rewriteType(JavaType(typeName)).fullName
+    }
+
+    override fun mapValue(value: Any?): Any? {
+        val stringMaybe = value as? String
+        if (stringMaybe == null) {
+            return super.mapValue(value)
+        }
+
+        return remapper.rewriteString(stringMaybe)
     }
 
     fun mapField(ownerName: String, fieldName: String): JavaField {
-        return remapperImpl.rewriteField(JavaField(ownerName, fieldName))
+        return remapper.rewriteField(JavaField(ownerName, fieldName))
     }
 
     override fun mapFieldName(owner: String?, name: String, desc: String?): String {

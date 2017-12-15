@@ -41,12 +41,11 @@ class CoreRemapperImpl(private val context: TransformationContext) : CoreRemappe
     }
 
     override fun rewriteType(type: JavaType): JavaType {
-        val result = typesMap.types[type]
-
         if (!context.isEligibleForRewrite(type)) {
             return type
         }
 
+        val result = typesMap.types[type]
         if (result != null) {
             Log.i(TAG, "  map: %s -> %s", type, result)
             return result
@@ -57,13 +56,12 @@ class CoreRemapperImpl(private val context: TransformationContext) : CoreRemappe
         return type
     }
 
-    override fun rewriteField(field : JavaField): JavaField {
-        val result = typesMap.fields[field]
-
+    override fun rewriteField(field: JavaField): JavaField {
         if (!context.isEligibleForRewrite(field.owner)) {
             return field
         }
 
+        val result = typesMap.fields[field]
         if (result != null) {
             Log.i(TAG, "  map: %s -> %s", field, result)
             return result
@@ -74,5 +72,20 @@ class CoreRemapperImpl(private val context: TransformationContext) : CoreRemappe
         return field
     }
 
+    override fun rewriteString(value: String): String {
+        val type = JavaType.fromDotVersion(value)
+        if (!context.isEligibleForRewrite(type)) {
+            return value
+        }
+
+        val result = typesMap.types[type]
+        if (result != null) {
+            Log.i(TAG, "  map string: %s -> %s", type, result)
+            return result.toDotNotation()
+        }
+
+        // We do not treat string content mismatches as errors
+        return value
+    }
 }
 
