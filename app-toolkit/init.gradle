@@ -15,15 +15,10 @@
  */
 
 import android.support.DacOptions
-import android.support.LibraryVersions
 import org.gradle.internal.os.OperatingSystem
 
-ext.inAppToolkitProject = rootProject.name == "app-toolkit"
-
-if (ext.inAppToolkitProject) {
-    apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
-    init.setSdkInLocalPropertiesFile()
-}
+apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
+init.setSdkInLocalPropertiesFile()
 
 apply from: "${ext.supportRootFolder}/app-toolkit/dependencies.gradle"
 
@@ -31,19 +26,13 @@ apply from: "${ext.supportRootFolder}/app-toolkit/dependencies.gradle"
 def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompilationTasks",
     description: "Anchor task for everything we want to run in build server.")
 
-if (ext.inAppToolkitProject) {
-    // always build offline docs for flatfoot specific builds.
-    ext.docsDac = new DacOptions("android/arch", "ARCH_DATA")
-    repos.addMavenRepositories(repositories)
-    init.setupRepoOutAndBuildNumber()
-    init.configureSubProjects()
-    init.setupRelease()
-    init.enableDoclavaAndJDiff(this)
-    rootProject.tasks["generateDocs"].exclude '**/R.java'
-}
-
-ext.testApkDistOut = distDir
-ext.testResultsDistDir = new File(distDir, "host-test-reports")
+repos.addMavenRepositories(repositories)
+init.setupRepoOutAndBuildNumber()
+init.configureSubProjects()
+init.setupRelease()
+// always build offline docs for flatfoot specific builds.
+init.enableDoclavaAndJDiff(this, new DacOptions("android/arch", "ARCH_DATA"))
+rootProject.tasks["generateDocs"].exclude '**/R.java'
 
 // flatfoot docs
 def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArchive", type : Zip) {
@@ -58,10 +47,7 @@ buildServerAnchorTask.dependsOn createDiffArchive
 buildServerAnchorTask.dependsOn createArchive
 
 subprojects {
-    repos.addMavenRepositories(project.repositories)
-
-
-    project.tasks.whenTaskAdded { task ->
+   project.tasks.whenTaskAdded { task ->
         if (task.name.startsWith("assembleAndroidTest")) {
             buildServerAnchorTask.dependsOn task
         }
