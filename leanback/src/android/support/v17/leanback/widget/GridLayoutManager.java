@@ -22,6 +22,7 @@ import static android.support.v7.widget.RecyclerView.VERTICAL;
 import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -3655,7 +3656,32 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     public boolean performAccessibilityAction(Recycler recycler, State state, int action,
             Bundle args) {
         saveContext(recycler, state);
-        switch (action) {
+        int translatedAction = action;
+        boolean reverseFlowPrimary = (mFlag & PF_REVERSE_FLOW_PRIMARY) != 0;
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (mOrientation == HORIZONTAL) {
+                if (action == AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                        .ACTION_SCROLL_LEFT.getId()) {
+                    translatedAction = reverseFlowPrimary
+                            ? AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD :
+                            AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD;
+                } else if (action == AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                        .ACTION_SCROLL_RIGHT.getId()) {
+                    translatedAction = reverseFlowPrimary
+                            ? AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD :
+                            AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD;
+                }
+            } else { // VERTICAL layout
+                if (action == AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_UP
+                        .getId()) {
+                    translatedAction = AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD;
+                } else if (action == AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                        .ACTION_SCROLL_DOWN.getId()) {
+                    translatedAction = AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD;
+                }
+            }
+        }
+        switch (translatedAction) {
             case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
                 processSelectionMoves(false, -1);
                 break;
@@ -3726,12 +3752,39 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             AccessibilityNodeInfoCompat info) {
         saveContext(recycler, state);
         int count = state.getItemCount();
-        if ((mFlag & PF_SCROLL_ENABLED) != 0 && count > 1 && !isItemFullyVisible(0)) {
-            info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+        boolean reverseFlowPrimary = (mFlag & PF_REVERSE_FLOW_PRIMARY) != 0;
+        if (count > 1 && !isItemFullyVisible(0)) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (mOrientation == HORIZONTAL) {
+                    info.addAction(reverseFlowPrimary
+                            ? AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                    .ACTION_SCROLL_RIGHT :
+                            AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                    .ACTION_SCROLL_LEFT);
+                } else {
+                    info.addAction(
+                            AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_UP);
+                }
+            } else {
+                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+            }
             info.setScrollable(true);
         }
-        if ((mFlag & PF_SCROLL_ENABLED) != 0 && count > 1 && !isItemFullyVisible(count - 1)) {
-            info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+        if (count > 1 && !isItemFullyVisible(count - 1)) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (mOrientation == HORIZONTAL) {
+                    info.addAction(reverseFlowPrimary
+                            ? AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                    .ACTION_SCROLL_LEFT :
+                            AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                    .ACTION_SCROLL_RIGHT);
+                } else {
+                    info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                    .ACTION_SCROLL_DOWN);
+                }
+            } else {
+                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+            }
             info.setScrollable(true);
         }
         final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo =
