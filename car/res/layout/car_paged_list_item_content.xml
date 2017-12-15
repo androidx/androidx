@@ -32,9 +32,10 @@
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/supplemental_actions"
+        android:layout_toStartOf="@+id/supplemental_actions"
         android:singleLine="true"
         android:ellipsize="end"/>
+
     <TextView
         android:id="@+id/body"
         android:layout_width="match_parent"
@@ -43,7 +44,7 @@
 
     <!-- Supplemental action(s) - supports either 1 supplemental icon or up to 2 action buttons. -->
     <LinearLayout
-        android:id="@+id/supplemental_actions"
+        android:id="@id/supplemental_actions"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
