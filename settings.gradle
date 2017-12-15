@@ -115,6 +115,9 @@ project(':car').projectDir = new File(rootDir, 'car')
 include ':webkit'
 project(':webkit').projectDir = new File(rootDir, 'webkit')
 
+include ':webkit-codegen'
+project(':webkit-codegen').projectDir = new File(rootDir, 'webkit-codegen')
+
 /////////////////////////////
 //
 // Samples
