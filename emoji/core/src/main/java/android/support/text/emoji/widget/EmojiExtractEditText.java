@@ -18,12 +18,12 @@ package android.support.text.emoji.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.inputmethodservice.ExtractEditText;
 import android.os.Build;
 import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.EmojiCompat;
 import android.support.text.emoji.EmojiSpan;
@@ -64,7 +64,7 @@ public class EmojiExtractEditText extends ExtractEditText {
         init(attrs, defStyleAttr, 0 /*defStyleRes*/);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);

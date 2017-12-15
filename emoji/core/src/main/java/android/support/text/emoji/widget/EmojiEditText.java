@@ -15,11 +15,11 @@
  */
 package android.support.text.emoji.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.text.emoji.EmojiCompat;
 import android.text.method.KeyListener;
 import android.util.AttributeSet;
@@ -57,7 +57,7 @@ public class EmojiEditText extends EditText {
         init(attrs, defStyleAttr, 0 /*defStyleRes*/);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public EmojiEditText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(attrs, defStyleAttr, defStyleRes);

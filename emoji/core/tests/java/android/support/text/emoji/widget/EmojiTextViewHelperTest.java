@@ -26,7 +26,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
-import android.annotation.TargetApi;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -45,7 +44,6 @@ import java.util.Arrays;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 19)
-@TargetApi(19)
 public class EmojiTextViewHelperTest {
     EmojiTextViewHelper mTextViewHelper;
     TextView mTextView;

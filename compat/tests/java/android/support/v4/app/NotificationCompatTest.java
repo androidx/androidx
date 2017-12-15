@@ -31,7 +31,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Context;
 import android.graphics.Color;
@@ -183,7 +182,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @SdkSuppress(minSdkVersion = 24)
-    @TargetApi(24)
     @Test
     public void testFrameworkNotificationActionBuilder_setAllowGeneratedRepliesTrue()
             throws Throwable {
@@ -217,7 +215,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @SdkSuppress(minSdkVersion = 17)
-    @TargetApi(17)
     @Test
     public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesTrue()
             throws Throwable {
@@ -231,7 +228,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @SdkSuppress(minSdkVersion = 17)
-    @TargetApi(17)
     @Test
     public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesFalse()
             throws Throwable {

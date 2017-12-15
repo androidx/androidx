@@ -33,7 +33,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -46,8 +45,8 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -86,12 +85,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
 
     @Test
     @SmallTest
-    @TargetApi(26)
+    @SdkSuppress(minSdkVersion = 26)
     public void testIsRequestPinShortcutSupported_v26() throws Throwable {
-        if (!(Build.VERSION.SDK_INT >= 26)) {
-            return;
-        }
-
         ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
         doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
         when(mockShortcutManager.isRequestPinShortcutSupported()).thenReturn(true, false, true);
@@ -104,12 +99,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
 
     @Test
     @SmallTest
-    @TargetApi(26)
+    @SdkSuppress(minSdkVersion = 26)
     public void testRequestPinShortcut_v26()  throws Throwable {
-        if (!(Build.VERSION.SDK_INT >= 26)) {
-            return;
-        }
-
         ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
         doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
         when(mockShortcutManager.requestPinShortcut(
@@ -124,12 +115,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
 
     @Test
     @SmallTest
-    @TargetApi(26)
+    @SdkSuppress(minSdkVersion = 26)
     public void testCreateShortcutResultIntent_v26()  throws Throwable {
-        if (!(Build.VERSION.SDK_INT >= 26)) {
-            return;
-        }
-
         ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
         doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
 
@@ -147,10 +134,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
 
     @SmallTest
     @Test
+    @SdkSuppress(maxSdkVersion = 25)
     public void testIsRequestPinShortcutSupported_v4() throws Throwable {
-        if (Build.VERSION.SDK_INT >= 26) {
-            return;
-        }
         setMockPm(mockResolveInfo(null));
         assertTrue(ShortcutManagerCompat.isRequestPinShortcutSupported(mContext));
 
@@ -174,11 +159,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
 
     @LargeTest
     @Test
+    @SdkSuppress(maxSdkVersion = 25)
     public void testRequestPinShortcut_v4_noCallback()  throws Throwable {
-        if (Build.VERSION.SDK_INT >= 26) {
-            return;
-        }
-
         setMockPm(mockResolveInfo(null));
 
         BlockingBroadcastReceiver receiver =
@@ -189,11 +171,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
 
     @LargeTest
     @Test
+    @SdkSuppress(maxSdkVersion = 25)
     public void testRequestPinShortcut_v4_withCallback()  throws Throwable {
-        if (Build.VERSION.SDK_INT >= 26) {
-            return;
-        }
-
         setMockPm(mockResolveInfo(null));
 
         BlockingBroadcastReceiver receiver =
@@ -210,11 +189,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
 
     @SmallTest
     @Test
+    @SdkSuppress(maxSdkVersion = 25)
     public void testCreateShortcutResultIntent_v4() throws Throwable {
-        if (Build.VERSION.SDK_INT >= 26) {
-            return;
-        }
-
         verifyLegacyIntent(ShortcutManagerCompat.createShortcutResultIntent(mContext, mInfoCompat));
     }
 

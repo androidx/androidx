@@ -17,7 +17,6 @@ package android.support.media.tv;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -40,7 +39,6 @@ import java.util.TimeZone;
  *
  * @hide
  */
-@TargetApi(26)
 public abstract class BasePreviewProgram extends BaseProgram {
     /**
      * @hide

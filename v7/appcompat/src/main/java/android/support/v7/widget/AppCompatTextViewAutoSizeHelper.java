@@ -18,7 +18,6 @@ package android.support.v7.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -26,6 +25,7 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
@@ -702,7 +702,7 @@ class AppCompatTextViewAutoSizeHelper {
         return true;
     }
 
-    @TargetApi(23)
+    @RequiresApi(23)
     private StaticLayout createStaticLayoutForMeasuring(CharSequence text,
             Layout.Alignment alignment, int availableWidth, int maxLines) {
         // Can use the StaticLayout.Builder (along with TextView params added in or after
@@ -726,7 +726,6 @@ class AppCompatTextViewAutoSizeHelper {
                 .build();
     }
 
-    @TargetApi(14)
     private StaticLayout createStaticLayoutForMeasuringPre23(CharSequence text,
             Layout.Alignment alignment, int availableWidth) {
         // Setup defaults.

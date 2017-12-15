@@ -39,7 +39,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.ContentObserver;
@@ -99,7 +98,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_whenGetFontThrowsException() throws NameNotFoundException {
         final Exception exception = new RuntimeException();
         doThrow(exception).when(mFontProviderHelper).fetchFonts(
@@ -115,7 +113,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_providerNotFound() throws NameNotFoundException {
         doThrow(new NameNotFoundException()).when(mFontProviderHelper).fetchFonts(
                 any(Context.class), any(FontRequest.class));
@@ -133,7 +130,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_wrongCertificate() throws NameNotFoundException {
         verifyLoaderOnFailedCalled(STATUS_WRONG_CERTIFICATES, null /* fonts */,
                 "fetchFonts failed (" + STATUS_WRONG_CERTIFICATES + ")");
@@ -141,23 +137,22 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_fontNotFound() throws NameNotFoundException {
         verifyLoaderOnFailedCalled(STATUS_OK,
                 getTestFontInfoWithInvalidPath(RESULT_CODE_FONT_NOT_FOUND),
                 "fetchFonts result is not OK. (" + RESULT_CODE_FONT_NOT_FOUND + ")");
     }
 
-    @Test@SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testLoad_fontUnavailable() throws NameNotFoundException {
         verifyLoaderOnFailedCalled(STATUS_OK,
                 getTestFontInfoWithInvalidPath(RESULT_CODE_FONT_UNAVAILABLE),
                 "fetchFonts result is not OK. (" + RESULT_CODE_FONT_UNAVAILABLE + ")");
     }
 
-    @Test@SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testLoad_malformedQuery() throws NameNotFoundException {
         verifyLoaderOnFailedCalled(STATUS_OK,
                 getTestFontInfoWithInvalidPath(RESULT_CODE_MALFORMED_QUERY),
@@ -166,7 +161,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_resultNotFound() throws NameNotFoundException {
         verifyLoaderOnFailedCalled(STATUS_OK, new FontInfo[] {},
                 "fetchFonts failed (empty result)");
@@ -174,7 +168,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_nullFontInfo() throws NameNotFoundException {
         verifyLoaderOnFailedCalled(STATUS_OK, null /* fonts */,
                 "fetchFonts failed (empty result)");
@@ -182,7 +175,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_cannotLoadTypeface() throws NameNotFoundException {
         // getTestFontInfoWithInvalidPath returns FontInfo with invalid path to file.
         verifyLoaderOnFailedCalled(STATUS_OK,
@@ -192,7 +184,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_success() throws IOException, NameNotFoundException {
         final File file = loadFont(mContext, "NotoColorEmojiCompat.ttf");
         final FontInfo[] fonts =  new FontInfo[] {
@@ -212,7 +203,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_retryPolicy() throws IOException, NameNotFoundException {
         final File file = loadFont(mContext, "NotoColorEmojiCompat.ttf");
         final FontInfo[] fonts =  new FontInfo[] {
@@ -235,7 +225,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_keepRetryingAndGiveUp() throws IOException, NameNotFoundException {
         final File file = loadFont(mContext, "NotoColorEmojiCompat.ttf");
         final FontInfo[] fonts =  new FontInfo[] {
@@ -262,7 +251,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_keepRetryingAndFail() throws IOException, NameNotFoundException {
         final File file = loadFont(mContext, "NotoColorEmojiCompat.ttf");
         final Uri uri = Uri.fromFile(file);
@@ -320,7 +308,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_keepRetryingAndSuccess() throws IOException, NameNotFoundException {
         final File file = loadFont(mContext, "NotoColorEmojiCompat.ttf");
         final Uri uri = Uri.fromFile(file);
@@ -378,7 +365,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_ObserverNotifyAndSuccess() throws IOException, NameNotFoundException {
         final File file = loadFont(mContext, "NotoColorEmojiCompat.ttf");
         final Uri uri = Uri.fromFile(file);
@@ -435,7 +421,6 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testLoad_ObserverNotifyAndFail() throws IOException, NameNotFoundException {
         final File file = loadFont(mContext, "NotoColorEmojiCompat.ttf");
         final Uri uri = Uri.fromFile(file);

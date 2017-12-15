@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -128,7 +127,6 @@ public class IconCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
-    @TargetApi(Build.VERSION_CODES.M)
     public void testCreateWithBitmap() {
         Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
         bitmap.eraseColor(Color.RED);
@@ -151,7 +149,6 @@ public class IconCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
-    @TargetApi(Build.VERSION_CODES.O)
     public void testCreateWithAdaptiveBitmap() {
         Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
         bitmap.eraseColor(Color.GREEN);
@@ -168,7 +165,6 @@ public class IconCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
-    @TargetApi(Build.VERSION_CODES.M)
     public void testCreateWithData() {
         Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
         bitmap.eraseColor(Color.YELLOW);
@@ -191,7 +187,6 @@ public class IconCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
-    @TargetApi(Build.VERSION_CODES.M)
     public void testCreateWithResource() {
         Context context = InstrumentationRegistry.getContext();
         Drawable original = context.getDrawable(R.drawable.test_drawable_red);
