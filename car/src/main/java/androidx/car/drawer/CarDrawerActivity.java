@@ -37,7 +37,8 @@ import androidx.car.R;
  * <p>This Activity manages the overall layout. To use it, sub-classes need to:
  *
  * <ul>
- *   <li>Provide the root-items for the Drawer by implementing {@link #getRootAdapter()}.
+ *   <li>Provide the root-items for the drawer by calling {@link #getDrawerController()}.
+ *       {@link CarDrawerController#setRootAdapter(CarDrawerAdapter)}.
  *   <li>Add their main content using {@link #setMainContent(int)} or {@link #setMainContent(View)}.
  *       They can also add fragments to the main-content container by obtaining its id using
  *       {@link #getContentContainerId()}
@@ -52,7 +53,7 @@ import androidx.car.R;
  * <p>Any Activity's based on this class need to set their theme to CarDrawerActivityTheme or a
  * derivative.
  */
-public abstract class CarDrawerActivity extends AppCompatActivity {
+public class CarDrawerActivity extends AppCompatActivity {
     private CarDrawerController mDrawerController;
 
     @Override
@@ -72,7 +73,10 @@ public abstract class CarDrawerActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mDrawerController = new CarDrawerController(toolbar, drawerLayout, drawerToggle);
-        mDrawerController.setRootAdapter(getRootAdapter());
+        CarDrawerAdapter rootAdapter = getRootAdapter();
+        if (rootAdapter != null) {
+            mDrawerController.setRootAdapter(rootAdapter);
+        }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -98,8 +102,14 @@ public abstract class CarDrawerActivity extends AppCompatActivity {
 
     /**
      * @return Adapter for root content of the Drawer.
+     * @deprecated Do not implement this, instead call {@link #getDrawerController}.
+     * {@link CarDrawerController#setRootAdapter(CarDrawerAdapter)} directly.
      */
-    protected abstract CarDrawerAdapter getRootAdapter();
+    @Deprecated
+    @Nullable
+    protected CarDrawerAdapter getRootAdapter() {
+        return null;
+    }
 
     /**
      * Set main content to display in this Activity. It will be added to R.id.content_frame in
