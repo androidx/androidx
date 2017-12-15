@@ -29,11 +29,13 @@ LOCAL_MODULE := android-support-v7-recyclerview
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under,src/main/java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_JAVA_LIBRARIES := \
+    android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-compat \
-    android-support-core-ui \
-    android-support-annotations
+    android-support-core-ui
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
+LOCAL_EXPORT_PROGUARD_FLAG_FILES := proguard-rules.pro
 include $(BUILD_STATIC_JAVA_LIBRARY)
