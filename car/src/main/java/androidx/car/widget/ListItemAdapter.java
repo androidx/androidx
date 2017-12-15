@@ -16,22 +16,20 @@
 
 package androidx.car.widget;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import android.content.Context;
-import android.support.annotation.IntDef;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.lang.annotation.Retention;
-
 import androidx.car.R;
+import androidx.car.utils.ListItemBackgroundResolver;
 
 /**
  * Adapter for {@link PagedListView} to display {@link ListItem}.
@@ -40,11 +38,30 @@ import androidx.car.R;
  */
 public class ListItemAdapter extends
         RecyclerView.Adapter<ListItemAdapter.ViewHolder> implements PagedListView.ItemCap {
-    @Retention(SOURCE)
-    @IntDef({CAR_PAGED_LIST_ITEM, CAR_PAGED_LIST_CARD})
-    public @interface PagedListItemType {}
-    public static final int CAR_PAGED_LIST_ITEM = 0;
-    public static final int CAR_PAGED_LIST_CARD = 1;
+
+    /**
+     * Constant class for background style of items.
+     */
+    public static final class BackgroundStyle {
+        private BackgroundStyle() {}
+
+        /**
+         * Sets the background color of each item.
+         */
+        public static final int NONE = 0;
+        /**
+         * Sets each item in {@link CardView} with a rounded corner background and shadow.
+         */
+        public static final int CARD = 1;
+        /**
+         * Sets background of each item so the combined list looks like one elongated card, namely
+         * top and bottom item will have rounded corner at only top/bottom side respectively. If
+         * only one item exists, it will have both top and bottom rounded corner.
+         */
+        public static final int PANEL = 2;
+    }
+
+    private int mBackgroundStyle;
 
     private final Context mContext;
     private final ListItemProvider mItemProvider;
@@ -52,37 +69,66 @@ public class ListItemAdapter extends
     private int mMaxItems = PagedListView.ItemCap.UNLIMITED;
 
     public ListItemAdapter(Context context, ListItemProvider itemProvider) {
+        this(context, itemProvider, BackgroundStyle.NONE);
+    }
+
+    public ListItemAdapter(Context context, ListItemProvider itemProvider,
+            int backgroundStyle) {
         mContext = context;
         mItemProvider = itemProvider;
+        mBackgroundStyle = backgroundStyle;
     }
 
     @Override
-    public int getItemViewType(int position) {
-        return mItemProvider.get(position).getViewType();
-    }
-
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, @PagedListItemType int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        int layoutId;
-        switch (viewType) {
-            case CAR_PAGED_LIST_ITEM:
-                layoutId = R.layout.car_paged_list_item;
+        View itemView = inflater.inflate(R.layout.car_paged_list_item_content, parent, false);
+
+        ViewGroup container = createListItemContainer();
+        container.addView(itemView);
+        return new ViewHolder(container);
+    }
+
+    private ViewGroup createListItemContainer() {
+        ViewGroup container;
+        switch (mBackgroundStyle) {
+            case BackgroundStyle.NONE:
+            case BackgroundStyle.PANEL:
+                FrameLayout frameLayout = new FrameLayout(mContext);
+                frameLayout.setLayoutParams(new RecyclerView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                frameLayout.setBackgroundColor(mContext.getColor(R.color.car_card));
+
+                container = frameLayout;
                 break;
-            case CAR_PAGED_LIST_CARD:
-                layoutId = R.layout.car_paged_list_card;
+            case BackgroundStyle.CARD:
+                CardView card = new CardView(mContext);
+                RecyclerView.LayoutParams cardLayoutParams = new RecyclerView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                cardLayoutParams.bottomMargin = mContext.getResources().getDimensionPixelSize(
+                        R.dimen.car_padding_3);
+                card.setLayoutParams(cardLayoutParams);
+                card.setRadius(mContext.getResources().getDimensionPixelSize(R.dimen.car_radius_1));
+                card.setCardBackgroundColor(mContext.getColor(R.color.car_card));
+
+                container = card;
                 break;
             default:
-                throw new IllegalArgumentException("Unrecognizable view type: " + viewType);
+                throw new IllegalArgumentException("Unknown background style. "
+                        + "Expected constants in class ListItemAdapter.BackgroundStyle.");
         }
-        View itemView = inflater.inflate(layoutId, parent, false);
-        return new ViewHolder(itemView);
+        return container;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         ListItem item = mItemProvider.get(position);
         item.bind(holder);
+
+        if (mBackgroundStyle == BackgroundStyle.PANEL) {
+            ListItemBackgroundResolver.setBackground(
+                    holder.itemView, position, mItemProvider.size());
+        }
     }
 
     @Override

@@ -14,15 +14,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<android.support.v7.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent"
-    android:layout_marginBottom="@dimen/car_padding_1"
-    app:cardCornerRadius="@dimen/car_radius_1"
-    app:cardBackgroundColor="@color/car_card">
-
-    <include layout="@layout/car_paged_list_item_content" />
-
-</android.support.v7.widget.CardView>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/car_card"/>
+    <corners
+        android:radius="@dimen/car_radius_3"/>
+</shape>
