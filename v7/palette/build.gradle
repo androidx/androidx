@@ -20,5 +20,4 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2014"
     description = "Android Support Palette v7"
-    legacySourceLocation = true
 }
