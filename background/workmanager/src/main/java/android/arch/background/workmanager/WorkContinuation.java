@@ -15,13 +15,15 @@
  */
 package android.arch.background.workmanager;
 
+import android.arch.lifecycle.LiveData;
+
+import java.util.Map;
+
 /**
  * An opaque class that allows you to chain together {@link Work}.
  */
 
 public abstract class WorkContinuation {
-
-
 
     /**
      * Add new {@link Work} items that depend on the items added in the previous step.
@@ -41,4 +43,15 @@ public abstract class WorkContinuation {
      *         input workerClasses
      */
     public abstract WorkContinuation then(Class<? extends Worker>... workerClasses);
+
+    /**
+     * Terminates the chain of {@link Work} and returns a {@link LiveData} mapping of work
+     * identifiers to their statuses for all work in this chain.  Whenever the status of one of the
+     * work enqueued in this chain changes, any attached {@link android.arch.lifecycle.Observer}s
+     * will trigger.
+     *
+     * @return A {@link LiveData} containing a map of work identifiers to their corresponding
+     * {@link BaseWork.WorkStatus}
+     */
+    public abstract LiveData<Map<String, Integer>> getStatuses();
 }

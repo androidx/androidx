@@ -37,13 +37,18 @@ import android.arch.background.workmanager.impl.utils.PruneDatabaseRunnable;
 import android.arch.background.workmanager.impl.utils.taskexecutor.TaskExecutor;
 import android.arch.background.workmanager.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A concrete implementation of {@link WorkManager}.
@@ -159,6 +164,28 @@ public class WorkManagerImpl extends WorkManager {
     @Override
     public void pruneDatabase() {
         mTaskExecutor.executeOnBackgroundThread(new PruneDatabaseRunnable(mWorkDatabase));
+    }
+
+    LiveData<Map<String, Integer>> getStatusesFor(@NonNull List<String> workSpecIds) {
+        WorkSpecDao dao = mWorkDatabase.workSpecDao();
+        final MediatorLiveData<Map<String, Integer>> mediatorLiveData = new MediatorLiveData<>();
+        mediatorLiveData.addSource(
+                LiveDataUtils.dedupedLiveDataFor(dao.getWorkSpecStatuses(workSpecIds)),
+                new Observer<List<WorkSpec.IdAndStatus>>() {
+                    @Override
+                    public void onChanged(@Nullable List<WorkSpec.IdAndStatus> idAndStatuses) {
+                        if (idAndStatuses == null) {
+                            return;
+                        }
+
+                        Map<String, Integer> idToStatusMap = new HashMap<>(idAndStatuses.size());
+                        for (WorkSpec.IdAndStatus idAndStatus : idAndStatuses) {
+                            idToStatusMap.put(idAndStatus.id, idAndStatus.status);
+                        }
+                        mediatorLiveData.setValue(idToStatusMap);
+                    }
+                });
+        return mediatorLiveData;
     }
 
     WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {

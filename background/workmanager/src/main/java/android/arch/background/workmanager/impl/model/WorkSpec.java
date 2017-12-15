@@ -356,4 +356,35 @@ public class WorkSpec {
     public String toString() {
         return "{WorkSpec: " + mId + "}";
     }
+
+    /**
+     * A POJO containing the ID and status of a WorkSpec.
+     */
+    public static class IdAndStatus {
+
+        @ColumnInfo(name = "id")
+        public String id;
+
+
+        @ColumnInfo(name = "status")
+        public @BaseWork.WorkStatus int status;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            IdAndStatus that = (IdAndStatus) o;
+
+            if (status != that.status) return false;
+            return id.equals(that.id);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = id.hashCode();
+            result = 31 * result + status;
+            return result;
+        }
+    }
 }
