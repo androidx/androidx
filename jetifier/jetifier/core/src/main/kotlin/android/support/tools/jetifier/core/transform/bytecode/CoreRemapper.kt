@@ -23,7 +23,9 @@ import android.support.tools.jetifier.core.rules.JavaType
  * High-level re-mapping interface to provide only the refactorings needed by jetifier.
  */
 interface CoreRemapper {
-    fun rewriteType(type: JavaType) : JavaType
+    fun rewriteType(type: JavaType): JavaType
 
-    fun rewriteField(field: JavaField) : JavaField
+    fun rewriteField(field: JavaField): JavaField
+
+    fun rewriteString(value: String): String
 }
