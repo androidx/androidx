@@ -552,7 +552,7 @@ class PojoProcessorTest {
     }
 
     @Test
-    fun constructor_ambiguous_twoFieldsExcatMatch() {
+    fun constructor_ambiguous_twoFieldsExactMatch() {
         val pojoCode = """
             public String mName;
             public String _name;
@@ -706,6 +706,18 @@ class PojoProcessorTest {
             assertThat(pojo.constructor?.params?.size ?: -1, `is`(0))
         }.compilesWithoutError().withWarningContaining(
                 ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS_CHOOSING_NO_ARG)
+    }
+
+    @Test // added for b/69562125
+    fun constructor_withNullabilityAnnotation() {
+        singleRun("""
+            String mName;
+            public MyPojo(@android.support.annotation.NonNull String name) {}
+            """) { pojo ->
+            val constructor = pojo.constructor
+            assertThat(constructor, notNullValue())
+            assertThat(constructor!!.params.size, `is`(1))
+        }.compilesWithoutError()
     }
 
     @Test
