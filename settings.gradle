@@ -124,6 +124,9 @@ project(':slices-view').projectDir = new File(rootDir, 'slices/view')
 include ':slices-builders'
 project(':slices-builders').projectDir = new File(rootDir, 'slices/builders')
 
+include ':webkit-codegen'
+project(':webkit-codegen').projectDir = new File(rootDir, 'webkit-codegen')
+
 /////////////////////////////
 //
 // Samples
