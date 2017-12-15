@@ -20,6 +20,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"
-    legacySourceLocation = true
     minSdkVersion = 21
 }
