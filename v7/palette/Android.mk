@@ -29,7 +29,7 @@ LOCAL_MODULE := android-support-v7-palette
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, src/main)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/src/main/res
-LOCAL_MANIFEST_FILE := AndroidManifest.xml
+LOCAL_MANIFEST_FILE := src/main/AndroidManifest.xml
 LOCAL_JAVA_LIBRARIES := \
     android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
