@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import android.support.DacOptions
 
 buildscript {
     ext.supportRootFolder = project.projectDir
@@ -39,7 +40,7 @@ init.configureBuildOnServer()
 
 init.setupRelease()
 
-init.enableDoclavaAndJDiff(this)
+init.enableDoclavaAndJDiff(this, new DacOptions("android/support", "SUPPORT_DATA"))
 
 ///// FLATFOOT START
 
