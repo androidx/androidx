@@ -102,13 +102,17 @@ public class FontResourcesParserCompat {
         private final @NonNull String mFileName;
         private int mWeight;
         private boolean mItalic;
+        private String mVariationSettings;
+        private int mTtcIndex;
         private int mResourceId;
 
         public FontFileResourceEntry(@NonNull String fileName, int weight, boolean italic,
-                int resourceId) {
+                @Nullable String variationSettings, int ttcIndex, int resourceId) {
             mFileName = fileName;
             mWeight = weight;
             mItalic = italic;
+            mVariationSettings = variationSettings;
+            mTtcIndex = ttcIndex;
             mResourceId = resourceId;
         }
 
@@ -122,6 +126,14 @@ public class FontResourcesParserCompat {
 
         public boolean isItalic() {
             return mItalic;
+        }
+
+        public @Nullable String getVariationSettings() {
+            return mVariationSettings;
+        }
+
+        public int getTtcIndex() {
+            return mTtcIndex;
         }
 
         public int getResourceId() {
@@ -260,6 +272,15 @@ public class FontResourcesParserCompat {
                 ? R.styleable.FontFamilyFont_fontStyle
                 : R.styleable.FontFamilyFont_android_fontStyle;
         boolean isItalic = ITALIC == array.getInt(styleAttr, 0);
+        final int ttcIndexAttr = array.hasValue(R.styleable.FontFamilyFont_ttcIndex)
+                ? R.styleable.FontFamilyFont_ttcIndex
+                : R.styleable.FontFamilyFont_android_ttcIndex;
+        final int variationSettingsAttr =
+                array.hasValue(R.styleable.FontFamilyFont_fontVariationSettings)
+                        ? R.styleable.FontFamilyFont_fontVariationSettings
+                        : R.styleable.FontFamilyFont_android_fontVariationSettings;
+        String variationSettings = array.getString(variationSettingsAttr);
+        int ttcIndex = array.getInt(ttcIndexAttr, 0);
         final int resourceAttr = array.hasValue(R.styleable.FontFamilyFont_font)
                 ? R.styleable.FontFamilyFont_font
                 : R.styleable.FontFamilyFont_android_font;
@@ -269,7 +290,8 @@ public class FontResourcesParserCompat {
         while (parser.next() != XmlPullParser.END_TAG) {
             skip(parser);
         }
-        return new FontFileResourceEntry(filename, weight, isItalic, resourceId);
+        return new FontFileResourceEntry(filename, weight, isItalic, variationSettings, ttcIndex,
+                resourceId);
     }
 
     private static void skip(XmlPullParser parser) throws XmlPullParserException, IOException {

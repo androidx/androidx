@@ -26,4 +26,6 @@
      <public type="attr" name="fontStyle"/>
      <public type="attr" name="font"/>
      <public type="attr" name="fontWeight"/>
+     <public type="attr" name="fontVariationSettings"/>
+     <public type="attr" name="ttcIndex"/>
 </resources>

@@ -159,8 +159,7 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
             if (buffer == null) {
                 return null;
             }
-            // TODO: support ttc index.
-            if (!addFontWeightStyle(family, buffer, 0, e.getWeight(), e.isItalic())) {
+            if (!addFontWeightStyle(family, buffer, e.getTtcIndex(), e.getWeight(), e.isItalic())) {
                 return null;
             }
         }

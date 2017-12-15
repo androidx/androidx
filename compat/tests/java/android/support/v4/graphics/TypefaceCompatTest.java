@@ -31,6 +31,7 @@ import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.compat.test.R;
 import android.support.test.InstrumentationRegistry;
@@ -354,6 +355,81 @@ public class TypefaceCompatTest {
         typeface = Typeface.create(typeface, Typeface.BOLD_ITALIC);
         // styletestfont has a node of fontStyle="italic" fontWeight="700" font="@font/large_d".
         assertEquals(R.font.large_d, getSelectedFontResourceId(typeface));
+    }
+
+    private Typeface getLargerTypeface(String text, Typeface typeface1, Typeface typeface2) {
+        Paint p1 = new Paint();
+        p1.setTypeface(typeface1);
+        float width1 = p1.measureText(text);
+        Paint p2 = new Paint();
+        p2.setTypeface(typeface2);
+        float width2 = p2.measureText(text);
+
+        if (width1 > width2) {
+            return typeface1;
+        } else if (width1 < width2) {
+            return typeface2;
+        } else {
+            assertTrue(false);
+            return null;
+        }
+    }
+
+    @Test
+    public void testCreateFromResourcesFamilyXml_resourceTtcFont() throws Exception {
+        // Here we test that building typefaces by indexing in font collections works correctly.
+        // We want to ensure that the built typefaces correspond to the fonts with the right index.
+        // sample_font_collection.ttc contains two fonts (with indices 0 and 1). The first one has
+        // glyph "a" of 3em width, and all the other glyphs 1em. The second one has glyph "b" of
+        // 3em width, and all the other glyphs 1em. Hence, we can compare the width of these
+        // glyphs to assert that ttc indexing works.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            // Creating typefaces with ttc index was only supported in the API starting with N.
+            return;
+        }
+        final FamilyResourceEntry entry1 = FontResourcesParserCompat.parse(
+                mResources.getXml(R.font.ttctestfont1), mResources);
+        Typeface typeface1 = TypefaceCompat.createFromResourcesFamilyXml(mContext, entry1,
+                mResources, R.font.ttctestfont1, Typeface.NORMAL, null /* callback */,
+                null /*handler */, false /* isXmlRequest */);
+        assertNotNull(typeface1);
+        final FamilyResourceEntry entry2 = FontResourcesParserCompat.parse(
+                mResources.getXml(R.font.ttctestfont2), mResources);
+        Typeface typeface2 = TypefaceCompat.createFromResourcesFamilyXml(mContext, entry2,
+                mResources, R.font.ttctestfont2, Typeface.NORMAL, null /* callback */,
+                null /*handler */, false /* isXmlRequest */);
+        assertNotNull(typeface2);
+
+        assertEquals(getLargerTypeface("a", typeface1, typeface2), typeface1);
+        assertEquals(getLargerTypeface("b", typeface1, typeface2), typeface2);
+    }
+
+    @Test
+    public void testCreateFromResourcesFamilyXml_resourceFontWithVariationSettings()
+            throws Exception {
+        // Here we test that specifying variation settings for fonts in XMLs works correctly.
+        // We build typefaces from two families containing one font each, using the same font
+        // resource, but having different values for the 'wdth' tag. Then we measure the painted
+        // text to ensure that the tag affects the text width. The font resource used supports
+        // the 'wdth' axis for the dash (-) character.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            // Variation settings are only supported on O and newer.
+            return;
+        }
+        final FamilyResourceEntry entry1 = FontResourcesParserCompat.parse(
+                mResources.getXml(R.font.variationsettingstestfont1), mResources);
+        Typeface typeface1 = TypefaceCompat.createFromResourcesFamilyXml(mContext, entry1,
+                mResources, R.font.variationsettingstestfont1, Typeface.NORMAL, null /* callback */,
+                null /*handler */, false /* isXmlRequest */);
+        assertNotNull(typeface1);
+        final FamilyResourceEntry entry2 = FontResourcesParserCompat.parse(
+                mResources.getXml(R.font.variationsettingstestfont2), mResources);
+        Typeface typeface2 = TypefaceCompat.createFromResourcesFamilyXml(mContext, entry2,
+                mResources, R.font.variationsettingstestfont2, Typeface.NORMAL, null /* callback */,
+                null /*handler */, false /* isXmlRequest */);
+        assertNotNull(typeface2);
+
+        assertEquals(getLargerTypeface("-", typeface1, typeface2), typeface2);
     }
 
     @Test

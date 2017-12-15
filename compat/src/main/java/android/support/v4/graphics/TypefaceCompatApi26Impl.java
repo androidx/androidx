@@ -61,6 +61,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     private static final String FREEZE_METHOD = "freeze";
     private static final String ABORT_CREATION_METHOD = "abortCreation";
     private static final int RESOLVE_BY_FONT_TABLE = -1;
+    private static final String DEFAULT_FAMILY = "sans-serif";
 
     protected final Class mFontFamily;
     protected final Constructor mFontFamilyCtor;
@@ -133,11 +134,11 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
      *      boolean isAsset, int ttcIndex, int weight, int isItalic, FontVariationAxis[] axes)
      */
     private boolean addFontFromAssetManager(Context context, Object family, String fileName,
-            int ttcIndex, int weight, int style) {
+            int ttcIndex, int weight, int style, @Nullable FontVariationAxis[] axes) {
         try {
             final Boolean result = (Boolean) mAddFontFromAssetManager.invoke(family,
                     context.getAssets(), fileName, 0 /* cookie */, false /* isAsset */, ttcIndex,
-                    weight, style, null /* axes */);
+                    weight, style, axes);
             return result.booleanValue();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -206,9 +207,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
         }
         Object fontFamily = newFamily();
         for (final FontFileResourceEntry fontFile : entry.getEntries()) {
-            // TODO: Add ttc and variation font support. (b/37853920)
             if (!addFontFromAssetManager(context, fontFamily, fontFile.getFileName(),
-                    0 /* ttcIndex */, fontFile.getWeight(), fontFile.isItalic() ? 1 : 0)) {
+                    fontFile.getTtcIndex(), fontFile.getWeight(), fontFile.isItalic() ? 1 : 0,
+                    FontVariationAxis.fromFontVariationSettings(fontFile.getVariationSettings()))) {
                 abortCreation(fontFamily);
                 return null;
             }
@@ -285,7 +286,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
         Object fontFamily = newFamily();
         if (!addFontFromAssetManager(context, fontFamily, path,
                 0 /* ttcIndex */, RESOLVE_BY_FONT_TABLE /* weight */,
-                RESOLVE_BY_FONT_TABLE /* italic */)) {
+                RESOLVE_BY_FONT_TABLE /* italic */, null /* axes */)) {
             abortCreation(fontFamily);
             return null;
         }
