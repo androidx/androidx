@@ -28,6 +28,8 @@ import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -40,7 +42,8 @@ import org.junit.runner.RunWith;
 @SuppressWarnings("SqlNoDataSourceInspection")
 @SmallTest
 public class ConstructorTest {
-    @Database(version = 1, entities = {FullConstructor.class, PartialConstructor.class},
+    @Database(version = 1, entities = {FullConstructor.class, PartialConstructor.class,
+            EntityWithAnnotations.class},
             exportSchema = false)
     abstract static class MyDb extends RoomDatabase {
         abstract MyDao dao();
@@ -59,6 +62,12 @@ public class ConstructorTest {
 
         @Query("SELECT * FROM pc WHERE a = :a")
         PartialConstructor loadPartial(int a);
+
+        @Insert
+        void insertEntityWithAnnotations(EntityWithAnnotations... items);
+
+        @Query("SELECT * FROM EntityWithAnnotations")
+        EntityWithAnnotations getEntitiWithAnnotations();
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -167,6 +176,50 @@ public class ConstructorTest {
         }
     }
 
+    @SuppressWarnings("WeakerAccess")
+    @Entity
+    static class EntityWithAnnotations {
+        @PrimaryKey
+        @NonNull
+        public final String id;
+
+        @NonNull
+        public final String username;
+
+        @Nullable
+        public final String displayName;
+
+        EntityWithAnnotations(
+                @NonNull String id,
+                @NonNull String username,
+                @Nullable String displayName) {
+            this.id = id;
+            this.username = username;
+            this.displayName = displayName;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            EntityWithAnnotations that = (EntityWithAnnotations) o;
+
+            if (!id.equals(that.id)) return false;
+            if (!username.equals(that.username)) return false;
+            return displayName != null ? displayName.equals(that.displayName)
+                    : that.displayName == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = id.hashCode();
+            result = 31 * result + username.hashCode();
+            result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
+            return result;
+        }
+    }
+
     private MyDb mDb;
     private MyDao mDao;
 
@@ -192,5 +245,12 @@ public class ConstructorTest {
         mDao.insertPartial(item);
         PartialConstructor load = mDao.loadPartial(3);
         assertThat(load, is(item));
+    }
+
+    @Test // for bug b/69562125
+    public void entityWithAnnotations() {
+        EntityWithAnnotations item = new EntityWithAnnotations("a", "b", null);
+        mDao.insertEntityWithAnnotations(item);
+        assertThat(mDao.getEntitiWithAnnotations(), is(item));
     }
 }
