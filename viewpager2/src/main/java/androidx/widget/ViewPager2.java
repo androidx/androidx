@@ -18,10 +18,10 @@ package androidx.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
@@ -60,7 +60,7 @@ public class ViewPager2 extends ViewGroup {
         initialize(context);
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     public ViewPager2(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         // TODO(b/70663531): handle attrs, defStyleAttr, defStyleRes
         super(context, attrs, defStyleAttr, defStyleRes);

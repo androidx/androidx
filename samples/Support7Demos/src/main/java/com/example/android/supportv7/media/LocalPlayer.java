@@ -16,7 +16,6 @@
 
 package com.example.android.supportv7.media;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Presentation;
 import android.content.Context;
@@ -27,6 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.RequiresApi;
 import android.support.v7.media.MediaItemStatus;
 import android.support.v7.media.MediaRouter.RouteInfo;
 import android.util.Log;
@@ -374,7 +374,6 @@ public abstract class LocalPlayer extends Player implements
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private static final class ICSMediaPlayer {
         public static final void setSurface(MediaPlayer player, Surface surface) {
             player.setSurface(surface);
@@ -426,7 +425,7 @@ public abstract class LocalPlayer extends Player implements
             mLayout.setVisibility(View.GONE);
         }
 
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         @Override
         public void updatePresentation() {
             // Get the current route and its presentation display.
@@ -540,7 +539,7 @@ public abstract class LocalPlayer extends Player implements
             }
         };
 
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         private void releasePresentation() {
             // dismiss presentation display
             if (mPresentation != null) {
@@ -551,7 +550,7 @@ public abstract class LocalPlayer extends Player implements
         }
 
         // Presentation
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         private final class DemoPresentation extends Presentation {
             private SurfaceView mPresentationSurfaceView;
 
@@ -568,7 +567,7 @@ public abstract class LocalPlayer extends Player implements
                 setContentView(R.layout.sample_media_router_presentation);
 
                 // Set up the surface view.
-                mPresentationSurfaceView = (SurfaceView)findViewById(R.id.surface_view);
+                mPresentationSurfaceView = findViewById(R.id.surface_view);
                 SurfaceHolder holder = mPresentationSurfaceView.getHolder();
                 holder.addCallback(SurfaceViewPlayer.this);
                 Log.i(TAG, "Presentation created");

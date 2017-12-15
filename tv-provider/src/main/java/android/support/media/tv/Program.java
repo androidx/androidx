@@ -17,7 +17,6 @@ package android.support.media.tv;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.media.tv.TvContentRating;  // For javadoc gen of super class
@@ -72,7 +71,6 @@ import android.support.media.tv.TvContractCompat.Programs.Genres.Genre;
  *         null, null);
  * </pre>
  */
-@TargetApi(21)
 public final class Program extends BaseProgram implements Comparable<Program> {
     /**
      * @hide

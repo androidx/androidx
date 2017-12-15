@@ -15,7 +15,6 @@
  */
 package android.support.media.tv;
 
-import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -44,7 +43,6 @@ import java.util.Objects;
  */
 @SmallTest
 @SdkSuppress(minSdkVersion = 26)
-@TargetApi(26)
 public class PreviewProgramTest extends TestCase {
 
     @Override

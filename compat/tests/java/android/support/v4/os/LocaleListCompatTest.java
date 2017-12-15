@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -262,7 +261,6 @@ public class LocaleListCompatTest {
     }
 
     @SdkSuppress(minSdkVersion = 24)
-    @TargetApi(24)
     @Test
     public void testGetFirstMatch_oneChineseAsset() {
         String[] oneChineseAsset = {"zh-CN"};  // Assumed to mean zh-Hans-CN
@@ -300,7 +298,6 @@ public class LocaleListCompatTest {
     }
 
     @SdkSuppress(minSdkVersion = 24)
-    @TargetApi(24)
     @Test
     public void testGetFirstMatch_serbianCyrillic() {
         String[] oneSerbianAsset = {"sr"};  // Assumed to mean sr-Cyrl-RS

@@ -17,7 +17,6 @@ package android.support.media.tv;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -76,7 +75,6 @@ import java.nio.charset.Charset;
  *         TvContractCompat.buildChannelUri(existingChannel.getId()), null, null);
  * </pre>
  */
-@TargetApi(21)
 public final class Channel {
     /**
      * @hide

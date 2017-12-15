@@ -18,10 +18,8 @@ package com.example.android.supportv7.widget;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -207,14 +205,12 @@ public class AnimatedRecyclerView extends Activity {
             public boolean animateChange(RecyclerView.ViewHolder oldHolder,
                     RecyclerView.ViewHolder newHolder, ItemHolderInfo preInfo,
                     ItemHolderInfo postInfo) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR1
-                        || oldHolder != newHolder) {
+                if (oldHolder != newHolder) {
                     return super.animateChange(oldHolder, newHolder, preInfo, postInfo);
                 }
                 return animateChangeApiHoneycombMr1(oldHolder, newHolder, preInfo, postInfo);
             }
 
-            @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
             private boolean animateChangeApiHoneycombMr1(RecyclerView.ViewHolder oldHolder,
                     RecyclerView.ViewHolder newHolder,
                     ItemHolderInfo preInfo, ItemHolderInfo postInfo) {
@@ -260,8 +256,6 @@ public class AnimatedRecyclerView extends Activity {
         };
     }
 
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     abstract private static class ItemChangeAnimator implements
             ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener {
         CharSequence mFinalText;

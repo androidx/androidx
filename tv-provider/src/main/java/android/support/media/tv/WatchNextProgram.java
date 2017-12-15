@@ -17,7 +17,6 @@ package android.support.media.tv;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.media.tv.TvContentRating;  // For javadoc gen of super class
@@ -79,7 +78,6 @@ import java.lang.annotation.RetentionPolicy;
  *         null, null);
  * </pre>
  */
-@TargetApi(26)
 public final class WatchNextProgram extends BasePreviewProgram {
     /**
      * @hide

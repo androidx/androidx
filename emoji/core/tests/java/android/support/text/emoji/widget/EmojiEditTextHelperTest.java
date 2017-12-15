@@ -27,7 +27,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import android.annotation.TargetApi;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -47,7 +46,6 @@ import org.mockito.ArgumentCaptor;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 19)
-@TargetApi(19)
 public class EmojiEditTextHelperTest {
     EmojiEditTextHelper mEmojiEditTextHelper;
     EditText mEditText;
