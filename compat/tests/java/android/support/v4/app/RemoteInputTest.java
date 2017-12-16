@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -96,7 +95,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestSupportActi
     }
 
     @SdkSuppress(minSdkVersion = 17)
-    @TargetApi(17)
     @Test
     public void testRemoteInputBuilder_addAndGetDataResultsFromIntent() throws Throwable {
         Uri uri = Uri.parse("Some Uri");
@@ -110,7 +108,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestSupportActi
     }
 
     @SdkSuppress(minSdkVersion = 17)
-    @TargetApi(17)
     @Test
     public void testRemoteInputBuilder_addAndGetTextResultsFromIntent() throws Throwable {
         CharSequence charSequence = "value doesn't matter";
@@ -126,7 +123,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestSupportActi
     }
 
     @SdkSuppress(minSdkVersion = 17)
-    @TargetApi(17)
     @Test
     public void testRemoteInputBuilder_addAndGetDataAndTextResultsFromIntentDataFirst()
             throws Throwable {
@@ -153,7 +149,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestSupportActi
     }
 
     @SdkSuppress(minSdkVersion = 17)
-    @TargetApi(17)
     @Test
     public void testRemoteInputBuilder_addAndGetDataAndTextResultsFromIntentTextFirst()
             throws Throwable {

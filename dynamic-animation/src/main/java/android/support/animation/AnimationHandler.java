@@ -16,11 +16,11 @@
 
 package android.support.animation;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.support.annotation.RequiresApi;
 import android.support.v4.util.SimpleArrayMap;
 import android.view.Choreographer;
 
@@ -191,7 +191,7 @@ class AnimationHandler {
     /**
      * Default provider of timing pulse that uses Choreographer for frame callbacks.
      */
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     private static class FrameCallbackProvider16 extends AnimationFrameCallbackProvider {
 
         private final Choreographer mChoreographer = Choreographer.getInstance();

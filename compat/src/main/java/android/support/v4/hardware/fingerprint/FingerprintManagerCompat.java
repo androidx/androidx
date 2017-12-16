@@ -16,7 +16,6 @@
 
 package android.support.v4.hardware.fingerprint;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
@@ -58,7 +57,6 @@ public final class FingerprintManagerCompat {
      *
      * @return true if at least one fingerprint is enrolled, false otherwise
      */
-    @TargetApi(23)
     @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT)
     public boolean hasEnrolledFingerprints() {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -74,7 +72,6 @@ public final class FingerprintManagerCompat {
      *
      * @return true if hardware is present and functional, false otherwise.
      */
-    @TargetApi(23)
     @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT)
     public boolean isHardwareDetected() {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -99,7 +96,6 @@ public final class FingerprintManagerCompat {
      * @param callback an object to receive authentication events
      * @param handler an optional handler for events
      */
-    @TargetApi(23)
     @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT)
     public void authenticate(@Nullable CryptoObject crypto, int flags,
             @Nullable CancellationSignal cancel, @NonNull AuthenticationCallback callback,

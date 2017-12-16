@@ -15,9 +15,9 @@
  */
 package android.support.text.emoji.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.widget.Button;
@@ -50,7 +50,7 @@ public class EmojiButton extends Button {
         init();
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public EmojiButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();

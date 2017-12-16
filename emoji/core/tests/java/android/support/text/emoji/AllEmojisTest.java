@@ -22,7 +22,6 @@ import static junit.framework.TestCase.assertTrue;
 
 import static org.junit.Assert.assertThat;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Paint;
 import android.support.test.InstrumentationRegistry;
@@ -51,7 +50,6 @@ import java.util.Collection;
 @SmallTest
 @RunWith(Parameterized.class)
 @SdkSuppress(minSdkVersion = 19)
-@TargetApi(19)
 public class AllEmojisTest {
 
     /**

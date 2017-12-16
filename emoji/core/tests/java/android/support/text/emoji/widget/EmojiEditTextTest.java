@@ -24,7 +24,6 @@ import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-import android.annotation.TargetApi;
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
@@ -94,7 +93,6 @@ public class EmojiEditTextTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @TargetApi(19)
     public void testSetMaxCount() {
         final TestActivity activity = mActivityRule.getActivity();
         final EmojiEditText editText = activity.findViewById(R.id.editTextWithMaxCount);
