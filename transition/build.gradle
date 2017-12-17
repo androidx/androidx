@@ -20,13 +20,6 @@ dependencies {
 }
 
 android {
-    sourceSets {
-        main.res.srcDirs = [
-                'res',
-                'res-public'
-        ]
-    }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
@@ -43,5 +36,4 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2016"
     description = "Android Transition Support Library"
-    legacySourceLocation = true
 }
