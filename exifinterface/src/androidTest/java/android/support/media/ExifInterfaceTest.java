@@ -98,33 +98,33 @@ public class ExifInterfaceTest {
             {ExifInterface.ORIENTATION_NORMAL, -90, ExifInterface.ORIENTATION_ROTATE_270},
             {ExifInterface.ORIENTATION_NORMAL, 0, ExifInterface.ORIENTATION_NORMAL},
             {ExifInterface.ORIENTATION_NORMAL, 90, ExifInterface.ORIENTATION_ROTATE_90},
-            {ExifInterface.ORIENTATION_NORMAL, 180,ExifInterface.ORIENTATION_ROTATE_180},
-            {ExifInterface.ORIENTATION_NORMAL, 270,ExifInterface.ORIENTATION_ROTATE_270},
-            {ExifInterface.ORIENTATION_NORMAL, 540,ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_NORMAL, 180, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_NORMAL, 270, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_NORMAL, 540, ExifInterface.ORIENTATION_ROTATE_180},
             {ExifInterface.ORIENTATION_ROTATE_90, -90, ExifInterface.ORIENTATION_NORMAL},
             {ExifInterface.ORIENTATION_ROTATE_90, 0, ExifInterface.ORIENTATION_ROTATE_90},
             {ExifInterface.ORIENTATION_ROTATE_90, 90, ExifInterface.ORIENTATION_ROTATE_180},
-            {ExifInterface.ORIENTATION_ROTATE_90, 180,ExifInterface.ORIENTATION_ROTATE_270},
-            {ExifInterface.ORIENTATION_ROTATE_90, 270,ExifInterface.ORIENTATION_NORMAL},
-            {ExifInterface.ORIENTATION_ROTATE_90, 540,ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_90, 180 , ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_90, 270, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, 540, ExifInterface.ORIENTATION_ROTATE_270},
             {ExifInterface.ORIENTATION_ROTATE_180, -90, ExifInterface.ORIENTATION_ROTATE_90},
             {ExifInterface.ORIENTATION_ROTATE_180, 0, ExifInterface.ORIENTATION_ROTATE_180},
             {ExifInterface.ORIENTATION_ROTATE_180, 90, ExifInterface.ORIENTATION_ROTATE_270},
-            {ExifInterface.ORIENTATION_ROTATE_180, 180,ExifInterface.ORIENTATION_NORMAL},
-            {ExifInterface.ORIENTATION_ROTATE_180, 270,ExifInterface.ORIENTATION_ROTATE_90},
-            {ExifInterface.ORIENTATION_ROTATE_180, 540,ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_180, 180, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_180, 270, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_180, 540, ExifInterface.ORIENTATION_NORMAL},
             {ExifInterface.ORIENTATION_ROTATE_270, -90, ExifInterface.ORIENTATION_ROTATE_180},
             {ExifInterface.ORIENTATION_ROTATE_270, 0, ExifInterface.ORIENTATION_ROTATE_270},
             {ExifInterface.ORIENTATION_ROTATE_270, 90, ExifInterface.ORIENTATION_NORMAL},
-            {ExifInterface.ORIENTATION_ROTATE_270, 180,ExifInterface.ORIENTATION_ROTATE_90},
-            {ExifInterface.ORIENTATION_ROTATE_270, 270,ExifInterface.ORIENTATION_ROTATE_180},
-            {ExifInterface.ORIENTATION_ROTATE_270, 540,ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_270, 180, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_270, 270, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_270, 540, ExifInterface.ORIENTATION_ROTATE_90},
             {ExifInterface.ORIENTATION_FLIP_VERTICAL, -90, ExifInterface.ORIENTATION_TRANSVERSE},
             {ExifInterface.ORIENTATION_FLIP_VERTICAL, 0, ExifInterface.ORIENTATION_FLIP_VERTICAL},
             {ExifInterface.ORIENTATION_FLIP_VERTICAL, 90, ExifInterface.ORIENTATION_TRANSPOSE},
             {ExifInterface.ORIENTATION_FLIP_VERTICAL, 180,
                     ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
-            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 270,ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 270, ExifInterface.ORIENTATION_TRANSVERSE},
             {ExifInterface.ORIENTATION_FLIP_VERTICAL, 540,
                     ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
             {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, -90, ExifInterface.ORIENTATION_TRANSPOSE},
@@ -139,15 +139,15 @@ public class ExifInterfaceTest {
             {ExifInterface.ORIENTATION_TRANSPOSE, -90, ExifInterface.ORIENTATION_FLIP_VERTICAL},
             {ExifInterface.ORIENTATION_TRANSPOSE, 0, ExifInterface.ORIENTATION_TRANSPOSE},
             {ExifInterface.ORIENTATION_TRANSPOSE, 90, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
-            {ExifInterface.ORIENTATION_TRANSPOSE, 180,ExifInterface.ORIENTATION_TRANSVERSE},
-            {ExifInterface.ORIENTATION_TRANSPOSE, 270,ExifInterface.ORIENTATION_FLIP_VERTICAL},
-            {ExifInterface.ORIENTATION_TRANSPOSE, 540,ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 180, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 270, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 540, ExifInterface.ORIENTATION_TRANSVERSE},
             {ExifInterface.ORIENTATION_TRANSVERSE, -90, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
             {ExifInterface.ORIENTATION_TRANSVERSE, 0, ExifInterface.ORIENTATION_TRANSVERSE},
             {ExifInterface.ORIENTATION_TRANSVERSE, 90, ExifInterface.ORIENTATION_FLIP_VERTICAL},
-            {ExifInterface.ORIENTATION_TRANSVERSE, 180,ExifInterface.ORIENTATION_TRANSPOSE},
-            {ExifInterface.ORIENTATION_TRANSVERSE, 270,ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
-            {ExifInterface.ORIENTATION_TRANSVERSE, 540,ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 180, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 270, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 540, ExifInterface.ORIENTATION_TRANSPOSE},
     };
     private static final int[][] TEST_FLIP_VERTICALLY_STATE_MACHINE = {
             {ExifInterface.ORIENTATION_UNDEFINED, ExifInterface.ORIENTATION_UNDEFINED},
@@ -260,7 +260,7 @@ public class ExifInterfaceTest {
             return stringValue.trim();
         }
 
-        public ExpectedValue(TypedArray typedArray) {
+        ExpectedValue(TypedArray typedArray) {
             // Reads thumbnail information.
             hasThumbnail = typedArray.getBoolean(0, false);
             thumbnailWidth = typedArray.getInt(1, 0);
@@ -706,7 +706,7 @@ public class ExifInterfaceTest {
         if (stringValue != null) {
             stringValue = stringValue.trim();
         }
-        stringValue = (stringValue == "") ? null : stringValue;
+        stringValue = ("".equals(stringValue)) ? null : stringValue;
 
         assertEquals(expectedValue, stringValue);
     }
