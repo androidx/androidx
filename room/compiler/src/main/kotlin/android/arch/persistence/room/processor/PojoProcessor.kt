@@ -26,6 +26,7 @@ import android.arch.persistence.room.ext.getAsString
 import android.arch.persistence.room.ext.getAsStringList
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.hasAnyOf
+import android.arch.persistence.room.ext.isAssignableWithoutVariance
 import android.arch.persistence.room.ext.isCollection
 import android.arch.persistence.room.ext.toClassType
 import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
@@ -216,7 +217,8 @@ class PojoProcessor(baseContext: Context,
                     } else if (!field.nameWithVariations.contains(paramName)) {
                         false
                     } else {
-                        typeUtils.isAssignable(paramType, field.type)
+                        // see: b/69164099
+                        typeUtils.isAssignableWithoutVariance(paramType, field.type)
                     }
                 }
 
@@ -555,7 +557,8 @@ class PojoProcessor(baseContext: Context,
 
         val matching = candidates
                 .filter {
-                    types.isAssignable(getType(it), field.element.asType())
+                    // b/69164099
+                    types.isAssignableWithoutVariance(getType(it), field.element.asType())
                             && (field.nameWithVariations.contains(it.simpleName.toString())
                             || nameVariations.contains(it.simpleName.toString()))
                 }
