@@ -30,7 +30,10 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.type.WildcardType
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
+import javax.lang.model.util.SimpleTypeVisitor7
+import javax.lang.model.util.Types
 import kotlin.reflect.KClass
 
 fun Element.hasAnyOf(vararg modifiers: Modifier): Boolean {
@@ -160,4 +163,51 @@ fun AnnotationValue.getAsBoolean(def: Boolean): Boolean {
 
 fun AnnotationValue.getAsStringList(): List<String> {
     return ANNOTATION_VALUE_STRING_ARR_VISITOR.visit(this)
+}
+
+// a variant of Types.isAssignable that ignores variance.
+fun Types.isAssignableWithoutVariance(from: TypeMirror, to: TypeMirror): Boolean {
+    val assignable = isAssignable(from, to)
+    if (assignable) {
+        return true
+    }
+    if (from.kind != TypeKind.DECLARED || to.kind != TypeKind.DECLARED) {
+        return false
+    }
+    val declaredFrom = MoreTypes.asDeclared(from)
+    val declaredTo = MoreTypes.asDeclared(to)
+    val fromTypeArgs = declaredFrom.typeArguments
+    val toTypeArgs = declaredTo.typeArguments
+    // no type arguments, we don't need extra checks
+    if (fromTypeArgs.isEmpty() || fromTypeArgs.size != toTypeArgs.size) {
+        return false
+    }
+    // check erasure version first, if it does not match, no reason to proceed
+    if (!isAssignable(erasure(from), erasure(to))) {
+        return false
+    }
+    // convert from args to their upper bounds if it exists
+    val fromUpperBounds = fromTypeArgs.map {
+        it.getUpperBound()
+    }
+    // if there are no upper bound conversions, return.
+    if (fromUpperBounds.all { it == null }) {
+        return false
+    }
+    // try to move the types of the from to their upper bounds. It does not matter for the "to"
+    // because Types.isAssignable handles it as it is valid java
+    return (0 until fromTypeArgs.size).all { index ->
+        isAssignableWithoutVariance(
+                from = fromUpperBounds[index] ?: fromTypeArgs[index],
+                to = toTypeArgs[index])
+    }
+}
+
+// converts ? in Set< ? extends Foo> to Foo
+private fun TypeMirror.getUpperBound(): TypeMirror? {
+    return this.accept(object : SimpleTypeVisitor7<TypeMirror, Void?>() {
+        override fun visitWildcard(type: WildcardType, ignored: Void?): TypeMirror {
+            return type.extendsBound
+        }
+    }, null)
 }
