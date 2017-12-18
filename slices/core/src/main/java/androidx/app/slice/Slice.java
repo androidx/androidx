@@ -63,8 +63,9 @@ import androidx.app.slice.core.SliceHints;
 /**
  * A slice is a piece of app content and actions that can be surfaced outside of the app.
  *
- * <p>They are constructed using {@link Builder} in a tree structure
- * that provides the OS some information about how the content should be displayed.
+ * <p>They are constructed using {@link androidx.app.slice.builders.TemplateSliceBuilder}s
+ * in a tree structure that provides the OS some information about how the content should be
+ * displayed.
  */
 public final class Slice {
 
@@ -179,7 +180,9 @@ public final class Slice {
 
     /**
      * A Builder used to construct {@link Slice}s
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public static class Builder {
 
         private final Uri mUri;
