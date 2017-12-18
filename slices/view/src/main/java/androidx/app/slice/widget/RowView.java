@@ -21,9 +21,10 @@ import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_SELECTED;
 import static android.app.slice.Slice.HINT_TITLE;
+import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
@@ -157,7 +158,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         // Otherwise use the first non-color item and use it if it's a slice
         SliceItem firstSlice = null;
         for (int i = 0; i < items.size(); i++) {
-            if (!FORMAT_COLOR.equals(items.get(i).getFormat())) {
+            if (!FORMAT_INT.equals(items.get(i).getFormat())) {
                 firstSlice = items.get(i);
                 break;
             }
@@ -253,11 +254,11 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
             }
         }
 
-        SliceItem colorItem = SliceQuery.find(fullSlice, FORMAT_COLOR);
+        SliceItem colorItem = SliceQuery.findSubtype(fullSlice, FORMAT_INT, SUBTYPE_COLOR);
         int color = colorItem != null
-                ? colorItem.getColor()
+                ? colorItem.getInt()
                 : (mColorItem != null)
-                        ? mColorItem.getColor()
+                        ? mColorItem.getInt()
                         : -1;
         // Populate main part of the template
         if (startItem != null) {

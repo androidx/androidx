@@ -19,8 +19,8 @@ package androidx.app.slice.widget;
 import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.SUBTYPE_MESSAGE;
 import static android.app.slice.Slice.SUBTYPE_SOURCE;
-import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import android.annotation.TargetApi;
@@ -214,8 +214,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
                         case FORMAT_TEXT:
                             builder.append(i.getText());
                             break;
-                        case FORMAT_COLOR:
-                            builder.append(i.getColor());
+                        case FORMAT_INT:
+                            builder.append(i.getInt());
                             break;
                     }
                 }

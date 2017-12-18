@@ -16,6 +16,7 @@
 
 package androidx.app.slice.builders;
 
+import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import static androidx.app.slice.core.SliceHints.HINT_SUMMARY;
@@ -129,7 +130,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @RestrictTo(LIBRARY_GROUP)
     public ListBuilder setColor(int color) {
-        getBuilder().addColor(color, null);
+        getBuilder().addInt(color, SUBTYPE_COLOR);
         return this;
     }
 }

@@ -17,8 +17,8 @@ package androidx.app.slice;
 
 
 import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
@@ -62,8 +62,8 @@ public class SliceConvert {
                 case FORMAT_TEXT:
                     builder.addText(item.getText(), item.getSubType(), item.getHints());
                     break;
-                case FORMAT_COLOR:
-                    builder.addColor(item.getColor(), item.getSubType(), item.getHints());
+                case FORMAT_INT:
+                    builder.addInt(item.getInt(), item.getSubType(), item.getHints());
                     break;
                 case FORMAT_TIMESTAMP:
                     builder.addTimestamp(item.getTimestamp(), item.getSubType(), item.getHints());
@@ -113,8 +113,8 @@ public class SliceConvert {
                 case FORMAT_TEXT:
                     builder.addText(item.getText(), item.getSubType(), item.getHints());
                     break;
-                case FORMAT_COLOR:
-                    builder.addColor(item.getColor(), item.getSubType(), item.getHints());
+                case FORMAT_INT:
+                    builder.addInt(item.getInt(), item.getSubType(), item.getHints());
                     break;
                 case FORMAT_TIMESTAMP:
                     builder.addTimestamp(item.getTimestamp(), item.getSubType(), item.getHints());

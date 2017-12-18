@@ -22,6 +22,7 @@ import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
@@ -155,7 +156,6 @@ public class SliceTest {
         mContext.unregisterReceiver(receiver);
     }
 
-    /** Pending updates to androidx version of Slice
     @Test
     public void testInt() {
         Uri uri = BASE_URI.buildUpon().appendPath("int").build();
@@ -167,7 +167,6 @@ public class SliceTest {
         assertEquals(FORMAT_INT, item.getFormat());
         assertEquals(0xff121212, item.getInt());
     }
-     */
 
     @Test
     public void testTimestamp() {

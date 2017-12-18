@@ -17,8 +17,8 @@
 package androidx.app.slice;
 
 import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
@@ -50,7 +50,7 @@ import java.util.List;
  * <li>{@link android.app.slice.SliceItem#FORMAT_TEXT}</li>
  * <li>{@link android.app.slice.SliceItem#FORMAT_IMAGE}</li>
  * <li>{@link android.app.slice.SliceItem#FORMAT_ACTION}</li>
- * <li>{@link android.app.slice.SliceItem#FORMAT_COLOR}</li>
+ * <li>{@link android.app.slice.SliceItem#FORMAT_INT}</li>
  * <li>{@link android.app.slice.SliceItem#FORMAT_TIMESTAMP}</li>
  * <li>{@link android.app.slice.SliceItem#FORMAT_REMOTE_INPUT}</li>
  * <p>
@@ -70,7 +70,7 @@ public class SliceItem {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_COLOR,
+    @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,
             FORMAT_TIMESTAMP, FORMAT_REMOTE_INPUT})
     public @interface SliceType {
     }
@@ -138,7 +138,7 @@ public class SliceItem {
      * <li>{@link android.app.slice.SliceItem#FORMAT_TEXT}</li>
      * <li>{@link android.app.slice.SliceItem#FORMAT_IMAGE}</li>
      * <li>{@link android.app.slice.SliceItem#FORMAT_ACTION}</li>
-     * <li>{@link android.app.slice.SliceItem#FORMAT_COLOR}</li>
+     * <li>{@link android.app.slice.SliceItem#FORMAT_INT}</li>
      * <li>{@link android.app.slice.SliceItem#FORMAT_TIMESTAMP}</li>
      * <li>{@link android.app.slice.SliceItem#FORMAT_REMOTE_INPUT}</li>
      * @see #getSubType() ()
@@ -193,9 +193,9 @@ public class SliceItem {
     }
 
     /**
-     * @return The color held by this {@link android.app.slice.SliceItem#FORMAT_COLOR} SliceItem
+     * @return The color held by this {@link android.app.slice.SliceItem#FORMAT_INT} SliceItem
      */
-    public int getColor() {
+    public int getInt() {
         return (Integer) mObj;
     }
 
@@ -295,7 +295,7 @@ public class SliceItem {
             case FORMAT_TEXT:
                 dest.putCharSequence(OBJ, (CharSequence) obj);
                 break;
-            case FORMAT_COLOR:
+            case FORMAT_INT:
                 dest.putInt(OBJ, (Integer) mObj);
                 break;
             case FORMAT_TIMESTAMP:
@@ -317,7 +317,7 @@ public class SliceItem {
                 return new Pair<>(
                         (PendingIntent) in.getParcelable(OBJ),
                         new Slice(in.getBundle(OBJ_2)));
-            case FORMAT_COLOR:
+            case FORMAT_INT:
                 return in.getInt(OBJ);
             case FORMAT_TIMESTAMP:
                 return in.getLong(OBJ);
@@ -339,8 +339,8 @@ public class SliceItem {
                 return "Image";
             case FORMAT_ACTION:
                 return "Action";
-            case FORMAT_COLOR:
-                return "Color";
+            case FORMAT_INT:
+                return "Int";
             case FORMAT_TIMESTAMP:
                 return "Timestamp";
             case FORMAT_REMOTE_INPUT:

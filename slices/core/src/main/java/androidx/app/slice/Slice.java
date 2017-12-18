@@ -26,8 +26,8 @@ import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SELECTED;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
@@ -326,24 +326,24 @@ public final class Slice {
         }
 
         /**
-         * Add a color to the slice being constructed
+         * Add a int to the slice being constructed
          * @param subType Optional template-specific type information
          * @see {@link SliceItem#getSubType()}
          */
-        public Builder addColor(int color, @Nullable String subType,
+        public Builder addInt(int value, @Nullable String subType,
                 @SliceHint String... hints) {
-            mItems.add(new SliceItem(color, FORMAT_COLOR, subType, hints));
+            mItems.add(new SliceItem(value, FORMAT_INT, subType, hints));
             return this;
         }
 
         /**
-         * Add a color to the slice being constructed
+         * Add a int to the slice being constructed
          * @param subType Optional template-specific type information
          * @see {@link SliceItem#getSubType()}
          */
-        public Builder addColor(int color, @Nullable String subType,
+        public Builder addInt(int value, @Nullable String subType,
                 @SliceHint List<String> hints) {
-            return addColor(color, subType, hints.toArray(new String[hints.size()]));
+            return addInt(value, subType, hints.toArray(new String[hints.size()]));
         }
 
         /**

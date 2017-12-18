@@ -224,7 +224,7 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         LinearLayout cellContainer = new LinearLayout(getContext());
         cellContainer.setOrientation(LinearLayout.VERTICAL);
         cellContainer.setGravity(Gravity.CENTER_HORIZONTAL);
-        final int color = mColorItem != null ? mColorItem.getColor() : -1;
+        final int color = mColorItem != null ? mColorItem.getInt() : -1;
         final String format = sliceItem.getFormat();
         if (FORMAT_SLICE.equals(format) || FORMAT_ACTION.equals(format)) {
             // It's a slice -- try to add all the items we can to a cell.

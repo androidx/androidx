@@ -16,10 +16,10 @@ package androidx.app.slice {
 
   public class SliceItem {
     method public android.app.PendingIntent getAction();
-    method public int getColor();
     method public java.lang.String getFormat();
     method public java.util.List<java.lang.String> getHints();
     method public android.graphics.drawable.Icon getIcon();
+    method public int getInt();
     method public android.app.RemoteInput getRemoteInput();
     method public androidx.app.slice.Slice getSlice();
     method public java.lang.String getSubType();

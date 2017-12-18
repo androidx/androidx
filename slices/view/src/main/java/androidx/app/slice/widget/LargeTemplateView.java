@@ -20,7 +20,8 @@ import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_LIST;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_PARTIAL;
-import static android.app.slice.SliceItem.FORMAT_COLOR;
+import static android.app.slice.Slice.SUBTYPE_COLOR;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -93,7 +94,7 @@ public class LargeTemplateView extends FrameLayout implements SliceView.SliceMod
 
     @Override
     public void setSlice(Slice slice) {
-        SliceItem color = SliceQuery.find(slice, FORMAT_COLOR);
+        SliceItem color = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
         mSlice = slice;
         final List<SliceItem> items = new ArrayList<>();
         final boolean[] hasHeader = new boolean[1];
@@ -105,7 +106,7 @@ public class LargeTemplateView extends FrameLayout implements SliceView.SliceMod
                 public void accept(SliceItem item) {
                     if (item.hasAnyHints(HINT_ACTIONS, HINT_SUMMARY)) {
                         return;
-                    } else if (FORMAT_COLOR.equals(item.getFormat())) {
+                    } else if (FORMAT_INT.equals(item.getFormat())) {
                         return;
                     } else if (FORMAT_SLICE.equals(item.getFormat())
                             && item.hasHint(HINT_LIST)) {
