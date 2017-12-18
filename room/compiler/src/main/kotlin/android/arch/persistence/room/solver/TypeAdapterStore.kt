@@ -362,14 +362,8 @@ class TypeAdapterStore private constructor(
                 || MoreTypes.isTypeOf(java.util.Set::class.java, typeMirror))) {
             val declared = MoreTypes.asDeclared(typeMirror)
             val binder = findStatementValueBinder(declared.typeArguments.first(),
-                    null)
-            if (binder != null) {
-                return CollectionQueryParameterAdapter(binder)
-            } else {
-                // maybe user wants to convert this collection themselves. look for a match
-                val collectionBinder = findStatementValueBinder(typeMirror, null) ?: return null
-                return BasicQueryParameterAdapter(collectionBinder)
-            }
+                    null) ?: return null
+            return CollectionQueryParameterAdapter(binder)
         } else if (typeMirror is ArrayType && typeMirror.componentType.kind != TypeKind.BYTE) {
             val component = typeMirror.componentType
             val binder = findStatementValueBinder(component, null) ?: return null
@@ -445,10 +439,8 @@ class TypeAdapterStore private constructor(
     private fun getAllTypeConverters(input: TypeMirror, excludes: List<TypeMirror>):
             List<TypeConverter> {
         val types = context.processingEnv.typeUtils
-        // for input, check assignability because it defines whether we can use the method or not.
-        // for excludes, use exact match
         return typeConverters.filter { converter ->
-            types.isAssignable(input, converter.from) &&
+            types.isSameType(input, converter.from) &&
                     !excludes.any { types.isSameType(it, converter.to) }
         }
     }
