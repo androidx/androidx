@@ -16,9 +16,14 @@
 
 package android.arch.background.workmanager;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.lifecycle.LiveData;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+
+import java.lang.annotation.Retention;
 
 /**
  * WorkManager is a class used to enqueue persisted work that is guaranteed to run after its
@@ -72,6 +77,30 @@ public abstract class WorkManager {
     public abstract WorkContinuation enqueue(@NonNull Class<? extends Worker>... workerClasses);
 
     /**
+     * This method allows you to create unique chains of work for situations where you only want one
+     * chain to be active at a given time.  For example, you may only want one sync operation to be
+     * active.  If there is one pending, you can choose to let it run or replace it with your new
+     * work.
+     *
+     * All work in this chain will be automatically tagged with {@code tag} if it isn't already.
+     *
+     * If this method determines that new work should be enqueued and run, all records of previous
+     * work with {@code tag} will be pruned.  If this method determines that new work should NOT be
+     * run, then the entire chain will be considered a no-op.
+     *
+     * @param tag A tag which should uniquely label all the work in this chain
+     * @param existingWorkPolicy One of {@code REPLACE_EXISTING_WORK} or {@code KEEP_EXISTING_WORK}.
+     *                           {@code REPLACE_EXISTING_WORK} ensures that if there is pending work
+     *                           labelled with {@code tag}, it will be cancelled and the new work
+     *                           will run.  {@code KEEP_EXISTING_WORK} will run the new sequence of
+     *                           work only if there is no pending work labelled with {@code tag}.
+     * @param work One or more {@link Work} to enqueue
+     * @return A {@link WorkContinuation} that allows further chaining
+     */
+    public abstract WorkContinuation startSequenceWithUniqueTag(
+            @NonNull String tag, @ExistingWorkPolicy int existingWorkPolicy, @NonNull Work... work);
+
+    /**
      * Enqueues one or more periodic work items for background processing.
      *
      * @param periodicWork One or more {@link PeriodicWork} to enqueue
@@ -101,5 +130,12 @@ public abstract class WorkManager {
      * outputs stored in the database.
      */
     public abstract void pruneDatabase();
-}
 
+    @Retention(SOURCE)
+    @IntDef({REPLACE_EXISTING_WORK, KEEP_EXISTING_WORK})
+    public @interface ExistingWorkPolicy {
+    }
+
+    public static final int REPLACE_EXISTING_WORK = 0;
+    public static final int KEEP_EXISTING_WORK = 1;
+}

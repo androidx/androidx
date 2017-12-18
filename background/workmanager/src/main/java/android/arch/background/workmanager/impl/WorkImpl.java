@@ -115,7 +115,7 @@ public class WorkImpl extends Work implements InternalWorkImpl {
         }
 
         @Override
-        public Work.Builder addTag(String tag) {
+        public Work.Builder addTag(@NonNull String tag) {
             mTags.add(tag);
             return this;
         }

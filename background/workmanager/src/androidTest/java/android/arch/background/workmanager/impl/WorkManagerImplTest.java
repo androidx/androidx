@@ -29,6 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.isIn;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -40,7 +41,9 @@ import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.TestLifecycleOwner;
 import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.WorkManagerTest;
+import android.arch.background.workmanager.executors.SynchronousExecutorService;
 import android.arch.background.workmanager.impl.model.Dependency;
 import android.arch.background.workmanager.impl.model.DependencyDao;
 import android.arch.background.workmanager.impl.model.WorkSpec;
@@ -86,16 +89,6 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Before
     public void setUp() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        WorkManagerConfiguration configuration = new WorkManagerConfiguration(
-                context,
-                true,
-                WorkManagerConfiguration.createForegroundExecutorService(),
-                WorkManagerConfiguration.createBackgroundExecutorService(),
-                ProcessLifecycleOwner.get());
-        mWorkManagerImpl = new WorkManagerImpl(context, configuration);
-        mDatabase = mWorkManagerImpl.getWorkDatabase();
-
         ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
             @Override
             public void executeOnDiskIO(@NonNull Runnable runnable) {
@@ -112,6 +105,17 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 return true;
             }
         });
+
+        Context context = InstrumentationRegistry.getTargetContext();
+        WorkManagerConfiguration configuration = new WorkManagerConfiguration(
+                context,
+                true,
+                new SynchronousExecutorService(),
+                new SynchronousExecutorService(),
+                ProcessLifecycleOwner.get());
+        mWorkManagerImpl = new WorkManagerImpl(context, configuration);
+        mDatabase = mWorkManagerImpl.getWorkDatabase();
+        WorkManagerImpl.setInstance(mWorkManagerImpl);
     }
 
     @After
@@ -335,6 +339,69 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.getPeriodStartTime(), is(greaterThan(beforeEnqueueTime)));
+    }
+
+    @Test
+    @SmallTest
+    public void testUniqueTagSequence_setsUniqueTag() {
+        final String testTag = "mytag";
+
+        Work work = Work.newBuilder(TestWorker.class).build();
+        mWorkManagerImpl.startSequenceWithUniqueTag(testTag, WorkManager.REPLACE_EXISTING_WORK)
+                .then(work);
+
+        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        assertThat(work.getId(), isIn(workSpecIds));
+    }
+
+    @Test
+    @SmallTest
+    public void testUniqueTagSequence_deletesOldTagsOnReplace() {
+        final String testTag = "mytag";
+
+        Work originalWork = Work.newBuilder(TestWorker.class).addTag(testTag).build();
+        insertWorkSpecAndTags(originalWork);
+
+        Work replacementWork1 = Work.newBuilder(TestWorker.class).build();
+        Work replacementWork2 = Work.newBuilder(TestWorker.class).build();
+        mWorkManagerImpl
+                .startSequenceWithUniqueTag(
+                        testTag, WorkManager.REPLACE_EXISTING_WORK, replacementWork1)
+                .then(replacementWork2);
+
+        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        assertThat(
+                workSpecIds,
+                containsInAnyOrder(replacementWork1.getId(), replacementWork2.getId()));
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(originalWork.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(replacementWork1.getId()), is(not(nullValue())));
+        assertThat(workSpecDao.getWorkSpec(replacementWork2.getId()), is(not(nullValue())));
+    }
+
+    @Test
+    @SmallTest
+    public void testUniqueTagSequence_keepsExistingWorkOnKeep() {
+        final String testTag = "mytag";
+
+        Work originalWork = Work.newBuilder(TestWorker.class).addTag(testTag).build();
+        insertWorkSpecAndTags(originalWork);
+
+        Work replacementWork1 = Work.newBuilder(TestWorker.class).build();
+        Work replacementWork2 = Work.newBuilder(TestWorker.class).build();
+        mWorkManagerImpl
+                .startSequenceWithUniqueTag(
+                        testTag, WorkManager.KEEP_EXISTING_WORK, replacementWork1)
+                .then(replacementWork2);
+
+        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(originalWork.getId()), is(not(nullValue())));
+        assertThat(workSpecDao.getWorkSpec(replacementWork1.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(replacementWork2.getId()), is(nullValue()));
     }
 
     @Test

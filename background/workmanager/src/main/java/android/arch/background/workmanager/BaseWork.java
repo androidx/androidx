@@ -138,7 +138,7 @@ public interface BaseWork {
          * @param tag A tag for identifying the work in queries.
          * @return The current {@link Builder}.
          */
-        B addTag(String tag);
+        B addTag(@NonNull String tag);
 
         /**
          * Builds this work object.

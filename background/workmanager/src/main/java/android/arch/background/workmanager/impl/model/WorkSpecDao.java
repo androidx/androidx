@@ -48,6 +48,14 @@ public interface WorkSpecDao {
     void insertWorkSpec(WorkSpec workSpec);
 
     /**
+     * Deletes {@link WorkSpec}s from the database.
+     *
+     * @param workSpecIds The WorkSpec ids to delete.
+     */
+    @Query("DELETE FROM workspec WHERE id IN (:workSpecIds)")
+    void delete(List<String> workSpecIds);
+
+    /**
      * @param id The identifier
      * @return The WorkSpec associated with that id
      */
@@ -62,6 +70,15 @@ public interface WorkSpecDao {
      */
     @Query("SELECT * FROM workspec WHERE id IN (:ids)")
     WorkSpec[] getWorkSpecs(List<String> ids);
+
+    /**
+     * Retrieves {@link WorkSpec}s with the given tag.
+     *
+     * @param tag The tag of the desired {@link WorkSpec}s.
+     * @return The {@link WorkSpec}s with the requested tag.
+     */
+    @Query("SELECT id FROM workspec WHERE id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
+    List<String> getWorkSpecIdsForTag(String tag);
 
     /**
      * Updates the status of at least one {@link WorkSpec} by ID.
