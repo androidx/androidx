@@ -17,11 +17,14 @@
 package android.arch.background.workmanager.impl.utils;
 
 import android.arch.background.workmanager.impl.WorkDatabase;
+import android.support.annotation.RestrictTo;
 
 /**
  * A {@link Runnable} that prunes the database of all non-pending work.
+ *
+ * @hide
  */
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PruneDatabaseRunnable implements Runnable {
 
     private WorkDatabase mWorkDatabase;

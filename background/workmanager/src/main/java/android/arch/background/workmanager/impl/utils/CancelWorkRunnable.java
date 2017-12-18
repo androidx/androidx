@@ -21,13 +21,17 @@ import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.model.DependencyDao;
 import android.arch.background.workmanager.impl.model.WorkSpecDao;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import java.util.List;
 
 /**
- * A Runnable to cancel work.
+ * A {@link Runnable} to cancel work.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CancelWorkRunnable implements Runnable {
 
     private WorkManagerImpl mWorkManagerImpl;
