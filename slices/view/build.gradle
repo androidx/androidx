@@ -27,6 +27,8 @@ dependencies {
     implementation(project(":slices-builders"))
     implementation(project(":recyclerview-v7"))
     api(ARCH_LIFECYCLE_EXTENSIONS, libs.exclude_annotations_transitive)
+
+    androidTestImplementation(TEST_RUNNER)
 }
 
 supportLibrary {

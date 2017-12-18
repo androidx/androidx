@@ -402,6 +402,9 @@ public final class Slice {
             if (FORMAT_SLICE.equals(mItems[i].getFormat())) {
                 sb.append("slice:\n");
                 sb.append(mItems[i].getSlice().toString(indent + "   "));
+            } else if (FORMAT_ACTION.equals(mItems[i].getFormat())) {
+                sb.append("action:\n");
+                sb.append(mItems[i].getSlice().toString(indent + "   "));
             } else if (FORMAT_TEXT.equals(mItems[i].getFormat())) {
                 sb.append("text: ");
                 sb.append(mItems[i].getText());
