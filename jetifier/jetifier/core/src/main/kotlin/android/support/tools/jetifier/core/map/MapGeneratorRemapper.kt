@@ -33,7 +33,7 @@ import java.util.regex.Pattern
 class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
 
     companion object {
-        private const val TAG : String = "MapGeneratorRemapper"
+        private const val TAG: String = "MapGeneratorRemapper"
     }
 
     private val typesRewritesMap = hashMapOf<JavaType, JavaType>()
@@ -86,7 +86,7 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
         return type
     }
 
-    override fun rewriteField(field : JavaField): JavaField {
+    override fun rewriteField(field: JavaField): JavaField {
         if (!isTypeSupported(field.owner)) {
             return field
         }
@@ -114,19 +114,24 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
         return field
     }
 
-    fun createTypesMap() : TypesMap {
+    override fun rewriteString(value: String): String {
+        // We don't build map from strings
+        return value
+    }
+
+    fun createTypesMap(): TypesMap {
         return TypesMap(typesRewritesMap, fieldsRewritesMap)
     }
 
-    private fun isTypeSupported(type: JavaType) : Boolean {
-        return config.restrictToPackagePrefixes.any{ type.fullName.startsWith(it) }
+    private fun isTypeSupported(type: JavaType): Boolean {
+        return config.restrictToPackagePrefixes.any { type.fullName.startsWith(it) }
     }
 
-    private fun isTypeIgnored(type: JavaType) : Boolean {
+    private fun isTypeIgnored(type: JavaType): Boolean {
         return ignoredTypes.matcher(type.fullName).matches()
     }
 
-    private fun isFieldIgnored(field: JavaField) : Boolean {
+    private fun isFieldIgnored(field: JavaField): Boolean {
         return ignoredFields.matcher(field.name).matches()
     }
 }
