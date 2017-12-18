@@ -24,7 +24,11 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 
+import java.util.Arrays;
+import java.util.List;
+
 import androidx.app.slice.Slice;
+import androidx.app.slice.SliceSpec;
 
 /**
  * Class with factory methods for creating LiveData that observes slices.
@@ -33,6 +37,8 @@ import androidx.app.slice.Slice;
  * @see LiveData
  */
 public final class SliceLiveData {
+
+    private static final List<SliceSpec> SUPPORTED_SPECS = Arrays.asList();
 
     /**
      * Produces an {@link LiveData} that tracks a Slice for a given Uri. To use

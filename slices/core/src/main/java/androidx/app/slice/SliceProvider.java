@@ -24,7 +24,10 @@ import android.content.pm.ProviderInfo;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
+
+import java.util.List;
 
 import androidx.app.slice.compat.ContentProviderWrapper;
 import androidx.app.slice.compat.SliceProviderCompat;
@@ -70,6 +73,8 @@ import androidx.app.slice.compat.SliceProviderWrapper;
  * @see android.app.slice.Slice
  */
 public abstract class SliceProvider extends ContentProviderWrapper {
+
+    private static List<SliceSpec> sSpecs;
 
     @Override
     public void attachInfo(Context context, ProviderInfo info) {
@@ -126,5 +131,21 @@ public abstract class SliceProvider extends ContentProviderWrapper {
     public @NonNull Uri onMapIntentToUri(Intent intent) {
         throw new UnsupportedOperationException(
                 "This provider has not implemented intent to uri mapping");
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void setSpecs(List<SliceSpec> specs) {
+        sSpecs = specs;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static List<SliceSpec> getCurrentSpecs() {
+        return sSpecs;
     }
 }

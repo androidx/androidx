@@ -41,11 +41,13 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.RestrictTo.Scope;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceProvider;
+import androidx.app.slice.SliceSpec;
 
 /**
  * @hide
@@ -60,6 +62,8 @@ public class SliceProviderCompat extends ContentProvider {
     public static final String METHOD_MAP_INTENT = "map_slice";
     public static final String EXTRA_INTENT = "slice_intent";
     public static final String EXTRA_SLICE = "slice";
+    public static final String EXTRA_SUPPORTED_SPECS = "specs";
+    public static final String EXTRA_SUPPORTED_SPECS_REVS = "revs";
 
     private static final boolean DEBUG = false;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -130,8 +134,9 @@ public class SliceProviderCompat extends ContentProvider {
                         Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                         "Slice binding requires the permission BIND_SLICE");
             }
+            List<SliceSpec> specs = getSpecs(extras);
 
-            Slice s = handleBindSlice(uri);
+            Slice s = handleBindSlice(uri, specs);
             Bundle b = new Bundle();
             b.putParcelable(EXTRA_SLICE, s.toBundle());
             return b;
@@ -144,7 +149,8 @@ public class SliceProviderCompat extends ContentProvider {
             Uri uri = mSliceProvider.onMapIntentToUri(intent);
             Bundle b = new Bundle();
             if (uri != null) {
-                Slice s = handleBindSlice(uri);
+                List<SliceSpec> specs = getSpecs(extras);
+                Slice s = handleBindSlice(uri, specs);
                 b.putParcelable(EXTRA_SLICE, s.toBundle());
             } else {
                 b.putParcelable(EXTRA_SLICE, null);
@@ -154,16 +160,16 @@ public class SliceProviderCompat extends ContentProvider {
         return super.call(method, arg, extras);
     }
 
-    private Slice handleBindSlice(final Uri sliceUri) {
+    private Slice handleBindSlice(final Uri sliceUri, final List<SliceSpec> specs) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            return onBindSliceStrict(sliceUri);
+            return onBindSliceStrict(sliceUri, specs);
         } else {
             final CountDownLatch latch = new CountDownLatch(1);
             final Slice[] output = new Slice[1];
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    output[0] = onBindSliceStrict(sliceUri);
+                    output[0] = onBindSliceStrict(sliceUri, specs);
                     latch.countDown();
                 }
             });
@@ -176,13 +182,14 @@ public class SliceProviderCompat extends ContentProvider {
         }
     }
 
-    private Slice onBindSliceStrict(Uri sliceUri) {
+    private Slice onBindSliceStrict(Uri sliceUri, List<SliceSpec> specs) {
         ThreadPolicy oldPolicy = StrictMode.getThreadPolicy();
         try {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectAll()
                     .penaltyDeath()
                     .build());
+            SliceProvider.setSpecs(specs);
             return mSliceProvider.onBindSlice(sliceUri);
         } finally {
             StrictMode.setThreadPolicy(oldPolicy);
@@ -190,9 +197,10 @@ public class SliceProviderCompat extends ContentProvider {
     }
 
     /**
-     * Compat version of {@link Slice#bindSlice(Context, Uri)}.
+     * Compat version of {@link Slice#bindSlice}.
      */
-    public static Slice bindSlice(Context context, Uri uri) {
+    public static Slice bindSlice(Context context, Uri uri,
+            List<SliceSpec> supportedSpecs) {
         ContentProviderClient provider = context.getContentResolver()
                 .acquireContentProviderClient(uri);
         if (provider == null) {
@@ -201,6 +209,7 @@ public class SliceProviderCompat extends ContentProvider {
         try {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
+            addSpecs(extras, supportedSpecs);
             final Bundle res = provider.call(METHOD_SLICE, null, extras);
             if (res == null) {
                 return null;
@@ -219,16 +228,38 @@ public class SliceProviderCompat extends ContentProvider {
         }
     }
 
+    private static void addSpecs(Bundle extras, List<SliceSpec> supportedSpecs) {
+        ArrayList<String> types = new ArrayList<>();
+        ArrayList<Integer> revs = new ArrayList<>();
+        for (SliceSpec spec : supportedSpecs) {
+            types.add(spec.getType());
+            revs.add(spec.getRevision());
+        }
+        extras.putStringArrayList(EXTRA_SUPPORTED_SPECS, types);
+        extras.putIntegerArrayList(EXTRA_SUPPORTED_SPECS_REVS, revs);
+    }
+
+    private static List<SliceSpec> getSpecs(Bundle extras) {
+        ArrayList<SliceSpec> specs = new ArrayList<>();
+        ArrayList<String> types = extras.getStringArrayList(EXTRA_SUPPORTED_SPECS);
+        ArrayList<Integer> revs = extras.getIntegerArrayList(EXTRA_SUPPORTED_SPECS_REVS);
+        for (int i = 0; i < types.size(); i++) {
+            specs.add(new SliceSpec(types.get(i), revs.get(i)));
+        }
+        return specs;
+    }
+
     /**
-     * Compat version of {@link Slice#bindSlice(Context, Intent)}.
+     * Compat version of {@link Slice#bindSlice}.
      */
-    public static Slice bindSlice(Context context, Intent intent) {
+    public static Slice bindSlice(Context context, Intent intent,
+            List<SliceSpec> supportedSpecs) {
         ContentResolver resolver = context.getContentResolver();
 
         // Check if the intent has data for the slice uri on it and use that
         final Uri intentData = intent.getData();
         if (intentData != null && SLICE_TYPE.equals(resolver.getType(intentData))) {
-            return bindSlice(context, intentData);
+            return bindSlice(context, intentData, supportedSpecs);
         }
         // Otherwise ask the app
         List<ResolveInfo> providers =
@@ -246,6 +277,7 @@ public class SliceProviderCompat extends ContentProvider {
         try {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_INTENT, intent);
+            addSpecs(extras, supportedSpecs);
             final Bundle res = provider.call(METHOD_MAP_INTENT, null, extras);
             if (res == null) {
                 return null;
