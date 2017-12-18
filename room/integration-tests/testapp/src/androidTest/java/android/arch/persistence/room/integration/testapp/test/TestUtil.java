@@ -20,6 +20,7 @@ import android.arch.persistence.room.integration.testapp.vo.Address;
 import android.arch.persistence.room.integration.testapp.vo.Coordinates;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.School;
+import android.arch.persistence.room.integration.testapp.vo.Toy;
 import android.arch.persistence.room.integration.testapp.vo.User;
 
 import java.util.ArrayList;
@@ -59,7 +60,16 @@ public class TestUtil {
         Pet pet = new Pet();
         pet.setPetId(id);
         pet.setName(UUID.randomUUID().toString());
+        pet.setAdoptionDate(new Date());
         return pet;
+    }
+
+    public static Toy createToyForPet(Pet pet, int toyId) {
+        Toy toy = new Toy();
+        toy.setName("toy " + toyId);
+        toy.setId(toyId);
+        toy.setPetId(pet.getPetId());
+        return toy;
     }
 
     public static Pet[] createPetsForUser(int uid, int petStartId, int count) {

@@ -483,6 +483,40 @@ class PojoProcessorTest {
     }
 
     @Test
+    fun relation_primitiveList() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentColumn = "id", entityColumn = "uid",  projection={"uid"},
+                        entity = User.class)
+                public List<Integer> userIds;
+                """, COMMON.USER
+        ) { pojo ->
+            assertThat(pojo.relations.size, `is`(1))
+            val rel = pojo.relations.first()
+            assertThat(rel.projection, `is`(listOf("uid")))
+            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME as TypeName))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun relation_stringList() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentColumn = "id", entityColumn = "uid",  projection={"name"},
+                        entity = User.class)
+                public List<String> userNames;
+                """, COMMON.USER
+        ) { pojo ->
+            assertThat(pojo.relations.size, `is`(1))
+            val rel = pojo.relations.first()
+            assertThat(rel.projection, `is`(listOf("name")))
+            assertThat(rel.entity.typeName, `is`(COMMON.USER_TYPE_NAME as TypeName))
+        }.compilesWithoutError()
+    }
+
+    @Test
     fun cache() {
         val pojo = """
             $HEADER

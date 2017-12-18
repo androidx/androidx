@@ -31,4 +31,5 @@ data class Book(
         val title: String,
         val bookPublisherId: String,
         @field:TypeConverters(Lang::class)
-        val languages: Set<Lang>)
+        val languages: Set<Lang>,
+        val salesCnt: Int)
