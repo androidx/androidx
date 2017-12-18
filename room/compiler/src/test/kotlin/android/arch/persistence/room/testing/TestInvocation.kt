@@ -29,6 +29,4 @@ data class TestInvocation(val processingEnv: ProcessingEnvironment,
     fun typeElement(qName: String): TypeElement {
         return processingEnv.elementUtils.getTypeElement(qName)
     }
-
-    val typeUtils by lazy { processingEnv.typeUtils }
 }
