@@ -27,11 +27,11 @@ import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.impl.model.Dependency;
-import android.arch.background.workmanager.impl.model.DependencyDao;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkSpecDao;
 import android.arch.background.workmanager.impl.model.WorkTag;
 import android.arch.background.workmanager.impl.utils.BaseWorkHelper;
+import android.arch.background.workmanager.impl.utils.CancelWorkRunnable;
 import android.arch.background.workmanager.impl.utils.LiveDataUtils;
 import android.arch.background.workmanager.impl.utils.PruneDatabaseRunnable;
 import android.arch.background.workmanager.impl.utils.taskexecutor.TaskExecutor;
@@ -113,6 +113,16 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
+     * @return The foreground {@link Processor} associated with this WorkManager.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public Processor getForegroundProcessor() {
+        return mForegroundProcessor;
+    }
+
+    /**
      * @return The {@link Scheduler} associated with this WorkManager based on the device's
      * capabilities, SDK version, etc.
      *
@@ -153,12 +163,12 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public void cancelWorkForId(@NonNull String id) {
-        mTaskExecutor.executeOnBackgroundThread(new CancelWorkRunnable(id, null));
+        mTaskExecutor.executeOnBackgroundThread(new CancelWorkRunnable(this, id, null));
     }
 
     @Override
     public void cancelAllWorkWithTag(@NonNull final String tag) {
-        mTaskExecutor.executeOnBackgroundThread(new CancelWorkRunnable(null, tag));
+        mTaskExecutor.executeOnBackgroundThread(new CancelWorkRunnable(this, null, tag));
     }
 
     @Override
@@ -258,54 +268,4 @@ public class WorkManagerImpl extends WorkManager {
         }
     }
 
-    /**
-     * A Runnable to cancel work.
-     */
-    private class CancelWorkRunnable implements Runnable {
-
-        private String mId;
-        private String mTag;
-
-        CancelWorkRunnable(String id, String tag) {
-            mId = id;
-            mTag = tag;
-        }
-
-        @WorkerThread
-        @Override
-        public void run() {
-            mWorkDatabase.beginTransaction();
-            try {
-                WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-                if (mTag != null) {
-                    List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithTag(mTag);
-                    for (String workSpecId : workSpecIds) {
-                        cancel(workSpecId);
-                    }
-                } else if (mId != null) {
-                    cancel(mId);
-                }
-                mWorkDatabase.setTransactionSuccessful();
-            } finally {
-                mWorkDatabase.endTransaction();
-            }
-        }
-
-        private void cancel(String workSpecId) {
-            recursivelyCancelWorkAndDependencies(workSpecId);
-            mForegroundProcessor.cancel(workSpecId, true);
-            mBackgroundScheduler.cancel(workSpecId);
-        }
-
-        private void recursivelyCancelWorkAndDependencies(String workSpecId) {
-            WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-            DependencyDao dependencyDao = mWorkDatabase.dependencyDao();
-
-            List<String> dependentIds = dependencyDao.getDependentWorkIds(workSpecId);
-            for (String id : dependentIds) {
-                recursivelyCancelWorkAndDependencies(id);
-            }
-            workSpecDao.setStatus(BaseWork.STATUS_CANCELLED, workSpecId);
-        }
-    }
 }
