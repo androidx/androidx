@@ -65,7 +65,7 @@ dependencies {
 def generateAntlrTask = task('generateAntlrGrammar', type: JavaExec) {
     def outFolder = file(antlrOut)
     outputs.dir(outFolder)
-    inputs.dir("$projectDir/SQLite.g4")
+    inputs.file("$projectDir/SQLite.g4")
     classpath configurations.runtime
     main "org.antlr.v4.Tool"
     args "SQLite.g4", "-visitor", "-o", new File(outFolder, "android/arch/persistence/room/parser").path,
