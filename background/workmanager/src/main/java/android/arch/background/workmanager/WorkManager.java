@@ -58,7 +58,7 @@ public abstract class WorkManager {
      * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
      *         input work
      */
-    public abstract WorkContinuation enqueue(Work... work);
+    public abstract WorkContinuation enqueue(@NonNull Work... work);
 
     /**
      * Enqueues one or more items for background processing.
@@ -69,14 +69,14 @@ public abstract class WorkManager {
      *         input workerClasses
      */
     @SuppressWarnings("unchecked")
-    public abstract WorkContinuation enqueue(Class<? extends Worker>... workerClasses);
+    public abstract WorkContinuation enqueue(@NonNull Class<? extends Worker>... workerClasses);
 
     /**
      * Enqueues one or more periodic work items for background processing.
      *
      * @param periodicWork One or more {@link PeriodicWork} to enqueue
      */
-    public abstract void enqueue(PeriodicWork... periodicWork);
+    public abstract void enqueue(@NonNull PeriodicWork... periodicWork);
 
     /**
      * Cancels work with the given id, regardless of the current state of the work.  Note that

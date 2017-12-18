@@ -16,22 +16,18 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_BLOCKED;
-
 import android.arch.background.workmanager.Arguments;
-import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.foreground.ForegroundProcessor;
-import android.arch.background.workmanager.impl.model.Dependency;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkSpecDao;
-import android.arch.background.workmanager.impl.model.WorkTag;
 import android.arch.background.workmanager.impl.utils.BaseWorkHelper;
 import android.arch.background.workmanager.impl.utils.CancelWorkRunnable;
+import android.arch.background.workmanager.impl.utils.EnqueueRunnable;
 import android.arch.background.workmanager.impl.utils.LiveDataUtils;
 import android.arch.background.workmanager.impl.utils.PruneDatabaseRunnable;
 import android.arch.background.workmanager.impl.utils.taskexecutor.TaskExecutor;
@@ -44,7 +40,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.annotation.WorkerThread;
 
 import java.util.HashMap;
 import java.util.List;
@@ -145,20 +140,20 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public WorkContinuation enqueue(Work... work) {
+    public WorkContinuation enqueue(@NonNull Work... work) {
         return enqueue(work, null);
     }
 
     @SafeVarargs
     @Override
-    public final WorkContinuation enqueue(Class<? extends Worker>... workerClasses) {
+    public final WorkContinuation enqueue(@NonNull Class<? extends Worker>... workerClasses) {
         return enqueue(BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses), null);
     }
 
     @Override
-    public void enqueue(PeriodicWork... periodicWork) {
+    public void enqueue(@NonNull PeriodicWork... periodicWork) {
         mTaskExecutor.executeOnBackgroundThread(
-                new EnqueueRunnable(periodicWork, null));
+                new EnqueueRunnable(this, periodicWork, null));
     }
 
     @Override
@@ -198,74 +193,11 @@ public class WorkManagerImpl extends WorkManager {
         return mediatorLiveData;
     }
 
-    WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {
+    WorkContinuation enqueue(@NonNull Work[] work, String[] prerequisiteIds) {
         WorkContinuation workContinuation = new WorkContinuationImpl(this, work);
         mTaskExecutor.executeOnBackgroundThread(
-                new EnqueueRunnable(work, prerequisiteIds));
+                new EnqueueRunnable(this, work, prerequisiteIds));
         return workContinuation;
-    }
-
-    /**
-     * A Runnable to enqueue a {@link Work} in the database.
-     */
-    private class EnqueueRunnable implements Runnable {
-
-        private InternalWorkImpl[] mWorkArray;
-        private String[] mPrerequisiteIds;
-
-        EnqueueRunnable(BaseWork[] workArray, String[] prerequisiteIds) {
-            mWorkArray = new InternalWorkImpl[workArray.length];
-            for (int i = 0; i < workArray.length; ++i) {
-                mWorkArray[i] = (InternalWorkImpl) workArray[i];
-            }
-            mPrerequisiteIds = prerequisiteIds;
-        }
-
-        @WorkerThread
-        @Override
-        public void run() {
-            mWorkDatabase.beginTransaction();
-            try {
-                long currentTimeMillis = System.currentTimeMillis();
-                boolean hasPrerequisite = (mPrerequisiteIds != null && mPrerequisiteIds.length > 0);
-
-                for (InternalWorkImpl work : mWorkArray) {
-                    WorkSpec workSpec = work.getWorkSpec();
-
-                    if (hasPrerequisite) {
-                        workSpec.setStatus(STATUS_BLOCKED);
-                    } else {
-                        // Set scheduled times only for work without prerequisites. Dependent work
-                        // will set their scheduled times when they are unblocked.
-                        workSpec.setPeriodStartTime(currentTimeMillis);
-                    }
-
-                    mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
-
-                    if (hasPrerequisite) {
-                        for (String prerequisiteId : mPrerequisiteIds) {
-                            Dependency dep = new Dependency(work.getId(), prerequisiteId);
-                            mWorkDatabase.dependencyDao().insertDependency(dep);
-                        }
-                    }
-
-                    for (String tag : work.getTags()) {
-                        mWorkDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
-                    }
-                }
-                mWorkDatabase.setTransactionSuccessful();
-
-                // Schedule in the background if there are no prerequisites.  Foreground scheduling
-                // happens automatically because we instantiated ForegroundProcessor earlier.
-                if (!hasPrerequisite) {
-                    for (InternalWorkImpl work : mWorkArray) {
-                        mBackgroundScheduler.schedule(work.getWorkSpec());
-                    }
-                }
-            } finally {
-                mWorkDatabase.endTransaction();
-            }
-        }
     }
 
 }
