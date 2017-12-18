@@ -20,12 +20,10 @@ import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
-import android.arch.persistence.room.TypeConverters
 import android.arch.persistence.room.integration.kotlintestapp.vo.Author
 import android.arch.persistence.room.integration.kotlintestapp.vo.Book
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookAuthor
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookWithPublisher
-import android.arch.persistence.room.integration.kotlintestapp.vo.Lang
 import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
 import android.arch.persistence.room.integration.kotlintestapp.vo.PublisherWithBooks
 import io.reactivex.Flowable
@@ -93,8 +91,4 @@ interface BooksDao {
 
     @Query("UPDATE book SET title = :title WHERE bookId = :bookId")
     fun updateBookTitle(bookId: String, title: String?)
-
-    @Query("SELECT * FROM book WHERE languages & :langs != 0 ORDER BY bookId ASC")
-    @TypeConverters(Lang::class)
-    fun findByLanguages(langs: Set<Lang>): List<Book>
 }
