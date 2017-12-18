@@ -23,6 +23,8 @@ import android.arch.persistence.room.TypeConverters;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @TypeConverters({TestDatabase.Converters.class})
@@ -45,6 +47,9 @@ public class User {
 
     @ColumnInfo(name = "custommm", collate = ColumnInfo.NOCASE)
     private String mCustomField;
+
+    // bit flags
+    private Set<Day> mWorkDays = new HashSet<>();
 
     public int getId() {
         return mId;
@@ -110,6 +115,15 @@ public class User {
         mCustomField = customField;
     }
 
+    public Set<Day> getWorkDays() {
+        return mWorkDays;
+    }
+
+    public void setWorkDays(
+            Set<Day> workDays) {
+        mWorkDays = workDays;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -128,8 +142,11 @@ public class User {
         if (mBirthday != null ? !mBirthday.equals(user.mBirthday) : user.mBirthday != null) {
             return false;
         }
-        return mCustomField != null ? mCustomField.equals(user.mCustomField)
-                : user.mCustomField == null;
+        if (mCustomField != null ? !mCustomField.equals(user.mCustomField)
+                : user.mCustomField != null) {
+            return false;
+        }
+        return mWorkDays != null ? mWorkDays.equals(user.mWorkDays) : user.mWorkDays == null;
     }
 
     @Override
@@ -142,6 +159,7 @@ public class User {
         result = 31 * result + (mWeight != +0.0f ? Float.floatToIntBits(mWeight) : 0);
         result = 31 * result + (mBirthday != null ? mBirthday.hashCode() : 0);
         result = 31 * result + (mCustomField != null ? mCustomField.hashCode() : 0);
+        result = 31 * result + (mWorkDays != null ? mWorkDays.hashCode() : 0);
         return result;
     }
 
@@ -155,7 +173,8 @@ public class User {
                 + ", mAdmin=" + mAdmin
                 + ", mWeight=" + mWeight
                 + ", mBirthday=" + mBirthday
-                + ", mCustom=" + mCustomField
+                + ", mCustomField='" + mCustomField + '\''
+                + ", mWorkDays=" + mWorkDays
                 + '}';
     }
 }
