@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "c7e8b9f03366a1b0a03ab28b7c9c5ad7",
+    "identityHash": "933c7e2810b0f89ab84faa68bbea5852",
     "entities": [
       {
         "tableName": "Book",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` TEXT NOT NULL, `title` TEXT NOT NULL, `bookPublisherId` TEXT NOT NULL, `languages` INTEGER NOT NULL, PRIMARY KEY(`bookId`), FOREIGN KEY(`bookPublisherId`) REFERENCES `Publisher`(`publisherId`) ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` TEXT NOT NULL, `title` TEXT NOT NULL, `bookPublisherId` TEXT NOT NULL, PRIMARY KEY(`bookId`), FOREIGN KEY(`bookPublisherId`) REFERENCES `Publisher`(`publisherId`) ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)",
         "fields": [
           {
             "fieldPath": "bookId",
@@ -24,12 +24,6 @@
             "fieldPath": "bookPublisherId",
             "columnName": "bookPublisherId",
             "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "languages",
-            "columnName": "languages",
-            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -197,7 +191,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"c7e8b9f03366a1b0a03ab28b7c9c5ad7\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"933c7e2810b0f89ab84faa68bbea5852\")"
     ]
   }
 }
