@@ -148,17 +148,17 @@ data class RelationCollector(val relation: Relation,
                     val paramType = relation.field.typeName as ParameterizedTypeName
                     if (paramType.rawType == CommonTypeNames.LIST) {
                         ParameterizedTypeName.get(ClassName.get(ArrayList::class.java),
-                                relation.pojo.typeName)
+                                relation.pojoTypeName)
                     } else if (paramType.rawType == CommonTypeNames.SET) {
                         ParameterizedTypeName.get(ClassName.get(HashSet::class.java),
-                                relation.pojo.typeName)
+                                relation.pojoTypeName)
                     } else {
                         ParameterizedTypeName.get(ClassName.get(ArrayList::class.java),
-                                relation.pojo.typeName)
+                                relation.pojoTypeName)
                     }
                 } else {
                     ParameterizedTypeName.get(ClassName.get(ArrayList::class.java),
-                            relation.pojo.typeName)
+                            relation.pojoTypeName)
                 }
 
                 val canUseArrayMap = context.processingEnv.elementUtils
@@ -197,13 +197,13 @@ data class RelationCollector(val relation: Relation,
 
                 // row adapter that matches full response
                 fun getDefaultRowAdapter(): RowAdapter? {
-                    return context.typeAdapterStore.findRowAdapter(relation.pojo.type, parsedQuery)
+                    return context.typeAdapterStore.findRowAdapter(relation.pojoType, parsedQuery)
                 }
                 val rowAdapter = if (relation.projection.size == 1 && resultInfo != null &&
                         (resultInfo.columns.size == 1 || resultInfo.columns.size == 2)) {
                     // check for a column adapter first
                     val cursorReader = context.typeAdapterStore.findCursorValueReader(
-                            relation.pojo.type, resultInfo.columns.first().type)
+                            relation.pojoType, resultInfo.columns.first().type)
                     if (cursorReader == null) {
                         getDefaultRowAdapter()
                     } else {

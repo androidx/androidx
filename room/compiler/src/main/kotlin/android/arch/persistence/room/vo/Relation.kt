@@ -16,12 +16,16 @@
 
 package android.arch.persistence.room.vo
 
+import android.arch.persistence.room.ext.typeName
+import javax.lang.model.type.TypeMirror
+
 /**
  * Value object created from processing a @Relation annotation.
  */
 class Relation(
         val entity: Entity,
-        val pojo: Pojo,
+        // return type. e..g. String in @Relation List<String>
+        val pojoType: TypeMirror,
         // field in Pojo that holds these relations (e.g. List<Pet> pets)
         val field: Field,
         // the parent field referenced for matching
@@ -32,20 +36,14 @@ class Relation(
         // the projection for the query
         val projection: List<String>) {
 
+    val pojoTypeName by lazy { pojoType.typeName() }
+
     fun createLoadAllSql(): String {
-        var resultFields = if (projection.isNotEmpty()) {
-            projection
-        } else {
-            pojo.fields.map { it.columnName }
-        }
-        val entityFieldInResponse = pojo.fields.any { it.columnName == entityField.columnName }
-        if (!entityFieldInResponse) {
-            resultFields += entityField.columnName
-        }
+        val resultFields = projection.toSet() + entityField.columnName
         return createSelect(resultFields)
     }
 
-    private fun createSelect(resultFields: List<String>): String {
+    private fun createSelect(resultFields: Set<String>): String {
         return "SELECT ${resultFields.joinToString(",")}" +
                 " FROM `${entity.tableName}`" +
                 " WHERE ${entityField.columnName} IN (:args)"
