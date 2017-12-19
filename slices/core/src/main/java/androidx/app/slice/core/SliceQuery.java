@@ -17,8 +17,8 @@
 package androidx.app.slice.core;
 
 import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
@@ -92,7 +92,7 @@ public class SliceQuery {
                 SliceItem child = items.get(i);
                 if (FORMAT_IMAGE.equals(child.getFormat()) && !hasImage) {
                     hasImage = true;
-                } else if (FORMAT_COLOR.equals(child.getFormat())) {
+                } else if (FORMAT_INT.equals(child.getFormat())) {
                     continue;
                 } else {
                     return false;
@@ -246,6 +246,17 @@ public class SliceQuery {
             public boolean test(SliceItem item) {
                 return checkFormat(item, format)
                         && (hasHints(item, hints) && !hasAnyHints(item, nonHints));
+            }
+        }).findFirst().orElse(null);
+    }
+
+    /**
+     */
+    public static SliceItem findSubtype(Slice s, final String format, final String subtype) {
+        return stream(s).filter(new Predicate<SliceItem>() {
+            @Override
+            public boolean test(SliceItem item) {
+                return checkFormat(item, format) && checkSubtype(item, subtype);
             }
         }).findFirst().orElse(null);
     }

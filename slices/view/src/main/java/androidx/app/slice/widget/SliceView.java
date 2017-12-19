@@ -18,7 +18,8 @@ package androidx.app.slice.widget;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_HORIZONTAL;
-import static android.app.slice.SliceItem.FORMAT_COLOR;
+import static android.app.slice.Slice.SUBTYPE_COLOR;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 
 import android.arch.lifecycle.Observer;
@@ -273,7 +274,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
             return;
         }
         // TODO: Smarter mapping here from one state to the next.
-        SliceItem color = SliceQuery.find(mCurrentSlice, FORMAT_COLOR);
+        SliceItem color = SliceQuery.findSubtype(mCurrentSlice, FORMAT_INT, SUBTYPE_COLOR);
         List<SliceItem> items = mCurrentSlice.getItems();
         SliceItem actionRow = SliceQuery.find(mCurrentSlice, FORMAT_SLICE,
                 HINT_ACTIONS,

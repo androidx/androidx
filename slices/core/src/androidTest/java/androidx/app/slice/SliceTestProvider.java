@@ -57,8 +57,8 @@ public class SliceTestProvider extends androidx.app.slice.SliceProvider {
                 PendingIntent broadcast = PendingIntent.getBroadcast(getContext(), 0,
                         new Intent(getContext().getPackageName() + ".action"), 0);
                 return builder.addAction(broadcast, subSlice, "action").build();
-            //case "/int":
-            //    return new Slice.Builder(sliceUri).addInt(0xff121212, "int").build();
+            case "/int":
+                return new Slice.Builder(sliceUri).addInt(0xff121212, "int").build();
             case "/timestamp":
                 return new Slice.Builder(sliceUri).addTimestamp(43, "timestamp").build();
             case "/hints":

@@ -17,9 +17,10 @@
 package androidx.app.slice.widget;
 
 import static android.app.slice.Slice.HINT_NO_TINT;
+import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_COLOR;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 
 import android.annotation.TargetApi;
@@ -109,12 +110,12 @@ public class ActionRow extends FrameLayout {
         mActionsGroup.removeAllViews();
         addView(mActionsGroup);
 
-        SliceItem color = SliceQuery.find(actionRow, FORMAT_COLOR);
+        SliceItem color = SliceQuery.findSubtype(actionRow, FORMAT_INT, SUBTYPE_COLOR);
         if (color == null) {
             color = defColor;
         }
         if (color != null) {
-            setColor(color.getColor());
+            setColor(color.getInt());
         }
         SliceQuery.findAll(actionRow, FORMAT_ACTION).forEach(new Consumer<SliceItem>() {
             @Override
