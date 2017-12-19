@@ -94,16 +94,6 @@ public class ListItem {
     }
 
     /**
-     * Used by {@link ListItemAdapter} to choose layout to inflate for view holder.
-     * New view type needs support in {@link ListItemAdapter}.
-     */
-    protected int getViewType() {
-        return mBuilder.mIsCard
-                ? ListItemAdapter.CAR_PAGED_LIST_CARD
-                : ListItemAdapter.CAR_PAGED_LIST_ITEM;
-    }
-
-    /**
      * Functional interface to provide a way to interact with views in
      * {@link ListItemAdapter.ViewHolder}. {@code ViewBinder}s added to a
      * {@code ListItem} will be called when {@code ListItem} {@code bind}s to
@@ -149,8 +139,6 @@ public class ListItem {
         private final List<ViewBinder> mBinders = new ArrayList<>();
         // Store custom binders separately so they will bind after binders are created in build().
         private final List<ViewBinder> mCustomBinders = new ArrayList<>();
-
-        private boolean mIsCard;
 
         private View.OnClickListener mOnClickListener;
 
@@ -496,18 +484,6 @@ public class ListItem {
                 default:
                     throw new IllegalArgumentException("Unrecognized supplemental action type.");
             }
-        }
-
-        /**
-         * Builds the item in a {@link android.support.v7.widget.CardView}.
-         *
-         * <p>Each item will have rounded corner, margin between items, and elevation.
-         *
-         * @return This Builder object to allow for chaining calls to set methods.
-         */
-        public Builder withCardLook() {
-            mIsCard = true;
-            return this;
         }
 
         /**
