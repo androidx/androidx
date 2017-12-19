@@ -21,6 +21,9 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
+import android.arch.persistence.room.integration.testapp.vo.PetWithToyIds;
+
+import java.util.List;
 
 @Dao
 public interface PetDao {
@@ -32,4 +35,7 @@ public interface PetDao {
 
     @Query("SELECT COUNT(*) FROM Pet")
     int count();
+
+    @Query("SELECT * FROM Pet ORDER BY Pet.mPetId ASC")
+    List<PetWithToyIds> allPetsWithToyIds();
 }
