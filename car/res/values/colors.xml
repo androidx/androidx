@@ -113,6 +113,9 @@
     <!-- An inverted tinting from car_tint. -->
     <color name="car_tint_inverse">@color/car_tint_light</color>
 
+    <!-- The color of the list header.-->
+    <color name="car_list_header">@color/car_blue_500</color>
+
     <!-- The color of the divider. The color here is a lighter shade. -->
     <color name="car_list_divider_light">#1fffffff</color>
 
