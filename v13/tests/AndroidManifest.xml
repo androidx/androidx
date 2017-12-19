@@ -17,6 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.v13.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application>
         <activity android:name="android.support.v13.app.FragmentCompatTestActivity" />
