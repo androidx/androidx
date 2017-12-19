@@ -22,9 +22,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.persistence.room.integration.testapp.vo.EmbeddedUserAndAllPets;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
+import android.arch.persistence.room.integration.testapp.vo.PetWithToyIds;
 import android.arch.persistence.room.integration.testapp.vo.Toy;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
+import android.arch.persistence.room.integration.testapp.vo.UserAndPetAdoptionDates;
 import android.arch.persistence.room.integration.testapp.vo.UserIdAndPetNames;
 import android.arch.persistence.room.integration.testapp.vo.UserWithPetsAndToys;
 import android.support.test.filters.SmallTest;
@@ -35,6 +37,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -140,5 +143,49 @@ public class PojoWithRelationTest extends TestDatabaseTest {
         assertThat(relationContainer.getUserAndAllPets(), notNullValue());
         assertThat(relationContainer.getUserAndAllPets().user.getId(), is(1));
         assertThat(relationContainer.getUserAndAllPets().pets.size(), is(2));
+    }
+
+    @Test
+    public void boxedPrimitiveList() {
+        Pet pet1 = TestUtil.createPet(3);
+        Pet pet2 = TestUtil.createPet(5);
+
+        Toy pet1_toy1 = TestUtil.createToyForPet(pet1, 10);
+        Toy pet1_toy2 = TestUtil.createToyForPet(pet1, 20);
+        Toy pet2_toy1 = TestUtil.createToyForPet(pet2, 30);
+
+        mPetDao.insertOrReplace(pet1, pet2);
+        mToyDao.insert(pet1_toy1, pet1_toy2, pet2_toy1);
+
+        List<PetWithToyIds> petWithToyIds = mPetDao.allPetsWithToyIds();
+        //noinspection ArraysAsListWithZeroOrOneArgument
+        assertThat(petWithToyIds, is(
+                Arrays.asList(
+                        new PetWithToyIds(pet1, Arrays.asList(10, 20)),
+                        new PetWithToyIds(pet2, Arrays.asList(30)))
+        ));
+    }
+
+    @Test
+    public void viaTypeConverter() {
+        User user = TestUtil.createUser(3);
+        Pet pet1 = TestUtil.createPet(3);
+        Date date1 = new Date(300);
+        pet1.setAdoptionDate(date1);
+        Pet pet2 = TestUtil.createPet(5);
+        Date date2 = new Date(700);
+        pet2.setAdoptionDate(date2);
+
+        pet1.setUserId(3);
+        pet2.setUserId(3);
+        mUserDao.insert(user);
+        mPetDao.insertOrReplace(pet1, pet2);
+
+        List<UserAndPetAdoptionDates> adoptions =
+                mUserPetDao.loadUserWithPetAdoptionDates();
+
+        assertThat(adoptions, is(Arrays.asList(
+                new UserAndPetAdoptionDates(user, Arrays.asList(new Date(300), new Date(700)))
+        )));
     }
 }

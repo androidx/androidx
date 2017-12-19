@@ -20,6 +20,8 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
+import java.util.Date;
+
 @Entity
 public class Pet {
     @PrimaryKey
@@ -27,6 +29,8 @@ public class Pet {
     private int mUserId;
     @ColumnInfo(name = "mPetName")
     private String mName;
+
+    private Date mAdoptionDate;
 
     public int getPetId() {
         return mPetId;
@@ -52,6 +56,14 @@ public class Pet {
         mUserId = userId;
     }
 
+    public Date getAdoptionDate() {
+        return mAdoptionDate;
+    }
+
+    public void setAdoptionDate(Date adoptionDate) {
+        mAdoptionDate = adoptionDate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -61,7 +73,9 @@ public class Pet {
 
         if (mPetId != pet.mPetId) return false;
         if (mUserId != pet.mUserId) return false;
-        return mName != null ? mName.equals(pet.mName) : pet.mName == null;
+        if (mName != null ? !mName.equals(pet.mName) : pet.mName != null) return false;
+        return mAdoptionDate != null ? mAdoptionDate.equals(pet.mAdoptionDate)
+                : pet.mAdoptionDate == null;
     }
 
     @Override
@@ -69,6 +83,17 @@ public class Pet {
         int result = mPetId;
         result = 31 * result + mUserId;
         result = 31 * result + (mName != null ? mName.hashCode() : 0);
+        result = 31 * result + (mAdoptionDate != null ? mAdoptionDate.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Pet{"
+                + "mPetId=" + mPetId
+                + ", mUserId=" + mUserId
+                + ", mName='" + mName + '\''
+                + ", mAdoptionDate=" + mAdoptionDate
+                + '}';
     }
 }
