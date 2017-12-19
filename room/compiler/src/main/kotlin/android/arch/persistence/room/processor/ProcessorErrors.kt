@@ -49,8 +49,9 @@ object ProcessorErrors {
 
     val ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION = "Abstract method in DAO must be annotated" +
             " with ${Query::class.java} AND ${Insert::class.java}"
-    val CANNOT_USE_MORE_THAN_ONE_DAO_METHOD_ANNOTATION = "A DAO method can be annotated with only" +
-            " one of the following:" + DaoProcessor.PROCESSED_ANNOTATIONS.joinToString(",") {
+    val INVALID_ANNOTATION_COUNT_IN_DAO_METHOD = "An abstract DAO method must be" +
+            " annotated with one and only one of the following annotations: " +
+            DaoProcessor.PROCESSED_ANNOTATIONS.joinToString(",") {
         it.java.simpleName
     }
     val CANNOT_RESOLVE_RETURN_TYPE = "Cannot resolve return type for %s"
