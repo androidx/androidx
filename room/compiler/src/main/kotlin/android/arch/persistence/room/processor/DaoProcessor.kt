@@ -61,7 +61,7 @@ class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: D
             }.groupBy { method ->
                 context.checker.check(
                         PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } == 1, method,
-                        ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_DAO_METHOD_ANNOTATION
+                        ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD
                 )
                 if (method.hasAnnotation(Query::class)) {
                     Query::class
