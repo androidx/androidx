@@ -8,27 +8,6 @@ package androidx.app.slice {
     method public android.net.Uri getUri();
   }
 
-  public static class Slice.Builder {
-    ctor public Slice.Builder(android.net.Uri);
-    ctor public Slice.Builder(androidx.app.slice.Slice.Builder);
-    method public androidx.app.slice.Slice.Builder addAction(android.app.PendingIntent, androidx.app.slice.Slice, java.lang.String);
-    method public androidx.app.slice.Slice.Builder addColor(int, java.lang.String, java.lang.String...);
-    method public androidx.app.slice.Slice.Builder addColor(int, java.lang.String, java.util.List<java.lang.String>);
-    method public androidx.app.slice.Slice.Builder addHints(java.lang.String...);
-    method public androidx.app.slice.Slice.Builder addHints(java.util.List<java.lang.String>);
-    method public androidx.app.slice.Slice.Builder addIcon(android.graphics.drawable.Icon, java.lang.String, java.lang.String...);
-    method public androidx.app.slice.Slice.Builder addIcon(android.graphics.drawable.Icon, java.lang.String, java.util.List<java.lang.String>);
-    method public androidx.app.slice.Slice.Builder addRemoteInput(android.app.RemoteInput, java.lang.String, java.util.List<java.lang.String>);
-    method public androidx.app.slice.Slice.Builder addRemoteInput(android.app.RemoteInput, java.lang.String, java.lang.String...);
-    method public androidx.app.slice.Slice.Builder addSubSlice(androidx.app.slice.Slice);
-    method public androidx.app.slice.Slice.Builder addSubSlice(androidx.app.slice.Slice, java.lang.String);
-    method public androidx.app.slice.Slice.Builder addText(java.lang.CharSequence, java.lang.String, java.lang.String...);
-    method public androidx.app.slice.Slice.Builder addText(java.lang.CharSequence, java.lang.String, java.util.List<java.lang.String>);
-    method public androidx.app.slice.Slice.Builder addTimestamp(long, java.lang.String, java.lang.String...);
-    method public androidx.app.slice.Slice.Builder addTimestamp(long, java.lang.String, java.util.List<java.lang.String>);
-    method public androidx.app.slice.Slice build();
-  }
-
   public class SliceConvert {
     ctor public SliceConvert();
     method public static android.app.slice.Slice unwrap(androidx.app.slice.Slice);
