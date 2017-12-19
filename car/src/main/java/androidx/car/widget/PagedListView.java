@@ -726,12 +726,12 @@ public class PagedListView extends FrameLayout {
             mScrollBarView.setParameters(
                     mRecyclerView.computeVerticalScrollRange(),
                     mRecyclerView.computeVerticalScrollOffset(),
-                    mRecyclerView.computeHorizontalScrollExtent(), animate);
+                    mRecyclerView.computeVerticalScrollExtent(), animate);
         } else {
             mScrollBarView.setParameters(
                     mRecyclerView.computeHorizontalScrollRange(),
                     mRecyclerView.computeHorizontalScrollOffset(),
-                    mRecyclerView.computeHorizontalScrollRange(), animate);
+                    mRecyclerView.computeHorizontalScrollExtent(), animate);
         }
 
         invalidate();

@@ -57,8 +57,6 @@ public class PagedScrollBarView extends FrameLayout
     private final View mFiller;
 
     private final Interpolator mPaginationInterpolator = new AccelerateDecelerateInterpolator();
-    private final int mMinThumbLength;
-    private final int mMaxThumbLength;
     private boolean mUseCustomThumbBackground;
     @ColorRes private int mCustomThumbBackgroundResId;
     private PaginationListener mPaginationListener;
@@ -89,11 +87,6 @@ public class PagedScrollBarView extends FrameLayout
 
         mScrollThumb = (ImageView) findViewById(R.id.scrollbar_thumb);
         mFiller = findViewById(R.id.filler);
-
-        mMinThumbLength = getResources()
-                .getDimensionPixelSize(R.dimen.car_min_scroll_bar_thumb_height);
-        mMaxThumbLength = getResources()
-                .getDimensionPixelSize(R.dimen.car_max_scroll_bar_thumb_height);
     }
 
     @Override
@@ -136,27 +129,40 @@ public class PagedScrollBarView extends FrameLayout
         return mDownButton.isPressed();
     }
 
-    /** Sets the range, offset and extent of the scroll bar. See {@link View}. */
+    /**
+     * Sets the range, offset and extent of the scroll bar. The range represents the size of a
+     * container for the scrollbar thumb; offset is the distance from the start of the container
+     * to where the thumb should be; and finally, extent is the size of the thumb.
+     *
+     * <p>These values can be expressed in arbitrary units, so long as they share the same units.
+     *
+     * @param range The range of the scrollbar's thumb
+     * @param offset The offset of the scrollbar's thumb
+     * @param extent The extent of the scrollbar's thumb
+     * @param animate Whether or not the thumb should animate from its current position to the
+     *                position specified by the given range, offset and extent.
+     *
+     * @see View#computeVerticalScrollRange()
+     * @see View#computeVerticalScrollOffset()
+     * @see View#computeVerticalScrollExtent()
+     */
     public void setParameters(int range, int offset, int extent, boolean animate) {
         // If the scroll bars aren't visible, then no need to update.
         if (getVisibility() == View.GONE || range == 0) {
             return;
         }
 
-        // This method is where we take the computed parameters from the PagedLayoutManager and
-        // render it within the specified constraints ({@link #mMaxThumbLength} and
-        // {@link #mMinThumbLength}).
-        final int size = mFiller.getHeight() - mFiller.getPaddingTop() - mFiller.getPaddingBottom();
+        int availableSpace = mFiller.getHeight() - mFiller.getPaddingTop()
+                - mFiller.getPaddingBottom();
 
-        int thumbLength = extent * size / range;
-        thumbLength = Math.max(Math.min(thumbLength, mMaxThumbLength), mMinThumbLength);
+        // Scale the length by the available space that the thumb can fill.
+        int thumbLength = Math.round(((float) extent / range) * availableSpace);
 
-        int thumbOffset = size - thumbLength;
-        if (isDownEnabled()) {
-            // We need to adjust the offset so that it fits into the possible space inside the
-            // filler with regarding to the constraints set by mMaxThumbLength and mMinThumbLength.
-            thumbOffset = (size - thumbLength) * offset / range;
-        }
+        // Ensure that if the user has reached the bottom of the list, then the scroll bar is
+        // aligned to the bottom as well. Otherwise, scale the offset appropriately.
+        int thumbOffset = isDownEnabled()
+                ? Math.round(((float) offset / range) * availableSpace)
+                : availableSpace - thumbLength;
 
         // Sets the size of the thumb and request a redraw if needed.
         ViewGroup.LayoutParams lp = mScrollThumb.getLayoutParams();
