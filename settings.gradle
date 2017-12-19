@@ -214,11 +214,9 @@ project(':support-media-compat-test-lib').projectDir = new File(rootDir, 'media-
 
 File externalRoot = new File(rootDir, '../../external')
 
-include ':doclava'
-project(':doclava').projectDir = new File(externalRoot, 'doclava')
+includeBuild new File(externalRoot, 'doclava')
 
-include ':jdiff'
-project(':jdiff').projectDir = new File(externalRoot, 'jdiff')
+includeBuild new File(externalRoot, 'jdiff')
 
 include ':noto-emoji-compat'
 project(':noto-emoji-compat').projectDir = new File(externalRoot, 'noto-fonts/emoji-compat')
