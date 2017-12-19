@@ -28,7 +28,9 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class IndexBundle {
+public class IndexBundle implements SchemaEquality<IndexBundle> {
+    // should match Index.kt
+    public static final String DEFAULT_PREFIX = "index_";
     @SerializedName("name")
     private String mName;
     @SerializedName("unique")
@@ -64,5 +66,26 @@ public class IndexBundle {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public String create(String tableName) {
         return BundleUtil.replaceTableName(mCreateSql, tableName);
+    }
+
+    @Override
+    public boolean isSchemaEqual(IndexBundle other) {
+        if (mUnique != other.mUnique) return false;
+        if (mName.startsWith(DEFAULT_PREFIX)) {
+            if (!other.mName.startsWith(DEFAULT_PREFIX)) {
+                return false;
+            }
+        } else if (other.mName.startsWith(DEFAULT_PREFIX)) {
+            return false;
+        } else if (!mName.equals(other.mName)) {
+            return false;
+        }
+
+        // order matters
+        if (mColumnNames != null ? !mColumnNames.equals(other.mColumnNames)
+                : other.mColumnNames != null) {
+            return false;
+        }
+        return true;
     }
 }

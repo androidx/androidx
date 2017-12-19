@@ -19,6 +19,7 @@ package android.arch.persistence.room.integration.testapp.migration;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -33,6 +34,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -250,6 +252,30 @@ public class MigrationTest {
                 .build();
         assertThat(db.dao().loadAllEntity1s().size(), is(0));
         db.close();
+    }
+
+    @Test
+    public void failWithIdentityCheck() throws IOException {
+        for (int i = 1; i < MigrationDb.LATEST_VERSION; i++) {
+            String name = "test_" + i;
+            helper.createDatabase(name, i).close();
+            IllegalStateException exception = null;
+            try {
+                MigrationDb db = Room.databaseBuilder(
+                        InstrumentationRegistry.getInstrumentation().getTargetContext(),
+                        MigrationDb.class, name).build();
+                db.runInTransaction(new Runnable() {
+                    @Override
+                    public void run() {
+                        // do nothing
+                    }
+                });
+            } catch (IllegalStateException ex) {
+                exception = ex;
+            }
+            MatcherAssert.assertThat("identity detection should've failed",
+                    exception, notNullValue());
+        }
     }
 
     private void testFailure(int startVersion, int endVersion) throws IOException {

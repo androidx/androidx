@@ -28,7 +28,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ForeignKeyBundle {
+public class ForeignKeyBundle implements SchemaEquality<ForeignKeyBundle> {
     @SerializedName("table")
     private String mTable;
     @SerializedName("onDelete")
@@ -43,10 +43,10 @@ public class ForeignKeyBundle {
     /**
      * Creates a foreign key bundle with the given parameters.
      *
-     * @param table The target table
-     * @param onDelete OnDelete action
-     * @param onUpdate OnUpdate action
-     * @param columns The list of columns in the current table
+     * @param table             The target table
+     * @param onDelete          OnDelete action
+     * @param onUpdate          OnUpdate action
+     * @param columns           The list of columns in the current table
      * @param referencedColumns The list of columns in the referenced table
      */
     public ForeignKeyBundle(String table, String onDelete, String onUpdate,
@@ -101,5 +101,19 @@ public class ForeignKeyBundle {
      */
     public List<String> getReferencedColumns() {
         return mReferencedColumns;
+    }
+
+    @Override
+    public boolean isSchemaEqual(ForeignKeyBundle other) {
+        if (mTable != null ? !mTable.equals(other.mTable) : other.mTable != null) return false;
+        if (mOnDelete != null ? !mOnDelete.equals(other.mOnDelete) : other.mOnDelete != null) {
+            return false;
+        }
+        if (mOnUpdate != null ? !mOnUpdate.equals(other.mOnUpdate) : other.mOnUpdate != null) {
+            return false;
+        }
+        // order matters
+        return mColumns.equals(other.mColumns) && mReferencedColumns.equals(
+                other.mReferencedColumns);
     }
 }

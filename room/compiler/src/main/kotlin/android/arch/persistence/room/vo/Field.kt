@@ -35,7 +35,7 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
                  * embedded child of the main Pojo*/
                  val parent: EmbeddedField? = null,
                  // index might be removed when being merged into an Entity
-                 var indexed: Boolean = false) {
+                 var indexed: Boolean = false) : HasSchemaIdentity {
     lateinit var getter: FieldGetter
     lateinit var setter: FieldSetter
     // binds the field into a statement
@@ -46,6 +46,11 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
 
     /** Whether the table column for this field should be NOT NULL */
     val nonNull = element.isNonNull() && (parent == null || parent.isNonNullRecursively())
+
+    override fun getIdKey(): String {
+        // we don't get the collate information from sqlite so ignoring it here.
+        return "$columnName-${affinity?.name ?: SQLTypeAffinity.TEXT.name}-$nonNull"
+    }
 
     /**
      * Used when reporting errors on duplicate names
