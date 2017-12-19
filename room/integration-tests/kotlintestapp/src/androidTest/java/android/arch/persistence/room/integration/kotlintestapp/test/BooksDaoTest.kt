@@ -30,7 +30,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.util.Date
-import kotlin.collections.ArrayList
 
 @SmallTest
 class BooksDaoTest : TestDatabaseTest() {
@@ -81,13 +80,26 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
-        var actualPublisherWithBooks = booksDao.getPublisherWithBooks(
+        val actualPublisherWithBooks = booksDao.getPublisherWithBooks(
                 TestUtil.PUBLISHER.publisherId)
 
         assertThat(actualPublisherWithBooks.publisher, `is`<Publisher>(TestUtil.PUBLISHER))
         assertThat(actualPublisherWithBooks.books?.size, `is`(2))
         assertThat(actualPublisherWithBooks.books?.get(0), `is`<Book>(TestUtil.BOOK_1))
         assertThat(actualPublisherWithBooks.books?.get(1), `is`<Book>(TestUtil.BOOK_2))
+    }
+
+    @Test // b/68077506
+    fun publisherWithBookSales() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
+        val actualPublisherWithBooks = booksDao.getPublisherWithBookSales(
+                TestUtil.PUBLISHER.publisherId)
+
+        assertThat(actualPublisherWithBooks.publisher, `is`<Publisher>(TestUtil.PUBLISHER))
+        assertThat(actualPublisherWithBooks.sales, `is`(listOf(TestUtil.BOOK_1.salesCnt,
+                TestUtil.BOOK_2.salesCnt)))
     }
 
     @Test
