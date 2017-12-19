@@ -1486,6 +1486,9 @@ public class BrowseFragment extends BaseFragment {
                 if (!mCanShowHeaders || !mShowingHeaders || isInHeadersTransition()) {
                     return;
                 }
+                if (mMainFragment == null || mMainFragment.getView() == null) {
+                    return;
+                }
                 startHeadersTransitionInternal(false);
                 mMainFragment.getView().requestFocus();
             }
