@@ -81,7 +81,7 @@ public final class Slice {
     @RestrictTo(Scope.LIBRARY)
     @StringDef({HINT_TITLE, HINT_LIST, HINT_LIST_ITEM, HINT_LARGE, HINT_ACTIONS, HINT_SELECTED,
             HINT_HORIZONTAL, HINT_NO_TINT, HINT_PARTIAL,
-            SliceHints.HINT_HIDDEN, SliceHints.SUBTYPE_TOGGLE})
+            SliceHints.HINT_SUMMARY, SliceHints.SUBTYPE_TOGGLE})
     public @interface SliceHint{ }
 
     private final SliceItem[] mItems;

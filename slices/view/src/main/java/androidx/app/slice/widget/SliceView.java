@@ -260,7 +260,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
             case MODE_SMALL:
                 // Check if it's horizontal
                 if (SliceQuery.hasHints(mCurrentSlice, HINT_HORIZONTAL)) {
-                    return new GridView(getContext());
+                    return new GridRowView(getContext());
                 } else {
                     return new RowView(getContext());
                 }

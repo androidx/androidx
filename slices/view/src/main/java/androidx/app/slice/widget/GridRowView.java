@@ -62,7 +62,7 @@ import androidx.app.slice.view.R;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @TargetApi(24)
-public class GridView extends LinearLayout implements LargeSliceAdapter.SliceListView,
+public class GridRowView extends LinearLayout implements LargeSliceAdapter.SliceListView,
         View.OnClickListener, SliceView.SliceModeView {
 
     private static final String TAG = "GridView";
@@ -94,11 +94,11 @@ public class GridView extends LinearLayout implements LargeSliceAdapter.SliceLis
     private int mBigPictureHeight;
     private int mAllImagesHeight;
 
-    public GridView(Context context) {
+    public GridRowView(Context context) {
         this(context, null);
     }
 
-    public GridView(Context context, AttributeSet attrs) {
+    public GridRowView(Context context, AttributeSet attrs) {
         super(context, attrs);
         final Resources res = getContext().getResources();
         mIconSize = res.getDimensionPixelSize(R.dimen.abc_slice_icon_size);

@@ -4,6 +4,8 @@ package androidx.app.slice.builders {
     ctor public ListBuilder(android.net.Uri);
     method public androidx.app.slice.builders.ListBuilder add(androidx.app.slice.builders.RowBuilder);
     method public androidx.app.slice.builders.ListBuilder add(java.util.function.Consumer<androidx.app.slice.builders.RowBuilder>);
+    method public androidx.app.slice.builders.ListBuilder addSummaryRow(androidx.app.slice.builders.RowBuilder);
+    method public androidx.app.slice.builders.ListBuilder addSummaryRow(java.util.function.Consumer<androidx.app.slice.builders.RowBuilder>);
   }
 
   public class MessagingSliceBuilder extends androidx.app.slice.builders.TemplateSliceBuilder {

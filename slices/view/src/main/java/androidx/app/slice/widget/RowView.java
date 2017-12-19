@@ -29,6 +29,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.app.slice.core.SliceHints.EXTRA_TOGGLE_STATE;
+import static androidx.app.slice.core.SliceHints.HINT_SUMMARY;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -76,9 +77,8 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
 
     private int mIconSize;
     private int mPadding;
-
-    // If this is being used as a small template we don't allow a start item, for list items we do.
-    private boolean mAllowStartItem;
+    private boolean mInSmallMode;
+    private boolean mIsHeader;
 
     private LinearLayout mStartContainer;
     private LinearLayout mContent;
@@ -125,7 +125,8 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
      */
     @Override
     public void setSliceItem(SliceItem slice, boolean isHeader) {
-        mAllowStartItem = !isHeader; // Headers don't show start items
+        mIsHeader = isHeader;
+        mInSmallMode = false;
         populateViews(slice, slice);
     }
 
@@ -134,16 +135,21 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
      */
     @Override
     public void setSlice(Slice slice) {
-        mAllowStartItem = false;
+        mInSmallMode = true;
         Slice.Builder sb = new Slice.Builder(slice.getUri());
         sb.addSubSlice(slice);
         Slice parentSlice = sb.build();
-        populateViews(parentSlice.getItems().get(0), getHeaderItem(slice));
+        populateViews(parentSlice.getItems().get(0), getSummaryItem(slice));
     }
 
-    private SliceItem getHeaderItem(Slice slice) {
+    private SliceItem getSummaryItem(Slice slice) {
         List<SliceItem> items = slice.getItems();
-        // See if a header is specified
+        // See if a summary is specified
+        SliceItem summary = SliceQuery.find(slice, FORMAT_SLICE, HINT_SUMMARY, null);
+        if (summary != null) {
+            return summary;
+        }
+        // First fallback is using a header
         SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null, HINT_LIST_ITEM);
         if (header != null) {
             return header;
@@ -199,7 +205,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         SliceItem subTitle = null;
         ArrayList<SliceItem> endItems = new ArrayList<>();
 
-        // If the first item is an action let's check if it should be used to populate the content
+        // If the first item is an action check if it should be used to populate the content
         // or if it should be in the start position.
         SliceItem firstSlice = items.size() > 0 ? items.get(0) : null;
         if (firstSlice != null && FORMAT_ACTION.equals(firstSlice.getFormat())) {
@@ -255,7 +261,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
                         : -1;
         // Populate main part of the template
         if (startItem != null) {
-            if (mAllowStartItem) {
+            if (!mIsHeader) {
                 startItem = addItem(startItem, color, mStartContainer, 0 /* padding */)
                         ? startItem
                         : null;
@@ -263,8 +269,8 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
                     endItems.remove(startItem);
                 }
             } else {
-                startItem = null;
                 endItems.add(0, startItem);
+                startItem = null;
             }
         }
         mStartContainer.setVisibility(startItem != null ? View.VISIBLE : View.GONE);
@@ -290,14 +296,10 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
                 .filter(new Predicate<SliceItem>() {
                     @Override
                     public boolean test(SliceItem item) {
-                        if (item == null) {
-                            return false;
-                        }
                         return FORMAT_ACTION.equals(item.getFormat())
                                 && SliceQuery.hasHints(item.getSlice(), SliceHints.SUBTYPE_TOGGLE);
                     }
-                })
-                .findFirst().orElse(null);
+                }).findFirst().orElse(null);
         if (toggleItem != null) {
             if (addToggle(toggleItem, color)) {
                 mDivider.setVisibility(mRowAction != null ? View.VISIBLE : View.GONE);
@@ -310,9 +312,9 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         int itemCount = 0;
         for (int i = 0; i < endItems.size(); i++) {
             SliceItem item = endItems.get(i);
-            if (item == null) {
-                // do nothing
-            } else if (itemCount <= MAX_END_ITEMS) {
+            // Only show one type of format at the end of the slice, use whatever is first
+            if (itemCount <= MAX_END_ITEMS
+                    && item.getFormat().equals(endItems.get(0).getFormat())) {
                 if (FORMAT_ACTION.equals(item.getFormat())
                         && itemCount == 0
                         && SliceQuery.hasHints(item.getSlice(), SliceHints.SUBTYPE_TOGGLE)
