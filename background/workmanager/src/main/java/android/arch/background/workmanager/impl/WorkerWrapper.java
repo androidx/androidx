@@ -284,9 +284,9 @@ public class WorkerWrapper implements Runnable {
             Class<?> clazz = Class.forName(workerClassName);
             Worker worker = (Worker) clazz.newInstance();
             Method internalInitMethod = Worker.class.getDeclaredMethod(
-                    "internalInit", Context.class, Arguments.class);
+                    "internalInit", Context.class, String.class, Arguments.class);
             internalInitMethod.setAccessible(true);
-            internalInitMethod.invoke(worker, appContext, arguments);
+            internalInitMethod.invoke(worker, appContext, workSpec.getId(), arguments);
             return worker;
         } catch (Exception e) {
             Log.e(TAG, "Trouble instantiating " + workerClassName, e);

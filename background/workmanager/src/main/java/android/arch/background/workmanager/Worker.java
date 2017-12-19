@@ -42,11 +42,16 @@ public abstract class Worker {
     private static final String TAG = "Worker";
 
     private Context mAppContext;
+    private @NonNull String mId;
     private @NonNull Arguments mArguments;
     private Arguments mOutput;
 
     public final Context getAppContext() {
         return mAppContext;
+    }
+
+    public final @NonNull String getId() {
+        return mId;
     }
 
     public final @NonNull Arguments getArguments() {
@@ -91,8 +96,12 @@ public abstract class Worker {
         return mOutput;
     }
 
-    private void internalInit(Context appContext, Arguments arguments) {
+    private void internalInit(
+            Context appContext,
+            @NonNull String id,
+            @NonNull Arguments arguments) {
         mAppContext = appContext;
+        mId = id;
         mArguments = arguments;
     }
 
