@@ -35,6 +35,7 @@ import android.arch.persistence.room.integration.testapp.dao.ProductDao;
 import android.arch.persistence.room.integration.testapp.dao.UserDao;
 import android.arch.persistence.room.integration.testapp.dao.UserPetDao;
 import android.arch.persistence.room.integration.testapp.vo.BlobEntity;
+import android.arch.persistence.room.integration.testapp.vo.Day;
 import android.arch.persistence.room.integration.testapp.vo.NameAndLastName;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.Product;
@@ -58,7 +59,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
 @SmallTest
@@ -533,5 +536,36 @@ public class SimpleEntityReadWriteTest {
         NameAndLastName result = mUserDao.getNameAndLastName(3);
         assertThat(result.getName(), is(user.getName()));
         assertThat(result.getLastName(), is(user.getLastName()));
+    }
+
+    @Test
+    public void enumSet_simpleLoad() {
+        User a = TestUtil.createUser(3);
+        Set<Day> expected = toSet(Day.MONDAY, Day.TUESDAY);
+        a.setWorkDays(expected);
+        mUserDao.insert(a);
+        User loaded = mUserDao.load(3);
+        assertThat(loaded.getWorkDays(), is(expected));
+    }
+
+    @Test
+    public void enumSet_query() {
+        User user1 = TestUtil.createUser(3);
+        user1.setWorkDays(toSet(Day.MONDAY, Day.FRIDAY));
+        User user2 = TestUtil.createUser(5);
+        user2.setWorkDays(toSet(Day.MONDAY, Day.THURSDAY));
+        mUserDao.insert(user1);
+        mUserDao.insert(user2);
+        List<User> empty = mUserDao.findUsersByWorkDays(toSet(Day.WEDNESDAY));
+        assertThat(empty.size(), is(0));
+        List<User> friday = mUserDao.findUsersByWorkDays(toSet(Day.FRIDAY));
+        assertThat(friday, is(Arrays.asList(user1)));
+        List<User> monday = mUserDao.findUsersByWorkDays(toSet(Day.MONDAY));
+        assertThat(monday, is(Arrays.asList(user1, user2)));
+
+    }
+
+    private Set<Day> toSet(Day... days) {
+        return new HashSet<>(Arrays.asList(days));
     }
 }

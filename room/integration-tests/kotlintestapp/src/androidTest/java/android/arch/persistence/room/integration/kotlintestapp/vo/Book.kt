@@ -19,10 +19,16 @@ package android.arch.persistence.room.integration.kotlintestapp.vo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey
 import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.TypeConverters
 
 @Entity(foreignKeys = arrayOf(
         ForeignKey(entity = Publisher::class,
                 parentColumns = arrayOf("publisherId"),
                 childColumns = arrayOf("bookPublisherId"),
                 deferred = true)))
-data class Book(@PrimaryKey val bookId: String, val title: String, val bookPublisherId: String)
+data class Book(
+        @PrimaryKey val bookId: String,
+        val title: String,
+        val bookPublisherId: String,
+        @field:TypeConverters(Lang::class)
+        val languages: Set<Lang>)
