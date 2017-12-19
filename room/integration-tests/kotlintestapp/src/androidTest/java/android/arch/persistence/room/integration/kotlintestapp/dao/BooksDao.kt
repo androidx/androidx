@@ -27,6 +27,7 @@ import android.arch.persistence.room.integration.kotlintestapp.vo.BookAuthor
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookWithPublisher
 import android.arch.persistence.room.integration.kotlintestapp.vo.Lang
 import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
+import android.arch.persistence.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import android.arch.persistence.room.integration.kotlintestapp.vo.PublisherWithBooks
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -84,6 +85,9 @@ interface BooksDao {
 
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooks(publisherId: String): PublisherWithBooks
+
+    @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
+    fun getPublisherWithBookSales(publisherId: String): PublisherWithBookSales
 
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooksLiveData(publisherId: String): LiveData<PublisherWithBooks>

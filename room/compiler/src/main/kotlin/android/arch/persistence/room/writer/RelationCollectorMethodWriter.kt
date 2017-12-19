@@ -37,7 +37,7 @@ import javax.lang.model.element.Modifier
 class RelationCollectorMethodWriter(val collector: RelationCollector)
     : ClassWriter.SharedMethodSpec(
         "fetchRelationship${collector.relation.entity.tableName.stripNonJava()}" +
-                "As${collector.relation.pojo.typeName.toString().stripNonJava()}") {
+                "As${collector.relation.pojoTypeName.toString().stripNonJava()}") {
     companion object {
         val KEY_SET_VARIABLE = "__mapKeySet"
     }
@@ -47,7 +47,7 @@ class RelationCollectorMethodWriter(val collector: RelationCollector)
                 "-${collector.mapTypeName}" +
                 "-${relation.entity.typeName}" +
                 "-${relation.entityField.columnName}" +
-                "-${relation.pojo.typeName}" +
+                "-${relation.pojoTypeName}" +
                 "-${relation.createLoadAllSql()}"
     }
 
@@ -101,7 +101,7 @@ class RelationCollectorMethodWriter(val collector: RelationCollector)
                         addStatement("$T $L = $N.get($L)", collector.collectionTypeName,
                                 collectionVar, param, keyVar)
                         beginControlFlow("if ($L != null)", collectionVar).apply {
-                            addStatement("final $T $L", relation.pojo.typeName, tmpVarName)
+                            addStatement("final $T $L", relation.pojoTypeName, tmpVarName)
                             collector.rowAdapter.convert(tmpVarName, cursorVar, scope)
                             addStatement("$L.add($L)", collectionVar, tmpVarName)
                         }

@@ -29,6 +29,7 @@ import android.arch.persistence.room.ext.hasAnyOf
 import android.arch.persistence.room.ext.isAssignableWithoutVariance
 import android.arch.persistence.room.ext.isCollection
 import android.arch.persistence.room.ext.toClassType
+import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
 import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
@@ -378,22 +379,18 @@ class PojoProcessor(baseContext: Context,
         val typeArgElement = MoreTypes.asTypeElement(typeArg)
         val entityClassInput = AnnotationMirrors
                 .getAnnotationValue(annotation, "entity").toClassType()
-        val pojo: Pojo
-        val entity: Entity
-        if (entityClassInput == null
-                || MoreTypes.isTypeOf(Any::class.java, entityClassInput)) {
-            entity = EntityProcessor(context, typeArgElement, referenceStack).process()
-            pojo = entity
+
+        // do we need to decide on the entity?
+        val inferEntity = (entityClassInput == null
+                || MoreTypes.isTypeOf(Any::class.java, entityClassInput))
+
+        val entity = if (inferEntity) {
+            EntityProcessor(context, typeArgElement, referenceStack).process()
         } else {
-            entity = EntityProcessor(context, MoreTypes.asTypeElement(entityClassInput),
+            EntityProcessor(context, MoreTypes.asTypeElement(entityClassInput),
                     referenceStack).process()
-            pojo = PojoProcessor(
-                    baseContext = context,
-                    element = typeArgElement,
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    parent = parent,
-                    referenceStack = referenceStack).process()
         }
+
         // now find the field in the entity.
         val entityColumnInput = AnnotationMirrors.getAnnotationValue(annotation, "entityColumn")
                 .getAsString() ?: ""
@@ -417,28 +414,74 @@ class PojoProcessor(baseContext: Context,
                 affinity = null,
                 parent = parent)
 
-        val projection = AnnotationMirrors.getAnnotationValue(annotation, "projection")
+        val projectionInput = AnnotationMirrors.getAnnotationValue(annotation, "projection")
                 .getAsStringList()
-        if (projection.isNotEmpty()) {
-            val missingColumns = projection.filterNot { columnName ->
-                entity.fields.any { columnName == it.columnName }
-            }
-            if (missingColumns.isNotEmpty()) {
-                context.logger.e(relationElement,
-                        ProcessorErrors.relationBadProject(entity.typeName.toString(),
-                                missingColumns, entity.fields.map { it.columnName }))
-            }
+        val projection = if (projectionInput.isEmpty()) {
+            // we need to infer the projection from inputs.
+            createRelationshipProjection(inferEntity, typeArg, entity, entityField, typeArgElement)
+        } else {
+            // make sure projection makes sense
+            validateRelationshipProjection(projectionInput, entity, relationElement)
+            projectionInput
         }
-
         // if types don't match, row adapter prints a warning
         return android.arch.persistence.room.vo.Relation(
                 entity = entity,
-                pojo = pojo,
+                pojoType = typeArg,
                 field = field,
                 parentField = parentField,
                 entityField = entityField,
                 projection = projection
         )
+    }
+
+    private fun validateRelationshipProjection(
+            projectionInput: List<String>,
+            entity: Entity,
+            relationElement: VariableElement) {
+        val missingColumns = projectionInput.filterNot { columnName ->
+            entity.fields.any { columnName == it.columnName }
+        }
+        if (missingColumns.isNotEmpty()) {
+            context.logger.e(relationElement,
+                    ProcessorErrors.relationBadProject(entity.typeName.toString(),
+                            missingColumns, entity.fields.map { it.columnName }))
+        }
+    }
+
+    /**
+     * Create the projection column list based on the relationship args.
+     *
+     *  if entity field in the annotation is not specified, it is the method return type
+     *  if it is specified in the annotation:
+     *       still check the method return type, if the same, use it
+     *       if not, check to see if we can find a column Adapter, if so use the childField
+     *       last resort, try to parse it as a pojo to infer it.
+     */
+    private fun createRelationshipProjection(
+            inferEntity: Boolean,
+            typeArg: TypeMirror,
+            entity: Entity,
+            entityField: Field,
+            typeArgElement: TypeElement): List<String> {
+        return if (inferEntity || typeArg.typeName() == entity.typeName) {
+            entity.fields.map { it.columnName }
+        } else {
+            val columnAdapter = context.typeAdapterStore.findCursorValueReader(typeArg, null)
+            if (columnAdapter != null) {
+                // nice, there is a column adapter for this, assume single column response
+                listOf(entityField.name)
+            } else {
+                // last resort, it needs to be a pojo
+                val pojo = PojoProcessor(
+                        baseContext = context,
+                        element = typeArgElement,
+                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        parent = parent,
+                        referenceStack = referenceStack).process()
+                pojo.fields.map { it.columnName }
+            }
+        }
     }
 
     private fun detectReferenceRecursion(typeElement: TypeElement): Boolean {
