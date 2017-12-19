@@ -114,9 +114,7 @@ project (':navigation:safe-args-generator').projectDir = new File(supportRoot, "
 if (inAppToolkitProject) {
     File externalRoot = new File(supportRoot, '../../external')
 
-    include ':doclava'
-    project(':doclava').projectDir = new File(externalRoot, 'doclava')
+    includeBuild new File(externalRoot, 'doclava')
 
-    include ':jdiff'
-    project(':jdiff').projectDir = new File(externalRoot, 'jdiff')
+    includeBuild new File(externalRoot, 'jdiff')
 }
