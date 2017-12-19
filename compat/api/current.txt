@@ -148,6 +148,7 @@ package android.support.v4.app {
     field public static final java.lang.String EXTRA_COMPACT_ACTIONS = "android.compactActions";
     field public static final java.lang.String EXTRA_CONVERSATION_TITLE = "android.conversationTitle";
     field public static final java.lang.String EXTRA_INFO_TEXT = "android.infoText";
+    field public static final java.lang.String EXTRA_IS_GROUP_CONVERSATION = "android.isGroupConversation";
     field public static final java.lang.String EXTRA_LARGE_ICON = "android.largeIcon";
     field public static final java.lang.String EXTRA_LARGE_ICON_BIG = "android.largeIcon.big";
     field public static final java.lang.String EXTRA_MEDIA_SESSION = "android.mediaSession";
@@ -376,7 +377,9 @@ package android.support.v4.app {
     method public java.lang.CharSequence getConversationTitle();
     method public java.util.List<android.support.v4.app.NotificationCompat.MessagingStyle.Message> getMessages();
     method public java.lang.CharSequence getUserDisplayName();
+    method public boolean isGroupConversation();
     method public android.support.v4.app.NotificationCompat.MessagingStyle setConversationTitle(java.lang.CharSequence);
+    method public android.support.v4.app.NotificationCompat.MessagingStyle setGroupConversation(boolean);
     field public static final int MAXIMUM_RETAINED_MESSAGES = 25; // 0x19
   }
 
