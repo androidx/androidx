@@ -25,7 +25,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static junit.framework.TestCase.assertFalse;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.IsCloseTo.closeTo;
@@ -39,7 +38,6 @@ import android.support.test.espresso.ViewAction;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
@@ -478,18 +476,6 @@ public class ListItemTest {
         assertThat((double) viewHolder.itemView.getHeight(), is(closeTo(
                 InstrumentationRegistry.getContext().getResources().getDimension(
                         R.dimen.car_single_line_list_item_height), 1.0d)));
-    }
-
-    @Test
-    public void testCardLookUsesCardView() {
-        List<ListItem> items = Arrays.asList(
-                new ListItem.Builder(mActivity)
-                        .withCardLook()
-                        .build());
-        setupPagedListView(items);
-
-        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
-        assertThat(viewHolder.itemView, is(instanceOf(CardView.class)));
     }
 
     @Test
