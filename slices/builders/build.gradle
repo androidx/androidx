@@ -34,5 +34,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.SLICES
     inceptionYear = "2017"
     description = "A set of builders to create templates using SliceProvider APIs"
-    minSdkVersion = 19
+    minSdkVersion = 24
 }
