@@ -32,6 +32,7 @@ import android.arch.persistence.room.integration.testapp.dao.UserDao;
 import android.arch.persistence.room.integration.testapp.dao.UserPetDao;
 import android.arch.persistence.room.integration.testapp.dao.WithClauseDao;
 import android.arch.persistence.room.integration.testapp.vo.BlobEntity;
+import android.arch.persistence.room.integration.testapp.vo.Day;
 import android.arch.persistence.room.integration.testapp.vo.FunnyNamedEntity;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.PetCouple;
@@ -41,6 +42,8 @@ import android.arch.persistence.room.integration.testapp.vo.Toy;
 import android.arch.persistence.room.integration.testapp.vo.User;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Database(entities = {User.class, Pet.class, School.class, PetCouple.class, Toy.class,
         BlobEntity.class, Product.class, FunnyNamedEntity.class},
@@ -73,6 +76,26 @@ public abstract class TestDatabase extends RoomDatabase {
             } else {
                 return date.getTime();
             }
+        }
+
+        @TypeConverter
+        public Set<Day> decomposeDays(int flags) {
+            Set<Day> result = new HashSet<>();
+            for (Day day : Day.values()) {
+                if ((flags & (1 << day.ordinal())) != 0) {
+                    result.add(day);
+                }
+            }
+            return result;
+        }
+
+        @TypeConverter
+        public int composeDays(Set<Day> days) {
+            int result = 0;
+            for (Day day : days) {
+                result |= 1 << day.ordinal();
+            }
+            return result;
         }
     }
 }
