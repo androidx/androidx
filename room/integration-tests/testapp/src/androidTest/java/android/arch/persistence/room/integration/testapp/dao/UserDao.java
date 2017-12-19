@@ -29,6 +29,7 @@ import android.arch.persistence.room.Transaction;
 import android.arch.persistence.room.Update;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
 import android.arch.persistence.room.integration.testapp.vo.AvgWeightByAge;
+import android.arch.persistence.room.integration.testapp.vo.NameAndLastName;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.database.Cursor;
 
@@ -207,6 +208,9 @@ public abstract class UserDao {
 
     @Query("SELECT COUNT(*) from user")
     public abstract Integer getUserCount();
+
+    @Query("SELECT u.mName, u.mLastName from user u where mId = :id")
+    public abstract NameAndLastName getNameAndLastName(int id);
 
     @Transaction
     public void insertBothByAnnotation(final User a, final User b) {

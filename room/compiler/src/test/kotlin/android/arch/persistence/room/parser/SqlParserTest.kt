@@ -17,6 +17,7 @@
 package android.arch.persistence.room.parser
 
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -96,6 +97,36 @@ class SqlParserTest {
                 `is`(setOf(Table("users", "users"))))
         assertThat(SqlParser.parse("select * from \"users\"").tables,
                 `is`(setOf(Table("users", "users"))))
+    }
+
+    @Test
+    fun tablePrefixInInsert_set() {
+        // this is an invalid query, b/64539805
+        val query = SqlParser.parse("UPDATE trips SET trips.title=:title")
+        assertThat(query.errors, not(emptyList()))
+    }
+
+    @Test
+    fun tablePrefixInInsert_where() {
+        val query = SqlParser.parse("UPDATE trips SET title=:title WHERE trips.id=:id")
+        assertThat(query.errors, `is`(emptyList()))
+    }
+
+    @Test
+    fun tablePrefixInSelect_projection() {
+        val query = SqlParser.parse("SELECT a.name, b.last_name from user a, book b")
+        assertThat(query.errors, `is`(emptyList()))
+        assertThat(query.tables, `is`(setOf(Table("user", "a"),
+                Table("book", "b"))))
+    }
+
+    @Test
+    fun tablePrefixInSelect_where() {
+        val query = SqlParser.parse("SELECT a.name, b.last_name from user a, book b" +
+                " WHERE a.name = b.name")
+        assertThat(query.errors, `is`(emptyList()))
+        assertThat(query.tables, `is`(setOf(Table("user", "a"),
+                Table("book", "b"))))
     }
 
     @Test
