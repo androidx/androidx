@@ -39,6 +39,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import org.junit.Test
@@ -83,6 +84,26 @@ class CustomTypeConverterResolutionTest {
                     }
                 }
                 """)
+        val CUSTOM_TYPE_SET = ParameterizedTypeName.get(
+                ClassName.get(Set::class.java), CUSTOM_TYPE)
+        val CUSTOM_TYPE_SET_CONVERTER = ClassName.get("foo.bar", "MySetConverter")
+        val CUSTOM_TYPE_SET_CONVERTER_JFO = JavaFileObjects.forSourceLines(
+                CUSTOM_TYPE_SET_CONVERTER.toString(),
+                """
+                package ${CUSTOM_TYPE_SET_CONVERTER.packageName()};
+                import java.util.HashSet;
+                import java.util.Set;
+                public class ${CUSTOM_TYPE_SET_CONVERTER.simpleName()} {
+                    @${TypeConverter::class.java.canonicalName}
+                    public static $CUSTOM_TYPE_SET toCustom(int value) {
+                        return null;
+                    }
+                    @${TypeConverter::class.java.canonicalName}
+                    public static int fromCustom($CUSTOM_TYPE_SET input) {
+                        return 0;
+                    }
+                }
+                """)
     }
 
     @Test
@@ -90,6 +111,36 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true)
         val database = createDatabase(hasConverters = true, hasDao = true)
         val dao = createDao(hasQueryReturningEntity = true, hasQueryWithCustomParam = true)
+        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+    }
+
+    @Test
+    fun collection_forEntity() {
+        val entity = createEntity(
+                hasCustomField = true,
+                useCollection = true)
+        val database = createDatabase(
+                hasConverters = true,
+                hasDao = true,
+                useCollection = true)
+        val dao = createDao(
+                hasQueryWithCustomParam = false,
+                useCollection = true)
+        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+    }
+
+    @Test
+    fun collection_forDao() {
+        val entity = createEntity(
+                hasCustomField = true,
+                useCollection = true)
+        val database = createDatabase(
+                hasConverters = true,
+                hasDao = true,
+                useCollection = true)
+        val dao = createDao(
+                hasQueryWithCustomParam = true,
+                useCollection = true)
         run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
@@ -170,21 +221,29 @@ class CustomTypeConverterResolutionTest {
 
     fun run(vararg jfos: JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(jfos.toList() + CUSTOM_TYPE_JFO + CUSTOM_TYPE_CONVERTER_JFO)
+                .that(jfos.toList() + CUSTOM_TYPE_JFO + CUSTOM_TYPE_CONVERTER_JFO
+                        + CUSTOM_TYPE_SET_CONVERTER_JFO)
                 .processedWith(RoomProcessor())
     }
 
-    private fun createEntity(hasCustomField: Boolean = false,
-                             hasConverters: Boolean = false,
-                             hasConverterOnField: Boolean = false): TypeSpec {
+    private fun createEntity(
+            hasCustomField: Boolean = false,
+            hasConverters: Boolean = false,
+            hasConverterOnField: Boolean = false,
+            useCollection: Boolean = false): TypeSpec {
         if (hasConverterOnField && hasConverters) {
             throw IllegalArgumentException("cannot have both converters")
+        }
+        val type = if (useCollection) {
+            CUSTOM_TYPE_SET
+        } else {
+            CUSTOM_TYPE
         }
         return TypeSpec.classBuilder(ENTITY).apply {
             addAnnotation(Entity::class.java)
             addModifiers(Modifier.PUBLIC)
             if (hasCustomField) {
-                addField(FieldSpec.builder(CUSTOM_TYPE, "myCustomField", Modifier.PUBLIC).apply {
+                addField(FieldSpec.builder(type, "myCustomField", Modifier.PUBLIC).apply {
                     if (hasConverterOnField) {
                         addAnnotation(createConvertersAnnotation())
                     }
@@ -199,13 +258,15 @@ class CustomTypeConverterResolutionTest {
         }.build()
     }
 
-    private fun createDatabase(hasConverters: Boolean = false,
-                               hasDao: Boolean = false): TypeSpec {
+    private fun createDatabase(
+            hasConverters: Boolean = false,
+            hasDao: Boolean = false,
+            useCollection: Boolean = false): TypeSpec {
         return TypeSpec.classBuilder(DB).apply {
             addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
             superclass(RoomTypeNames.ROOM_DB)
             if (hasConverters) {
-                addAnnotation(createConvertersAnnotation())
+                addAnnotation(createConvertersAnnotation(useCollection = useCollection))
             }
             addField(FieldSpec.builder(TypeName.INT, "id", Modifier.PUBLIC).apply {
                 addAnnotation(PrimaryKey::class.java)
@@ -225,11 +286,13 @@ class CustomTypeConverterResolutionTest {
         }.build()
     }
 
-    private fun createDao(hasConverters: Boolean = false,
-                          hasQueryReturningEntity: Boolean = false,
-                          hasQueryWithCustomParam: Boolean = false,
-                          hasMethodConverters: Boolean = false,
-                          hasParameterConverters: Boolean = false): TypeSpec {
+    private fun createDao(
+            hasConverters: Boolean = false,
+            hasQueryReturningEntity: Boolean = false,
+            hasQueryWithCustomParam: Boolean = false,
+            hasMethodConverters: Boolean = false,
+            hasParameterConverters: Boolean = false,
+            useCollection: Boolean = false): TypeSpec {
         val annotationCount = listOf(hasMethodConverters, hasConverters, hasParameterConverters)
                 .map { if (it) 1 else 0 }.sum()
         if (annotationCount > 1) {
@@ -242,7 +305,7 @@ class CustomTypeConverterResolutionTest {
             addAnnotation(Dao::class.java)
             addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
             if (hasConverters) {
-                addAnnotation(createConvertersAnnotation())
+                addAnnotation(createConvertersAnnotation(useCollection = useCollection))
             }
             if (hasQueryReturningEntity) {
                 addMethod(MethodSpec.methodBuilder("loadAll").apply {
@@ -253,18 +316,23 @@ class CustomTypeConverterResolutionTest {
                     returns(ENTITY)
                 }.build())
             }
+            val customType = if (useCollection) {
+                CUSTOM_TYPE_SET
+            } else {
+                CUSTOM_TYPE
+            }
             if (hasQueryWithCustomParam) {
                 addMethod(MethodSpec.methodBuilder("queryWithCustom").apply {
                     addAnnotation(AnnotationSpec.builder(Query::class.java).apply {
                         addMember("value", S, "SELECT COUNT(*) FROM ${ENTITY.simpleName()} where" +
-                                " id IN(:customs)")
+                                " id = :custom")
                     }.build())
                     if (hasMethodConverters) {
-                        addAnnotation(createConvertersAnnotation())
+                        addAnnotation(createConvertersAnnotation(useCollection = useCollection))
                     }
-                    addParameter(ParameterSpec.builder(CUSTOM_TYPE, "customs").apply {
+                    addParameter(ParameterSpec.builder(customType, "custom").apply {
                         if (hasParameterConverters) {
-                            addAnnotation(createConvertersAnnotation())
+                            addAnnotation(createConvertersAnnotation(useCollection = useCollection))
                         }
                     }.build())
                     addModifiers(Modifier.ABSTRACT)
@@ -274,8 +342,13 @@ class CustomTypeConverterResolutionTest {
         }.build()
     }
 
-    private fun createConvertersAnnotation(): AnnotationSpec {
+    private fun createConvertersAnnotation(useCollection: Boolean = false): AnnotationSpec {
+        val converter = if (useCollection) {
+            CUSTOM_TYPE_SET_CONVERTER
+        } else {
+            CUSTOM_TYPE_CONVERTER
+        }
         return AnnotationSpec.builder(TypeConverters::class.java)
-                .addMember("value", "$T.class", CUSTOM_TYPE_CONVERTER).build()
+                .addMember("value", "$T.class", converter).build()
     }
 }
