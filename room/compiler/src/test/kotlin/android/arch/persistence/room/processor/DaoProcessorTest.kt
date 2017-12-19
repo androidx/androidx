@@ -75,7 +75,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 }
         """) { _, _ ->
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_DAO_METHOD_ANNOTATION)
+                ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD)
     }
 
     @Test
