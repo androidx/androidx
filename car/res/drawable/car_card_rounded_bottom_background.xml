@@ -14,12 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent"
-    android:background="@color/car_card">
-
-    <include layout="@layout/car_paged_list_item_content" />
-
-</FrameLayout>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/car_card"/>
+    <corners
+        android:bottomRightRadius="@dimen/car_radius_3"
+        android:bottomLeftRadius="@dimen/car_radius_3"/>
+</shape>
