@@ -35,6 +35,7 @@ import android.arch.persistence.room.integration.testapp.dao.ProductDao;
 import android.arch.persistence.room.integration.testapp.dao.UserDao;
 import android.arch.persistence.room.integration.testapp.dao.UserPetDao;
 import android.arch.persistence.room.integration.testapp.vo.BlobEntity;
+import android.arch.persistence.room.integration.testapp.vo.NameAndLastName;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.Product;
 import android.arch.persistence.room.integration.testapp.vo.User;
@@ -523,5 +524,14 @@ public class SimpleEntityReadWriteTest {
         }
         assertTrue("SQLiteConstraintException expected", caught);
         assertThat(mUserDao.count(), is(0));
+    }
+
+    @Test
+    public void tablePrefix_simpleSelect() {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        NameAndLastName result = mUserDao.getNameAndLastName(3);
+        assertThat(result.getName(), is(user.getName()));
+        assertThat(result.getLastName(), is(user.getLastName()));
     }
 }
