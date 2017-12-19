@@ -124,7 +124,7 @@ limitations under the License.
     </style>
 
     <!-- The styles for the regular and borderless buttons -->
-    <style name="CarButton" parent="android:Widget.Material.Button">
+    <style name="CarButton" parent="Widget.AppCompat.Button">
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:minWidth">@dimen/car_button_min_width</item>
         <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
@@ -136,7 +136,7 @@ limitations under the License.
         <item name="android:background">@drawable/car_button_background</item>
     </style>
 
-    <style name="CarButton.Borderless" parent="android:Widget.Material.Button.Borderless">
+    <style name="CarButton.Borderless" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:paddingStart">@dimen/car_borderless_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_borderless_button_horizontal_padding</item>
@@ -148,5 +148,18 @@ limitations under the License.
 
     <!-- Style for the progress bars -->
     <style name="CarProgressBar.Horizontal"
-           parent="android:Widget.Material.ProgressBar.Horizontal"/>
+           parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:minHeight">@dimen/car_progress_bar_height</item>
+        <item name="android:maxHeight">@dimen/car_progress_bar_height</item>
+    </style>
+
+    <!-- Styles for TextInputLayout hints -->
+    <style name="CarHintTextAppearance" parent="CarBody2">
+    </style>
+
+    <!-- Styles for Car Dialogs -->
+    <style name="CarDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/car_card</item>
+        <item name="android:listDividerAlertDialog">@drawable/car_list_divider</item>
+    </style>
 </resources>
