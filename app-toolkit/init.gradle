@@ -20,8 +20,6 @@ import org.gradle.internal.os.OperatingSystem
 apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
 init.setSdkInLocalPropertiesFile()
 
-apply from: "${ext.supportRootFolder}/app-toolkit/dependencies.gradle"
-
 // repository creation task
 def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompilationTasks",
     description: "Anchor task for everything we want to run in build server.")

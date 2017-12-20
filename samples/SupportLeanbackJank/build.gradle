@@ -1,4 +1,6 @@
-apply plugin: 'com.android.application'
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
 
 dependencies {
     implementation 'com.github.bumptech.glide:glide:3.6.1'
@@ -7,35 +9,14 @@ dependencies {
 }
 
 android {
-    compileSdkVersion project.ext.currentSdk
-
-    defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion project.ext.currentSdk
-    }
-
     buildTypes {
         release {
             minifyEnabled true
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
         }
     }
-
-    signingConfigs {
-        debug {
-            // Use a local debug keystore to avoid build server issues.
-            storeFile project.rootProject.init.debugKeystore
-        }
-    }
-
-    lintOptions {
-        abortOnError true
-        check 'NewApi'
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
 }
 
+supportTestApp {
+    minSdkVersion = 17
+}

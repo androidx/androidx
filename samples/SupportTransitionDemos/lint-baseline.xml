@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="FindViewByIdCast"
+        message="Add explicit cast here; won&apos;t compile with Java language level 1.8 without it"
+        errorLine1="            mViews.add(findViewById(R.id.view_1));"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
+            line="59"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="FindViewByIdCast"
+        message="Add explicit cast here; won&apos;t compile with Java language level 1.8 without it"
+        errorLine1="            mViews.add(findViewById(R.id.view_2));"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
+            line="60"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="FindViewByIdCast"
+        message="Add explicit cast here; won&apos;t compile with Java language level 1.8 without it"
+        errorLine1="            mViews.add(findViewById(R.id.view_3));"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
+            line="61"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="FindViewByIdCast"
+        message="Add explicit cast here; won&apos;t compile with Java language level 1.8 without it"
+        errorLine1="            mViews.add(findViewById(R.id.view_4));"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
+            line="62"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="            android:elevation=&quot;4dp&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/begin_delayed.xml"
+            line="31"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="            android:elevation=&quot;4dp&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/scene_usage.xml"
+            line="31"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `android:showAsAction` when not using the appcompat library"
+        errorLine1="            app:showAsAction=&quot;ifRoom&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/basic_usage.xml"
+            line="22"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `#f00` with a theme that also paints a background (inferred theme is `@style/Theme_Transition`)"
+        errorLine1="    android:background=&quot;#f00&quot;/>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/red_square.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_action_navigation_menu` appears to be unused">
+        <location
+            file="src/main/res/drawable-hdpi/ic_action_navigation_menu.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_action_navigation_menu.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_action_navigation_menu.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_action_navigation_menu.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_add` appears to be unused">
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_add.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_android` appears to be unused">
+        <location
+            file="src/main/res/drawable-hdpi/ic_android.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_android.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_android.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_android.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_android.png"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-hdpi`: ic_add.png (found in drawable-xxhdpi)">
+        <location
+            file="src/main/res/drawable-hdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-mdpi`: ic_add.png (found in drawable-xxhdpi)">
+        <location
+            file="src/main/res/drawable-mdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xhdpi`: app_sample_code.png, ic_add.png">
+        <location
+            file="src/main/res/drawable-xhdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xxhdpi`: app_sample_code.png (found in drawable-hdpi, drawable-mdpi)">
+        <location
+            file="src/main/res/drawable-xxhdpi"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/image_transform.xml"
+            line="30"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/image_transform.xml"
+            line="35"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/image_transform.xml"
+            line="40"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/image_transform.xml"
+            line="55"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/image_transform.xml"
+            line="60"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/image_transform.xml"
+            line="65"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingWarning"
+        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Photo&quot;, should use `@string` resource"
+        errorLine1="        android:contentDescription=&quot;Photo&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/clip_bounds.xml"
+            line="34"
+            column="9"/>
+    </issue>
+
+</issues>
