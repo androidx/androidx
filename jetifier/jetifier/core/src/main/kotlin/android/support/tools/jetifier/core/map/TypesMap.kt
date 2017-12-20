@@ -19,6 +19,7 @@ package android.support.tools.jetifier.core.map
 import android.support.tools.jetifier.core.rules.JavaField
 import android.support.tools.jetifier.core.rules.JavaType
 import android.support.tools.jetifier.core.rules.RewriteRule
+import android.support.tools.jetifier.core.utils.Log
 
 /**
  * Contains all the mappings needed to rewrite java types and fields.
@@ -31,23 +32,25 @@ data class TypesMap(
         val fields: Map<JavaField, JavaField>) {
 
     companion object {
+        private const val TAG = "TypesMap"
+
         val EMPTY = TypesMap(emptyMap(), emptyMap())
     }
 
     /** Returns JSON data model of this class */
-    fun toJson() : JsonData {
+    fun toJson(): JsonData {
         return JsonData(
                 types = types.map { it.key.fullName to it.value.fullName }
                         .toMap(),
                 fields = mapFields())
     }
 
-    private fun mapFields() : Map<String, Map<String, List<String>>> {
+    private fun mapFields(): Map<String, Map<String, List<String>>> {
         val rawMap = mutableMapOf<String, MutableMap<String, MutableList<String>>>()
 
-        fields.forEach{
+        fields.forEach {
             rawMap
-                .getOrPut(it.key.owner.fullName, { mutableMapOf<String, MutableList<String>>()} )
+                .getOrPut(it.key.owner.fullName, { mutableMapOf() })
                 .getOrPut(it.value.owner.fullName, { mutableListOf() })
                 .add(it.key.name)
         }
@@ -55,14 +58,48 @@ data class TypesMap(
     }
 
     /**
+     * Validates that the current map can be used in reversed mode (values become keys). Throws
+     * exception if the map does not satisfy that.
+     */
+    fun validateThatMapIsReversibleOrDie() {
+        Log.i(TAG, "Validating that the map is reversible")
+
+        val typesReversed = mutableMapOf<JavaType, JavaType>()
+        for ((from, to) in types) {
+            val conflictFrom = typesReversed[to]
+            if (conflictFrom != null) {
+                Log.e(TAG, "Conflict: %s -> (%s, %s)", to, from, conflictFrom)
+                continue
+            }
+            typesReversed[to] = from
+        }
+
+        val fieldsReversed = mutableMapOf<JavaField, JavaField>()
+        for ((from, to) in fields) {
+            val conflictFrom = fieldsReversed[to]
+            if (conflictFrom != null) {
+                Log.e(TAG, "Conflict: %s -> (%s, %s)", to, from, conflictFrom)
+                continue
+            }
+            fieldsReversed[to] = from
+        }
+
+        if (types.size != typesReversed.size || fields.size != fieldsReversed.size) {
+            throw IllegalArgumentException(
+                "Map is not reversible as conflicts were found! See the log for more details.")
+        }
+        Log.i(TAG, "Map is reversible. Success!")
+    }
+
+    /**
      * JSON data model for [TypesMap].
      */
     data class JsonData(
             val types: Map<String, String>,
-            val fields: Map<String, Map<String, List<String>>>)  {
+            val fields: Map<String, Map<String, List<String>>>) {
 
         /** Creates instance of [TypesMap] */
-        fun toMappings() : TypesMap {
+        fun toMappings(): TypesMap {
             return TypesMap(
                 types = types
                     .orEmpty()

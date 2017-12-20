@@ -24,7 +24,6 @@ import android.support.tools.jetifier.core.transform.proguard.ProGuardTypesMap
 import com.google.common.truth.Truth
 import org.junit.Test
 
-
 class MapGenerationTest {
 
     @Test fun fromOneType_toOneType() {
@@ -88,7 +87,8 @@ class MapGenerationTest {
             .mapInto(
                 types = mapOf(
                     "android/support/v7/pref/Preference" to "android/test/pref/Preference",
-                    "android/support/v14/pref/PreferenceDialog" to "android/test/pref/PreferenceDialog"
+                    "android/support/v14/pref/PreferenceDialog"
+                        to "android/test/pref/PreferenceDialog"
                 ),
                 fields = mapOf(
                 )
@@ -112,7 +112,8 @@ class MapGenerationTest {
             .mapInto(
                 types = mapOf(
                     "android/support/v7/pref/Preference" to "android/fallback/v7/pref/Preference",
-                    "android/support/v14/pref/PreferenceDialog" to "android/test/pref/PreferenceDialog"
+                    "android/support/v14/pref/PreferenceDialog"
+                        to "android/test/pref/PreferenceDialog"
                 ),
                 fields = mapOf(
                 )
@@ -269,36 +270,85 @@ class MapGenerationTest {
             .andIsComplete()
     }
 
+    @Test fun mapTwoTypes_shouldIgnoreOne() {
+        ScanTester
+            .testThatRules(
+                RewriteRule("android/support/v7/(.*)", "ignore"),
+                RewriteRule("android/support/v14/(.*)", "android/test/{0}")
+            )
+            .withAllowedPrefixes(
+                "android/support/"
+            )
+            .forGivenTypes(
+                JavaType("android/support/v7/pref/Preference"),
+                JavaType("android/support/v14/pref/Preference")
+            )
+            .mapInto(
+                types = mapOf(
+                    "android/support/v14/pref/Preference" to "android/test/pref/Preference"
+                ),
+                fields = mapOf(
+                )
+            )
+            .andIsComplete()
+    }
+
+    @Test fun mapTwoFields_shouldIgnoreOne() {
+        ScanTester
+            .testThatRules(
+                RewriteRule("android/support/v7/(.*)", "ignore"),
+                RewriteRule("android/support/v14/(.*)", "android/test/{0}")
+            )
+            .withAllowedPrefixes(
+                "android/support/"
+            )
+            .forGivenFields(
+                JavaField("android/support/v7/pref/Preference", "count"),
+                JavaField("android/support/v14/pref/Preference", "size")
+            )
+            .mapInto(
+                types = mapOf(
+                ),
+                fields = mapOf(
+                    "android/support/v14/pref/Preference" to mapOf(
+                        "android/test/pref/Preference" to listOf(
+                            "size"
+                        )
+                    )
+                )
+            )
+            .andIsComplete()
+    }
 
     object ScanTester {
 
         fun testThatRules(vararg rules: RewriteRule) = Step1(rules.toList())
 
 
-        class Step1(val rules: List<RewriteRule>) {
+        class Step1(private val rules: List<RewriteRule>) {
 
             fun withAllowedPrefixes(vararg prefixes: String) = Step2(rules, prefixes.toList())
 
 
-            class Step2(val rules: List<RewriteRule>, val prefixes: List<String>) {
+            class Step2(private val rules: List<RewriteRule>, private val prefixes: List<String>) {
 
                 private val allTypes: MutableList<JavaType> = mutableListOf()
                 private val allFields: MutableList<JavaField> = mutableListOf()
                 private var wasMapIncomplete = false
 
 
-                fun forGivenTypes(vararg types: JavaType) : Step2 {
+                fun forGivenTypes(vararg types: JavaType): Step2 {
                     allTypes.addAll(types)
                     return this
                 }
 
-                fun forGivenFields(vararg fields: JavaField) : Step2 {
+                fun forGivenFields(vararg fields: JavaField): Step2 {
                     allFields.addAll(fields)
                     return this
                 }
 
                 fun mapInto(types: Map<String, String>,
-                            fields: Map<String, Map<String, List<String>>>) : Step2 {
+                            fields: Map<String, Map<String, List<String>>>): Step2 {
                     val config = Config(
                         restrictToPackagePrefixes = prefixes,
                         rewriteRules = rules,
