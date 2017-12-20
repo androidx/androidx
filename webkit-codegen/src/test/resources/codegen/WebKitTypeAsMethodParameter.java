@@ -16,7 +16,7 @@
 
 package android.webkit;
 
-public abstract class WebKitMethodParametertype {
+public abstract class WebKitTypeAsMethodParameter {
     public void method(WebViewClient webViewClient);
     public void methodX(SafeBrowsingResponse response) {
         return null;

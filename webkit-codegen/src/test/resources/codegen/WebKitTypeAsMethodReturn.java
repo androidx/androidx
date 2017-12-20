@@ -16,7 +16,7 @@
 
 package android.webkit;
 
-public class WebkitReturntypeClass {
+public class WebKitTypeAsMethodReturn {
     public WebViewClient method() {
         return null;
     }
