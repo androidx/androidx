@@ -175,7 +175,7 @@ class PojoProcessor(baseContext: Context,
             // we don't need to construct this POJO.
             null
         } else {
-            chooseConstructor(myFields, embeddedFields)
+            chooseConstructor(myFields, embeddedFields, relations)
         }
 
         assignGetters(myFields, getterCandidates)
@@ -200,7 +200,9 @@ class PojoProcessor(baseContext: Context,
     }
 
     private fun chooseConstructor(
-            myFields: List<Field>, embedded: List<EmbeddedField>): Constructor? {
+            myFields: List<Field>,
+            embedded: List<EmbeddedField>,
+            relations: List<android.arch.persistence.room.vo.Relation>): Constructor? {
         val constructors = ElementFilter.constructorsIn(element.enclosedElements)
                 .filterNot { it.hasAnnotation(Ignore::class) || it.hasAnyOf(PRIVATE) }
         val fieldMap = myFields.associateBy { it.name }
@@ -240,6 +242,15 @@ class PojoProcessor(baseContext: Context,
                     matches(it.field)
                 }
                 if (matchingFields.isEmpty() && embeddedMatches.isEmpty()) {
+                    // if it didn't match a proper field, a common mistake is to have a relation
+                    // so check to see if it is a relation
+                    val matchedRelation = relations.any {
+                        it.field.nameWithVariations.contains(paramName)
+                    }
+                    if (matchedRelation) {
+                        context.logger.e(param,
+                                ProcessorErrors.RELATION_CANNOT_BE_CONSTRUCTOR_PARAMETER)
+                    }
                     null
                 } else if (matchingFields.size + embeddedMatches.size == 1) {
                     if (matchingFields.isNotEmpty()) {
@@ -269,9 +280,10 @@ class PojoProcessor(baseContext: Context,
             if (failedConstructors.isNotEmpty()) {
                 val failureMsg = failedConstructors.entries.joinToString("\n") { entry ->
                     val paramsMatching = entry.key.parameters.withIndex().joinToString(", ") {
-                        "${it.value.simpleName} : ${entry.value[it.index]?.log()}"
+                        "param:${it.value.simpleName} -> matched field:" +
+                                (entry.value[it.index]?.log() ?: "unmatched")
                     }
-                    "${entry.key} : [$paramsMatching]"
+                    "${entry.key} -> [$paramsMatching]"
                 }
                 context.logger.e(element, ProcessorErrors.MISSING_POJO_CONSTRUCTOR +
                         "\nTried the following constructors but they failed to match:\n$failureMsg")
