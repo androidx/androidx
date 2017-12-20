@@ -16,34 +16,11 @@
 
 import static android.support.dependencies.DependenciesKt.*
 
-apply plugin: 'com.android.application'
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
 
 project.ext.noDocs = true
-
-android {
-    compileSdkVersion tools.current_sdk
-    buildToolsVersion tools.build_tools_version
-
-    defaultConfig {
-        minSdkVersion flatfoot.min_sdk
-        targetSdkVersion tools.current_sdk
-        versionCode 1
-        versionName "1.0"
-    }
-    signingConfigs {
-        debug {
-            // Use a local debug keystore to avoid build server issues.
-            storeFile project.rootProject.init.debugKeystore
-        }
-    }
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
-}
 
 dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
