@@ -97,6 +97,11 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
          * @return the view.
          */
         View getView();
+
+        /**
+         * Called when the view should be reset.
+         */
+        void resetView();
     }
 
     /**
@@ -271,6 +276,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
 
     private void reinflate() {
         if (mCurrentSlice == null) {
+            mCurrentView.resetView();
             return;
         }
         // TODO: Smarter mapping here from one state to the next.

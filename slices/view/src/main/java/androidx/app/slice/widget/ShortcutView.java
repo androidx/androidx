@@ -79,10 +79,7 @@ public class ShortcutView extends FrameLayout implements SliceView.SliceModeView
 
     @Override
     public void setSlice(Slice slice) {
-        mLabel = null;
-        mIcon = null;
-        mAction = null;
-        removeAllViews();
+        resetView();
         determineShortcutItems(getContext(), slice);
         SliceItem colorItem = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
         if (colorItem == null) {
@@ -191,5 +188,15 @@ public class ShortcutView extends FrameLayout implements SliceView.SliceModeView
                 }
             }
         }
+    }
+
+    @Override
+    public void resetView() {
+        mUri = null;
+        mAction = null;
+        mLabel = null;
+        mIcon = null;
+        setBackground(null);
+        removeAllViews();
     }
 }

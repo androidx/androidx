@@ -97,4 +97,10 @@ public class LargeTemplateView extends FrameLayout implements SliceView.SliceMod
         // TODO -- restrict / enable how much this view can show
         mIsScrollable = isScrollable;
     }
+
+    @Override
+    public void resetView() {
+        mSlice = null;
+        mAdapter.setSliceItems(null, null);
+    }
 }
