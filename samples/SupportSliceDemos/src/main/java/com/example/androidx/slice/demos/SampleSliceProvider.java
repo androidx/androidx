@@ -154,7 +154,6 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(b -> b
                         .setTitle("Mady Pitza")
                         .setSubtitle("Frequently contacted contact")
-                        .setIsHeader(true)
                         .addEndItem(Icon.createWithResource(getContext(), R.drawable.mady)))
                 .addGrid(b -> b
                         .addCell(cb -> cb
@@ -246,13 +245,6 @@ public class SampleSliceProvider extends SliceProvider {
 
         return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff0F9D58)
-                .addSummaryRow(b -> b
-                    .setTitle("Get ride")
-                    .setSubtitle(headerSubtitle)
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_home),
-                            getBroadcastIntent(ACTION_TOAST, "home"))
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_work),
-                            getBroadcastIntent(ACTION_TOAST, "work")))
                 .addRow(b -> b
                     .setContentIntent(getBroadcastIntent(ACTION_TOAST, "work"))
                     .setTitle("Work")

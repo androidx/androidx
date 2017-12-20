@@ -37,11 +37,20 @@ public interface ListBuilder {
      * Add a grid row to the list builder.
      */
     void addGrid(TemplateBuilderImpl impl);
+
     /**
-     * Add a summary row for this template. The summary content is displayed
-     * when the slice is displayed in small format.
+     * Adds a header to this template.
+     * <p>
+     * The header should contain a title that is representative of the content in this slice along
+     * with an intent that links to the app activity associated with this content.
      */
-    void addSummaryRow(TemplateBuilderImpl builder);
+    void setHeader(TemplateBuilderImpl impl);
+
+    /**
+     * Sets the group of actions for this template. These actions may be shown on the template in
+     * large or small formats.
+     */
+    void setActions(TemplateBuilderImpl impl);
 
     /**
      * Sets the color to tint items displayed by this template (e.g. icons).
@@ -56,21 +65,30 @@ public interface ListBuilder {
      * Create a builder that implements {@link RowBuilder}.
      */
     TemplateBuilderImpl createRowBuilder(Uri uri);
-
     /**
      * Create a builder that implements {@link GridBuilder}.
      */
     TemplateBuilderImpl createGridBuilder();
+    /**
+     * Create a builder that implements {@link HeaderBuilder}.
+     */
+    TemplateBuilderImpl createHeaderBuilder();
+    /**
+     * Create a builder that implements {@link HeaderBuilder}.
+     */
+    TemplateBuilderImpl createHeaderBuilder(Uri uri);
+    /**
+     * Create a builder that implements {@link ActionBuilder}.
+     */
+    TemplateBuilderImpl createActionBuilder();
+    /**
+     * Create a builder that implements {@link ActionBuilder}.
+     */
+    TemplateBuilderImpl createActionBuilder(Uri uri);
 
     /**
      */
     public interface RowBuilder {
-
-        /**
-         * Sets this row to be the header of the slice. This item will be displayed at the top of
-         * the slice and other items in the slice will scroll below it.
-         */
-        void setIsHeader(boolean isHeader);
 
         /**
          * Sets the title item to be the provided timestamp. Only one timestamp can be added, if
@@ -133,4 +151,53 @@ public interface ListBuilder {
          */
         void addToggle(PendingIntent action, boolean isChecked, Icon icon);
     }
+
+
+    /**
+     * Builder to construct a header. A header is displayed at the top of a list and can have
+     * a title, subtitle, and an action.
+     */
+    public interface HeaderBuilder {
+
+        /**
+         * Sets the title to be shown in this header.
+         */
+        void setTitle(CharSequence title);
+
+        /**
+         * Sets the subtitle to be shown in this header.
+         */
+        void setSubtitle(CharSequence subtitle);
+
+        /**
+         * Sets the summary subtitle to be shown in this header. If unset, the normal subtitle
+         * will be used. The summary is used when the parent template is presented in a
+         * small format.
+         */
+        void setSummarySubtitle(CharSequence summarySubtitle);
+
+        /**
+         * Sets the pending intent to activate when the header is activated.
+         */
+        void setContentIntent(PendingIntent intent);
+    }
+
+    /**
+     * Builder to construct a group of actions.
+     */
+    public interface ActionBuilder {
+
+        /**
+         * Adds an action to this builder.
+         *
+         * @param action the pending intent to send when the action is activated.
+         * @param actionIcon the icon to display for this action.
+         * @param contentDescription the content description to use for accessibility.
+         * @param priority what priority to display this action in, with the lowest priority having
+         *                 the highest ranking.
+         */
+        void addAction(PendingIntent action, Icon actionIcon, CharSequence contentDescription,
+                int priority);
+    }
 }
+
