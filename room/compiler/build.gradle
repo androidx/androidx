@@ -53,7 +53,7 @@ dependencies {
     testCompile(INTELLIJ_ANNOTATIONS)
     testCompile(JSR250)
     testCompile(MOCKITO_CORE)
-    testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$tools.current_sdk/",
+    testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$rootProject.ext.currentSdk/",
             include : "android.jar")
     testCompile fileTree(dir: "${new File(project(":room:runtime").buildDir, "libJar")}",
             include : "*.jar")
