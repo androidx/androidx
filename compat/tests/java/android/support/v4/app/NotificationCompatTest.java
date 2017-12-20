@@ -488,6 +488,35 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         assertEquals(100, n.ledOffMS);
     }
 
+    @Test
+    public void testMessagingStyle_isGroupConversation() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name")
+                        .setGroupConversation(true);
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(messagingStyle)
+                .build();
+
+        assertTrue(messagingStyle.isGroupConversation());
+    }
+
+    @Test
+    public void testMessagingStyle_extras() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("test name")
+                        .setGroupConversation(true);
+        Bundle bundle = new Bundle();
+        messagingStyle.addCompatExtras(bundle);
+
+        NotificationCompat.MessagingStyle resultMessagingStyle =
+                new NotificationCompat.MessagingStyle("test name");
+        resultMessagingStyle.restoreFromCompatExtras(bundle);
+
+        assertTrue(resultMessagingStyle.isGroupConversation());
+    }
+
     private static RemoteInput newDataOnlyRemoteInput() {
         return new RemoteInput.Builder(DATA_RESULT_KEY)
             .setAllowFreeFormInput(false)
