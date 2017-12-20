@@ -16,5 +16,5 @@
 
 <pointer-icon xmlns:android="http://schemas.android.com/apk/res/android"
     android:bitmap="@drawable/test_drawable"
-    android:hotSpotX="16dp"
-    android:hotSpotY="16dp" />
+    android:hotSpotX="1dp"
+    android:hotSpotY="1dp" />
