@@ -73,11 +73,17 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
 
         // Try to find a rule
         for (rule in config.rewriteRules) {
-            val mappedTypeName = rule.apply(type) ?: continue
-            typesRewritesMap.put(type, mappedTypeName)
-
-            Log.i(TAG, "  map: %s -> %s", type, mappedTypeName)
-            return mappedTypeName
+            val typeRewriteResult = rule.apply(type)
+            if (typeRewriteResult.isIgnored) {
+                Log.i(TAG, "Ignoring: " + type)
+                return type
+            }
+            if (typeRewriteResult.result == null) {
+                continue
+            }
+            typesRewritesMap.put(type, typeRewriteResult.result)
+            Log.i(TAG, "  map: %s -> %s", type, typeRewriteResult.result)
+            return typeRewriteResult.result
         }
 
         isMapNotComplete = true
@@ -101,11 +107,17 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
 
         // Try to find a rule
         for (rule in config.rewriteRules) {
-            val mappedFieldName = rule.apply(field) ?: continue
-            fieldsRewritesMap.put(field, mappedFieldName)
-
-            Log.i(TAG, "  map: %s -> %s", field, mappedFieldName)
-            return mappedFieldName
+            val fieldRewriteResult = rule.apply(field)
+            if (fieldRewriteResult.isIgnored) {
+                Log.i(TAG, "Ignoring: " + field)
+                return field
+            }
+            if (fieldRewriteResult.result == null) {
+                continue
+            }
+            fieldsRewritesMap.put(field, fieldRewriteResult.result)
+            Log.i(TAG, "  map: %s -> %s", field, fieldRewriteResult.result)
+            return fieldRewriteResult.result
         }
 
         isMapNotComplete = true
