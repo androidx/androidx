@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
 
 ext {
     fontDir = project(':noto-emoji-compat').projectDir
@@ -27,31 +29,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion project.ext.currentSdk
-
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion project.ext.currentSdk
-    }
-
     sourceSets {
         main.assets.srcDirs = [new File(fontDir, "supported-emojis").getAbsolutePath()]
-    }
-
-    lintOptions {
-        abortOnError true
-        check 'NewApi'
-    }
-
-    signingConfigs {
-        debug {
-            // Use a local debug keystore to avoid build server issues.
-            storeFile project.rootProject.init.debugKeystore
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
