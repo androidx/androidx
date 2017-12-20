@@ -20,7 +20,6 @@ limitations under the License.
 
     <!-- List Items -->
     <dimen name="car_single_line_list_item_height">116dp</dimen>
-    <dimen name="car_double_line_list_item_height">116dp</dimen>
 
     <!-- Slide Up Menu -->
     <dimen name="car_slide_up_menu_initial_height">116dp</dimen>

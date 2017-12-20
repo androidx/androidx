@@ -39,7 +39,6 @@ limitations under the License.
 
     <!-- List Items -->
     <dimen name="car_single_line_list_item_height">128dp</dimen>
-    <dimen name="car_double_line_list_item_height">128dp</dimen>
 
     <!-- Cards -->
     <dimen name="car_card_header_height">96dp</dimen>
