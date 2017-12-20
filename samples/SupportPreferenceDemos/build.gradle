@@ -1,4 +1,6 @@
-apply plugin: 'com.android.application'
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
 
 dependencies {
     implementation(project(":appcompat-v7"))
@@ -7,30 +9,4 @@ dependencies {
     implementation(project(":preference-v14"))
     implementation(project(":leanback-v17"))
     implementation(project(":preference-leanback-v17"))
-}
-
-android {
-    compileSdkVersion project.ext.currentSdk
-
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion project.ext.currentSdk
-    }
-
-    signingConfigs {
-        debug {
-            // Use a local debug keystore to avoid build server issues.
-            storeFile project.rootProject.init.debugKeystore
-        }
-    }
-
-    lintOptions {
-        abortOnError false
-        check 'NewApi'
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
 }

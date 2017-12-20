@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="MissingTvBanner"
+        message="Expecting `android:banner` with the `&lt;application>` tag or each Leanback launcher activity."
+        errorLine1="    &lt;application android:label=&quot;pref demo&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="27"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ImpliedTouchscreenHardware"
+        message="Hardware feature `android.hardware.touchscreen` not explicitly marked as optional "
+        errorLine1="&lt;manifest"
+        errorLine2="^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MissingLeanbackSupport"
+        message="Expecting &lt;uses-feature android:name=&quot;android.software.leanback&quot; android:required=&quot;false&quot; /> tag."
+        errorLine1="&lt;manifest"
+        errorLine2="^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.title_switch_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;title_switch_preference&quot;>Switch preference&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="42"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.summary_switch_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;summary_switch_preference&quot;>This is a switch&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="43"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.summary_switch_preference_yes_no` appears to be unused"
+        errorLine1="    &lt;string name=&quot;summary_switch_preference_yes_no&quot;>This is a switch with custom text&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="44"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.title_yesno_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;title_yesno_preference&quot;>Yes or no preference&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="46"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.summary_yesno_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;summary_yesno_preference&quot;>An example that uses a yes/no dialog&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="47"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.dialog_title_yesno_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;dialog_title_yesno_preference&quot;>Do you like bananas?&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="48"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.title_fragment_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;title_fragment_preference&quot;>Fragment preference&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="65"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.summary_fragment_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;summary_fragment_preference&quot;>Shows another fragment of preferences&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="66"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.title_my_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;title_my_preference&quot;>My preference&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="74"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.summary_my_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;summary_my_preference&quot;>This is a custom counter preference&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="75"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.title_advanced_toggle_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;title_advanced_toggle_preference&quot;>Haunted preference&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="77"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.summary_on_advanced_toggle_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;summary_on_advanced_toggle_preference&quot;>I\&apos;m on! :)&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="78"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.summary_off_advanced_toggle_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;summary_off_advanced_toggle_preference&quot;>I\&apos;m off! :(&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="79"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.example_preference_dependency` appears to be unused"
+        errorLine1="    &lt;string name=&quot;example_preference_dependency&quot;>Example preference dependency&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="86"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.title_wifi` appears to be unused"
+        errorLine1="    &lt;string name=&quot;title_wifi&quot;>WiFi&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="87"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.title_wifi_settings` appears to be unused"
+        errorLine1="    &lt;string name=&quot;title_wifi_settings&quot;>WiFi settings&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="88"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.default_value_list_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;default_value_list_preference&quot;>beta&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="90"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.default_value_edittext_preference` appears to be unused"
+        errorLine1="    &lt;string name=&quot;default_value_edittext_preference&quot;>Default value&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="91"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="IconMissingDensityFolder"
+        message="Missing density variation folders in `src/main/res`: drawable-xhdpi, drawable-xxhdpi">
+        <location
+            file="src/main/res"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingWarning"
+        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
+        errorLine1="    &lt;application android:label=&quot;pref demo&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="27"
+            column="5"/>
+    </issue>
+
+</issues>
