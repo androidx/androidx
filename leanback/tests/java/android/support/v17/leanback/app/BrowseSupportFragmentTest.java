@@ -24,17 +24,27 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.testutils.PollingCheck;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowHeaderPresenter;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import org.junit.After;
 import org.junit.Rule;
@@ -131,6 +141,63 @@ public class BrowseSupportFragmentTest {
 
         assertNull(mActivity.getBrowseTestSupportFragment().getMainFragment());
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
+    }
+
+    public static class MyRow extends Row {
+    }
+
+    public static class MyFragment extends Fragment implements
+            BrowseSupportFragment.MainFragmentAdapterProvider {
+        BrowseSupportFragment.MainFragmentAdapter mMainFragmentAdapter = new BrowseSupportFragment
+                .MainFragmentAdapter(this);
+
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
+            return new FrameLayout(container.getContext());
+        }
+
+        @Override
+        public BrowseSupportFragment.MainFragmentAdapter getMainFragmentAdapter() {
+            return mMainFragmentAdapter;
+        }
+    }
+
+    public static class MyFragmentFactory extends
+            BrowseSupportFragment.FragmentFactory<MyFragment> {
+        public MyFragment createFragment(Object row) {
+            return new MyFragment();
+        }
+    }
+
+    @Test
+    public void testPressCenterBeforeMainFragmentCreated() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, 0);
+        mActivity = activityTestRule.launchActivity(intent);
+
+        final BrowseSupportFragment fragment = mActivity.getBrowseTestSupportFragment();
+        fragment.getMainFragmentRegistry().registerFragment(MyRow.class, new MyFragmentFactory());
+
+        final ArrayObjectAdapter adapter = new ArrayObjectAdapter(new RowHeaderPresenter());
+        adapter.add(new MyRow());
+        activityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fragment.setAdapter(adapter);
+            }
+        });
+        activityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                KeyEvent kv;
+                kv = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_CENTER);
+                fragment.getView().dispatchKeyEvent(kv);
+                kv = new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_CENTER);
+                fragment.getView().dispatchKeyEvent(kv);
+            }
+        });
     }
 
     @Test
