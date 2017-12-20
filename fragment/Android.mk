@@ -40,6 +40,7 @@ LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-core-ui \
     android-support-core-utils
 LOCAL_STATIC_ANDROID_LIBRARIES := \
+    android-arch-lifecycle-livedata-core \
     android-arch-lifecycle-viewmodel
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7

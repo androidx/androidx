@@ -262,6 +262,9 @@ public class LoaderTest {
     static class DummyLoaderCallbacks implements LoaderManager.LoaderCallbacks<Boolean> {
         private final Context mContext;
 
+        boolean mOnLoadFinished;
+        boolean mOnLoaderReset;
+
         DummyLoaderCallbacks(Context context) {
             mContext = context;
         }
@@ -274,10 +277,12 @@ public class LoaderTest {
 
         @Override
         public void onLoadFinished(@NonNull Loader<Boolean> loader, Boolean data) {
+            mOnLoadFinished = true;
         }
 
         @Override
         public void onLoaderReset(@NonNull Loader<Boolean> loader) {
+            mOnLoaderReset = true;
         }
     }
 

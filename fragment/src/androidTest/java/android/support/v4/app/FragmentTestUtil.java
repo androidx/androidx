@@ -176,7 +176,6 @@ public class FragmentTestUtil {
                 fragmentController.noteStateNotSaved();
                 fragmentController.execPendingActions();
                 fragmentController.dispatchStart();
-                fragmentController.reportLoaderStart();
                 fragmentController.dispatchResume();
                 fragmentController.execPendingActions();
             }
@@ -195,9 +194,7 @@ public class FragmentTestUtil {
                 final FragmentManagerNonConfig nonConfig =
                         fragmentController.retainNestedNonConfig();
                 fragmentController.dispatchStop();
-                fragmentController.doLoaderStop(false);
                 fragmentController.dispatchDestroy();
-                fragmentController.doLoaderDestroy();
                 result[0] = Pair.create(savedState, nonConfig);
             }
         });

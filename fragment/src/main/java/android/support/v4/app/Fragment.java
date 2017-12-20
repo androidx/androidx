@@ -210,8 +210,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     boolean mUserVisibleHint = true;
 
     LoaderManagerImpl mLoaderManager;
-    boolean mLoadersStarted;
-    boolean mCheckedForLoaderManager;
 
     // The animation and transition information for the fragment. This will be null
     // unless the elements are explicitly accessed and should remain null for Fragments
@@ -979,11 +977,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mLoaderManager != null) {
             return mLoaderManager;
         }
-        if (mHost == null) {
-            throw new IllegalStateException("Fragment " + this + " not attached to Activity");
-        }
-        mCheckedForLoaderManager = true;
-        mLoaderManager = mHost.getLoaderManager(mWho, mLoadersStarted, true);
+        mLoaderManager = new LoaderManagerImpl(this, getViewModelStore());
         return mLoaderManager;
     }
 
@@ -1541,16 +1535,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onStart() {
         mCalled = true;
-
-        if (!mLoadersStarted) {
-            mLoadersStarted = true;
-            if (!mCheckedForLoaderManager) {
-                mCheckedForLoaderManager = true;
-                mLoaderManager = mHost.getLoaderManager(mWho, mLoadersStarted, false);
-            } else if (mLoaderManager != null) {
-                mLoaderManager.doStart();
-            }
-        }
     }
 
     /**
@@ -1661,15 +1645,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mViewModelStore != null && !mHost.mFragmentManager.isStateSaved()) {
             mViewModelStore.clear();
         }
-        //Log.v("foo", "onDestroy: mCheckedForLoaderManager=" + mCheckedForLoaderManager
-        //        + " mLoaderManager=" + mLoaderManager);
-        if (!mCheckedForLoaderManager) {
-            mCheckedForLoaderManager = true;
-            mLoaderManager = mHost.getLoaderManager(mWho, mLoadersStarted, false);
-        }
-        if (mLoaderManager != null) {
-            mLoaderManager.doDestroy();
-        }
     }
 
     /**
@@ -1696,9 +1671,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mHidden = false;
         mDetached = false;
         mRetaining = false;
-        mLoaderManager = null;
-        mLoadersStarted = false;
-        mCheckedForLoaderManager = false;
     }
 
     /**
@@ -2402,9 +2374,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mChildFragmentManager != null) {
             mChildFragmentManager.dispatchStart();
         }
-        if (mLoaderManager != null) {
-            mLoaderManager.doReportStart();
-        }
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
     }
 
@@ -2582,20 +2551,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mChildFragmentManager.dispatchReallyStop();
         }
         mState = ACTIVITY_CREATED;
-        if (mLoadersStarted) {
-            mLoadersStarted = false;
-            if (!mCheckedForLoaderManager) {
-                mCheckedForLoaderManager = true;
-                mLoaderManager = mHost.getLoaderManager(mWho, mLoadersStarted, false);
-            }
-            if (mLoaderManager != null) {
-                if (mHost.getRetainLoaders()) {
-                    mLoaderManager.doRetain();
-                } else {
-                    mLoaderManager.doStop();
-                }
-            }
-        }
     }
 
     void performDestroyView() {
@@ -2610,7 +2565,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     + " did not call through to super.onDestroyView()");
         }
         if (mLoaderManager != null) {
-            mLoaderManager.doReportNextStart();
+            // Handles the detach/reattach case where the view hierarchy
+            // is destroyed and recreated and an additional call to
+            // onLoadFinished may be needed to ensure the new view
+            // hierarchy is populated from data from the Loaders
+            mLoaderManager.markForRedelivery();
         }
         mPerformedCreateView = false;
     }
