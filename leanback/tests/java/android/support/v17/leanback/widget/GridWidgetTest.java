@@ -4312,8 +4312,21 @@ public class GridWidgetTest {
         waitForScrollIdle(mVerifyLayout);
         assertEquals(1, mGridView.getSelectedPosition());
     }
+
+    private boolean hasAction(AccessibilityNodeInfoCompat info, Object action) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            AccessibilityNodeInfoCompat.AccessibilityActionCompat convertedAction =
+                    (AccessibilityNodeInfoCompat.AccessibilityActionCompat) action;
+            return ((info.getActions() & convertedAction.getId()) != 0);
+        } else {
+            int convertedAction = (int) action;
+            return ((info.getActions() & convertedAction) != 0);
+        }
+    }
+
     @Test
-    public void testAccessibilityRespondToLeftRight() throws Throwable {
+    public void testAccessibilityRespondToLeftRightPartiallyVisible() throws Throwable {
+        // Tests the case when there are two children, and the second child is partially visible
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
         intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.item_button_at_bottom);
@@ -4323,14 +4336,13 @@ public class GridWidgetTest {
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 1;
 
-        int width = mGridView.getWidth() - mGridView.getPaddingLeft()
-                - mGridView.getPaddingRight();
-        final int childWidth = width - mGridView.getHorizontalSpacing() - 500;
+        final int offset = 2 * mGridView.getHorizontalSpacing();
+        final int childWidth = mGridView.getWidth() - offset - 2 * mGridView.getHorizontalSpacing();
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
-                mGridView.setWindowAlignmentOffset(100);
+                mGridView.setWindowAlignmentOffset(offset);
                 mGridView.setWindowAlignmentOffsetPercent(BaseGridView
                         .WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
                 mGridView.setItemAlignmentOffset(0);
@@ -4352,11 +4364,11 @@ public class GridWidgetTest {
         });
         assertTrue("test sanity", info.isScrollable());
         if (Build.VERSION.SDK_INT >= 23) {
-            assertTrue("test sanity", info.removeAction(AccessibilityNodeInfoCompat
+            assertTrue("test sanity", hasAction(info, AccessibilityNodeInfoCompat
                     .AccessibilityActionCompat.ACTION_SCROLL_LEFT));
         } else {
-            assertTrue("test sanity", info.removeAction(AccessibilityNodeInfoCompat
-                    .AccessibilityActionCompat.ACTION_SCROLL_BACKWARD));
+            assertTrue("test sanity", hasAction(info, AccessibilityNodeInfoCompat
+                    .ACTION_SCROLL_BACKWARD));
         }
 
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -4381,11 +4393,11 @@ public class GridWidgetTest {
             }
         });
         if (Build.VERSION.SDK_INT >= 23) {
-            assertTrue("test sanity", info.removeAction(AccessibilityNodeInfoCompat
+            assertTrue("test sanity", hasAction(info, AccessibilityNodeInfoCompat
                     .AccessibilityActionCompat.ACTION_SCROLL_RIGHT));
         } else {
-            assertTrue("test sanity", info.removeAction(AccessibilityNodeInfoCompat
-                    .AccessibilityActionCompat.ACTION_SCROLL_FORWARD));
+            assertTrue("test sanity", hasAction(info, AccessibilityNodeInfoCompat
+                    .ACTION_SCROLL_FORWARD));
         }
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -4404,7 +4416,8 @@ public class GridWidgetTest {
     }
 
     @Test
-    public void testAccessibilityRespondToLeftRightRtl() throws Throwable {
+    public void testAccessibilityRespondToLeftRightRtlPartiallyVisible() throws Throwable {
+        // Tests the case when there are two children, and the second child is partially visible
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear_rtl);
         intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.item_button_at_bottom);
@@ -4414,15 +4427,14 @@ public class GridWidgetTest {
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 1;
 
-        int width = mGridView.getWidth() - mGridView.getPaddingLeft()
-                - mGridView.getPaddingRight();
-        final int childWidth = width - mGridView.getHorizontalSpacing() - 500;
+        final int offset = 2 * mGridView.getHorizontalSpacing();
+        final int childWidth = mGridView.getWidth() - offset - 2 * mGridView.getHorizontalSpacing();
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mGridView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
                 mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
-                mGridView.setWindowAlignmentOffset(100);
+                mGridView.setWindowAlignmentOffset(offset);
                 mGridView.setWindowAlignmentOffsetPercent(BaseGridView
                         .WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
                 mGridView.setItemAlignmentOffset(0);
@@ -4444,11 +4456,11 @@ public class GridWidgetTest {
         });
         assertTrue("test sanity", info.isScrollable());
         if (Build.VERSION.SDK_INT >= 23) {
-            assertTrue("test sanity", info.removeAction(AccessibilityNodeInfoCompat
+            assertTrue("test sanity", hasAction(info, AccessibilityNodeInfoCompat
                     .AccessibilityActionCompat.ACTION_SCROLL_RIGHT));
         } else {
-            assertTrue("test sanity", info.removeAction(AccessibilityNodeInfoCompat
-                    .AccessibilityActionCompat.ACTION_SCROLL_BACKWARD));
+            assertTrue("test sanity", hasAction(info, AccessibilityNodeInfoCompat
+                    .ACTION_SCROLL_BACKWARD));
         }
 
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -4473,11 +4485,11 @@ public class GridWidgetTest {
             }
         });
         if (Build.VERSION.SDK_INT >= 23) {
-            assertTrue("test sanity", info.removeAction(AccessibilityNodeInfoCompat
+            assertTrue("test sanity", hasAction(info, AccessibilityNodeInfoCompat
                     .AccessibilityActionCompat.ACTION_SCROLL_LEFT));
         } else {
-            assertTrue("test sanity", info.removeAction(AccessibilityNodeInfoCompat
-                    .AccessibilityActionCompat.ACTION_SCROLL_FORWARD));
+            assertTrue("test sanity", hasAction(info, AccessibilityNodeInfoCompat
+                    .ACTION_SCROLL_FORWARD));
         }
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -4496,7 +4508,8 @@ public class GridWidgetTest {
     }
 
     @Test
-    public void testAccessibilityRespondToScrollUpAction() throws Throwable {
+    public void testAccessibilityRespondToScrollUpActionPartiallyVisible() throws Throwable {
+        // Tests the case when there are two children, and the second child is partially visible
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
         intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.item_button_at_bottom);
@@ -4506,14 +4519,13 @@ public class GridWidgetTest {
         mOrientation = BaseGridView.VERTICAL;
         mNumRows = 1;
 
-        int height = mGridView.getHeight() - mGridView.getPaddingTop()
-                - mGridView.getPaddingBottom();
-        final int childHeight = height - mGridView.getVerticalSpacing() - 100;
+        final int offset = 2 * mGridView.getVerticalSpacing();
+        final int childHeight = mGridView.getHeight() - offset - 2 * mGridView.getVerticalSpacing();
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
-                mGridView.setWindowAlignmentOffset(100);
+                mGridView.setWindowAlignmentOffset(offset);
                 mGridView.setWindowAlignmentOffsetPercent(BaseGridView
                         .WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
                 mGridView.setItemAlignmentOffset(0);
@@ -4536,11 +4548,11 @@ public class GridWidgetTest {
         });
         assertTrue("test sanity", info.isScrollable());
         if (Build.VERSION.SDK_INT >= 23) {
-            assertTrue("test sanity", info.removeAction(AccessibilityNodeInfoCompat
+            assertTrue("test sanity", hasAction(info, AccessibilityNodeInfoCompat
                     .AccessibilityActionCompat.ACTION_SCROLL_UP));
         } else {
-            assertTrue("test sanity", info.removeAction(AccessibilityNodeInfoCompat
-                    .AccessibilityActionCompat.ACTION_SCROLL_BACKWARD));
+            assertTrue("test sanity", hasAction(info, AccessibilityNodeInfoCompat
+                    .ACTION_SCROLL_BACKWARD));
         }
 
         mActivityTestRule.runOnUiThread(new Runnable() {
