@@ -1,0 +1,1635 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="MissingSuperCall"
+        message="Overriding method should call `super.onPictureInPictureModeChanged`"
+        errorLine1="    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackSupportActivity.java"
+            line="42"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="MissingSuperCall"
+        message="Overriding method should call `super.onPictureInPictureModeChanged`"
+        errorLine1="    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportActivity.java"
+            line="42"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        b.append(String.format(&quot;%.2f&quot;, ((float) seconds + seconds2)));"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackSeekDataProviderSample.java"
+            line="79"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.MediaPlayer#getPlaybackParams"
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="418"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.MediaPlayer#setPlaybackParams"
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="418"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.PlaybackParams#setSpeed"
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                                      ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="418"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.MediaPlayer#getPlaybackParams"
+        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="703"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.PlaybackParams#getSpeed"
+        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="703"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.MediaPlayer#getPlaybackParams"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="760"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.MediaPlayer#setPlaybackParams"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="760"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.PlaybackParams#setSpeed"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="760"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.MediaPlayer#getPlaybackParams"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="793"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.MediaPlayer#setPlaybackParams"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="793"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.PlaybackParams#setSpeed"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="793"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.MediaPlayer#getPlaybackParams"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="835"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.MediaPlayer#setPlaybackParams"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="835"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.PlaybackParams#setSpeed"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="835"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.MediaPlayer#getPlaybackParams"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="926"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.MediaPlayer#setPlaybackParams"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="926"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 17): android.media.PlaybackParams#setSpeed"
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="926"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 17): android.content.Context#getDrawable"
+        errorLine1="        mMediaPlayerGlue.setArt(getActivity().getDrawable(R.drawable.google_map));"
+        errorLine2="                                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VideoConsumptionWithDetailCardFragment.java"
+            line="75"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="SdCardPath"
+        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+        errorLine1="                        &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
+            line="109"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SdCardPath"
+        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+        errorLine1="                        &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
+            line="112"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SdCardPath"
+        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+        errorLine1="                    &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/SampleVideoFragment.java"
+            line="79"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SdCardPath"
+        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+        errorLine1="                                &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/SampleVideoFragment.java"
+            line="91"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="SdCardPath"
+        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+        errorLine1="                    &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/SampleVideoSupportFragment.java"
+            line="82"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SdCardPath"
+        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+        errorLine1="                                &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/SampleVideoSupportFragment.java"
+            line="94"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `banner` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:banner=&quot;@drawable/ic_launcher&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="22"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 17)"
+        errorLine1="            android:resizeableActivity=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="89"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 17)"
+        errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="90"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 17)"
+        errorLine1="            android:resizeableActivity=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="97"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 17)"
+        errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="98"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 17)"
+        errorLine1="            android:resizeableActivity=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="105"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 17)"
+        errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="106"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 17)"
+        errorLine1="            android:resizeableActivity=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="113"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 17)"
+        errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="114"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InflateParams"
+        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
+        errorLine1="        View view = getLayoutInflater().inflate(R.layout.horizontal_grid, null, false);"
+        errorLine2="                                                                          ~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
+            line="54"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 32 (leanback.BrowseAnimationFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BrowseAnimationFragment.java"
+            line="58"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 30 (leanback.BrowseSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BrowseSupportFragment.java"
+            line="68"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 30 (leanback.BrowseSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BrowseSupportFragment.java"
+            line="91"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsFragment.java"
+            line="68"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsFragment.java"
+            line="135"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsFragment.java"
+            line="152"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"
+            line="71"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"
+            line="138"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"
+            line="155"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 29 (leanback.ErrorSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/ErrorSupportFragment.java"
+            line="31"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 29 (leanback.ErrorSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;button clicked&quot;);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/ErrorSupportFragment.java"
+            line="45"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 44 (leanback.GuidedStepSupportHalfScreenActivity)"
+        errorLine1="        Log.v(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"
+            line="42"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 44 (leanback.GuidedStepSupportHalfScreenActivity)"
+        errorLine1="        Log.v(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"
+            line="45"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="                Log.v(TAG, &quot;onScrollStateChanged &quot;"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
+            line="47"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="                        if (DEBUG) Log.d(TAG, &quot;onChildSelected position=&quot; + position);"
+        errorLine2="                                         ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
+            line="65"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="        if (DEBUG) Log.v(TAG, &quot;onCreate&quot;);"
+        errorLine2="                         ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
+            line="76"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="        if (DEBUG) Log.v(TAG, &quot;onNewIntent &quot; + intent);"
+        errorLine2="                         ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
+            line="90"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="            if (DEBUG) Log.v(TAG, &quot;createViewHolder &quot; + viewType);"
+        errorLine2="                             ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
+            line="132"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="            if (DEBUG) Log.v(TAG, &quot;bindViewHolder &quot; + position + &quot; &quot; + baseHolder);"
+        errorLine2="                             ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
+            line="144"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
+            line="116"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
+            line="217"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
+            line="234"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
+            line="119"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
+            line="220"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
+            line="237"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 33 (leanback.PlaybackControlsFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"
+            line="66"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 33 (leanback.PlaybackControlsFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"
+            line="69"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 28 (PlaybackTransportControlGlue)"
+        errorLine1="            Log.e(TAG, &quot;disconnectToMediaSession: Media session disconnected&quot;);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlGlueSample.java"
+            line="157"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 28 (leanback.RowsSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/RowsSupportFragment.java"
+            line="51"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 28 (leanback.RowsSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/RowsSupportFragment.java"
+            line="60"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 30 (leanback.SearchSupportFragment)"
+        errorLine1="        Log.i(TAG, String.format(&quot;Search Query Text Change %s&quot;, newQuery));"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/SearchSupportFragment.java"
+            line="110"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 30 (leanback.SearchSupportFragment)"
+        errorLine1="        Log.i(TAG, String.format(&quot;Search Query Text Submit %s&quot;, query));"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/SearchSupportFragment.java"
+            line="118"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"
+            line="51"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"
+            line="94"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"
+            line="102"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"
+            line="54"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"
+            line="97"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"
+            line="105"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.code.gson:gson than 2.6.2 is available: 2.8.0"
+        errorLine1="    implementation &apos;com.google.code.gson:gson:2.6.2&apos;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PermissionImpliesUnsupportedHardware"
+        message="Permission exists without corresponding hardware `&lt;uses-feature android:name=&quot;android.hardware.microphone&quot; required=&quot;false&quot;>` tag."
+        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.RECORD_AUDIO&quot; />"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="15"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
+        errorLine1="    &lt;application"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This AsyncTask class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapTaskBase)"
+        errorLine1="    class LoadBitmapTaskBase extends AsyncTask&lt;Request, Object, Request> {"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
+            line="125"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This AsyncTask class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapIntoBackgroundManagerTask)"
+        errorLine1="    class LoadBitmapIntoBackgroundManagerTask extends LoadBitmapTaskBase {"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
+            line="161"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This AsyncTask class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapCallbackTask)"
+        errorLine1="    class LoadBitmapCallbackTask extends LoadBitmapTaskBase {"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
+            line="169"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This AsyncTask class should be static or leaks might occur (com.example.android.leanback.PlaybackSeekAsyncDataProvider.LoadBitmapTask)"
+        errorLine1="    class LoadBitmapTask extends AsyncTask&lt;Object, Object, Bitmap> {"
+        errorLine2="          ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackSeekAsyncDataProvider.java"
+            line="54"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This Handler class should be static or leaks might occur (com.example.android.leanback.MediaSessionService.MediaPlayerAudioHandler)"
+        errorLine1="    private class MediaPlayerAudioHandler extends Handler {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="85"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/browse.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/browse_support.xml"
+            line="20"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/details_activity.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/guided_step_activity.xml"
+            line="19"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/onboarding.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/playback_activity.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/playback_activity_support.xml"
+            line="19"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/playback_transportcontrol_activity.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/playback_transportcontrol_activity_support.xml"
+            line="19"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.array.pref_parent_control_entries_summaries` appears to be unused"
+        errorLine1="    &lt;array name=&quot;pref_parent_control_entries_summaries&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/arrays.xml"
+            line="46"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.raw.browse` appears to be unused">
+        <location
+            file="src/main/res/raw/browse.mp4"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.details_img` appears to be unused">
+        <location
+            file="src/main/res/drawable/details_img.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.google_android` appears to be unused">
+        <location
+            file="src/main/res/drawable/google_android.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.google_logo` appears to be unused">
+        <location
+            file="src/main/res/drawable/google_logo.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.google_photo` appears to be unused">
+        <location
+            file="src/main/res/drawable/google_photo.jpeg"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_guidedstep_option_a` appears to be unused">
+        <location
+            file="src/main/res/drawable/ic_guidedstep_option_a.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_guidedstep_option_b` appears to be unused">
+        <location
+            file="src/main/res/drawable/ic_guidedstep_option_b.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_guidedstep_option_c` appears to be unused">
+        <location
+            file="src/main/res/drawable/ic_guidedstep_option_c.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_settings_wifi_3_bar` appears to be unused">
+        <location
+            file="src/main/res/drawable-xhdpi/ic_settings_wifi_3_bar.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.raw.media0` appears to be unused">
+        <location
+            file="src/main/res/raw/media0.mp3"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.raw.media1` appears to be unused">
+        <location
+            file="src/main/res/raw/media1.mp3"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.playback_controls` appears to be unused"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/playback_controls.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.playback_controls_support` appears to be unused"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/playback_controls_support.xml"
+            line="19"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.playbackoverlay` appears to be unused"
+        errorLine1="    &lt;string name=&quot;playbackoverlay&quot;>PlaybackOverlay&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="53"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.playbackoverlay_description` appears to be unused"
+        errorLine1="    &lt;string name=&quot;playbackoverlay_description&quot;>PlaybackOverlayFragment test&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="54"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.playbackoverlay_support` appears to be unused"
+        errorLine1="    &lt;string name=&quot;playbackoverlay_support&quot;>PlaybackOverlay(support version)&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="55"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.playbackoverlay_support_description` appears to be unused"
+        errorLine1="    &lt;string name=&quot;playbackoverlay_support_description&quot;>PlaybackOverlaySupportFragment test&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="56"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.legacydetails_off` appears to be unused"
+        errorLine1="    &lt;string name=&quot;legacydetails_off&quot;>Use New DetailsPresenter&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="75"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.legacydetails_on` appears to be unused"
+        errorLine1="    &lt;string name=&quot;legacydetails_on&quot;>Use Legacy DetailsPresenter&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="76"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.guidedstep_fourth_description` appears to be unused"
+        errorLine1="    &lt;string name=&quot;guidedstep_fourth_description&quot;>Fourth step of guided sequence&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="99"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `RelativeLayout` parent is useless"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="7"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="IconColors"
+        message="Action Bar icons should use a single gray color (`#333333` for light themes (with 60%/30% opacity for enabled/disabled), and `#FFFFFF` with opacity 80%/30% for dark themes">
+        <location
+            file="src/main/res/drawable/ic_action_a.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/details_img.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/details_img.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/details_img_16x9.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/details_img_16x9.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/gallery_photo_1.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/gallery_photo_1.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/gallery_photo_2.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/gallery_photo_2.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/gallery_photo_3.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/gallery_photo_3.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/gallery_photo_4.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/gallery_photo_4.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/gallery_photo_5.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/gallery_photo_5.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/gallery_photo_6.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/gallery_photo_6.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/gallery_photo_7.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/gallery_photo_7.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/gallery_photo_8.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/gallery_photo_8.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/google_android.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/google_android.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/google_logo.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/google_logo.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/google_map.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/google_map.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/google_photo.jpeg` in densityless folder">
+        <location
+            file="src/main/res/drawable/google_photo.jpeg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/ic_action_a.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/ic_action_a.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_a.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/ic_guidedstep_option_a.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_b.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/ic_guidedstep_option_b.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_c.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/ic_guidedstep_option_c.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/ic_title.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/ic_title.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/spiderman.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/spiderman.jpg"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-hdpi`: bg.png, ic_settings_apps.png, ic_settings_parental_control.png, ic_settings_time.png, ic_settings_wifi_3_bar.png... (46 more)">
+        <location
+            file="src/main/res/drawable-hdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-mdpi`: bg.png, ic_settings_apps.png, ic_settings_parental_control.png, ic_settings_time.png, ic_settings_wifi_3_bar.png... (46 more)">
+        <location
+            file="src/main/res/drawable-mdpi"/>
+    </issue>
+
+    <issue
+        id="IconMissingDensityFolder"
+        message="Missing density variation folders in `src/main/res`: drawable-xxhdpi">
+        <location
+            file="src/main/res"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingWarning"
+        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
+        errorLine1="    &lt;application"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType` or a `hint`"
+        errorLine1="        &lt;EditText"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="15"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType` or a `hint`"
+        errorLine1="        &lt;EditText"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="24"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType` or a `hint`"
+        errorLine1="        &lt;EditText"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="33"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="LabelFor"
+        message="No label views point to this text field with an `android:labelFor=&quot;@+id/tv1&quot;` attribute"
+        errorLine1="        &lt;EditText"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="15"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="LabelFor"
+        message="No label views point to this text field with an `android:labelFor=&quot;@+id/tv2&quot;` attribute"
+        errorLine1="        &lt;EditText"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="24"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="LabelFor"
+        message="No label views point to this text field with an `android:labelFor=&quot;@+id/tv3&quot;` attribute"
+        errorLine1="        &lt;EditText"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="33"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        vh.getSubtitle().setText(&quot;2013 - 2014   Drama   TV-14&quot;);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
+            line="23"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        vh.getBody().setText(&quot;Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do &quot;"
+        errorLine2="                             ^">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
+            line="24"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        vh.getBody().setText(&quot;Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do &quot;"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
+            line="24"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                + &quot;eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim &quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
+            line="25"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                + &quot;veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo &quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
+            line="26"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                + &quot;consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse &quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
+            line="27"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                + &quot;cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non &quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
+            line="28"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                + &quot;proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&quot;);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
+            line="29"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            ((TextView) holder.itemView).setText(&quot;Item &quot;+position);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
+            line="146"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView) holder.itemView).setText(&quot;Item &quot;+position);"
+        errorLine2="                                                 ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
+            line="146"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Header 1&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Header 1&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="19"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Header 2&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Header 2&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Header 3&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Header 3&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="37"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="11"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;128dp&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_marginRight=&quot;128dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/page_fragment.xml"
+            line="12"
+            column="9"/>
+    </issue>
+
+</issues>

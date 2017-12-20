@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
 
 dependencies {
     implementation(project(":design"))
@@ -23,24 +25,8 @@ dependencies {
 }
 
 android {
-    compileSdkVersion project.ext.currentSdk
-
     defaultConfig {
         applicationId "com.example.android.support.content.demos"
         minSdkVersion 14
-        targetSdkVersion project.ext.currentSdk
-    }
-
-    signingConfigs {
-        debug {
-            // Use a local debug keystore to avoid build server issues.
-            storeFile project.rootProject.init.debugKeystore
-        }
-    }
-
-    lintOptions {
-        abortOnError true
-        disable "SetTextI18n", "AppCompatResource", "WrongConstant", "AllowBackup",
-                "GoogleAppIndexingWarning", "AlwaysShowAction"
     }
 }

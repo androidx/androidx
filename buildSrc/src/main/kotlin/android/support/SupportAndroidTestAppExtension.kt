@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-ext.tools = [:]
-ext.tools.current_sdk = gradle.ext.currentSdk
-ext.tools.build_tools_version = rootProject.ext.buildToolsVersion
-ext.flatfoot = [:]
-ext.flatfoot.min_sdk = 14
+package android.support
+
+import android.support.SupportConfig.DEFAULT_MIN_SDK_VERSION
+import org.gradle.api.Project
+
+/**
+ * Extension for [SupportAndroidTestAppPlugin].
+ */
+open class SupportAndroidTestAppExtension(val project: Project) {
+    /**
+     * If unset minSdkVersion will be [DEFAULT_MIN_SDK_VERSION].
+     */
+    var minSdkVersion: Int = DEFAULT_MIN_SDK_VERSION
+}
