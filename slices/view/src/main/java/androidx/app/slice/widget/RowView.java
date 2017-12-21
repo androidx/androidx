@@ -261,18 +261,16 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
                         ? mColorItem.getInt()
                         : -1;
         // Populate main part of the template
-        if (startItem != null) {
-            if (!mIsHeader) {
-                startItem = addItem(startItem, color, mStartContainer, 0 /* padding */)
-                        ? startItem
-                        : null;
-                if (startItem != null) {
-                    endItems.remove(startItem);
-                }
-            } else {
-                endItems.add(0, startItem);
-                startItem = null;
+        if (!mIsHeader && !mInSmallMode && startItem != null) {
+            startItem = addItem(startItem, color, mStartContainer, 0 /* padding */)
+                    ? startItem
+                    : null;
+            if (startItem != null) {
+                endItems.remove(startItem);
             }
+        } else if (startItem != null) {
+            endItems.add(0, startItem);
+            startItem = null;
         }
         mStartContainer.setVisibility(startItem != null ? View.VISIBLE : View.GONE);
         if (titleItem != null) {
