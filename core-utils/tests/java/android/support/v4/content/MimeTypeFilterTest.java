@@ -16,6 +16,7 @@
 
 package android.support.v4.content;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -23,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.MoreAsserts;
 
 import junit.framework.Assert;
 
@@ -99,16 +99,16 @@ public class MimeTypeFilterTest {
 
     @Test
     public void matchesManyMimeTypes() throws Exception {
-        MoreAsserts.assertEquals(new String[] {"image/jpeg", "image/png"},
+        assertArrayEquals(new String[] {"image/jpeg", "image/png"},
                 MimeTypeFilter.matchesMany(new String[] {"image/jpeg", "image/png"}, "image/*"));
-        MoreAsserts.assertEquals(new String[] {"image/png"},
+        assertArrayEquals(new String[] {"image/png"},
                 MimeTypeFilter.matchesMany(new String[] {"image/jpeg", "image/png"}, "image/png"));
-        MoreAsserts.assertEquals(new String[] {},
+        assertArrayEquals(new String[] {},
                 MimeTypeFilter.matchesMany(new String[] {"image/jpeg", "image/png"}, "*/JpEg"));
 
-        MoreAsserts.assertEquals(new String[] {},
+        assertArrayEquals(new String[] {},
                 MimeTypeFilter.matchesMany(new String[] {"*/", "image/"}, "*/*"));
-        MoreAsserts.assertEquals(new String[] {},
+        assertArrayEquals(new String[] {},
                 MimeTypeFilter.matchesMany(new String[] {}, "*/*"));
     }
 

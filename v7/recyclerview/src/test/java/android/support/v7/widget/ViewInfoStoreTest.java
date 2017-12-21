@@ -21,6 +21,13 @@ import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_DISAPPEARE
 import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_POST;
 import static android.support.v7.widget.ViewInfoStore.InfoRecord.FLAG_PRE;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.filters.SmallTest;
@@ -28,8 +35,6 @@ import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.View;
-
-import junit.framework.TestCase;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +49,7 @@ import java.util.Map;
 @SuppressWarnings("ConstantConditions")
 @RunWith(JUnit4.class)
 @SmallTest
-public class ViewInfoStoreTest extends TestCase {
+public class ViewInfoStoreTest {
     ViewInfoStore mStore;
     LoggingProcessCallback mCallback;
     @Before
