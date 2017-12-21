@@ -26,7 +26,7 @@
         android:id="@+id/page_up"
         android:layout_width="@dimen/car_scroll_bar_button_size"
         android:layout_height="@dimen/car_scroll_bar_button_size"
-        android:background="@drawable/car_pagination_background"
+        android:background="@drawable/car_card_ripple_background"
         android:focusable="false"
         android:hapticFeedbackEnabled="false"
         android:src="@drawable/ic_up" />
@@ -51,7 +51,7 @@
         android:id="@+id/page_down"
         android:layout_width="@dimen/car_scroll_bar_button_size"
         android:layout_height="@dimen/car_scroll_bar_button_size"
-        android:background="@drawable/car_pagination_background"
+        android:background="@drawable/car_card_ripple_background"
         android:focusable="false"
         android:hapticFeedbackEnabled="false"
         android:src="@drawable/ic_down" />

@@ -242,22 +242,22 @@ public class PagedScrollBarView extends FrameLayout
             case DayNightStyle.AUTO:
                 tintResId = R.color.car_tint;
                 thumbBackgroundResId = R.color.car_scrollbar_thumb;
-                upDownBackgroundResId = R.drawable.car_pagination_background;
+                upDownBackgroundResId = R.drawable.car_card_ripple_background;
                 break;
             case DayNightStyle.AUTO_INVERSE:
                 tintResId = R.color.car_tint_inverse;
                 thumbBackgroundResId = R.color.car_scrollbar_thumb_inverse;
-                upDownBackgroundResId = R.drawable.car_pagination_background_inverse;
+                upDownBackgroundResId = R.drawable.car_card_ripple_background_inverse;
                 break;
             case DayNightStyle.FORCE_NIGHT:
                 tintResId = R.color.car_tint_light;
                 thumbBackgroundResId = R.color.car_scrollbar_thumb_light;
-                upDownBackgroundResId = R.drawable.car_pagination_background_night;
+                upDownBackgroundResId = R.drawable.car_card_ripple_background_night;
                 break;
             case DayNightStyle.FORCE_DAY:
                 tintResId =  R.color.car_tint_dark;
                 thumbBackgroundResId = R.color.car_scrollbar_thumb_dark;
-                upDownBackgroundResId = R.drawable.car_pagination_background_day;
+                upDownBackgroundResId = R.drawable.car_card_ripple_background_day;
                 break;
             default:
                 throw new IllegalArgumentException("Unknown DayNightStyle: " + mDayNightStyle);

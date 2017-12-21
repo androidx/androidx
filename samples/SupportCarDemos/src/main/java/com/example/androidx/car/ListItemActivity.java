@@ -63,6 +63,9 @@ public class ListItemActivity extends Activity {
         private Context mContext;
         private List<ListItem> mItems;
 
+        private View.OnClickListener mOnClickListener = v ->
+                Toast.makeText(mContext, "Clicked!", Toast.LENGTH_SHORT).show();
+
         private View.OnClickListener mGetParentHeight = (v) -> {
             int parentHeight = ((FrameLayout) v.getParent().getParent().getParent()).getHeight();
             Toast.makeText(v.getContext(),
@@ -77,8 +80,9 @@ public class ListItemActivity extends Activity {
             mItems = new ArrayList<>();
 
             mItems.add(new ListItem.Builder(mContext)
+                    .withOnClickListener(mOnClickListener)
                     .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
-                    .withTitle("single line with full icon and one action")
+                    .withTitle("clickable single line with full icon and one action")
                     .withAction("card height", true, mGetParentHeight)
                     .build());
 
@@ -89,15 +93,17 @@ public class ListItemActivity extends Activity {
                     .build());
 
             mItems.add(new ListItem.Builder(mContext)
+                    .withOnClickListener(mOnClickListener)
                     .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
-                    .withTitle("single line with small icon and clickable end icon")
+                    .withTitle("clickable single line with small icon and clickable end icon")
                     .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true,
                             mGetParentHeight)
                     .build());
 
             mItems.add(new ListItem.Builder(mContext)
+                    .withOnClickListener(mOnClickListener)
                     .withPrimaryActionEmptyIcon()
-                    .withTitle("single line with empty icon and end icon no divider")
+                    .withTitle("clickable single line with empty icon and end icon no divider")
                     .withSupplementalIcon(android.R.drawable.sym_def_app_icon, false)
                     .build());
 
