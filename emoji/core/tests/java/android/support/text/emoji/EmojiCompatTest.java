@@ -44,11 +44,10 @@ import static android.support.text.emoji.util.EmojiMatcher.hasEmojiAt;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiCount;
 import static android.support.text.emoji.util.KeyboardUtil.del;
 
-import static junit.framework.TestCase.assertFalse;
-
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;

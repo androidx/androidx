@@ -16,7 +16,7 @@
 
 package androidx.recyclerview.selection;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import static androidx.recyclerview.selection.Range.TYPE_PRIMARY;
 import static androidx.recyclerview.selection.Range.TYPE_PROVISIONAL;

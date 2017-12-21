@@ -15,12 +15,11 @@
  */
 package android.support.text.emoji.widget;
 
-import static junit.framework.Assert.assertSame;
-import static junit.framework.TestCase.assertNotNull;
-
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -42,8 +41,6 @@ import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.style.QuoteSpan;
-
-import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -118,7 +115,7 @@ public class SpannableBuilderTest {
         final SpannableBuilder spannable = new SpannableBuilder(mClass, "abcde");
         spannable.setSpan(mWatcher, 1, 2, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         final int start = spannable.nextSpanTransition(0, spannable.length(), mClass);
-        Assert.assertEquals(1, start);
+        assertEquals(1, start);
     }
 
     @Test

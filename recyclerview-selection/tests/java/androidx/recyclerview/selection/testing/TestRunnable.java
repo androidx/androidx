@@ -16,7 +16,7 @@
 
 package androidx.recyclerview.selection.testing;
 
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 public final class TestRunnable implements Runnable {
 

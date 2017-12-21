@@ -16,6 +16,8 @@
 
 package android.support.v7.testutils;
 
+import static org.junit.Assert.fail;
+
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -32,8 +34,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
-
-import junit.framework.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,7 +165,7 @@ public class TestUtils {
                     if (throwExceptionIfFails) {
                         throw new RuntimeException(mismatchDescription);
                     } else {
-                        Assert.fail(mismatchDescription);
+                        fail(mismatchDescription);
                     }
                 }
             }
@@ -226,7 +226,7 @@ public class TestUtils {
             if (throwExceptionIfFails) {
                 throw new RuntimeException(mismatchDescription);
             } else {
-                Assert.fail(mismatchDescription);
+                fail(mismatchDescription);
             }
         }
     }

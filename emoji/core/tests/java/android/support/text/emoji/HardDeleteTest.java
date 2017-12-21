@@ -28,11 +28,10 @@ import static android.support.text.emoji.util.KeyboardUtil.forwardDel;
 import static android.support.text.emoji.util.KeyboardUtil.shiftDel;
 import static android.support.text.emoji.util.KeyboardUtil.zero;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.TestCase.assertEquals;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.support.test.filters.SdkSuppress;

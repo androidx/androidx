@@ -17,9 +17,9 @@
 
 package android.support.v4.app;
 
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNotSame;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.support.test.filters.SmallTest;
