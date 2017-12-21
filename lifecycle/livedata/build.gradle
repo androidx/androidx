@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,36 +23,23 @@ plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
-android {
-    buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
-    }
-}
-
 dependencies {
-    api(project(":lifecycle:runtime"))
     api(project(":arch:common"))
     api(project(":arch:runtime"))
-    api(SUPPORT_FRAGMENTS, libs.support_exclude_config)
     api(project(":lifecycle:common"))
-    api(project(":lifecycle:livedata"))
-    api(project(":lifecycle:viewmodel"))
+    api(project(":lifecycle:runtime"))
 
     testImplementation(project(":arch:core-testing"))
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
-
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
 }
 
 supportLibrary {
-    name = "Android Lifecycle Extensions"
+    name = "Android Lifecycle LiveData"
     publish = true
-    mavenVersion = LibraryVersions.LIFECYCLES_EXT
+    mavenVersion = LibraryVersions.LIFECYCLES_LIVEDATA
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
-    description = "Android Lifecycle Extensions"
+    description = "Android Lifecycle LiveData"
     url = SupportLibraryExtension.ARCHITECTURE_URL
 }
