@@ -15,8 +15,7 @@
  */
 package android.support.text.emoji;
 
-import static junit.framework.Assert.assertEquals;
-
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -75,7 +74,7 @@ public class EmojiSpanTest {
 
         final int resultSize = span.getSize(paint, "", 0, 0, null);
         assertEquals((int) (dimensionX * expectedRatio), resultSize);
-        assertEquals(expectedRatio, span.getRatio());
+        assertEquals(expectedRatio, span.getRatio(), 0.01f);
         assertEquals((int) (dimensionX * expectedRatio), span.getWidth());
         assertEquals((int) (dimensionY * expectedRatio), span.getHeight());
     }

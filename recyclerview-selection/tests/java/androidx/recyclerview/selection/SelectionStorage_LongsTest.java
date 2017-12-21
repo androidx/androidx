@@ -16,9 +16,8 @@
 
 package androidx.recyclerview.selection;
 
-import static junit.framework.Assert.assertTrue;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.os.Bundle;
 import android.support.test.filters.SmallTest;

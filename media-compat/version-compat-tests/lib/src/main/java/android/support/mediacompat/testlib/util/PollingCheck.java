@@ -16,7 +16,7 @@
 
 package android.support.mediacompat.testlib.util;
 
-import junit.framework.Assert;
+import static org.junit.Assert.fail;
 
 /**
  * Utility used for testing that allows to poll for a certain condition to happen within a timeout.
@@ -56,7 +56,7 @@ public abstract class PollingCheck {
             try {
                 Thread.sleep(TIME_SLICE);
             } catch (InterruptedException e) {
-                Assert.fail("unexpected InterruptedException");
+                fail("unexpected InterruptedException");
             }
 
             if (check()) {
@@ -66,7 +66,7 @@ public abstract class PollingCheck {
             timeout -= TIME_SLICE;
         }
 
-        Assert.fail("unexpected timeout");
+        fail("unexpected timeout");
     }
 
     /**

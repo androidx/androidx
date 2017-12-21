@@ -37,8 +37,6 @@ import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -230,7 +228,7 @@ public class VideoSupportFragmentTest extends SingleSupportFragmentTestBase {
         });
         View fragmentViewAfterRecreate = fragment.getView();
 
-        Assert.assertNotSame(fragmentViewBeforeRecreate, fragmentViewAfterRecreate);
+        assertNotSame(fragmentViewBeforeRecreate, fragmentViewAfterRecreate);
         assertEquals(1, fragment.mOnCreateCalled);
         assertEquals(2, fragment.mOnCreateViewCalled);
         assertEquals(1, fragment.mOnDestroyViewCalled);

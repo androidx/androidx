@@ -16,7 +16,7 @@
 
 package android.support.wear.widget;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import android.app.Activity;
 import android.support.test.InstrumentationRegistry;

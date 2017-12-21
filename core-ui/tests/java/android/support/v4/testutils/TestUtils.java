@@ -17,6 +17,9 @@
 
 package android.support.v4.testutils;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -24,7 +27,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
-import junit.framework.Assert;
 
 public class TestUtils {
     /**
@@ -83,7 +85,7 @@ public class TestUtils {
                         if (throwExceptionIfFails) {
                             throw new RuntimeException(mismatchDescription);
                         } else {
-                            Assert.fail(mismatchDescription);
+                            fail(mismatchDescription);
                         }
                     }
                 }
@@ -99,9 +101,9 @@ public class TestUtils {
      */
     public static void assertRectangleBounds(String failMessagePrefix, @NonNull Rect rectangle,
             int left, int top, int right, int bottom) {
-        Assert.assertEquals(failMessagePrefix + " left", rectangle.left, left);
-        Assert.assertEquals(failMessagePrefix + " top", rectangle.top, top);
-        Assert.assertEquals(failMessagePrefix + " right", rectangle.right, right);
-        Assert.assertEquals(failMessagePrefix + " bottom", rectangle.bottom, bottom);
+        assertEquals(failMessagePrefix + " left", rectangle.left, left);
+        assertEquals(failMessagePrefix + " top", rectangle.top, top);
+        assertEquals(failMessagePrefix + " right", rectangle.right, right);
+        assertEquals(failMessagePrefix + " bottom", rectangle.bottom, bottom);
     }
 }

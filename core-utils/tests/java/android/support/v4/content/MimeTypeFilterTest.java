@@ -21,11 +21,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-
-import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -116,140 +115,140 @@ public class MimeTypeFilterTest {
     public void illegalFilters() throws Exception {
         try {
             MimeTypeFilter.matches("image/jpeg", "");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches("image/jpeg", "*");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches("image/jpeg", "*/");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches("image/jpeg", "/*");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches("image/jpeg", "*/*/*");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches(new String[] { "image/jpeg" }, "");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches(new String[] { "image/jpeg" }, "*");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches(new String[] { "image/jpeg" }, "*/");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches(new String[] { "image/jpeg" }, "/*");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches(new String[] { "image/jpeg" }, "*/*/*");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches("image/jpeg", new String[] { "" });
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches("image/jpeg", new String[] { "*" });
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches("image/jpeg", new String[] { "*/" });
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches("image/jpeg", new String[] { "/*" });
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matches("image/jpeg", new String[] { "*/*/*" });
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matchesMany(new String[] { "image/jpeg" }, "");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matchesMany(new String[] { "image/jpeg" }, "*");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matchesMany(new String[] { "image/jpeg" }, "*/");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matchesMany(new String[] { "image/jpeg" }, "/*");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }
 
         try {
             MimeTypeFilter.matchesMany(new String[] { "image/jpeg" }, "*/*/*");
-            Assert.fail("Illegal filter, should throw.");
+            fail("Illegal filter, should throw.");
         } catch (IllegalArgumentException e) {
             // Expected.
         }

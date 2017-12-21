@@ -17,9 +17,8 @@ package android.support.text.emoji.widget;
 
 import static android.support.text.emoji.util.EmojiMatcher.hasEmoji;
 
-import static junit.framework.Assert.assertFalse;
-
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doReturn;
