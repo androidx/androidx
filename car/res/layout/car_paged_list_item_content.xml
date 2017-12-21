@@ -18,8 +18,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/container"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    android:foreground="@drawable/car_card_ripple_background">
     <!-- Primary Action. -->
     <ImageView
         android:id="@+id/primary_icon"
@@ -82,6 +82,7 @@
             android:maxLength="@integer/car_borderless_button_text_length_limit"
             android:maxLines="1"
             android:background="@color/car_card"
+            android:foreground="@drawable/car_card_ripple_background"
             style="@style/CarButton.Borderless"/>
         <View
             android:id="@+id/action1_divider"
@@ -98,6 +99,7 @@
             android:maxLength="@integer/car_borderless_button_text_length_limit"
             android:maxLines="1"
             android:background="@color/car_card"
+            android:foreground="@drawable/car_card_ripple_background"
             style="@style/CarButton.Borderless"/>
     </LinearLayout>
 </RelativeLayout>
