@@ -18,19 +18,22 @@ package android.support.v7.widget;
 
 import static android.support.v7.widget.RecyclerView.ViewHolder;
 
-import android.support.test.filters.SmallTest;
-import android.test.AndroidTestCase;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
-import junit.framework.AssertionFailedError;
-import junit.framework.TestResult;
+import android.support.test.filters.SmallTest;
+import android.view.View;
+
+import junit.framework.Assert;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -41,7 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(JUnit4.class)
 @SmallTest
-public class AdapterHelperTest extends AndroidTestCase {
+public class AdapterHelperTest {
 
     private static final boolean DEBUG = false;
 
@@ -49,35 +52,40 @@ public class AdapterHelperTest extends AndroidTestCase {
 
     private static final String TAG = "AHT";
 
-    List<MockViewHolder> mViewHolders;
+    private List<MockViewHolder> mViewHolders;
 
-    AdapterHelper mAdapterHelper;
+    private AdapterHelper mAdapterHelper;
 
-    List<AdapterHelper.UpdateOp> mFirstPassUpdates, mSecondPassUpdates;
+    private List<AdapterHelper.UpdateOp> mFirstPassUpdates, mSecondPassUpdates;
 
     TestAdapter mTestAdapter;
 
-    TestAdapter mPreProcessClone; // we clone adapter pre-process to run operations to see result
+    private TestAdapter mPreProcessClone;
+    // we clone adapter pre-process to run operations to see result
 
     private List<TestAdapter.Item> mPreLayoutItems;
 
     private StringBuilder mLog = new StringBuilder();
 
-    @Override
-    public void run(TestResult result) {
-        super.run(result);
-        if (!result.wasSuccessful()) {
-            result.addFailure(this, new AssertionFailedError(mLog.toString()));
+    @Rule
+    public TestWatcher reportErrorLog = new TestWatcher() {
+        @Override
+        protected void failed(Throwable e, Description description) {
+            System.out.println(mLog.toString());
         }
-    }
+
+        @Override
+        protected void succeeded(Description description) {
+        }
+    };
 
     @Before
     public void cleanState() {
         mLog.setLength(0);
-        mPreLayoutItems = new ArrayList<TestAdapter.Item>();
-        mViewHolders = new ArrayList<MockViewHolder>();
-        mFirstPassUpdates = new ArrayList<AdapterHelper.UpdateOp>();
-        mSecondPassUpdates = new ArrayList<AdapterHelper.UpdateOp>();
+        mPreLayoutItems = new ArrayList<>();
+        mViewHolders = new ArrayList<>();
+        mFirstPassUpdates = new ArrayList<>();
+        mSecondPassUpdates = new ArrayList<>();
         mPreProcessClone = null;
         mAdapterHelper = new AdapterHelper(new AdapterHelper.Callback() {
             @Override
@@ -134,7 +142,7 @@ public class AdapterHelperTest extends AndroidTestCase {
                 for (ViewHolder viewHolder : mViewHolders) {
                     for (int i = 0; i < updateOp.itemCount; i++) {
                         // events are dispatched before view holders are updated for consistency
-                        assertFalse("update op should not match any existing view holders",
+                        Assert.assertFalse("update op should not match any existing view holders",
                                 viewHolder.getLayoutPosition() == updateOp.positionStart + i);
                     }
                 }
@@ -189,7 +197,7 @@ public class AdapterHelperTest extends AndroidTestCase {
         if (mCollectLogs) {
             mLog.append(msg).append("\n");
         } else {
-            Log.d(TAG, msg);
+            System.out.println(TAG + ":" + msg);
         }
     }
 
@@ -205,8 +213,7 @@ public class AdapterHelperTest extends AndroidTestCase {
     }
 
     private void addViewHolder(int position) {
-        MockViewHolder viewHolder = new MockViewHolder(
-                new TextView(getContext()));
+        MockViewHolder viewHolder = new MockViewHolder();
         viewHolder.mPosition = position;
         viewHolder.mItem = mTestAdapter.mItems.get(position);
         mViewHolders.add(viewHolder);
@@ -502,7 +509,7 @@ public class AdapterHelperTest extends AndroidTestCase {
     }
 
     @Test
-    public void testScenario18() throws InterruptedException {
+    public void testScenario18() {
         setupBasic(10, 1, 4);
         add(2, 11);
         rm(16, 1);
@@ -622,7 +629,7 @@ public class AdapterHelperTest extends AndroidTestCase {
     }
 
     @Test
-    public void testScenerio30() throws InterruptedException {
+    public void testScenerio30() {
         mCollectLogs = true;
         setupBasic(10, 3, 1);
         rm(3, 2);
@@ -631,7 +638,7 @@ public class AdapterHelperTest extends AndroidTestCase {
     }
 
     @Test
-    public void testScenerio31() throws InterruptedException {
+    public void testScenerio31() {
         mCollectLogs = true;
         setupBasic(10, 3, 1);
         rm(3, 1);
@@ -844,7 +851,7 @@ public class AdapterHelperTest extends AndroidTestCase {
         Random random = new Random(System.nanoTime());
         for (int i = 0; i < 100; i++) {
             try {
-                Log.d(TAG, "running random test " + i);
+                log("running random test " + i);
                 randomTest(random, Math.max(40, 10 + nextInt(random, i)));
             } catch (Throwable t) {
                 throw new Throwable("failure at random test " + i + "\n" + t.getMessage()
@@ -853,7 +860,7 @@ public class AdapterHelperTest extends AndroidTestCase {
         }
     }
 
-    public void randomTest(Random random, int opCount) {
+    private void randomTest(Random random, int opCount) {
         cleanState();
         if (DEBUG) {
             log("randomTest");
@@ -907,14 +914,14 @@ public class AdapterHelperTest extends AndroidTestCase {
         preProcess();
     }
 
-    int nextInt(Random random, int n) {
+    private int nextInt(Random random, int n) {
         if (n == 0) {
             return 0;
         }
         return random.nextInt(n);
     }
 
-    public void assertOps(List<AdapterHelper.UpdateOp> actual,
+    private void assertOps(List<AdapterHelper.UpdateOp> actual,
             AdapterHelper.UpdateOp... expected) {
         assertEquals(expected.length, actual.size());
         for (int i = 0; i < expected.length; i++) {
@@ -922,12 +929,12 @@ public class AdapterHelperTest extends AndroidTestCase {
         }
     }
 
-    void assertDispatch(int firstPass, int secondPass) {
+    private void assertDispatch(int firstPass, int secondPass) {
         assertEquals(firstPass, mFirstPassUpdates.size());
         assertEquals(secondPass, mSecondPassUpdates.size());
     }
 
-    void preProcess() {
+    private void preProcess() {
         for (MockViewHolder vh : mViewHolders) {
             final int ind = mTestAdapter.mItems.indexOf(vh.mItem);
             assertEquals("actual adapter position should match", ind,
@@ -975,23 +982,20 @@ public class AdapterHelperTest extends AndroidTestCase {
         assertEquals(0, a2.mPendingAdded.size());
     }
 
-    AdapterHelper.UpdateOp op(int cmd, int start, int count) {
+    private AdapterHelper.UpdateOp op(int cmd, int start, int count) {
         return new AdapterHelper.UpdateOp(cmd, start, count, null);
     }
 
-    AdapterHelper.UpdateOp op(int cmd, int start, int count, Object payload) {
+    private AdapterHelper.UpdateOp op(int cmd, int start, int count, Object payload) {
         return new AdapterHelper.UpdateOp(cmd, start, count, payload);
     }
 
-    AdapterHelper.UpdateOp addOp(int start, int count) {
-        return op(AdapterHelper.UpdateOp.ADD, start, count);
-    }
-
-    AdapterHelper.UpdateOp rmOp(int start, int count) {
+    private AdapterHelper.UpdateOp rmOp(int start, int count) {
         return op(AdapterHelper.UpdateOp.REMOVE, start, count);
     }
 
-    AdapterHelper.UpdateOp upOp(int start, int count, Object payload) {
+    private AdapterHelper.UpdateOp upOp(int start, int count, @SuppressWarnings
+            ("SameParameterValue") Object payload) {
         return op(AdapterHelper.UpdateOp.UPDATE, start, count, payload);
     }
 
@@ -1002,7 +1006,7 @@ public class AdapterHelperTest extends AndroidTestCase {
         mTestAdapter.add(start, count);
     }
 
-    boolean isItemLaidOut(int pos) {
+    private boolean isItemLaidOut(int pos) {
         for (ViewHolder viewHolder : mViewHolders) {
             if (viewHolder.mOldPosition == pos) {
                 return true;
@@ -1018,7 +1022,7 @@ public class AdapterHelperTest extends AndroidTestCase {
         mTestAdapter.move(from, to);
     }
 
-    void rm(int start, int count) {
+    private void rm(int start, int count) {
         if (DEBUG) {
             log("rm(" + start + "," + count + ");");
         }
@@ -1054,9 +1058,9 @@ public class AdapterHelperTest extends AndroidTestCase {
         Queue<Item> mPendingAdded;
 
         public TestAdapter(int initialCount, AdapterHelper container) {
-            mItems = new ArrayList<Item>();
+            mItems = new ArrayList<>();
             mAdapterHelper = container;
-            mPendingAdded = new LinkedList<Item>();
+            mPendingAdded = new LinkedList<>();
             for (int i = 0; i < initialCount; i++) {
                 mItems.add(new Item());
             }
@@ -1102,15 +1106,13 @@ public class AdapterHelperTest extends AndroidTestCase {
             ));
         }
 
-        protected TestAdapter createCopy() {
+        TestAdapter createCopy() {
             TestAdapter adapter = new TestAdapter(0, mAdapterHelper);
-            for (Item item : mItems) {
-                adapter.mItems.add(item);
-            }
+            adapter.mItems.addAll(mItems);
             return adapter;
         }
 
-        public void applyOps(List<AdapterHelper.UpdateOp> updates,
+        void applyOps(List<AdapterHelper.UpdateOp> updates,
                 TestAdapter dataSource) {
             for (AdapterHelper.UpdateOp op : updates) {
                 switch (op.cmd) {
@@ -1140,20 +1142,16 @@ public class AdapterHelperTest extends AndroidTestCase {
             return mPendingAdded.remove();
         }
 
-        public void createFakeItemAt(int fakeAddedItemIndex) {
-            Item fakeItem = new Item();
-            ((LinkedList<Item>) mPendingAdded).add(fakeAddedItemIndex, fakeItem);
-        }
-
         public static class Item {
 
             private static AtomicInteger itemCounter = new AtomicInteger();
 
+            @SuppressWarnings("unused")
             private final int id;
 
             private int mVersionCount = 0;
 
-            private ArrayList<Object> mPayloads = new ArrayList<Object>();
+            private ArrayList<Object> mPayloads = new ArrayList<>();
 
             public Item() {
                 id = itemCounter.incrementAndGet();
@@ -1164,26 +1162,23 @@ public class AdapterHelperTest extends AndroidTestCase {
                 mVersionCount++;
             }
 
-            public void handleUpdate(Object payload) {
+            void handleUpdate(Object payload) {
                 assertSame(payload, mPayloads.get(0));
                 mPayloads.remove(0);
                 mVersionCount--;
             }
 
-            public int getUpdateCount() {
+            int getUpdateCount() {
                 return mVersionCount;
             }
         }
     }
 
-    void waitForDebugger() {
-        android.os.Debug.waitForDebugger();
-    }
-
     static class MockViewHolder extends RecyclerView.ViewHolder {
-        public Object mItem;
-        public MockViewHolder(View itemView) {
-            super(itemView);
+        TestAdapter.Item mItem;
+
+        MockViewHolder() {
+            super(Mockito.mock(View.class));
         }
 
         @Override
