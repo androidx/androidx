@@ -1,3 +1,21 @@
+package androidx.app.slice {
+
+  public class SliceUtils {
+    method public static androidx.app.slice.Slice parseSlice(java.io.InputStream, java.lang.String) throws java.io.IOException;
+    method public static void serializeSlice(androidx.app.slice.Slice, android.content.Context, java.io.OutputStream, java.lang.String, androidx.app.slice.SliceUtils.SerializeOptions) throws java.io.IOException;
+  }
+
+  public static class SliceUtils.SerializeOptions {
+    ctor public SliceUtils.SerializeOptions();
+    method public androidx.app.slice.SliceUtils.SerializeOptions setActionMode(int);
+    method public androidx.app.slice.SliceUtils.SerializeOptions setImageMode(int);
+    field public static final int MODE_DISABLE = 2; // 0x2
+    field public static final int MODE_REMOVE = 1; // 0x1
+    field public static final int MODE_THROW = 0; // 0x0
+  }
+
+}
+
 package androidx.app.slice.widget {
 
   public final class SliceLiveData {

@@ -22,6 +22,7 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 
 import android.content.Context;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * @hide
+ * Utilities for dealing with slices.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SliceUtils {
@@ -38,15 +39,33 @@ public class SliceUtils {
     }
 
     /**
+     * Serialize a slice to an OutputStream.
+     * <p>
+     * The slice can later be read into slice form again with {@link #parseSlice}.
+     * Some slice types cannot be serialized, their handling is controlled by
+     * {@link SerializeOptions}.
+     *
+     * @param s The slice to serialize.
+     * @param context Context used to load any resources in the slice.
+     * @param output The output of the serialization.
+     * @param encoding The encoding to use for serialization.
+     * @param options Options defining how to handle non-serializable items.
      */
-    public static void serializeSlice(Slice s, Context context, OutputStream output,
-            String encoding, SerializeOptions options) throws IOException {
+    public static void serializeSlice(@NonNull Slice s, @NonNull Context context,
+            @NonNull OutputStream output, @NonNull String encoding,
+            @NonNull SerializeOptions options) throws IOException {
         SliceXml.serializeSlice(s, context, output, encoding, options);
     }
 
     /**
+     * Parse a slice that has been previously serialized.
+     * <p>
+     * Parses a slice that was serialized with {@link #serializeSlice}.
+     *
+     * @param input The input stream to read from.
+     * @param encoding The encoding to read as.
      */
-    public static Slice parseSlice(InputStream input, String encoding)
+    public static @NonNull Slice parseSlice(@NonNull InputStream input, @NonNull String encoding)
             throws IOException {
         return SliceXml.parseSlice(input, encoding);
     }
