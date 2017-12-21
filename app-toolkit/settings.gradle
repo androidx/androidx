@@ -45,6 +45,15 @@ project(':paging:integration-tests:testapp').projectDir = new File(supportRoot, 
 include ':arch:core-testing'
 project(':arch:core-testing').projectDir = new File(supportRoot, "app-toolkit/core-testing")
 
+include ':lifecycle:livedata'
+project(':lifecycle:livedata').projectDir = new File(supportRoot, "lifecycle/livedata")
+
+include ':lifecycle:viewmodel'
+project(':lifecycle:viewmodel').projectDir = new File(supportRoot, "lifecycle/viewmodel")
+
+include ':lifecycle:extensions'
+project(':lifecycle:extensions').projectDir = new File(supportRoot, "lifecycle/extensions")
+
 include ':lifecycle:extensions'
 project(':lifecycle:extensions').projectDir = new File(supportRoot, "lifecycle/extensions")
 
