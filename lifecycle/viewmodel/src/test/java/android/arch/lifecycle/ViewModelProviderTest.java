@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.lifecycle.ViewModelProvider.NewInstanceFactory;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -82,18 +80,6 @@ public class ViewModelProviderTest {
         ViewModelProvider provider = new ViewModelProvider(owner, new NewInstanceFactory());
         ViewModel1 viewModel = provider.get(ViewModel1.class);
         assertThat(viewModel, is(provider.get(ViewModel1.class)));
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testNotAttachedActivity() {
-        // This is similar to call ViewModelProviders.of in Activity's constructor
-        ViewModelProviders.of(new FragmentActivity());
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testNotAttachedFragment() {
-        // This is similar to call ViewModelProviders.of in Activity's constructor
-        ViewModelProviders.of(new Fragment());
     }
 
     public static class ViewModel1 extends ViewModel {
