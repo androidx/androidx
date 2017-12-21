@@ -20,6 +20,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.v17.leanback.R;
+import android.support.v4.widget.TextViewCompat;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
@@ -28,6 +29,7 @@ import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Property;
+import android.view.ActionMode;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.EditText;
@@ -290,4 +292,14 @@ class StreamingTextView extends EditText {
     }
 
     public void updateRecognizedText(String stableText, List<Float> rmsValues) {}
+
+    /**
+     * See
+     * {@link android.support.v4.widget.TextViewCompat
+     * #setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     */
+    @Override
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+        TextViewCompat.setCustomSelectionActionModeCallback(this, actionModeCallback);
+    }
 }

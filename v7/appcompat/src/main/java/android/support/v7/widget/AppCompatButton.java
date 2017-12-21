@@ -32,6 +32,7 @@ import android.support.v4.widget.AutoSizeableTextView;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
+import android.view.ActionMode;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
@@ -357,5 +358,14 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
         if (mTextHelper != null) {
             mTextHelper.setAllCaps(allCaps);
         }
+    }
+
+    /**
+     * See
+     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     */
+    @Override
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+        TextViewCompat.setCustomSelectionActionModeCallback(this, actionModeCallback);
     }
 }
