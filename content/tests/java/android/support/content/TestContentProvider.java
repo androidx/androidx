@@ -16,7 +16,7 @@
 
 package android.support.content;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;

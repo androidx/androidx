@@ -15,10 +15,10 @@
  */
 package android.support.v17.leanback.testutils;
 
+import static org.junit.Assert.fail;
+
 import android.app.Activity;
 import android.view.View;
-
-import junit.framework.Assert;
 
 public abstract class PollingCheck {
 
@@ -56,7 +56,7 @@ public abstract class PollingCheck {
             try {
                 Thread.sleep(TIME_SLICE);
             } catch (InterruptedException e) {
-                Assert.fail("unexpected InterruptedException");
+                fail("unexpected InterruptedException");
             }
 
             if (check()) {
@@ -66,7 +66,7 @@ public abstract class PollingCheck {
             timeout -= TIME_SLICE;
         }
 
-        Assert.fail("unexpected timeout");
+        fail("unexpected timeout");
     }
 
     public static void waitFor(final PollingCheckCondition condition) {

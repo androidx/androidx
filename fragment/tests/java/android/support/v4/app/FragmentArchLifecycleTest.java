@@ -16,6 +16,8 @@
 
 package android.support.v4.app;
 
+import static org.junit.Assert.assertEquals;
+
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
@@ -25,8 +27,6 @@ import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.EmptyFragmentTestActivity;
-
-import junit.framework.Assert;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,8 +57,8 @@ public class FragmentArchLifecycleTest {
             }
         });
         activity.onSaveInstanceState(new Bundle());
-        Assert.assertEquals(Lifecycle.State.CREATED, first.getLifecycle().getCurrentState());
-        Assert.assertEquals(Lifecycle.State.CREATED, second.getLifecycle().getCurrentState());
-        Assert.assertEquals(Lifecycle.State.CREATED, activity.getLifecycle().getCurrentState());
+        assertEquals(Lifecycle.State.CREATED, first.getLifecycle().getCurrentState());
+        assertEquals(Lifecycle.State.CREATED, second.getLifecycle().getCurrentState());
+        assertEquals(Lifecycle.State.CREATED, activity.getLifecycle().getCurrentState());
     }
 }

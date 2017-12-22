@@ -18,9 +18,8 @@ package android.support.text.emoji;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiAt;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiCount;
 
-import static junit.framework.TestCase.assertTrue;
-
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.graphics.Paint;

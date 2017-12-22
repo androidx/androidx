@@ -17,19 +17,21 @@
 package android.support.media.tv;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import android.media.tv.TvContentRating;
 import android.os.Build;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
-
-import junit.framework.TestCase;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @SmallTest
+@RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-public class TvContractUtilsTest extends TestCase {
+public class TvContractUtilsTest {
 
     @Test
     public void testStringToContentRatings_nullInput() {

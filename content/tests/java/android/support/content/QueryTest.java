@@ -16,7 +16,7 @@
 
 package android.support.content;
 
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 import android.database.Cursor;
 import android.net.Uri;

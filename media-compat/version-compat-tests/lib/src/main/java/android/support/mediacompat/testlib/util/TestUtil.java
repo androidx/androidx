@@ -16,8 +16,8 @@
 
 package android.support.mediacompat.testlib.util;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertSame;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import android.os.Bundle;
 

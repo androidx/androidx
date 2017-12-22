@@ -15,6 +15,10 @@
  */
 package android.support.media.tv;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -28,10 +32,11 @@ import android.support.media.tv.TvContractCompat.PreviewPrograms;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -42,11 +47,12 @@ import java.util.Objects;
  * values from them.
  */
 @SmallTest
+@RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 26)
-public class PreviewProgramTest extends TestCase {
+public class PreviewProgramTest {
 
-    @Override
-    protected void tearDown() {
+    @After
+    public void tearDown() {
         if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
             return;
         }

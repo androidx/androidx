@@ -22,12 +22,11 @@ import static android.support.wear.widget.util.AsyncViewActions.waitForMatchingV
 import static android.support.wear.widget.util.MoreViewAssertions.withNoVerticalScrollOffset;
 import static android.support.wear.widget.util.MoreViewAssertions.withPositiveVerticalScrollOffset;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-
 import static org.hamcrest.Matchers.allOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.support.annotation.IdRes;
@@ -79,8 +78,8 @@ public class WearableRecyclerViewTest {
 
         assertFalse(wrv.isEdgeItemsCenteringEnabled());
         assertFalse(wrv.isCircularScrollingGestureEnabled());
-        assertEquals(1.0f, wrv.getBezelFraction());
-        assertEquals(180.0f, wrv.getScrollDegreesPerScreen());
+        assertEquals(1.0f, wrv.getBezelFraction(), 0.01f);
+        assertEquals(180.0f, wrv.getScrollDegreesPerScreen(), 0.01f);
     }
 
     @Test

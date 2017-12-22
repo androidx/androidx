@@ -15,6 +15,9 @@
  */
 package android.support.media.tv;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -26,24 +29,22 @@ import android.support.media.tv.TvContractCompat.Channels;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Tests that channels can be created using the Builder pattern and correctly obtain
  * values from them
  */
 @SmallTest
+@RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-public class ChannelTest extends TestCase {
-    private static final String KEY_SPLASHSCREEN = "splashscreen";
-    private static final String KEY_PREMIUM_CHANNEL = "premium";
-    private static final String SPLASHSCREEN_URL = "http://example.com/splashscreen.jpg";
-
-    @Override
-    protected void tearDown() {
+public class ChannelTest {
+    @After
+    public void tearDown() {
         if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
             return;
         }

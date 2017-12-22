@@ -19,7 +19,7 @@ package android.arch.paging
 import android.support.test.filters.SmallTest
 import android.support.v7.recyclerview.extensions.DiffCallback
 import android.support.v7.util.ListUpdateCallback
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

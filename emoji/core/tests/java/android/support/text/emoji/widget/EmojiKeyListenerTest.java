@@ -25,9 +25,8 @@ import static android.support.text.emoji.util.KeyboardUtil.forwardDel;
 import static android.support.text.emoji.util.KeyboardUtil.shiftDel;
 import static android.support.text.emoji.util.KeyboardUtil.zero;
 
-import static junit.framework.Assert.assertFalse;
-
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
