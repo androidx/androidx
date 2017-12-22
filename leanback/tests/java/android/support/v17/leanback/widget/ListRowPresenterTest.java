@@ -16,9 +16,9 @@
 
 package android.support.v17.leanback.widget;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -111,7 +111,7 @@ public class ListRowPresenterTest {
     static void assertChildrenHaveAlpha(ViewGroup group, int numChildren, float alpha) {
         assertEquals(numChildren, group.getChildCount());
         for (int i = 0; i < numChildren; i++) {
-            assertEquals(alpha, group.getChildAt(i).getAlpha());
+            assertEquals(alpha, group.getChildAt(i).getAlpha(), 0.01f);
         }
     }
 

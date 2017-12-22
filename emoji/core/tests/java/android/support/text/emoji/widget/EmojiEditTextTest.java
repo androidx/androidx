@@ -19,8 +19,7 @@ package android.support.text.emoji.widget;
 import static android.support.text.emoji.util.Emoji.EMOJI_SINGLE_CODEPOINT;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiCount;
 
-import static junit.framework.Assert.assertEquals;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 

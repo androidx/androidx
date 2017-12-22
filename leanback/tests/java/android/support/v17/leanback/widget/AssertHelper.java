@@ -16,9 +16,11 @@
 
 package android.support.v17.leanback.widget;
 
+import static org.junit.Assert.assertTrue;
+
 public class AssertHelper {
 
     public static void assertGreaterThan(String msg, int a, int b) {
-        junit.framework.Assert.assertTrue(msg + ": " + a + " > " + b, a > b);
+        assertTrue(msg + ": " + a + " > " + b, a > b);
     }
 }

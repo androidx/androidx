@@ -11,6 +11,7 @@ dependencies {
     api(project(":support-compat"))
 
     androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
 }
 
 supportLibrary {

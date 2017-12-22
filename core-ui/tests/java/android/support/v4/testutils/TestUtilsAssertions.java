@@ -16,15 +16,12 @@
 
 package android.support.v4.testutils;
 
-import android.view.View;
-import android.view.ViewGroup;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.ViewAssertion;
-
-import junit.framework.AssertionFailedError;
-
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import android.view.View;
+import android.view.ViewGroup;
 
 public class TestUtilsAssertions {
 
@@ -40,8 +37,8 @@ public class TestUtilsAssertions {
                     throw noViewException;
                 } else {
                     if (!(foundView instanceof ViewGroup)) {
-                        throw new AssertionFailedError("View " +
-                                foundView.getClass().getSimpleName() + " is not a ViewGroup");
+                        throw new AssertionError("View "
+                                + foundView.getClass().getSimpleName() + " is not a ViewGroup");
                     }
                     final ViewGroup foundGroup = (ViewGroup) foundView;
 
@@ -54,8 +51,8 @@ public class TestUtilsAssertions {
                     }
 
                     if (childrenDisplayedCount != expectedCount) {
-                        throw new AssertionFailedError("Expected " + expectedCount +
-                                " displayed children, but found " + childrenDisplayedCount);
+                        throw new AssertionError("Expected " + expectedCount
+                                + " displayed children, but found " + childrenDisplayedCount);
                     }
                 }
             }

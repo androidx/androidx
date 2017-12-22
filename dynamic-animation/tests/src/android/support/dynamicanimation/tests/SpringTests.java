@@ -16,11 +16,10 @@
 
 package android.support.dynamicanimation.tests;
 
-import static junit.framework.Assert.fail;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.AdditionalMatchers.lt;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyFloat;
@@ -588,7 +587,8 @@ public class SpringTests {
         verify(endListener, timeout(500)).onAnimationEnd(anim, false, 0, 0);
         verify(mockListener, atMost(5)).onAnimationUpdate(eq(anim), anyFloat(), anyFloat());
 
-        assertEquals(DynamicAnimation.MIN_VISIBLE_CHANGE_PIXELS, anim.getMinimumVisibleChange());
+        assertEquals(DynamicAnimation.MIN_VISIBLE_CHANGE_PIXELS, anim.getMinimumVisibleChange(),
+                0.01f);
 
         // Set the right threshold and start again.
         anim.setMinimumVisibleChange(DynamicAnimation.MIN_VISIBLE_CHANGE_SCALE);

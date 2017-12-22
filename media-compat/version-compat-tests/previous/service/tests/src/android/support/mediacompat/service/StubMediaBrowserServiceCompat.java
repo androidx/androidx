@@ -30,6 +30,8 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.SEARCH_Q
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SEARCH_QUERY_FOR_ERROR;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SEARCH_QUERY_FOR_NO_RESULT;
 
+import static org.junit.Assert.assertNull;
+
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
@@ -37,8 +39,6 @@ import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-
-import junit.framework.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,7 +92,7 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
             }
             result.sendResult(mediaItems);
         } else if (MEDIA_ID_CHILDREN_DELAYED.equals(parentId)) {
-            Assert.assertNull(mPendingLoadChildrenResult);
+            assertNull(mPendingLoadChildrenResult);
             mPendingLoadChildrenResult = result;
             mPendingRootHints = getBrowserRootHints();
             result.detach();

@@ -16,15 +16,22 @@
 
 package android.support.v4.text;
 
+import static org.junit.Assert.assertEquals;
+
 import android.os.Build;
 import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Locale;
 
 @SmallTest
-public class IcuCompatTest extends TestCase {
+@RunWith(AndroidJUnit4.class)
+public class IcuCompatTest {
+
+    @Test
     public void testMaximizeAndGetScript() {
         assertEquals("Latn", ICUCompat.maximizeAndGetScript(new Locale("en", "US")));
 

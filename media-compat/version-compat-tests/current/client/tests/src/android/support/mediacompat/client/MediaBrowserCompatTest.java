@@ -56,13 +56,13 @@ import static android.support.test.InstrumentationRegistry.getArguments;
 import static android.support.test.InstrumentationRegistry.getContext;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertSame;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.content.ComponentName;
 import android.os.Build;
@@ -864,9 +864,9 @@ public class MediaBrowserCompatTest {
         assertEquals(expected.getRatingStyle(), observed.getRatingStyle());
 
         if (expected.getRatingStyle() == RatingCompat.RATING_PERCENTAGE) {
-            assertEquals(expected.getPercentRating(), observed.getPercentRating());
+            assertEquals(expected.getPercentRating(), observed.getPercentRating(), 0.01f);
         } else if (expected.getRatingStyle() == RatingCompat.RATING_5_STARS) {
-            assertEquals(expected.getStarRating(), observed.getStarRating());
+            assertEquals(expected.getStarRating(), observed.getStarRating(), 0.01f);
         } else {
             // Currently, we use only star and percentage rating.
             fail("Rating style should be either percentage rating or star rating.");

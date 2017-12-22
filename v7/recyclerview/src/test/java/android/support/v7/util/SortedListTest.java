@@ -16,10 +16,17 @@
 
 package android.support.v7.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import android.support.annotation.Nullable;
 import android.support.test.filters.SmallTest;
-
-import junit.framework.TestCase;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,13 +46,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(JUnit4.class)
 @SmallTest
-public class SortedListTest extends TestCase {
+public class SortedListTest {
 
     SortedList<Item> mList;
-    List<Pair> mAdditions = new ArrayList<Pair>();
-    List<Pair> mRemovals = new ArrayList<Pair>();
-    List<Pair> mMoves = new ArrayList<Pair>();
-    List<Pair> mUpdates = new ArrayList<Pair>();
+    List<Pair> mAdditions = new ArrayList<>();
+    List<Pair> mRemovals = new ArrayList<>();
+    List<Pair> mMoves = new ArrayList<>();
+    List<Pair> mUpdates = new ArrayList<>();
     private boolean mPayloadChanges = false;
     List<PayloadChange> mPayloadUpdates = new ArrayList<>();
     Queue<AssertListStateRunnable> mCallbackRunnables;
@@ -69,11 +76,8 @@ public class SortedListTest extends TestCase {
         public abstract void onChanged(int position, int count);
     }
 
-    @Override
     @Before
     public void setUp() throws Exception {
-        super.setUp();
-
         mCallback = new SortedList.Callback<Item>() {
             @Override
             public int compare(Item o1, Item o2) {
