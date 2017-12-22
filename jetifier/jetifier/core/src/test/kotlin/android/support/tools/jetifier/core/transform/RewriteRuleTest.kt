@@ -84,7 +84,7 @@ class RewriteRuleTest {
 
             val fieldSelectors: MutableList<String> = mutableListOf()
 
-            fun withFieldSelector(input: String) : RuleTesterStep1 {
+            fun withFieldSelector(input: String): RuleTesterStep1 {
                 fieldSelectors.add(input)
                 return this
             }
@@ -107,8 +107,8 @@ class RewriteRuleTest {
                 val result = fieldRule.apply(JavaField(inputType, inputField))
                 Truth.assertThat(result).isNotNull()
 
-                Truth.assertThat(result!!.owner.fullName).isEqualTo(expectedTypeName)
-                Truth.assertThat(result.name).isEqualTo(expectedFieldName)
+                Truth.assertThat(result.result!!.owner.fullName).isEqualTo(expectedTypeName)
+                Truth.assertThat(result.result!!.name).isEqualTo(expectedFieldName)
             }
 
         }
@@ -124,7 +124,7 @@ class RewriteRuleTest {
                 Truth.assertThat(result).isNotNull()
 
                 Truth.assertThat(result).isNotNull()
-                Truth.assertThat(result!!.fullName).isEqualTo(expectedResult)
+                Truth.assertThat(result.result!!.fullName).isEqualTo(expectedResult)
             }
 
         }

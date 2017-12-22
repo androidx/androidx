@@ -20,7 +20,6 @@ import android.support.tools.jetifier.core.archive.Archive
 import android.support.tools.jetifier.core.archive.ArchiveFile
 import android.support.tools.jetifier.core.archive.ArchiveItemVisitor
 import android.support.tools.jetifier.core.config.Config
-import android.support.tools.jetifier.core.transform.Transformer
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 
@@ -29,7 +28,7 @@ import org.objectweb.asm.ClassWriter
  */
 class LibraryMapGenerator constructor(config: Config) : ArchiveItemVisitor {
 
-    val remapper = MapGeneratorRemapper(config)
+    private val remapper = MapGeneratorRemapper(config)
 
     /**
      * Scans the given [library] to extend the types map meta-data. The final map can be retrieved
@@ -42,12 +41,14 @@ class LibraryMapGenerator constructor(config: Config) : ArchiveItemVisitor {
     /**
      * Creates the [TypesMap] based on the meta-data aggregated via previous [scanFile] calls
      */
-    fun generateMap() : TypesMap {
-        return remapper.createTypesMap()
+    fun generateMap(): TypesMap {
+        val map = remapper.createTypesMap()
+        map.validateThatMapIsReversibleOrDie()
+        return map
     }
 
     override fun visit(archive: Archive) {
-        archive.files.forEach{ it.accept(this) }
+        archive.files.forEach { it.accept(this) }
     }
 
     override fun visit(archiveFile: ArchiveFile) {
@@ -64,5 +65,4 @@ class LibraryMapGenerator constructor(config: Config) : ArchiveItemVisitor {
 
         reader.accept(visitor, 0 /* flags */)
     }
-
 }
