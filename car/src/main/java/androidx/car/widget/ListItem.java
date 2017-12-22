@@ -282,12 +282,15 @@ public class ListItem {
                                 R.dimen.car_keyline_1));
 
                         if (!TextUtils.isEmpty(mBody)) {
-                            // Set top margin.
+                            // Set icon top margin so that the icon remains in the same position it
+                            // would've been in for non-long-text item, namely so that the center
+                            // line of icon matches that of line item.
                             layoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
-                            layoutParams.topMargin = mContext.getResources().getDimensionPixelSize(
-                                    R.dimen.car_padding_4);
+                            int itemHeight = mContext.getResources().getDimensionPixelSize(
+                                    R.dimen.car_double_line_list_item_height);
+                            layoutParams.topMargin = (itemHeight - iconSize) / 2;
                         } else {
-                            // Centered vertically.
+                            // If the icon can be centered vertically, leave the work for framework.
                             layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
                             layoutParams.topMargin = 0;
                         }
