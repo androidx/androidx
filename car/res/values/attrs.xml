@@ -23,8 +23,6 @@ limitations under the License.
 
     <!-- The configurable attributes in PagedListView. -->
     <declare-styleable name="PagedListView">
-        <!-- Set to true/false to offset rows as they slide off screen. Defaults to true -->
-        <attr name="offsetRows" format="boolean" />
         <!-- Whether or not to offset the list view by the width of scroll bar. Setting this to
              true will ensure that any views within the list will not overlap the scroll bar.
              Deprecated: use gutter instead. If gutter is specified, this value is ignored.-->
