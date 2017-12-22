@@ -21,7 +21,6 @@ import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
-import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -47,6 +46,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -148,7 +148,7 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         Slice.Builder sb = new Slice.Builder(slice.getUri());
         sb.addSubSlice(slice);
         Slice parentSlice = sb.build();
-        populateViews(parentSlice.getItems().get(0));
+        populateViews(new GridContent(parentSlice.getItems().get(0)));
     }
 
     /**
@@ -157,35 +157,21 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
     @Override
     public void setSliceItem(SliceItem slice, boolean isHeader) {
         mSliceMode = SliceView.MODE_LARGE;
-        populateViews(slice);
+        populateViews(new GridContent(slice));
     }
 
-    private void populateViews(SliceItem slice) {
-        resetView();
-        int total = 1;
-        if (FORMAT_SLICE.equals(slice.getFormat())) {
-            List<SliceItem> items = slice.getSlice().getItems();
-            // Check if it it's only one item that is a slice
-            if (items.size() == 1 && items.get(0).getFormat().equals(FORMAT_SLICE)) {
-                items = items.get(0).getSlice().getItems();
+    private void populateViews(GridContent gc) {
+        mIsAllImages = gc.isAllImages();
+        mColorItem = gc.getColorItem();
+        ArrayList<GridContent.CellContent> cells = gc.getGridContent();
+        for (int i = 0; i < cells.size(); i++) {
+            if (isFull()) {
+                break;
             }
-            total = items.size();
-            for (int i = 0; i < total; i++) {
-                SliceItem item = items.get(i);
-                if (isFull()) {
-                    continue;
-                }
-                if (!addCell(item)) {
-                    mIsAllImages = false;
-                }
-            }
-        } else if (!isFull()) {
-            if (!addCell(slice)) {
-                mIsAllImages = false;
-            }
+            addCell(cells.get(i));
         }
-        if (ALLOW_SEE_MORE && mIsAllImages && total > getChildCount()) {
-            addSeeMoreCount(total - getChildCount());
+        if (ALLOW_SEE_MORE && mIsAllImages && cells.size() > getChildCount()) {
+            addSeeMoreCount(cells.size() - getChildCount());
         }
     }
 
@@ -214,9 +200,8 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
 
     /**
      * Adds a cell to the grid view based on the provided {@link SliceItem}.
-     * @return true if this item is just an image.
      */
-    private boolean addCell(SliceItem sliceItem) {
+    private void addCell(GridContent.CellContent cell) {
         final int maxCellText = mSliceMode == SliceView.MODE_SMALL
                 ? MAX_CELL_TEXT_SMALL
                 : MAX_CELL_TEXT;
@@ -224,74 +209,59 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         cellContainer.setOrientation(LinearLayout.VERTICAL);
         cellContainer.setGravity(Gravity.CENTER_HORIZONTAL);
         final int color = mColorItem != null ? mColorItem.getInt() : -1;
-        final String format = sliceItem.getFormat();
-        if (FORMAT_SLICE.equals(format) || FORMAT_ACTION.equals(format)) {
-            // It's a slice -- try to add all the items we can to a cell.
-            List<SliceItem> items = sliceItem.getSlice().getItems();
-            SliceItem actionItem = null;
-            if (FORMAT_ACTION.equals(format)) {
-                actionItem = sliceItem;
-            }
-            if (items.size() == 1 && FORMAT_ACTION.equals(items.get(0).getFormat())) {
-                actionItem = items.get(0);
-                items = items.get(0).getSlice().getItems();
-            }
-            boolean imagesOnly = true;
-            int textCount = 0;
-            int imageCount = 0;
-            boolean added = false;
-            boolean singleItem = items.size() == 1;
-            List<SliceItem> textItems = null;
-            // In small format we display one text item and prefer titles
-            if (!singleItem && mSliceMode == SliceView.MODE_SMALL) {
-                // Get all our text items
-                textItems = items.stream().filter(new Predicate<SliceItem>() {
-                    @Override
-                    public boolean test(SliceItem s) {
-                        return FORMAT_TEXT.equals(s.getFormat());
-                    }
-                }).collect(Collectors.<SliceItem>toList());
-                // If we have more than 1 remove non-titles
-                Iterator<SliceItem> iterator = textItems.iterator();
-                while (textItems.size() > 1) {
-                    SliceItem item = iterator.next();
-                    if (!item.hasHint(HINT_TITLE)) {
-                        iterator.remove();
-                    }
+
+        ArrayList<SliceItem> cellItems = cell.getCellItems();
+        SliceItem contentIntentItem = cell.getContentIntent();
+
+        int textCount = 0;
+        int imageCount = 0;
+        boolean added = false;
+        boolean singleItem = cellItems.size() == 1;
+        List<SliceItem> textItems = null;
+        // In small format we display one text item and prefer titles
+        if (!singleItem && mSliceMode == SliceView.MODE_SMALL) {
+            // Get all our text items
+            textItems = cellItems.stream().filter(new Predicate<SliceItem>() {
+                @Override
+                public boolean test(SliceItem s) {
+                    return FORMAT_TEXT.equals(s.getFormat());
+                }
+            }).collect(Collectors.<SliceItem>toList());
+            // If we have more than 1 remove non-titles
+            Iterator<SliceItem> iterator = textItems.iterator();
+            while (textItems.size() > 1) {
+                SliceItem item = iterator.next();
+                if (!item.hasHint(HINT_TITLE)) {
+                    iterator.remove();
                 }
             }
-            for (int i = 0; i < items.size(); i++) {
-                SliceItem item = items.get(i);
-                final String itemFormat = item.getFormat();
-                if (textCount < maxCellText && (FORMAT_TEXT.equals(itemFormat)
-                        || FORMAT_TIMESTAMP.equals(itemFormat))) {
-                    if (textItems != null && !textItems.contains(item)) {
-                        continue;
-                    }
-                    if (addItem(item, color, cellContainer, singleItem)) {
-                        textCount++;
-                        imagesOnly = false;
-                        added = true;
-                    }
-                } else if (imageCount < MAX_CELL_IMAGES && FORMAT_IMAGE.equals(item.getFormat())) {
-                    if (addItem(item, color, cellContainer, singleItem)) {
-                        imageCount++;
-                        added = true;
-                    }
-                }
-            }
-            if (added) {
-                addView(cellContainer, new LayoutParams(0, WRAP_CONTENT, 1));
-                if (actionItem != null) {
-                    cellContainer.setTag(actionItem);
-                    makeClickable(cellContainer);
-                }
-            }
-            return imagesOnly;
-        } else if (addItem(sliceItem, color, this, true)) {
-            return FORMAT_IMAGE.equals(sliceItem.getFormat());
         }
-        return false;
+        for (int i = 0; i < cellItems.size(); i++) {
+            SliceItem item = cellItems.get(i);
+            final String itemFormat = item.getFormat();
+            if (textCount < maxCellText && (FORMAT_TEXT.equals(itemFormat)
+                    || FORMAT_TIMESTAMP.equals(itemFormat))) {
+                if (textItems != null && !textItems.contains(item)) {
+                    continue;
+                }
+                if (addItem(item, color, cellContainer, singleItem)) {
+                    textCount++;
+                    added = true;
+                }
+            } else if (imageCount < MAX_CELL_IMAGES && FORMAT_IMAGE.equals(item.getFormat())) {
+                if (addItem(item, color, cellContainer, singleItem)) {
+                    imageCount++;
+                    added = true;
+                }
+            }
+        }
+        if (added) {
+            addView(cellContainer, new LayoutParams(0, WRAP_CONTENT, 1));
+            if (contentIntentItem != null) {
+                cellContainer.setTag(contentIntentItem);
+                makeClickable(cellContainer);
+            }
+        }
     }
 
     /**
@@ -304,7 +274,7 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         if (FORMAT_TEXT.equals(format) || FORMAT_TIMESTAMP.equals(format)) {
             boolean title = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
             TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(title
-                            ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
+                    ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
             CharSequence text = FORMAT_TIMESTAMP.equals(format)
                     ? SliceViewUtil.getRelativeTimeString(item.getTimestamp())
                     : item.getText();

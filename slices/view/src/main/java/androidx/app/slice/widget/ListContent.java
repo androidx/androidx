@@ -53,9 +53,20 @@ public class ListContent {
     }
 
     /**
+     * Resets the content.
+     */
+    public void reset() {
+        mColorItem = null;
+        mSummaryItem = null;
+        mRowItems.clear();
+        mHasHeader = false;
+    }
+
+    /**
      * @return whether this row has content that is valid to display.
      */
     public boolean populate(Slice slice) {
+        reset();
         mColorItem = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
         // Find summary
         SliceItem summaryItem = getSummaryItem(slice);

@@ -55,9 +55,22 @@ public class RowContent {
     }
 
     /**
+     * Resets the content.
+     */
+    public void reset() {
+        mContentIntent = null;
+        mStartItem = null;
+        mTitleItem = null;
+        mSubtitleItem = null;
+        mToggleItem = null;
+        mEndItems.clear();
+    }
+
+    /**
      * @return whether this row has content that is valid to display.
      */
     public boolean populate(SliceItem rowSlice, boolean showStartItem) {
+        reset();
         if (!isValidRow(rowSlice)) {
             Log.w(TAG, "Provided SliceItem is invalid for RowContent");
             return false;
