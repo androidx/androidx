@@ -23,9 +23,10 @@ OUT_DIR="$ROOT_DIR/out"
 TEMP_LOG="$OUT_DIR/tempLog"
 
 JETIFIER_DIR="$ROOT_DIR/../.."
+BUILD_DIR="$ROOT_DIR/../../../../../../out/host/gradle/frameworks/support/jetifier"
 DEFAULT_CONFIG="$JETIFIER_DIR/core/src/main/resources/default.config"
 GENERATED_CONFIG="$JETIFIER_DIR/core/src/main/resources/default.generated.config"
-PREPROCESSOR_DISTRO_PATH="$JETIFIER_DIR/preprocessor/build/distributions/preprocessor-1.0.zip"
+PREPROCESSOR_DISTRO_PATH="$BUILD_DIR/preprocessor/build/distributions/preprocessor-1.0.zip"
 PREPROCESSOR_BIN_PATH="$OUT_DIR/preprocessor-1.0/bin/preprocessor"
 SUPPORT_LIBS_DOWNLOADED="$OUT_DIR/supportLibs"
 

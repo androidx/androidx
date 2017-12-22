@@ -46,9 +46,9 @@ class RewriteRule(
     /**
      * Rewrites the given java type. Returns null if this rule is not applicable for the given type.
      */
-    fun apply(input: JavaType): JavaType? {
+    fun apply(input: JavaType): TypeRewriteResult {
         if (fields.isNotEmpty()) {
-            return null
+            return TypeRewriteResult.NOT_APPLIED
         }
 
         return applyInternal(input)
@@ -58,41 +58,51 @@ class RewriteRule(
      * Rewrites the given field type. Returns null if this rule is not applicable for the given
      * type.
      */
-    fun apply(inputField: JavaField) : JavaField? {
-        val typeRewriteResult = applyInternal(inputField.owner) ?: return null
+    fun apply(inputField: JavaField): FieldRewriteResult {
+        val typeRewriteResult = applyInternal(inputField.owner)
+
+        if (typeRewriteResult.isIgnored) {
+            return FieldRewriteResult.IGNORED
+        }
+        if (typeRewriteResult.result == null) {
+            return FieldRewriteResult.NOT_APPLIED
+        }
 
         val isFieldInTheFilter = fields.isEmpty()
                 || fields.any { it.matcher(inputField.name).matches() }
-        if (isFieldInTheFilter) {
-            return inputField.renameOwner(typeRewriteResult)
+        if (!isFieldInTheFilter) {
+            return FieldRewriteResult.NOT_APPLIED
         }
 
-        return null
+        return FieldRewriteResult(inputField.renameOwner(typeRewriteResult.result))
     }
 
-    private fun applyInternal(input: JavaType): JavaType? {
+    private fun applyInternal(input: JavaType): TypeRewriteResult {
         val matcher = inputPattern.matcher(input.fullName)
         if (!matcher.matches()) {
-            return null
+            return TypeRewriteResult.NOT_APPLIED
+        }
+
+        if (to == "ignore") {
+            return TypeRewriteResult.IGNORED
         }
 
         var result = outputPattern
-        for (i in 0..matcher.groupCount() - 1) {
+        for (i in 0 until matcher.groupCount()) {
             result = result.replace("{$i}", matcher.group(i + 1))
         }
 
-        return JavaType(result)
+        return TypeRewriteResult(JavaType(result))
     }
 
-    override fun toString() : String {
+    override fun toString(): String {
         return "$inputPattern -> $outputPattern " + fields.joinToString { it.toString() }
     }
 
     /** Returns JSON data model of this class */
-    fun toJson() : JsonData {
+    fun toJson(): JsonData {
         return JsonData(from, to, fieldSelectors)
     }
-
 
     /**
      * JSON data model for [RewriteRule].
@@ -105,14 +115,35 @@ class RewriteRule(
             val to: String,
 
             @SerializedName("fieldSelectors")
-            val fieldSelectors: List<String>? = null)  {
+            val fieldSelectors: List<String>? = null) {
 
         /** Creates instance of [RewriteRule] */
-        fun toRule() : RewriteRule {
+        fun toRule(): RewriteRule {
             return RewriteRule(from, to, fieldSelectors.orEmpty())
         }
     }
 
+    /**
+     * Result of java type rewrite using [RewriteRule]
+     */
+    data class TypeRewriteResult(val result: JavaType?, val isIgnored: Boolean = false) {
+
+        companion object {
+            val NOT_APPLIED = TypeRewriteResult(result = null, isIgnored = false)
+
+            val IGNORED = TypeRewriteResult(result = null, isIgnored = true)
+        }
+    }
+
+    /**
+     * Result of java field rewrite using [RewriteRule]
+     */
+    data class FieldRewriteResult(val result: JavaField?, val isIgnored: Boolean = false) {
+
+        companion object {
+            val NOT_APPLIED = FieldRewriteResult(result = null, isIgnored = false)
+
+            val IGNORED = FieldRewriteResult(result = null, isIgnored = true)
+        }
+    }
 }
-
-
