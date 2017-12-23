@@ -2114,8 +2114,16 @@ public class NotificationCompat {
 
         /**
          * Sets the title to be displayed on this conversation. May be set to {@code null}.
-         * @param conversationTitle Title displayed for this conversation.
-         * @return this object for method chaining.
+         *
+         * <p>This API's behavior was changed in SDK version {@link Build.VERSION_CODES#P}. If your
+         * application's target version is less than {@link Build.VERSION_CODES#P}, setting a
+         * conversation title to a non-null value will make {@link #isGroupConversation()} return
+         * {@code true} and passing {@code null} will make it return {@code false}. In
+         * {@link Build.VERSION_CODES#P} and beyond, use {@link #setGroupConversation(boolean)}
+         * to set group conversation status.
+         *
+         * @param conversationTitle Title displayed for this conversation
+         * @return this object for method chaining
          */
         public MessagingStyle setConversationTitle(@Nullable CharSequence conversationTitle) {
             mConversationTitle = conversationTitle;
@@ -2185,9 +2193,27 @@ public class NotificationCompat {
         }
 
         /**
-         * Returns {@code true} if this notification represents a group conversation.
+         * Returns {@code true} if this notification represents a group conversation, otherwise
+         * {@code false}.
+         *
+         * <p> If the application that generated this {@link MessagingStyle} targets an SDK version
+         * less than {@link Build.VERSION_CODES#P}, this method becomes dependent on whether or
+         * not the conversation title is set; returning {@code true} if the conversation title is
+         * a non-null value, or {@code false} otherwise. From {@link Build.VERSION_CODES#P} forward,
+         * this method returns what's set by {@link #setGroupConversation(boolean)} allowing for
+         * named, non-group conversations.
+         *
+         * @see #setConversationTitle(CharSequence)
          */
         public boolean isGroupConversation() {
+            // When target SDK version is < P, a non-null conversation title dictates if this is
+            // as group conversation.
+            if (mBuilder != null
+                    && mBuilder.mContext.getApplicationInfo().targetSdkVersion
+                    < Build.VERSION_CODES.P) {
+                return mConversationTitle != null;
+            }
+
             return mIsGroupConversation;
         }
 
