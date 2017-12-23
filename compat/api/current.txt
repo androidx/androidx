@@ -202,7 +202,18 @@ package android.support.v4.app {
     method public android.os.Bundle getExtras();
     method public int getIcon();
     method public android.support.v4.app.RemoteInput[] getRemoteInputs();
+    method public int getSemanticAction();
     method public java.lang.CharSequence getTitle();
+    field public static final int SEMANTIC_ACTION_ARCHIVE = 5; // 0x5
+    field public static final int SEMANTIC_ACTION_DELETE = 4; // 0x4
+    field public static final int SEMANTIC_ACTION_MARK_AS_READ = 2; // 0x2
+    field public static final int SEMANTIC_ACTION_MARK_AS_UNREAD = 3; // 0x3
+    field public static final int SEMANTIC_ACTION_MUTE = 6; // 0x6
+    field public static final int SEMANTIC_ACTION_NONE = 0; // 0x0
+    field public static final int SEMANTIC_ACTION_REPLY = 1; // 0x1
+    field public static final int SEMANTIC_ACTION_THUMBS_DOWN = 9; // 0x9
+    field public static final int SEMANTIC_ACTION_THUMBS_UP = 8; // 0x8
+    field public static final int SEMANTIC_ACTION_UNMUTE = 7; // 0x7
     field public android.app.PendingIntent actionIntent;
     field public int icon;
     field public java.lang.CharSequence title;
@@ -217,10 +228,14 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Action.Builder extend(android.support.v4.app.NotificationCompat.Action.Extender);
     method public android.os.Bundle getExtras();
     method public android.support.v4.app.NotificationCompat.Action.Builder setAllowGeneratedReplies(boolean);
+    method public android.support.v4.app.NotificationCompat.Action.Builder setSemanticAction(int);
   }
 
   public static abstract interface NotificationCompat.Action.Extender {
     method public abstract android.support.v4.app.NotificationCompat.Action.Builder extend(android.support.v4.app.NotificationCompat.Action.Builder);
+  }
+
+  public static abstract class NotificationCompat.Action.SemanticAction implements java.lang.annotation.Annotation {
   }
 
   public static final class NotificationCompat.Action.WearableExtender implements android.support.v4.app.NotificationCompat.Action.Extender {

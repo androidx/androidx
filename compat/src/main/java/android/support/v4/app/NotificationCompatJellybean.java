@@ -129,7 +129,8 @@ class NotificationCompatJellybean {
             allowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES);
         }
         return new NotificationCompat.Action(icon, title, actionIntent, extras, remoteInputs,
-                dataOnlyRemoteInputs, allowGeneratedReplies);
+                dataOnlyRemoteInputs, allowGeneratedReplies,
+                NotificationCompat.Action.SEMANTIC_ACTION_NONE);
     }
 
     public static Bundle writeActionAndGetExtras(
@@ -236,7 +237,8 @@ class NotificationCompatJellybean {
                 bundle.getBundle(KEY_EXTRAS),
                 fromBundleArray(getBundleArrayFromBundle(bundle, KEY_REMOTE_INPUTS)),
                 fromBundleArray(getBundleArrayFromBundle(bundle, KEY_DATA_ONLY_REMOTE_INPUTS)),
-                allowGeneratedReplies);
+                allowGeneratedReplies,
+                NotificationCompat.Action.SEMANTIC_ACTION_NONE);
     }
 
     static Bundle getBundleForAction(NotificationCompat.Action action) {
