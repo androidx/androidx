@@ -561,6 +561,15 @@ public class TransitionSet extends Transition {
     }
 
     @Override
+    public void setPropagation(TransitionPropagation propagation) {
+        super.setPropagation(propagation);
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; ++i) {
+            mTransitions.get(i).setPropagation(propagation);
+        }
+    }
+
+    @Override
     public void setEpicenterCallback(EpicenterCallback epicenterCallback) {
         super.setEpicenterCallback(epicenterCallback);
         int numTransitions = mTransitions.size();
