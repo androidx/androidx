@@ -120,4 +120,12 @@ public class TransitionSetTest extends BaseTest {
         assertThat(mTransition.getTargetTypes(), hasSize(0));
     }
 
+    @Test
+    public void testSetPropagation() {
+        final TransitionPropagation propagation = new SidePropagation();
+        mTransitionSet.setPropagation(propagation);
+        assertThat(mTransitionSet.getPropagation(), is(propagation));
+        assertThat(mTransition.getPropagation(), is(propagation));
+    }
+
 }
