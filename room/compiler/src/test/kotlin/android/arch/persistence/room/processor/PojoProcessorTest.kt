@@ -754,6 +754,21 @@ class PojoProcessorTest {
         }.compilesWithoutError()
     }
 
+    @Test // b/69118713 common mistake so we better provide a good explanation
+    fun constructor_relationParameter() {
+        singleRun("""
+            @Relation(entity = foo.bar.User.class, parentColumn = "uid", entityColumn="uid",
+            projection = "name")
+            public List<String> items;
+            public String uid;
+            public MyPojo(String uid, List<String> items) {
+            }
+            """, COMMON.USER) { _ ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.RELATION_CANNOT_BE_CONSTRUCTOR_PARAMETER
+        )
+    }
+
     @Test
     fun recursion_1Level() {
         singleRun(
@@ -921,8 +936,9 @@ class PojoProcessorTest {
         }
     }
 
-    fun singleRun(code: String, vararg jfos: JavaFileObject,
-                  handler: (Pojo, TestInvocation) -> Unit): CompileTester {
+    fun singleRun(
+            code: String, vararg jfos: JavaFileObject,
+            handler: (Pojo, TestInvocation) -> Unit): CompileTester {
         val pojoJFO = """
                 $HEADER
                 $code
