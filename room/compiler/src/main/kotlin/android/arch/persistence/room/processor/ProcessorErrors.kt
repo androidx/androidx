@@ -472,6 +472,11 @@ object ProcessorErrors {
             You can use the @Ignore annotation to eliminate unwanted constructors.
             """.trim()
 
+    val RELATION_CANNOT_BE_CONSTRUCTOR_PARAMETER = """
+            Fields annotated with @Relation cannot be constructor parameters. These values are
+            fetched after the object is constructed.
+            """.trim()
+
     val PAGING_SPECIFY_DATA_SOURCE_TYPE = "For now, Room only supports TiledDataSource class."
 
     fun primaryKeyNull(field: String): String {
