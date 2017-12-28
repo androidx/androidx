@@ -94,6 +94,20 @@ public class ListItem {
     }
 
     /**
+     * Returns whether the divider that comes after the ListItem should be hidden or not.
+     *
+     * <p>Note: For this to work, one must invoke
+     * {@code PagedListView.setDividerVisibilityManager(adapter} for {@link ListItemAdapter} and
+     * have dividers enabled on {@link PagedListView}.
+     *
+     * @return {@code true} if divider coming after the item should be hidden, {@code false}
+     * otherwise.
+     */
+    boolean shouldHideDivider() {
+        return mBuilder.mHideDivider;
+    }
+
+    /**
      * Functional interface to provide a way to interact with views in
      * {@link ListItemAdapter.ViewHolder}. {@code ViewBinder}s added to a
      * {@code ListItem} will be called when {@code ListItem} {@code bind}s to
@@ -149,6 +163,8 @@ public class ListItem {
         private String mTitle;
         private String mBody;
         private boolean mIsBodyPrimary;
+        // tag for indicating whether to hide the divider
+        private boolean mHideDivider;
 
         @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_NO_ACTION;
         private int mSupplementalIconResId;
@@ -487,6 +503,16 @@ public class ListItem {
                 default:
                     throw new IllegalArgumentException("Unrecognized supplemental action type.");
             }
+        }
+
+        /**
+         * Instructs the Builder to always hide the item divider coming after this ListItem.
+         *
+         * @return This Builder object to allow for chaining calls to set methods.
+         */
+        public Builder withDividerHidden() {
+            mHideDivider = true;
+            return this;
         }
 
         /**

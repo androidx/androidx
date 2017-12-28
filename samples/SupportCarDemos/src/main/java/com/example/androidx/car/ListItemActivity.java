@@ -57,6 +57,7 @@ public class ListItemActivity extends Activity {
                 new SampleProvider(this), ListItemAdapter.BackgroundStyle.PANEL);
         mPagedListView.setAdapter(adapter);
         mPagedListView.setMaxPages(PagedListView.UNLIMITED_PAGES);
+        mPagedListView.setDividerVisibilityManager(adapter);
     }
 
     private static class SampleProvider extends ListItemProvider {
@@ -101,6 +102,12 @@ public class ListItemActivity extends Activity {
                     .build());
 
             mItems.add(new ListItem.Builder(mContext)
+                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
+                    .withTitle("single line without a list divider")
+                    .withDividerHidden()
+                    .build());
+
+            mItems.add(new ListItem.Builder(mContext)
                     .withOnClickListener(mOnClickListener)
                     .withPrimaryActionEmptyIcon()
                     .withTitle("clickable single line with empty icon and end icon no divider")
@@ -111,6 +118,13 @@ public class ListItemActivity extends Activity {
                     .withTitle("title is single line and ellipsizes. "
                             + mContext.getString(R.string.long_text))
                     .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true)
+                    .build());
+
+            mItems.add(new ListItem.Builder(mContext)
+                    .withTitle("Subtitle-like line without a list divider")
+                    .withDividerHidden()
+                    .withViewBinder(viewHolder ->
+                            viewHolder.getTitle().setTextAppearance(R.style.CarListSubtitle))
                     .build());
 
             mItems.add(new ListItem.Builder(mContext)
