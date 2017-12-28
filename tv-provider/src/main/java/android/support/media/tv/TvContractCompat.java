@@ -2277,6 +2277,18 @@ public final class TvContractCompat {
         public static final String COLUMN_CONFIGURATION_DISPLAY_ORDER =
                 "configuration_display_order";
 
+        /**
+         * A channel identifier set in the TvProvider by the app to help OEM differentiate among
+         * the app's channels. This identifier should be unique per channel for each app, and should
+         * be agreed between the app and the OEM. It is up to the OEM on how they use this
+         * identifier for customization purposes.
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_SYSTEM_CHANNEL_KEY = "system_channel_key";
+
         private Channels() {}
 
         /**

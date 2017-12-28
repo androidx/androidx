@@ -25,6 +25,7 @@ package android.support.media.tv {
     method public java.lang.String getPackageName();
     method public int getServiceId();
     method public java.lang.String getServiceType();
+    method public java.lang.String getSystemChannelKey();
     method public int getTransportStreamId();
     method public java.lang.String getType();
     method public java.lang.String getVideoFormat();
@@ -62,6 +63,7 @@ package android.support.media.tv {
     method public android.support.media.tv.Channel.Builder setSearchable(boolean);
     method public android.support.media.tv.Channel.Builder setServiceId(int);
     method public android.support.media.tv.Channel.Builder setServiceType(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setSystemChannelKey(java.lang.String);
     method public android.support.media.tv.Channel.Builder setTransient(boolean);
     method public android.support.media.tv.Channel.Builder setTransportStreamId(int);
     method public android.support.media.tv.Channel.Builder setType(java.lang.String);
@@ -175,6 +177,7 @@ package android.support.media.tv {
     field public static final java.lang.String COLUMN_SEARCHABLE = "searchable";
     field public static final java.lang.String COLUMN_SERVICE_ID = "service_id";
     field public static final java.lang.String COLUMN_SERVICE_TYPE = "service_type";
+    field public static final java.lang.String COLUMN_SYSTEM_CHANNEL_KEY = "system_channel_key";
     field public static final java.lang.String COLUMN_TRANSIENT = "transient";
     field public static final java.lang.String COLUMN_TRANSPORT_STREAM_ID = "transport_stream_id";
     field public static final java.lang.String COLUMN_TYPE = "type";
