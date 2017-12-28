@@ -25,7 +25,7 @@
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="@dimen/car_button_radius"/>
-            <solid android:color="?android:attr/colorPrimary"/>
+            <solid android:color="?android:attr/colorButtonNormal"/>
         </shape>
     </item>
 </selector>

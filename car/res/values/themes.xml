@@ -25,4 +25,28 @@ limitations under the License.
         <item name="contentInsetStart">@dimen/car_keyline_1</item>
         <item name="contentInsetEnd">@dimen/car_keyline_1</item>
     </style>
+
+    <!-- Styles for Car Dialogs -->
+    <style name="Theme.Car.Light.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/car_card</item>
+        <item name="android:listDividerAlertDialog">@drawable/car_list_divider</item>
+    </style>
+
+    <!-- Base style for the Car -->
+    <style name="Theme.Car.NoActionBar" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:colorAccent">@color/car_accent</item>
+        <item name="android:colorButtonNormal">@color/car_accent</item>
+        <item name="android:buttonStyle">@style/Widget.Car.Button</item>
+        <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored
+        </item>
+        <item name="android:alertDialogTheme">@style/Theme.Car.Light.Dialog.Alert</item>
+        <item name="android:progressBarStyleHorizontal">
+            @style/Widget.Car.ProgressBar.Horizontal
+        </item>
+        <item name="android:textColorHint">@color/car_body2</item>
+        <item name="android:editTextStyle">@style/Widget.Car.EditText</item>
+        <item name="android:editTextColor">@color/car_body1</item>
+        <item name="android:colorControlNormal">@color/car_body2</item>
+        <item name="android:colorControlHighlight">?android:attr/colorAccent</item>
+    </style>
 </resources>
