@@ -71,7 +71,7 @@ limitations under the License.
     <dimen name="car_touch_target_size">76dp</dimen>
 
     <!-- Buttons -->
-    <dimen name="car_button_height">64dp</dimen>
+    <dimen name="car_button_height">56dp</dimen>
     <dimen name="car_button_min_width">158dp</dimen>
     <dimen name="car_button_horizontal_padding">@dimen/car_padding_4</dimen>
     <dimen name="car_borderless_button_horizontal_padding">0dp</dimen>
@@ -86,8 +86,8 @@ limitations under the License.
     <dimen name="car_secondary_double_action_bar_height">256dp</dimen>
 
     <!-- Lists -->
-    <dimen name="car_single_line_list_item_height">76dp</dimen>
-    <dimen name="car_double_line_list_item_height">96dp</dimen>
+    <dimen name="car_single_line_list_item_height">96dp</dimen>
+    <dimen name="car_double_line_list_item_height">@dimen/car_single_line_list_item_height</dimen>
     <dimen name="car_list_divider_height">1dp</dimen>
     <!-- The height of a vertical line divider. -->
     <dimen name="car_vertical_line_divider_height">60dp</dimen>
