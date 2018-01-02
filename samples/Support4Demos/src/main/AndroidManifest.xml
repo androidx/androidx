@@ -424,6 +424,14 @@
         </provider>
 <!-- END_INCLUDE(file_provider_declaration) -->
 
+        <activity android:name=".view.inputmethod.CommitContentSupport"
+                  android:label="@string/commit_content_support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv13.SUPPORT13_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <!-- MediaBrowserCompat Sample -->
         <activity android:name=".media.MediaBrowserSupport"
             android:label="@string/media_browser_support">

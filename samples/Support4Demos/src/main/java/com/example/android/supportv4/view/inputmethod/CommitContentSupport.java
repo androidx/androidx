@@ -11,22 +11,19 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
-package com.example.android.supportv13.view.inputmethod;
-
-import com.example.android.supportv13.R;
-
-import android.support.v13.view.inputmethod.EditorInfoCompat;
-import android.support.v13.view.inputmethod.InputConnectionCompat;
-import android.support.v13.view.inputmethod.InputContentInfoCompat;
+package com.example.android.supportv4.view.inputmethod;
 
 import android.app.Activity;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v13.view.inputmethod.EditorInfoCompat;
+import android.support.v13.view.inputmethod.InputConnectionCompat;
+import android.support.v13.view.inputmethod.InputContentInfoCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.inputmethod.EditorInfo;
@@ -36,14 +33,18 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.android.supportv4.R;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Demo activity for using {@link InputConnectionCompat}.
+ */
 public class CommitContentSupport extends Activity {
     private static final String INPUT_CONTENT_INFO_KEY = "COMMIT_CONTENT_INPUT_CONTENT_INFO";
     private static final String COMMIT_CONTENT_FLAGS_KEY = "COMMIT_CONTENT_FLAGS";
-
-    private static String TAG = "CommitContentSupport";
+    private static final String TAG = "CommitContentSupport";
 
     private WebView mWebView;
     private TextView mLabel;
@@ -108,7 +109,7 @@ public class CommitContentSupport extends Activity {
     }
 
     private boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags,
-            Bundle opts, String[] contentMimeTypes) {
+            String[] contentMimeTypes) {
         // Clear the temporary permission (if any).  See below about why we do this here.
         try {
             if (mCurrentInputContentInfo != null) {
@@ -211,14 +212,9 @@ public class CommitContentSupport extends Activity {
                 final InputConnection ic = super.onCreateInputConnection(editorInfo);
                 EditorInfoCompat.setContentMimeTypes(editorInfo, mimeTypes);
                 final InputConnectionCompat.OnCommitContentListener callback =
-                        new InputConnectionCompat.OnCommitContentListener() {
-                            @Override
-                            public boolean onCommitContent(InputContentInfoCompat inputContentInfo,
-                                    int flags, Bundle opts) {
-                                return CommitContentSupport.this.onCommitContent(
-                                        inputContentInfo, flags, opts, mimeTypes);
-                            }
-                        };
+                        (inputContentInfo, flags, opts) ->
+                                CommitContentSupport.this.onCommitContent(
+                                        inputContentInfo, flags, mimeTypes);
                 return InputConnectionCompat.createWrapper(ic, editorInfo, callback);
             }
         };
