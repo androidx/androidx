@@ -24,8 +24,7 @@
     <ImageView
         android:id="@+id/primary_icon"
         android:layout_width="@dimen/car_single_line_list_item_height"
-        android:layout_height="@dimen/car_single_line_list_item_height"
-        android:layout_centerVertical="true"/>
+        android:layout_height="@dimen/car_single_line_list_item_height"/>
 
     <!-- Text. -->
     <TextView
