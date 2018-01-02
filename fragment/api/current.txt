@@ -145,11 +145,12 @@ package android.support.v4.app {
     field public static final android.os.Parcelable.Creator<android.support.v4.app.Fragment.SavedState> CREATOR;
   }
 
-  public class FragmentActivity extends android.support.v4.app.SupportActivity implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback android.support.v4.app.ActivityCompat.RequestPermissionsRequestCodeValidator {
+  public class FragmentActivity extends android.support.v4.app.SupportActivity implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback android.support.v4.app.ActivityCompat.RequestPermissionsRequestCodeValidator android.arch.lifecycle.ViewModelStoreOwner {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
     method public android.support.v4.app.LoaderManager getSupportLoaderManager();
+    method public android.arch.lifecycle.ViewModelStore getViewModelStore();
     method public void onAttachFragment(android.support.v4.app.Fragment);
     method public void onMultiWindowModeChanged(boolean);
     method public void onPictureInPictureModeChanged(boolean);
