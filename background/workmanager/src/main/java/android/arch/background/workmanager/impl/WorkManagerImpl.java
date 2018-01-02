@@ -35,7 +35,6 @@ import android.arch.background.workmanager.impl.utils.taskexecutor.WorkManagerTa
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -95,7 +94,7 @@ public class WorkManagerImpl extends WorkManager {
                 appContext,
                 mWorkDatabase,
                 mBackgroundScheduler,
-                ProcessLifecycleOwner.get(),
+                configuration.getForegroundLifecycleOwner(),
                 configuration.getForegroundExecutorService());
         mBackgroundScheduler = configuration.getBackgroundScheduler();
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();

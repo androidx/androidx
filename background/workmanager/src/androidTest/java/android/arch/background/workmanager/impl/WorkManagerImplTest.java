@@ -53,6 +53,7 @@ import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.content.Context;
@@ -90,7 +91,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 context,
                 true,
                 WorkManagerConfiguration.createForegroundExecutorService(),
-                WorkManagerConfiguration.createBackgroundExecutorService());
+                WorkManagerConfiguration.createBackgroundExecutorService(),
+                ProcessLifecycleOwner.get());
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
 
