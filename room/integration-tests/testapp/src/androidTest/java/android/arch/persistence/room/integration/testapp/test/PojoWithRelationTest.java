@@ -35,6 +35,7 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -187,5 +188,47 @@ public class PojoWithRelationTest extends TestDatabaseTest {
         assertThat(adoptions, is(Arrays.asList(
                 new UserAndPetAdoptionDates(user, Arrays.asList(new Date(300), new Date(700)))
         )));
+    }
+
+    @Test
+    public void largeRelation_child() {
+        User user = TestUtil.createUser(3);
+        List<Pet> pets = new ArrayList<>();
+        for (int i = 0; i < 2000; i++) {
+            Pet pet = TestUtil.createPet(i + 1);
+            pet.setUserId(3);
+        }
+        mUserDao.insert(user);
+        mPetDao.insertAll(pets.toArray(new Pet[pets.size()]));
+        List<UserAndAllPets> result = mUserPetDao.loadAllUsersWithTheirPets();
+        assertThat(result.size(), is(1));
+        assertThat(result.get(0).user, is(user));
+        assertThat(result.get(0).pets, is(pets));
+    }
+
+    @Test
+    public void largeRelation_parent() {
+        final List<User> users = new ArrayList<>();
+        final List<Pet> pets = new ArrayList<>();
+        for (int i = 0; i < 2000; i++) {
+            User user = TestUtil.createUser(i + 1);
+            users.add(user);
+            Pet pet = TestUtil.createPet(i + 1);
+            pet.setUserId(user.getId());
+            pets.add(pet);
+        }
+        mDatabase.runInTransaction(new Runnable() {
+            @Override
+            public void run() {
+                mUserDao.insertAll(users.toArray(new User[users.size()]));
+                mPetDao.insertAll(pets.toArray(new Pet[pets.size()]));
+            }
+        });
+        List<UserAndAllPets> result = mUserPetDao.loadAllUsersWithTheirPets();
+        assertThat(result.size(), is(2000));
+        for (int i = 0; i < 2000; i++) {
+            assertThat(result.get(i).user, is(users.get(i)));
+            assertThat(result.get(i).pets, is(Collections.singletonList(pets.get(i))));
+        }
     }
 }

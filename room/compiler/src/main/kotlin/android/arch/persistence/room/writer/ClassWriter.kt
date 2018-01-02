@@ -112,11 +112,11 @@ abstract class ClassWriter(val className: ClassName) {
     abstract class SharedMethodSpec(val baseName: String) {
 
         abstract fun getUniqueKey(): String
-        abstract fun prepare(writer: ClassWriter, builder: MethodSpec.Builder)
+        abstract fun prepare(methodName: String, writer: ClassWriter, builder: MethodSpec.Builder)
 
         fun build(writer: ClassWriter, name: String): MethodSpec {
             val builder = MethodSpec.methodBuilder(name)
-            prepare(writer, builder)
+            prepare(name, writer, builder)
             return builder.build()
         }
     }
