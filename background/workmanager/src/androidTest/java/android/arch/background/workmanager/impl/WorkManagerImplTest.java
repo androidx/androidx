@@ -86,7 +86,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @Before
     public void setUp() {
         Context context = InstrumentationRegistry.getTargetContext();
-        WorkManagerConfiguration configuration = new WorkManagerConfiguration(context, true);
+        WorkManagerConfiguration configuration = new WorkManagerConfiguration(
+                context,
+                true,
+                WorkManagerConfiguration.createForegroundExecutorService(),
+                WorkManagerConfiguration.createBackgroundExecutorService());
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
 

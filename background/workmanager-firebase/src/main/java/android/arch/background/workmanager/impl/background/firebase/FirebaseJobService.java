@@ -49,8 +49,12 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
         Context context = getApplicationContext();
         WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
         WorkDatabase database = workManagerImpl.getWorkDatabase();
-        mProcessor =
-                new BackgroundProcessor(context, database, workManagerImpl.getScheduler(), this);
+        mProcessor = new BackgroundProcessor(
+                context,
+                database,
+                workManagerImpl.getBackgroundScheduler(),
+                workManagerImpl.getBackgroundExecutorService(),
+                this);
     }
 
     @Override

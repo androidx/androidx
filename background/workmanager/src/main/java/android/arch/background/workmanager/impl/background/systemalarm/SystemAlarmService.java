@@ -57,11 +57,15 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
         super.onCreate();
         WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
         WorkDatabase database = workManagerImpl.getWorkDatabase();
-        Scheduler scheduler = workManagerImpl.getScheduler();
+        Scheduler scheduler = workManagerImpl.getBackgroundScheduler();
         Context context = getApplicationContext();
 
-        BackgroundProcessor processor =
-                new BackgroundProcessor(context, database, scheduler, this);
+        BackgroundProcessor processor = new BackgroundProcessor(
+                context,
+                database,
+                scheduler,
+                workManagerImpl.getBackgroundExecutorService(),
+                this);
         ConstraintsTracker constraintsTracker = new ConstraintsTracker(context, this);
         mSystemAlarmServiceImpl =
                 new SystemAlarmServiceImpl(context, processor, constraintsTracker, this);

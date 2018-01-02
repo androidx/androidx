@@ -23,10 +23,8 @@ import android.arch.background.workmanager.impl.WorkDatabase;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * A {@link Processor} that handles execution of work in the background.
@@ -42,23 +40,8 @@ public class BackgroundProcessor extends Processor {
             Context appContext,
             WorkDatabase workDatabase,
             Scheduler scheduler,
+            ExecutorService executorService,
             ExecutionListener outerListener) {
-        // TODO(sumir): Be more intelligent about the executor.
-        this(
-                appContext,
-                workDatabase,
-                scheduler,
-                outerListener,
-                Executors.newSingleThreadExecutor());
-    }
-
-    @VisibleForTesting
-    BackgroundProcessor(
-            Context appContext,
-            WorkDatabase workDatabase,
-            Scheduler scheduler,
-            ExecutionListener outerListener,
-            ExecutorService executorService) {
         super(appContext, workDatabase, scheduler, executorService);
         mOuterListener = outerListener;
     }

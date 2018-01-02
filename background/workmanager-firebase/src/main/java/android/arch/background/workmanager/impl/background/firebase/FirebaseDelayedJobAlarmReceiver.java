@@ -41,7 +41,7 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
         final String workSpecId = intent.getStringExtra(WORKSPEC_ID_KEY);
         final WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
         final FirebaseJobScheduler scheduler =
-                (FirebaseJobScheduler) workManagerImpl.getScheduler();
+                (FirebaseJobScheduler) workManagerImpl.getBackgroundScheduler();
         final WorkDatabase database = workManagerImpl.getWorkDatabase();
         new Thread(new Runnable() {
             @Override

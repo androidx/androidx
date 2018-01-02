@@ -44,6 +44,7 @@ import android.support.annotation.RestrictTo;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /**
  * A concrete implementation of {@link WorkManager}.
@@ -54,6 +55,7 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerImpl extends WorkManager {
 
+    private WorkManagerConfiguration mConfiguration;
     private WorkDatabase mWorkDatabase;
     private TaskExecutor mTaskExecutor;
     private Processor mForegroundProcessor;
@@ -87,12 +89,14 @@ public class WorkManagerImpl extends WorkManager {
         // TODO(janclarin): Move ForegroundProcessor and TaskExecutor to WorkManagerConfiguration.
         // TODO(janclarin): Remove context parameter.
         Context appContext = context.getApplicationContext();
+        mConfiguration = configuration;
         mWorkDatabase = configuration.getWorkDatabase();
         mForegroundProcessor = new ForegroundProcessor(
                 appContext,
                 mWorkDatabase,
                 mBackgroundScheduler,
-                ProcessLifecycleOwner.get());
+                ProcessLifecycleOwner.get(),
+                configuration.getForegroundExecutorService());
         mBackgroundScheduler = configuration.getBackgroundScheduler();
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
     }
@@ -124,8 +128,18 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @NonNull Scheduler getScheduler() {
+    public @NonNull Scheduler getBackgroundScheduler() {
         return mBackgroundScheduler;
+    }
+
+    /**
+     * @return The {@link ExecutorService} for background {@link Processor}s.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull ExecutorService getBackgroundExecutorService() {
+        return mConfiguration.getBackgroundExecutorService();
     }
 
     @Override

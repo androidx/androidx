@@ -32,6 +32,8 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Configuration for {@link WorkManager}.
@@ -50,15 +52,25 @@ class WorkManagerConfiguration {
 
     private final WorkDatabase mWorkDatabase;
     private final Scheduler mBackgroundScheduler;
+    private final ExecutorService mForegroundExecutorService;
+    private final ExecutorService mBackgroundExecutorService;
 
     WorkManagerConfiguration(@NonNull Context context) {
-        this(context, false);
+        this(context,
+                false,
+                createForegroundExecutorService(),
+                createBackgroundExecutorService());
     }
 
     @VisibleForTesting
-    WorkManagerConfiguration(@NonNull Context context, boolean useTestDatabase) {
+    WorkManagerConfiguration(@NonNull Context context,
+            boolean useTestDatabase,
+            @NonNull ExecutorService foregroundExecutorService,
+            @NonNull ExecutorService backgroundExecutorService) {
         mWorkDatabase = WorkDatabase.create(context, useTestDatabase);
         mBackgroundScheduler = createBestAvailableBackgroundScheduler(context);
+        mForegroundExecutorService = foregroundExecutorService;
+        mBackgroundExecutorService = backgroundExecutorService;
     }
 
     @NonNull
@@ -69,6 +81,16 @@ class WorkManagerConfiguration {
     @NonNull
     Scheduler getBackgroundScheduler() {
         return mBackgroundScheduler;
+    }
+
+    @NonNull
+    ExecutorService getForegroundExecutorService() {
+        return mForegroundExecutorService;
+    }
+
+    @NonNull
+    ExecutorService getBackgroundExecutorService() {
+        return mBackgroundExecutorService;
     }
 
     @NonNull
@@ -108,5 +130,17 @@ class WorkManagerConfiguration {
         return (Scheduler) firebaseJobSchedulerClass
                 .getConstructor(Context.class)
                 .newInstance(context);
+    }
+
+    @VisibleForTesting
+    static ExecutorService createForegroundExecutorService() {
+        // TODO(sumir): Make this more intelligent.
+        return Executors.newFixedThreadPool(4);
+    }
+
+    @VisibleForTesting
+    static ExecutorService createBackgroundExecutorService() {
+        // TODO(sumir): Make this more intelligent.
+        return Executors.newSingleThreadExecutor();
     }
 }

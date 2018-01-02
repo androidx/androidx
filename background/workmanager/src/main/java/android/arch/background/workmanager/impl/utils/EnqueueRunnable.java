@@ -92,7 +92,7 @@ public class EnqueueRunnable implements Runnable {
             // happens automatically if a ForegroundProcessor is available.
             if (!hasPrerequisite) {
                 for (InternalWorkImpl work : mWorkArray) {
-                    mWorkManagerImpl.getScheduler().schedule(work.getWorkSpec());
+                    mWorkManagerImpl.getBackgroundScheduler().schedule(work.getWorkSpec());
                 }
             }
         } finally {

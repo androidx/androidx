@@ -69,7 +69,7 @@ public class CancelWorkRunnable implements Runnable {
     private void cancel(String workSpecId) {
         recursivelyCancelWorkAndDependencies(workSpecId);
         mWorkManagerImpl.getForegroundProcessor().cancel(workSpecId, true);
-        mWorkManagerImpl.getScheduler().cancel(workSpecId);
+        mWorkManagerImpl.getBackgroundScheduler().cancel(workSpecId);
     }
 
     private void recursivelyCancelWorkAndDependencies(String workSpecId) {

@@ -33,14 +33,12 @@ import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -58,22 +56,6 @@ public class ForegroundProcessor extends Processor
     private ConstraintsTracker mConstraintsTracker;
 
     public ForegroundProcessor(
-            Context appContext,
-            WorkDatabase workDatabase,
-            Scheduler scheduler,
-            LifecycleOwner lifecycleOwner) {
-        // TODO(sumir): Be more intelligent about the executor.
-        this(
-                appContext,
-                workDatabase,
-                scheduler,
-                lifecycleOwner,
-                Executors.newFixedThreadPool(4));
-
-    }
-
-    @VisibleForTesting
-    ForegroundProcessor(
             Context appContext,
             WorkDatabase workDatabase,
             Scheduler scheduler,

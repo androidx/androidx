@@ -51,8 +51,8 @@ public class BackgroundProcessorTest extends DatabaseTest {
                 appContext,
                 mDatabase,
                 mock(Scheduler.class),
-                mMockListener,
-                new SynchronousExecutorService());
+                new SynchronousExecutorService(),
+                mMockListener);
     }
 
     @Test
