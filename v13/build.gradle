@@ -1,4 +1,3 @@
-import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 
@@ -9,11 +8,6 @@ plugins {
 dependencies {
     api(project(":support-annotations"))
     api(project(":support-v4"))
-
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 }
 
 android {
