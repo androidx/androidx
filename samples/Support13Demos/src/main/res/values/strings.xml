@@ -20,11 +20,6 @@
     <string name="hello_world"><b>Hello, <i>World!</i></b></string>
     <string name="retained">Retained state</string>
 
-    <string name="alert_dialog_two_buttons_title">
-        Lorem ipsum dolor sit aie consectetur adipiscing\nPlloaso mako nuto
-        siwuf cakso dodtos anr koop.
-    </string>
-
     <string name="fragment_nesting_pager_support">Fragment/Nesting Pager</string>
 
     <string name="fragment_nesting_state_pager_support">Fragment/Nesting State Pager</string>
@@ -34,9 +29,4 @@
     <string name="last">Last</string>
 
     <string name="fragment_state_pager_support">Fragment/State Pager</string>
-
-    <string name="action_bar_tabs_pager">Fragment/Action Bar Tabs Pager</string>
-
-    <string name="commit_content_support">View/Input Method/Commit Content</string>
-
 </resources>
