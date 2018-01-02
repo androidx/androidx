@@ -22,7 +22,7 @@ import android.database.sqlite.SQLiteStatement;
 /**
  * Delegates all calls to a {@link SQLiteStatement}.
  */
-class FrameworkSQLiteStatement implements SupportSQLiteStatement {
+class FrameworkSQLiteStatement extends FrameworkSQLiteProgram implements SupportSQLiteStatement {
     private final SQLiteStatement mDelegate;
 
     /**
@@ -31,37 +31,8 @@ class FrameworkSQLiteStatement implements SupportSQLiteStatement {
      * @param delegate The SQLiteStatement to delegate calls to.
      */
     FrameworkSQLiteStatement(SQLiteStatement delegate) {
+        super(delegate);
         mDelegate = delegate;
-    }
-
-    @Override
-    public void bindNull(int index) {
-        mDelegate.bindNull(index);
-    }
-
-    @Override
-    public void bindLong(int index, long value) {
-        mDelegate.bindLong(index, value);
-    }
-
-    @Override
-    public void bindDouble(int index, double value) {
-        mDelegate.bindDouble(index, value);
-    }
-
-    @Override
-    public void bindString(int index, String value) {
-        mDelegate.bindString(index, value);
-    }
-
-    @Override
-    public void bindBlob(int index, byte[] value) {
-        mDelegate.bindBlob(index, value);
-    }
-
-    @Override
-    public void clearBindings() {
-        mDelegate.clearBindings();
     }
 
     @Override
@@ -87,10 +58,5 @@ class FrameworkSQLiteStatement implements SupportSQLiteStatement {
     @Override
     public String simpleQueryForString() {
         return mDelegate.simpleQueryForString();
-    }
-
-    @Override
-    public void close() {
-        mDelegate.close();
     }
 }
