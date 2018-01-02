@@ -220,6 +220,7 @@ public class IconCompat {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @SuppressWarnings("deprecation")
     public void addToShortcutIntent(@NonNull Intent outIntent, @Nullable Drawable badge) {
         Bitmap icon;
         switch (mType) {
