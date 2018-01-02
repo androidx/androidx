@@ -273,6 +273,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        mFragments.noteStateNotSaved();
         mFragments.dispatchConfigurationChanged(newConfig);
     }
 
