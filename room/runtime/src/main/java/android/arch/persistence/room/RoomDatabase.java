@@ -52,6 +52,13 @@ import java.util.concurrent.locks.ReentrantLock;
 //@SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class RoomDatabase {
     private static final String DB_IMPL_SUFFIX = "_Impl";
+    /**
+     * Unfortunately, we cannot read this value so we are only setting it to the SQLite default.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int MAX_BIND_PARAMETER_CNT = 999;
     // set by the generated open helper.
     protected volatile SupportSQLiteDatabase mDatabase;
     private SupportSQLiteOpenHelper mOpenHelper;

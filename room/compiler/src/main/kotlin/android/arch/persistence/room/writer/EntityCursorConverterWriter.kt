@@ -22,8 +22,8 @@ import android.arch.persistence.room.ext.N
 import android.arch.persistence.room.ext.S
 import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.solver.CodeGenScope
-import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.EmbeddedField
+import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.FieldWithIndex
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
@@ -38,7 +38,7 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
         return "generic_entity_converter_of_${entity.element.qualifiedName}"
     }
 
-    override fun prepare(writer: ClassWriter, builder: MethodSpec.Builder) {
+    override fun prepare(methodName: String, writer: ClassWriter, builder: MethodSpec.Builder) {
         builder.apply {
             val cursorParam = ParameterSpec
                     .builder(AndroidTypeNames.CURSOR, "cursor").build()
