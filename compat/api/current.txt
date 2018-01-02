@@ -1786,7 +1786,7 @@ package android.support.v4.view {
     field public static final int TYPE_TOUCH = 0; // 0x0
   }
 
-  public final deprecated class ViewConfigurationCompat {
+  public final class ViewConfigurationCompat {
     method public static float getScaledHorizontalScrollFactor(android.view.ViewConfiguration, android.content.Context);
     method public static deprecated int getScaledPagingTouchSlop(android.view.ViewConfiguration);
     method public static float getScaledVerticalScrollFactor(android.view.ViewConfiguration, android.content.Context);
