@@ -16,6 +16,8 @@
 
 package android.arch.persistence.db.framework;
 
+import static android.text.TextUtils.isEmpty;
+
 import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteQuery;
@@ -311,9 +313,5 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     @Override
     public void close() throws IOException {
         mDelegate.close();
-    }
-
-    private static boolean isEmpty(String input) {
-        return input == null || input.length() == 0;
     }
 }
