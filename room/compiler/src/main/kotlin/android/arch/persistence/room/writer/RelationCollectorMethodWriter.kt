@@ -19,6 +19,7 @@ package android.arch.persistence.room.writer
 import android.arch.persistence.room.ext.AndroidTypeNames
 import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.N
+import android.arch.persistence.room.ext.RoomTypeNames
 import android.arch.persistence.room.ext.S
 import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.solver.CodeGenScope
@@ -34,7 +35,7 @@ import javax.lang.model.element.Modifier
 /**
  * Writes the method that fetches the relations of a POJO and assigns them into the given map.
  */
-class RelationCollectorMethodWriter(val collector: RelationCollector)
+class RelationCollectorMethodWriter(private val collector: RelationCollector)
     : ClassWriter.SharedMethodSpec(
         "fetchRelationship${collector.relation.entity.tableName.stripNonJava()}" +
                 "As${collector.relation.pojoTypeName.toString().stripNonJava()}") {
@@ -51,7 +52,7 @@ class RelationCollectorMethodWriter(val collector: RelationCollector)
                 "-${relation.createLoadAllSql()}"
     }
 
-    override fun prepare(writer: ClassWriter, builder: MethodSpec.Builder) {
+    override fun prepare(methodName: String, writer: ClassWriter, builder: MethodSpec.Builder) {
         val scope = CodeGenScope(writer)
         val relation = collector.relation
 
@@ -74,6 +75,41 @@ class RelationCollectorMethodWriter(val collector: RelationCollector)
                 addStatement("return")
             }
             endControlFlow()
+            addStatement("// check if the size is too big, if so divide")
+            beginControlFlow("if($N.size() > $T.MAX_BIND_PARAMETER_CNT)",
+                    param, RoomTypeNames.ROOM_DB).apply {
+                // divide it into chunks
+                val tmpMapVar = scope.getTmpVar("_tmpInnerMap")
+                addStatement("$T $L = new $T($L.MAX_BIND_PARAMETER_CNT)",
+                        collector.mapTypeName, tmpMapVar,
+                        collector.mapTypeName, RoomTypeNames.ROOM_DB)
+                val mapIndexVar = scope.getTmpVar("_mapIndex")
+                val tmpIndexVar = scope.getTmpVar("_tmpIndex")
+                val limitVar = scope.getTmpVar("_limit")
+                addStatement("$T $L = 0", TypeName.INT, mapIndexVar)
+                addStatement("$T $L = 0", TypeName.INT, tmpIndexVar)
+                addStatement("final $T $L = $N.size()", TypeName.INT, limitVar, param)
+                beginControlFlow("while($L < $L)", mapIndexVar, limitVar).apply {
+                    addStatement("$L.put($N.keyAt($L), $N.valueAt($L))",
+                            tmpMapVar, param, mapIndexVar, param, mapIndexVar)
+                    addStatement("$L++", mapIndexVar)
+                    addStatement("$L++", tmpIndexVar)
+                    beginControlFlow("if($L == $T.MAX_BIND_PARAMETER_CNT)",
+                            tmpIndexVar, RoomTypeNames.ROOM_DB).apply {
+                        // recursively load that batch
+                        addStatement("$L($L)", methodName, tmpMapVar)
+                        // clear nukes the backing data hence we create a new one
+                        addStatement("$L = new $T($T.MAX_BIND_PARAMETER_CNT)",
+                                tmpMapVar, collector.mapTypeName, RoomTypeNames.ROOM_DB)
+                        addStatement("$L = 0", tmpIndexVar)
+                    }.endControlFlow()
+                }.endControlFlow()
+                beginControlFlow("if($L > 0)", tmpIndexVar).apply {
+                    // load the last batch
+                    addStatement("$L($L)", methodName, tmpMapVar)
+                }.endControlFlow()
+                addStatement("return")
+            }.endControlFlow()
             collector.queryWriter.prepareReadAndBind(sqlQueryVar, stmtVar, scope)
 
             addStatement("final $T $L = $N.query($L)", AndroidTypeNames.CURSOR, cursorVar,
