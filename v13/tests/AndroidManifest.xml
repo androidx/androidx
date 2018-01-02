@@ -21,7 +21,6 @@
 
     <application>
         <activity android:name="android.support.v13.app.FragmentCompatTestActivity" />
-        <activity android:name="android.support.v13.view.DragStartHelperTestActivity"/>
     </application>
 
 </manifest>
