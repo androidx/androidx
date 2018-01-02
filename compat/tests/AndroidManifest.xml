@@ -40,6 +40,8 @@
         <activity android:name="android.support.v4.app.TestSupportActivity"
                   android:icon="@drawable/test_drawable_blue"/>
 
+        <activity android:name="android.support.v13.view.DragStartHelperTestActivity"/>
+
         <provider android:name="android.support.v4.provider.MockFontProvider"
                   android:authorities="android.support.provider.fonts.font"
                   android:exported="false"

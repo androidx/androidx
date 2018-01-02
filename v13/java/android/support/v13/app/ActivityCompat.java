@@ -16,32 +16,22 @@
 
 package android.support.v13.app;
 
-import android.app.Activity;
-import android.support.v13.view.DragAndDropPermissionsCompat;
-import android.view.DragEvent;
-
 /**
  * Helper for accessing features in {@link android.app.Activity} in a backwards compatible fashion.
+ *
+ * @deprecated Use {@link android.support.v4.app.ActivityCompat
+ * android.support.v4.app.ActivityCompat}.
  */
+@Deprecated
 public class ActivityCompat extends android.support.v4.app.ActivityCompat {
-
-    /**
-     * Create {@link DragAndDropPermissionsCompat} object bound to this activity and controlling
-     * the access permissions for content URIs associated with the {@link android.view.DragEvent}.
-     * @param dragEvent Drag event to request permission for
-     * @return The {@link DragAndDropPermissionsCompat} object used to control access to the content
-     * URIs. {@code null} if no content URIs are associated with the event or if permissions could
-     * not be granted.
-     */
-    public static DragAndDropPermissionsCompat requestDragAndDropPermissions(Activity activity,
-                                                                             DragEvent dragEvent) {
-        return DragAndDropPermissionsCompat.request(activity, dragEvent);
-    }
-
     /**
      * This class should not be instantiated, but the constructor must be
      * visible for the class to be extended.
+     *
+     * @deprecated Use {@link android.support.v4.app.ActivityCompat
+     * android.support.v4.app.ActivityCompat}.
      */
+    @Deprecated
     protected ActivityCompat() {
         // Not publicly instantiable, but may be extended.
     }

@@ -34,7 +34,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+import android.support.v13.view.DragAndDropPermissionsCompat;
 import android.support.v4.content.ContextCompat;
+import android.view.DragEvent;
 import android.view.View;
 
 import java.util.List;
@@ -526,6 +528,19 @@ public class ActivityCompat extends ContextCompat {
             return activity.shouldShowRequestPermissionRationale(permission);
         }
         return false;
+    }
+
+    /**
+     * Create {@link DragAndDropPermissionsCompat} object bound to this activity and controlling
+     * the access permissions for content URIs associated with the {@link android.view.DragEvent}.
+     * @param dragEvent Drag event to request permission for
+     * @return The {@link DragAndDropPermissionsCompat} object used to control access to the content
+     * URIs. {@code null} if no content URIs are associated with the event or if permissions could
+     * not be granted.
+     */
+    public static DragAndDropPermissionsCompat requestDragAndDropPermissions(Activity activity,
+            DragEvent dragEvent) {
+        return DragAndDropPermissionsCompat.request(activity, dragEvent);
     }
 
     @RequiresApi(21)

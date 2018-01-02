@@ -38,7 +38,7 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v13.test.R;
+import android.support.compat.test.R;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
