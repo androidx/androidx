@@ -5,14 +5,6 @@ package android.arch.lifecycle {
     method public <T extends android.app.Application> T getApplication();
   }
 
-  public deprecated class LifecycleActivity extends android.support.v4.app.FragmentActivity {
-    ctor public LifecycleActivity();
-  }
-
-  public deprecated class LifecycleFragment extends android.support.v4.app.Fragment {
-    ctor public LifecycleFragment();
-  }
-
   public class LifecycleService extends android.app.Service implements android.arch.lifecycle.LifecycleOwner {
     ctor public LifecycleService();
     method public android.arch.lifecycle.Lifecycle getLifecycle();
