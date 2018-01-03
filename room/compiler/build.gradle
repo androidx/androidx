@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+
+import android.support.SupportConfig
+
 import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
@@ -53,7 +56,7 @@ dependencies {
     testCompile(INTELLIJ_ANNOTATIONS)
     testCompile(JSR250)
     testCompile(MOCKITO_CORE)
-    testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$rootProject.ext.currentSdk/",
+    testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$SupportConfig.CURRENT_SDK_VERSION/",
             include : "android.jar")
     testCompile fileTree(dir: "${new File(project(":room:runtime").buildDir, "libJar")}",
             include : "*.jar")
