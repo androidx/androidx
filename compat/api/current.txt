@@ -1226,6 +1226,8 @@ package android.support.v4.util {
 
   public class ObjectsCompat {
     method public static boolean equals(java.lang.Object, java.lang.Object);
+    method public static int hash(java.lang.Object...);
+    method public static int hashCode(java.lang.Object);
   }
 
   public class Pair<F, S> {
