@@ -115,7 +115,6 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 ProcessLifecycleOwner.get());
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
-        WorkManagerImpl.setInstance(mWorkManagerImpl);
     }
 
     @After
