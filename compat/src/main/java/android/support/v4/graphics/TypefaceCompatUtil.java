@@ -94,11 +94,15 @@ public class TypefaceCompatUtil {
     @RequiresApi(19)
     public static ByteBuffer mmap(Context context, CancellationSignal cancellationSignal, Uri uri) {
         final ContentResolver resolver = context.getContentResolver();
-        try (ParcelFileDescriptor pfd = resolver.openFileDescriptor(uri, "r", cancellationSignal);
-                FileInputStream fis = new FileInputStream(pfd.getFileDescriptor())) {
-            FileChannel channel = fis.getChannel();
-            final long size = channel.size();
-            return channel.map(FileChannel.MapMode.READ_ONLY, 0, size);
+        try (ParcelFileDescriptor pfd = resolver.openFileDescriptor(uri, "r", cancellationSignal)) {
+            if (pfd == null) {
+                return null;
+            }
+            try (FileInputStream fis = new FileInputStream(pfd.getFileDescriptor())) {
+                FileChannel channel = fis.getChannel();
+                final long size = channel.size();
+                return channel.map(FileChannel.MapMode.READ_ONLY, 0, size);
+            }
         } catch (IOException e) {
             return null;
         }
