@@ -35,7 +35,7 @@ package android.arch.lifecycle {
   }
 
   public class ViewModelProviders {
-    ctor public ViewModelProviders();
+    ctor public deprecated ViewModelProviders();
     method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.Fragment);
     method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.FragmentActivity);
     method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.Fragment, android.arch.lifecycle.ViewModelProvider.Factory);

@@ -32,6 +32,13 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class ViewModelProviders {
 
+    /**
+     * @deprecated This class should not be directly instantiated
+     */
+    @Deprecated
+    public ViewModelProviders() {
+    }
+
     @SuppressLint("StaticFieldLeak")
     private static DefaultFactory sDefaultFactory;
 
