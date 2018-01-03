@@ -39,6 +39,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.List;
@@ -69,6 +70,10 @@ public class WorkManagerImpl extends WorkManager {
         sInstance = new WorkManagerImpl(context, configuration);
     }
 
+    @VisibleForTesting
+    static synchronized void setInstance(@NonNull WorkManagerImpl instance) {
+        sInstance = instance;
+    }
 
     /**
      * Retrieves the singleton instance of {@link WorkManagerImpl}.
@@ -82,7 +87,6 @@ public class WorkManagerImpl extends WorkManager {
         }
         return sInstance;
     }
-
 
     WorkManagerImpl(Context context, WorkManagerConfiguration configuration) {
         // TODO(janclarin): Move ForegroundProcessor and TaskExecutor to WorkManagerConfiguration.
@@ -154,19 +158,36 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public WorkContinuation enqueue(@NonNull Work... work) {
-        return enqueue(work, null);
+        return enqueue(work, null, null, KEEP_EXISTING_WORK);
     }
 
     @SafeVarargs
     @Override
     public final WorkContinuation enqueue(@NonNull Class<? extends Worker>... workerClasses) {
-        return enqueue(BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses), null);
+        return enqueue(
+                BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses),
+                null,
+                null,
+                KEEP_EXISTING_WORK);
+    }
+
+    @Override
+    public WorkContinuation startSequenceWithUniqueTag(
+            @NonNull String tag,
+            @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
+            @NonNull Work... work) {
+        return enqueue(work, null, tag, existingWorkPolicy);
     }
 
     @Override
     public void enqueue(@NonNull PeriodicWork... periodicWork) {
         mTaskExecutor.executeOnBackgroundThread(
-                new EnqueueRunnable(this, periodicWork, null));
+                new EnqueueRunnable(
+                        this,
+                        periodicWork,
+                        null,
+                        null,
+                        KEEP_EXISTING_WORK));
     }
 
     @Override
@@ -206,11 +227,14 @@ public class WorkManagerImpl extends WorkManager {
         return mediatorLiveData;
     }
 
-    WorkContinuation enqueue(@NonNull Work[] work, String[] prerequisiteIds) {
-        WorkContinuation workContinuation = new WorkContinuationImpl(this, work);
+    WorkContinuation enqueue(
+            @NonNull Work[] work,
+            String[] prerequisiteIds,
+            String uniqueTag,
+            @WorkManager.ExistingWorkPolicy int existingWorkPolicy) {
+        WorkContinuation workContinuation = new WorkContinuationImpl(this, work, uniqueTag);
         mTaskExecutor.executeOnBackgroundThread(
-                new EnqueueRunnable(this, work, prerequisiteIds));
+                new EnqueueRunnable(this, work, prerequisiteIds, uniqueTag, existingWorkPolicy));
         return workContinuation;
     }
-
 }

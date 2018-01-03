@@ -18,10 +18,12 @@ package android.arch.background.workmanager.impl;
 
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
+import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.utils.BaseWorkHelper;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,20 +40,27 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     private WorkManagerImpl mWorkManagerImpl;
     private String[] mPrerequisiteIds;
+    private String mUniqueTag;
     private List<String> mAllEnqueuedIds = new ArrayList<>();
 
-    WorkContinuationImpl(WorkManagerImpl workManagerImpl, Work[] prerequisiteWork) {
+    WorkContinuationImpl(
+            WorkManagerImpl workManagerImpl, Work[] prerequisiteWork, String uniqueTag) {
         mWorkManagerImpl = workManagerImpl;
         mPrerequisiteIds = new String[prerequisiteWork.length];
         for (int i = 0; i < prerequisiteWork.length; ++i) {
             mPrerequisiteIds[i] = prerequisiteWork[i].getId();
         }
+        mUniqueTag = uniqueTag;
         Collections.addAll(mAllEnqueuedIds, mPrerequisiteIds);
     }
 
     @Override
     public WorkContinuation then(Work... work) {
-        return mWorkManagerImpl.enqueue(work, mPrerequisiteIds);
+        return mWorkManagerImpl.enqueue(
+                work,
+                mPrerequisiteIds,
+                mUniqueTag,
+                WorkManager.KEEP_EXISTING_WORK);
     }
 
     @SafeVarargs
@@ -59,11 +68,18 @@ public class WorkContinuationImpl extends WorkContinuation {
     public final WorkContinuation then(Class<? extends Worker>... workerClasses) {
         return mWorkManagerImpl.enqueue(
                 BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses),
-                mPrerequisiteIds);
+                mPrerequisiteIds,
+                mUniqueTag,
+                WorkManager.KEEP_EXISTING_WORK);
     }
 
     @Override
     public LiveData<Map<String, Integer>> getStatuses() {
         return mWorkManagerImpl.getStatusesFor(mAllEnqueuedIds);
+    }
+
+    @VisibleForTesting
+    String[] getPrerequisiteIds() {
+        return mPrerequisiteIds;
     }
 }

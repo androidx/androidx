@@ -122,7 +122,7 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
         }
 
         @Override
-        public PeriodicWork.Builder addTag(String tag) {
+        public PeriodicWork.Builder addTag(@NonNull String tag) {
             mTags.add(tag);
             return this;
         }
