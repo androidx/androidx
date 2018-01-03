@@ -40,6 +40,9 @@ public class ViewModelStores {
      */
     @MainThread
     public static ViewModelStore of(@NonNull FragmentActivity activity) {
+        if (activity instanceof ViewModelStoreOwner) {
+            return ((ViewModelStoreOwner) activity).getViewModelStore();
+        }
         return holderFragmentFor(activity).getViewModelStore();
     }
 
@@ -51,6 +54,9 @@ public class ViewModelStores {
      */
     @MainThread
     public static ViewModelStore of(@NonNull Fragment fragment) {
+        if (fragment instanceof ViewModelStoreOwner) {
+            return ((ViewModelStoreOwner) fragment).getViewModelStore();
+        }
         return holderFragmentFor(fragment).getViewModelStore();
     }
 }
