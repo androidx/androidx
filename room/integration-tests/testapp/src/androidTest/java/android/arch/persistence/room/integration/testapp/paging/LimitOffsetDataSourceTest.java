@@ -16,7 +16,7 @@
 
 package android.arch.persistence.room.integration.testapp.paging;
 
-import static android.test.MoreAsserts.assertEmpty;
+import static junit.framework.Assert.assertFalse;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -79,7 +79,7 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
         List<User> initial = dataSource.loadRange(0, 10);
 
         assertThat(initial.get(0), is(users.get(0)));
-        assertEmpty(dataSource.loadRange(1, 10));
+        assertFalse(dataSource.loadRange(1, 10).iterator().hasNext());
     }
 
     @Test
