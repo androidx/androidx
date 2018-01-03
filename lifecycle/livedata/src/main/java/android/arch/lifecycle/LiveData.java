@@ -21,7 +21,6 @@ import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
 import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.internal.SafeIterableMap;
-import android.arch.lifecycle.Lifecycle.State;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -57,33 +56,12 @@ import java.util.Map;
  * @param <T> The type of data held by this instance
  * @see ViewModel
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
-// TODO: Thread checks are too strict right now, we may consider automatically moving them to main
-// thread.
 public abstract class LiveData<T> {
     private final Object mDataLock = new Object();
     static final int START_VERSION = -1;
     private static final Object NOT_SET = new Object();
 
-    private static final LifecycleOwner ALWAYS_ON = new LifecycleOwner() {
-
-        private LifecycleRegistry mRegistry = init();
-
-        private LifecycleRegistry init() {
-            LifecycleRegistry registry = new LifecycleRegistry(this);
-            registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
-            registry.handleLifecycleEvent(Lifecycle.Event.ON_START);
-            registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
-            return registry;
-        }
-
-        @Override
-        public Lifecycle getLifecycle() {
-            return mRegistry;
-        }
-    };
-
-    private SafeIterableMap<Observer<T>, LifecycleBoundObserver> mObservers =
+    private SafeIterableMap<Observer<T>, ObserverWrapper> mObservers =
             new SafeIterableMap<>();
 
     // how many observers are in active state
@@ -110,8 +88,8 @@ public abstract class LiveData<T> {
         }
     };
 
-    private void considerNotify(LifecycleBoundObserver observer) {
-        if (!observer.active) {
+    private void considerNotify(ObserverWrapper observer) {
+        if (!observer.mActive) {
             return;
         }
         // Check latest state b4 dispatch. Maybe it changed state but we didn't get the event yet.
@@ -119,19 +97,19 @@ public abstract class LiveData<T> {
         // we still first check observer.active to keep it as the entrance for events. So even if
         // the observer moved to an active state, if we've not received that event, we better not
         // notify for a more predictable notification order.
-        if (!isActiveState(observer.owner.getLifecycle().getCurrentState())) {
+        if (!observer.shouldBeActive()) {
             observer.activeStateChanged(false);
             return;
         }
-        if (observer.lastVersion >= mVersion) {
+        if (observer.mLastVersion >= mVersion) {
             return;
         }
-        observer.lastVersion = mVersion;
+        observer.mLastVersion = mVersion;
         //noinspection unchecked
-        observer.observer.onChanged((T) mData);
+        observer.mObserver.onChanged((T) mData);
     }
 
-    private void dispatchingValue(@Nullable LifecycleBoundObserver initiator) {
+    private void dispatchingValue(@Nullable ObserverWrapper initiator) {
         if (mDispatchingValue) {
             mDispatchInvalidated = true;
             return;
@@ -143,7 +121,7 @@ public abstract class LiveData<T> {
                 considerNotify(initiator);
                 initiator = null;
             } else {
-                for (Iterator<Map.Entry<Observer<T>, LifecycleBoundObserver>> iterator =
+                for (Iterator<Map.Entry<Observer<T>, ObserverWrapper>> iterator =
                         mObservers.iteratorWithAdditions(); iterator.hasNext(); ) {
                     considerNotify(iterator.next().getValue());
                     if (mDispatchInvalidated) {
@@ -190,8 +168,8 @@ public abstract class LiveData<T> {
             return;
         }
         LifecycleBoundObserver wrapper = new LifecycleBoundObserver(owner, observer);
-        LifecycleBoundObserver existing = mObservers.putIfAbsent(observer, wrapper);
-        if (existing != null && existing.owner != wrapper.owner) {
+        ObserverWrapper existing = mObservers.putIfAbsent(observer, wrapper);
+        if (existing != null && !existing.isAttachedTo(owner)) {
             throw new IllegalArgumentException("Cannot add the same observer"
                     + " with different lifecycles");
         }
@@ -217,7 +195,16 @@ public abstract class LiveData<T> {
      */
     @MainThread
     public void observeForever(@NonNull Observer<T> observer) {
-        observe(ALWAYS_ON, observer);
+        AlwaysActiveObserver wrapper = new AlwaysActiveObserver(observer);
+        ObserverWrapper existing = mObservers.putIfAbsent(observer, wrapper);
+        if (existing != null && existing instanceof LiveData.LifecycleBoundObserver) {
+            throw new IllegalArgumentException("Cannot add the same observer"
+                    + " with different lifecycles");
+        }
+        if (existing != null) {
+            return;
+        }
+        wrapper.activeStateChanged(true);
     }
 
     /**
@@ -228,11 +215,11 @@ public abstract class LiveData<T> {
     @MainThread
     public void removeObserver(@NonNull final Observer<T> observer) {
         assertMainThread("removeObserver");
-        LifecycleBoundObserver removed = mObservers.remove(observer);
+        ObserverWrapper removed = mObservers.remove(observer);
         if (removed == null) {
             return;
         }
-        removed.owner.getLifecycle().removeObserver(removed);
+        removed.detachObserver();
         removed.activeStateChanged(false);
     }
 
@@ -241,11 +228,12 @@ public abstract class LiveData<T> {
      *
      * @param owner The {@code LifecycleOwner} scope for the observers to be removed.
      */
+    @SuppressWarnings("WeakerAccess")
     @MainThread
     public void removeObservers(@NonNull final LifecycleOwner owner) {
         assertMainThread("removeObservers");
-        for (Map.Entry<Observer<T>, LifecycleBoundObserver> entry : mObservers) {
-            if (entry.getValue().owner == owner) {
+        for (Map.Entry<Observer<T>, ObserverWrapper> entry : mObservers) {
+            if (entry.getValue().isAttachedTo(owner)) {
                 removeObserver(entry.getKey());
             }
         }
@@ -343,6 +331,7 @@ public abstract class LiveData<T> {
      *
      * @return true if this LiveData has observers
      */
+    @SuppressWarnings("WeakerAccess")
     public boolean hasObservers() {
         return mObservers.size() > 0;
     }
@@ -352,56 +341,96 @@ public abstract class LiveData<T> {
      *
      * @return true if this LiveData has active observers
      */
+    @SuppressWarnings("WeakerAccess")
     public boolean hasActiveObservers() {
         return mActiveCount > 0;
     }
 
-    class LifecycleBoundObserver implements GenericLifecycleObserver {
-        public final LifecycleOwner owner;
-        public final Observer<T> observer;
-        public boolean active;
-        public int lastVersion = START_VERSION;
+    class LifecycleBoundObserver extends ObserverWrapper implements GenericLifecycleObserver {
+        @NonNull final LifecycleOwner mOwner;
 
-        LifecycleBoundObserver(LifecycleOwner owner, Observer<T> observer) {
-            this.owner = owner;
-            this.observer = observer;
+        LifecycleBoundObserver(@NonNull LifecycleOwner owner, Observer<T> observer) {
+            super(observer);
+            mOwner = owner;
+        }
+
+        @Override
+        boolean shouldBeActive() {
+            return mOwner.getLifecycle().getCurrentState().isAtLeast(STARTED);
         }
 
         @Override
         public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
-            if (owner.getLifecycle().getCurrentState() == DESTROYED) {
-                removeObserver(observer);
+            if (mOwner.getLifecycle().getCurrentState() == DESTROYED) {
+                removeObserver(mObserver);
+                return;
+            }
+            activeStateChanged(shouldBeActive());
+        }
+
+        @Override
+        boolean isAttachedTo(LifecycleOwner owner) {
+            return mOwner == owner;
+        }
+
+        @Override
+        void detachObserver() {
+            mOwner.getLifecycle().removeObserver(this);
+        }
+    }
+
+    private abstract class ObserverWrapper {
+        final Observer<T> mObserver;
+        boolean mActive;
+        int mLastVersion = START_VERSION;
+
+        ObserverWrapper(Observer<T> observer) {
+            mObserver = observer;
+        }
+
+        abstract boolean shouldBeActive();
+
+        boolean isAttachedTo(LifecycleOwner owner) {
+            return false;
+        }
+
+        void detachObserver() {
+        }
+
+        void activeStateChanged(boolean newActive) {
+            if (newActive == mActive) {
                 return;
             }
             // immediately set active state, so we'd never dispatch anything to inactive
             // owner
-            activeStateChanged(isActiveState(owner.getLifecycle().getCurrentState()));
-        }
-
-        void activeStateChanged(boolean newActive) {
-            if (newActive == active) {
-                return;
-            }
-            active = newActive;
+            mActive = newActive;
             boolean wasInactive = LiveData.this.mActiveCount == 0;
-            LiveData.this.mActiveCount += active ? 1 : -1;
-            if (wasInactive && active) {
+            LiveData.this.mActiveCount += mActive ? 1 : -1;
+            if (wasInactive && mActive) {
                 onActive();
             }
-            if (LiveData.this.mActiveCount == 0 && !active) {
+            if (LiveData.this.mActiveCount == 0 && !mActive) {
                 onInactive();
             }
-            if (active) {
+            if (mActive) {
                 dispatchingValue(this);
             }
         }
     }
 
-    static boolean isActiveState(State state) {
-        return state.isAtLeast(STARTED);
+    private class AlwaysActiveObserver extends ObserverWrapper {
+
+        AlwaysActiveObserver(Observer<T> observer) {
+            super(observer);
+        }
+
+        @Override
+        boolean shouldBeActive() {
+            return true;
+        }
     }
 
-    private void assertMainThread(String methodName) {
+    private static void assertMainThread(String methodName) {
         if (!ArchTaskExecutor.getInstance().isMainThread()) {
             throw new IllegalStateException("Cannot invoke " + methodName + " on a background"
                     + " thread");

@@ -21,6 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -190,5 +191,26 @@ public class TransformationsTest {
         trigger.setValue(2);
         verify(observer, never()).onChanged(anyString());
         assertThat(first.hasObservers(), is(false));
+    }
+
+    @Test
+    public void noObsoleteValueTest() {
+        MutableLiveData<Integer> numbers = new MutableLiveData<>();
+        LiveData<Integer> squared = Transformations.map(numbers, new Function<Integer, Integer>() {
+            @Override
+            public Integer apply(Integer input) {
+                return input * input;
+            }
+        });
+
+        Observer observer = mock(Observer.class);
+        squared.setValue(1);
+        squared.observeForever(observer);
+        verify(observer).onChanged(1);
+        squared.removeObserver(observer);
+        reset(observer);
+        numbers.setValue(2);
+        squared.observeForever(observer);
+        verify(observer, only()).onChanged(4);
     }
 }
