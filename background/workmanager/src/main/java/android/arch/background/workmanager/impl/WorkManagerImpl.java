@@ -39,7 +39,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.List;
@@ -68,11 +67,6 @@ public class WorkManagerImpl extends WorkManager {
             throw new IllegalStateException("Trying to initialize WorkManager twice!");
         }
         sInstance = new WorkManagerImpl(context, configuration);
-    }
-
-    @VisibleForTesting
-    static synchronized void setInstance(@NonNull WorkManagerImpl instance) {
-        sInstance = instance;
     }
 
     /**
