@@ -366,6 +366,49 @@ public class ListItemTest {
     }
 
     @Test
+    public void testSmallPrimaryIconTopMarginRemainsTheSameRegardlessOfTextLength() {
+        final String longText = InstrumentationRegistry.getContext().getResources().getString(
+                R.string.over_120_chars);
+        List<ListItem> items = Arrays.asList(
+                // Single line item.
+                new ListItem.Builder(mActivity)
+                        .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
+                        .withTitle("one line text")
+                        .build(),
+                // Double line item with one line text.
+                new ListItem.Builder(mActivity)
+                        .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
+                        .withTitle("one line text")
+                        .withBody("one line text")
+                        .build(),
+                // Double line item with long text.
+                new ListItem.Builder(mActivity)
+                        .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
+                        .withTitle("one line text")
+                        .withBody(longText)
+                        .build(),
+                // Body text only - long text.
+                new ListItem.Builder(mActivity)
+                        .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
+                        .withBody(longText)
+                        .build(),
+                // Body text only - one line text.
+                new ListItem.Builder(mActivity)
+                        .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
+                        .withBody("one line text")
+                        .build());
+        setupPagedListView(items);
+
+        for (int i = 1; i < items.size(); i++) {
+            onView(withId(R.id.recycler_view)).perform(scrollToPosition(i));
+            // Implementation uses integer division so it may be off by 1 vs centered vertically.
+            assertThat((double) getViewHolderAtPosition(i - 1).getPrimaryIcon().getTop(),
+                    is(closeTo(
+                    (double) getViewHolderAtPosition(i).getPrimaryIcon().getTop(), 1.0d)));
+        }
+    }
+
+    @Test
     public void testClickingPrimaryActionIsSeparateFromSupplementalAction() {
         final boolean[] clicked = {false, false};
         List<ListItem> items = Arrays.asList(
