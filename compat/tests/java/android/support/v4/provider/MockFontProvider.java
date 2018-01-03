@@ -40,10 +40,12 @@ import java.util.Map;
  * Provides a test Content Provider implementing {@link FontsContractCompat}.
  */
 public class MockFontProvider extends ContentProvider {
+    public static final String AUTHORITY = "android.support.provider.fonts.font";
+
     static final String[] FONT_FILES = {
             "samplefont.ttf", "large_a.ttf", "large_b.ttf", "large_c.ttf", "large_d.ttf"
     };
-    private static final int INVALID_FONT_FILE_ID = -1;
+    public static final int INVALID_FONT_FILE_ID = -1;
     private static final int SAMPLE_FONT_FILE_0_ID = 0;
     private static final int LARGE_A_FILE_ID = 1;
     private static final int LARGE_B_FILE_ID = 2;
