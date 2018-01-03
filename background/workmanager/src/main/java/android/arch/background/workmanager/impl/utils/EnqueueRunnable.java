@@ -17,6 +17,7 @@
 package android.arch.background.workmanager.impl.utils;
 
 import static android.arch.background.workmanager.BaseWork.STATUS_BLOCKED;
+import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
 
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Work;
@@ -74,16 +75,20 @@ public class EnqueueRunnable implements Runnable {
         try {
             long currentTimeMillis = System.currentTimeMillis();
             boolean hasPrerequisite = (mPrerequisiteIds != null && mPrerequisiteIds.length > 0);
+            boolean hasCompletedAllPrerequisites = true;
 
             if (hasPrerequisite) {
                 // If there are prerequisites, make sure they actually exist before enqueuing
                 // anything.  Prerequisites may not exist if we are using unique tags, because the
                 // chain of work could have been wiped out already.
                 for (String id : mPrerequisiteIds) {
-                    if (workDatabase.workSpecDao().getWorkSpec(id) == null) {
+                    WorkSpec prerequisiteWorkSpec = workDatabase.workSpecDao().getWorkSpec(id);
+                    if (prerequisiteWorkSpec == null) {
                         Log.e(TAG, "Prerequisite " + id + " doesn't exist; not enqueuing");
                         return;
                     }
+                    hasCompletedAllPrerequisites &=
+                            (prerequisiteWorkSpec.getStatus() == STATUS_SUCCEEDED);
                 }
             }
 
@@ -108,7 +113,7 @@ public class EnqueueRunnable implements Runnable {
             for (InternalWorkImpl work : mWorkArray) {
                 WorkSpec workSpec = work.getWorkSpec();
 
-                if (hasPrerequisite) {
+                if (hasPrerequisite && !hasCompletedAllPrerequisites) {
                     workSpec.setStatus(STATUS_BLOCKED);
                 } else {
                     // Set scheduled times only for work without prerequisites. Dependent work

@@ -41,6 +41,7 @@ import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.TestLifecycleOwner;
 import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.WorkManagerTest;
 import android.arch.background.workmanager.executors.SynchronousExecutorService;
@@ -54,9 +55,9 @@ import android.arch.background.workmanager.impl.utils.taskexecutor.InstantTaskEx
 import android.arch.background.workmanager.worker.TestWorker;
 import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
+import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.content.Context;
@@ -81,6 +82,7 @@ import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest extends WorkManagerTest {
+    private TestLifecycleOwner mLifecycleOwner;
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
 
@@ -106,13 +108,16 @@ public class WorkManagerImplTest extends WorkManagerTest {
             }
         });
 
+        mLifecycleOwner = new TestLifecycleOwner();
+        mLifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+
         Context context = InstrumentationRegistry.getTargetContext();
         WorkManagerConfiguration configuration = new WorkManagerConfiguration(
                 context,
                 true,
                 new SynchronousExecutorService(),
                 new SynchronousExecutorService(),
-                ProcessLifecycleOwner.get());
+                mLifecycleOwner);
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
     }
@@ -190,6 +195,22 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         prerequisites = dependencyDao.getPrerequisites(work3b.getId());
         assertThat(prerequisites, containsInAnyOrder(work2.getId()));
+    }
+
+    @Test
+    @SmallTest
+    public void testEnqueue_insertWithCompletedDependencies_isNotStatusBlocked() {
+        Work work1 = Work.newBuilder(TestWorker.class).build();
+
+        mLifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+        WorkContinuation workContinuation = mWorkManagerImpl.enqueue(work1);
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpecStatus(work1.getId()), is(STATUS_SUCCEEDED));
+
+        mLifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+        Work work2 = Work.newBuilder(TestWorker.class).build();
+        workContinuation.then(work2);
+        assertThat(workSpecDao.getWorkSpecStatus(work2.getId()), is(STATUS_ENQUEUED));
     }
 
     @Test
