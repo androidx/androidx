@@ -18,6 +18,8 @@ package android.support.v4.util;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
@@ -69,16 +71,15 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * The first entry in the array is a pointer to the next array in the
      * list; the second entry is a pointer to the int[] hash code array for it.
      */
-    static Object[] sBaseCache;
-    static int sBaseCacheSize;
-    static Object[] sTwiceBaseCache;
-    static int sTwiceBaseCacheSize;
+    private static Object[] sBaseCache;
+    private static int sBaseCacheSize;
+    private static Object[] sTwiceBaseCache;
+    private static int sTwiceBaseCacheSize;
 
-    final boolean mIdentityHashCode;
-    int[] mHashes;
-    Object[] mArray;
-    int mSize;
-    MapCollections<E, E> mCollections;
+    private int[] mHashes;
+    private Object[] mArray;
+    private int mSize;
+    private MapCollections<E, E> mCollections;
 
     private int indexOf(Object key, int hash) {
         final int N = mSize;
@@ -238,19 +239,13 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * will grow once items are added to it.
      */
     public ArraySet() {
-        this(0, false);
+        this(0);
     }
 
     /**
      * Create a new ArraySet with a given initial capacity.
      */
     public ArraySet(int capacity) {
-        this(capacity, false);
-    }
-
-    /** {@hide} */
-    public ArraySet(int capacity, boolean identityHashCode) {
-        mIdentityHashCode = identityHashCode;
         if (capacity == 0) {
             mHashes = INT;
             mArray = OBJECT;
@@ -263,15 +258,17 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     /**
      * Create a new ArraySet with the mappings from the given ArraySet.
      */
-    public ArraySet(ArraySet<E> set) {
+    public ArraySet(@Nullable ArraySet<E> set) {
         this();
         if (set != null) {
             addAll(set);
         }
     }
 
-    /** {@hide} */
-    public ArraySet(Collection<E> set) {
+    /**
+     * Create a new ArraySet with the mappings from the given {@link Collection}.
+     */
+    public ArraySet(@Nullable Collection<E> set) {
         this();
         if (set != null) {
             addAll(set);
@@ -326,8 +323,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @return Returns the index of the value if it exists, else a negative integer.
      */
     public int indexOf(Object key) {
-        return key == null ? indexOfNull()
-                : indexOf(key, mIdentityHashCode ? System.identityHashCode(key) : key.hashCode());
+        return key == null ? indexOfNull() : indexOf(key, key.hashCode());
     }
 
     /**
@@ -335,6 +331,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the value stored at the given index.
      */
+    @Nullable
     public E valueAt(int index) {
         return (E) mArray[index];
     }
@@ -357,14 +354,14 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      *             when the class of the object is inappropriate for this set.
      */
     @Override
-    public boolean add(E value) {
+    public boolean add(@Nullable E value) {
         final int hash;
         int index;
         if (value == null) {
             hash = 0;
             index = indexOfNull();
         } else {
-            hash = mIdentityHashCode ? System.identityHashCode(value) : value.hashCode();
+            hash = value.hashCode();
             index = indexOf(value, hash);
         }
         if (index >= 0) {
@@ -413,8 +410,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     @RestrictTo(LIBRARY_GROUP)
     public void append(E value) {
         final int index = mSize;
-        final int hash = value == null ? 0
-                : (mIdentityHashCode ? System.identityHashCode(value) : value.hashCode());
+        final int hash = value == null ? 0 : value.hashCode();
         if (index >= mHashes.length) {
             throw new IllegalStateException("Array is full");
         }
@@ -439,7 +435,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * Perform a {@link #add(Object)} of all values in <var>array</var>
      * @param array The array whose contents are to be retrieved.
      */
-    public void addAll(ArraySet<? extends E> array) {
+    public void addAll(@NonNull ArraySet<? extends E> array) {
         final int N = array.mSize;
         ensureCapacity(mSize + N);
         if (mSize == 0) {
@@ -555,6 +551,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
         return mSize;
     }
 
+    @NonNull
     @Override
     public Object[] toArray() {
         Object[] result = new Object[mSize];
@@ -562,8 +559,9 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
         return result;
     }
 
+    @NonNull
     @Override
-    public <T> T[] toArray(T[] array) {
+    public <T> T[] toArray(@NonNull T[] array) {
         if (array.length < mSize) {
             @SuppressWarnings("unchecked") T[] newArray =
                     (T[]) Array.newInstance(array.getClass().getComponentType(), mSize);
@@ -732,7 +730,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * in <var>collection</var>, else returns false.
      */
     @Override
-    public boolean containsAll(Collection<?> collection) {
+    public boolean containsAll(@NonNull Collection<?> collection) {
         Iterator<?> it = collection.iterator();
         while (it.hasNext()) {
             if (!contains(it.next())) {
@@ -747,7 +745,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @param collection The collection whose contents are to be retrieved.
      */
     @Override
-    public boolean addAll(Collection<? extends E> collection) {
+    public boolean addAll(@NonNull Collection<? extends E> collection) {
         ensureCapacity(mSize + collection.size());
         boolean added = false;
         for (E value : collection) {
@@ -762,7 +760,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @return Returns true if any values were removed from the array set, else false.
      */
     @Override
-    public boolean removeAll(Collection<?> collection) {
+    public boolean removeAll(@NonNull Collection<?> collection) {
         boolean removed = false;
         for (Object value : collection) {
             removed |= remove(value);
@@ -777,7 +775,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @return Returns true if any values were removed from the array set, else false.
      */
     @Override
-    public boolean retainAll(Collection<?> collection) {
+    public boolean retainAll(@NonNull Collection<?> collection) {
         boolean removed = false;
         for (int i = mSize - 1; i >= 0; i--) {
             if (!collection.contains(mArray[i])) {
