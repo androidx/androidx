@@ -139,6 +139,16 @@ public class WorkManagerImpl extends WorkManager {
         return mConfiguration.getBackgroundExecutorService();
     }
 
+    /**
+     * @return the {@link TaskExecutor} used by the instance of {@link WorkManager}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull TaskExecutor getTaskExecutor() {
+        return mTaskExecutor;
+    }
+
     @Override
     public LiveData<Integer> getStatusForId(@NonNull String id) {
         return LiveDataUtils.dedupedLiveDataFor(
@@ -230,5 +240,10 @@ public class WorkManagerImpl extends WorkManager {
         mTaskExecutor.executeOnBackgroundThread(
                 new EnqueueRunnable(this, work, prerequisiteIds, uniqueTag, existingWorkPolicy));
         return workContinuation;
+    }
+
+    @Override
+    public WorkContinuation with(@NonNull Work... work) {
+        return new LazyWorkContinuationImpl(this, work);
     }
 }

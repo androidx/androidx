@@ -57,6 +57,15 @@ public abstract class WorkManager {
     public abstract LiveData<Arguments> getOutput(@NonNull String id);
 
     /**
+     * Starts a chain of work, which can be enqueued together in the future using
+     * {@link WorkContinuation#enqueue()}.
+     * @param work One or more {@link Work} to enqueue in the future
+     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
+     *         input work
+     */
+    public abstract WorkContinuation with(@NonNull Work...work);
+
+    /**
      * Enqueues one or more items for background processing.
      *
      * @param work One or more {@link Work} to enqueue
