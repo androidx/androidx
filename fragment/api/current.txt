@@ -22,7 +22,7 @@ package android.support.v4.app {
     field public static final int STYLE_NO_TITLE = 1; // 0x1
   }
 
-  public class Fragment implements android.content.ComponentCallbacks android.arch.lifecycle.LifecycleOwner android.view.View.OnCreateContextMenuListener {
+  public class Fragment implements android.content.ComponentCallbacks android.arch.lifecycle.LifecycleOwner android.view.View.OnCreateContextMenuListener android.arch.lifecycle.ViewModelStoreOwner {
     ctor public Fragment();
     method public void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public final boolean equals(java.lang.Object);
@@ -55,6 +55,7 @@ package android.support.v4.app {
     method public final java.lang.CharSequence getText(int);
     method public boolean getUserVisibleHint();
     method public android.view.View getView();
+    method public android.arch.lifecycle.ViewModelStore getViewModelStore();
     method public final int hashCode();
     method public static android.support.v4.app.Fragment instantiate(android.content.Context, java.lang.String);
     method public static android.support.v4.app.Fragment instantiate(android.content.Context, java.lang.String, android.os.Bundle);

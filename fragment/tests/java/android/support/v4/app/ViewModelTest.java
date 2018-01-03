@@ -17,14 +17,17 @@
 package android.support.v4.app;
 
 import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
+import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Instrumentation;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.ViewModelProvider;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
@@ -32,6 +35,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.TestViewModel;
 import android.support.v4.app.test.ViewModelActivity;
+import android.support.v4.app.test.ViewModelActivity.ViewModelFragment;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,8 +60,15 @@ public class ViewModelTest {
         new FragmentActivity().getViewModelStore();
     }
 
+    @Test(expected = IllegalStateException.class)
+    @UiThreadTest
+    public void testNotAttachedFragment() {
+        // This is similar to calling getViewModelStore in Fragment's constructor
+        new Fragment().getViewModelStore();
+    }
+
     @Test
-    public void testSameViewModels() throws Throwable {
+    public void testSameActivityViewModels() throws Throwable {
         final TestViewModel[] activityModel = new TestViewModel[1];
         final TestViewModel[] defaultActivityModel = new TestViewModel[1];
         final ViewModelActivity[] viewModelActivity = new ViewModelActivity[1];
@@ -68,6 +79,19 @@ public class ViewModelTest {
                 activityModel[0] = viewModelActivity[0].activityModel;
                 defaultActivityModel[0] = viewModelActivity[0].defaultActivityModel;
                 assertThat(defaultActivityModel[0], not(is(activityModel[0])));
+
+                ViewModelFragment fragment1 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_1);
+                ViewModelFragment fragment2 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_2);
+                assertThat(fragment1, notNullValue());
+                assertThat(fragment2, notNullValue());
+
+                assertThat(fragment1.activityModel, is(activityModel[0]));
+                assertThat(fragment2.activityModel, is(activityModel[0]));
+
+                assertThat(fragment1.defaultActivityModel, is(defaultActivityModel[0]));
+                assertThat(fragment2.defaultActivityModel, is(defaultActivityModel[0]));
             }
         });
         viewModelActivity[0] = recreateActivity();
@@ -77,12 +101,63 @@ public class ViewModelTest {
                 assertThat(viewModelActivity[0].activityModel, is(activityModel[0]));
                 assertThat(viewModelActivity[0].defaultActivityModel,
                         is(defaultActivityModel[0]));
+
+                ViewModelFragment fragment1 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_1);
+                ViewModelFragment fragment2 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_2);
+                assertThat(fragment1, notNullValue());
+                assertThat(fragment2, notNullValue());
+
+                assertThat(fragment1.activityModel, is(activityModel[0]));
+                assertThat(fragment2.activityModel, is(activityModel[0]));
+
+                assertThat(fragment1.defaultActivityModel, is(defaultActivityModel[0]));
+                assertThat(fragment2.defaultActivityModel, is(defaultActivityModel[0]));
             }
         });
     }
 
     @Test
-    public void testOnCleared() throws Throwable {
+    public void testSameFragmentViewModels() throws Throwable {
+        final TestViewModel[] fragment1Model = new TestViewModel[1];
+        final TestViewModel[] fragment2Model = new TestViewModel[1];
+        final ViewModelActivity[] viewModelActivity = new ViewModelActivity[1];
+        viewModelActivity[0] = mActivityRule.getActivity();
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewModelFragment fragment1 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_1);
+                ViewModelFragment fragment2 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_2);
+                assertThat(fragment1, notNullValue());
+                assertThat(fragment2, notNullValue());
+
+                assertThat(fragment1.fragmentModel, not(is(fragment2.fragmentModel)));
+                fragment1Model[0] = fragment1.fragmentModel;
+                fragment2Model[0] = fragment2.fragmentModel;
+            }
+        });
+        viewModelActivity[0] = recreateActivity();
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewModelFragment fragment1 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_1);
+                ViewModelFragment fragment2 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_2);
+                assertThat(fragment1, notNullValue());
+                assertThat(fragment2, notNullValue());
+
+                assertThat(fragment1.fragmentModel, is(fragment1Model[0]));
+                assertThat(fragment2.fragmentModel, is(fragment2Model[0]));
+            }
+        });
+    }
+
+    @Test
+    public void testActivityOnCleared() throws Throwable {
         final ViewModelActivity activity = mActivityRule.getActivity();
         final CountDownLatch latch = new CountDownLatch(1);
         final LifecycleObserver observer = new LifecycleObserver() {
@@ -111,6 +186,44 @@ public class ViewModelTest {
         });
         activity.finish();
         assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS), is(true));
+    }
+
+    @Test
+    public void testFragmentOnCleared() throws Throwable {
+        final ViewModelActivity activity = mActivityRule.getActivity();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final LifecycleObserver observer = new LifecycleObserver() {
+            @SuppressWarnings("unused")
+            @OnLifecycleEvent(ON_RESUME)
+            void onResume() {
+                try {
+                    final FragmentManager manager = activity.getSupportFragmentManager();
+                    Fragment fragment = new Fragment();
+                    manager.beginTransaction().add(fragment, "temp").commitNow();
+                    ViewModelProvider viewModelProvider = new ViewModelProvider(fragment,
+                            new ViewModelProvider.NewInstanceFactory());
+                    TestViewModel vm = viewModelProvider.get(TestViewModel.class);
+                    assertThat(vm.mCleared, is(false));
+                    manager.beginTransaction().remove(fragment).commitNow();
+                    assertThat(vm.mCleared, is(true));
+                } finally {
+                    latch.countDown();
+                }
+            }
+        };
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.getLifecycle().addObserver(observer);
+            }
+        });
+        assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS), is(true));
+    }
+
+    private ViewModelFragment getFragment(FragmentActivity activity, String tag) {
+        return (ViewModelFragment) activity.getSupportFragmentManager()
+                .findFragmentByTag(tag);
     }
 
     private ViewModelActivity recreateActivity() throws Throwable {

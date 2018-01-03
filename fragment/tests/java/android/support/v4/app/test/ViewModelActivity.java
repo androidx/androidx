@@ -19,10 +19,15 @@ package android.support.v4.app.test;
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.fragment.test.R;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
 public class ViewModelActivity extends FragmentActivity {
+    public static final String KEY_FRAGMENT_MODEL = "fragment-model";
     public static final String KEY_ACTIVITY_MODEL = "activity-model";
+    public static final String FRAGMENT_TAG_1 = "f1";
+    public static final String FRAGMENT_TAG_2 = "f2";
 
     public TestViewModel activityModel;
     public TestViewModel defaultActivityModel;
@@ -30,10 +35,37 @@ public class ViewModelActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_view_model);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, new ViewModelFragment(), FRAGMENT_TAG_1)
+                    .add(new ViewModelFragment(), FRAGMENT_TAG_2)
+                    .commit();
+        }
 
         ViewModelProvider viewModelProvider = new ViewModelProvider(this,
                 new ViewModelProvider.NewInstanceFactory());
         activityModel = viewModelProvider.get(KEY_ACTIVITY_MODEL, TestViewModel.class);
         defaultActivityModel = viewModelProvider.get(TestViewModel.class);
+    }
+
+    public static class ViewModelFragment extends Fragment {
+        public TestViewModel fragmentModel;
+        public TestViewModel activityModel;
+        public TestViewModel defaultActivityModel;
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            ViewModelProvider viewModelProvider = new ViewModelProvider(this,
+                    new ViewModelProvider.NewInstanceFactory());
+            fragmentModel = viewModelProvider.get(KEY_FRAGMENT_MODEL,
+                    TestViewModel.class);
+            ViewModelProvider activityViewModelProvider = new ViewModelProvider(getActivity(),
+                    new ViewModelProvider.NewInstanceFactory());
+            activityModel = activityViewModelProvider.get(KEY_ACTIVITY_MODEL,
+                    TestViewModel.class);
+            defaultActivityModel = activityViewModelProvider.get(TestViewModel.class);
+        }
     }
 }

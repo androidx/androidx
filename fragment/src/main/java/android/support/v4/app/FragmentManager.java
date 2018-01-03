@@ -24,6 +24,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
+import android.arch.lifecycle.ViewModelStore;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources.NotFoundException;
@@ -2805,6 +2806,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     void saveNonConfig() {
         ArrayList<Fragment> fragments = null;
         ArrayList<FragmentManagerNonConfig> childFragments = null;
+        ArrayList<ViewModelStore> viewModelStores = null;
         if (mActive != null) {
             for (int i=0; i<mActive.size(); i++) {
                 Fragment f = mActive.valueAt(i);
@@ -2837,13 +2839,24 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     if (childFragments != null) {
                         childFragments.add(child);
                     }
+                    if (viewModelStores == null && f.mViewModelStore != null) {
+                        viewModelStores = new ArrayList<>(mActive.size());
+                        for (int j = 0; j < i; j++) {
+                            viewModelStores.add(null);
+                        }
+                    }
+
+                    if (viewModelStores != null) {
+                        viewModelStores.add(f.mViewModelStore);
+                    }
                 }
             }
         }
-        if (fragments == null && childFragments == null) {
+        if (fragments == null && childFragments == null && viewModelStores == null) {
             mSavedNonConfig = null;
         } else {
-            mSavedNonConfig = new FragmentManagerNonConfig(fragments, childFragments);
+            mSavedNonConfig = new FragmentManagerNonConfig(fragments, childFragments,
+                    viewModelStores);
         }
     }
 
@@ -3018,12 +3031,14 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (fms.mActive == null) return;
 
         List<FragmentManagerNonConfig> childNonConfigs = null;
+        List<ViewModelStore> viewModelStores = null;
 
         // First re-attach any non-config instances we are retaining back
         // to their saved state, so we don't try to instantiate them again.
         if (nonConfig != null) {
             List<Fragment> nonConfigFragments = nonConfig.getFragments();
             childNonConfigs = nonConfig.getChildNonConfigs();
+            viewModelStores = nonConfig.getViewModelStores();
             final int count = nonConfigFragments != null ? nonConfigFragments.size() : 0;
             for (int i = 0; i < count; i++) {
                 Fragment f = nonConfigFragments.get(i);
@@ -3062,7 +3077,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 if (childNonConfigs != null && i < childNonConfigs.size()) {
                     childNonConfig = childNonConfigs.get(i);
                 }
-                Fragment f = fs.instantiate(mHost, mContainer, mParent, childNonConfig);
+                ViewModelStore viewModelStore = null;
+                if (viewModelStores != null && i < viewModelStores.size()) {
+                    viewModelStore = viewModelStores.get(i);
+                }
+                Fragment f = fs.instantiate(mHost, mContainer, mParent, childNonConfig,
+                        viewModelStore);
                 if (DEBUG) Log.v(TAG, "restoreAllState: active #" + i + ": " + f);
                 mActive.put(f.mIndex, f);
                 // Now that the fragment is instantiated (or came from being

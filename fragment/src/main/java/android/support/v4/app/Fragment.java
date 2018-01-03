@@ -23,6 +23,8 @@ import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.ViewModelStore;
+import android.arch.lifecycle.ViewModelStoreOwner;
 import android.content.ComponentCallbacks;
 import android.content.Context;
 import android.content.Intent;
@@ -74,7 +76,8 @@ import java.lang.reflect.InvocationTargetException;
  * </ul>
  *
  */
-public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener, LifecycleOwner {
+public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener, LifecycleOwner,
+        ViewModelStoreOwner {
     private static final SimpleArrayMap<String, Class<?>> sClassMap =
             new SimpleArrayMap<String, Class<?>>();
 
@@ -147,6 +150,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // For use when restoring fragment state and descendant fragments are retained.
     // This state is set by FragmentState.instantiate and cleared in onCreate.
     FragmentManagerNonConfig mChildNonConfig;
+
+    // ViewModelStore for storing ViewModels associated with this Fragment
+    ViewModelStore mViewModelStore;
 
     // If this Fragment is contained in another Fragment, this is that container.
     Fragment mParentFragment;
@@ -239,6 +245,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycleRegistry;
+    }
+
+    @NonNull
+    @Override
+    public ViewModelStore getViewModelStore() {
+        if (getContext() == null) {
+            throw new IllegalStateException("Can't access ViewModels from detached fragment");
+        }
+        if (mViewModelStore == null) {
+            mViewModelStore = new ViewModelStore();
+        }
+        return mViewModelStore;
     }
 
     /**
@@ -1640,6 +1658,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onDestroy() {
         mCalled = true;
+        if (mViewModelStore != null && !mHost.mFragmentManager.isStateSaved()) {
+            mViewModelStore.clear();
+        }
         //Log.v("foo", "onDestroy: mCheckedForLoaderManager=" + mCheckedForLoaderManager
         //        + " mLoaderManager=" + mLoaderManager);
         if (!mCheckedForLoaderManager) {
