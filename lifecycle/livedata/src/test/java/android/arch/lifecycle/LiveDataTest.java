@@ -30,6 +30,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -777,6 +778,28 @@ public class LiveDataTest {
         verify(mActiveObserversChanged).onCall(true);
         verify(mObserver3).onChanged("1");
         verify(mObserver4, never()).onChanged(anyString());
+    }
+
+    @Test
+    public void nestedForeverObserver() {
+        mLiveData.setValue(".");
+        mLiveData.observeForever(new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                mLiveData.observeForever(mock(Observer.class));
+                mLiveData.removeObserver(this);
+            }
+        });
+        verify(mActiveObserversChanged, only()).onCall(true);
+    }
+
+    @Test
+    public void readdForeverObserver() {
+        Observer observer = mock(Observer.class);
+        mLiveData.observeForever(observer);
+        mLiveData.observeForever(observer);
+        mLiveData.removeObserver(observer);
+        assertThat(mLiveData.hasObservers(), is(false));
     }
 
     private GenericLifecycleObserver getGenericLifecycleObserver(Lifecycle lifecycle) {
