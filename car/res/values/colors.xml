@@ -99,8 +99,8 @@
     <color name="car_body4_dark">@android:color/black</color>
     <color name="car_body4">@color/car_body4_dark</color>
 
-    <color name="car_action1_light">@color/car_grey_50</color>
-    <color name="car_action1_dark">@color/car_grey_900</color>
+    <color name="car_action1_light">@color/car_grey_900</color>
+    <color name="car_action1_dark">@color/car_grey_50</color>
     <color name="car_action1">@color/car_action1_dark</color>
 
     <!-- The tinting colors to create a light- and dark-colored icon respectively. -->
@@ -164,4 +164,8 @@
     <color name="car_highlight_light">@color/car_teal_700</color>
     <color name="car_highlight_dark">@color/car_teal_200</color>
     <color name="car_highlight">@color/car_highlight_light</color>
+
+    <color name="car_accent_light">@color/car_teal_700</color>
+    <color name="car_accent_dark">@color/car_teal_200</color>
+    <color name="car_accent">@color/car_accent_light</color>
 </resources>
