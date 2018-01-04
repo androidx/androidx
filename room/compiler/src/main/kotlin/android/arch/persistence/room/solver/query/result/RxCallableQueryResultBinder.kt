@@ -41,6 +41,7 @@ class RxCallableQueryResultBinder(val rxType: RxType,
                                   adapter: QueryResultAdapter?)
     : QueryResultBinder(adapter) {
     override fun convertAndReturn(roomSQLiteQueryVar: String,
+                                  canReleaseQuery: Boolean,
                                   dbField: FieldSpec,
                                   inTransaction: Boolean,
                                   scope: CodeGenScope) {
@@ -50,6 +51,7 @@ class RxCallableQueryResultBinder(val rxType: RxType,
                     typeName))
             addMethod(createCallMethod(
                     roomSQLiteQueryVar = roomSQLiteQueryVar,
+                    canReleaseQuery = canReleaseQuery,
                     dbField = dbField,
                     inTransaction = inTransaction,
                     scope = scope))
@@ -59,10 +61,11 @@ class RxCallableQueryResultBinder(val rxType: RxType,
         }
     }
 
-    fun createCallMethod(roomSQLiteQueryVar: String,
-                         dbField: FieldSpec,
-                         inTransaction: Boolean,
-                         scope: CodeGenScope): MethodSpec {
+    private fun createCallMethod(roomSQLiteQueryVar: String,
+                                 canReleaseQuery: Boolean,
+                                 dbField: FieldSpec,
+                                 inTransaction: Boolean,
+                                 scope: CodeGenScope): MethodSpec {
         val adapterScope = scope.fork()
         return MethodSpec.methodBuilder("call").apply {
             returns(typeArg.typeName())
@@ -95,7 +98,9 @@ class RxCallableQueryResultBinder(val rxType: RxType,
             }
             nextControlFlow("finally").apply {
                 addStatement("$L.close()", cursorVar)
-                addStatement("$L.release()", roomSQLiteQueryVar)
+                if (canReleaseQuery) {
+                    addStatement("$L.release()", roomSQLiteQueryVar)
+                }
             }
             endControlFlow()
             transactionWrapper?.endTransactionWithControlFlow()

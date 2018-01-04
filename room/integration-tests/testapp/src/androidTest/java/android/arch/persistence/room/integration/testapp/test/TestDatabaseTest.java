@@ -21,6 +21,7 @@ import android.arch.persistence.room.integration.testapp.TestDatabase;
 import android.arch.persistence.room.integration.testapp.dao.FunnyNamedDao;
 import android.arch.persistence.room.integration.testapp.dao.PetCoupleDao;
 import android.arch.persistence.room.integration.testapp.dao.PetDao;
+import android.arch.persistence.room.integration.testapp.dao.RawDao;
 import android.arch.persistence.room.integration.testapp.dao.SchoolDao;
 import android.arch.persistence.room.integration.testapp.dao.SpecificDogDao;
 import android.arch.persistence.room.integration.testapp.dao.ToyDao;
@@ -44,6 +45,7 @@ public abstract class TestDatabaseTest {
     protected SpecificDogDao mSpecificDogDao;
     protected WithClauseDao mWithClauseDao;
     protected FunnyNamedDao mFunnyNamedDao;
+    protected RawDao mRawDao;
 
     @Before
     public void createDb() {
@@ -58,5 +60,6 @@ public abstract class TestDatabaseTest {
         mSpecificDogDao = mDatabase.getSpecificDogDao();
         mWithClauseDao = mDatabase.getWithClauseDao();
         mFunnyNamedDao = mDatabase.getFunnyNamedDao();
+        mRawDao = mDatabase.getRawDao();
     }
 }

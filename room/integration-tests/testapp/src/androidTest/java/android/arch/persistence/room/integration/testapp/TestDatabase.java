@@ -25,6 +25,7 @@ import android.arch.persistence.room.integration.testapp.dao.FunnyNamedDao;
 import android.arch.persistence.room.integration.testapp.dao.PetCoupleDao;
 import android.arch.persistence.room.integration.testapp.dao.PetDao;
 import android.arch.persistence.room.integration.testapp.dao.ProductDao;
+import android.arch.persistence.room.integration.testapp.dao.RawDao;
 import android.arch.persistence.room.integration.testapp.dao.SchoolDao;
 import android.arch.persistence.room.integration.testapp.dao.SpecificDogDao;
 import android.arch.persistence.room.integration.testapp.dao.ToyDao;
@@ -61,6 +62,7 @@ public abstract class TestDatabase extends RoomDatabase {
     public abstract SpecificDogDao getSpecificDogDao();
     public abstract WithClauseDao getWithClauseDao();
     public abstract FunnyNamedDao getFunnyNamedDao();
+    public abstract RawDao getRawDao();
 
     @SuppressWarnings("unused")
     public static class Converters {

@@ -38,6 +38,7 @@ class TiledDataSourceQueryResultBinder(val listAdapter: ListQueryResultAdapter?,
     val typeName: ParameterizedTypeName = ParameterizedTypeName.get(
             RoomTypeNames.LIMIT_OFFSET_DATA_SOURCE, itemTypeName)
     override fun convertAndReturn(roomSQLiteQueryVar: String,
+                                  canReleaseQuery: Boolean,
                                   dbField: FieldSpec,
                                   inTransaction: Boolean,
                                   scope: CodeGenScope) {
