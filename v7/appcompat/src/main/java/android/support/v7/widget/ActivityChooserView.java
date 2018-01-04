@@ -44,6 +44,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -857,7 +858,7 @@ public class ActivityChooserView extends ViewGroup implements
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static class InnerLayout extends LinearLayoutCompat {
+    public static class InnerLayout extends LinearLayout {
 
         private static final int[] TINT_ATTRS = {
                 android.R.attr.background

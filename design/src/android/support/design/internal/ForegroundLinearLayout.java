@@ -27,15 +27,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.design.R;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.widget.LinearLayout;
 
 /**
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public class ForegroundLinearLayout extends LinearLayoutCompat {
+public class ForegroundLinearLayout extends LinearLayout {
 
     private Drawable mForeground;
 
