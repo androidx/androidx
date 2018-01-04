@@ -16,6 +16,8 @@
 
 package android.arch.persistence.room.migration.bundle;
 
+import static android.arch.persistence.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality;
+
 import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.SerializedName;
@@ -35,7 +37,7 @@ import java.util.Map;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EntityBundle {
+public class EntityBundle implements SchemaEquality<EntityBundle> {
 
     static final String NEW_TABLE_PREFIX = "_new_";
 
@@ -175,5 +177,16 @@ public class EntityBundle {
             result.add(indexBundle.create(getTableName()));
         }
         return result;
+    }
+
+    @Override
+    public boolean isSchemaEqual(EntityBundle other) {
+        if (!mTableName.equals(other.mTableName)) {
+            return false;
+        }
+        return checkSchemaEquality(getFieldsByColumnName(), other.getFieldsByColumnName())
+                && checkSchemaEquality(mPrimaryKey, other.mPrimaryKey)
+                && checkSchemaEquality(mIndices, other.mIndices)
+                && checkSchemaEquality(mForeignKeys, other.mForeignKeys);
     }
 }

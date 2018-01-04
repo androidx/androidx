@@ -22,18 +22,30 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
 // TODO make data class when move to kotlin 1.1
-class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
-             fields: List<Field>, embeddedFields: List<EmbeddedField>,
-             val primaryKey: PrimaryKey, val indices: List<Index>,
-             val foreignKeys: List<ForeignKey>,
-             constructor: Constructor?)
-    : Pojo(element, type, fields, embeddedFields, emptyList(), constructor) {
+class Entity(
+        element: TypeElement, val tableName: String, type: DeclaredType,
+        fields: List<Field>, embeddedFields: List<EmbeddedField>,
+        val primaryKey: PrimaryKey, val indices: List<Index>,
+        val foreignKeys: List<ForeignKey>,
+        constructor: Constructor?)
+    : Pojo(element, type, fields, embeddedFields, emptyList(), constructor), HasSchemaIdentity {
 
     val createTableQuery by lazy {
         createTableQuery(tableName)
     }
 
-    fun createTableQuery(tableName: String): String {
+    // a string defining the identity of this entity, which can be used for equality checks
+    override fun getIdKey(): String {
+        val identityKey = SchemaIdentityKey()
+        identityKey.append(tableName)
+        identityKey.append(primaryKey)
+        identityKey.appendSorted(fields)
+        identityKey.appendSorted(indices)
+        identityKey.appendSorted(foreignKeys)
+        return identityKey.hash()
+    }
+
+    private fun createTableQuery(tableName: String): String {
         val definitions = (fields.map {
             val autoIncrement = primaryKey.autoGenerateId && primaryKey.fields.contains(it)
             it.databaseDefinition(autoIncrement)

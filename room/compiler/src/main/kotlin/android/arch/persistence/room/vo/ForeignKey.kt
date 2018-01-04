@@ -26,7 +26,16 @@ data class ForeignKey(val parentTable: String,
                       val childFields: List<Field>,
                       val onDelete: ForeignKeyAction,
                       val onUpdate: ForeignKeyAction,
-                      val deferred: Boolean) {
+                      val deferred: Boolean) : HasSchemaIdentity {
+    override fun getIdKey(): String {
+        return parentTable +
+                "-${parentColumns.joinToString(",")}" +
+                "-${childFields.joinToString(",") {it.columnName}}" +
+                "-${onDelete.sqlName}" +
+                "-${onUpdate.sqlName}" +
+                "-$deferred"
+    }
+
     fun databaseDefinition(): String {
         return "FOREIGN KEY(${joinEscaped(childFields.map { it.columnName })})" +
                 " REFERENCES `$parentTable`(${joinEscaped(parentColumns)})" +
