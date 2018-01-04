@@ -145,17 +145,6 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public LiveData<Integer> getStatusForId(@NonNull String id) {
-        return LiveDataUtils.dedupedLiveDataFor(
-                mWorkDatabase.workSpecDao().getWorkSpecLiveDataStatus(id));
-    }
-
-    @Override
-    public LiveData<Arguments> getOutput(@NonNull String id) {
-        return LiveDataUtils.dedupedLiveDataFor(mWorkDatabase.workSpecDao().getOutput(id));
-    }
-
-    @Override
     public void enqueue(@NonNull Work... work) {
         createWith(work).enqueue();
     }
@@ -204,6 +193,17 @@ public class WorkManagerImpl extends WorkManager {
     @Override
     public void pruneDatabase() {
         mTaskExecutor.executeOnBackgroundThread(new PruneDatabaseRunnable(mWorkDatabase));
+    }
+
+    @Override
+    public LiveData<Integer> getStatusForId(@NonNull String id) {
+        return LiveDataUtils.dedupedLiveDataFor(
+                mWorkDatabase.workSpecDao().getWorkSpecLiveDataStatus(id));
+    }
+
+    @Override
+    public LiveData<Arguments> getOutput(@NonNull String id) {
+        return LiveDataUtils.dedupedLiveDataFor(mWorkDatabase.workSpecDao().getOutput(id));
     }
 
     LiveData<Map<String, Integer>> getStatusesFor(@NonNull List<String> workSpecIds) {

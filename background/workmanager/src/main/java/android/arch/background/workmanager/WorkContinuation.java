@@ -45,10 +45,9 @@ public abstract class WorkContinuation {
     public abstract WorkContinuation then(Class<? extends Worker>... workerClasses);
 
     /**
-     * Terminates the chain of {@link Work} and returns a {@link LiveData} mapping of work
-     * identifiers to their statuses for all work in this chain.  Whenever the status of one of the
-     * work enqueued in this chain changes, any attached {@link android.arch.lifecycle.Observer}s
-     * will trigger.
+     * Returns a {@link LiveData} mapping of work identifiers to their statuses for all work in this
+     * chain.  Whenever the status of one of the work enqueued in this chain changes, any attached
+     * {@link android.arch.lifecycle.Observer}s will trigger.
      *
      * @return A {@link LiveData} containing a map of work identifiers to their corresponding
      * {@link BaseWork.WorkStatus}
@@ -58,8 +57,5 @@ public abstract class WorkContinuation {
     /***
      * Enqueues the instance of {@link WorkContinuation} on the background thread.
      */
-    public void enqueue() {
-        // does nothing for all continuations that are not lazy.
-        // TODO (rahulrav@) Make this method abstract when you make all work continuations lazy.
-    }
+    public abstract void enqueue();
 }

@@ -41,22 +41,6 @@ public abstract class WorkManager {
     }
 
     /**
-     * Gets the {@link BaseWork.WorkStatus} for a given work id.
-     *
-     * @param id The id of the work
-     * @return A {@link LiveData} of the status
-     */
-    public abstract LiveData<Integer> getStatusForId(@NonNull String id);
-
-    /**
-     * Gets the output for a given work id.
-     *
-     * @param id The id of the work
-     * @return A {@link LiveData} of the output
-     */
-    public abstract LiveData<Arguments> getOutput(@NonNull String id);
-
-    /**
      * Enqueues one or more items for background processing.
      *
      * @param work One or more {@link Work} to enqueue
@@ -71,6 +55,13 @@ public abstract class WorkManager {
      */
     @SuppressWarnings("unchecked")
     public abstract void enqueue(@NonNull Class<? extends Worker>... workerClasses);
+
+    /**
+     * Enqueues one or more periodic work items for background processing.
+     *
+     * @param periodicWork One or more {@link PeriodicWork} to enqueue
+     */
+    public abstract void enqueue(@NonNull PeriodicWork... periodicWork);
 
     /**
      * Starts a chain of work, which can be enqueued together in the future using
@@ -107,13 +98,6 @@ public abstract class WorkManager {
             @NonNull String tag, @ExistingWorkPolicy int existingWorkPolicy, @NonNull Work... work);
 
     /**
-     * Enqueues one or more periodic work items for background processing.
-     *
-     * @param periodicWork One or more {@link PeriodicWork} to enqueue
-     */
-    public abstract void enqueue(@NonNull PeriodicWork... periodicWork);
-
-    /**
      * Cancels work with the given id, regardless of the current state of the work.  Note that
      * cancellation is a best-effort policy and work that is already executing may continue to run.
      *
@@ -136,6 +120,22 @@ public abstract class WorkManager {
      * outputs stored in the database.
      */
     public abstract void pruneDatabase();
+
+    /**
+     * Gets the {@link BaseWork.WorkStatus} for a given work id.
+     *
+     * @param id The id of the work
+     * @return A {@link LiveData} of the status
+     */
+    public abstract LiveData<Integer> getStatusForId(@NonNull String id);
+
+    /**
+     * Gets the output for a given work id.
+     *
+     * @param id The id of the work
+     * @return A {@link LiveData} of the output
+     */
+    public abstract LiveData<Arguments> getOutput(@NonNull String id);
 
     @Retention(SOURCE)
     @IntDef({REPLACE_EXISTING_WORK, KEEP_EXISTING_WORK})

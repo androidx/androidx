@@ -39,8 +39,6 @@ public abstract class Worker {
     public static final int WORKER_RESULT_FAILURE = 1;
     public static final int WORKER_RESULT_RETRY = 2;
 
-    private static final String TAG = "Worker";
-
     private Context mAppContext;
     private @NonNull String mId;
     private @NonNull Arguments mArguments;
