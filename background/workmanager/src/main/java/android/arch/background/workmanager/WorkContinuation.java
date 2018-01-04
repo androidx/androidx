@@ -54,4 +54,12 @@ public abstract class WorkContinuation {
      * {@link BaseWork.WorkStatus}
      */
     public abstract LiveData<Map<String, Integer>> getStatuses();
+
+    /***
+     * Enqueues the instance of {@link WorkContinuation} on the background thread.
+     */
+    public void enqueue() {
+        // does nothing for all continuations that are not lazy.
+        // TODO (rahulrav@) Make this method abstract when you make all work continuations lazy.
+    }
 }
