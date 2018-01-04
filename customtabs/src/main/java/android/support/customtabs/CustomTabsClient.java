@@ -45,7 +45,7 @@ public class CustomTabsClient {
     private final ICustomTabsService mService;
     private final ComponentName mServiceComponentName;
 
-    /**@hide*/
+    /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     CustomTabsClient(ICustomTabsService service, ComponentName componentName) {
         mService = service;

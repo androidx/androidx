@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -356,6 +357,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
     /**
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected SparseArrayObjectAdapter createPrimaryActionsAdapter(
             PresenterSelector presenterSelector) {
         SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter(presenterSelector);

@@ -17,6 +17,7 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.view.SurfaceView;
 
@@ -26,6 +27,7 @@ import android.view.SurfaceView;
  * This class disables setTransitionVisibility() to avoid the problem.
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class VideoSurfaceView extends SurfaceView {
 
     public VideoSurfaceView(Context context) {

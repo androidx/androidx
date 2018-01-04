@@ -23,6 +23,7 @@ import static org.mockito.Mockito.times;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
 import android.support.v17.leanback.widget.PlaybackRowPresenter;
@@ -33,6 +34,7 @@ import android.widget.LinearLayout;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+@LargeTest
 public class PlaybackControlGlueTest {
 
     public static class PlaybackControlGlueImpl extends PlaybackControlGlue {

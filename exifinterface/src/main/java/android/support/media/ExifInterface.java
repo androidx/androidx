@@ -23,6 +23,7 @@ import android.location.Location;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 import android.util.Pair;
 
@@ -3550,6 +3551,7 @@ public class ExifInterface {
 
     // Indices of Exif Ifd tag groups
     /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({IFD_TYPE_PRIMARY, IFD_TYPE_EXIF, IFD_TYPE_GPS, IFD_TYPE_INTEROPERABILITY,
             IFD_TYPE_THUMBNAIL, IFD_TYPE_PREVIEW, IFD_TYPE_ORF_MAKER_NOTE,
@@ -4567,6 +4569,7 @@ public class ExifInterface {
      * @param timeStamp number of milliseconds since Jan. 1, 1970, midnight local time.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setDateTime(long timeStamp) {
         long sub = timeStamp % 1000;
         setAttribute(TAG_DATETIME, sFormatter.format(new Date(timeStamp)));
@@ -4578,6 +4581,7 @@ public class ExifInterface {
      * Returns -1 if the date time information if not available.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public long getDateTime() {
         String dateTimeString = getAttribute(TAG_DATETIME);
         if (dateTimeString == null
@@ -4614,6 +4618,7 @@ public class ExifInterface {
      * Returns -1 if the date time information if not available.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public long getGpsDateTime() {
         String date = getAttribute(TAG_GPS_DATESTAMP);
         String time = getAttribute(TAG_GPS_TIMESTAMP);

@@ -29,9 +29,6 @@ import android.view.ViewGroup;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * @hide from javadoc
- */
 public class GuidedStepTestFragment extends GuidedStepFragment {
 
     private static final String KEY_TEST_NAME = "key_test_name";
