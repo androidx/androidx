@@ -28,7 +28,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.core.test.R;
-import androidx.core.view.NestedScrollingParent2;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -37,13 +36,6 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-/**
- * So far these tests only cover {@code NestedScrollView}'s implementation of
- * {@link NestedScrollingParent2} and the backwards compatibility of {@code NestedScrollView}'s
- * implementation of {@link androidx.core.view.NestedScrollingParent} for the methods that
- * {@link NestedScrollingParent2} overloads.
- */
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

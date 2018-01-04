@@ -25,12 +25,15 @@ import android.view.ViewConfiguration;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.NonNull;
+
 /**
  * Helper for accessing features in {@link ViewParent}.
  */
 public final class ViewParentCompat {
 
     private static final String TAG = "ViewParentCompat";
+    private static int[] sTempNestedScrollConsumed;
 
     /*
      * Hide the constructor.
@@ -116,7 +119,7 @@ public final class ViewParentCompat {
      *
      * <p>This version of the method just calls
      * {@link #onNestedScroll(ViewParent, View, int, int, int, int, int)} using the touch input
-     * type.</p>
+     * type.
      *
      * @param target The descendent view controlling the nested scroll
      * @param dxConsumed Horizontal scroll distance in pixels already consumed by target
@@ -127,7 +130,35 @@ public final class ViewParentCompat {
     public static void onNestedScroll(ViewParent parent, View target, int dxConsumed,
             int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
         onNestedScroll(parent, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
-                ViewCompat.TYPE_TOUCH);
+                ViewCompat.TYPE_TOUCH, getTempNestedScrollConsumed());
+    }
+
+    /**
+     * React to a nested scroll in progress.
+     *
+     * <p>This method will be called when the ViewParent's current nested scrolling child view
+     * dispatches a nested scroll event. To receive calls to this method the ViewParent must have
+     * previously returned <code>true</code> for a call to
+     * {@link #onStartNestedScroll(ViewParent, View, View, int, int)}.</p>
+     *
+     * <p>Both the consumed and unconsumed portions of the scroll distance are reported to the
+     * ViewParent. An implementation may choose to use the consumed portion to match or chase scroll
+     * position of multiple child elements, for example. The unconsumed portion may be used to
+     * allow continuous dragging of multiple scrolling or draggable elements, such as scrolling
+     * a list within a vertical drawer where the drawer begins dragging once the edge of inner
+     * scrolling content is reached.</p>
+     *
+     * @param target The descendent view controlling the nested scroll
+     * @param dxConsumed Horizontal scroll distance in pixels already consumed by target
+     * @param dyConsumed Vertical scroll distance in pixels already consumed by target
+     * @param dxUnconsumed Horizontal scroll distance in pixels not consumed by target
+     * @param dyUnconsumed Vertical scroll distance in pixels not consumed by target
+     * @param type the type of input which cause this scroll event
+     */
+    public static void onNestedScroll(ViewParent parent, View target, int dxConsumed,
+            int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type) {
+        onNestedScroll(parent, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                type, getTempNestedScrollConsumed());
     }
 
     /**
@@ -287,27 +318,41 @@ public final class ViewParentCompat {
      * @param dxUnconsumed Horizontal scroll distance in pixels not consumed by target
      * @param dyUnconsumed Vertical scroll distance in pixels not consumed by target
      * @param type the type of input which cause this scroll event
+     * @param consumed Output. If not null, upon this method returning, will contain the scroll
+     *                 distances consumed by this nested scrolling parent and the scroll distances
+     *                 consumed by any other parent up the view hierarchy.
      */
-    @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static void onNestedScroll(ViewParent parent, View target, int dxConsumed,
-            int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type) {
-        if (parent instanceof NestedScrollingParent2) {
-            // First try the NestedScrollingParent2 API
-            ((NestedScrollingParent2) parent).onNestedScroll(target, dxConsumed, dyConsumed,
-                    dxUnconsumed, dyUnconsumed, type);
-        } else if (type == ViewCompat.TYPE_TOUCH) {
-            // Else if the type is the default (touch), try the NestedScrollingParent API
-            if (Build.VERSION.SDK_INT >= 21) {
-                try {
-                    parent.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed,
-                            dyUnconsumed);
-                } catch (AbstractMethodError e) {
-                    Log.e(TAG, "ViewParent " + parent + " does not implement interface "
-                            + "method onNestedScroll", e);
+            int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type,
+            @NonNull int[] consumed) {
+
+        if (parent instanceof NestedScrollingParent3) {
+            ((NestedScrollingParent3) parent).onNestedScroll(target, dxConsumed, dyConsumed,
+                    dxUnconsumed, dyUnconsumed, type, consumed);
+        } else {
+            // If we are calling anything less than NestedScrollingParent3, add the unconsumed
+            // distances to the consumed parameter so calling NestedScrollingChild3 implementations
+            // are told the entire scroll distance was consumed (for backwards compat).
+            consumed[0] += dxUnconsumed;
+            consumed[1] += dyUnconsumed;
+
+            if (parent instanceof NestedScrollingParent2) {
+                ((NestedScrollingParent2) parent).onNestedScroll(target, dxConsumed, dyConsumed,
+                        dxUnconsumed, dyUnconsumed, type);
+            } else if (type == ViewCompat.TYPE_TOUCH) {
+                // Else if the type is the default (touch), try the NestedScrollingParent API
+                if (Build.VERSION.SDK_INT >= 21) {
+                    try {
+                        parent.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed,
+                                dyUnconsumed);
+                    } catch (AbstractMethodError e) {
+                        Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                                + "method onNestedScroll", e);
+                    }
+                } else if (parent instanceof NestedScrollingParent) {
+                    ((NestedScrollingParent) parent).onNestedScroll(target, dxConsumed, dyConsumed,
+                            dxUnconsumed, dyUnconsumed);
                 }
-            } else if (parent instanceof NestedScrollingParent) {
-                ((NestedScrollingParent) parent).onNestedScroll(target, dxConsumed, dyConsumed,
-                        dxUnconsumed, dyUnconsumed);
             }
         }
     }
@@ -447,5 +492,15 @@ public final class ViewParentCompat {
         if (Build.VERSION.SDK_INT >= 19) {
             parent.notifySubtreeAccessibilityStateChanged(child, source, changeType);
         }
+    }
+
+    private static int[] getTempNestedScrollConsumed() {
+        if (sTempNestedScrollConsumed == null) {
+            sTempNestedScrollConsumed = new int[2];
+        } else {
+            sTempNestedScrollConsumed[0] = 0;
+            sTempNestedScrollConsumed[1] = 0;
+        }
+        return sTempNestedScrollConsumed;
     }
 }

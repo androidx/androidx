@@ -197,26 +197,44 @@ public class NestedScrollingChildHelper {
      * method/{@link androidx.core.view.NestedScrollingChild} interface method with the same
      * signature to implement the standard policy.</p>
      *
-     * @return true if the parent consumed any of the nested scroll
+     * @return <code>true</code> if the parent consumed any of the nested scroll distance
      */
     public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed,
             int dxUnconsumed, int dyUnconsumed, @Nullable int[] offsetInWindow) {
-        return dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
-                offsetInWindow, TYPE_TOUCH);
+        return dispatchNestedScrollInternal(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                offsetInWindow, TYPE_TOUCH, null);
     }
 
     /**
      * Dispatch one step of a nested scrolling operation to the current nested scrolling parent.
      *
-     * <p>This is a delegate method. Call it from your {@link android.view.View View} subclass
-     * method/{@link androidx.core.view.NestedScrollingChild2} interface method with the same
-     * signature to implement the standard policy.</p>
+     * <p>This is a delegate method. Call it from your {@link NestedScrollingChild2} interface
+     * method with the same signature to implement the standard policy.
      *
-     * @return true if the parent consumed any of the nested scroll
+     * @return <code>true</code> if the parent consumed any of the nested scroll distance
      */
-    public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed,
+    public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+            int dyUnconsumed, @Nullable int[] offsetInWindow, @NestedScrollType int type) {
+        return dispatchNestedScrollInternal(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                offsetInWindow, type, null);
+    }
+
+    /**
+     * Dispatch one step of a nested scrolling operation to the current nested scrolling parent.
+     *
+     * <p>This is a delegate method. Call it from your {@link NestedScrollingChild3} interface
+     * method with the same signature to implement the standard policy.
+     */
+    public void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+            int dyUnconsumed, @Nullable int[] offsetInWindow, @NestedScrollType int type,
+            @Nullable int[] consumed) {
+        dispatchNestedScrollInternal(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                offsetInWindow, type, consumed);
+    }
+
+    private boolean dispatchNestedScrollInternal(int dxConsumed, int dyConsumed,
             int dxUnconsumed, int dyUnconsumed, @Nullable int[] offsetInWindow,
-            @NestedScrollType int type) {
+            @NestedScrollType int type, @Nullable int[] consumed) {
         if (isNestedScrollingEnabled()) {
             final ViewParent parent = getNestedScrollingParentForType(type);
             if (parent == null) {
@@ -232,8 +250,14 @@ public class NestedScrollingChildHelper {
                     startY = offsetInWindow[1];
                 }
 
-                ViewParentCompat.onNestedScroll(parent, mView, dxConsumed,
-                        dyConsumed, dxUnconsumed, dyUnconsumed, type);
+                if (consumed == null) {
+                    consumed = getTempNestedScrollConsumed();
+                    consumed[0] = 0;
+                    consumed[1] = 0;
+                }
+
+                ViewParentCompat.onNestedScroll(parent, mView,
+                        dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type, consumed);
 
                 if (offsetInWindow != null) {
                     mView.getLocationInWindow(offsetInWindow);
@@ -291,10 +315,7 @@ public class NestedScrollingChildHelper {
                 }
 
                 if (consumed == null) {
-                    if (mTempNestedScrollConsumed == null) {
-                        mTempNestedScrollConsumed = new int[2];
-                    }
-                    consumed = mTempNestedScrollConsumed;
+                    consumed = getTempNestedScrollConsumed();
                 }
                 consumed[0] = 0;
                 consumed[1] = 0;
@@ -398,5 +419,12 @@ public class NestedScrollingChildHelper {
                 mNestedScrollingParentNonTouch = p;
                 break;
         }
+    }
+
+    private int[] getTempNestedScrollConsumed() {
+        if (mTempNestedScrollConsumed == null) {
+            mTempNestedScrollConsumed = new int[2];
+        }
+        return mTempNestedScrollConsumed;
     }
 }
