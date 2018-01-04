@@ -21,10 +21,10 @@
         <item name="android:colorAccent">@color/car_yellow_500</item>
         <item name="android:colorPrimary">@color/car_highlight</item>
         <item name="android:colorPrimaryDark">@color/car_grey_300</item>
-        <item name="android:buttonStyle">@style/CarButton</item>
-        <item name="android:borderlessButtonStyle">@style/CarButton.Borderless</item>
+        <item name="android:buttonStyle">@style/Widget.Car.Button</item>
+        <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="android:progressBarStyleHorizontal">
-            @style/CarProgressBar.Horizontal
+            @style/Widget.Car.ProgressBar.Horizontal
         </item>
         <item name="android:windowLightStatusBar">true</item>
     </style>

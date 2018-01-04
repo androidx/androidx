@@ -82,7 +82,7 @@
             android:maxLines="1"
             android:background="@color/car_card"
             android:foreground="@drawable/car_card_ripple_background"
-            style="@style/CarButton.Borderless"/>
+            style="?android:attr/borderlessButtonStyle"/>
         <View
             android:id="@+id/action1_divider"
             android:layout_width="@dimen/car_vertical_line_divider_width"
@@ -99,6 +99,6 @@
             android:maxLines="1"
             android:background="@color/car_card"
             android:foreground="@drawable/car_card_ripple_background"
-            style="@style/CarButton.Borderless"/>
+            style="?android:attr/borderlessButtonStyle"/>
     </LinearLayout>
 </RelativeLayout>
