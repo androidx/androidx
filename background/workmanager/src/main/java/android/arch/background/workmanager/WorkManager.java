@@ -60,21 +60,17 @@ public abstract class WorkManager {
      * Enqueues one or more items for background processing.
      *
      * @param work One or more {@link Work} to enqueue
-     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
-     *         input work
      */
-    public abstract WorkContinuation enqueue(@NonNull Work... work);
+    public abstract void enqueue(@NonNull Work... work);
 
     /**
      * Enqueues one or more items for background processing.
      *
      * @param workerClasses One or more {@link Worker}s to enqueue; this is a convenience method
      *                      that makes a {@link Work} object with default arguments for each Worker
-     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
-     *         input workerClasses
      */
     @SuppressWarnings("unchecked")
-    public abstract WorkContinuation enqueue(@NonNull Class<? extends Worker>... workerClasses);
+    public abstract void enqueue(@NonNull Class<? extends Worker>... workerClasses);
 
     /**
      * Starts a chain of work, which can be enqueued together in the future using

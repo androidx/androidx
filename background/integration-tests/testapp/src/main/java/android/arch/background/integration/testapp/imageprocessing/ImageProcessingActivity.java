@@ -98,8 +98,9 @@ public class ImageProcessingActivity extends AppCompatActivity {
                 processingWork[i] = ImageProcessingWorker.createWork(uriString);
             }
             WorkManager.getInstance()
-                    .enqueue(setupWork)
-                    .then(processingWork);
+                    .with(setupWork)
+                    .then(processingWork)
+                    .enqueue();
         } else if (requestCode == IMAGE_REQUEST_CODE && resultCode == RESULT_OK
                 && data.getData() != null) {
             Log.d(TAG, "Image Selection Complete");
@@ -107,8 +108,9 @@ public class ImageProcessingActivity extends AppCompatActivity {
             Work setupWork = ImageSetupWorker.createWork(uriString);
             Work processingWork = ImageProcessingWorker.createWork(uriString);
             WorkManager.getInstance()
-                    .enqueue(setupWork)
-                    .then(processingWork);
+                    .with(setupWork)
+                    .then(processingWork)
+                    .enqueue();
         } else if (requestCode == IMAGE_REQUEST_CODE && resultCode == RESULT_CANCELED) {
             Log.d(TAG, "Image Selection Cancelled");
         } else {

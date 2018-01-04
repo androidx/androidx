@@ -80,14 +80,16 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
                 .withInputMerger(ArrayCreatingInputMerger.class)
                 .build();
 
+        Work startupWork = Work.newBuilder(TextStartupWorker.class).build();
         workManager
-                .enqueue(TextStartupWorker.class)
+                .with(startupWork)
                 .then(TextMappingWorker.create("advs.txt").build(),
                         TextMappingWorker.create("case.txt").build(),
                         TextMappingWorker.create("lstb.txt").build(),
                         TextMappingWorker.create("mems.txt").build(),
                         TextMappingWorker.create("retn.txt").build())
-                .then(textReducingWork);
+                .then(textReducingWork)
+                .enqueue();
 
         workManager.getStatusForId(textReducingWork.getId()).observe(
                 this,

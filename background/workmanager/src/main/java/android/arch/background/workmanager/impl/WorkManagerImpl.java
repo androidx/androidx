@@ -100,7 +100,6 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @return The {@link WorkDatabase} instance associated with this WorkManager.
-     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -110,7 +109,6 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @return The foreground {@link Processor} associated with this WorkManager.
-     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -121,7 +119,6 @@ public class WorkManagerImpl extends WorkManager {
     /**
      * @return The {@link Scheduler} associated with this WorkManager based on the device's
      * capabilities, SDK version, etc.
-     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -131,7 +128,6 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @return The {@link ExecutorService} for background {@link Processor}s.
-     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -141,7 +137,6 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @return the {@link TaskExecutor} used by the instance of {@link WorkManager}.
-     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -161,18 +156,15 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public WorkContinuation enqueue(@NonNull Work... work) {
-        return enqueue(work, null, null, KEEP_EXISTING_WORK);
+    public void enqueue(@NonNull Work... work) {
+        with(work).enqueue();
     }
 
     @SafeVarargs
     @Override
-    public final WorkContinuation enqueue(@NonNull Class<? extends Worker>... workerClasses) {
-        return enqueue(
-                BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses),
-                null,
-                null,
-                KEEP_EXISTING_WORK);
+    public final void enqueue(@NonNull Class<? extends Worker>... workerClasses) {
+        Work[] work = BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses);
+        with(work).enqueue();
     }
 
     @Override
@@ -234,16 +226,5 @@ public class WorkManagerImpl extends WorkManager {
                     }
                 });
         return mediatorLiveData;
-    }
-
-    WorkContinuation enqueue(
-            @NonNull Work[] work,
-            String[] prerequisiteIds,
-            String uniqueTag,
-            @WorkManager.ExistingWorkPolicy int existingWorkPolicy) {
-        WorkContinuation workContinuation = new WorkContinuationImpl(this, work, uniqueTag);
-        mTaskExecutor.executeOnBackgroundThread(
-                new EnqueueRunnable(this, work, prerequisiteIds, uniqueTag, existingWorkPolicy));
-        return workContinuation;
     }
 }
