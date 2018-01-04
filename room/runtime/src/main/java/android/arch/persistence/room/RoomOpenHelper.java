@@ -41,13 +41,20 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
     private final Delegate mDelegate;
     @NonNull
     private final String mIdentityHash;
+    /**
+     * Room v1 had a bug where the hash was not consistent if fields are reordered.
+     * The new has fixes it but we still need to accept the legacy hash.
+     */
+    @NonNull // b/64290754
+    private final String mLegacyHash;
 
     public RoomOpenHelper(@NonNull DatabaseConfiguration configuration, @NonNull Delegate delegate,
-            @NonNull String identityHash) {
+            @NonNull String identityHash, @NonNull String legacyHash) {
         super(delegate.version);
         mConfiguration = configuration;
         mDelegate = delegate;
         mIdentityHash = identityHash;
+        mLegacyHash = legacyHash;
     }
 
     @Override
@@ -115,7 +122,7 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
         } finally {
             cursor.close();
         }
-        if (!mIdentityHash.equals(identityHash)) {
+        if (!mIdentityHash.equals(identityHash) && !mLegacyHash.equals(identityHash)) {
             throw new IllegalStateException("Room cannot verify the data integrity. Looks like"
                     + " you've changed schema but forgot to update the version number. You can"
                     + " simply fix this by increasing the version number.");
