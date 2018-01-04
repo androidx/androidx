@@ -15,6 +15,7 @@
  */
 package android.support.media.tv;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.ContentValues;
@@ -37,6 +38,7 @@ import java.lang.annotation.RetentionPolicy;
  * {@link TvContractCompat}.
  * @hide
  */
+@RestrictTo(LIBRARY)
 public abstract class BaseProgram {
     /**
      * @hide

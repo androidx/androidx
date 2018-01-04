@@ -453,6 +453,7 @@ public class NotificationCompat {
     public @interface StreamType {}
 
     /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
     @Retention(SOURCE)
     @IntDef({VISIBILITY_PUBLIC, VISIBILITY_PRIVATE, VISIBILITY_SECRET})
     public @interface NotificationVisibility {}

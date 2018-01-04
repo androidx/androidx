@@ -18,9 +18,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-/**
- * @hide from javadoc
- */
 public class GuidedStepSupportFragmentTestActivity extends FragmentActivity {
 
     /**

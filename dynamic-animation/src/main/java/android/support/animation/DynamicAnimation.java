@@ -18,6 +18,7 @@ package android.support.animation;
 
 import android.os.Looper;
 import android.support.annotation.FloatRange;
+import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
 import android.util.AndroidRuntimeException;
 import android.view.View;
@@ -631,6 +632,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      *
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public boolean doAnimationFrame(long frameTime) {
         if (mLastFrameTime == 0) {

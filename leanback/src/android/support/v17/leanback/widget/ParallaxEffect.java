@@ -17,6 +17,7 @@
 package android.support.v17.leanback.widget;
 
 import android.animation.PropertyValuesHolder;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.widget.Parallax.FloatProperty;
 import android.support.v17.leanback.widget.Parallax.FloatPropertyMarkerValue;
 import android.support.v17.leanback.widget.Parallax.IntProperty;
@@ -70,6 +71,7 @@ public abstract class ParallaxEffect {
      * @return A list of Float objects that represents weight associated with each variable range.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final List<Float> getWeights() {
         return mWeights;
     }
@@ -96,6 +98,7 @@ public abstract class ParallaxEffect {
      *                range.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setWeights(float... weights) {
         for (float weight : weights) {
             if (weight <= 0) {
@@ -121,6 +124,7 @@ public abstract class ParallaxEffect {
      * @return This ParallaxEffect object, allowing calls to methods in this class to be chained.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final ParallaxEffect weights(float... weights) {
         setWeights(weights);
         return this;

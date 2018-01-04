@@ -17,14 +17,16 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.annotation.RestrictTo;
+import android.support.v17.leanback.R;
 import android.util.AttributeSet;
 import android.view.View;
-import android.support.v17.leanback.R;
 
 /**
  * Creates a view for a media item row in a playlist
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class MediaRowFocusView extends View {
 
     private final Paint mPaint;
