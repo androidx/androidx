@@ -19,6 +19,7 @@ package android.arch.background.workmanager.impl;
 import static android.arch.background.workmanager.impl.utils.PackageManagerHelper
         .setComponentEnabled;
 
+import android.arch.background.workmanager.R;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.impl.background.systemalarm.SystemAlarmScheduler;
 import android.arch.background.workmanager.impl.background.systemalarm.SystemAlarmService;
@@ -60,7 +61,7 @@ class WorkManagerConfiguration {
 
     WorkManagerConfiguration(@NonNull Context context) {
         this(context,
-                false,
+                context.getResources().getBoolean(R.bool.workmanager_test_configuration),
                 createForegroundExecutorService(),
                 createBackgroundExecutorService(),
                 ProcessLifecycleOwner.get());
