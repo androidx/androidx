@@ -1113,6 +1113,7 @@ package android.support.v4.util {
     ctor public ArraySet();
     ctor public ArraySet(int);
     ctor public ArraySet(android.support.v4.util.ArraySet<E>);
+    ctor public ArraySet(java.util.Collection<E>);
     method public boolean add(E);
     method public void addAll(android.support.v4.util.ArraySet<? extends E>);
     method public boolean addAll(java.util.Collection<? extends E>);
