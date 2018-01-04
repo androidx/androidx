@@ -40,7 +40,7 @@ import java.util.Map;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class LazyWorkContinuationImpl extends WorkContinuation {
+public class WorkContinuationImpl extends WorkContinuation {
 
     private static final String TAG = "LzyWrkContinuationImpl";
 
@@ -64,24 +64,24 @@ public class LazyWorkContinuationImpl extends WorkContinuation {
     boolean mEnqueued;
 
     @VisibleForTesting
-    LazyWorkContinuationImpl mParent;
+    WorkContinuationImpl mParent;
 
-    LazyWorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl, @NonNull Work... work) {
+    WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl, @NonNull Work... work) {
         this(workManagerImpl, null, WorkManager.KEEP_EXISTING_WORK, work, null);
     }
 
-    LazyWorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
+    WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
             @NonNull String uniqueTag,
             @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
             @NonNull Work... work) {
         this(workManagerImpl, uniqueTag, existingWorkPolicy, work, null);
     }
 
-    private LazyWorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
+    private WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
             String uniqueTag,
             @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
             @NonNull Work[] work,
-            @Nullable LazyWorkContinuationImpl parent) {
+            @Nullable WorkContinuationImpl parent) {
         mWorkManagerImpl = workManagerImpl;
         mUniqueTag = uniqueTag;
         mExistingWorkPolicy = existingWorkPolicy;
@@ -103,7 +103,7 @@ public class LazyWorkContinuationImpl extends WorkContinuation {
     public WorkContinuation then(Work... work) {
         // TODO (rahulrav@) We need to decide if we want to allow chaining of continuations after
         // an initial call to enqueue()
-        return new LazyWorkContinuationImpl(mWorkManagerImpl,
+        return new WorkContinuationImpl(mWorkManagerImpl,
                 mUniqueTag,
                 WorkManager.KEEP_EXISTING_WORK,
                 work,
@@ -112,7 +112,7 @@ public class LazyWorkContinuationImpl extends WorkContinuation {
 
     @Override
     public WorkContinuation then(Class<? extends Worker>[] workerClasses) {
-        return new LazyWorkContinuationImpl(mWorkManagerImpl,
+        return new WorkContinuationImpl(mWorkManagerImpl,
                 mUniqueTag,
                 WorkManager.KEEP_EXISTING_WORK,
                 BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses),
