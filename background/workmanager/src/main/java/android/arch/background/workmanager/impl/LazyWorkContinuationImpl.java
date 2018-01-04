@@ -47,6 +47,10 @@ public class LazyWorkContinuationImpl extends WorkContinuation {
     @VisibleForTesting
     final WorkManagerImpl mWorkManagerImpl;
 
+    final String mUniqueTag;
+
+    final @WorkManager.ExistingWorkPolicy int mExistingWorkPolicy;
+
     @VisibleForTesting
     final Work[] mWork;
 
@@ -63,13 +67,24 @@ public class LazyWorkContinuationImpl extends WorkContinuation {
     LazyWorkContinuationImpl mParent;
 
     LazyWorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl, @NonNull Work... work) {
-        this(workManagerImpl, work, null);
+        this(workManagerImpl, null, WorkManager.KEEP_EXISTING_WORK, work, null);
+    }
+
+    LazyWorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
+            @NonNull String uniqueTag,
+            @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
+            @NonNull Work... work) {
+        this(workManagerImpl, uniqueTag, existingWorkPolicy, work, null);
     }
 
     private LazyWorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
+            String uniqueTag,
+            @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
             @NonNull Work[] work,
             @Nullable LazyWorkContinuationImpl parent) {
         mWorkManagerImpl = workManagerImpl;
+        mUniqueTag = uniqueTag;
+        mExistingWorkPolicy = existingWorkPolicy;
         mWork = work;
         final int parentSize = mParent != null ? mParent.mWork.length : 0;
         mIds = new String[mWork.length];
@@ -88,12 +103,18 @@ public class LazyWorkContinuationImpl extends WorkContinuation {
     public WorkContinuation then(Work... work) {
         // TODO (rahulrav@) We need to decide if we want to allow chaining of continuations after
         // an initial call to enqueue()
-        return new LazyWorkContinuationImpl(mWorkManagerImpl, work, this);
+        return new LazyWorkContinuationImpl(mWorkManagerImpl,
+                mUniqueTag,
+                WorkManager.KEEP_EXISTING_WORK,
+                work,
+                this);
     }
 
     @Override
     public WorkContinuation then(Class<? extends Worker>[] workerClasses) {
         return new LazyWorkContinuationImpl(mWorkManagerImpl,
+                mUniqueTag,
+                WorkManager.KEEP_EXISTING_WORK,
                 BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses),
                 this);
     }
@@ -105,6 +126,9 @@ public class LazyWorkContinuationImpl extends WorkContinuation {
 
     @Override
     public void enqueue() {
+        // TODO(sumir): Change enqueuing to be transactional, where everything gets enqueued
+        // together in one pass instead of spawning multiple runnables.
+
         // Only enqueue if not already enqueued.
         if (!mEnqueued) {
             if (mParent == null) {
@@ -113,9 +137,9 @@ public class LazyWorkContinuationImpl extends WorkContinuation {
                                 new EnqueueRunnable(
                                         mWorkManagerImpl,
                                         mWork,
-                                        null /* no pre-requisites.*/,
-                                        null,
-                                        WorkManager.KEEP_EXISTING_WORK));
+                                        null /* no prerequisites*/,
+                                        mUniqueTag,
+                                        mExistingWorkPolicy));
             } else {
                 // has dependencies which need to be enqueued first
                 mParent.enqueue();
@@ -126,8 +150,8 @@ public class LazyWorkContinuationImpl extends WorkContinuation {
                                         mWorkManagerImpl,
                                         mWork,
                                         mParent.mIds,
-                                        null,
-                                        WorkManager.KEEP_EXISTING_WORK));
+                                        mUniqueTag,
+                                        mExistingWorkPolicy));
             }
             mEnqueued = true;
         } else {

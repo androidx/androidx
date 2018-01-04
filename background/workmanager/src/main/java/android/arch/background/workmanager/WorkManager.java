@@ -57,15 +57,6 @@ public abstract class WorkManager {
     public abstract LiveData<Arguments> getOutput(@NonNull String id);
 
     /**
-     * Starts a chain of work, which can be enqueued together in the future using
-     * {@link WorkContinuation#enqueue()}.
-     * @param work One or more {@link Work} to enqueue in the future
-     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
-     *         input work
-     */
-    public abstract WorkContinuation with(@NonNull Work...work);
-
-    /**
      * Enqueues one or more items for background processing.
      *
      * @param work One or more {@link Work} to enqueue
@@ -84,6 +75,15 @@ public abstract class WorkManager {
      */
     @SuppressWarnings("unchecked")
     public abstract WorkContinuation enqueue(@NonNull Class<? extends Worker>... workerClasses);
+
+    /**
+     * Starts a chain of work, which can be enqueued together in the future using
+     * {@link WorkContinuation#enqueue()}.
+     * @param work One or more {@link Work} to enqueue in the future
+     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
+     *         input work
+     */
+    public abstract WorkContinuation with(@NonNull Work...work);
 
     /**
      * This method allows you to create unique chains of work for situations where you only want one
@@ -106,7 +106,7 @@ public abstract class WorkManager {
      * @param work One or more {@link Work} to enqueue
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public abstract WorkContinuation startSequenceWithUniqueTag(
+    public abstract WorkContinuation withUniqueTag(
             @NonNull String tag, @ExistingWorkPolicy int existingWorkPolicy, @NonNull Work... work);
 
     /**

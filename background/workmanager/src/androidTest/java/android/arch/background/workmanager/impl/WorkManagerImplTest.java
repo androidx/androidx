@@ -367,8 +367,9 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String testTag = "mytag";
 
         Work work = Work.newBuilder(TestWorker.class).build();
-        mWorkManagerImpl.startSequenceWithUniqueTag(testTag, WorkManager.REPLACE_EXISTING_WORK)
-                .then(work);
+        mWorkManagerImpl.withUniqueTag(testTag, WorkManager.REPLACE_EXISTING_WORK)
+                .then(work)
+                .enqueue();
 
         List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
         assertThat(work.getId(), isIn(workSpecIds));
@@ -385,9 +386,9 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work replacementWork1 = Work.newBuilder(TestWorker.class).build();
         Work replacementWork2 = Work.newBuilder(TestWorker.class).build();
         mWorkManagerImpl
-                .startSequenceWithUniqueTag(
-                        testTag, WorkManager.REPLACE_EXISTING_WORK, replacementWork1)
-                .then(replacementWork2);
+                .withUniqueTag(testTag, WorkManager.REPLACE_EXISTING_WORK, replacementWork1)
+                .then(replacementWork2)
+                .enqueue();
 
         List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
         assertThat(
@@ -411,9 +412,9 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work replacementWork1 = Work.newBuilder(TestWorker.class).build();
         Work replacementWork2 = Work.newBuilder(TestWorker.class).build();
         mWorkManagerImpl
-                .startSequenceWithUniqueTag(
-                        testTag, WorkManager.KEEP_EXISTING_WORK, replacementWork1)
-                .then(replacementWork2);
+                .withUniqueTag(testTag, WorkManager.KEEP_EXISTING_WORK, replacementWork1)
+                .then(replacementWork2)
+                .enqueue();
 
         List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
         assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));

@@ -176,14 +176,6 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public WorkContinuation startSequenceWithUniqueTag(
-            @NonNull String tag,
-            @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
-            @NonNull Work... work) {
-        return enqueue(work, null, tag, existingWorkPolicy);
-    }
-
-    @Override
     public void enqueue(@NonNull PeriodicWork... periodicWork) {
         mTaskExecutor.executeOnBackgroundThread(
                 new EnqueueRunnable(
@@ -192,6 +184,19 @@ public class WorkManagerImpl extends WorkManager {
                         null,
                         null,
                         KEEP_EXISTING_WORK));
+    }
+
+    @Override
+    public WorkContinuation with(@NonNull Work... work) {
+        return new LazyWorkContinuationImpl(this, work);
+    }
+
+    @Override
+    public WorkContinuation withUniqueTag(
+            @NonNull String tag,
+            @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
+            @NonNull Work... work) {
+        return new LazyWorkContinuationImpl(this, tag, existingWorkPolicy, work);
     }
 
     @Override
@@ -240,10 +245,5 @@ public class WorkManagerImpl extends WorkManager {
         mTaskExecutor.executeOnBackgroundThread(
                 new EnqueueRunnable(this, work, prerequisiteIds, uniqueTag, existingWorkPolicy));
         return workContinuation;
-    }
-
-    @Override
-    public WorkContinuation with(@NonNull Work... work) {
-        return new LazyWorkContinuationImpl(this, work);
     }
 }
