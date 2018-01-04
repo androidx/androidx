@@ -115,6 +115,9 @@ project(':navigation:integration-tests:testapp').projectDir = new File(supportRo
 include ':navigation:safe-args-generator'
 project (':navigation:safe-args-generator').projectDir = new File(supportRoot, "navigation/safe-args-generator")
 
+include ':navigation:safe-args-gradle-plugin'
+project (':navigation:safe-args-gradle-plugin').projectDir = new File(supportRoot, "navigation/safe-args-gradle-plugin")
+
 /////////////////////////////
 //
 // External
