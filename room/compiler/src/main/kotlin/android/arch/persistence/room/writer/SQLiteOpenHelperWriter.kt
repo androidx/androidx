@@ -40,10 +40,10 @@ class SQLiteOpenHelperWriter(val database: Database) {
         scope.builder().apply {
             val sqliteConfigVar = scope.getTmpVar("_sqliteConfig")
             val callbackVar = scope.getTmpVar("_openCallback")
-            addStatement("final $T $L = new $T($N, $L, $S)",
+            addStatement("final $T $L = new $T($N, $L, $S, $S)",
                     SupportDbTypeNames.SQLITE_OPEN_HELPER_CALLBACK,
                     callbackVar, RoomTypeNames.OPEN_HELPER, configuration,
-                    createOpenCallback(scope), database.identityHash)
+                    createOpenCallback(scope), database.identityHash, database.legacyIdentityHash)
             // build configuration
             addStatement(
                     """

@@ -28,7 +28,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PrimaryKeyBundle {
+public class PrimaryKeyBundle implements SchemaEquality<PrimaryKeyBundle> {
     @SerializedName("columnNames")
     private List<String> mColumnNames;
     @SerializedName("autoGenerate")
@@ -45,5 +45,10 @@ public class PrimaryKeyBundle {
 
     public boolean isAutoGenerate() {
         return mAutoGenerate;
+    }
+
+    @Override
+    public boolean isSchemaEqual(PrimaryKeyBundle other) {
+        return mColumnNames.equals(other.mColumnNames) && mAutoGenerate == other.mAutoGenerate;
     }
 }

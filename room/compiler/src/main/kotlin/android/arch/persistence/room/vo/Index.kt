@@ -22,11 +22,17 @@ import android.arch.persistence.room.migration.bundle.IndexBundle
 /**
  * Represents a processed index.
  */
-data class Index(val name: String, val unique: Boolean, val fields: List<Field>) {
+data class Index(val name: String, val unique: Boolean, val fields: List<Field>) :
+        HasSchemaIdentity {
     companion object {
         // should match the value in TableInfo.Index.DEFAULT_PREFIX
         const val DEFAULT_PREFIX = "index_"
     }
+
+    override fun getIdKey(): String {
+        return "$unique-$name-${fields.joinToString(",") { it.columnName }}"
+    }
+
     fun createQuery(tableName: String): String {
         val uniqueSQL = if (unique) {
             "UNIQUE"
@@ -35,7 +41,7 @@ data class Index(val name: String, val unique: Boolean, val fields: List<Field>)
         }
         return """
             CREATE $uniqueSQL INDEX `$name`
-            ON `$tableName` (${fields.map { it.columnName }.joinToString(", ") { "`$it`"}})
+            ON `$tableName` (${fields.map { it.columnName }.joinToString(", ") { "`$it`" }})
             """.trimIndent().replace("\n", " ")
     }
 

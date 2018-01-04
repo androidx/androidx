@@ -146,6 +146,9 @@ public class MigrationTestHelper extends TestWatcher {
                 true);
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
+                schemaBundle.getDatabase().getIdentityHash(),
+                // we pass the same hash twice since an old schema does not necessarily have
+                // a legacy hash and we would not even persist it.
                 schemaBundle.getDatabase().getIdentityHash());
         return openDatabase(name, roomOpenHelper);
     }
@@ -189,6 +192,9 @@ public class MigrationTestHelper extends TestWatcher {
                 true);
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
+                // we pass the same hash twice since an old schema does not necessarily have
+                // a legacy hash and we would not even persist it.
+                schemaBundle.getDatabase().getIdentityHash(),
                 schemaBundle.getDatabase().getIdentityHash());
         return openDatabase(name, roomOpenHelper);
     }
