@@ -16,16 +16,10 @@
 
 package androidx.app.slice.widget;
 
-import static android.app.slice.Slice.HINT_ACTIONS;
-import static android.app.slice.Slice.HINT_LIST;
-import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_INT;
-import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-
-import static androidx.app.slice.core.SliceHints.HINT_SUMMARY;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -34,10 +28,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
@@ -96,38 +86,8 @@ public class LargeTemplateView extends FrameLayout implements SliceView.SliceMod
     public void setSlice(Slice slice) {
         SliceItem color = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
         mSlice = slice;
-        final List<SliceItem> items = new ArrayList<>();
-        final boolean[] hasHeader = new boolean[1];
-        if (SliceQuery.hasHints(slice, HINT_LIST)) {
-            addList(slice, items);
-        } else {
-            slice.getItems().forEach(new Consumer<SliceItem>() {
-                @Override
-                public void accept(SliceItem item) {
-                    if (item.hasAnyHints(HINT_ACTIONS, HINT_SUMMARY)) {
-                        return;
-                    } else if (FORMAT_INT.equals(item.getFormat())) {
-                        return;
-                    } else if (FORMAT_SLICE.equals(item.getFormat())
-                            && item.hasHint(HINT_LIST)) {
-                        addList(item.getSlice(), items);
-                    } else if (item.hasHint(HINT_LIST_ITEM)) {
-                        items.add(item);
-                    } else if (!hasHeader[0]) {
-                        hasHeader[0] = true;
-                        items.add(0, item);
-                    } else {
-                        items.add(item);
-                    }
-                }
-            });
-        }
-        mAdapter.setSliceItems(items, color);
-    }
-
-    private void addList(Slice slice, List<SliceItem> items) {
-        List<SliceItem> sliceItems = slice.getItems();
-        items.addAll(sliceItems);
+        ListContent lc = new ListContent(slice);
+        mAdapter.setSliceItems(lc.getRowItems(), color);
     }
 
     /**

@@ -16,21 +16,13 @@
 
 package androidx.app.slice.widget;
 
-import static android.app.slice.Slice.HINT_LIST;
-import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_SELECTED;
-import static android.app.slice.Slice.HINT_TITLE;
-import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
-import static android.app.slice.SliceItem.FORMAT_INT;
-import static android.app.slice.SliceItem.FORMAT_SLICE;
-import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.app.slice.core.SliceHints.EXTRA_TOGGLE_STATE;
-import static androidx.app.slice.core.SliceHints.HINT_SUMMARY;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -52,7 +44,6 @@ import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
@@ -76,6 +67,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     // The number of items that fit on the right hand side of a small slice
     private static final int MAX_END_ITEMS = 3;
 
+    private RowContent mRowContent;
     private int mIconSize;
     private int mPadding;
     private boolean mInSmallMode;
@@ -128,7 +120,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     public void setSliceItem(SliceItem slice, boolean isHeader) {
         mIsHeader = isHeader;
         mInSmallMode = false;
-        populateViews(slice, slice);
+        populateViews(slice);
     }
 
     /**
@@ -137,196 +129,72 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     @Override
     public void setSlice(Slice slice) {
         mInSmallMode = true;
-        Slice.Builder sb = new Slice.Builder(slice.getUri());
-        sb.addSubSlice(slice);
-        Slice parentSlice = sb.build();
-        populateViews(parentSlice.getItems().get(0), getSummaryItem(slice));
+        ListContent lc = new ListContent(slice);
+        populateViews(lc.getSummaryItem());
     }
 
-    private SliceItem getSummaryItem(Slice slice) {
-        List<SliceItem> items = slice.getItems();
-        // See if a summary is specified
-        SliceItem summary = SliceQuery.find(slice, FORMAT_SLICE, HINT_SUMMARY, null);
-        if (summary != null) {
-            return summary;
-        }
-        // First fallback is using a header
-        SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null, HINT_LIST_ITEM);
-        if (header != null) {
-            return header;
-        }
-        // Otherwise use the first non-color item and use it if it's a slice
-        SliceItem firstSlice = null;
-        for (int i = 0; i < items.size(); i++) {
-            if (!FORMAT_INT.equals(items.get(i).getFormat())) {
-                firstSlice = items.get(i);
-                break;
-            }
-        }
-        if (firstSlice != null && FORMAT_SLICE.equals(firstSlice.getFormat())) {
-            // Check if this slice is appropriate to use to populate small template
-            if (firstSlice.hasHint(HINT_LIST)) {
-                // Check for header, use that if it exists
-                SliceItem listHeader = SliceQuery.find(firstSlice, FORMAT_SLICE,
-                        null,
-                        new String[] {
-                                HINT_LIST_ITEM, HINT_LIST
-                        });
-                if (listHeader != null) {
-                    return SliceQuery.findFirstSlice(listHeader);
-                } else {
-                    // Otherwise use the first list item
-                    SliceItem newFirst = firstSlice.getSlice().getItems().get(0);
-                    return SliceQuery.findFirstSlice(newFirst);
-                }
-            } else {
-                // Not a list, find first slice with non-slice children
-                return SliceQuery.findFirstSlice(firstSlice);
-            }
-        }
-        // Fallback, just use this and convert to SliceItem type slice
-        Slice.Builder sb = new Slice.Builder(slice.getUri());
-        Slice s = sb.addSubSlice(slice).build();
-        return s.getItems().get(0);
-    }
-
-    @TargetApi(24)
-    private void populateViews(SliceItem fullSlice, SliceItem sliceItem) {
+    private void populateViews(SliceItem item) {
         resetViews();
-        ArrayList<SliceItem> items = new ArrayList<>();
-        if (FORMAT_SLICE.equals(sliceItem.getFormat())) {
-            items = new ArrayList<>(sliceItem.getSlice().getItems());
-        } else {
-            items.add(sliceItem);
-        }
+        final int color = mColorItem != null ? mColorItem.getInt() : -1;
+        mRowContent = new RowContent(item, !mIsHeader && !mInSmallMode);
 
-        // These are the things that can go in our small template
-        SliceItem startItem = null;
-        SliceItem titleItem = null;
-        SliceItem subTitle = null;
-        ArrayList<SliceItem> endItems = new ArrayList<>();
-
-        // If the first item is an action check if it should be used to populate the content
-        // or if it should be in the start position.
-        SliceItem firstSlice = items.size() > 0 ? items.get(0) : null;
-        if (firstSlice != null && FORMAT_ACTION.equals(firstSlice.getFormat())) {
-            if (!SliceQuery.isSimpleAction(firstSlice)) {
-                mRowAction = firstSlice;
-                items.remove(0);
-                // Populating with first action, bias to use slice associated with this action
-                items.addAll(0, mRowAction.getSlice().getItems());
-            }
+        boolean showStart = false;
+        final SliceItem startItem = mRowContent.getStartItem();
+        if (startItem != null) {
+            showStart = addItem(startItem, color, mStartContainer, 0 /* padding */);
         }
+        mStartContainer.setVisibility(showStart ? View.VISIBLE : View.GONE);
 
-        // Look through our items and try to figure out main content
-        for (int i = 0; i < items.size(); i++) {
-            SliceItem item = items.get(i);
-            List<String> hints = item.getHints();
-            String itemType = item.getFormat();
-            if (i == 0 && SliceQuery.isStartType((item))) {
-                startItem = item;
-            } else if (hints.contains(HINT_TITLE)) {
-                // Things with these hints could go in the title / start position
-                if ((startItem == null || !startItem.hasHint(HINT_TITLE))
-                        && SliceQuery.isStartType(item)) {
-                    startItem = item;
-                } else if ((titleItem == null || !titleItem.hasHint(HINT_TITLE))
-                        && FORMAT_TEXT.equals(itemType)) {
-                    titleItem = item;
-                } else {
-                    endItems.add(item);
-                }
-            } else if (FORMAT_TEXT.equals(item.getFormat())) {
-                if (titleItem == null) {
-                    titleItem = item;
-                } else if (subTitle == null) {
-                    subTitle = item;
-                } else {
-                    endItems.add(item);
-                }
-            } else if (FORMAT_SLICE.equals(item.getFormat())) {
-                List<SliceItem> subItems = item.getSlice().getItems();
-                for (int j = 0; j < subItems.size(); j++) {
-                    endItems.add(subItems.get(j));
-                }
-            } else {
-                endItems.add(item);
-            }
-        }
-
-        SliceItem colorItem = SliceQuery.findSubtype(fullSlice, FORMAT_INT, SUBTYPE_COLOR);
-        int color = colorItem != null
-                ? colorItem.getInt()
-                : (mColorItem != null)
-                        ? mColorItem.getInt()
-                        : -1;
-        // Populate main part of the template
-        if (!mIsHeader && !mInSmallMode && startItem != null) {
-            startItem = addItem(startItem, color, mStartContainer, 0 /* padding */)
-                    ? startItem
-                    : null;
-            if (startItem != null) {
-                endItems.remove(startItem);
-            }
-        } else if (startItem != null) {
-            endItems.add(0, startItem);
-            startItem = null;
-        }
-        mStartContainer.setVisibility(startItem != null ? View.VISIBLE : View.GONE);
+        final SliceItem titleItem = mRowContent.getTitleItem();
         if (titleItem != null) {
             mPrimaryText.setText(titleItem.getText());
         }
         mPrimaryText.setVisibility(titleItem != null ? View.VISIBLE : View.GONE);
+
+        final SliceItem subTitle = mRowContent.getSubtitleItem();
         if (subTitle != null) {
             mSecondaryText.setText(subTitle.getText());
         }
         mSecondaryText.setVisibility(subTitle != null ? View.VISIBLE : View.GONE);
 
-        // Figure out what end items we're showing
-        // If we're showing an action in this row check if it's a toggle
-        if (mRowAction != null && SliceQuery.hasHints(mRowAction.getSlice(),
-                SliceHints.SUBTYPE_TOGGLE) && addToggle(mRowAction, color)) {
-            // Can't show more end actions if we have a toggle so we're done
+        mRowAction = mRowContent.getContentIntent();
+        SliceItem toggleItem = mRowContent.getToggleItem();
+        // Check if content intent + toggle are the same; make whole row clickable
+        if (toggleItem != null && toggleItem == mRowAction && addToggle(toggleItem, color)) {
             makeClickable(this);
+            // Can't show more end actions if we have a toggle so we're done
+            return;
+        } else if (toggleItem != null && addToggle(toggleItem, color)) {
+            mDivider.setVisibility(mRowAction != null ? View.VISIBLE : View.GONE);
+            makeClickable(mRowAction != null ? mContent : this);
+            // Can't show more end actions if we have a toggle so we're done
             return;
         }
-        // Check if we have a toggle somewhere in our end items
-        SliceItem toggleItem = endItems.stream()
-                .filter(new Predicate<SliceItem>() {
-                    @Override
-                    public boolean test(SliceItem item) {
-                        return FORMAT_ACTION.equals(item.getFormat())
-                                && SliceQuery.hasHints(item.getSlice(), SliceHints.SUBTYPE_TOGGLE);
+
+        // If we're here we might be able to show end items
+        ArrayList<SliceItem> endItems = mRowContent.getEndItems();
+        if (endItems.size() > 0) {
+            int itemCount = 0;
+            final String desiredFormat = endItems.get(0).getFormat();
+            for (int i = 0; i < endItems.size(); i++) {
+                final SliceItem endItem = endItems.get(i);
+                final String endFormat = endItem.getFormat();
+                // Only show one type of format at the end of the slice, use whatever is first
+                if (itemCount <= MAX_END_ITEMS
+                        && (desiredFormat.equals(endFormat)
+                        || FORMAT_TIMESTAMP.equals(endFormat))) {
+                    if (addItem(endItem, color, mEndContainer, mPadding)) {
+                        itemCount++;
                     }
-                }).findFirst().orElse(null);
-        if (toggleItem != null) {
-            if (addToggle(toggleItem, color)) {
-                mDivider.setVisibility(mRowAction != null ? View.VISIBLE : View.GONE);
-                makeClickable(mRowAction != null ? mContent : this);
-                // Can't show more end actions if we have a toggle so we're done
-                return;
-            }
-        }
-        boolean clickableEndItem = false;
-        int itemCount = 0;
-        for (int i = 0; i < endItems.size(); i++) {
-            SliceItem item = endItems.get(i);
-            // Only show one type of format at the end of the slice, use whatever is first
-            if (itemCount <= MAX_END_ITEMS
-                    && item.getFormat().equals(endItems.get(0).getFormat())) {
-                if (FORMAT_ACTION.equals(item.getFormat())
-                        && itemCount == 0
-                        && SliceQuery.hasHints(item.getSlice(), SliceHints.SUBTYPE_TOGGLE)
-                        && addToggle(item, color)) {
-                    // If a toggle is added we're done
-                    break;
-                } else if (addItem(item, color, mEndContainer, mPadding)) {
-                    itemCount++;
                 }
             }
-        }
-        if (mRowAction != null) {
-            makeClickable(clickableEndItem ? mContent : this);
+            if (mRowAction != null) {
+                if (itemCount > 0 && FORMAT_ACTION.equals(desiredFormat)) {
+                    makeClickable(mContent);
+                } else {
+                    makeClickable(this);
+                }
+            }
         }
     }
 

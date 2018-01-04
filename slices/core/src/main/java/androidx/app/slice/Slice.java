@@ -395,7 +395,11 @@ public final class Slice {
         return toString("");
     }
 
-    private String toString(String indent) {
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public String toString(String indent) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < mItems.length; i++) {
             sb.append(indent);
