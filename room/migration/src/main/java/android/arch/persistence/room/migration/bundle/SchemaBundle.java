@@ -37,7 +37,7 @@ import java.io.UnsupportedEncodingException;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class SchemaBundle {
+public class SchemaBundle implements SchemaEquality<SchemaBundle> {
 
     @SerializedName("formatVersion")
     private int mFormatVersion;
@@ -47,6 +47,7 @@ public class SchemaBundle {
     private static final Gson GSON;
     private static final String CHARSET = "UTF-8";
     public static final int LATEST_FORMAT = 1;
+
     static {
         GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     }
@@ -104,4 +105,9 @@ public class SchemaBundle {
         }
     }
 
+    @Override
+    public boolean isSchemaEqual(SchemaBundle other) {
+        return SchemaEqualityUtil.checkSchemaEquality(mDatabase, other.mDatabase)
+                && mFormatVersion == other.mFormatVersion;
+    }
 }

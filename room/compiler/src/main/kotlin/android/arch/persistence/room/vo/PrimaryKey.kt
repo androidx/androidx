@@ -22,7 +22,7 @@ import javax.lang.model.element.Element
  * Represents a PrimaryKey for an Entity.
  */
 data class PrimaryKey(val declaredIn: Element?, val fields: List<Field>,
-                      val autoGenerateId: Boolean) {
+                      val autoGenerateId: Boolean) : HasSchemaIdentity {
     companion object {
         val MISSING = PrimaryKey(null, emptyList(), false)
     }
@@ -36,4 +36,8 @@ data class PrimaryKey(val declaredIn: Element?, val fields: List<Field>,
 
     fun toBundle(): PrimaryKeyBundle = PrimaryKeyBundle(
             autoGenerateId, fields.map { it.columnName })
+
+    override fun getIdKey(): String {
+        return "$autoGenerateId-${fields.map { it.columnName }}"
+    }
 }

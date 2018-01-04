@@ -56,6 +56,12 @@ data class Database(val element: TypeElement,
      * ensure developer didn't forget to update the version.
      */
     val identityHash: String by lazy {
+        val idKey = SchemaIdentityKey()
+        idKey.appendSorted(entities)
+        idKey.hash()
+    }
+
+    val legacyIdentityHash: String by lazy {
         val entityDescriptions = entities
                 .sortedBy { it.tableName }
                 .map { it.createTableQuery }
@@ -71,6 +77,14 @@ data class Database(val element: TypeElement,
 
     fun exportSchema(file: File) {
         val schemaBundle = SchemaBundle(SchemaBundle.LATEST_FORMAT, bundle)
+        if (file.exists()) {
+            val existing = file.inputStream().use {
+                SchemaBundle.deserialize(it)
+            }
+            if (existing.isSchemaEqual(schemaBundle)) {
+                return
+            }
+        }
         SchemaBundle.serialize(schemaBundle, file)
     }
 }
