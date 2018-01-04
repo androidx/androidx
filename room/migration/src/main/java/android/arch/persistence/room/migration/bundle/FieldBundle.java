@@ -27,7 +27,7 @@ import com.google.gson.annotations.SerializedName;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FieldBundle {
+public class FieldBundle implements SchemaEquality<FieldBundle> {
     @SerializedName("fieldPath")
     private String mFieldPath;
     @SerializedName("columnName")
@@ -58,5 +58,15 @@ public class FieldBundle {
 
     public boolean isNonNull() {
         return mNonNull;
+    }
+
+    @Override
+    public boolean isSchemaEqual(FieldBundle other) {
+        if (mNonNull != other.mNonNull) return false;
+        if (mColumnName != null ? !mColumnName.equals(other.mColumnName)
+                : other.mColumnName != null) {
+            return false;
+        }
+        return mAffinity != null ? mAffinity.equals(other.mAffinity) : other.mAffinity == null;
     }
 }

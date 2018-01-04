@@ -28,7 +28,7 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
             public void createAllTables(SupportSQLiteDatabase _db) {
                 _db.execSQL("CREATE TABLE IF NOT EXISTS `User` (`uid` INTEGER NOT NULL, `name` TEXT, `lastName` TEXT, `ageColumn` INTEGER NOT NULL, PRIMARY KEY(`uid`))");
                 _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-                _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"6773601c5bcf94c71ee4eb0de04f21a4\")");
+                _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"cd8098a1e968898879c194cef2dff8f7\")");
             }
 
             public void dropAllTables(SupportSQLiteDatabase _db) {
@@ -69,7 +69,7 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
                             + " Found:\n" + _existingUser);
                 }
             }
-        }, "6773601c5bcf94c71ee4eb0de04f21a4");
+        }, "cd8098a1e968898879c194cef2dff8f7", "6773601c5bcf94c71ee4eb0de04f21a4");
         final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(configuration.context)
                 .name(configuration.name)
                 .callback(_openCallback)

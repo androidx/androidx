@@ -32,7 +32,7 @@ import java.util.Map;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class DatabaseBundle {
+public class DatabaseBundle implements SchemaEquality<DatabaseBundle> {
     @SerializedName("version")
     private int mVersion;
     @SerializedName("identityHash")
@@ -103,5 +103,11 @@ public class DatabaseBundle {
         }
         result.addAll(mSetupQueries);
         return result;
+    }
+
+    @Override
+    public boolean isSchemaEqual(DatabaseBundle other) {
+        return SchemaEqualityUtil.checkSchemaEquality(getEntitiesByTableName(),
+                other.getEntitiesByTableName());
     }
 }
