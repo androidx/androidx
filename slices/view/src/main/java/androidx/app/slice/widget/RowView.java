@@ -134,7 +134,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     }
 
     private void populateViews(SliceItem item) {
-        resetViews();
+        resetView();
         final int color = mColorItem != null ? mColorItem.getInt() : -1;
         mRowContent = new RowContent(item, !mIsHeader && !mInSmallMode);
 
@@ -161,12 +161,12 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         SliceItem toggleItem = mRowContent.getToggleItem();
         // Check if content intent + toggle are the same; make whole row clickable
         if (toggleItem != null && toggleItem == mRowAction && addToggle(toggleItem, color)) {
-            makeClickable(this);
+            setViewClickable(this, true);
             // Can't show more end actions if we have a toggle so we're done
             return;
         } else if (toggleItem != null && addToggle(toggleItem, color)) {
             mDivider.setVisibility(mRowAction != null ? View.VISIBLE : View.GONE);
-            makeClickable(mRowAction != null ? mContent : this);
+            setViewClickable(mRowAction != null ? mContent : this, true);
             // Can't show more end actions if we have a toggle so we're done
             return;
         }
@@ -190,9 +190,9 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
             }
             if (mRowAction != null) {
                 if (itemCount > 0 && FORMAT_ACTION.equals(desiredFormat)) {
-                    makeClickable(mContent);
+                    setViewClickable(mContent, true);
                 } else {
-                    makeClickable(this);
+                    setViewClickable(this, true);
                 }
             }
         }
@@ -330,17 +330,22 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         }
     }
 
-    private void makeClickable(View layout) {
-        layout.setOnClickListener(this);
-        layout.setBackground(SliceViewUtil.getDrawable(getContext(),
-                android.R.attr.selectableItemBackground));
+    private void setViewClickable(View layout, boolean isClickable) {
+        layout.setOnClickListener(isClickable ? this : null);
+        layout.setBackground(isClickable ? SliceViewUtil.getDrawable(getContext(),
+                android.R.attr.selectableItemBackground) : null);
     }
 
-    private void resetViews() {
+    @Override
+    public void resetView() {
+        setViewClickable(this, false);
+        setViewClickable(mContent, false);
         mStartContainer.removeAllViews();
         mEndContainer.removeAllViews();
         mPrimaryText.setText(null);
         mSecondaryText.setText(null);
+        mToggle = null;
+        mRowAction = null;
         mDivider.setVisibility(View.GONE);
     }
 }

@@ -161,8 +161,7 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
     }
 
     private void populateViews(SliceItem slice) {
-        mIsAllImages = true;
-        removeAllViews();
+        resetView();
         int total = 1;
         if (FORMAT_SLICE.equals(slice.getFormat())) {
             List<SliceItem> items = slice.getSlice().getItems();
@@ -350,5 +349,11 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
                 }
             });
         }
+    }
+
+    @Override
+    public void resetView() {
+        mIsAllImages = true;
+        removeAllViews();
     }
 }

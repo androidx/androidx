@@ -71,14 +71,18 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
      * Set the {@link SliceItem}'s to be displayed in the adapter and the accent color.
      */
     public void setSliceItems(List<SliceItem> slices, SliceItem color) {
+        if (slices == null) {
+            mSlices.clear();
+        } else {
+            mIdGen.resetUsage();
+            mSlices = slices.stream().map(new Function<SliceItem, SliceWrapper>() {
+                @Override
+                public SliceWrapper apply(SliceItem s) {
+                    return new SliceWrapper(s, mIdGen);
+                }
+            }).collect(Collectors.<SliceWrapper>toList());
+        }
         mColor = color;
-        mIdGen.resetUsage();
-        mSlices = slices.stream().map(new Function<SliceItem, SliceWrapper>() {
-            @Override
-            public SliceWrapper apply(SliceItem s) {
-                return new SliceWrapper(s, mIdGen);
-            }
-        }).collect(Collectors.<SliceWrapper>toList());
         notifyDataSetChanged();
     }
 
