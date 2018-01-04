@@ -75,11 +75,12 @@ public abstract class WorkManager {
     /**
      * Starts a chain of work, which can be enqueued together in the future using
      * {@link WorkContinuation#enqueue()}.
+     *
      * @param work One or more {@link Work} to enqueue in the future
      * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
      *         input work
      */
-    public abstract WorkContinuation with(@NonNull Work...work);
+    public abstract WorkContinuation createWith(@NonNull Work...work);
 
     /**
      * This method allows you to create unique chains of work for situations where you only want one
@@ -102,7 +103,7 @@ public abstract class WorkManager {
      * @param work One or more {@link Work} to enqueue
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public abstract WorkContinuation withUniqueTag(
+    public abstract WorkContinuation createWithUniqueTag(
             @NonNull String tag, @ExistingWorkPolicy int existingWorkPolicy, @NonNull Work... work);
 
     /**

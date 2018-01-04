@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class LazyWorkContinuationImplTest {
+public class WorkContinuationImplTest {
 
     private WorkManagerImpl mWorkManagerImpl;
     private TaskExecutor mTaskExecutor;
@@ -57,7 +57,7 @@ public class LazyWorkContinuationImplTest {
     @Test
     public void testLazyContinuation_noParent() {
         Work testWork = createTestWorker();
-        LazyWorkContinuationImpl continuation = new LazyWorkContinuationImpl(mWorkManagerImpl,
+        WorkContinuationImpl continuation = new WorkContinuationImpl(mWorkManagerImpl,
                 testWork);
         assertNull(continuation.mParent);
 
@@ -70,9 +70,9 @@ public class LazyWorkContinuationImplTest {
     public void testLazyContinuation_singleChain() {
         Work testWork = createTestWorker();
         Work dependentWork = createTestWorker();
-        LazyWorkContinuationImpl continuation =
-                new LazyWorkContinuationImpl(mWorkManagerImpl, testWork);
-        LazyWorkContinuationImpl dependent = (LazyWorkContinuationImpl) (continuation.then(
+        WorkContinuationImpl continuation =
+                new WorkContinuationImpl(mWorkManagerImpl, testWork);
+        WorkContinuationImpl dependent = (WorkContinuationImpl) (continuation.then(
                 dependentWork));
 
         assertNotNull(dependent.mParent);
@@ -85,7 +85,7 @@ public class LazyWorkContinuationImplTest {
     @Test
     public void testLazyContinuation_enqueue() {
         Work testWork = createTestWorker();
-        LazyWorkContinuationImpl continuation = new LazyWorkContinuationImpl(mWorkManagerImpl,
+        WorkContinuationImpl continuation = new WorkContinuationImpl(mWorkManagerImpl,
                 testWork);
         assertEquals(continuation.mEnqueued, false);
         continuation.enqueue();
@@ -97,9 +97,9 @@ public class LazyWorkContinuationImplTest {
     @Test
     public void testLazyContinuation_chainEnqueue() {
         Work testWork = createTestWorker();
-        LazyWorkContinuationImpl continuation =
-                new LazyWorkContinuationImpl(mWorkManagerImpl, testWork);
-        LazyWorkContinuationImpl chain = (LazyWorkContinuationImpl) (
+        WorkContinuationImpl continuation =
+                new WorkContinuationImpl(mWorkManagerImpl, testWork);
+        WorkContinuationImpl chain = (WorkContinuationImpl) (
                 continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
 
         chain.enqueue();
@@ -110,9 +110,9 @@ public class LazyWorkContinuationImplTest {
     @Test
     public void testLazyContinuation_chainEnqueueNoOpOnRetry() {
         Work testWork = createTestWorker();
-        LazyWorkContinuationImpl continuation =
-                new LazyWorkContinuationImpl(mWorkManagerImpl, testWork);
-        LazyWorkContinuationImpl chain = (LazyWorkContinuationImpl) (
+        WorkContinuationImpl continuation =
+                new WorkContinuationImpl(mWorkManagerImpl, testWork);
+        WorkContinuationImpl chain = (WorkContinuationImpl) (
                 continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
 
         chain.enqueue();
@@ -122,9 +122,9 @@ public class LazyWorkContinuationImplTest {
         verifyNoMoreInteractions(mTaskExecutor);
     }
 
-    private void verifyEnqueued(LazyWorkContinuationImpl continuation) {
+    private void verifyEnqueued(WorkContinuationImpl continuation) {
         assertEquals(continuation.mEnqueued, true);
-        LazyWorkContinuationImpl parent = continuation.mParent;
+        WorkContinuationImpl parent = continuation.mParent;
         while (parent != null) {
             assertEquals(parent.mEnqueued, true);
             parent = parent.mParent;

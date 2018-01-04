@@ -157,14 +157,14 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public void enqueue(@NonNull Work... work) {
-        with(work).enqueue();
+        createWith(work).enqueue();
     }
 
     @SafeVarargs
     @Override
     public final void enqueue(@NonNull Class<? extends Worker>... workerClasses) {
         Work[] work = BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses);
-        with(work).enqueue();
+        createWith(work).enqueue();
     }
 
     @Override
@@ -179,16 +179,16 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public WorkContinuation with(@NonNull Work... work) {
-        return new LazyWorkContinuationImpl(this, work);
+    public WorkContinuation createWith(@NonNull Work... work) {
+        return new WorkContinuationImpl(this, work);
     }
 
     @Override
-    public WorkContinuation withUniqueTag(
+    public WorkContinuation createWithUniqueTag(
             @NonNull String tag,
-            @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
+            @ExistingWorkPolicy int existingWorkPolicy,
             @NonNull Work... work) {
-        return new LazyWorkContinuationImpl(this, tag, existingWorkPolicy, work);
+        return new WorkContinuationImpl(this, tag, existingWorkPolicy, work);
     }
 
     @Override
