@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.animation.LogAccelerateInterpolator;
 import android.support.v17.leanback.animation.LogDecelerateInterpolator;
@@ -101,6 +102,7 @@ public class PlaybackSupportFragment extends Fragment {
      * Resets the focus on the button in the middle of control row.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void resetFocus() {
         ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder) getVerticalGridView()
                 .findViewHolderForAdapterPosition(0);
@@ -179,6 +181,7 @@ public class PlaybackSupportFragment extends Fragment {
      * completion events.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class OnFadeCompleteListener {
         public void onFadeInComplete() {
         }
@@ -359,6 +362,7 @@ public class PlaybackSupportFragment extends Fragment {
      * Sets the listener to be called when fade in or out has completed.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setFadeCompleteListener(OnFadeCompleteListener listener) {
         mFadeCompleteListener = listener;
     }
@@ -367,6 +371,7 @@ public class PlaybackSupportFragment extends Fragment {
      * Returns the listener to be called when fade in or out has completed.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public OnFadeCompleteListener getFadeCompleteListener() {
         return mFadeCompleteListener;
     }

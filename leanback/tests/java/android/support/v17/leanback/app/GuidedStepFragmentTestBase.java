@@ -34,9 +34,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
-/**
- * @hide from javadoc
- */
 public class GuidedStepFragmentTestBase {
 
     private static final long TIMEOUT = 5000;

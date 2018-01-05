@@ -2422,6 +2422,7 @@ public final class TvContractCompat {
         /** Canonical genres for TV programs. */
         public static final class Genres {
             /** @hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY)
             @StringDef({
                     FAMILY_KIDS,
                     SPORTS,
