@@ -22,6 +22,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.CompositeDrawable;
 import android.support.v17.leanback.graphics.FitWidthBitmapDrawable;
@@ -56,6 +57,7 @@ import android.util.TypedValue;
  * </li>
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DetailsParallaxDrawable extends CompositeDrawable {
     private Drawable mBottomDrawable;
 

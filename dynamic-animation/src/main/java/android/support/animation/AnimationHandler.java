@@ -35,8 +35,6 @@ import java.util.ArrayList;
  * The handler uses the Choreographer by default for doing periodic callbacks. A custom
  * AnimationFrameCallbackProvider can be set on the handler to provide timing pulse that
  * may be independent of UI frame update. This could be useful in testing.
- *
- * @hide
  */
 class AnimationHandler {
     /**
@@ -57,7 +55,7 @@ class AnimationHandler {
      * the new frame, so that they can update animation values as needed.
      */
     class AnimationCallbackDispatcher {
-        public void dispatchAnimationFrame() {
+        void dispatchAnimationFrame() {
             mCurrentFrameTime = SystemClock.uptimeMillis();
             AnimationHandler.this.doAnimationFrame(mCurrentFrameTime);
             if (mAnimationCallbacks.size() > 0) {
@@ -72,7 +70,6 @@ class AnimationHandler {
     /**
      * Internal per-thread collections used to avoid set collisions as animations start and end
      * while being processed.
-     * @hide
      */
     private final SimpleArrayMap<AnimationFrameCallback, Long> mDelayedCallbackStartTime =
             new SimpleArrayMap<>();
@@ -249,7 +246,7 @@ class AnimationHandler {
      * timing pulse without using Choreographer. That way we could use any arbitrary interval for
      * our timing pulse in the tests.
      */
-    public abstract static class AnimationFrameCallbackProvider {
+    abstract static class AnimationFrameCallbackProvider {
         final AnimationCallbackDispatcher mDispatcher;
         AnimationFrameCallbackProvider(AnimationCallbackDispatcher dispatcher) {
             mDispatcher = dispatcher;

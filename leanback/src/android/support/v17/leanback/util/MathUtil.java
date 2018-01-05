@@ -13,10 +13,13 @@
  */
 package android.support.v17.leanback.util;
 
+import android.support.annotation.RestrictTo;
+
 /**
  * Math Utilities for leanback library.
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class MathUtil {
 
     private MathUtil() {

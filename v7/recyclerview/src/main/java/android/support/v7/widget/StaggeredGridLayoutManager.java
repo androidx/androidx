@@ -16,6 +16,7 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_HEAD;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_TAIL;
@@ -2069,6 +2070,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
 
     /** @hide */
     @Override
+    @RestrictTo(LIBRARY)
     public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
             LayoutPrefetchRegistry layoutPrefetchRegistry) {
         /* This method uses the simplifying assumption that the next N items (where N = span count)

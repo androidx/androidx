@@ -16,6 +16,7 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
@@ -559,6 +560,7 @@ public class LinearLayoutCompat extends ViewGroup {
      * @return true if there should be a divider before the child at childIndex
      * @hide Pending API consideration. Currently only used internally by the system.
      */
+    @RestrictTo(LIBRARY)
     protected boolean hasDividerBeforeChildAt(int childIndex) {
         if (childIndex == 0) {
             return (mShowDividers & SHOW_DIVIDER_BEGINNING) != 0;
