@@ -99,7 +99,7 @@ public final class BrowserActionsIntentTest {
         assertEquals(action2, items2.getAction());
     }
 
-    private PendingIntent createCustomItemAction(String url) {
+    static PendingIntent createCustomItemAction(String url) {
         Context context = InstrumentationRegistry.getTargetContext();
         Intent customIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         return PendingIntent.getActivity(context, 0, customIntent, 0);
