@@ -30,9 +30,12 @@ import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkTag;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,31 +49,59 @@ public class EnqueueRunnable implements Runnable {
     private static final String TAG = "EnqueueRunnable";
 
     private final WorkContinuationImpl mWorkContinuation;
+    private final List<InternalWorkImpl> mWorkToBeScheduled;
 
     public EnqueueRunnable(@NonNull WorkContinuationImpl workContinuation) {
         mWorkContinuation = workContinuation;
+        mWorkToBeScheduled = new ArrayList<>();
     }
 
     @Override
     public void run() {
+        addToDatabase();
+        scheduleWorkInBackground();
+    }
+
+    /**
+     * Adds the {@link WorkSpec}'s to the datastore, parent first.
+     * Schedules work on the background scheduler, if transaction is successful.
+     */
+    @VisibleForTesting
+    public void addToDatabase() {
         WorkManagerImpl workManagerImpl = mWorkContinuation.getWorkManagerImpl();
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
         workDatabase.beginTransaction();
         try {
-            processContinuation(mWorkContinuation);
+            processContinuation(mWorkContinuation, mWorkToBeScheduled);
             workDatabase.setTransactionSuccessful();
         } finally {
             workDatabase.endTransaction();
         }
     }
 
-    private static void processContinuation(@NonNull WorkContinuationImpl workContinuation) {
+    /**
+     * Schedules work on the background scheduler.
+     */
+    @VisibleForTesting
+    public void scheduleWorkInBackground() {
+        // Schedule in the background. This list contains work that does not have prerequisites.
+        for (InternalWorkImpl work : mWorkToBeScheduled) {
+            mWorkContinuation.getWorkManagerImpl()
+                    .getBackgroundScheduler()
+                    .schedule(work.getWorkSpec());
+        }
+    }
+
+    private static void processContinuation(
+            @NonNull WorkContinuationImpl workContinuation,
+            @NonNull List<InternalWorkImpl> workToBeScheduled) {
+
         WorkContinuationImpl parent = workContinuation.getParent();
         if (parent != null) {
             // When chaining off a completed continuation we need to pay
             // attention to parents that may have been marked as enqueued before.
             if (!parent.isEnqueued()) {
-                processContinuation(parent);
+                processContinuation(parent, workToBeScheduled);
             } else {
                 Log.w(TAG,
                         String.format(
@@ -79,10 +110,13 @@ public class EnqueueRunnable implements Runnable {
             }
 
         }
-        enqueueContinuation(workContinuation);
+        enqueueContinuation(workContinuation, workToBeScheduled);
     }
 
-    private static void enqueueContinuation(@NonNull WorkContinuationImpl workContinuation) {
+    private static void enqueueContinuation(
+            @NonNull WorkContinuationImpl workContinuation,
+            @NonNull List<InternalWorkImpl> workToBeScheduled) {
+
         WorkContinuationImpl parent = workContinuation.getParent();
         String[] prerequisiteIds = parent != null ? parent.getIds() : null;
 
@@ -91,7 +125,8 @@ public class EnqueueRunnable implements Runnable {
                 workContinuation.getWork(),
                 prerequisiteIds,
                 workContinuation.getUniqueTag(),
-                workContinuation.getExistingWorkPolicy());
+                workContinuation.getExistingWorkPolicy(),
+                workToBeScheduled);
 
         workContinuation.markEnqueued();
     }
@@ -104,7 +139,8 @@ public class EnqueueRunnable implements Runnable {
             @NonNull BaseWork[] workArray,
             String[] prerequisiteIds,
             String uniqueTag,
-            @WorkManager.ExistingWorkPolicy int existingWorkPolicy) {
+            @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
+            @NonNull List<InternalWorkImpl> workToBeScheduled) {
 
         long currentTimeMillis = System.currentTimeMillis();
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
@@ -180,16 +216,11 @@ public class EnqueueRunnable implements Runnable {
             }
         }
 
-        // TODO(rahulrav@) It's dangerous to ask the background scheduler to schedule things.
-        // Revisit this and see if there is a better way to do this, after the transaction
-        // has settled.
-
-        // Schedule in the background if there are no prerequisites.  Foreground scheduling
-        // happens automatically if a ForegroundProcessor is available.
+        // If there are no prerequisites, then add then to the list of work items
+        // that can be scheduled in the background. The actual scheduling is typically
+        // done after the transaction has settled.
         if (!hasPrerequisite) {
-            for (InternalWorkImpl work : workImplArray) {
-                workManagerImpl.getBackgroundScheduler().schedule(work.getWorkSpec());
-            }
+            workToBeScheduled.addAll(Arrays.asList(workImplArray));
         }
     }
 }

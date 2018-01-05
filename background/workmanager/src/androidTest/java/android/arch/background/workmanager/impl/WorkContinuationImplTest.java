@@ -121,7 +121,6 @@ public class WorkContinuationImplTest {
         WorkContinuationImpl dependent = (WorkContinuationImpl) (continuation.then(
                 dependentWork));
 
-
         assertThat(dependent.getParent(), is(notNullValue()));
         assertThat(dependent.getParent(), is(continuation));
         assertThat(dependent.getIds().length, is(1));
