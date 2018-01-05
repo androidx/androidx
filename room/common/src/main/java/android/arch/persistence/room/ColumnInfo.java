@@ -68,7 +68,7 @@ public @interface ColumnInfo {
      * collation sequence to the column, and SQLite treats it like {@link #BINARY}.
      *
      * @return The collation sequence of the column. This is either {@link #UNSPECIFIED},
-     * {@link #BINARY}, {@link #NOCASE}, or {@link #RTRIM}.
+     * {@link #BINARY}, {@link #NOCASE}, {@link #RTRIM}, {@link #LOCALIZED} or {@link #UNICODE}.
      */
     @Collate int collate() default UNSPECIFIED;
 
@@ -141,8 +141,20 @@ public @interface ColumnInfo {
      * @see #collate()
      */
     int RTRIM = 4;
+    /**
+     * Collation sequence that uses system's current locale.
+     *
+     * @see #collate()
+     */
+    int LOCALIZED = 5;
+    /**
+     * Collation sequence that uses Unicode Collation Algorithm.
+     *
+     * @see #collate()
+     */
+    int UNICODE = 6;
 
-    @IntDef({UNSPECIFIED, BINARY, NOCASE, RTRIM})
+    @IntDef({UNSPECIFIED, BINARY, NOCASE, RTRIM, LOCALIZED, UNICODE})
     @interface Collate {
     }
 }
