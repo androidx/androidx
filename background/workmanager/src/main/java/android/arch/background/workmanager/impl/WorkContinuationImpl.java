@@ -16,6 +16,7 @@
 
 package android.arch.background.workmanager.impl;
 
+import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManager;
@@ -26,7 +27,6 @@ import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -42,45 +42,75 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkContinuationImpl extends WorkContinuation {
 
-    private static final String TAG = "LzyWrkContinuationImpl";
+    private static final String TAG = "WorkContinuationImpl";
 
-    @VisibleForTesting
-    final WorkManagerImpl mWorkManagerImpl;
+    private final WorkManagerImpl mWorkManagerImpl;
+    private final String mUniqueTag;
+    private final @WorkManager.ExistingWorkPolicy int mExistingWorkPolicy;
+    private final BaseWork[] mWork;
+    private final String[] mIds;
+    private final List<String> mAllIds;
+    private boolean mEnqueued;
+    private WorkContinuationImpl mParent;
 
-    final String mUniqueTag;
+    @NonNull
+    public WorkManagerImpl getWorkManagerImpl() {
+        return mWorkManagerImpl;
+    }
 
-    final @WorkManager.ExistingWorkPolicy int mExistingWorkPolicy;
+    @Nullable
+    public String getUniqueTag() {
+        return mUniqueTag;
+    }
 
-    @VisibleForTesting
-    final Work[] mWork;
+    public @WorkManager.ExistingWorkPolicy int getExistingWorkPolicy() {
+        return mExistingWorkPolicy;
+    }
 
-    @VisibleForTesting
-    final String[] mIds;
+    @NonNull
+    public BaseWork[] getWork() {
+        return mWork;
+    }
 
-    @VisibleForTesting
-    final List<String> mAllIds;
+    @NonNull
+    public String[] getIds() {
+        return mIds;
+    }
 
-    @VisibleForTesting
-    boolean mEnqueued;
+    public List<String> getAllIds() {
+        return mAllIds;
+    }
 
-    @VisibleForTesting
-    WorkContinuationImpl mParent;
+    public boolean isEnqueued() {
+        return mEnqueued;
+    }
 
-    WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl, @NonNull Work... work) {
+    /**
+     * Marks the {@link WorkContinuationImpl} as enqueued.
+     */
+    public void markEnqueued() {
+        mEnqueued = true;
+    }
+
+    public WorkContinuationImpl getParent() {
+        return mParent;
+    }
+
+    WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl, @NonNull BaseWork... work) {
         this(workManagerImpl, null, WorkManager.KEEP_EXISTING_WORK, work, null);
     }
 
     WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
             @NonNull String uniqueTag,
             @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
-            @NonNull Work... work) {
+            @NonNull BaseWork... work) {
         this(workManagerImpl, uniqueTag, existingWorkPolicy, work, null);
     }
 
     private WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
             String uniqueTag,
             @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
-            @NonNull Work[] work,
+            @NonNull BaseWork[] work,
             @Nullable WorkContinuationImpl parent) {
         mWorkManagerImpl = workManagerImpl;
         mUniqueTag = uniqueTag;
@@ -126,34 +156,12 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     @Override
     public void enqueue() {
-        // TODO(sumir): Change enqueuing to be transactional, where everything gets enqueued
-        // together in one pass instead of spawning multiple runnables.
-
         // Only enqueue if not already enqueued.
         if (!mEnqueued) {
-            if (mParent == null) {
-                mWorkManagerImpl.getTaskExecutor()
-                        .executeOnBackgroundThread(
-                                new EnqueueRunnable(
-                                        mWorkManagerImpl,
-                                        mWork,
-                                        null /* no prerequisites*/,
-                                        mUniqueTag,
-                                        mExistingWorkPolicy));
-            } else {
-                // has dependencies which need to be enqueued first
-                mParent.enqueue();
-                // now enqueue the work continuation, given the dependencies have been enqueued.
-                mWorkManagerImpl.getTaskExecutor()
-                        .executeOnBackgroundThread(
-                                new EnqueueRunnable(
-                                        mWorkManagerImpl,
-                                        mWork,
-                                        mParent.mIds,
-                                        mUniqueTag,
-                                        mExistingWorkPolicy));
-            }
-            mEnqueued = true;
+            // The runnable walks the heirarchy of the continuations
+            // and marks them enqueued using the markEnqueued() method, parent first.
+            mWorkManagerImpl.getTaskExecutor()
+                    .executeOnBackgroundThread(new EnqueueRunnable(this));
         } else {
             Log.w(TAG,
                     String.format("Already enqueued work ids (%s).", TextUtils.join(", ", mIds)));

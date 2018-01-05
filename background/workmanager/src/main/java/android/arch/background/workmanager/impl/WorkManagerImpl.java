@@ -27,7 +27,6 @@ import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkSpecDao;
 import android.arch.background.workmanager.impl.utils.BaseWorkHelper;
 import android.arch.background.workmanager.impl.utils.CancelWorkRunnable;
-import android.arch.background.workmanager.impl.utils.EnqueueRunnable;
 import android.arch.background.workmanager.impl.utils.LiveDataUtils;
 import android.arch.background.workmanager.impl.utils.PruneDatabaseRunnable;
 import android.arch.background.workmanager.impl.utils.taskexecutor.TaskExecutor;
@@ -158,13 +157,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public void enqueue(@NonNull PeriodicWork... periodicWork) {
-        mTaskExecutor.executeOnBackgroundThread(
-                new EnqueueRunnable(
-                        this,
-                        periodicWork,
-                        null,
-                        null,
-                        KEEP_EXISTING_WORK));
+        new WorkContinuationImpl(this, periodicWork).enqueue();
     }
 
     @Override
