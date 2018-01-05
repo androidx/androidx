@@ -155,3 +155,54 @@ package android.support.customtabs {
 
 }
 
+package androidx.browser.browseractions {
+
+  public class BrowserActionItem {
+    ctor public BrowserActionItem(java.lang.String, android.app.PendingIntent, int);
+    ctor public BrowserActionItem(java.lang.String, android.app.PendingIntent);
+    method public android.app.PendingIntent getAction();
+    method public int getIconId();
+    method public java.lang.String getTitle();
+  }
+
+  public class BrowserActionsIntent {
+    method public static java.lang.String getCreatorPackageName(android.content.Intent);
+    method public android.content.Intent getIntent();
+    method public static void launchIntent(android.content.Context, android.content.Intent);
+    method public static void openBrowserAction(android.content.Context, android.net.Uri);
+    method public static void openBrowserAction(android.content.Context, android.net.Uri, int, java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>, android.app.PendingIntent);
+    method public static java.util.List<androidx.browser.browseractions.BrowserActionItem> parseBrowserActionItems(java.util.ArrayList<android.os.Bundle>);
+    field public static final java.lang.String ACTION_BROWSER_ACTIONS_OPEN = "androidx.browser.browseractions.browser_action_open";
+    field public static final java.lang.String EXTRA_APP_ID = "androidx.browser.browseractions.APP_ID";
+    field public static final java.lang.String EXTRA_MENU_ITEMS = "androidx.browser.browseractions.extra.MENU_ITEMS";
+    field public static final java.lang.String EXTRA_SELECTED_ACTION_PENDING_INTENT = "androidx.browser.browseractions.extra.SELECTED_ACTION_PENDING_INTENT";
+    field public static final java.lang.String EXTRA_TYPE = "androidx.browser.browseractions.extra.TYPE";
+    field public static final int ITEM_COPY = 3; // 0x3
+    field public static final int ITEM_DOWNLOAD = 2; // 0x2
+    field public static final int ITEM_INVALID_ITEM = -1; // 0xffffffff
+    field public static final int ITEM_OPEN_IN_INCOGNITO = 1; // 0x1
+    field public static final int ITEM_OPEN_IN_NEW_TAB = 0; // 0x0
+    field public static final int ITEM_SHARE = 4; // 0x4
+    field public static final java.lang.String KEY_ACTION = "androidx.browser.browseractions.ACTION";
+    field public static final java.lang.String KEY_ICON_ID = "androidx.browser.browseractions.ICON_ID";
+    field public static final java.lang.String KEY_TITLE = "androidx.browser.browseractions.TITLE";
+    field public static final int MAX_CUSTOM_ITEMS = 5; // 0x5
+    field public static final int URL_TYPE_AUDIO = 3; // 0x3
+    field public static final int URL_TYPE_FILE = 4; // 0x4
+    field public static final int URL_TYPE_IMAGE = 1; // 0x1
+    field public static final int URL_TYPE_NONE = 0; // 0x0
+    field public static final int URL_TYPE_PLUGIN = 5; // 0x5
+    field public static final int URL_TYPE_VIDEO = 2; // 0x2
+  }
+
+  public static final class BrowserActionsIntent.Builder {
+    ctor public BrowserActionsIntent.Builder(android.content.Context, android.net.Uri);
+    method public androidx.browser.browseractions.BrowserActionsIntent build();
+    method public androidx.browser.browseractions.BrowserActionsIntent.Builder setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>);
+    method public androidx.browser.browseractions.BrowserActionsIntent.Builder setCustomItems(androidx.browser.browseractions.BrowserActionItem...);
+    method public androidx.browser.browseractions.BrowserActionsIntent.Builder setOnItemSelectedAction(android.app.PendingIntent);
+    method public androidx.browser.browseractions.BrowserActionsIntent.Builder setUrlType(int);
+  }
+
+}
+
