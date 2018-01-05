@@ -62,6 +62,7 @@ public class ViewModelProviders {
      * @param fragment a fragment, in whose scope ViewModels should be retained
      * @return a ViewModelProvider instance
      */
+    @NonNull
     @MainThread
     public static ViewModelProvider of(@NonNull Fragment fragment) {
         ViewModelProvider.AndroidViewModelFactory factory =
@@ -79,6 +80,7 @@ public class ViewModelProviders {
      * @param activity an activity, in whose scope ViewModels should be retained
      * @return a ViewModelProvider instance
      */
+    @NonNull
     @MainThread
     public static ViewModelProvider of(@NonNull FragmentActivity activity) {
         ViewModelProvider.AndroidViewModelFactory factory =
@@ -97,6 +99,7 @@ public class ViewModelProviders {
      * @param factory  a {@code Factory} to instantiate new ViewModels
      * @return a ViewModelProvider instance
      */
+    @NonNull
     @MainThread
     public static ViewModelProvider of(@NonNull Fragment fragment, @NonNull Factory factory) {
         checkApplication(checkActivity(fragment));
@@ -113,6 +116,7 @@ public class ViewModelProviders {
      * @param factory  a {@code Factory} to instantiate new ViewModels
      * @return a ViewModelProvider instance
      */
+    @NonNull
     @MainThread
     public static ViewModelProvider of(@NonNull FragmentActivity activity,
             @NonNull Factory factory) {

@@ -38,6 +38,7 @@ public class ViewModelStores {
      * @param activity an activity whose {@code ViewModelStore} is requested
      * @return a {@code ViewModelStore}
      */
+    @NonNull
     @MainThread
     public static ViewModelStore of(@NonNull FragmentActivity activity) {
         if (activity instanceof ViewModelStoreOwner) {
@@ -52,6 +53,7 @@ public class ViewModelStores {
      * @param fragment a fragment whose {@code ViewModelStore} is requested
      * @return a {@code ViewModelStore}
      */
+    @NonNull
     @MainThread
     public static ViewModelStore of(@NonNull Fragment fragment) {
         if (fragment instanceof ViewModelStoreOwner) {
