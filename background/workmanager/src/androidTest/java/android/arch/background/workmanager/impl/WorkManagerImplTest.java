@@ -124,6 +124,10 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @After
     public void tearDown() {
+        List<String> ids = mDatabase.workSpecDao().getAllWorkSpecIds();
+        for (String id : ids) {
+            mWorkManagerImpl.cancelWorkForId(id);
+        }
         mDatabase.close();
         ArchTaskExecutor.getInstance().setDelegate(null);
     }

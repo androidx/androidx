@@ -81,6 +81,12 @@ public interface WorkSpecDao {
     List<String> getWorkSpecIdsForTag(String tag);
 
     /**
+     * @return All WorkSpec ids in the database.
+     */
+    @Query("SELECT id FROM workspec")
+    List<String> getAllWorkSpecIds();
+
+    /**
      * Updates the status of at least one {@link WorkSpec} by ID.
      *
      * @param status The new status
