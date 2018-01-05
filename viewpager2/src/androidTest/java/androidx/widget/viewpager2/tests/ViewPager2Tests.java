@@ -23,6 +23,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
+import static android.view.View.OVER_SCROLL_NEVER;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -30,6 +31,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.IdlingRegistry;
@@ -104,6 +106,11 @@ public class ViewPager2Tests {
     @Test
     public void rendersAndHandlesSwiping() throws Throwable {
         final int pageCount = sColors.length;
+
+        if (Build.VERSION.SDK_INT < 16) { // TODO(b/71500143): remove temporary workaround
+            RecyclerView mRecyclerView = (RecyclerView) mViewPager.getChildAt(0);
+            mRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
+        }
 
         onView(withId(mViewPager.getId())).check(matches(isDisplayed()));
         mActivityTestRule.runOnUiThread(new Runnable() {
