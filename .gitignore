@@ -17,3 +17,7 @@ local.properties
 buildSrc/build
 lifecycle/common/build
 jacoco.exec
+
+# When Gradle configuration fails with the --profile option enabled it creates this folder.
+/reports
+/app-toolkit/reports
