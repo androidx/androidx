@@ -17,6 +17,7 @@
 package android.arch.persistence.room.processor
 
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.ext.extendsBound
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.vo.ShortcutQueryParameter
 import com.google.auto.common.MoreTypes
@@ -60,7 +61,11 @@ class ShortcutParameterProcessor(baseContext: Context,
 
         fun verifyAndPair(entityType: TypeMirror, isMultiple: Boolean): Pair<TypeMirror?, Boolean> {
             if (!MoreTypes.isType(entityType)) {
-                return Pair(null, isMultiple)
+                // kotlin may generate ? extends T so we should reduce it.
+                val boundedVar = entityType.extendsBound()
+                return boundedVar?.let {
+                    verifyAndPair(boundedVar, isMultiple)
+                } ?: Pair(null, isMultiple)
             }
             val entityElement = MoreTypes.asElement(entityType)
             return if (entityElement.hasAnnotation(Entity::class)) {

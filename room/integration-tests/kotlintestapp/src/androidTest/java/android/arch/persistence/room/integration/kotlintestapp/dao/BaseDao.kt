@@ -26,6 +26,12 @@ interface BaseDao<T> {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(t: T)
 
+    @Insert
+    fun insertAll(t: List<T>)
+
+    @Insert
+    fun insertAllArg(vararg t: T)
+
     @Update
     fun update(t: T)
 
