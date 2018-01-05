@@ -204,7 +204,7 @@ fun Types.isAssignableWithoutVariance(from: TypeMirror, to: TypeMirror): Boolean
 }
 
 // converts ? in Set< ? extends Foo> to Foo
-private fun TypeMirror.extendsBound(): TypeMirror? {
+fun TypeMirror.extendsBound(): TypeMirror? {
     return this.accept(object : SimpleTypeVisitor7<TypeMirror?, Void?>() {
         override fun visitWildcard(type: WildcardType, ignored: Void?): TypeMirror? {
             return type.extendsBound

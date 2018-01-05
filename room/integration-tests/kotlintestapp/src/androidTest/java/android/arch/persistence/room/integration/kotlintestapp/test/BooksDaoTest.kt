@@ -49,9 +49,9 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
-        var expected = BookWithPublisher(TestUtil.BOOK_1.bookId, TestUtil.BOOK_1.title,
+        val expected = BookWithPublisher(TestUtil.BOOK_1.bookId, TestUtil.BOOK_1.title,
                 TestUtil.PUBLISHER)
-        var expectedList = ArrayList<BookWithPublisher>()
+        val expectedList = ArrayList<BookWithPublisher>()
         expectedList.add(expected)
 
         assertThat(database.booksDao().getBooksWithPublisher(),
@@ -152,5 +152,23 @@ class BooksDaoTest : TestDatabaseTest() {
 
         assertThat(booksDao.findByLanguages(setOf(Lang.EN)),
                 `is`(listOf(book3)))
+    }
+
+    @Test
+    fun insertVarargInInheritedDao() {
+        database.derivedDao().insertAllArg(TestUtil.AUTHOR_1, TestUtil.AUTHOR_2)
+
+        val author = database.derivedDao().getAuthor(TestUtil.AUTHOR_1.authorId)
+
+        assertThat(author, CoreMatchers.`is`<Author>(TestUtil.AUTHOR_1))
+    }
+
+    @Test
+    fun insertListInInheritedDao() {
+        database.derivedDao().insertAll(listOf(TestUtil.AUTHOR_1))
+
+        val author = database.derivedDao().getAuthor(TestUtil.AUTHOR_1.authorId)
+
+        assertThat(author, CoreMatchers.`is`<Author>(TestUtil.AUTHOR_1))
     }
 }
