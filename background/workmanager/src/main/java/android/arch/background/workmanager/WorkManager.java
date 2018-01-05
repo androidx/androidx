@@ -24,6 +24,8 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 
 import java.lang.annotation.Retention;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * WorkManager is a class used to enqueue persisted work that is guaranteed to run after its
@@ -53,8 +55,10 @@ public abstract class WorkManager {
      * @param workerClasses One or more {@link Worker}s to enqueue; this is a convenience method
      *                      that makes a {@link Work} object with default arguments for each Worker
      */
-    @SuppressWarnings("unchecked")
-    public abstract void enqueue(@NonNull Class<? extends Worker>... workerClasses);
+    @SafeVarargs
+    public final void enqueue(@NonNull Class<? extends Worker>... workerClasses) {
+        enqueue(Arrays.asList(workerClasses));
+    }
 
     /**
      * Enqueues one or more periodic work items for background processing.
@@ -62,6 +66,21 @@ public abstract class WorkManager {
      * @param periodicWork One or more {@link PeriodicWork} to enqueue
      */
     public abstract void enqueue(@NonNull PeriodicWork... periodicWork);
+
+    /**
+     * Starts a chain of work, which can be enqueued together in the future using
+     * {@link WorkContinuation#enqueue()}.
+     *
+     * @param workerClasses One or more {@link Worker}s to enqueue in the future; ; this is a
+     *                      convenience method that makes a {@link Work} object with default
+     *                      arguments for each Worker
+     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
+     *         input work
+     */
+    @SafeVarargs
+    public final WorkContinuation createWith(@NonNull Class<? extends Worker>...workerClasses) {
+        return createWith(Arrays.asList(workerClasses));
+    }
 
     /**
      * Starts a chain of work, which can be enqueued together in the future using
@@ -144,4 +163,7 @@ public abstract class WorkManager {
 
     public static final int REPLACE_EXISTING_WORK = 0;
     public static final int KEEP_EXISTING_WORK = 1;
+
+    protected abstract void enqueue(List<Class<? extends Worker>> workerClasses);
+    protected abstract WorkContinuation createWith(List<Class<? extends Worker>> workerClasses);
 }

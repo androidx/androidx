@@ -141,11 +141,11 @@ public class WorkContinuationImpl extends WorkContinuation {
     }
 
     @Override
-    public WorkContinuation then(Class<? extends Worker>[] workerClasses) {
+    public WorkContinuation then(List<Class<? extends Worker>> workerClasses) {
         return new WorkContinuationImpl(mWorkManagerImpl,
                 mUniqueTag,
                 WorkManager.KEEP_EXISTING_WORK,
-                BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses),
+                BaseWorkHelper.convertWorkerClassListToWorkArray(workerClasses),
                 this);
     }
 

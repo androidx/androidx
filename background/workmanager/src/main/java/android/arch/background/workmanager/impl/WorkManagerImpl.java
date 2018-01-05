@@ -148,16 +148,22 @@ public class WorkManagerImpl extends WorkManager {
         createWith(work).enqueue();
     }
 
-    @SafeVarargs
     @Override
-    public final void enqueue(@NonNull Class<? extends Worker>... workerClasses) {
-        Work[] work = BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses);
+    protected void enqueue(List<Class<? extends Worker>> workerClasses) {
+        Work[] work = BaseWorkHelper.convertWorkerClassListToWorkArray(workerClasses);
         createWith(work).enqueue();
     }
 
     @Override
     public void enqueue(@NonNull PeriodicWork... periodicWork) {
         new WorkContinuationImpl(this, periodicWork).enqueue();
+    }
+
+    @Override
+    protected WorkContinuation createWith(List<Class<? extends Worker>> workerClasses) {
+        return new WorkContinuationImpl(
+                this,
+                BaseWorkHelper.convertWorkerClassListToWorkArray(workerClasses));
     }
 
     @Override

@@ -17,6 +17,8 @@ package android.arch.background.workmanager;
 
 import android.arch.lifecycle.LiveData;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,7 +44,10 @@ public abstract class WorkContinuation {
      * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
      *         input workerClasses
      */
-    public abstract WorkContinuation then(Class<? extends Worker>... workerClasses);
+    @SafeVarargs
+    public final WorkContinuation then(Class<? extends Worker>... workerClasses) {
+        return then(Arrays.asList(workerClasses));
+    }
 
     /**
      * Returns a {@link LiveData} mapping of work identifiers to their statuses for all work in this
@@ -58,4 +63,6 @@ public abstract class WorkContinuation {
      * Enqueues the instance of {@link WorkContinuation} on the background thread.
      */
     public abstract void enqueue();
+
+    protected abstract WorkContinuation then(List<Class<? extends Worker>> workerClasses);
 }

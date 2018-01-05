@@ -21,6 +21,8 @@ import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.WorkImpl;
 import android.support.annotation.RestrictTo;
 
+import java.util.List;
+
 /**
  * A helper class for {@link BaseWork} classes.
  *
@@ -32,14 +34,14 @@ public class BaseWorkHelper {
     /**
      * Converts the given {@link Worker} classes to an array of {@link Work}.
      *
-     * @param workerClasses An array of {@link Worker} classes
+     * @param workerClasses A list of {@link Worker} classes
      * @return An array of {@link Work} created with no constraints or arguments
      */
-    public static Work[] convertWorkerClassArrayToWorkArray(
-            Class<? extends Worker>[] workerClasses) {
-        Work[] workArray = new Work[workerClasses.length];
-        for (int i = 0; i < workerClasses.length; ++i) {
-            workArray[i] = new WorkImpl.Builder(workerClasses[i]).build();
+    public static Work[] convertWorkerClassListToWorkArray(
+            List<Class<? extends Worker>> workerClasses) {
+        Work[] workArray = new Work[workerClasses.size()];
+        for (int i = 0; i < workerClasses.size(); ++i) {
+            workArray[i] = new WorkImpl.Builder(workerClasses.get(i)).build();
         }
         return workArray;
     }
