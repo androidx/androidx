@@ -155,7 +155,7 @@ public class SliceViewUtil {
     /**
      */
     @TargetApi(28)
-    public static void createCircledIcon(@NonNull Context context, int color, int iconSizePx,
+    public static void createCircledIcon(@NonNull Context context, int iconSizePx,
             Icon icon, boolean isLarge, ViewGroup parent) {
         ImageView v = new ImageView(context);
         v.setImageIcon(icon);

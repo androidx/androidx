@@ -27,14 +27,13 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.RestrictTo;
 import android.text.SpannableStringBuilder;
-import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.function.Consumer;
 
+import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
 import androidx.app.slice.core.SliceQuery;
 
@@ -43,15 +42,31 @@ import androidx.app.slice.core.SliceQuery;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @TargetApi(24)
-public class MessageView extends LinearLayout implements LargeSliceAdapter.SliceListView {
+public class MessageView extends SliceChildView {
 
     private TextView mDetails;
     private ImageView mIcon;
+
     private int mRowIndex;
     private SliceView.SliceObserver mSliceObserver;
 
-    public MessageView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public MessageView(Context context) {
+        super(context);
+    }
+
+    @Override
+    public int getMode() {
+        return SliceView.MODE_LARGE;
+    }
+
+    @Override
+    public void setSlice(Slice slice) {
+        // Do nothing it's always a list item
+    }
+
+    @Override
+    public void resetView() {
+        // TODO
     }
 
     @Override
@@ -70,7 +85,7 @@ public class MessageView extends LinearLayout implements LargeSliceAdapter.Slice
         if (source != null) {
             final int iconSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     24, getContext().getResources().getDisplayMetrics());
-            // TODO try and turn this into a drawable
+            // TODO: try and turn this into a drawable
             Bitmap iconBm = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888);
             Canvas iconCanvas = new Canvas(iconBm);
             Drawable d = source.getIcon().loadDrawable(getContext());
@@ -90,10 +105,4 @@ public class MessageView extends LinearLayout implements LargeSliceAdapter.Slice
         });
         mDetails.setText(builder.toString());
     }
-
-    @Override
-    public void setColor(SliceItem color) {
-
-    }
-
 }

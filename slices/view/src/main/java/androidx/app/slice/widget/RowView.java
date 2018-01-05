@@ -37,12 +37,12 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
+import android.support.annotation.ColorInt;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -67,18 +67,12 @@ import androidx.app.slice.view.R;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @TargetApi(23)
-public class RowView extends FrameLayout implements SliceView.SliceModeView,
-        LargeSliceAdapter.SliceListView, View.OnClickListener {
+public class RowView extends SliceChildView implements View.OnClickListener {
 
     private static final String TAG = "RowView";
 
     // The number of items that fit on the right hand side of a small slice
     private static final int MAX_END_ITEMS = 3;
-
-    private int mIconSize;
-    private int mPadding;
-    private boolean mInSmallMode;
-    private boolean mIsHeader;
 
     private LinearLayout mStartContainer;
     private LinearLayout mContent;
@@ -90,12 +84,14 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     private SeekBar mSeekBar;
     private ProgressBar mProgressBar;
 
+    private boolean mInSmallMode;
     private int mRowIndex;
     private RowContent mRowContent;
-    private SliceItem mColorItem;
     private SliceItem mRowAction;
+    private boolean mIsHeader;
 
-    private SliceView.SliceObserver mObserver;
+    private int mIconSize;
+    private int mPadding;
 
     public RowView(Context context) {
         super(context);
@@ -114,23 +110,18 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     }
 
     @Override
-    public View getView() {
-        return this;
-    }
-
-    @Override
     public @SliceView.SliceMode int getMode() {
         return mInSmallMode ? MODE_SMALL : MODE_LARGE;
     }
 
     @Override
-    public void setColor(SliceItem color) {
-        mColorItem = color;
-    }
-
-    @Override
-    public void setSliceObserver(SliceView.SliceObserver observer) {
-        mObserver = observer;
+    public void setTint(@ColorInt int tintColor) {
+        super.setTint(tintColor);
+        if (mRowContent != null) {
+            // TODO -- can be smarter about this
+            resetView();
+            populateViews();
+        }
     }
 
     /**
@@ -139,11 +130,12 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     @Override
     public void setSliceItem(SliceItem slice, boolean isHeader, int index,
             SliceView.SliceObserver observer) {
+        mInSmallMode = false;
         setSliceObserver(observer);
         mRowIndex = index;
         mIsHeader = isHeader;
-        mInSmallMode = false;
-        populateViews(slice);
+        mRowContent = new RowContent(slice, !mIsHeader /* showStartItem */);
+        populateViews();
     }
 
     /**
@@ -151,17 +143,16 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
      */
     @Override
     public void setSlice(Slice slice) {
-        mRowIndex = 0;
         mInSmallMode = true;
+        mRowIndex = 0;
+        mIsHeader = true;
         ListContent lc = new ListContent(slice);
-        populateViews(lc.getSummaryItem());
+        mRowContent = new RowContent(lc.getSummaryItem(), false /* showStartItem */);
+        populateViews();
     }
 
-    private void populateViews(SliceItem item) {
+    private void populateViews() {
         resetView();
-        final int color = mColorItem != null ? mColorItem.getInt() : -1;
-        mRowContent = new RowContent(item, !mIsHeader && !mInSmallMode);
-
         boolean showStart = false;
         final SliceItem startItem = mRowContent.getStartItem();
         if (startItem != null) {
@@ -169,7 +160,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
                     EventInfo.ACTION_TYPE_BUTTON,
                     EventInfo.ROW_TYPE_LIST, mRowIndex);
             info.setPosition(EventInfo.POSITION_START, 0, 1);
-            showStart = addItem(startItem, color, true /* isStart */, 0 /* padding */, info);
+            showStart = addItem(startItem, mTintColor, true /* isStart */, 0 /* padding */, info);
         }
         mStartContainer.setVisibility(showStart ? View.VISIBLE : View.GONE);
 
@@ -215,7 +206,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
                         EventInfo.ROW_TYPE_LIST, mRowIndex);
                 info.setPosition(EventInfo.POSITION_END, i,
                         Math.min(endItems.size(), MAX_END_ITEMS));
-                if (addItem(endItem, color, false /* isStart */, mPadding, info)) {
+                if (addItem(endItem, mTintColor, false /* isStart */, mPadding, info)) {
                     itemCount++;
                     if (itemCount == 1) {
                         firstItemIsADefaultToggle = !mToggles.isEmpty()
@@ -301,7 +292,8 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         final CompoundButton toggle;
         if (checkedIcon != null) {
             if (color != -1) {
-                // TODO - Should these be tinted? What if the app wants diff colors per state?
+                // TODO - Should custom toggle buttons be tinted? What if the app wants diff
+                // colors per state?
                 checkedIcon.setTint(color);
             }
             toggle = new ToggleButton(getContext());

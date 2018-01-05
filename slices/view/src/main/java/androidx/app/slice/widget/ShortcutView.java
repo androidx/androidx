@@ -35,14 +35,12 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
 import android.support.annotation.RestrictTo;
-import android.view.View;
-import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
@@ -54,7 +52,7 @@ import androidx.app.slice.view.R;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @TargetApi(23)
-public class ShortcutView extends FrameLayout implements SliceView.SliceModeView {
+public class ShortcutView extends SliceChildView {
 
     private static final String TAG = "ShortcutView";
 
@@ -77,16 +75,6 @@ public class ShortcutView extends FrameLayout implements SliceView.SliceModeView
     }
 
     @Override
-    public void setSliceObserver(SliceView.SliceObserver observer) {
-        mObserver = observer;
-    }
-
-    @Override
-    public View getView() {
-        return this;
-    }
-
-    @Override
     public void setSlice(Slice slice) {
         resetView();
         mSlice = slice;
@@ -95,16 +83,19 @@ public class ShortcutView extends FrameLayout implements SliceView.SliceModeView
         if (colorItem == null) {
             colorItem = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
         }
-        // TODO: pick better default colour
-        final int color = colorItem != null ? colorItem.getInt() : Color.GRAY;
+        final int color = colorItem != null
+                ? colorItem.getInt()
+                : SliceViewUtil.getColorAccent(getContext());
         ShapeDrawable circle = new ShapeDrawable(new OvalShape());
         circle.setTint(color);
-        setBackground(circle);
+        ImageView iv = new ImageView(getContext());
+        iv.setBackground(circle);
+        addView(iv);
         if (mIcon != null) {
             final boolean isLarge = mIcon.hasHint(HINT_LARGE)
                     || SUBTYPE_SOURCE.equals(mIcon.getSubType());
             final int iconSize = isLarge ? mLargeIconSize : mSmallIconSize;
-            SliceViewUtil.createCircledIcon(getContext(), color, iconSize, mIcon.getIcon(),
+            SliceViewUtil.createCircledIcon(getContext(), iconSize, mIcon.getIcon(),
                     isLarge, this /* parent */);
             mUri = slice.getUri();
             setClickable(true);
