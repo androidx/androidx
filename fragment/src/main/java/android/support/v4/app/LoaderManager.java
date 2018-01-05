@@ -16,6 +16,8 @@
 
 package android.support.v4.app;
 
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.ViewModelStoreOwner;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
@@ -110,6 +112,22 @@ public abstract class LoaderManager {
     }
 
     /**
+     * Gets a LoaderManager associated with the given owner, such as a {@link FragmentActivity} or
+     * {@link Fragment}.
+     *
+     * @param owner The owner that should be used to create the returned LoaderManager
+     * @param <T> A class that maintains its own {@link android.arch.lifecycle.Lifecycle} and
+     *           {@link android.arch.lifecycle.ViewModelStore}. For instance,
+     *           {@link FragmentActivity} or {@link Fragment}.
+     * @return A valid LoaderManager
+     */
+    @NonNull
+    public static <T extends LifecycleOwner & ViewModelStoreOwner> LoaderManager getInstance(
+            @NonNull T owner) {
+        return new LoaderManagerImpl(owner, owner.getViewModelStore());
+    }
+
+    /**
      * Ensures a loader is initialized and active.  If the loader doesn't
      * already exist, one is created and (if the activity/fragment is currently
      * started) starts the loader.  Otherwise the last created
@@ -177,6 +195,22 @@ public abstract class LoaderManager {
      */
     @Nullable
     public abstract <D> Loader<D> getLoader(int id);
+
+    /**
+     * Mark all Loaders associated with this LoaderManager for redelivery of their current
+     * data (if any), waiting for the next time the Loader is started if it is currently stopped.
+     * In cases where no data has yet been delivered, this is effectively a no-op. In cases where
+     * data has already been delivered via {@link LoaderCallbacks#onLoadFinished(Loader, Object)},
+     * this will ensure that {@link LoaderCallbacks#onLoadFinished(Loader, Object)} is called again
+     * with the same data.
+     * <p>
+     * Call this only if you are implementing a {@link LifecycleOwner} where the views/elements that
+     * developers are likely to use in {@link LoaderCallbacks#onLoadFinished(Loader, Object)} can be
+     * created and destroyed multiple times without the {@link LifecycleOwner} itself being
+     * destroyed. Call this when the views/elements are being destroyed to ensure that the data
+     * is redelivered upon recreation.
+     */
+    public abstract void markForRedelivery();
 
     /**
      * Print the LoaderManager's state into the given stream.

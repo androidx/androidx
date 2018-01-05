@@ -1819,8 +1819,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             for (int i = 0; i < numAdded; i++) {
                 Fragment f = mAdded.get(i);
                 moveFragmentToExpectedState(f);
-                if (f.mLoaderManager != null) {
-                    loadersRunning |= f.mLoaderManager.hasRunningLoaders();
+                if (f.mHost != null) {
+                    loadersRunning |= LoaderManager.getInstance(f).hasRunningLoaders();
                 }
             }
 
@@ -1831,8 +1831,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 Fragment f = mActive.valueAt(i);
                 if (f != null && (f.mRemoving || f.mDetached) && !f.mIsNewlyAdded) {
                     moveFragmentToExpectedState(f);
-                    if (f.mLoaderManager != null) {
-                        loadersRunning |= f.mLoaderManager.hasRunningLoaders();
+                    if (f.mHost != null) {
+                        loadersRunning |= LoaderManager.getInstance(f).hasRunningLoaders();
                     }
                 }
             }
@@ -2695,8 +2695,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             boolean loadersRunning = false;
             for (int i = 0; i < mActive.size(); i++) {
                 Fragment f = mActive.valueAt(i);
-                if (f != null && f.mLoaderManager != null) {
-                    loadersRunning |= f.mLoaderManager.hasRunningLoaders();
+                if (f != null && f.mHost != null) {
+                    loadersRunning |= LoaderManager.getInstance(f).hasRunningLoaders();
                 }
             }
             if (!loadersRunning) {

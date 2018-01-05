@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -97,6 +98,34 @@ public class LoaderTest {
         assertNull(weakActivity.get());
     }
 
+    @Test
+    public void testDestroyFromOnCreateLoader() throws Throwable {
+        final LoaderActivity activity = mActivityRule.getActivity();
+        final CountDownLatch onCreateLoaderLatch = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                LoaderManager.getInstance(activity).initLoader(65, null,
+                        new DummyLoaderCallbacks(activity) {
+                            @NonNull
+                            @Override
+                            public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+                                try {
+                                    LoaderManager.getInstance(activity).destroyLoader(65);
+                                    fail("Calling destroyLoader in onCreateLoader should throw an "
+                                            + "IllegalStateException");
+                                } catch (IllegalStateException e) {
+                                    // Expected
+                                    onCreateLoaderLatch.countDown();
+                                }
+                                return super.onCreateLoader(id, args);
+                            }
+                        });
+            }
+        });
+        onCreateLoaderLatch.await(1, TimeUnit.SECONDS);
+    }
+
     /**
      * When a LoaderManager is reused, it should notify in onResume
      */
@@ -170,21 +199,21 @@ public class LoaderTest {
     @Test(expected = IllegalStateException.class)
     public void enforceOnMainThread_initLoader() {
         LoaderActivity activity = mActivityRule.getActivity();
-        activity.getSupportLoaderManager().initLoader(-1, null,
+        LoaderManager.getInstance(activity).initLoader(-1, null,
                 new DummyLoaderCallbacks(activity));
     }
 
     @Test(expected = IllegalStateException.class)
     public void enforceOnMainThread_restartLoader() {
         LoaderActivity activity = mActivityRule.getActivity();
-        activity.getSupportLoaderManager().restartLoader(-1, null,
+        LoaderManager.getInstance(activity).restartLoader(-1, null,
                 new DummyLoaderCallbacks(activity));
     }
 
     @Test(expected = IllegalStateException.class)
     public void enforceOnMainThread_destroyLoader() {
         LoaderActivity activity = mActivityRule.getActivity();
-        activity.getSupportLoaderManager().destroyLoader(-1);
+        LoaderManager.getInstance(activity).destroyLoader(-1);
     }
 
     /**
@@ -201,7 +230,7 @@ public class LoaderTest {
             @Override
             public void run() {
                 final Loader<String> loader =
-                        activity.getSupportLoaderManager().initLoader(DELAY_LOADER, null,
+                        LoaderManager.getInstance(activity).initLoader(DELAY_LOADER, null,
                                 new LoaderManager.LoaderCallbacks<String>() {
                                     @NonNull
                                     @Override
@@ -280,7 +309,7 @@ public class LoaderTest {
         public void onActivityCreated(@Nullable Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            getLoaderManager().initLoader(LOADER_ID, null,
+            LoaderManager.getInstance(this).initLoader(LOADER_ID, null,
                     new DummyLoaderCallbacks(getContext()));
         }
     }

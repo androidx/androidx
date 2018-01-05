@@ -209,8 +209,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // Hint provided by the app that this fragment is currently visible to the user.
     boolean mUserVisibleHint = true;
 
-    LoaderManagerImpl mLoaderManager;
-
     // The animation and transition information for the fragment. This will be null
     // unless the elements are explicitly accessed and should remain null for Fragments
     // without Views.
@@ -971,14 +969,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Return the LoaderManager for this fragment, creating it if needed.
+     * Return the LoaderManager for this fragment.
      */
     public LoaderManager getLoaderManager() {
-        if (mLoaderManager != null) {
-            return mLoaderManager;
-        }
-        mLoaderManager = new LoaderManagerImpl(this, getViewModelStore());
-        return mLoaderManager;
+        return LoaderManager.getInstance(this);
     }
 
     /**
@@ -2272,10 +2266,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             writer.print("mStateAfterAnimating=");
             writer.println(getStateAfterAnimating());
         }
-        if (mLoaderManager != null) {
-            writer.print(prefix); writer.println("Loader Manager:");
-            mLoaderManager.dump(prefix + "  ", fd, writer, args);
-        }
+        LoaderManager.getInstance(this).dump(prefix, fd, writer, args);
         if (mChildFragmentManager != null) {
             writer.print(prefix); writer.println("Child " + mChildFragmentManager + ":");
             mChildFragmentManager.dump(prefix + "  ", fd, writer, args);
@@ -2564,13 +2555,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onDestroyView()");
         }
-        if (mLoaderManager != null) {
-            // Handles the detach/reattach case where the view hierarchy
-            // is destroyed and recreated and an additional call to
-            // onLoadFinished may be needed to ensure the new view
-            // hierarchy is populated from data from the Loaders
-            mLoaderManager.markForRedelivery();
-        }
+        // Handles the detach/reattach case where the view hierarchy
+        // is destroyed and recreated and an additional call to
+        // onLoadFinished may be needed to ensure the new view
+        // hierarchy is populated from data from the Loaders
+        LoaderManager.getInstance(this).markForRedelivery();
         mPerformedCreateView = false;
     }
 

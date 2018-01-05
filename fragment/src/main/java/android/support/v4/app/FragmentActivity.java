@@ -100,7 +100,6 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
 
     };
     final FragmentController mFragments = FragmentController.createController(new HostCallbacks());
-    LoaderManager mLoaderManager;
 
     private ViewModelStore mViewModelStore;
 
@@ -678,9 +677,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
                 writer.print(mResumed); writer.print(" mStopped=");
                 writer.print(mStopped); writer.print(" mReallyStopped=");
                 writer.println(mReallyStopped);
-        if (mLoaderManager != null) {
-            mLoaderManager.dump(innerPrefix, fd, writer, args);
-        }
+        LoaderManager.getInstance(this).dump(innerPrefix, fd, writer, args);
         mFragments.getSupportFragmentManager().dump(prefix, fd, writer, args);
     }
 
@@ -728,11 +725,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     public LoaderManager getSupportLoaderManager() {
-        if (mLoaderManager != null) {
-            return mLoaderManager;
-        }
-        mLoaderManager = new LoaderManagerImpl(this, getViewModelStore());
-        return mLoaderManager;
+        return LoaderManager.getInstance(this);
     }
 
     /**

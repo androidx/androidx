@@ -388,9 +388,11 @@ package android.support.v4.app {
     method public abstract void destroyLoader(int);
     method public abstract void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public static void enableDebugLogging(boolean);
+    method public static <T extends android.arch.lifecycle.LifecycleOwner & android.arch.lifecycle.ViewModelStoreOwner> android.support.v4.app.LoaderManager getInstance(T);
     method public abstract <D> android.support.v4.content.Loader<D> getLoader(int);
     method public boolean hasRunningLoaders();
     method public abstract <D> android.support.v4.content.Loader<D> initLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
+    method public abstract void markForRedelivery();
     method public abstract <D> android.support.v4.content.Loader<D> restartLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
   }
 
