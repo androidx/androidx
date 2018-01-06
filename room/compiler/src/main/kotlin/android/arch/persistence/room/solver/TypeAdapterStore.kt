@@ -24,8 +24,8 @@ import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.processor.EntityProcessor
 import android.arch.persistence.room.processor.FieldProcessor
 import android.arch.persistence.room.processor.PojoProcessor
-import android.arch.persistence.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.CursorQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.FlowableQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.InstantQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.LiveDataQueryResultBinderProvider
@@ -332,7 +332,7 @@ class TypeAdapterStore private constructor(
                 }
             }
 
-            if (rowAdapter != null && !(rowAdapterLogs?.hasErrors() ?: false)) {
+            if (rowAdapter != null && rowAdapterLogs?.hasErrors() != true) {
                 rowAdapterLogs?.writeTo(context.processingEnv)
                 return rowAdapter
             }
@@ -348,6 +348,21 @@ class TypeAdapterStore private constructor(
             if (rowAdapter != null) {
                 rowAdapterLogs?.writeTo(context.processingEnv)
                 return rowAdapter
+            }
+            if (query.runtimeQueryPlaceholder) {
+                // just go w/ pojo and hope for the best. this happens for @RawQuery where we
+                // try to guess user's intention and hope that their query fits the result.
+                val pojo = PojoProcessor(
+                        baseContext = context,
+                        element = MoreTypes.asTypeElement(typeMirror),
+                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        parent = null
+                ).process()
+                return PojoRowAdapter(
+                        context = context,
+                        info = null,
+                        pojo = pojo,
+                        out = typeMirror)
             }
             return null
         } else {

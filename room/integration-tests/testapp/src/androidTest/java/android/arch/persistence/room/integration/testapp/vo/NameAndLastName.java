@@ -33,4 +33,23 @@ public class NameAndLastName {
     public String getLastName() {
         return mLastName;
     }
+
+    @SuppressWarnings("SimplifiableIfStatement")
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NameAndLastName that = (NameAndLastName) o;
+
+        if (mName != null ? !mName.equals(that.mName) : that.mName != null) return false;
+        return mLastName != null ? mLastName.equals(that.mLastName) : that.mLastName == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mName != null ? mName.hashCode() : 0;
+        result = 31 * result + (mLastName != null ? mLastName.hashCode() : 0);
+        return result;
+    }
 }

@@ -38,49 +38,55 @@ import javax.lang.model.type.TypeMirror
  * <p>
  * The info comes from the query processor so we know about the order of columns in the result etc.
  */
-class PojoRowAdapter(context: Context, val info: QueryResultInfo,
-                     val pojo: Pojo, out: TypeMirror) : RowAdapter(out) {
+class PojoRowAdapter(
+        context: Context, private val info: QueryResultInfo?,
+        val pojo: Pojo, out: TypeMirror) : RowAdapter(out) {
     val mapping: Mapping
     val relationCollectors: List<RelationCollector>
 
     init {
         // toMutableList documentation is not clear if it copies so lets be safe.
-        val remainingFields = pojo.fields.mapTo(mutableListOf<Field>(), { it })
+        val remainingFields = pojo.fields.mapTo(mutableListOf(), { it })
         val unusedColumns = arrayListOf<String>()
-        val matchedFields = info.columns.map { column ->
-            // first check remaining, otherwise check any. maybe developer wants to map the same
-            // column into 2 fields. (if they want to post process etc)
-            val field = remainingFields.firstOrNull { it.columnName == column.name } ?:
-                    pojo.fields.firstOrNull { it.columnName == column.name }
-            if (field == null) {
-                unusedColumns.add(column.name)
-                null
-            } else {
-                remainingFields.remove(field)
-                field
+        val matchedFields: List<Field>
+        if (info != null) {
+            matchedFields = info.columns.map { column ->
+                // first check remaining, otherwise check any. maybe developer wants to map the same
+                // column into 2 fields. (if they want to post process etc)
+                val field = remainingFields.firstOrNull { it.columnName == column.name } ?:
+                        pojo.fields.firstOrNull { it.columnName == column.name }
+                if (field == null) {
+                    unusedColumns.add(column.name)
+                    null
+                } else {
+                    remainingFields.remove(field)
+                    field
+                }
+            }.filterNotNull()
+            if (unusedColumns.isNotEmpty() || remainingFields.isNotEmpty()) {
+                val warningMsg = ProcessorErrors.cursorPojoMismatch(
+                        pojoTypeName = pojo.typeName,
+                        unusedColumns = unusedColumns,
+                        allColumns = info.columns.map { it.name },
+                        unusedFields = remainingFields,
+                        allFields = pojo.fields
+                )
+                context.logger.w(Warning.CURSOR_MISMATCH, null, warningMsg)
             }
-        }.filterNotNull()
-        if (unusedColumns.isNotEmpty() || remainingFields.isNotEmpty()) {
-            val warningMsg = ProcessorErrors.cursorPojoMismatch(
-                    pojoTypeName = pojo.typeName,
-                    unusedColumns = unusedColumns,
-                    allColumns = info.columns.map { it.name },
-                    unusedFields = remainingFields,
-                    allFields = pojo.fields
-            )
-            context.logger.w(Warning.CURSOR_MISMATCH, null, warningMsg)
+            val nonNulls = remainingFields.filter { it.nonNull }
+            if (nonNulls.isNotEmpty()) {
+                context.logger.e(ProcessorErrors.pojoMissingNonNull(
+                        pojoTypeName = pojo.typeName,
+                        missingPojoFields = nonNulls.map { it.name },
+                        allQueryColumns = info.columns.map { it.name }))
+            }
+            if (matchedFields.isEmpty()) {
+                context.logger.e(ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
+            }
+        } else {
+            matchedFields = remainingFields.map { it }
+            remainingFields.clear()
         }
-        val nonNulls = remainingFields.filter { it.nonNull }
-        if (nonNulls.isNotEmpty()) {
-            context.logger.e(ProcessorErrors.pojoMissingNonNull(
-                    pojoTypeName = pojo.typeName,
-                    missingPojoFields = nonNulls.map { it.name },
-                    allQueryColumns = info.columns.map { it.name }))
-        }
-        if (matchedFields.isEmpty()) {
-            context.logger.e(ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
-        }
-
         relationCollectors = RelationCollector.createCollectors(context, pojo.relations)
 
         mapping = Mapping(
@@ -105,9 +111,14 @@ class PojoRowAdapter(context: Context, val info: QueryResultInfo,
         relationCollectors.forEach { it.writeInitCode(scope) }
         mapping.fieldsWithIndices = mapping.matchedFields.map {
             val indexVar = scope.getTmpVar("_cursorIndexOf${it.name.stripNonJava().capitalize()}")
-            scope.builder().addStatement("final $T $L = $L.getColumnIndexOrThrow($S)",
-                    TypeName.INT, indexVar, cursorVarName, it.columnName)
-            FieldWithIndex(field = it, indexVar = indexVar, alwaysExists = true)
+            val indexMethod = if (info == null) {
+                "getColumnIndex"
+            } else {
+                "getColumnIndexOrThrow"
+            }
+            scope.builder().addStatement("final $T $L = $L.$L($S)",
+                    TypeName.INT, indexVar, cursorVarName, indexMethod, it.columnName)
+            FieldWithIndex(field = it, indexVar = indexVar, alwaysExists = info != null)
         }
     }
 
@@ -136,9 +147,10 @@ class PojoRowAdapter(context: Context, val info: QueryResultInfo,
                 }
             }
 
-    data class Mapping(val matchedFields: List<Field>,
-                       val unusedColumns: List<String>,
-                       val unusedFields: List<Field>) {
+    data class Mapping(
+            val matchedFields: List<Field>,
+            val unusedColumns: List<String>,
+            val unusedFields: List<Field>) {
         // set when cursor is ready.
         lateinit var fieldsWithIndices: List<FieldWithIndex>
     }

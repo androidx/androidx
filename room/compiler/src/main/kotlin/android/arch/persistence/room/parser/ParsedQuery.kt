@@ -38,15 +38,18 @@ data class Section(val text: String, val type: SectionType) {
 
 data class Table(val name: String, val alias: String)
 
-data class ParsedQuery(val original: String, val type: QueryType,
-                       val inputs: List<TerminalNode>,
-                       // pairs of table name and alias,
-                       val tables: Set<Table>,
-                       val syntaxErrors: List<String>) {
+data class ParsedQuery(
+        val original: String,
+        val type: QueryType,
+        val inputs: List<TerminalNode>,
+        // pairs of table name and alias,
+        val tables: Set<Table>,
+        val syntaxErrors: List<String>,
+        val runtimeQueryPlaceholder: Boolean) {
     companion object {
         val STARTS_WITH_NUMBER = "^\\?[0-9]".toRegex()
         val MISSING = ParsedQuery("missing query", QueryType.UNKNOWN, emptyList(), emptySet(),
-                emptyList())
+                emptyList(), false)
     }
 
     /**

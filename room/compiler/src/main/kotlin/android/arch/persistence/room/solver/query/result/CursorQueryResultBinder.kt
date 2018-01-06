@@ -25,6 +25,7 @@ import com.squareup.javapoet.FieldSpec
 
 class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
     override fun convertAndReturn(roomSQLiteQueryVar: String,
+                                  canReleaseQuery: Boolean,
                                   dbField: FieldSpec,
                                   inTransaction: Boolean,
                                   scope: CodeGenScope) {

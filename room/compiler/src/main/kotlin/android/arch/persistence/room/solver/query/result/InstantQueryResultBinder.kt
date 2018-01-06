@@ -28,6 +28,7 @@ import com.squareup.javapoet.FieldSpec
  */
 class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder(adapter) {
     override fun convertAndReturn(roomSQLiteQueryVar: String,
+                                  canReleaseQuery: Boolean,
                                   dbField: FieldSpec,
                                   inTransaction: Boolean,
                                   scope: CodeGenScope) {
@@ -49,7 +50,9 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
             }
             nextControlFlow("finally").apply {
                 addStatement("$L.close()", cursorVar)
-                addStatement("$L.release()", roomSQLiteQueryVar)
+                if (canReleaseQuery) {
+                    addStatement("$L.release()", roomSQLiteQueryVar)
+                }
             }
             endControlFlow()
         }

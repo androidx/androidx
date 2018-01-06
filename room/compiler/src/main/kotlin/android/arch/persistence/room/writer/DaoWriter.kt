@@ -29,6 +29,7 @@ import android.arch.persistence.room.vo.Dao
 import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.InsertionMethod
 import android.arch.persistence.room.vo.QueryMethod
+import android.arch.persistence.room.vo.RawQueryMethod
 import android.arch.persistence.room.vo.ShortcutMethod
 import android.arch.persistence.room.vo.TransactionMethod
 import com.google.auto.common.MoreTypes
@@ -55,6 +56,7 @@ import javax.lang.model.type.TypeKind
 class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
     : ClassWriter(dao.typeName) {
     val declaredDao = MoreTypes.asDeclared(dao.element.asType())
+
     companion object {
         // TODO nothing prevents this from conflicting, we should fix.
         val dbField: FieldSpec = FieldSpec
@@ -110,6 +112,9 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
             }
             oneOffDeleteOrUpdateQueries.forEach {
                 addMethod(createDeleteOrUpdateQueryMethod(it))
+            }
+            dao.rawQueryMethods.forEach {
+                addMethod(createRawQueryMethod(it))
             }
         }
         return builder
@@ -194,8 +199,9 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         return methodBuilder.build()
     }
 
-    private fun MethodSpec.Builder.addDelegateToSuperStatement(element: ExecutableElement,
-                                                               result: String?) {
+    private fun MethodSpec.Builder.addDelegateToSuperStatement(
+            element: ExecutableElement,
+            result: String?) {
         val params: MutableList<Any> = mutableListOf()
         val format = buildString {
             if (result != null) {
@@ -220,9 +226,10 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         addStatement(format, *params.toTypedArray())
     }
 
-    private fun createConstructor(dbParam: ParameterSpec,
-                                  shortcutMethods: List<PreparedStmtQuery>,
-                                  callSuper: Boolean): MethodSpec {
+    private fun createConstructor(
+            dbParam: ParameterSpec,
+            shortcutMethods: List<PreparedStmtQuery>,
+            callSuper: Boolean): MethodSpec {
         return MethodSpec.constructorBuilder().apply {
             addParameter(dbParam)
             addModifiers(PUBLIC)
@@ -247,6 +254,52 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
     private fun createSelectMethod(method: QueryMethod): MethodSpec {
         return overrideWithoutAnnotations(method.element, declaredDao).apply {
             addCode(createQueryMethodBody(method))
+        }.build()
+    }
+
+    private fun createRawQueryMethod(method: RawQueryMethod): MethodSpec {
+        return overrideWithoutAnnotations(method.element, declaredDao).apply {
+            val scope = CodeGenScope(this@DaoWriter)
+            val roomSQLiteQueryVar: String
+            val queryParam = method.runtimeQueryParam
+            val shouldReleaseQuery: Boolean
+
+            when {
+                queryParam?.isString() == true -> {
+                    roomSQLiteQueryVar = scope.getTmpVar("_statement")
+                    shouldReleaseQuery = true
+                    addStatement("$T $L = $T.acquire($L, 0)",
+                            RoomTypeNames.ROOM_SQL_QUERY,
+                            roomSQLiteQueryVar,
+                            RoomTypeNames.ROOM_SQL_QUERY,
+                            queryParam.paramName)
+                }
+                queryParam?.isSupportQuery() == true -> {
+                    shouldReleaseQuery = false
+                    roomSQLiteQueryVar = queryParam.paramName
+                }
+                else -> {
+                    // try to generate compiling code. we would've already reported this error
+                    roomSQLiteQueryVar = scope.getTmpVar("_statement")
+                    shouldReleaseQuery = false
+                    addStatement("$T $L = $T.acquire($L, 0)",
+                            RoomTypeNames.ROOM_SQL_QUERY,
+                            roomSQLiteQueryVar,
+                            RoomTypeNames.ROOM_SQL_QUERY,
+                            "missing query parameter")
+                }
+            }
+            if (method.returnsValue) {
+                // don't generate code because it will create 1 more error. The original error is
+                // already reported by the processor.
+                method.queryResultBinder.convertAndReturn(
+                        roomSQLiteQueryVar = roomSQLiteQueryVar,
+                        canReleaseQuery = shouldReleaseQuery,
+                        dbField = dbField,
+                        inTransaction = method.inTransaction,
+                        scope = scope)
+            }
+            addCode(scope.builder().build())
         }.build()
     }
 
@@ -451,14 +504,16 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         queryWriter.prepareReadAndBind(sqlVar, roomSQLiteQueryVar, scope)
         method.queryResultBinder.convertAndReturn(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
+                canReleaseQuery = true,
                 dbField = dbField,
                 inTransaction = method.inTransaction,
                 scope = scope)
         return scope.builder().build()
     }
 
-    private fun overrideWithoutAnnotations(elm: ExecutableElement,
-                                           owner: DeclaredType): MethodSpec.Builder {
+    private fun overrideWithoutAnnotations(
+            elm: ExecutableElement,
+            owner: DeclaredType): MethodSpec.Builder {
         val baseSpec = MethodSpec.overriding(elm, owner, processingEnv.typeUtils).build()
         return MethodSpec.methodBuilder(baseSpec.name).apply {
             addAnnotation(Override::class.java)
@@ -477,8 +532,9 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
      * declaration to definition.
      * @param methodImpl The body of the query method implementation.
      */
-    data class PreparedStmtQuery(val fields: Map<String, Pair<FieldSpec, TypeSpec>>,
-                                 val methodImpl: MethodSpec) {
+    data class PreparedStmtQuery(
+            val fields: Map<String, Pair<FieldSpec, TypeSpec>>,
+            val methodImpl: MethodSpec) {
         companion object {
             // The key to be used in `fields` where the method requires a field that is not
             // associated with any of its parameters
