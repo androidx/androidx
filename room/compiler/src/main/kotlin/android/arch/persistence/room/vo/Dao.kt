@@ -21,15 +21,18 @@ import com.squareup.javapoet.TypeName
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
-data class Dao(val element: TypeElement, val type: DeclaredType,
-               val queryMethods: List<QueryMethod>,
-               val insertionMethods: List<InsertionMethod>,
-               val deletionMethods: List<DeletionMethod>,
-               val updateMethods: List<UpdateMethod>,
-               val transactionMethods: List<TransactionMethod>,
-               val constructorParamType: TypeName?) {
+data class Dao(
+        val element: TypeElement, val type: DeclaredType,
+        val queryMethods: List<QueryMethod>,
+        val rawQueryMethods: List<RawQueryMethod>,
+        val insertionMethods: List<InsertionMethod>,
+        val deletionMethods: List<DeletionMethod>,
+        val updateMethods: List<UpdateMethod>,
+        val transactionMethods: List<TransactionMethod>,
+        val constructorParamType: TypeName?) {
     // parsed dao might have a suffix if it is used in multiple databases.
     private var suffix: String? = null
+
     fun setSuffix(newSuffix: String) {
         if (this.suffix != null) {
             throw IllegalStateException("cannot set suffix twice")

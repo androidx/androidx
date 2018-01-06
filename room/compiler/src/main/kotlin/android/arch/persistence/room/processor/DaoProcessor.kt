@@ -19,6 +19,7 @@ package android.arch.persistence.room.processor
 import android.arch.persistence.room.Delete
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
+import android.arch.persistence.room.RawQuery
 import android.arch.persistence.room.SkipQueryVerification
 import android.arch.persistence.room.Transaction
 import android.arch.persistence.room.Update
@@ -42,7 +43,7 @@ class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: D
 
     companion object {
         val PROCESSED_ANNOTATIONS = listOf(Insert::class, Delete::class, Query::class,
-                Update::class)
+                Update::class, RawQuery::class)
     }
 
     fun process(): Dao {
@@ -71,11 +72,14 @@ class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: D
                     Delete::class
                 } else if (method.hasAnnotation(Update::class)) {
                     Update::class
+                } else if (method.hasAnnotation(RawQuery::class)) {
+                    RawQuery::class
                 } else {
                     Any::class
                 }
             }
-        val processorVerifier = if (element.hasAnnotation(SkipQueryVerification::class)) {
+        val processorVerifier = if (element.hasAnnotation(SkipQueryVerification::class) ||
+                element.hasAnnotation(RawQuery::class)) {
             null
         } else {
             dbVerifier
@@ -87,6 +91,14 @@ class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: D
                     containing = declaredType,
                     executableElement = it,
                     dbVerifier = processorVerifier).process()
+        } ?: emptyList()
+
+        val rawQueryMethods = methods[RawQuery::class]?.map {
+            RawQueryMethodProcessor(
+                    baseContext = context,
+                    containing = declaredType,
+                    executableElement = it
+            ).process()
         } ?: emptyList()
 
         val insertionMethods = methods[Insert::class]?.map {
@@ -149,6 +161,7 @@ class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: D
         return Dao(element = element,
                 type = declaredType,
                 queryMethods = queryMethods,
+                rawQueryMethods = rawQueryMethods,
                 insertionMethods = insertionMethods,
                 deletionMethods = deletionMethods,
                 updateMethods = updateMethods,

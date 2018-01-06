@@ -31,8 +31,10 @@ abstract class QueryResultBinder(val adapter: QueryResultAdapter?) {
      * receives the sql, bind args and adapter and generates the code that runs the query
      * and returns the result.
      */
-    abstract fun convertAndReturn(roomSQLiteQueryVar: String,
-                                  dbField: FieldSpec,
-                                  inTransaction: Boolean,
-                                  scope: CodeGenScope)
+    abstract fun convertAndReturn(
+            roomSQLiteQueryVar: String,
+            canReleaseQuery: Boolean, // false if query is provided by the user
+            dbField: FieldSpec,
+            inTransaction: Boolean,
+            scope: CodeGenScope)
 }
