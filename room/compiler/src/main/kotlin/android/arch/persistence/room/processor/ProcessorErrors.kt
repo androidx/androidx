@@ -19,6 +19,7 @@ package android.arch.persistence.room.processor
 import android.arch.persistence.room.Delete
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
+import android.arch.persistence.room.RawQuery
 import android.arch.persistence.room.Update
 import android.arch.persistence.room.ext.RoomTypeNames
 import android.arch.persistence.room.parser.SQLTypeAffinity
@@ -34,6 +35,8 @@ object ProcessorErrors {
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
     val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
     val MISSING_UPDATE_ANNOTATION = "Update methods must be annotated with ${Update::class.java}"
+    val MISSING_RAWQUERY_ANNOTATION = "RawQuery methods must be annotated with" +
+            " ${RawQuery::class.java}"
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
     val INVALID_INSERTION_METHOD_RETURN_TYPE = "Methods annotated with @Insert can return either" +
             " void, long, Long, long[], Long[] or List<Long>."
@@ -144,7 +147,8 @@ object ProcessorErrors {
 
     val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE = "Observable query return type (LiveData, Flowable" +
             " etc) can only be used with SELECT queries that directly or indirectly (via" +
-            " @Relation, for example) access at least one table."
+            " @Relation, for example) access at least one table. For @RawQuery, you should" +
+            " specify the list of tables to be observed via the observedEntities field."
 
     val RECURSIVE_REFERENCE_DETECTED = "Recursive referencing through @Embedded and/or @Relation " +
             "detected: %s"
@@ -490,4 +494,9 @@ object ProcessorErrors {
             " names"
 
     val INVALID_TABLE_NAME = "Invalid table name. Room does not allow using ` or \" in table names"
+
+    val RAW_QUERY_BAD_PARAMS = "RawQuery methods should have 1 and only 1 parameter with type" +
+            " String or SupportSQLiteQuery"
+
+    val RAW_QUERY_BAD_RETURN_TYPE = "RawQuery methods must return a non-void type."
 }

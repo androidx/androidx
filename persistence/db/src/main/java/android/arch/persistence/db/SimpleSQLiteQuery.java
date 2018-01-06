@@ -17,8 +17,8 @@
 package android.arch.persistence.db;
 
 /**
- * A basic implemtation of {@link SupportSQLiteQuery} which receives a query and its args and binds
- * args based on the passed in Object type.
+ * A basic implementation of {@link SupportSQLiteQuery} which receives a query and its args and
+ * binds args based on the passed in Object type.
  */
 public final class SimpleSQLiteQuery implements SupportSQLiteQuery {
     private final String mQuery;
