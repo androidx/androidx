@@ -21,10 +21,12 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.RestrictTo;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.ActionMode;
 import android.widget.TextView;
 
 /**
@@ -77,5 +79,14 @@ public class DialogTitle extends TextView {
                 }
             }
         }
+    }
+
+    /**
+     * See
+     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     */
+    @Override
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+        TextViewCompat.setCustomSelectionActionModeCallback(this, actionModeCallback);
     }
 }
