@@ -15,7 +15,6 @@
  */
 
 import android.support.DacOptions
-import org.gradle.internal.os.OperatingSystem
 
 apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
 init.setSdkInLocalPropertiesFile()
