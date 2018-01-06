@@ -28,16 +28,21 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
-class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
-                   statement: ParseTree) : SQLiteBaseVisitor<Void?>() {
-    val bindingExpressions = arrayListOf<TerminalNode>()
+@Suppress("FunctionName")
+class QueryVisitor(
+        private val original: String,
+        private val syntaxErrors: ArrayList<String>,
+        statement: ParseTree,
+        private val forRuntimeQuery: Boolean
+) : SQLiteBaseVisitor<Void?>() {
+    private val bindingExpressions = arrayListOf<TerminalNode>()
     // table name alias mappings
-    val tableNames = mutableSetOf<Table>()
-    val withClauseNames = mutableSetOf<String>()
-    val queryType: QueryType
+    private val tableNames = mutableSetOf<Table>()
+    private val withClauseNames = mutableSetOf<String>()
+    private val queryType: QueryType
 
     init {
-        queryType = (0..statement.childCount - 1).map {
+        queryType = (0 until statement.childCount).map {
             findQueryType(statement.getChild(it))
         }.filterNot { it == QueryType.UNKNOWN }.firstOrNull() ?: QueryType.UNKNOWN
 
@@ -78,11 +83,13 @@ class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
     }
 
     fun createParsedQuery(): ParsedQuery {
-        return ParsedQuery(original,
-                queryType,
-                bindingExpressions.sortedBy { it.sourceInterval.a },
-                tableNames,
-                syntaxErrors)
+        return ParsedQuery(
+                original = original,
+                type = queryType,
+                inputs = bindingExpressions.sortedBy { it.sourceInterval.a },
+                tables = tableNames,
+                syntaxErrors = syntaxErrors,
+                runtimeQueryPlaceholder = forRuntimeQuery)
     }
 
     override fun visitCommon_table_expression(
@@ -129,9 +136,10 @@ class SqlParser {
             val parser = SQLiteParser(tokenStream)
             val syntaxErrors = arrayListOf<String>()
             parser.addErrorListener(object : BaseErrorListener() {
-                override fun syntaxError(recognizer: Recognizer<*, *>, offendingSymbol: Any,
-                                         line: Int, charPositionInLine: Int, msg: String,
-                                         e: RecognitionException?) {
+                override fun syntaxError(
+                        recognizer: Recognizer<*, *>, offendingSymbol: Any,
+                        line: Int, charPositionInLine: Int, msg: String,
+                        e: RecognitionException?) {
                     syntaxErrors.add(msg)
                 }
             })
@@ -141,7 +149,7 @@ class SqlParser {
                 if (statementList.isEmpty()) {
                     syntaxErrors.add(ParserErrors.NOT_ONE_QUERY)
                     return ParsedQuery(input, QueryType.UNKNOWN, emptyList(), emptySet(),
-                            listOf(ParserErrors.NOT_ONE_QUERY))
+                            listOf(ParserErrors.NOT_ONE_QUERY), false)
                 }
                 val statements = statementList.first().children
                         .filter { it is SQLiteParser.Sql_stmtContext }
@@ -149,15 +157,34 @@ class SqlParser {
                     syntaxErrors.add(ParserErrors.NOT_ONE_QUERY)
                 }
                 val statement = statements.first()
-                return QueryVisitor(input, syntaxErrors, statement).createParsedQuery()
+                return QueryVisitor(
+                        original = input,
+                        syntaxErrors = syntaxErrors,
+                        statement = statement,
+                        forRuntimeQuery = false).createParsedQuery()
             } catch (antlrError: RuntimeException) {
                 return ParsedQuery(input, QueryType.UNKNOWN, emptyList(), emptySet(),
-                        listOf("unknown error while parsing $input : ${antlrError.message}"))
+                        listOf("unknown error while parsing $input : ${antlrError.message}"),
+                        false)
             }
         }
 
         fun isValidIdentifier(input: String): Boolean =
                 input.isNotBlank() && INVALID_IDENTIFIER_CHARS.none { input.contains(it) }
+
+        /**
+         * creates a dummy select query for raw queries that queries the given list of tables.
+         */
+        fun rawQueryForTables(tableNames: Set<String>): ParsedQuery {
+            return ParsedQuery(
+                    original = "raw query",
+                    type = QueryType.UNKNOWN,
+                    inputs = emptyList(),
+                    tables = tableNames.map { Table(name = it, alias = it) }.toSet(),
+                    syntaxErrors = emptyList(),
+                    runtimeQueryPlaceholder = true
+            )
+        }
     }
 }
 
@@ -181,6 +208,7 @@ enum class SQLTypeAffinity {
     INTEGER,
     REAL,
     BLOB;
+
     fun getTypeMirrors(env: ProcessingEnvironment): List<TypeMirror>? {
         val typeUtils = env.typeUtils
         return when (this) {

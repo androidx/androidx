@@ -38,6 +38,7 @@ class FlowableQueryResultBinder(val typeArg: TypeMirror, val queryTableNames: Se
                                 adapter: QueryResultAdapter?)
     : BaseObservableQueryResultBinder(adapter) {
     override fun convertAndReturn(roomSQLiteQueryVar: String,
+                                  canReleaseQuery: Boolean,
                                   dbField: FieldSpec,
                                   inTransaction: Boolean,
                                   scope: CodeGenScope) {
@@ -55,7 +56,9 @@ class FlowableQueryResultBinder(val typeArg: TypeMirror, val queryTableNames: Se
                         dbField = dbField,
                         scope = scope)
             }.build())
-            addMethod(createFinalizeMethod(roomSQLiteQueryVar))
+            if (canReleaseQuery) {
+                addMethod(createFinalizeMethod(roomSQLiteQueryVar))
+            }
         }.build()
         scope.builder().apply {
             val tableNamesList = queryTableNames.joinToString(",") { "\"$it\"" }

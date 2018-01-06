@@ -42,6 +42,7 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Str
     @Suppress("JoinDeclarationAndAssignment")
     override fun convertAndReturn(
             roomSQLiteQueryVar: String,
+            canReleaseQuery: Boolean,
             dbField: FieldSpec,
             inTransaction: Boolean,
             scope: CodeGenScope
@@ -62,7 +63,9 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Str
                     inTransaction = inTransaction,
                     scope = scope
             ))
-            addMethod(createFinalizeMethod(roomSQLiteQueryVar))
+            if (canReleaseQuery) {
+                addMethod(createFinalizeMethod(roomSQLiteQueryVar))
+            }
         }.build()
         scope.builder().apply {
             addStatement("return $L.getLiveData()", liveDataImpl)

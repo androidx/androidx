@@ -46,6 +46,8 @@ object SupportDbTypeNames {
     val SQLITE_OPEN_HELPER_CONFIG_BUILDER: ClassName =
             ClassName.get("android.arch.persistence.db",
                     "SupportSQLiteOpenHelper.Configuration.Builder")
+    val QUERY: ClassName =
+            ClassName.get("android.arch.persistence.db", "SupportSQLiteQuery")
 }
 
 object RoomTypeNames {

@@ -33,6 +33,7 @@ class LivePagedListQueryResultBinder(
     val typeName = tiledDataSourceQueryResultBinder.itemTypeName
     override fun convertAndReturn(
             roomSQLiteQueryVar: String,
+            canReleaseQuery: Boolean,
             dbField: FieldSpec,
             inTransaction: Boolean,
             scope: CodeGenScope
@@ -64,6 +65,7 @@ class LivePagedListQueryResultBinder(
         val countedBinderScope = scope.fork()
         tiledDataSourceQueryResultBinder.convertAndReturn(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
+                canReleaseQuery = true,
                 dbField = dbField,
                 inTransaction = inTransaction,
                 scope = countedBinderScope)

@@ -39,9 +39,9 @@ abstract class ObservableQueryResultBinderProvider(val context: Context)
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
         val tableNames = ((adapter?.accessedTableNames() ?: emptyList()) +
                 query.tables.map { it.name }).toSet()
-        context.checker.check(!tableNames.isEmpty(),
-                declared.asElement(),
-                ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+        if (tableNames.isEmpty()) {
+            context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+        }
         return create(
                 typeArg = typeArg,
                 resultAdapter = adapter,
