@@ -35,7 +35,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -333,7 +335,14 @@ public abstract class RoomDatabase {
         /**
          * Migrations, mapped by from-to pairs.
          */
-        private MigrationContainer mMigrationContainer;
+        private final MigrationContainer mMigrationContainer;
+        private Set<Integer> mMigrationsNotRequiredFrom;
+        /**
+         * Keeps track of {@link Migration#startVersion}s and {@link Migration#endVersion}s added in
+         * {@link #addMigrations(Migration...)} for later validation that makes those versions don't
+         * match any versions passed to {@link #fallbackToDestructiveMigrationFrom(Integer...)}.
+         */
+        private Set<Integer> mMigrationStartAndEndVersions;
 
         Builder(@NonNull Context context, @NonNull Class<T> klass, @Nullable String name) {
             mContext = context;
@@ -376,7 +385,15 @@ public abstract class RoomDatabase {
          * @return this
          */
         @NonNull
-        public Builder<T> addMigrations(@NonNull Migration... migrations) {
+        public Builder<T> addMigrations(@NonNull  Migration... migrations) {
+            if (mMigrationStartAndEndVersions == null) {
+                mMigrationStartAndEndVersions = new HashSet<>();
+            }
+            for (Migration migration: migrations) {
+                mMigrationStartAndEndVersions.add(migration.startVersion);
+                mMigrationStartAndEndVersions.add(migration.endVersion);
+            }
+
             mMigrationContainer.addMigrations(migrations);
             return this;
         }
@@ -423,6 +440,36 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Informs Room that it is allowed to destructively recreate database tables from specific
+         * starting schema versions.
+         * <p>
+         * This functionality is the same as that provided by
+         * {@link #fallbackToDestructiveMigration()}, except that this method allows the
+         * specification of a set of schema versions for which destructive recreation is allowed.
+         * <p>
+         * Using this method is preferable to {@link #fallbackToDestructiveMigration()} if you want
+         * to allow destructive migrations from some schema versions while still taking advantage
+         * of exceptions being thrown due to unintentionally missing migrations.
+         * <p>
+         * Note: No versions passed to this method may also exist as either starting or ending
+         * versions in the {@link Migration}s provided to {@link #addMigrations(Migration...)}. If a
+         * version passed to this method is found as a starting or ending version in a Migration, an
+         * exception will be thrown.
+         *
+         * @param startVersions The set of schema versions from which Room should use a destructive
+         *                      migration.
+         * @return this
+         */
+        @NonNull
+        public Builder<T> fallbackToDestructiveMigrationFrom(Integer... startVersions) {
+            if (mMigrationsNotRequiredFrom == null) {
+                mMigrationsNotRequiredFrom = new HashSet<>();
+            }
+            Collections.addAll(mMigrationsNotRequiredFrom, startVersions);
+            return this;
+        }
+
+        /**
          * Adds a {@link Callback} to this database.
          *
          * @param callback The callback.
@@ -456,12 +503,28 @@ public abstract class RoomDatabase {
                 throw new IllegalArgumentException("Must provide an abstract class that"
                         + " extends RoomDatabase");
             }
+
+            if (mMigrationStartAndEndVersions != null && mMigrationsNotRequiredFrom != null) {
+                for (Integer version : mMigrationStartAndEndVersions) {
+                    if (mMigrationsNotRequiredFrom.contains(version)) {
+                        throw new IllegalArgumentException(
+                                "Inconsistency detected. A Migration was supplied to "
+                                        + "addMigration(Migration... migrations) that has a start "
+                                        + "or end version equal to a start version supplied to "
+                                        + "fallbackToDestructiveMigrationFrom(Integer ... "
+                                        + "startVersions). Start version: "
+                                        + version);
+                    }
+                }
+            }
+
             if (mFactory == null) {
                 mFactory = new FrameworkSQLiteOpenHelperFactory();
             }
             DatabaseConfiguration configuration =
                     new DatabaseConfiguration(mContext, mName, mFactory, mMigrationContainer,
-                            mCallbacks, mAllowMainThreadQueries, mRequireMigration);
+                            mCallbacks, mAllowMainThreadQueries, mRequireMigration,
+                            mMigrationsNotRequiredFrom);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
