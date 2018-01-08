@@ -23,6 +23,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Configuration class for a {@link RoomDatabase}.
@@ -65,6 +66,11 @@ public class DatabaseConfiguration {
     public final boolean requireMigration;
 
     /**
+     * The collection of schema versions from which migrations aren't required.
+     */
+    private final Set<Integer> mMigrationNotRequiredFrom;
+
+    /**
      * Creates a database configuration with the given values.
      *
      * @param context The application context.
@@ -75,6 +81,8 @@ public class DatabaseConfiguration {
      * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
      * @param requireMigration True if Room should require a valid migration if version changes,
      *                        instead of recreating the tables.
+     * @param migrationNotRequiredFrom The collection of schema versions from which migrations
+     *                                 aren't required.
      *
      * @hide
      */
@@ -84,7 +92,8 @@ public class DatabaseConfiguration {
             @NonNull RoomDatabase.MigrationContainer migrationContainer,
             @Nullable List<RoomDatabase.Callback> callbacks,
             boolean allowMainThreadQueries,
-            boolean requireMigration) {
+            boolean requireMigration,
+            @Nullable Set<Integer> migrationNotRequiredFrom) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;
@@ -92,5 +101,21 @@ public class DatabaseConfiguration {
         this.callbacks = callbacks;
         this.allowMainThreadQueries = allowMainThreadQueries;
         this.requireMigration = requireMigration;
+        this.mMigrationNotRequiredFrom = migrationNotRequiredFrom;
+    }
+
+    /**
+     * Returns whether a migration is required from the specified version.
+     *
+     * @param version  The schema version.
+     * @return True if a valid migration is required, false otherwise.
+     */
+    public boolean isMigrationRequiredFrom(int version) {
+        // Migrations are required from this version if we generally require migrations AND EITHER
+        // there are no exceptions OR the supplied version is not one of the exceptions.
+        return requireMigration
+                && (mMigrationNotRequiredFrom == null
+                || !mMigrationNotRequiredFrom.contains(version));
+
     }
 }
