@@ -116,11 +116,12 @@ public class WorkContinuationImpl extends WorkContinuation {
         mUniqueTag = uniqueTag;
         mExistingWorkPolicy = existingWorkPolicy;
         mWork = work;
-        final int parentSize = mParent != null ? mParent.mWork.length : 0;
+        mParent = parent;
+
+        final int parentSize = mParent != null ? mParent.mAllIds.size() : 0;
         mIds = new String[mWork.length];
         mAllIds = new ArrayList<>(mWork.length + parentSize);
         if (parent != null) {
-            mParent = parent;
             mAllIds.addAll(mParent.mAllIds);
         }
         for (int i = 0; i < work.length; i++) {
