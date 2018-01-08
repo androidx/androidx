@@ -85,14 +85,17 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
             }
         }
         if (!migrated) {
-            if (mConfiguration == null || mConfiguration.requireMigration) {
+            if (mConfiguration != null && !mConfiguration.isMigrationRequiredFrom(oldVersion)) {
+                mDelegate.dropAllTables(db);
+                mDelegate.createAllTables(db);
+            } else {
                 throw new IllegalStateException("A migration from " + oldVersion + " to "
-                + newVersion + " is necessary. Please provide a Migration in the builder or call"
-                        + " fallbackToDestructiveMigration in the builder in which case Room will"
-                        + " re-create all of the tables.");
+                        + newVersion + " was required but not found. Please provide the "
+                        + "necessary Migration path via "
+                        + "RoomDatabase.Builder.addMigration(Migration ...) or allow for "
+                        + "destructive migrations via one of the "
+                        + "RoomDatabase.Builder.fallbackToDestructiveMigration* methods.");
             }
-            mDelegate.dropAllTables(db);
-            mDelegate.createAllTables(db);
         }
     }
 
