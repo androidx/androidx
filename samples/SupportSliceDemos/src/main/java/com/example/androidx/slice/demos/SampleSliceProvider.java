@@ -94,7 +94,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createWeather(Uri sliceUri) {
-        return new GridBuilder(sliceUri)
+        return new GridBuilder(getContext(), sliceUri)
                 .addCell(cb -> cb
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
                         .addText("MON")
@@ -119,7 +119,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createGallery(Uri sliceUri) {
-        return new GridBuilder(sliceUri)
+        return new GridBuilder(getContext(), sliceUri)
                 .addCell(cb -> cb
                     .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_1)))
                 .addCell(cb -> cb
@@ -132,7 +132,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createContact(Uri sliceUri) {
-        return new ListBuilder(sliceUri)
+        return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff3949ab)
                 .addRow(b -> b
                         .setTitle("Mady Pitza")
@@ -161,7 +161,7 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createMessagingSlice(Uri sliceUri) {
         // TODO: Remote input.
-        return new MessagingSliceBuilder(sliceUri)
+        return new MessagingSliceBuilder(getContext(), sliceUri)
                 .add(b -> b
                         .addText("yo home \uD83C\uDF55, I emailed you the info")
                         .addTimestamp(System.currentTimeMillis() - 20 * DateUtils.MINUTE_IN_MILLIS)
@@ -180,7 +180,7 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createNoteSlice(Uri sliceUri) {
         // TODO: Remote input.
-        return new ListBuilder(sliceUri)
+        return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xfff4b400)
                 .addRow(b -> b
                     .setTitle("Create new note")
@@ -195,7 +195,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createRideSlice(Uri sliceUri) {
-        return new ListBuilder(sliceUri)
+        return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff1b5e20)
                 .addSummaryRow(b -> b
                     .setTitle("Get ride")
@@ -223,7 +223,7 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createCustomToggleSlice(Uri sliceUri) {
         // TODO: support 2 custom toggles in the same row
-        return new ListBuilder(sliceUri)
+        return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xffff4081)
                 .addRow(b -> b
                     .setTitle("Custom toggle")
@@ -256,7 +256,7 @@ public class SampleSliceProvider extends SliceProvider {
                 break;
         }
         boolean finalWifiEnabled = wifiEnabled;
-        return new ListBuilder(sliceUri)
+        return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff4285f4)
                 .addRow(b -> b
                     .setTitle("Wi-fi")

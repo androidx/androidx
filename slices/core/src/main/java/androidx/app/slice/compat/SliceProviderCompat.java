@@ -190,7 +190,11 @@ public class SliceProviderCompat extends ContentProvider {
                     .penaltyDeath()
                     .build());
             SliceProvider.setSpecs(specs);
-            return mSliceProvider.onBindSlice(sliceUri);
+            try {
+                return mSliceProvider.onBindSlice(sliceUri);
+            } finally {
+                SliceProvider.setSpecs(null);
+            }
         } finally {
             StrictMode.setThreadPolicy(oldPolicy);
         }

@@ -18,57 +18,140 @@ package androidx.app.slice.builders;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.RestrictTo;
+import android.util.Log;
+import android.util.Pair;
+
+import java.util.Arrays;
+import java.util.List;
 
 import androidx.app.slice.Slice;
+import androidx.app.slice.SliceProvider;
+import androidx.app.slice.SliceSpec;
+import androidx.app.slice.SliceSpecs;
+import androidx.app.slice.builders.impl.TemplateBuilderImpl;
 
 /**
  * Base class of builders of various template types.
  */
 public abstract class TemplateSliceBuilder {
 
-    private final Slice.Builder mSliceBuilder;
+    private static final String TAG = "TemplateSliceBuilder";
 
+    private final Slice.Builder mBuilder;
+    private final Context mContext;
+    private final TemplateBuilderImpl mImpl;
+    private List<SliceSpec> mSpecs;
+
+    /**
+     */
     public TemplateSliceBuilder(Uri uri) {
-        mSliceBuilder = new Slice.Builder(uri);
+        this(null, uri);
+        throw new RuntimeException("Stub, to be removed");
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY)
-    protected TemplateSliceBuilder(Slice.Builder b) {
-        mSliceBuilder = b;
+    protected TemplateSliceBuilder(TemplateBuilderImpl impl) {
+        mContext = null;
+        mBuilder = null;
+        mImpl = impl;
+        setImpl(impl);
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public Slice.Builder getBuilder() {
-        return mSliceBuilder;
+    protected TemplateSliceBuilder(Slice.Builder b, Context context) {
+        mBuilder = b;
+        mContext = context;
+        mSpecs = getSpecs();
+        mImpl = selectImpl();
+        if (mImpl == null) {
+            throw new IllegalArgumentException("No valid specs found");
+        }
+        setImpl(mImpl);
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public Slice.Builder createChildBuilder() {
-        return new Slice.Builder(mSliceBuilder);
+    public TemplateSliceBuilder(Context context, Uri uri) {
+        mBuilder = new Slice.Builder(uri);
+        mContext = context;
+        mSpecs = getSpecs();
+        mImpl = selectImpl();
+        if (mImpl == null) {
+            throw new IllegalArgumentException("No valid specs found");
+        }
+        setImpl(mImpl);
     }
 
     /**
      * Construct the slice.
      */
     public Slice build() {
-        apply(mSliceBuilder);
-        return mSliceBuilder.build();
+        return mImpl.build();
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public abstract void apply(Slice.Builder builder);
+    protected Slice.Builder getBuilder() {
+        return mBuilder;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    abstract void setImpl(TemplateBuilderImpl impl);
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    protected TemplateBuilderImpl selectImpl() {
+        return null;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    protected boolean checkCompatible(SliceSpec candidate) {
+        final int size = mSpecs.size();
+        for (int i = 0; i < size; i++) {
+            if (mSpecs.get(i).canRender(candidate)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<SliceSpec> getSpecs() {
+        if (SliceProvider.getCurrentSpecs() != null) {
+            return SliceProvider.getCurrentSpecs();
+        }
+        // TODO: Support getting specs from pinned info.
+        Log.w(TAG, "Not currently bunding a slice");
+        return Arrays.asList(SliceSpecs.BASIC);
+    }
+
+    /**
+     * This is for typing, to clean up the code.
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    static <T> Pair<SliceSpec, Class<? extends TemplateBuilderImpl>> pair(SliceSpec spec,
+            Class<T> cls) {
+        return new Pair(spec, cls);
+    }
 }

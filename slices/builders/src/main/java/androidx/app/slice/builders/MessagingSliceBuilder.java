@@ -16,8 +16,10 @@
 
 package androidx.app.slice.builders;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
@@ -28,6 +30,12 @@ import android.support.annotation.RestrictTo;
 import java.util.function.Consumer;
 
 import androidx.app.slice.Slice;
+import androidx.app.slice.SliceSpecs;
+import androidx.app.slice.builders.impl.MessagingBasicImpl;
+import androidx.app.slice.builders.impl.MessagingBuilder;
+import androidx.app.slice.builders.impl.MessagingListV1Impl;
+import androidx.app.slice.builders.impl.MessagingV1Impl;
+import androidx.app.slice.builders.impl.TemplateBuilderImpl;
 
 /**
  * Builder to construct slice content in a messaging format.
@@ -40,24 +48,28 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
      */
     public static final int MAXIMUM_RETAINED_MESSAGES = 50;
 
+    private MessagingBuilder mBuilder;
+
+    /**
+     */
     public MessagingSliceBuilder(@NonNull Uri uri) {
         super(uri);
+        throw new RuntimeException("Stub, to be removed");
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @Override
-    public void apply(androidx.app.slice.Slice.Builder builder) {
-
+    public MessagingSliceBuilder(@NonNull Context context, @NonNull Uri uri) {
+        super(context, uri);
     }
 
     /**
      * Add a subslice to this builder.
      */
     public MessagingSliceBuilder add(MessageBuilder builder) {
-        getBuilder().addSubSlice(builder.build());
+        mBuilder.add((TemplateBuilderImpl) builder.mImpl);
         return this;
     }
 
@@ -71,23 +83,48 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
         return add(b);
     }
 
+    @Override
+    void setImpl(TemplateBuilderImpl impl) {
+        mBuilder = (MessagingBuilder) impl;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @Override
+    protected TemplateBuilderImpl selectImpl() {
+        if (checkCompatible(SliceSpecs.MESSAGING)) {
+            return new MessagingV1Impl(getBuilder(), SliceSpecs.MESSAGING);
+        } else if (checkCompatible(SliceSpecs.LIST)) {
+            return new MessagingListV1Impl(getBuilder(), SliceSpecs.LIST);
+        } else if (checkCompatible(SliceSpecs.BASIC)) {
+            return new MessagingBasicImpl(getBuilder(), SliceSpecs.BASIC);
+        }
+        return null;
+    }
+
     /**
      * Builder for adding a message to {@link MessagingSliceBuilder}.
      */
     public static final class MessageBuilder extends TemplateSliceBuilder {
+
+        private MessagingBuilder.MessageBuilder mImpl;
+
         /**
+         * Creates a MessageBuilder with the specified parent.
          * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RestrictTo(LIBRARY_GROUP)
         public MessageBuilder(MessagingSliceBuilder parent) {
-            super(parent.createChildBuilder());
+            super(parent.mBuilder.createMessageBuilder());
         }
 
         /**
          * Add the icon used to display contact in the messaging experience
          */
         public MessageBuilder addSource(Icon source) {
-            getBuilder().addIcon(source, android.app.slice.Slice.SUBTYPE_SOURCE);
+            mImpl.addSource(source);
             return this;
         }
 
@@ -95,7 +132,7 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
          * Add the text to be used for this message.
          */
         public MessageBuilder addText(CharSequence text) {
-            getBuilder().addText(text, null);
+            mImpl.addText(text);
             return this;
         }
 
@@ -103,12 +140,19 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
          * Add the time at which this message arrived in ms since Unix epoch
          */
         public MessageBuilder addTimestamp(long timestamp) {
-            getBuilder().addTimestamp(timestamp, null);
+            mImpl.addTimestamp(timestamp);
             return this;
         }
 
         @Override
+        void setImpl(TemplateBuilderImpl impl) {
+            mImpl = (MessagingBuilder.MessageBuilder) impl;
+        }
+
+        /**
+         */
         public void apply(Slice.Builder builder) {
+            throw new RuntimeException("Stub, to be removed");
         }
     }
 }

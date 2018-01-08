@@ -16,22 +16,11 @@
 
 package androidx.app.slice.builders;
 
-import static android.app.slice.Slice.HINT_LARGE;
-import static android.app.slice.Slice.HINT_LIST_ITEM;
-import static android.app.slice.Slice.HINT_NO_TINT;
-import static android.app.slice.Slice.HINT_SELECTED;
-import static android.app.slice.Slice.HINT_TITLE;
-import static android.app.slice.Slice.SUBTYPE_COLOR;
-import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_IMAGE;
-import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import static androidx.app.slice.core.SliceHints.HINT_SUMMARY;
-import static androidx.app.slice.core.SliceHints.SUBTYPE_TOGGLE;
-
 import android.app.PendingIntent;
+import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
@@ -40,11 +29,13 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
-import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import androidx.app.slice.Slice;
-import androidx.app.slice.SliceItem;
+import androidx.app.slice.SliceSpecs;
+import androidx.app.slice.builders.impl.ListBuilderBasicImpl;
+import androidx.app.slice.builders.impl.ListBuilderV1Impl;
+import androidx.app.slice.builders.impl.TemplateBuilderImpl;
 
 /**
  * Builder to construct slice content in a list format.
@@ -68,22 +59,28 @@ import androidx.app.slice.SliceItem;
 public class ListBuilder extends TemplateSliceBuilder {
 
     private boolean mHasSummary;
+    private androidx.app.slice.builders.impl.ListBuilder mImpl;
+
+    /**
+     */
+    public ListBuilder(@NonNull Uri uri) {
+        super(uri);
+        throw new RuntimeException("Stub, to be removed");
+    }
 
     /**
      * Create a builder which will construct a slice that will display rows of content.
      * @param uri Uri to tag for this slice.
-     */
-    public ListBuilder(@NonNull Uri uri) {
-        super(uri);
-    }
-
-    /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @Override
-    public void apply(androidx.app.slice.Slice.Builder builder) {
+    public ListBuilder(@NonNull Context context, @NonNull Uri uri) {
+        super(context, uri);
+    }
 
+    @Override
+    void setImpl(TemplateBuilderImpl impl) {
+        mImpl = (androidx.app.slice.builders.impl.ListBuilder) impl;
     }
 
     /**
@@ -91,7 +88,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @NonNull
     public ListBuilder addRow(@NonNull RowBuilder builder) {
-        getBuilder().addSubSlice(builder.build());
+        mImpl.addRow((TemplateBuilderImpl) builder.mImpl);
         return this;
     }
 
@@ -112,7 +109,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @NonNull
     public ListBuilder addGrid(@NonNull GridBuilder builder) {
-        getBuilder().addSubSlice(builder.build());
+        mImpl.addGrid((TemplateBuilderImpl) builder.getImpl());
         return this;
     }
 
@@ -140,8 +137,7 @@ public class ListBuilder extends TemplateSliceBuilder {
             throw new IllegalArgumentException("Trying to add summary row when one has "
                     + "already been added");
         }
-        builder.getBuilder().addHints(HINT_SUMMARY);
-        getBuilder().addSubSlice(builder.build(), null);
+        mImpl.addSummaryRow((TemplateBuilderImpl) builder.mImpl);
         mHasSummary = true;
         return this;
     }
@@ -162,8 +158,7 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
         RowBuilder b = new RowBuilder(this);
         c.accept(b);
-        b.getBuilder().addHints(HINT_SUMMARY);
-        getBuilder().addSubSlice(b.build(), null);
+        mImpl.addSummaryRow((TemplateBuilderImpl) b.mImpl);
         mHasSummary = true;
         return this;
     }
@@ -175,8 +170,30 @@ public class ListBuilder extends TemplateSliceBuilder {
     @RestrictTo(LIBRARY_GROUP)
     @NonNull
     public ListBuilder setColor(int color) {
-        getBuilder().addInt(color, SUBTYPE_COLOR);
+        mImpl.setColor(color);
         return this;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @Override
+    protected TemplateBuilderImpl selectImpl() {
+        if (checkCompatible(SliceSpecs.LIST)) {
+            return new ListBuilderV1Impl(getBuilder(), SliceSpecs.LIST);
+        } else if (checkCompatible(SliceSpecs.BASIC)) {
+            return new ListBuilderBasicImpl(getBuilder(), SliceSpecs.BASIC);
+        }
+        return null;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public androidx.app.slice.builders.impl.ListBuilder getImpl() {
+        return mImpl;
     }
 
     /**
@@ -201,12 +218,8 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     public static class RowBuilder extends TemplateSliceBuilder {
 
-        private boolean mIsHeader;
-        private PendingIntent mContentIntent;
-        private SliceItem mTitleItem;
-        private SliceItem mSubtitleItem;
-        private SliceItem mStartItem;
-        private ArrayList<SliceItem> mEndItems = new ArrayList<>();
+        private androidx.app.slice.builders.impl.ListBuilder.RowBuilder mImpl;
+
         private boolean mHasEndActionOrToggle;
         private boolean mHasEndImage;
         private boolean mHasTimestamp;
@@ -216,15 +229,34 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @param parent The builder constructing the parent slice.
          */
         public RowBuilder(@NonNull ListBuilder parent) {
-            super(parent.createChildBuilder());
+            super(parent.mImpl.createRowBuilder());
+        }
+
+        /**
+         */
+        public RowBuilder(@NonNull Uri uri) {
+            super(uri);
+            throw new RuntimeException("Stub, to be removed");
         }
 
         /**
          * Create a builder which will construct a slice displayed in a row format.
          * @param uri Uri to tag for this slice.
+         * @hide
          */
-        public RowBuilder(@NonNull Uri uri) {
-            super(new Slice.Builder(uri));
+        @RestrictTo(LIBRARY_GROUP)
+        public RowBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
+            super(parent.mImpl.createRowBuilder(uri));
+        }
+
+        /**
+         * Create a builder which will construct a slice displayed in a row format.
+         * @param uri Uri to tag for this slice.
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public RowBuilder(@NonNull Context context, @NonNull Uri uri) {
+            super(new ListBuilder(context, uri).mImpl.createRowBuilder(uri));
         }
 
         /**
@@ -233,7 +265,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setIsHeader(boolean isHeader) {
-            mIsHeader = isHeader;
+            mImpl.setIsHeader(isHeader);
             return this;
         }
 
@@ -250,7 +282,7 @@ public class ListBuilder extends TemplateSliceBuilder {
                 throw new IllegalArgumentException("Trying to add a timestamp when one has "
                         + "already been added");
             }
-            mStartItem = new SliceItem(timeStamp, FORMAT_TIMESTAMP, null, new String[0]);
+            mImpl.setTitleItem(timeStamp);
             mHasTimestamp = true;
             return this;
         }
@@ -263,7 +295,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setTitleItem(@NonNull Icon icon) {
-            mStartItem = new SliceItem(icon, FORMAT_IMAGE, null, new String[0]);
+            mImpl.setTitleItem(icon);
             return this;
         }
 
@@ -275,8 +307,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setTitleItem(@NonNull Icon icon, @NonNull PendingIntent action) {
-            Slice actionSlice = new Slice.Builder(getBuilder()).addIcon(icon, null).build();
-            mStartItem = new SliceItem(action, actionSlice, FORMAT_ACTION, null, new String[0]);
+            mImpl.setTitleItem(icon, action);
             return this;
         }
 
@@ -285,7 +316,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setContentIntent(@NonNull PendingIntent action) {
-            mContentIntent = action;
+            mImpl.setContentIntent(action);
             return this;
         }
 
@@ -294,7 +325,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setTitle(CharSequence title) {
-            mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});
+            mImpl.setTitle(title);
             return this;
         }
 
@@ -303,7 +334,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setSubtitle(CharSequence subtitle) {
-            mSubtitleItem = new SliceItem(subtitle, FORMAT_TEXT, null, new String[0]);
+            mImpl.setSubtitle(subtitle);
             return this;
         }
 
@@ -317,7 +348,7 @@ public class ListBuilder extends TemplateSliceBuilder {
                 throw new IllegalArgumentException("Trying to add a timestamp when one has "
                         + "already been added");
             }
-            mEndItems.add(new SliceItem(timeStamp, FORMAT_TIMESTAMP, null, new String[0]));
+            mImpl.addEndItem(timeStamp);
             mHasTimestamp = true;
             return this;
         }
@@ -334,8 +365,7 @@ public class ListBuilder extends TemplateSliceBuilder {
                         + "action has already been added. End items cannot have a mixture of "
                         + "tappable icons and icons.");
             }
-            mEndItems.add(new SliceItem(icon, FORMAT_IMAGE, null,
-                    new String[] {HINT_NO_TINT, HINT_LARGE}));
+            mImpl.addEndItem(icon);
             mHasEndImage = true;
             return this;
         }
@@ -352,8 +382,7 @@ public class ListBuilder extends TemplateSliceBuilder {
                         + "icon has already been added. End items cannot have a mixture of "
                         + "tappable icons and icons.");
             }
-            Slice actionSlice = new Slice.Builder(getBuilder()).addIcon(icon, null).build();
-            mEndItems.add(new SliceItem(action, actionSlice, FORMAT_ACTION, null, new String[0]));
+            mImpl.addEndItem(icon, action);
             mHasEndActionOrToggle = true;
             return this;
         }
@@ -387,42 +416,20 @@ public class ListBuilder extends TemplateSliceBuilder {
                         + "icon has already been added. End items cannot have a mixture of "
                         + "tappable icons and icons.");
             }
-            @Slice.SliceHint String[] hints = isChecked
-                    ? new String[] {SUBTYPE_TOGGLE, HINT_SELECTED}
-                    : new String[] {SUBTYPE_TOGGLE};
-            Slice.Builder actionSliceBuilder = new Slice.Builder(getBuilder()).addHints(hints);
-            if (icon != null) {
-                actionSliceBuilder.addIcon(icon, null);
-            }
-            Slice actionSlice = actionSliceBuilder.build();
-            mEndItems.add(new SliceItem(action, actionSlice, FORMAT_ACTION, null, hints));
+            mImpl.addToggle(action, isChecked, icon);
             mHasEndActionOrToggle = true;
             return this;
         }
 
         @Override
-        public void apply(Slice.Builder b) {
-            Slice.Builder wrapped = b;
-            if (mContentIntent != null) {
-                b = new Slice.Builder(wrapped);
-            }
-            if (mStartItem != null) {
-                b.addItem(mStartItem);
-            }
-            if (mTitleItem != null) {
-                b.addItem(mTitleItem);
-            }
-            if (mSubtitleItem != null) {
-                b.addItem(mSubtitleItem);
-            }
-            for (int i = 0; i < mEndItems.size(); i++) {
-                SliceItem item = mEndItems.get(i);
-                b.addItem(item);
-            }
-            if (mContentIntent != null) {
-                wrapped.addAction(mContentIntent, b.build(), null);
-            }
-            wrapped.addHints(mIsHeader ? null : HINT_LIST_ITEM);
+        void setImpl(TemplateBuilderImpl impl) {
+            mImpl = (androidx.app.slice.builders.impl.ListBuilder.RowBuilder) impl;
+        }
+
+        /**
+         */
+        public void apply(Slice.Builder builder) {
+            throw new RuntimeException("Stub, to be removed");
         }
     }
 }
