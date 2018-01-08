@@ -23,6 +23,7 @@ import static android.support.test.espresso.contrib.RecyclerViewActions.scrollTo
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.IsCloseTo.closeTo;
@@ -194,8 +195,6 @@ public class ListItemTest {
                         .build());
         setupPagedListView(items);
 
-        setupPagedListView(items);
-
         ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getSupplementalIcon().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getSupplementalIconDivider().getVisibility(),
@@ -210,6 +209,26 @@ public class ListItemTest {
         assertThat(viewHolder.getAction1Divider().getVisibility(), is(equalTo(View.GONE)));
         assertThat(viewHolder.getAction2().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getAction2Divider().getVisibility(), is(equalTo(View.GONE)));
+    }
+
+    @Test
+    public void testCanHideItemDividers() {
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
+                        .withDividerHidden()
+                        .build(),
+                new ListItem.Builder(mActivity)
+                        .build());
+        setupPagedListView(items);
+
+        assertThat(items.get(0).shouldHideDivider(), is(true));
+        assertThat(items.get(1).shouldHideDivider(), is(false));
+
+        PagedListView.DividerVisibilityManager dvm = (PagedListView.DividerVisibilityManager)
+                mPagedListView.getAdapter();
+        assertThat(dvm, is(notNullValue()));
+        assertThat(dvm.shouldHideDivider(0), is(true));
+        assertThat(dvm.shouldHideDivider(1), is(false));
     }
 
     @Test

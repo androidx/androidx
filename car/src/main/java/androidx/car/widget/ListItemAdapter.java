@@ -34,10 +34,16 @@ import androidx.car.utils.ListItemBackgroundResolver;
 /**
  * Adapter for {@link PagedListView} to display {@link ListItem}.
  *
- * Implements {@link PagedListView.ItemCap} - defaults to unlimited item count.
+ * <ul>
+ *     <li> Implements {@link PagedListView.ItemCap} - defaults to unlimited item count.
+ *     <li> Implements {@link PagedListView.DividerVisibilityManager} - to control dividers after
+ *     individual {@link ListItem}.
+ * </ul>
+ *
  */
 public class ListItemAdapter extends
-        RecyclerView.Adapter<ListItemAdapter.ViewHolder> implements PagedListView.ItemCap {
+        RecyclerView.Adapter<ListItemAdapter.ViewHolder> implements PagedListView.ItemCap,
+        PagedListView.DividerVisibilityManager {
 
     /**
      * Constant class for background style of items.
@@ -141,6 +147,15 @@ public class ListItemAdapter extends
     @Override
     public void setMaxItems(int maxItems) {
         mMaxItems = maxItems;
+    }
+
+    @Override
+    public boolean shouldHideDivider(int position) {
+        // By default we should show the divider i.e. return false.
+
+        // Check if position is within range, and then check the item flag.
+        return position >= 0 && position < getItemCount()
+                && mItemProvider.get(position).shouldHideDivider();
     }
 
     /**
