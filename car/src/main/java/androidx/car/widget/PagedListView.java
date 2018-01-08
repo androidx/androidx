@@ -153,6 +153,23 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
+     * Interface for controlling visibility of item dividers for individual items based on the
+     * item's position.
+     *
+     * <p> NOTE: interface takes effect only when dividers are enabled.
+     */
+    public interface DividerVisibilityManager {
+        /**
+         * Given an item position, returns whether the divider coming after that item should be
+         * hidden.
+         *
+         * @param position item position inside the adapter.
+         * @return true if divider is to be hidden, false if divider should be shown.
+         */
+        boolean shouldHideDivider(int position);
+    }
+
+    /**
      * The possible values for @{link #setGutter}. The default value is actually
      * {@link Gutter#BOTH}.
      */
@@ -409,7 +426,24 @@ public class PagedListView extends FrameLayout {
             @NonNull RecyclerView.Adapter<? extends RecyclerView.ViewHolder> adapter) {
         mAdapter = adapter;
         mRecyclerView.setAdapter(adapter);
+
         updateMaxItems();
+    }
+
+    /**
+     * Sets {@link DividerVisibilityManager} on all {@code DividerDecoration} item decorations.
+     *
+     * @param dvm {@code DividerVisibilityManager} to be set.
+     */
+    public void setDividerVisibilityManager(DividerVisibilityManager dvm) {
+        int decorCount = mRecyclerView.getItemDecorationCount();
+        for (int i = 0; i < decorCount; i++) {
+            RecyclerView.ItemDecoration decor = mRecyclerView.getItemDecorationAt(i);
+            if (decor instanceof DividerDecoration) {
+                ((DividerDecoration) decor).setVisibilityManager(dvm);
+            }
+        }
+        mRecyclerView.invalidateItemDecorations();
     }
 
     @Nullable
@@ -960,6 +994,7 @@ public class PagedListView extends FrameLayout {
         private final int mDividerStartMargin;
         @IdRes private final int mDividerStartId;
         @IdRes private final int mDividerEndId;
+        private DividerVisibilityManager mVisibilityManager;
 
         /**
          * @param dividerStartMargin The start offset of the dividing line. This offset will be
@@ -989,11 +1024,23 @@ public class PagedListView extends FrameLayout {
             mPaint.setColor(mContext.getResources().getColor(R.color.car_list_divider));
         }
 
+        /** Sets {@link DividerVisibilityManager} on the DividerDecoration.*/
+        public void setVisibilityManager(DividerVisibilityManager dvm) {
+            mVisibilityManager = dvm;
+        }
+
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
             // Draw a divider line between each item. No need to draw the line for the last item.
             for (int i = 0, childCount = parent.getChildCount(); i < childCount - 1; i++) {
                 View container = parent.getChildAt(i);
+
+                // if divider should be hidden for this item, proceeds without drawing it
+                int itemPosition = parent.getChildAdapterPosition(container);
+                if (hideDividerForAdapterPosition(itemPosition)) {
+                    continue;
+                }
+
                 View nextContainer = parent.getChildAt(i + 1);
                 int spacing = nextContainer.getTop() - container.getBottom();
 
@@ -1034,14 +1081,21 @@ public class PagedListView extends FrameLayout {
         public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
                 RecyclerView.State state) {
             super.getItemOffsets(outRect, view, parent, state);
-            // Skip top offset for first item and bottom offset for last.
-            int position = parent.getChildAdapterPosition(view);
-            if (position > 0) {
+            int pos = parent.getChildAdapterPosition(view);
+
+            // Skip top offset when there is no divider above.
+            if (pos > 0 && !hideDividerForAdapterPosition(pos - 1)) {
                 outRect.top = mDividerHeight / 2;
             }
-            if (position < state.getItemCount() - 1) {
+
+            // Skip bottom offset when there is no divider below.
+            if (pos < state.getItemCount() - 1 && !hideDividerForAdapterPosition(pos)) {
                 outRect.bottom = mDividerHeight / 2;
             }
+        }
+
+        private boolean hideDividerForAdapterPosition(int position) {
+            return mVisibilityManager != null && mVisibilityManager.shouldHideDivider(position);
         }
     }
 }
