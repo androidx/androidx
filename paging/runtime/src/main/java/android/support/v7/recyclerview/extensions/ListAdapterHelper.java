@@ -68,10 +68,8 @@ import java.util.List;
  * }
  *
  * class UserAdapter extends RecyclerView.Adapter&lt;UserViewHolder> {
- *     private final ListAdapterHelper&lt;User> mHelper;
- *     public UserAdapter(ListAdapterHelper.Builder&lt;User> builder) {
- *         mHelper = new ListAdapterHelper(this, User.DIFF_CALLBACK);
- *     }
+ *     private final ListAdapterHelper&lt;User> mHelper
+ *             = new ListAdapterHelper(this, User.DIFF_CALLBACK);
  *     {@literal @}Override
  *     public int getItemCount() {
  *         return mHelper.getItemCount();

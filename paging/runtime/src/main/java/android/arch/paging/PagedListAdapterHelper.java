@@ -54,7 +54,7 @@ import android.support.v7.widget.RecyclerView;
  * class MyViewModel extends ViewModel {
  *     public final LiveData&lt;PagedList&lt;User>> usersList;
  *     public MyViewModel(UserDao userDao) {
- *         usersList = LivePagedListBuilder&lt;>(
+ *         usersList = new LivePagedListBuilder&lt;>(
  *                 userDao.usersByLastName(), /* page size {@literal *}/ 20).build();
  *     }
  * }
@@ -72,10 +72,8 @@ import android.support.v7.widget.RecyclerView;
  * }
  *
  * class UserAdapter extends RecyclerView.Adapter&lt;UserViewHolder> {
- *     private final PagedListAdapterHelper&lt;User> mHelper;
- *     public UserAdapter(PagedListAdapterHelper.Builder&lt;User> builder) {
- *         mHelper = new PagedListAdapterHelper(this, DIFF_CALLBACK);
- *     }
+ *     private final PagedListAdapterHelper&lt;User> mHelper
+ *             = new PagedListAdapterHelper(this, DIFF_CALLBACK);
  *     {@literal @}Override
  *     public int getItemCount() {
  *         return mHelper.getItemCount();
