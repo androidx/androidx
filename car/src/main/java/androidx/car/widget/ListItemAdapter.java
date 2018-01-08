@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.car.R;
@@ -166,6 +167,9 @@ public class ListItemAdapter extends
         private Button mAction2;
         private View mAction2Divider;
 
+        private Switch mSwitch;
+        private View mSwitchDivider;
+
         public ViewHolder(View itemView) {
             super(itemView);
 
@@ -178,6 +182,9 @@ public class ListItemAdapter extends
 
             mSupplementalIcon = itemView.findViewById(R.id.supplemental_icon);
             mSupplementalIconDivider = itemView.findViewById(R.id.supplemental_icon_divider);
+
+            mSwitch = itemView.findViewById(R.id.switch_widget);
+            mSwitchDivider = itemView.findViewById(R.id.switch_divider);
 
             mAction1 = itemView.findViewById(R.id.action1);
             mAction1Divider = itemView.findViewById(R.id.action1_divider);
@@ -207,6 +214,14 @@ public class ListItemAdapter extends
 
         public View getSupplementalIconDivider() {
             return mSupplementalIconDivider;
+        }
+
+        public View getSwitchDivider() {
+            return mSwitchDivider;
+        }
+
+        public Switch getSwitch() {
+            return mSwitch;
         }
 
         public Button getAction1() {
