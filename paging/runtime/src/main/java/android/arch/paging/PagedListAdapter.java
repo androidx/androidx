@@ -50,7 +50,7 @@ import android.support.v7.widget.RecyclerView;
  * class MyViewModel extends ViewModel {
  *     public final LiveData&lt;PagedList&lt;User>> usersList;
  *     public MyViewModel(UserDao userDao) {
- *         usersList = LivePagedListBuilder&lt;>(
+ *         usersList = new LivePagedListBuilder&lt;>(
  *                 userDao.usersByLastName(), /* page size {@literal *}/ 20).build();
  *     }
  * }
