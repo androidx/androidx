@@ -27,6 +27,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -353,6 +354,13 @@ public class FileProviderTest {
         actual = FileProvider.getUriForFile(mContext, TEST_AUTHORITY,
             buildPath(externalCacheDirs[0], "foo", "bar"));
         assertEquals("content://moocow/test_external_cache/foo/bar", actual.toString());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            File[] externalMediaDirs = mContext.getExternalMediaDirs();
+            actual = FileProvider.getUriForFile(mContext, TEST_AUTHORITY,
+                    buildPath(externalMediaDirs[0], "foo", "bar"));
+            assertEquals("content://moocow/test_external_media/foo/bar", actual.toString());
+        }
     }
 
     private void assertContentsEquals(byte[] expected, Uri actual) throws Exception {
