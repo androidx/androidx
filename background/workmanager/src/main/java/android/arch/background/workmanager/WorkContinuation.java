@@ -28,21 +28,22 @@ import java.util.Map;
 public abstract class WorkContinuation {
 
     /**
-     * Add new {@link Work} items that depend on the items added in the previous step.
+     * Adds new {@link Work} items that depend on the successful completion of all previously added
+     * {@link Work}.
      *
-     * @param work One or more {@link Work} to enqueue
-     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
-     *         input work
+     * @param work One or more {@link Work} to add to the {@link WorkContinuation}
+     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
      */
     public abstract WorkContinuation then(Work... work);
 
     /**
-     * Add new {@link Work} items that depend on the items added in the previous step.
+     * Adds new {@link Work} items, created with the {@link Worker} classes, that depend on the
+     * successful completion of all previously added {@link Work}.
      *
-     * @param workerClasses One or more {@link Worker}s to enqueue; this is a convenience method
-     *                      that makes a {@link Work} object with default arguments for each Worker
-     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
-     *         input workerClasses
+     * Each {@link Work} is created with no {@link Arguments} or {@link Constraints}.
+     *
+     * @param workerClasses One or more {@link Worker}s to add to the {@link WorkContinuation}
+     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
      */
     @SafeVarargs
     public final WorkContinuation then(Class<? extends Worker>... workerClasses) {
@@ -59,7 +60,7 @@ public abstract class WorkContinuation {
      */
     public abstract LiveData<Map<String, Integer>> getStatuses();
 
-    /***
+    /**
      * Enqueues the instance of {@link WorkContinuation} on the background thread.
      */
     public abstract void enqueue();

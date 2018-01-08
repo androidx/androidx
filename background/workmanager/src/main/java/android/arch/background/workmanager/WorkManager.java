@@ -68,14 +68,13 @@ public abstract class WorkManager {
     public abstract void enqueue(@NonNull PeriodicWork... periodicWork);
 
     /**
-     * Starts a chain of work, which can be enqueued together in the future using
-     * {@link WorkContinuation#enqueue()}.
+     * Creates a chain of {@link Work} from the {@link Worker} classes, which can be enqueued
+     * together in the future using {@link WorkContinuation#enqueue()}.
      *
-     * @param workerClasses One or more {@link Worker}s to enqueue in the future; ; this is a
-     *                      convenience method that makes a {@link Work} object with default
-     *                      arguments for each Worker
-     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
-     *         input work
+     * Each {@link Work} is created with no {@link Arguments} or {@link Constraints}.
+     *
+     * @param workerClasses One or more {@link Worker}s to create a {@link WorkContinuation}
+     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
      */
     @SafeVarargs
     public final WorkContinuation createWith(@NonNull Class<? extends Worker>...workerClasses) {
@@ -83,12 +82,11 @@ public abstract class WorkManager {
     }
 
     /**
-     * Starts a chain of work, which can be enqueued together in the future using
+     * Creates a chain of {@link Work}, which can be enqueued together in the future using
      * {@link WorkContinuation#enqueue()}.
      *
-     * @param work One or more {@link Work} to enqueue in the future
-     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
-     *         input work
+     * @param work One or more {@link Work} to create a {@link WorkContinuation}
+     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
      */
     public abstract WorkContinuation createWith(@NonNull Work...work);
 

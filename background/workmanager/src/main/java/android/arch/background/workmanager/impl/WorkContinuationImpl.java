@@ -158,7 +158,7 @@ public class WorkContinuationImpl extends WorkContinuation {
     public void enqueue() {
         // Only enqueue if not already enqueued.
         if (!mEnqueued) {
-            // The runnable walks the heirarchy of the continuations
+            // The runnable walks the hierarchy of the continuations
             // and marks them enqueued using the markEnqueued() method, parent first.
             mWorkManagerImpl.getTaskExecutor()
                     .executeOnBackgroundThread(new EnqueueRunnable(this));
