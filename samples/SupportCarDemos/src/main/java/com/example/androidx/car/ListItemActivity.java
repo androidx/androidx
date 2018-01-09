@@ -227,6 +227,14 @@ public class ListItemActivity extends Activity {
                     .withBody("Only body - no title. " + mContext.getString(R.string.long_text))
                     .build());
 
+            mItems.add(new ListItem.Builder(mContext)
+                    .withTitle("Switch - initially unchecked")
+                    .withSwitch(false, true, (button, isChecked) -> {
+                        Toast.makeText(mContext,
+                                isChecked ? "checked" : "unchecked", Toast.LENGTH_SHORT).show();
+                    })
+                    .build());
+
             mListProvider = new ListItemProvider.ListProvider(mItems);
         }
 
