@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package android.support.v14.preference;
@@ -23,6 +23,7 @@ import android.os.Parcelable;
 import android.support.annotation.ArrayRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.TypedArrayUtils;
+import android.support.v7.preference.R;
 import android.support.v7.preference.internal.AbstractMultiSelectListPreference;
 import android.util.AttributeSet;
 
@@ -35,7 +36,7 @@ import java.util.Set;
  * a dialog.
  * <p>
  * This preference will store a set of strings into the SharedPreferences.
- * This set will contain one or more values from the
+ * This set will contain one or more mValues from the
  * {@link #setEntryValues(CharSequence[])} array.
  *
  * @attr name android:entries
@@ -51,16 +52,16 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
         super(context, attrs, defStyleAttr, defStyleRes);
 
         final TypedArray a = context.obtainStyledAttributes(attrs,
-                android.support.v7.preference.R.styleable.MultiSelectListPreference, defStyleAttr,
+                R.styleable.MultiSelectListPreference, defStyleAttr,
                 defStyleRes);
 
         mEntries = TypedArrayUtils.getTextArray(a,
-                android.support.v7.preference.R.styleable.MultiSelectListPreference_entries,
-                android.support.v7.preference.R.styleable.MultiSelectListPreference_android_entries);
+                R.styleable.MultiSelectListPreference_entries,
+                R.styleable.MultiSelectListPreference_android_entries);
 
         mEntryValues = TypedArrayUtils.getTextArray(a,
-                android.support.v7.preference.R.styleable.MultiSelectListPreference_entryValues,
-                android.support.v7.preference.R.styleable.MultiSelectListPreference_android_entryValues);
+                R.styleable.MultiSelectListPreference_entryValues,
+                R.styleable.MultiSelectListPreference_android_entryValues);
 
         a.recycle();
     }
@@ -71,7 +72,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
 
     public MultiSelectListPreference(Context context, AttributeSet attrs) {
         this(context, attrs, TypedArrayUtils.getAttr(context,
-                android.support.v7.preference.R.attr.dialogPreferenceStyle,
+                R.attr.dialogPreferenceStyle,
                 android.R.attr.dialogPreferenceStyle));
     }
 
@@ -116,7 +117,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
      * entries is selected. If a user clicks on the second item in entries, the
      * second item in this array will be saved to the preference.
      *
-     * @param entryValues The array to be used as values to save for the preference.
+     * @param entryValues The array to be used as mValues to save for the preference.
      */
     public void setEntryValues(CharSequence[] entryValues) {
         mEntryValues = entryValues;
@@ -124,16 +125,16 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
 
     /**
      * @see #setEntryValues(CharSequence[])
-     * @param entryValuesResId The entry values array as a resource.
+     * @param entryValuesResId The entry mValues array as a resource.
      */
     public void setEntryValues(@ArrayRes int entryValuesResId) {
         setEntryValues(getContext().getResources().getTextArray(entryValuesResId));
     }
 
     /**
-     * Returns the array of values to be saved for the preference.
+     * Returns the array of mValues to be saved for the preference.
      *
-     * @return The array of values.
+     * @return The array of mValues.
      */
     @Override
     public CharSequence[] getEntryValues() {
@@ -144,7 +145,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
      * Sets the value of the key. This should contain entries in
      * {@link #getEntryValues()}.
      *
-     * @param values The values to set for the key.
+     * @param values The mValues to set for the key.
      */
     @Override
     public void setValues(Set<String> values) {
@@ -163,7 +164,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
     }
 
     /**
-     * Returns the index of the given value (in the entry values array).
+     * Returns the index of the given value (in the entry mValues array).
      *
      * @param value The value whose index should be returned.
      * @return The index of the value, or -1 if not found.
@@ -219,7 +220,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
         }
 
         final SavedState myState = new SavedState(superState);
-        myState.values = getValues();
+        myState.mValues = getValues();
         return myState;
     }
 
@@ -233,31 +234,31 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
 
         SavedState myState = (SavedState) state;
         super.onRestoreInstanceState(myState.getSuperState());
-        setValues(myState.values);
+        setValues(myState.mValues);
     }
 
     private static class SavedState extends BaseSavedState {
-        Set<String> values;
+        Set<String> mValues;
 
-        public SavedState(Parcel source) {
+        SavedState(Parcel source) {
             super(source);
             final int size = source.readInt();
-            values = new HashSet<>();
+            mValues = new HashSet<>();
             String[] strings = new String[size];
             source.readStringArray(strings);
 
-            Collections.addAll(values, strings);
+            Collections.addAll(mValues, strings);
         }
 
-        public SavedState(Parcelable superState) {
+        SavedState(Parcelable superState) {
             super(superState);
         }
 
         @Override
         public void writeToParcel(@NonNull Parcel dest, int flags) {
             super.writeToParcel(dest, flags);
-            dest.writeInt(values.size());
-            dest.writeStringArray(values.toArray(new String[values.size()]));
+            dest.writeInt(mValues.size());
+            dest.writeStringArray(mValues.toArray(new String[mValues.size()]));
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR =
