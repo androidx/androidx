@@ -1,10 +1,5 @@
 package android.arch.lifecycle {
 
-  public class AndroidViewModel extends android.arch.lifecycle.ViewModel {
-    ctor public AndroidViewModel(android.app.Application);
-    method public <T extends android.app.Application> T getApplication();
-  }
-
   public class LifecycleService extends android.app.Service implements android.arch.lifecycle.LifecycleOwner {
     ctor public LifecycleService();
     method public android.arch.lifecycle.Lifecycle getLifecycle();
@@ -34,8 +29,8 @@ package android.arch.lifecycle {
     method public static android.arch.lifecycle.ViewModelProvider of(android.support.v4.app.FragmentActivity, android.arch.lifecycle.ViewModelProvider.Factory);
   }
 
-  public static class ViewModelProviders.DefaultFactory extends android.arch.lifecycle.ViewModelProvider.NewInstanceFactory {
-    ctor public ViewModelProviders.DefaultFactory(android.app.Application);
+  public static deprecated class ViewModelProviders.DefaultFactory extends android.arch.lifecycle.ViewModelProvider.AndroidViewModelFactory {
+    ctor public deprecated ViewModelProviders.DefaultFactory(android.app.Application);
   }
 
   public class ViewModelStores {
