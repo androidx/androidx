@@ -16,8 +16,11 @@
 
 package android.arch.lifecycle;
 
+import android.app.Application;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * An utility class that provides {@code ViewModels} for a scope.
@@ -150,6 +153,59 @@ public class ViewModelProvider {
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Cannot create an instance of " + modelClass, e);
             }
+        }
+    }
+
+    /**
+     * {@link Factory} which may create {@link AndroidViewModel} and
+     * {@link ViewModel}, which have an empty constructor.
+     */
+    public static class AndroidViewModelFactory extends ViewModelProvider.NewInstanceFactory {
+
+        private static AndroidViewModelFactory sInstance;
+
+        /**
+         * Retrieve a singleton instance of AndroidViewModelFactory.
+         *
+         * @param application an application to pass in {@link AndroidViewModel}
+         * @return A valid {@link AndroidViewModelFactory}
+         */
+        public static AndroidViewModelFactory getInstance(@NonNull Application application) {
+            if (sInstance == null) {
+                sInstance = new AndroidViewModelFactory(application);
+            }
+            return sInstance;
+        }
+
+        private Application mApplication;
+
+        /**
+         * Creates a {@code AndroidViewModelFactory}
+         *
+         * @param application an application to pass in {@link AndroidViewModel}
+         */
+        public AndroidViewModelFactory(@NonNull Application application) {
+            mApplication = application;
+        }
+
+        @NonNull
+        @Override
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            if (AndroidViewModel.class.isAssignableFrom(modelClass)) {
+                //noinspection TryWithIdenticalCatches
+                try {
+                    return modelClass.getConstructor(Application.class).newInstance(mApplication);
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
+                } catch (InstantiationException e) {
+                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
+                }
+            }
+            return super.create(modelClass);
         }
     }
 }
