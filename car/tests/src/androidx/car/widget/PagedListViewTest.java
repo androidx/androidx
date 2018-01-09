@@ -38,6 +38,7 @@ import static org.junit.Assert.assertThat;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.Espresso;
@@ -54,6 +55,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -350,6 +354,32 @@ public final class PagedListViewTest {
         }
     }
 
+    @Test
+    public void testDefaultScrollBarTopMargin() {
+        if (!isAutoDevice()) {
+            return;
+        }
+
+        // Just need enough items to ensure the scroll bar is showing.
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+        onView(withId(R.id.paged_scroll_view)).check(matches(withTopMargin(0)));
+    }
+
+    @Test
+    public void testSetScrollbarTopMargin() {
+        if (!isAutoDevice()) {
+            return;
+        }
+
+        // Just need enough items to ensure the scroll bar is showing.
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+
+        int topMargin = 100;
+        mPagedListView.setScrollBarTopMargin(topMargin);
+
+        onView(withId(R.id.paged_scroll_view)).check(matches(withTopMargin(topMargin)));
+    }
+
     private static String itemText(int index) {
         return "Data " + index;
     }
@@ -459,5 +489,27 @@ public final class PagedListViewTest {
         public void registerIdleTransitionCallback(ResourceCallback callback) {
             mResourceCallback = callback;
         }
+    }
+
+    /**
+     * Returns a matcher that matches {@link View}s that have the given top margin.
+     *
+     * @param topMargin The top margin value to match to.
+     */
+    @NonNull
+    public static Matcher<View> withTopMargin(int topMargin) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with top margin: " + topMargin);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                ViewGroup.MarginLayoutParams params =
+                        (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+                return topMargin == params.topMargin;
+            }
+        };
     }
 }
