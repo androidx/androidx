@@ -14,9 +14,9 @@
  * limitations under the License
  */
 
-version '0.1'
+apply plugin: 'maven'
 
-apply plugin: 'maven-publish'
+version '0.2'
 
 dependencies {
     compile project(':core')
@@ -31,10 +31,13 @@ task fatJar(type: Jar) {
     with jar
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: rootProject.ext.repoDir)
         }
     }
 }
+
+rootProject.mainUpload.dependsOn tasks["uploadArchives"]
+tasks["uploadArchives"].dependsOn rootProject.prepareRepo
