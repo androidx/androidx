@@ -21,6 +21,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.lifecycle.ViewModelProvider.NewInstanceFactory;
+import android.support.annotation.NonNull;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -72,6 +73,7 @@ public class ViewModelProviderTest {
     public void testOwnedBy() {
         final ViewModelStore store = new ViewModelStore();
         ViewModelStoreOwner owner = new ViewModelStoreOwner() {
+            @NonNull
             @Override
             public ViewModelStore getViewModelStore() {
                 return store;

@@ -19,6 +19,7 @@ package android.arch.lifecycle;
 import android.app.Activity;
 import android.app.Application.ActivityLifecycleCallbacks;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.Fragment;
@@ -34,7 +35,7 @@ import java.util.Map;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class HolderFragment extends Fragment {
+public class HolderFragment extends Fragment implements ViewModelStoreOwner {
     private static final String LOG_TAG = "ViewModelStores";
 
     private static final HolderFragmentManager sHolderFragmentManager = new HolderFragmentManager();
@@ -69,6 +70,8 @@ public class HolderFragment extends Fragment {
         mViewModelStore.clear();
     }
 
+    @NonNull
+    @Override
     public ViewModelStore getViewModelStore() {
         return mViewModelStore;
     }
