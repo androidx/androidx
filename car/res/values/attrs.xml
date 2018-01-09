@@ -44,6 +44,8 @@ limitations under the License.
         </attr>
         <!-- Whether to display the scrollbar or not. Defaults to true. -->
         <attr name="scrollBarEnabled" format="boolean" />
+        <!-- The top margin before the scroll bar is drawn. -->
+        <attr name="scrollBarTopMargin" format="dimension" />
         <!-- Whether or not to show a diving line between each item of the list. -->
         <attr name="showPagedListViewDivider" format="boolean" />
         <!-- An optional id that specifies a child View whose starting edge will be used to
