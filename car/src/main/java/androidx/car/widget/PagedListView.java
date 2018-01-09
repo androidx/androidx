@@ -324,11 +324,13 @@ public class PagedListView extends FrameLayout {
 
         mScrollBarView.setVisibility(mScrollBarEnabled ? VISIBLE : GONE);
 
-        // Modify the layout the Scroll Bar is not visible.
-        if (!mScrollBarEnabled) {
+        if (mScrollBarEnabled) {
+            int topMargin =
+                    a.getDimensionPixelSize(R.styleable.PagedListView_scrollBarTopMargin, 0);
+            setScrollBarTopMargin(topMargin);
+        } else {
             MarginLayoutParams params = (MarginLayoutParams) mRecyclerView.getLayoutParams();
             params.setMarginStart(0);
-            mRecyclerView.setLayoutParams(params);
         }
 
         setDayNightStyle(DayNightStyle.AUTO);
@@ -378,6 +380,17 @@ public class PagedListView extends FrameLayout {
         // If there's a gutter, set ClipToPadding to false so that CardView's shadow will still
         // appear outside of the padding.
         mRecyclerView.setClipToPadding(startPadding == 0 && endPadding == 0);
+    }
+
+    /**
+     * Sets the top margin above the scroll bar. By default, this margin is 0.
+     *
+     * @param topMargin The top margin.
+     */
+    public void setScrollBarTopMargin(int topMargin) {
+        MarginLayoutParams params = (MarginLayoutParams) mScrollBarView.getLayoutParams();
+        params.topMargin = topMargin;
+        requestLayout();
     }
 
     @NonNull
