@@ -274,11 +274,14 @@ public class SampleSliceProvider extends SliceProvider {
 
     private PendingIntent getBroadcastIntent(String action, String message) {
         Intent intent = new Intent(action);
+        intent.setClass(getContext(), SliceBroadcastReceiver.class);
+        // Ensure a new PendingIntent is created for each message.
+        int requestCode = 0;
         if (message != null) {
             intent.putExtra(EXTRA_TOAST_MESSAGE, message);
+            requestCode = message.hashCode();
         }
-        intent.setClass(getContext(), SliceBroadcastReceiver.class);
-        return PendingIntent.getBroadcast(getContext(), 0, intent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
+        return PendingIntent.getBroadcast(getContext(), requestCode, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }
