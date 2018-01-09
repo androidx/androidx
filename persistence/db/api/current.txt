@@ -8,7 +8,7 @@ package android.arch.persistence.db {
     method public java.lang.String getSql();
   }
 
-  public abstract interface SupportSQLiteDatabase {
+  public abstract interface SupportSQLiteDatabase implements java.io.Closeable {
     method public abstract void beginTransaction();
     method public abstract void beginTransactionNonExclusive();
     method public abstract void beginTransactionWithListener(android.database.sqlite.SQLiteTransactionListener);
@@ -85,7 +85,7 @@ package android.arch.persistence.db {
     method public abstract android.arch.persistence.db.SupportSQLiteOpenHelper create(android.arch.persistence.db.SupportSQLiteOpenHelper.Configuration);
   }
 
-  public abstract interface SupportSQLiteProgram {
+  public abstract interface SupportSQLiteProgram implements java.io.Closeable {
     method public abstract void bindBlob(int, byte[]);
     method public abstract void bindDouble(int, double);
     method public abstract void bindLong(int, long);
