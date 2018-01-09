@@ -27,8 +27,11 @@ buildscript {
     }
 }
 
+// upload anchor for subprojects to upload their artifacts to the local repo.
+task(mainUpload)
+
 subprojects {
-    group 'android.support.tools.jetifier'
+    group 'androidx.tools.jetifier'
 
     ext.supportRootFolder = "${project.projectDir}/../../.."
 
@@ -62,13 +65,20 @@ def setupOutDirs() {
         buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build')
                 .getCanonicalFile()
         project.ext.distDir = new File(System.env.DIST_DIR).getCanonicalFile()
+        // the build server does not pass the build number so we infer it from the last folder of
+        // the dist path.
+        ext.buildNumber = project.ext.distDir.getName()
 
         // the build server should always print out full stack traces for any failures.
         gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
     } else {
         buildDir = file("${ext.supportRootFolder}/../../out/host/gradle/frameworks/support/jetifier/build")
         project.ext.distDir = new File("${ext.supportRootFolder}/../../out/dist")
+        ext.buildNumber = 0
     }
+
+    ext.repoDir = "file://$project.buildDir/repo"
+
     subprojects {
         // Change buildDir so that all plugins pick up the new value.
         project.buildDir = new File("$project.parent.buildDir/../$project.name/build")
@@ -90,7 +100,28 @@ def configureBuildOnServer() {
             }
         }
     }
+    buildOnServerTask.dependsOn "createArchive"
 }
 
 setupOutDirs()
 configureBuildOnServer()
+
+// anchor for prepare repo. This is post unzip.
+task prepareRepo() {
+    description "This task clears the repo folder to ensure that we run a fresh build every" +
+            " time we create arhives. Otherwise, snapshots will accumulate in the builds folder."
+    doFirst {
+        file(rootProject.ext.repoDir).deleteDir()
+        file(rootProject.ext.repoDir).mkdirs()
+    }
+}
+
+task createArchive(type : Zip) {
+    description "Creates a maven repository that includes just the libraries compiled in this" +
+            " project, without any history from prebuilts."
+    from rootProject.ext.repoDir
+    destinationDir rootProject.ext.distDir
+    into 'm2repository'
+    baseName = String.format("top-of-tree-m2repository-%s", project.ext.buildNumber)
+    dependsOn mainUpload
+}
