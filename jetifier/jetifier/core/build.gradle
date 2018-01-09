@@ -14,13 +14,26 @@
  * limitations under the License
  */
 
-version '1.0'
+apply plugin: 'maven'
+
+version '0.2'
 
 dependencies {
-    compile group: 'org.ow2.asm', name: 'asm', version: '5.2'
-    compile group: 'org.ow2.asm', name: 'asm-commons', version: '5.2'
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.0'
-    compile group: 'org.jdom', name: 'jdom2', version: '2.0.6'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'com.google.truth', name: 'truth', version: '0.31'
+    compile("org.ow2.asm:asm:5.2")
+    compile("org.ow2.asm:asm-commons:5.2")
+    compile("com.google.code.gson:gson:2.8.0")
+    compile("org.jdom:jdom2:2.0.6")
+    testCompile("junit:junit:4.12")
+    testCompile("com.google.truth:truth:0.31")
 }
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: rootProject.ext.repoDir)
+        }
+    }
+}
+
+rootProject.mainUpload.dependsOn tasks["uploadArchives"]
+tasks["uploadArchives"].dependsOn rootProject.prepareRepo
