@@ -16,7 +16,6 @@
 
 package android.arch.lifecycle;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.arch.lifecycle.ViewModelProvider.Factory;
@@ -24,8 +23,6 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Utilities methods for {@link ViewModelStore} class.
@@ -37,15 +34,6 @@ public class ViewModelProviders {
      */
     @Deprecated
     public ViewModelProviders() {
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private static DefaultFactory sDefaultFactory;
-
-    private static void initializeFactoryIfNeeded(Application application) {
-        if (sDefaultFactory == null) {
-            sDefaultFactory = new DefaultFactory(application);
-        }
     }
 
     private static Application checkApplication(Activity activity) {
@@ -69,30 +57,34 @@ public class ViewModelProviders {
      * Creates a {@link ViewModelProvider}, which retains ViewModels while a scope of given
      * {@code fragment} is alive. More detailed explanation is in {@link ViewModel}.
      * <p>
-     * It uses {@link DefaultFactory} to instantiate new ViewModels.
+     * It uses {@link ViewModelProvider.AndroidViewModelFactory} to instantiate new ViewModels.
      *
      * @param fragment a fragment, in whose scope ViewModels should be retained
      * @return a ViewModelProvider instance
      */
     @MainThread
     public static ViewModelProvider of(@NonNull Fragment fragment) {
-        initializeFactoryIfNeeded(checkApplication(checkActivity(fragment)));
-        return new ViewModelProvider(ViewModelStores.of(fragment), sDefaultFactory);
+        ViewModelProvider.AndroidViewModelFactory factory =
+                ViewModelProvider.AndroidViewModelFactory.getInstance(
+                        checkApplication(checkActivity(fragment)));
+        return new ViewModelProvider(ViewModelStores.of(fragment), factory);
     }
 
     /**
      * Creates a {@link ViewModelProvider}, which retains ViewModels while a scope of given Activity
      * is alive. More detailed explanation is in {@link ViewModel}.
      * <p>
-     * It uses {@link DefaultFactory} to instantiate new ViewModels.
+     * It uses {@link ViewModelProvider.AndroidViewModelFactory} to instantiate new ViewModels.
      *
      * @param activity an activity, in whose scope ViewModels should be retained
      * @return a ViewModelProvider instance
      */
     @MainThread
     public static ViewModelProvider of(@NonNull FragmentActivity activity) {
-        initializeFactoryIfNeeded(checkApplication(activity));
-        return new ViewModelProvider(ViewModelStores.of(activity), sDefaultFactory);
+        ViewModelProvider.AndroidViewModelFactory factory =
+                ViewModelProvider.AndroidViewModelFactory.getInstance(
+                        checkApplication(activity));
+        return new ViewModelProvider(ViewModelStores.of(activity), factory);
     }
 
     /**
@@ -131,39 +123,22 @@ public class ViewModelProviders {
     /**
      * {@link Factory} which may create {@link AndroidViewModel} and
      * {@link ViewModel}, which have an empty constructor.
+     *
+     * @deprecated Use {@link ViewModelProvider.AndroidViewModelFactory}
      */
     @SuppressWarnings("WeakerAccess")
-    public static class DefaultFactory extends ViewModelProvider.NewInstanceFactory {
-
-        private Application mApplication;
-
+    @Deprecated
+    public static class DefaultFactory extends ViewModelProvider.AndroidViewModelFactory {
         /**
-         * Creates a {@code DefaultFactory}
+         * Creates a {@code AndroidViewModelFactory}
          *
          * @param application an application to pass in {@link AndroidViewModel}
+         * @deprecated Use {@link ViewModelProvider.AndroidViewModelFactory} or
+         * {@link ViewModelProvider.AndroidViewModelFactory#getInstance(Application)}.
          */
+        @Deprecated
         public DefaultFactory(@NonNull Application application) {
-            mApplication = application;
-        }
-
-        @NonNull
-        @Override
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            if (AndroidViewModel.class.isAssignableFrom(modelClass)) {
-                //noinspection TryWithIdenticalCatches
-                try {
-                    return modelClass.getConstructor(Application.class).newInstance(mApplication);
-                } catch (NoSuchMethodException e) {
-                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
-                } catch (InstantiationException e) {
-                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
-                }
-            }
-            return super.create(modelClass);
+            super(application);
         }
     }
 }
