@@ -54,10 +54,7 @@
         <!-- End icon with divider. -->
         <View
             android:id="@+id/supplemental_icon_divider"
-            android:layout_width="@dimen/car_vertical_line_divider_width"
-            android:layout_height="@dimen/car_vertical_line_divider_height"
-            android:layout_marginStart="@dimen/car_padding_4"
-            android:background="@color/car_list_divider"/>
+            style="@style/CarListVerticalDivider"/>
         <ImageView
             android:id="@+id/supplemental_icon"
             android:layout_width="@dimen/car_primary_icon_size"
@@ -65,13 +62,22 @@
             android:layout_marginStart="@dimen/car_padding_4"
             android:scaleType="fitCenter"/>
 
+        <!-- Switch with divider. -->
+        <View
+            android:id="@+id/switch_divider"
+            style="@style/CarListVerticalDivider"/>
+        <Switch
+            android:id="@+id/switch_widget"
+            android:layout_width="@dimen/car_primary_icon_size"
+            android:layout_height="@dimen/car_primary_icon_size"
+            android:layout_marginStart="@dimen/car_padding_4"
+            style="@android:style/Widget.Material.CompoundButton.Switch"
+        />
+
         <!-- Up to 2 action buttons with dividers. -->
         <View
             android:id="@+id/action2_divider"
-            android:layout_width="@dimen/car_vertical_line_divider_width"
-            android:layout_height="@dimen/car_vertical_line_divider_height"
-            android:layout_marginStart="@dimen/car_padding_4"
-            android:background="@color/car_list_divider"/>
+            style="@style/CarListVerticalDivider"/>
         <Button
             android:id="@+id/action2"
             android:layout_width="wrap_content"
@@ -85,10 +91,7 @@
             style="?android:attr/borderlessButtonStyle"/>
         <View
             android:id="@+id/action1_divider"
-            android:layout_width="@dimen/car_vertical_line_divider_width"
-            android:layout_height="@dimen/car_vertical_line_divider_height"
-            android:layout_marginStart="@dimen/car_padding_4"
-            android:background="@color/car_list_divider"/>
+            style="@style/CarListVerticalDivider"/>
         <Button
             android:id="@+id/action1"
             android:layout_width="wrap_content"

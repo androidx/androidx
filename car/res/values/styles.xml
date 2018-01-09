@@ -158,4 +158,12 @@ limitations under the License.
     <!-- Styles for TextInputLayout hints -->
     <style name="CarHintTextAppearance" parent="CarBody2">
     </style>
+
+    <style name="CarListVerticalDivider">
+        <item name="android:layout_width">@dimen/car_vertical_line_divider_width</item>
+        <item name="android:layout_height">@dimen/car_vertical_line_divider_height</item>
+        <item name="android:layout_marginStart">@dimen/car_padding_4</item>
+        <item name="android:background">@color/car_list_divider</item>
+    </style>
+
 </resources>

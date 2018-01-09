@@ -18,6 +18,7 @@
     <!-- The main theme for all activities within the Car Demo. -->
     <style name="CarTheme" parent="android:Theme.Material.Light">
         <item name="android:windowBackground">@color/car_grey_50</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:colorAccent">@color/car_yellow_500</item>
         <item name="android:colorPrimary">@color/car_highlight</item>
         <item name="android:colorPrimaryDark">@color/car_grey_300</item>
@@ -26,6 +27,6 @@
         <item name="android:progressBarStyleHorizontal">
             @style/Widget.Car.ProgressBar.Horizontal
         </item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:colorControlActivated">@color/car_accent</item>
     </style>
 </resources>
