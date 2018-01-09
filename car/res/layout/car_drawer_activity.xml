@@ -13,28 +13,44 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<FrameLayout
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent">
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-      <!-- The main content view. Fragments will be added here. -->
-      <FrameLayout
-          android:id="@+id/content_frame"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent" />
+        <!-- The main content view. Fragments will be added here. -->
+        <FrameLayout
+            android:id="@+id/content_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-      <include
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:layout_gravity="start"
-          layout="@layout/car_drawer" />
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            layout="@layout/car_drawer" />
     </android.support.v4.widget.DrawerLayout>
 
-    <include layout="@layout/car_toolbar" />
-</FrameLayout>
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+        <!-- The min height of the Toolbar needs to be set to ensure that the icons in it
+             are vertically centered. -->
+        <androidx.car.widget.ClickThroughToolbar
+            android:id="@+id/car_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/car_app_bar_height"
+            android:layout_gravity="center_vertical"
+            android:minHeight="@dimen/car_app_bar_height"
+            style="@style/CarToolbarTheme" />
+    </android.support.design.widget.AppBarLayout>
+</android.support.design.widget.CoordinatorLayout>

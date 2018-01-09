@@ -74,6 +74,9 @@ limitations under the License.
         <attr name="upButtonIcon" format="reference" />
         <!-- The icon to be used for the down button of the scroll bar.  -->
         <attr name="downButtonIcon" format="reference" />
+        <!-- The amount of space before the first item in the list view. This space is
+             scrollable with the contents of the list. -->
+        <attr name="listContentTopOffset" format="reference" />
     </declare-styleable>
 
     <!-- The attributes for customizing the appearance of the hamburger and back arrow in the
@@ -95,5 +98,12 @@ limitations under the License.
         <attr name="carMenuBarSpacing" format="dimension"/>
         <!-- The size of the menu bars (i.e. the "hamburger" icon). -->
         <attr name="carMenuBarThickness" format="dimension"/>
+    </declare-styleable>
+
+    <!-- Attributes for the ClickThroughToolbar. -->
+    <declare-styleable name="ClickThroughToolbar">
+        <!-- Whether or not clicks on this toolbar will pass through to an underlying view. This
+             value is false by default. -->
+        <attr name="clickThrough" format="boolean"/>
     </declare-styleable>
 </resources>
