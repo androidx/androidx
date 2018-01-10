@@ -28,7 +28,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
-import android.arch.paging.TiledDataSource;
+import android.arch.paging.PositionalDataSource;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Entity;
@@ -41,6 +41,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.RoomWarnings;
 import android.arch.persistence.room.Transaction;
+import android.arch.persistence.room.paging.LimitOffsetDataSource;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
@@ -227,7 +228,8 @@ public class QueryTransactionTest {
         drain();
         resetTransactionCount();
         @SuppressWarnings("deprecation")
-        TiledDataSource<Entity1> dataSource = mDao.dataSource();
+        LimitOffsetDataSource<Entity1> dataSource =
+                (LimitOffsetDataSource<Entity1>) mDao.dataSource();
         dataSource.loadRange(0, 10);
         assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 1 : 0));
     }
@@ -371,7 +373,7 @@ public class QueryTransactionTest {
 
         DataSource.Factory<Integer, Entity1> pagedList();
 
-        TiledDataSource<Entity1> dataSource();
+        PositionalDataSource<Entity1> dataSource();
 
         @Insert
         void insert(Entity1 entity1);
@@ -413,7 +415,7 @@ public class QueryTransactionTest {
 
         @Override
         @Query(SELECT_ALL)
-        TiledDataSource<Entity1> dataSource();
+        PositionalDataSource<Entity1> dataSource();
     }
 
     @Dao
@@ -456,7 +458,7 @@ public class QueryTransactionTest {
         @Override
         @Transaction
         @Query(SELECT_ALL)
-        TiledDataSource<Entity1> dataSource();
+        PositionalDataSource<Entity1> dataSource();
     }
 
     @Database(version = 1, entities = {Entity1.class, Child.class}, exportSchema = false)

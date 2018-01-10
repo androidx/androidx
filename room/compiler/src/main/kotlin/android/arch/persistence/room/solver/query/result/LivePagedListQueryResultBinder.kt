@@ -27,10 +27,10 @@ import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
 class LivePagedListQueryResultBinder(
-        val tiledDataSourceQueryResultBinder: TiledDataSourceQueryResultBinder)
-    : QueryResultBinder(tiledDataSourceQueryResultBinder.listAdapter) {
+        val positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder)
+    : QueryResultBinder(positionalDataSourceQueryResultBinder.listAdapter) {
     @Suppress("HasPlatformType")
-    val typeName = tiledDataSourceQueryResultBinder.itemTypeName
+    val typeName = positionalDataSourceQueryResultBinder.itemTypeName
     override fun convertAndReturn(
             roomSQLiteQueryVar: String,
             canReleaseQuery: Boolean,
@@ -41,9 +41,9 @@ class LivePagedListQueryResultBinder(
         scope.builder().apply {
             val pagedListProvider = TypeSpec
                     .anonymousClassBuilder("").apply {
-                superclass(ParameterizedTypeName.get(PagingTypeNames.LIVE_PAGED_LIST_PROVIDER,
+                superclass(ParameterizedTypeName.get(PagingTypeNames.DATA_SOURCE_FACTORY,
                         Integer::class.typeName(), typeName))
-                addMethod(createCreateDataSourceMethod(
+                addMethod(createCreateMethod(
                         roomSQLiteQueryVar = roomSQLiteQueryVar,
                         dbField = dbField,
                         inTransaction = inTransaction,
@@ -53,17 +53,17 @@ class LivePagedListQueryResultBinder(
         }
     }
 
-    private fun createCreateDataSourceMethod(
+    private fun createCreateMethod(
             roomSQLiteQueryVar: String,
             dbField: FieldSpec,
             inTransaction: Boolean,
             scope: CodeGenScope
-    ): MethodSpec = MethodSpec.methodBuilder("createDataSource").apply {
+    ): MethodSpec = MethodSpec.methodBuilder("create").apply {
         addAnnotation(Override::class.java)
-        addModifiers(Modifier.PROTECTED)
-        returns(tiledDataSourceQueryResultBinder.typeName)
+        addModifiers(Modifier.PUBLIC)
+        returns(positionalDataSourceQueryResultBinder.typeName)
         val countedBinderScope = scope.fork()
-        tiledDataSourceQueryResultBinder.convertAndReturn(
+        positionalDataSourceQueryResultBinder.convertAndReturn(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 canReleaseQuery = true,
                 dbField = dbField,
