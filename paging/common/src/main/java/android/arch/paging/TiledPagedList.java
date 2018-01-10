@@ -44,6 +44,10 @@ class TiledPagedList<T> extends PagedList<T>
                 return;
             }
 
+            if (type != PageResult.INIT && type != PageResult.TILE) {
+                throw new IllegalArgumentException("unexpected resultType" + type);
+            }
+
             if (mStorage.getPageCount() == 0) {
                 mStorage.initAndSplit(
                         pageResult.leadingNulls, pageResult.page, pageResult.trailingNulls,
@@ -179,7 +183,7 @@ class TiledPagedList<T> extends PagedList<T>
                     int startPosition = pageIndex * pageSize;
                     int count = Math.min(pageSize, mStorage.size() - startPosition);
                     mDataSource.dispatchLoadRange(
-                            startPosition, count, mMainThreadExecutor, mReceiver);
+                            PageResult.TILE, startPosition, count, mMainThreadExecutor, mReceiver);
                 }
             }
         });
