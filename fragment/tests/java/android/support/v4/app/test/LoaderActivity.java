@@ -18,6 +18,7 @@ package android.support.v4.app.test;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.fragment.test.R;
 import android.support.testutils.RecreatedActivity;
@@ -50,18 +51,19 @@ public class LoaderActivity extends RecreatedActivity {
     }
 
     class TextLoaderCallback implements LoaderManager.LoaderCallbacks<String> {
+        @NonNull
         @Override
         public Loader<String> onCreateLoader(int id, Bundle args) {
             return new TextLoader(LoaderActivity.this);
         }
 
         @Override
-        public void onLoadFinished(Loader<String> loader, String data) {
+        public void onLoadFinished(@NonNull Loader<String> loader, String data) {
             textView.setText(data);
         }
 
         @Override
-        public void onLoaderReset(Loader<String> loader) {
+        public void onLoaderReset(@NonNull Loader<String> loader) {
         }
     }
 
