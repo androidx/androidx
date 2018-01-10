@@ -236,9 +236,10 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
      */
     public static class LoadRangeCallback<T> extends BaseLoadCallback<T> {
         private final int mPositionOffset;
-        LoadRangeCallback(@NonNull PositionalDataSource dataSource, int positionOffset,
+        LoadRangeCallback(@NonNull PositionalDataSource dataSource,
+                @PageResult.ResultType int resultType, int positionOffset,
                 Executor mainThreadExecutor, PageResult.Receiver<T> receiver) {
-            super(dataSource, PageResult.TILE, mainThreadExecutor, receiver);
+            super(dataSource, resultType, mainThreadExecutor, receiver);
             mPositionOffset = positionOffset;
         }
 
@@ -272,10 +273,11 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
         callback.setPostExecutor(mainThreadExecutor);
     }
 
-    final void dispatchLoadRange(int startPosition, int count,
-            @NonNull Executor mainThreadExecutor, @NonNull PageResult.Receiver<T> receiver) {
-        LoadRangeCallback<T> callback =
-                new LoadRangeCallback<>(this, startPosition, mainThreadExecutor, receiver);
+    final void dispatchLoadRange(@PageResult.ResultType int resultType, int startPosition,
+            int count, @NonNull Executor mainThreadExecutor,
+            @NonNull PageResult.Receiver<T> receiver) {
+        LoadRangeCallback<T> callback = new LoadRangeCallback<>(
+                this, resultType, startPosition, mainThreadExecutor, receiver);
         if (count == 0) {
             callback.onResult(Collections.<T>emptyList());
         } else {
@@ -467,7 +469,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
                 @NonNull PageResult.Receiver<Value> receiver) {
             int startIndex = currentEndIndex + 1;
             mPositionalDataSource.dispatchLoadRange(
-                    startIndex, pageSize, mainThreadExecutor, receiver);
+                    PageResult.APPEND, startIndex, pageSize, mainThreadExecutor, receiver);
         }
 
         @Override
@@ -479,12 +481,12 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
             if (startIndex < 0) {
                 // trigger empty list load
                 mPositionalDataSource.dispatchLoadRange(
-                        startIndex, 0, mainThreadExecutor, receiver);
+                        PageResult.PREPEND, startIndex, 0, mainThreadExecutor, receiver);
             } else {
                 int loadSize = Math.min(pageSize, startIndex + 1);
                 startIndex = startIndex - loadSize + 1;
                 mPositionalDataSource.dispatchLoadRange(
-                        startIndex, loadSize, mainThreadExecutor, receiver);
+                        PageResult.PREPEND, startIndex, loadSize, mainThreadExecutor, receiver);
             }
         }
 
