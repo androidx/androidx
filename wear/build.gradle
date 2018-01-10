@@ -10,8 +10,8 @@ dependencies {
     api(project(":support-annotations"))
     api(project(":support-core-ui"))
     api(project(":support-fragment"))
-    api(project(":percent"))
     api(project(":recyclerview-v7"))
+    api(CONSTRAINT_LAYOUT)
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
