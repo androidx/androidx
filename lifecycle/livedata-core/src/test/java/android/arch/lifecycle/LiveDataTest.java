@@ -38,11 +38,12 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.arch.core.executor.ArchTaskExecutor;
-import android.arch.lifecycle.util.InstantTaskExecutor;
+import android.arch.core.executor.testing.InstantTaskExecutorRule;
 import android.support.annotation.Nullable;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -53,6 +54,10 @@ import org.mockito.Mockito;
 @SuppressWarnings({"unchecked"})
 @RunWith(JUnit4.class)
 public class LiveDataTest {
+
+    @Rule
+    public InstantTaskExecutorRule mInstantTaskExecutorRule = new InstantTaskExecutorRule();
+
     private PublicLiveData<String> mLiveData;
     private MethodExec mActiveObserversChanged;
 
@@ -101,11 +106,6 @@ public class LiveDataTest {
         mLifecycle4 = mock(Lifecycle.class);
         mObserver4 = (Observer<String>) mock(Observer.class);
         when(mOwner4.getLifecycle()).thenReturn(mLifecycle4);
-    }
-
-    @Before
-    public void swapExecutorDelegate() {
-        ArchTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
     }
 
     @After
