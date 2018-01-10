@@ -160,6 +160,18 @@
          car_scrollbar_thumb. -->
     <color name="car_scrollbar_thumb_inverse">@color/car_scrollbar_thumb_light</color>
 
+    <!-- The lighter and darker color for the seekbar track background. -->
+    <color name="car_seekbar_track_background_light">@color/car_grey_400</color>
+    <color name="car_seekbar_track_background_dark">@color/car_grey_700</color>
+
+    <!-- The inverted color of the seekbar track background. This color is always the opposite of
+         car_seekbar_track_background. -->
+    <color name="car_seekbar_track_background_inverse"> @color/car_seekbar_track_background_light
+    </color>
+    <!-- The color of the seekbar track background in SeekbarListItem. This color is assumed to be
+         on a light-colored background. -->
+    <color name="car_seekbar_track_background">@color/car_seekbar_track_background_dark</color>
+
     <!-- Misc colors -->
     <color name="car_highlight_light">@color/car_teal_700</color>
     <color name="car_highlight_dark">@color/car_teal_200</color>

@@ -123,7 +123,7 @@ limitations under the License.
         <item name="drawableSize">@dimen/car_arrow_size</item>
     </style>
 
-    <!-- The styles for the regular and borderless buttons -->
+    <!-- The styles for the regular and borderless buttons. -->
     <style name="Widget.Car.Button" parent="Widget.AppCompat.Button">
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:minWidth">@dimen/car_button_min_width</item>
@@ -143,7 +143,7 @@ limitations under the License.
         <item name="android:textColor">@drawable/car_borderless_button_text_color</item>
     </style>
 
-    <!-- Style for the progress bars -->
+    <!-- Style for the progress bars. -->
     <style name="Widget.Car.ProgressBar.Horizontal"
            parent="Widget.AppCompat.ProgressBar.Horizontal">
         <item name="android:minHeight">@dimen/car_progress_bar_height</item>
@@ -155,7 +155,13 @@ limitations under the License.
         <item name="android:textAppearance">@style/CarBody1</item>
     </style>
 
-    <!-- Styles for TextInputLayout hints -->
+    <!-- Style for the seek bars. -->
+    <style name="Widget.Car.SeekBar" parent="Widget.AppCompat.SeekBar">
+        <item name="android:progressDrawable">@drawable/car_seekbar_track</item>
+        <item name="android:thumb">@drawable/car_seekbar_thumb</item>
+    </style>
+
+    <!-- Styles for TextInputLayout hints. -->
     <style name="CarHintTextAppearance" parent="CarBody2">
     </style>
 
