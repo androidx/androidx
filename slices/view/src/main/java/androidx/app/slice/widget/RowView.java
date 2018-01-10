@@ -334,6 +334,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         layout.setOnClickListener(isClickable ? this : null);
         layout.setBackground(isClickable ? SliceViewUtil.getDrawable(getContext(),
                 android.R.attr.selectableItemBackground) : null);
+        layout.setClickable(isClickable);
     }
 
     @Override
