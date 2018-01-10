@@ -23,6 +23,7 @@ import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.app.slice.core.SliceHints.EXTRA_TOGGLE_STATE;
+import static androidx.app.slice.core.SliceHints.SUBTYPE_TOGGLE;
 import static androidx.app.slice.widget.SliceView.MODE_LARGE;
 import static androidx.app.slice.widget.SliceView.MODE_SMALL;
 
@@ -49,7 +50,6 @@ import java.util.List;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
-import androidx.app.slice.core.SliceHints;
 import androidx.app.slice.core.SliceQuery;
 import androidx.app.slice.view.R;
 
@@ -79,7 +79,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     private TextView mPrimaryText;
     private TextView mSecondaryText;
     private View mDivider;
-    private CompoundButton mToggle;
+    private ArrayList<CompoundButton> mToggles = new ArrayList<>();
     private LinearLayout mEndContainer;
 
     private int mRowIndex;
@@ -176,56 +176,62 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         mSecondaryText.setVisibility(subTitle != null ? View.VISIBLE : View.GONE);
 
         mRowAction = mRowContent.getContentIntent();
-        SliceItem toggleItem = mRowContent.getToggleItem();
-        // Check if content intent + toggle are the same; make whole row clickable
-        if (toggleItem != null && toggleItem == mRowAction && addToggle(toggleItem, color)) {
-            setViewClickable(this, true);
-            // Can't show more end actions if we have a toggle so we're done
-            return;
-        } else if (toggleItem != null && addToggle(toggleItem, color)) {
-            mDivider.setVisibility(mRowAction != null ? View.VISIBLE : View.GONE);
-            setViewClickable(mRowAction != null ? mContent : this, true);
-            // Can't show more end actions if we have a toggle so we're done
+        ArrayList<SliceItem> endItems = mRowContent.getEndItems();
+        if (endItems.isEmpty()) {
             return;
         }
 
         // If we're here we might be able to show end items
-        ArrayList<SliceItem> endItems = mRowContent.getEndItems();
-        if (endItems.size() > 0) {
-            int itemCount = 0;
-            final String desiredFormat = endItems.get(0).getFormat();
-            for (int i = 0; i < endItems.size(); i++) {
-                final SliceItem endItem = endItems.get(i);
-                if (itemCount <= MAX_END_ITEMS) {
-                    final EventInfo info = new EventInfo(getMode(),
-                            EventInfo.ACTION_TYPE_BUTTON,
-                            EventInfo.ROW_TYPE_LIST, mRowIndex);
-                    info.setPosition(EventInfo.POSITION_END, i,
-                            Math.min(endItems.size(), MAX_END_ITEMS));
-                    if (addItem(endItem, color, false /* isStart */, mPadding, info)) {
-                        itemCount++;
+        int itemCount = 0;
+        // Prefer to show actions as end items if possible; fall back to the first format type.
+        String desiredFormat = mRowContent.endItemsContainAction()
+                ? FORMAT_ACTION : endItems.get(0).getFormat();
+        boolean firstItemIsADefaultToggle = false;
+        for (int i = 0; i < endItems.size(); i++) {
+            final SliceItem endItem = endItems.get(i);
+            final String endFormat = endItem.getFormat();
+            // Only show one type of format at the end of the slice, use whatever is first
+            if (itemCount <= MAX_END_ITEMS
+                    && (desiredFormat.equals(endFormat)
+                    || FORMAT_TIMESTAMP.equals(endFormat))) {
+                final EventInfo info = new EventInfo(getMode(),
+                        EventInfo.ACTION_TYPE_BUTTON,
+                        EventInfo.ROW_TYPE_LIST, mRowIndex);
+                info.setPosition(EventInfo.POSITION_END, i,
+                        Math.min(endItems.size(), MAX_END_ITEMS));
+                if (addItem(endItem, color, false /* isStart */, mPadding, info)) {
+                    itemCount++;
+                    if (itemCount == 1) {
+                        firstItemIsADefaultToggle = !mToggles.isEmpty()
+                                && SliceQuery.find(endItem.getSlice(), FORMAT_IMAGE) == null;
                     }
                 }
             }
-            if (mRowAction != null) {
-                if (itemCount > 0 && FORMAT_ACTION.equals(desiredFormat)) {
-                    setViewClickable(mContent, true);
-                } else {
-                    setViewClickable(this, true);
-                }
+        }
+
+        boolean hasRowAction = mRowAction != null;
+        boolean hasEndItemAction = FORMAT_ACTION.contentEquals(desiredFormat);
+        // If there is a row action and the first end item is a default toggle, show the divider.
+        mDivider.setVisibility(hasRowAction && firstItemIsADefaultToggle
+                ? View.VISIBLE : View.GONE);
+        if (hasRowAction) {
+            if (itemCount > 0 && hasEndItemAction) {
+                setViewClickable(mContent, true);
+            } else {
+                setViewClickable(this, true);
+            }
+        } else {
+            // If the only end item is an action, make the whole row clickable.
+            if (mRowContent.endItemsContainAction() && itemCount == 1) {
+                setViewClickable(this, true);
             }
         }
     }
 
     /**
-     * @return Whether a toggle was added.
+     * Add a toggle view to container.
      */
-    private boolean addToggle(final SliceItem toggleItem, int color) {
-        if (!FORMAT_ACTION.equals(toggleItem.getFormat())
-                || !SliceQuery.hasHints(toggleItem.getSlice(), SliceHints.SUBTYPE_TOGGLE)) {
-            return false;
-        }
-
+    private void addToggle(final SliceItem toggleItem, int color, ViewGroup container) {
         // Check if this is a custom toggle
         Icon checkedIcon = null;
         List<SliceItem> sliceItems = toggleItem.getSlice().getItems();
@@ -234,25 +240,26 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
                     ? sliceItems.get(0).getIcon()
                     : null;
         }
+        final CompoundButton toggle;
         if (checkedIcon != null) {
             if (color != -1) {
                 // TODO - Should these be tinted? What if the app wants diff colors per state?
                 checkedIcon.setTint(color);
             }
-            mToggle = new ToggleButton(getContext());
-            ((ToggleButton) mToggle).setTextOff("");
-            ((ToggleButton) mToggle).setTextOn("");
-            mToggle.setBackground(checkedIcon.loadDrawable(getContext()));
-            mEndContainer.addView(mToggle);
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mToggle.getLayoutParams();
+            toggle = new ToggleButton(getContext());
+            ((ToggleButton) toggle).setTextOff("");
+            ((ToggleButton) toggle).setTextOn("");
+            toggle.setBackground(checkedIcon.loadDrawable(getContext()));
+            container.addView(toggle);
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) toggle.getLayoutParams();
             lp.width = mIconSize;
             lp.height = mIconSize;
         } else {
-            mToggle = new Switch(getContext());
-            mEndContainer.addView(mToggle);
+            toggle = new Switch(getContext());
+            container.addView(toggle);
         }
-        mToggle.setChecked(SliceQuery.hasHints(toggleItem.getSlice(), HINT_SELECTED));
-        mToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        toggle.setChecked(SliceQuery.hasHints(toggleItem.getSlice(), HINT_SELECTED));
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 try {
@@ -267,18 +274,16 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
                         mObserver.onSliceAction(info, toggleItem);
                     }
                 } catch (CanceledException e) {
-                    mToggle.setSelected(!isChecked);
+                    toggle.setSelected(!isChecked);
                 }
             }
         });
-        return true;
+        mToggles.add(toggle);
     }
 
     /**
      * Adds simple items to a container. Simple items include actions with icons, images, or
      * timestamps.
-     *
-     * @return Whether an item was added to the view.
      */
     private boolean addItem(SliceItem sliceItem, int color, boolean isStart, int padding,
             final EventInfo info) {
@@ -286,8 +291,11 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         SliceItem action = null;
         SliceItem timeStamp = null;
         ViewGroup container = isStart ? mStartContainer : mEndContainer;
-        if (FORMAT_ACTION.equals(sliceItem.getFormat())
-                && !sliceItem.hasHint(SliceHints.SUBTYPE_TOGGLE)) {
+        if (FORMAT_ACTION.equals(sliceItem.getFormat())) {
+            if (SliceQuery.hasHints(sliceItem.getSlice(), SUBTYPE_TOGGLE)) {
+                addToggle(sliceItem, color, container);
+                return true;
+            }
             image = SliceQuery.find(sliceItem.getSlice(), FORMAT_IMAGE);
             timeStamp = SliceQuery.find(sliceItem.getSlice(), FORMAT_TIMESTAMP);
             action = sliceItem;
@@ -350,9 +358,9 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
             } catch (CanceledException e) {
                 Log.w(TAG, "PendingIntent for slice cannot be sent", e);
             }
-        } else if (mToggle != null) {
-            // Or no row action so let's just toggle if we've got one
-            mToggle.toggle();
+        } else if (mToggles.size() == 1) {
+            // If there is only one toggle and no row action, just toggle it.
+            mToggles.get(0).toggle();
         }
     }
 
@@ -371,7 +379,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         mEndContainer.removeAllViews();
         mPrimaryText.setText(null);
         mSecondaryText.setText(null);
-        mToggle = null;
+        mToggles.clear();
         mRowAction = null;
         mDivider.setVisibility(View.GONE);
     }

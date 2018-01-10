@@ -47,8 +47,8 @@ public class RowContent {
     private SliceItem mStartItem;
     private SliceItem mTitleItem;
     private SliceItem mSubtitleItem;
-    private SliceItem mToggleItem;
     private ArrayList<SliceItem> mEndItems = new ArrayList<>();
+    private boolean mEndItemsContainAction;
 
     public RowContent(SliceItem rowSlice, boolean showStartItem) {
         populate(rowSlice, showStartItem);
@@ -62,7 +62,6 @@ public class RowContent {
         mStartItem = null;
         mTitleItem = null;
         mSubtitleItem = null;
-        mToggleItem = null;
         mEndItems.clear();
     }
 
@@ -128,31 +127,11 @@ public class RowContent {
                     mEndItems.add(item);
                 } else if (desiredFormat.equals(item.getFormat())) {
                     mEndItems.add(item);
+                    mEndItemsContainAction |= FORMAT_ACTION.equals(item.getFormat());
                 }
             }
         }
-        checkForToggle();
         return isValid();
-    }
-
-    private void checkForToggle() {
-        // Check if we have a content intent that is for a toggle
-        if (mContentIntent != null && SliceQuery.hasHints(mContentIntent.getSlice(),
-                SliceHints.SUBTYPE_TOGGLE)) {
-            mToggleItem = mContentIntent;
-            return;
-        }
-        // Check if there's a toggle in our end items
-        ArrayList<SliceItem> endItems = getEndItems();
-        for (int i = 0; i < endItems.size(); i++) {
-            final SliceItem endItem = endItems.get(i);
-            if (FORMAT_ACTION.equals(endItem.getFormat())
-                    && (endItem.hasHint(SliceHints.SUBTYPE_TOGGLE)
-                    || SliceQuery.hasHints(endItem.getSlice(), SliceHints.SUBTYPE_TOGGLE))) {
-                mToggleItem = endItem;
-                return;
-            }
-        }
     }
 
     /**
@@ -185,13 +164,15 @@ public class RowContent {
         return mSubtitleItem;
     }
 
-    @Nullable
-    public SliceItem getToggleItem() {
-        return mToggleItem;
-    }
-
     public ArrayList<SliceItem> getEndItems() {
         return mEndItems;
+    }
+
+    /**
+     * @return whether {@link #getEndItems()} contains a SliceItem with FORMAT_ACTION
+     */
+    public boolean endItemsContainAction() {
+        return mEndItemsContainAction;
     }
 
     /**

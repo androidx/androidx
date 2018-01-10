@@ -222,6 +222,7 @@ public class ListBuilder extends TemplateSliceBuilder {
 
         private boolean mHasEndActionOrToggle;
         private boolean mHasEndImage;
+        private boolean mHasDefaultToggle;
         private boolean mHasTimestamp;
 
         /**
@@ -412,11 +413,17 @@ public class ListBuilder extends TemplateSliceBuilder {
         private RowBuilder addToggleInternal(@NonNull PendingIntent action, boolean isChecked,
                 @Nullable Icon icon) {
             if (mHasEndImage) {
-                throw new IllegalArgumentException("Trying to add a toggle to end items when an"
+                throw new IllegalStateException("Trying to add a toggle to end items when an "
                         + "icon has already been added. End items cannot have a mixture of "
                         + "tappable icons and icons.");
             }
+            if (mHasDefaultToggle) {
+                throw new IllegalStateException("Only one non-custom toggle can be added "
+                        + "in a single row. If you would like to include multiple toggles "
+                        + "in a row, set a custom icon for each toggle.");
+            }
             mImpl.addToggle(action, isChecked, icon);
+            mHasDefaultToggle = icon == null;
             mHasEndActionOrToggle = true;
             return this;
         }
