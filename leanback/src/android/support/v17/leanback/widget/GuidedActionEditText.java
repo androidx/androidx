@@ -19,9 +19,7 @@ import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.v4.widget.TextViewCompat;
 import android.util.AttributeSet;
-import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.EditText;
@@ -116,14 +114,5 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor {
         if (!focused) {
             setFocusable(false);
         }
-    }
-
-    /**
-     * See
-     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
-     */
-    @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
-        TextViewCompat.setCustomSelectionActionModeCallback(this, actionModeCallback);
     }
 }

@@ -27,11 +27,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.view.TintableBackgroundView;
-import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
 import android.text.Editable;
 import android.util.AttributeSet;
-import android.view.ActionMode;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
@@ -185,14 +183,5 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         return AppCompatHintHelper.onCreateInputConnection(super.onCreateInputConnection(outAttrs),
                 outAttrs, this);
-    }
-
-    /**
-     * See
-     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
-     */
-    @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
-        TextViewCompat.setCustomSelectionActionModeCallback(this, actionModeCallback);
     }
 }

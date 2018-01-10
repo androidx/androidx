@@ -13,11 +13,9 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.content.Context;
 import android.support.v17.leanback.R;
-import android.support.v4.widget.TextViewCompat;
+import android.content.Context;
 import android.util.AttributeSet;
-import android.view.ActionMode;
 import android.widget.TextView;
 
 /**
@@ -37,12 +35,4 @@ public final class RowHeaderView extends TextView {
         super(context, attrs, defStyle);
     }
 
-    /**
-     * See
-     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
-     */
-    @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
-        TextViewCompat.setCustomSelectionActionModeCallback(this, actionModeCallback);
-    }
 }

@@ -16,11 +16,9 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v17.leanback.R;
-import android.support.v4.widget.TextViewCompat;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.ActionMode;
 import android.widget.TextView;
 
 /**
@@ -271,14 +269,5 @@ class ResizingTextView extends TextView {
         } else {
             setPadding(getPaddingLeft(), paddingTop, getPaddingRight(), paddingBottom);
         }
-    }
-
-    /**
-     * See
-     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
-     */
-    @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
-        TextViewCompat.setCustomSelectionActionModeCallback(this, actionModeCallback);
     }
 }
