@@ -110,16 +110,15 @@ limitations under the License.
     <!-- Sub Header -->
     <dimen name="car_sub_header_height">76dp</dimen>
 
-    <!-- Seekbar -->
-    <dimen name="car_seekbar_height">6dp</dimen>
-    <dimen name="car_seekbar_thumb_size">20dp</dimen>
-    <dimen name="car_seekbar_thumb_stroke">1dp</dimen>
+    <!-- Slider -->
+    <dimen name="car_slider_height">6dp</dimen>
+    <dimen name="car_slider_knob_size">20dp</dimen>
 
     <!-- Scroll Bar -->
     <dimen name="car_scroll_bar_padding">@dimen/car_padding_2</dimen>
 
     <!-- Scroll Bar Thumb -->
-    <dimen name="car_scroll_bar_thumb_width">@dimen/car_seekbar_height</dimen>
+    <dimen name="car_scroll_bar_thumb_width">@dimen/car_slider_height</dimen>
     <dimen name="car_scroll_bar_thumb_margin">@dimen/car_padding_1</dimen>
 
     <!-- Scroll Bar and Alpha Jump Buttons -->
@@ -127,7 +126,7 @@ limitations under the License.
     <dimen name="car_alpha_jump_button_size">@dimen/car_scroll_bar_button_size</dimen>
 
     <!-- Progress Bar -->
-    <dimen name="car_progress_bar_height">@dimen/car_seekbar_height</dimen>
+    <dimen name="car_progress_bar_height">@dimen/car_slider_height</dimen>
 
     <!-- Text Input -->
     <dimen name="car_text_input_line_height">2dp</dimen>
