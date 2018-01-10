@@ -58,7 +58,10 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 mStorage.appendPage(page, ContiguousPagedList.this);
             } else if (resultType == PageResult.PREPEND) {
                 mStorage.prependPage(page, ContiguousPagedList.this);
+            } else {
+                throw new IllegalArgumentException("unexpected resultType " + resultType);
             }
+
 
             if (mBoundaryCallback != null) {
                 boolean deferEmpty = mStorage.size() == 0;
