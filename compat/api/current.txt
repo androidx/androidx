@@ -1632,6 +1632,7 @@ package android.support.v4.view {
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[]);
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[], int);
     method public static void dispatchStartTemporaryDetach(android.view.View);
+    method public static int generateViewId();
     method public static int getAccessibilityLiveRegion(android.view.View);
     method public static android.support.v4.view.accessibility.AccessibilityNodeProviderCompat getAccessibilityNodeProvider(android.view.View);
     method public static deprecated float getAlpha(android.view.View);
