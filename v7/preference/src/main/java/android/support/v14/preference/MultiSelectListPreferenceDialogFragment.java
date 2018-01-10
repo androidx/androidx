@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package android.support.v14.preference;
@@ -60,8 +60,8 @@ public class MultiSelectListPreferenceDialogFragment extends PreferenceDialogFra
 
             if (preference.getEntries() == null || preference.getEntryValues() == null) {
                 throw new IllegalStateException(
-                        "MultiSelectListPreference requires an entries array and " +
-                                "an entryValues array.");
+                        "MultiSelectListPreference requires an entries array and "
+                                + "an entryValues array.");
             }
 
             mNewValues.clear();

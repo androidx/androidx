@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package android.support.v14.preference;
@@ -78,8 +78,8 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
 
         final Fragment rawFragment = getTargetFragment();
         if (!(rawFragment instanceof DialogPreference.TargetFragment)) {
-            throw new IllegalStateException("Target fragment must implement TargetFragment" +
-                    " interface");
+            throw new IllegalStateException("Target fragment must implement TargetFragment"
+                    + " interface");
         }
 
         final DialogPreference.TargetFragment fragment =
@@ -132,9 +132,9 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
         }
     }
 
+    @NonNull
     @Override
-    public @NonNull
-    Dialog onCreateDialog(Bundle savedInstanceState) {
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Context context = getActivity();
         mWhichButtonClicked = DialogInterface.BUTTON_NEGATIVE;
 

@@ -41,11 +41,6 @@ android {
         ]
     }
 
-    lintOptions {
-        // Remove this once all NewApi breakages have been fixed.
-        disable "NewApi"
-    }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }

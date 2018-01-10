@@ -30,4 +30,27 @@
         <item name="preferenceFragmentListStyle">@style/PreferenceFragmentList</item>
         <item name="dropdownPreferenceStyle">@style/Preference.DropDown</item>
     </style>
+
+    <style name="PreferenceThemeOverlay.v14">
+        <item name="switchPreferenceStyle">@style/Preference.SwitchPreference</item>
+        <item name="preferenceFragmentStyle">@style/PreferenceFragment</item>
+    </style>
+
+    <style name="PreferenceThemeOverlay.v14.Material">
+        <item name="preferenceScreenStyle">@style/Preference.PreferenceScreen.Material</item>
+        <item name="preferenceFragmentCompatStyle">@style/PreferenceFragment.Material</item>
+        <item name="preferenceFragmentStyle">@style/PreferenceFragment.Material</item>
+        <item name="preferenceCategoryStyle">@style/Preference.Category.Material</item>
+        <item name="preferenceStyle">@style/Preference.Material</item>
+        <item name="preferenceInformationStyle">@style/Preference.Information.Material</item>
+        <item name="checkBoxPreferenceStyle">@style/Preference.CheckBoxPreference.Material</item>
+        <item name="switchPreferenceCompatStyle">@style/Preference.SwitchPreferenceCompat.Material</item>
+        <item name="switchPreferenceStyle">@style/Preference.SwitchPreference.Material</item>
+        <item name="seekBarPreferenceStyle">@style/Preference.SeekBarPreference.Material</item>
+        <item name="dialogPreferenceStyle">@style/Preference.DialogPreference.Material</item>
+        <item name="editTextPreferenceStyle">@style/Preference.DialogPreference.EditTextPreference.Material</item>
+        <item name="dropdownPreferenceStyle">@style/Preference.DropDown.Material</item>
+        <item name="preferenceFragmentListStyle">@style/PreferenceFragmentList.Material</item>
+        <item name="android:scrollbars">vertical</item>
+    </style>
 </resources>
