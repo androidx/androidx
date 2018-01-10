@@ -48,7 +48,6 @@ public class MessageView extends SliceChildView {
     private ImageView mIcon;
 
     private int mRowIndex;
-    private SliceView.SliceObserver mSliceObserver;
 
     public MessageView(Context context) {
         super(context);
@@ -78,8 +77,8 @@ public class MessageView extends SliceChildView {
 
     @Override
     public void setSliceItem(SliceItem slice, boolean isHeader, int index,
-            SliceView.SliceObserver observer) {
-        mSliceObserver = observer;
+            SliceView.OnSliceActionListener observer) {
+        setSliceActionListener(observer);
         mRowIndex = index;
         SliceItem source = SliceQuery.findSubtype(slice, FORMAT_IMAGE, SUBTYPE_SOURCE);
         if (source != null) {

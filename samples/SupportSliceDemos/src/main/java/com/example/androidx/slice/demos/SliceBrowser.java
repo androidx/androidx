@@ -60,7 +60,7 @@ import androidx.app.slice.widget.SliceView;
  * then displayed in the selected mode with SliceView.
  */
 @RequiresApi(api = 28)
-public class SliceBrowser extends AppCompatActivity implements SliceView.SliceObserver {
+public class SliceBrowser extends AppCompatActivity implements SliceView.OnSliceActionListener {
 
     private static final String TAG = "SlicePresenter";
 
@@ -221,7 +221,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.SliceOb
 
     private void addSlice(Intent intent) {
         SliceView v = new SliceView(getApplicationContext());
-        v.setSliceObserver(this);
+        v.setOnSliceActionListener(this);
         v.setTag(intent);
         if (mSliceLiveData != null) {
             mSliceLiveData.removeObservers(this);
@@ -236,7 +236,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.SliceOb
     private void addSlice(Uri uri) {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
             SliceView v = new SliceView(getApplicationContext());
-            v.setSliceObserver(this);
+            v.setOnSliceActionListener(this);
             v.setTag(uri);
             if (mSliceLiveData != null) {
                 mSliceLiveData.removeObservers(this);

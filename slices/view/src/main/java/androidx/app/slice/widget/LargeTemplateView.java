@@ -59,7 +59,7 @@ public class LargeTemplateView extends SliceChildView {
     }
 
     @Override
-    public void setSliceObserver(SliceView.SliceObserver observer) {
+    public void setSliceActionListener(SliceView.OnSliceActionListener observer) {
         mObserver = observer;
         if (mAdapter != null) {
             mAdapter.setSliceObserver(mObserver);
