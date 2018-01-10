@@ -18,10 +18,8 @@ package android.support.text.emoji.widget;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.support.v4.widget.TextViewCompat;
 import android.text.InputFilter;
 import android.util.AttributeSet;
-import android.view.ActionMode;
 import android.widget.TextView;
 
 /**
@@ -81,14 +79,5 @@ public class EmojiTextView extends TextView {
             mEmojiTextViewHelper = new EmojiTextViewHelper(this);
         }
         return mEmojiTextViewHelper;
-    }
-
-    /**
-     * See
-     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
-     */
-    @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
-        TextViewCompat.setCustomSelectionActionModeCallback(this, actionModeCallback);
     }
 }

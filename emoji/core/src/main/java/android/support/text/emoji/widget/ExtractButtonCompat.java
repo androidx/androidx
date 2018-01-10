@@ -22,9 +22,7 @@ import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-import android.support.v4.widget.TextViewCompat;
 import android.util.AttributeSet;
-import android.view.ActionMode;
 import android.widget.Button;
 
 /**
@@ -59,14 +57,5 @@ public class ExtractButtonCompat extends Button {
     @Override
     public boolean hasWindowFocus() {
         return isEnabled() && getVisibility() == VISIBLE ? true : false;
-    }
-
-    /**
-     * See
-     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
-     */
-    @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
-        TextViewCompat.setCustomSelectionActionModeCallback(this, actionModeCallback);
     }
 }
