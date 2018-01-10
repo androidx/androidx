@@ -22,17 +22,15 @@
         <item name="background_radius">@dimen/ws_nav_drawer_single_page_circle_radius</item>
         <item name="background_color">#33ffffff</item>
     </style>
-    <style name="WsSinglePageNavDrawerTextStyle">
+    <style name="WsVerticalGuideStyle">
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textSize">@dimen/ws_nav_drawer_text_size</item>
-        <item name="android:gravity">center</item>
-        <item name="android:maxLines">2</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="layout_marginTopPercent">@fraction/ws_nav_drawer_text_margin</item>
-        <item name="layout_marginStartPercent">@fraction/ws_nav_drawer_text_margin</item>
-        <item name="layout_marginEndPercent">@fraction/ws_nav_drawer_text_margin</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+    <style name="WsHorizontalGuideStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
     </style>
     <style name="Widget.Wear.WearableDrawerView" parent="">
         <item name="android:elevation">@dimen/ws_wearable_drawer_view_elevation</item>
