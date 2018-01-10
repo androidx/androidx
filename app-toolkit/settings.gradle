@@ -45,6 +45,9 @@ project(':paging:integration-tests:testapp').projectDir = new File(supportRoot, 
 include ':arch:core-testing'
 project(':arch:core-testing').projectDir = new File(supportRoot, "app-toolkit/core-testing")
 
+include ':lifecycle:livedata-core'
+project(':lifecycle:livedata-core').projectDir = new File(supportRoot, "lifecycle/livedata-core")
+
 include ':lifecycle:livedata'
 project(':lifecycle:livedata').projectDir = new File(supportRoot, "lifecycle/livedata")
 
