@@ -17,17 +17,17 @@
 package androidx.car.widget;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.Switch;
-import android.widget.TextView;
+
+import java.util.function.Function;
 
 import androidx.car.R;
 import androidx.car.utils.ListItemBackgroundResolver;
@@ -43,7 +43,7 @@ import androidx.car.utils.ListItemBackgroundResolver;
  *
  */
 public class ListItemAdapter extends
-        RecyclerView.Adapter<ListItemAdapter.ViewHolder> implements PagedListView.ItemCap,
+        RecyclerView.Adapter<RecyclerView.ViewHolder> implements PagedListView.ItemCap,
         PagedListView.DividerVisibilityManager {
 
     /**
@@ -70,6 +70,35 @@ public class ListItemAdapter extends
 
     private int mBackgroundStyle;
 
+    static final int LIST_ITEM_TYPE_TEXT = 1;
+    static final int LIST_ITEM_TYPE_SEEKBAR = 2;
+
+    private final SparseIntArray mViewHolderLayoutResIds = new SparseIntArray();
+    private final SparseArray<Function<View, RecyclerView.ViewHolder>> mViewHolderCreator =
+            new SparseArray<>();
+
+    /**
+     * Registers a function that returns {@link android.support.v7.widget.RecyclerView.ViewHolder}
+     * for its matching view type returned by {@link ListItem#getViewType()}.
+     *
+     * <p>The function will receive a view as {@link RecyclerView.ViewHolder#itemView}. This view
+     * uses background defined by {@link BackgroundStyle}.
+     *
+     * <p>Subclasses of {@link ListItem} in package androidx.car.widget are already registered.
+     *
+     * @param viewType use negative value for custom view type.
+     * @param function function to create ViewHolder for {@code viewType}.
+     */
+    public void registerListItemViewType(int viewType, @LayoutRes int layoutResId,
+            Function<View, RecyclerView.ViewHolder> function) {
+        if (mViewHolderLayoutResIds.get(viewType) != 0
+                || mViewHolderCreator.get(viewType) != null) {
+            throw new IllegalArgumentException("View type is already registered.");
+        }
+        mViewHolderCreator.put(viewType, function);
+        mViewHolderLayoutResIds.put(viewType, layoutResId);
+    }
+
     private final Context mContext;
     private final ListItemProvider mItemProvider;
 
@@ -84,18 +113,31 @@ public class ListItemAdapter extends
         mContext = context;
         mItemProvider = itemProvider;
         mBackgroundStyle = backgroundStyle;
+
+        registerListItemViewType(LIST_ITEM_TYPE_TEXT,
+                R.layout.car_list_item_text_content, TextListItem::createViewHolder);
+        registerListItemViewType(LIST_ITEM_TYPE_SEEKBAR,
+                R.layout.car_list_item_seekbar_content, SeekbarListItem::createViewHolder);
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (mViewHolderLayoutResIds.get(viewType) == 0
+                || mViewHolderCreator.get(viewType) == null) {
+            throw new IllegalArgumentException("Unregistered view type.");
+        }
+
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View itemView = inflater.inflate(R.layout.car_paged_list_item_content, parent, false);
+        View itemView = inflater.inflate(mViewHolderLayoutResIds.get(viewType), parent, false);
 
         ViewGroup container = createListItemContainer();
         container.addView(itemView);
-        return new ViewHolder(container);
+        return mViewHolderCreator.get(viewType).apply(container);
     }
 
+    /**
+     * Creates a view with background set by {@link BackgroundStyle}.
+     */
     private ViewGroup createListItemContainer() {
         ViewGroup container;
         switch (mBackgroundStyle) {
@@ -128,7 +170,12 @@ public class ListItemAdapter extends
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public int getItemViewType(int position) {
+        return mItemProvider.get(position).getViewType();
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ListItem item = mItemProvider.get(position);
         item.bind(holder);
 
@@ -159,100 +206,4 @@ public class ListItemAdapter extends
                 && mItemProvider.get(position).shouldHideDivider();
     }
 
-    /**
-     * Holds views of an item in PagedListView.
-     *
-     * <p>This ViewHolder maps to views in layout car_paged_list_item_content.xml.
-     */
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-
-        private RelativeLayout mContainerLayout;
-
-        private ImageView mPrimaryIcon;
-
-        private TextView mTitle;
-        private TextView mBody;
-
-        private View mSupplementalIconDivider;
-        private ImageView mSupplementalIcon;
-
-        private Button mAction1;
-        private View mAction1Divider;
-
-        private Button mAction2;
-        private View mAction2Divider;
-
-        private Switch mSwitch;
-        private View mSwitchDivider;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-
-            mContainerLayout = itemView.findViewById(R.id.container);
-
-            mPrimaryIcon = itemView.findViewById(R.id.primary_icon);
-
-            mTitle = itemView.findViewById(R.id.title);
-            mBody = itemView.findViewById(R.id.body);
-
-            mSupplementalIcon = itemView.findViewById(R.id.supplemental_icon);
-            mSupplementalIconDivider = itemView.findViewById(R.id.supplemental_icon_divider);
-
-            mSwitch = itemView.findViewById(R.id.switch_widget);
-            mSwitchDivider = itemView.findViewById(R.id.switch_divider);
-
-            mAction1 = itemView.findViewById(R.id.action1);
-            mAction1Divider = itemView.findViewById(R.id.action1_divider);
-            mAction2 = itemView.findViewById(R.id.action2);
-            mAction2Divider = itemView.findViewById(R.id.action2_divider);
-        }
-
-        public RelativeLayout getContainerLayout() {
-            return mContainerLayout;
-        }
-
-        public ImageView getPrimaryIcon() {
-            return mPrimaryIcon;
-        }
-
-        public TextView getTitle() {
-            return mTitle;
-        }
-
-        public TextView getBody() {
-            return mBody;
-        }
-
-        public ImageView getSupplementalIcon() {
-            return mSupplementalIcon;
-        }
-
-        public View getSupplementalIconDivider() {
-            return mSupplementalIconDivider;
-        }
-
-        public View getSwitchDivider() {
-            return mSwitchDivider;
-        }
-
-        public Switch getSwitch() {
-            return mSwitch;
-        }
-
-        public Button getAction1() {
-            return mAction1;
-        }
-
-        public View getAction1Divider() {
-            return mAction1Divider;
-        }
-
-        public Button getAction2() {
-            return mAction2;
-        }
-
-        public View getAction2Divider() {
-            return mAction2Divider;
-        }
-    }
 }
