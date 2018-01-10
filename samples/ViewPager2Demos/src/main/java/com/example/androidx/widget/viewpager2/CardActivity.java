@@ -16,27 +16,28 @@
 
 package com.example.androidx.widget.viewpager2;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.ViewGroup;
 
 import com.example.androidx.widget.viewpager2.cards.Card;
-import com.example.androidx.widget.viewpager2.cards.CardDataAdapter;
+import com.example.androidx.widget.viewpager2.cards.CardView;
 
 import java.util.List;
 
 import androidx.widget.ViewPager2;
 
-/** @inheritDoc */
+/**
+ * Shows how to use {@link ViewPager2#setAdapter(RecyclerView.Adapter)}
+ *
+ * @see CardFragmentActivity
+ */
 public class CardActivity extends Activity {
-    private static final List<Card> sCards = unmodifiableList(asList(
-            new Card('♦', 'A'),
-            new Card('♣', 'K'),
-            new Card('♥', 'J'),
-            new Card('♠', '9'),
-            new Card('♦', '2')));
+    private static final List<Card> sCards = unmodifiableList(Card.createDeck52());
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -44,6 +45,38 @@ public class CardActivity extends Activity {
         setContentView(R.layout.activity_card_layout);
 
         this.<ViewPager2>findViewById(R.id.view_pager).setAdapter(
-                new CardDataAdapter(getLayoutInflater(), sCards));
+                new RecyclerView.Adapter<CardViewHolder>() {
+                    @NonNull
+                    public CardViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                            int viewType) {
+                        return new CardViewHolder(new CardView(getLayoutInflater(), parent));
+                    }
+
+                    @Override
+                    public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
+                        holder.bind(sCards.get(position));
+                    }
+
+                    @Override
+                    public int getItemCount() {
+                        return sCards.size();
+                    }
+                });
+    }
+
+    /** @inheritDoc */
+    public static class CardViewHolder extends RecyclerView.ViewHolder {
+        private final CardView mCardView;
+
+        /** {@inheritDoc} */
+        public CardViewHolder(CardView cardView) {
+            super(cardView.getView());
+            mCardView = cardView;
+        }
+
+        /** @see CardView#bind(Card) */
+        public void bind(Card card) {
+            mCardView.bind(card);
+        }
     }
 }

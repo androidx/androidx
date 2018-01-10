@@ -18,11 +18,19 @@ package androidx.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import static java.lang.annotation.RetentionPolicy.CLASS;
+
 import android.content.Context;
 import android.graphics.Rect;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
@@ -32,6 +40,9 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+
+import java.lang.annotation.Retention;
 
 /**
  * Work in progress: go/viewpager2
@@ -86,7 +97,7 @@ public class ViewPager2 extends ViewGroup {
     }
 
     /**
-     * TODO(b/70663708): decide on an Adapter class (for now reusing RecyclerView.Adapter)
+     * TODO(b/70663708): decide on an Adapter class. Here supporting RecyclerView.Adapter.
      *
      * @see RecyclerView#setAdapter(Adapter)
      */
@@ -121,6 +132,139 @@ public class ViewPager2 extends ViewGroup {
                 return mAdapter.getItemCount();
             }
         });
+    }
+
+    /**
+     * TODO(b/70663708): decide on an Adapter class. Here supporting {@link Fragment}s.
+     *
+     * @param fragmentRetentionPolicy allows for future parameterization of Fragment memory
+     *                                strategy, similar to what {@link FragmentPagerAdapter} and
+     *                                {@link FragmentStatePagerAdapter} provide.
+     */
+    public void setAdapter(FragmentManager fragmentManager, FragmentProvider fragmentProvider,
+            @FragmentRetentionPolicy int fragmentRetentionPolicy) {
+        if (fragmentRetentionPolicy != FragmentRetentionPolicy.ALWAYS_RECREATE) {
+            // TODO: implement Fragment reuse
+            throw new IllegalArgumentException(
+                    "Currently only ALWAYS_RECREATE policy is supported");
+        }
+
+        mRecyclerView.setAdapter(new FragmentAdapter(fragmentManager, fragmentProvider));
+    }
+
+    private static class FragmentAdapter extends RecyclerView.Adapter<FragmentViewHolder> {
+        private final FragmentManager mFragmentManager;
+        private final FragmentProvider mFragmentProvider;
+
+        private FragmentAdapter(FragmentManager fragmentManager,
+                FragmentProvider fragmentProvider) {
+            this.mFragmentManager = fragmentManager;
+            this.mFragmentProvider = fragmentProvider;
+        }
+
+        @NonNull
+        @Override
+        public FragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return FragmentViewHolder.create(parent);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull FragmentViewHolder holder, int position) {
+            if (ViewCompat.isAttachedToWindow(holder.itemView)) {
+                // this should never happen; if it does, it breaks our assumption that attaching
+                // a Fragment can reliably happen inside onViewAttachedToWindow
+                throw new IllegalStateException(
+                        String.format("View %s unexpectedly attached to a window.",
+                                holder.itemView));
+            }
+
+            holder.setFragment(mFragmentProvider.getItem(position));
+        }
+
+        @Override
+        public void onViewAttachedToWindow(@NonNull FragmentViewHolder holder) {
+            holder.applyFragment(mFragmentManager);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mFragmentProvider.getCount();
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull FragmentViewHolder holder) {
+            holder.removeFragment(mFragmentManager);
+        }
+
+        @Override
+        public boolean onFailedToRecycleView(@NonNull FragmentViewHolder holder) {
+            // This happens when a ViewHolder is in a transient state (e.g. during custom
+            // animation). We don't have sufficient information on how to clear up what lead to
+            // the transient state, so we are throwing away the ViewHolder to stay on the
+            // conservative side.
+
+            holder.removeFragment(mFragmentManager);
+            return false; // don't recycle the view
+        }
+    }
+
+    private static class FragmentViewHolder extends RecyclerView.ViewHolder {
+        private Fragment mFragment;
+
+        FragmentViewHolder(View itemView) {
+            super(itemView);
+        }
+
+        static FragmentViewHolder create(ViewGroup parent) {
+            FrameLayout container = new FrameLayout(parent.getContext());
+            container.setLayoutParams(
+                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT));
+            container.setId(ViewCompat.generateViewId());
+            return new FragmentViewHolder(container);
+        }
+
+        void setFragment(Fragment fragment) {
+            mFragment = fragment;
+        }
+
+        /**
+         * Inserts a Fragment into the container (replacing an existing one if present).
+         */
+        void applyFragment(FragmentManager fragmentManager) {
+            fragmentManager.beginTransaction().replace(itemView.getId(),
+                    mFragment).commitNowAllowingStateLoss();
+        }
+
+        void removeFragment(FragmentManager fragmentManager) {
+            fragmentManager.beginTransaction().remove(mFragment).commitNowAllowingStateLoss();
+        }
+    }
+
+    /**
+     * Provides {@link Fragment}s for pages
+     */
+    public interface FragmentProvider {
+        /**
+         * Return the Fragment associated with a specified position.
+         */
+        Fragment getItem(int position);
+
+        /**
+         * Return the number of pages available.
+         */
+        int getCount();
+    }
+
+    @Retention(CLASS)
+    @IntDef({FragmentRetentionPolicy.ALWAYS_RECREATE})
+    public @interface FragmentRetentionPolicy {
+        /**
+         * Most CPU intensive, least memory intensive. Not sure if we will ship this one, but it's a
+         * reasonable intermediate step in the implementation.
+         */
+        int ALWAYS_RECREATE = 0;
+        // TODO: implement Fragment reuse similar to current ViewPager Fragment adapters
     }
 
     @Override
