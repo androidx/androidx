@@ -27,6 +27,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
@@ -471,13 +472,15 @@ public class LoaderCustomSupport extends FragmentActivity {
             Log.i("LoaderCustom", "Item clicked: " + id);
         }
 
+        @NonNull
         @Override public Loader<List<AppEntry>> onCreateLoader(int id, Bundle args) {
             // This is called when a new Loader needs to be created.  This
             // sample only has one Loader with no arguments, so it is simple.
             return new AppListLoader(getActivity());
         }
 
-        @Override public void onLoadFinished(Loader<List<AppEntry>> loader, List<AppEntry> data) {
+        @Override public void onLoadFinished(@NonNull Loader<List<AppEntry>> loader,
+                List<AppEntry> data) {
             // Set the new data in the adapter.
             mAdapter.setData(data);
 
@@ -489,7 +492,7 @@ public class LoaderCustomSupport extends FragmentActivity {
             }
         }
 
-        @Override public void onLoaderReset(Loader<List<AppEntry>> loader) {
+        @Override public void onLoaderReset(@NonNull Loader<List<AppEntry>> loader) {
             // Clear the data in the adapter.
             mAdapter.setData(null);
         }

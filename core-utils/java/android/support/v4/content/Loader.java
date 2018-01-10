@@ -19,6 +19,7 @@ package android.support.v4.content;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.os.Handler;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.DebugUtils;
@@ -123,6 +124,7 @@ public class Loader<D> {
      *
      * @param data the result of the load
      */
+    @MainThread
     public void deliverResult(@Nullable D data) {
         if (mListener != null) {
             mListener.onLoadComplete(this, data);
@@ -135,6 +137,7 @@ public class Loader<D> {
      *
      * Must be called from the process's main thread.
      */
+    @MainThread
     public void deliverCancellation() {
         if (mOnLoadCanceledListener != null) {
             mOnLoadCanceledListener.onLoadCanceled(this);
@@ -163,6 +166,7 @@ public class Loader<D> {
      *
      * <p>Must be called from the process's main thread.
      */
+    @MainThread
     public void registerListener(int id, @NonNull OnLoadCompleteListener<D> listener) {
         if (mListener != null) {
             throw new IllegalStateException("There is already a listener registered");
@@ -176,6 +180,7 @@ public class Loader<D> {
      *
      * Must be called from the process's main thread.
      */
+    @MainThread
     public void unregisterListener(@NonNull OnLoadCompleteListener<D> listener) {
         if (mListener == null) {
             throw new IllegalStateException("No listener register");
@@ -195,6 +200,7 @@ public class Loader<D> {
      *
      * @param listener The listener to register.
      */
+    @MainThread
     public void registerOnLoadCanceledListener(@NonNull OnLoadCanceledListener<D> listener) {
         if (mOnLoadCanceledListener != null) {
             throw new IllegalStateException("There is already a listener registered");
@@ -210,6 +216,7 @@ public class Loader<D> {
      *
      * @param listener The listener to unregister.
      */
+    @MainThread
     public void unregisterOnLoadCanceledListener(@NonNull OnLoadCanceledListener<D> listener) {
         if (mOnLoadCanceledListener == null) {
             throw new IllegalStateException("No listener register");
@@ -268,6 +275,7 @@ public class Loader<D> {
      *
      * <p>Must be called from the process's main thread.
      */
+    @MainThread
     public final void startLoading() {
         mStarted = true;
         mReset = false;
@@ -279,7 +287,9 @@ public class Loader<D> {
      * Subclasses must implement this to take care of loading their data,
      * as per {@link #startLoading()}.  This is not called by clients directly,
      * but as a result of a call to {@link #startLoading()}.
+     * This will always be called from the process's main thread.
      */
+    @MainThread
     protected void onStartLoading() {
     }
 
@@ -301,6 +311,7 @@ public class Loader<D> {
      * is still running and the {@link OnLoadCanceledListener} will be called
      * when the task completes.
      */
+    @MainThread
     public boolean cancelLoad() {
         return onCancelLoad();
     }
@@ -316,6 +327,7 @@ public class Loader<D> {
      * is still running and the {@link OnLoadCanceledListener} will be called
      * when the task completes.
      */
+    @MainThread
     protected boolean onCancelLoad() {
         return false;
     }
@@ -328,6 +340,7 @@ public class Loader<D> {
      *
      * <p>Must be called from the process's main thread.
      */
+    @MainThread
     public void forceLoad() {
         onForceLoad();
     }
@@ -336,6 +349,7 @@ public class Loader<D> {
      * Subclasses must implement this to take care of requests to {@link #forceLoad()}.
      * This will always be called from the process's main thread.
      */
+    @MainThread
     protected void onForceLoad() {
     }
 
@@ -359,6 +373,7 @@ public class Loader<D> {
      *
      * <p>Must be called from the process's main thread.
      */
+    @MainThread
     public void stopLoading() {
         mStarted = false;
         onStopLoading();
@@ -370,6 +385,7 @@ public class Loader<D> {
      * but as a result of a call to {@link #stopLoading()}.
      * This will always be called from the process's main thread.
      */
+    @MainThread
     protected void onStopLoading() {
     }
 
@@ -383,12 +399,15 @@ public class Loader<D> {
      * Tell the Loader that it is being abandoned.  This is called prior
      * to {@link #reset} to have it retain its current data but not report
      * any new data.
+     *
+     * <p>Must be called from the process's main thread.
      */
+    @MainThread
     public void abandon() {
         mAbandoned = true;
         onAbandon();
     }
-    
+
     /**
      * Subclasses implement this to take care of being abandoned.  This is
      * an optional intermediate state prior to {@link #onReset()} -- it means that
@@ -397,10 +416,12 @@ public class Loader<D> {
      * loader <em>must</em> keep its last reported data valid until the final
      * {@link #onReset()} happens.  You can retrieve the current abandoned
      * state with {@link #isAbandoned}.
+     * This will always be called from the process's main thread.
      */
+    @MainThread
     protected void onAbandon() {
     }
-    
+
     /**
      * This function will normally be called for you automatically by
      * {@link android.support.v4.app.LoaderManager} when destroying a Loader.  When using
@@ -419,6 +440,7 @@ public class Loader<D> {
      *
      * <p>Must be called from the process's main thread.
      */
+    @MainThread
     public void reset() {
         onReset();
         mReset = true;
@@ -434,6 +456,7 @@ public class Loader<D> {
      * but as a result of a call to {@link #reset()}.
      * This will always be called from the process's main thread.
      */
+    @MainThread
     protected void onReset() {
     }
 
@@ -481,6 +504,7 @@ public class Loader<D> {
      *
      * <p>Must be called from the process's main thread.
      */
+    @MainThread
     public void onContentChanged() {
         if (mStarted) {
             forceLoad();
