@@ -15,6 +15,14 @@
  */
 import android.support.DacOptions
 
+def currentJvmVersion = org.gradle.api.JavaVersion.current()
+if (currentJvmVersion.getMajorVersion() != "8") {
+  throw new Exception("Unsupported java version '" + currentJvmVersion.toString() + "'. Please install java 8.\n" +
+"\n" +
+"If you have already installed java 8, you can instruct Gradle to use it by setting the environment variable JAVA_HOME equal to its file path.")
+}
+
+
 buildscript {
     ext.supportRootFolder = project.projectDir
     apply from: 'buildSrc/repos.gradle'
