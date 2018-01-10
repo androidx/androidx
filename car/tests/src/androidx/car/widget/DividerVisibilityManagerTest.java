@@ -146,15 +146,15 @@ public final class DividerVisibilityManagerTest {
     public void testListItemAdapterAsVisibilityManager() {
         // Create and populate ListItemAdapter.
         ListItemProvider provider = new ListItemProvider.ListProvider(Arrays.asList(
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withDividerHidden()
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withDividerHidden()
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withDividerHidden()
                         .build()));
 

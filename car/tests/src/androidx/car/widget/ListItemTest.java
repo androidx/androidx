@@ -56,11 +56,11 @@ import java.util.List;
 import androidx.car.test.R;
 
 /**
-* Tests the layout configuration in {@link TextListItem}.
+* Tests the layout configuration in {@link ListItem}.
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class TextListItemTest {
+public class ListItemTest {
 
     @Rule
     public ActivityTestRule<PagedListViewTestActivity> mActivityRule =
@@ -75,7 +75,7 @@ public class TextListItemTest {
         mPagedListView = mActivity.findViewById(R.id.paged_list_view);
     }
 
-    private void setupPagedListView(List<TextListItem> items) {
+    private void setupPagedListView(List<ListItem> items) {
         ListItemProvider provider = new ListItemProvider.ListProvider(
                 new ArrayList<>(items));
         try {
@@ -102,26 +102,26 @@ public class TextListItemTest {
         }
     }
 
-    private TextListItem.ViewHolder getViewHolderAtPosition(int position) {
-        return (TextListItem.ViewHolder) mPagedListView.getRecyclerView()
+    private ListItemAdapter.ViewHolder getViewHolderAtPosition(int position) {
+        return (ListItemAdapter.ViewHolder) mPagedListView.getRecyclerView()
                 .findViewHolderForAdapterPosition(
                 position);
     }
 
     @Test
     public void testEmptyItemHidesAllViews() {
-        TextListItem item = new TextListItem.Builder(mActivity).build();
+        ListItem item = new ListItem.Builder(mActivity).build();
         setupPagedListView(Arrays.asList(item));
         verifyViewIsHidden(mPagedListView.getRecyclerView().getLayoutManager().getChildAt(0));
     }
 
     @Test
     public void testPrimaryActionVisible() {
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                         .build());
         setupPagedListView(items);
@@ -134,11 +134,11 @@ public class TextListItemTest {
 
     @Test
     public void testTextVisible() {
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withTitle("title")
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withBody("body")
                         .build());
         setupPagedListView(items);
@@ -151,20 +151,20 @@ public class TextListItemTest {
 
     @Test
     public void testSupplementalActionVisible() {
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true)
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withAction("text", true, v -> { /* Do nothing. */ })
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withActions("text", true, v -> { /* Do nothing. */ },
                                  "text", true, v -> { /* Do nothing. */ })
                         .build());
         setupPagedListView(items);
 
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getSupplementalIcon().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getSupplementalIconDivider().getVisibility(),
                 is(equalTo(View.VISIBLE)));
@@ -182,16 +182,16 @@ public class TextListItemTest {
 
     @Test
     public void testSwitchVisibleAndCheckedState() {
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withSwitch(true, true, null)
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withSwitch(false, true, null)
                         .build());
         setupPagedListView(items);
 
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getSwitch().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getSwitch().isChecked(), is(equalTo(true)));
         assertThat(viewHolder.getSwitchDivider().getVisibility(), is(equalTo(View.VISIBLE)));
@@ -204,23 +204,23 @@ public class TextListItemTest {
 
     @Test
     public void testDividersAreOptional() {
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withSupplementalIcon(android.R.drawable.sym_def_app_icon, false)
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withAction("text", false, v -> { /* Do nothing. */ })
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withActions("text", false, v -> { /* Do nothing. */ },
                                 "text", false, v -> { /* Do nothing. */ })
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withSwitch(true, false, null)
                         .build());
         setupPagedListView(items);
 
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getSupplementalIcon().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getSupplementalIconDivider().getVisibility(),
                 is(equalTo(View.GONE)));
@@ -242,11 +242,11 @@ public class TextListItemTest {
 
     @Test
     public void testCanHideItemDividers() {
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withDividerHidden()
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .build());
         setupPagedListView(items);
 
@@ -262,17 +262,17 @@ public class TextListItemTest {
 
     @Test
     public void testTextStartMarginMatchesPrimaryActionType() {
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionEmptyIcon()
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionNoIcon()
                         .build());
         List<Integer> expectedStartMargin = Arrays.asList(R.dimen.car_keyline_4,
@@ -280,7 +280,7 @@ public class TextListItemTest {
         setupPagedListView(items);
 
         for (int i = 0; i < items.size(); i++) {
-            TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(i);
+            ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(i);
 
             int expected = InstrumentationRegistry.getContext().getResources()
                     .getDimensionPixelSize(expectedStartMargin.get(i));
@@ -293,20 +293,20 @@ public class TextListItemTest {
 
     @Test
     public void testItemWithOnlyTitleIsSingleLine() {
-        List<TextListItem> items = Arrays.asList(
+        List<ListItem> items = Arrays.asList(
                 // Only space
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withTitle(" ")
                         .build(),
                 // Underscore
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withTitle("______")
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withTitle("ALL UPPER CASE")
                         .build(),
                 // String wouldn't fit in one line
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withTitle(InstrumentationRegistry.getContext().getResources().getString(
                                 R.string.over_120_chars))
                         .build());
@@ -325,17 +325,17 @@ public class TextListItemTest {
 
     @Test
     public void testItemWithBodyTextIsAtLeastDoubleLine() {
-        List<TextListItem> items = Arrays.asList(
+        List<ListItem> items = Arrays.asList(
                 // Only space
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withBody(" ")
                         .build(),
                 // Underscore
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withBody("____")
                         .build(),
                 // String wouldn't fit in one line
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withBody(InstrumentationRegistry.getContext().getResources().getString(
                                 R.string.over_120_chars))
                         .build());
@@ -359,8 +359,8 @@ public class TextListItemTest {
                 R.string.over_120_chars);
         final int limit = InstrumentationRegistry.getContext().getResources().getInteger(
                 R.integer.car_list_item_text_length_limit);
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withBody(longText)
                         .build());
         setupPagedListView(items);
@@ -374,8 +374,8 @@ public class TextListItemTest {
     public void testPrimaryIconDrawable() {
         Drawable drawable = InstrumentationRegistry.getContext().getResources().getDrawable(
                 android.R.drawable.sym_def_app_icon, null);
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(drawable, true)
                         .build());
         setupPagedListView(items);
@@ -386,21 +386,21 @@ public class TextListItemTest {
 
     @Test
     public void testLargePrimaryIconHasNoStartMargin() {
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
                         .build());
         setupPagedListView(items);
 
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(((ViewGroup.MarginLayoutParams) viewHolder.getPrimaryIcon().getLayoutParams())
                 .getMarginStart(), is(equalTo(0)));
     }
 
     @Test
     public void testSmallPrimaryIconStartMargin() {
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                         .build());
         setupPagedListView(items);
@@ -408,7 +408,7 @@ public class TextListItemTest {
         int expected = InstrumentationRegistry.getContext().getResources().getDimensionPixelSize(
                 R.dimen.car_keyline_1);
 
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(((ViewGroup.MarginLayoutParams) viewHolder.getPrimaryIcon().getLayoutParams())
                 .getMarginStart(), is(equalTo(expected)));
     }
@@ -417,31 +417,31 @@ public class TextListItemTest {
     public void testSmallPrimaryIconTopMarginRemainsTheSameRegardlessOfTextLength() {
         final String longText = InstrumentationRegistry.getContext().getResources().getString(
                 R.string.over_120_chars);
-        List<TextListItem> items = Arrays.asList(
+        List<ListItem> items = Arrays.asList(
                 // Single line item.
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                         .withTitle("one line text")
                         .build(),
                 // Double line item with one line text.
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                         .withTitle("one line text")
                         .withBody("one line text")
                         .build(),
                 // Double line item with long text.
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                         .withTitle("one line text")
                         .withBody(longText)
                         .build(),
                 // Body text only - long text.
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                         .withBody(longText)
                         .build(),
                 // Body text only - one line text.
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                         .withBody("one line text")
                         .build());
@@ -459,8 +459,8 @@ public class TextListItemTest {
     @Test
     public void testClickingPrimaryActionIsSeparateFromSupplementalAction() {
         final boolean[] clicked = {false, false};
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withOnClickListener(v -> clicked[0] = true)
                         .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true,
                                 v -> clicked[1] = true)
@@ -479,8 +479,8 @@ public class TextListItemTest {
     @Test
     public void testClickingSupplementalIcon() {
         final boolean[] clicked = {false};
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true,
                                 v -> clicked[0] = true)
                         .build());
@@ -493,28 +493,28 @@ public class TextListItemTest {
 
     @Test
     public void testSupplementalIconWithoutClickListenerIsNotClickable() {
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true)
                         .build());
         setupPagedListView(items);
 
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertFalse(viewHolder.getSupplementalIcon().isClickable());
     }
 
     @Test
     public void testCheckingSwitch() {
         final boolean[] clicked = {false, false};
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withSwitch(false, false, (button, isChecked) -> {
                             // Initial value is false.
                             assertTrue(isChecked);
                             clicked[0] = true;
                         })
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withSwitch(true, false, (button, isChecked) -> {
                             // Initial value is true.
                             assertFalse(isChecked);
@@ -535,8 +535,8 @@ public class TextListItemTest {
     @Test
     public void testClickingSupplementalAction() {
         final boolean[] clicked = {false};
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withAction("action", true, v -> clicked[0] = true)
                         .build());
         setupPagedListView(items);
@@ -549,8 +549,8 @@ public class TextListItemTest {
     @Test
     public void testClickingBothSupplementalActions() {
         final boolean[] clicked = {false, false};
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withActions("action 1", true, v -> clicked[0] = true,
                                 "action 2", true, v -> clicked[1] = true)
                         .build());
@@ -569,26 +569,26 @@ public class TextListItemTest {
     @Test
     public void testCustomViewBinderAreCalledLast() {
         final String updatedTitle = "updated title";
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withTitle("original title")
                         .withViewBinder((viewHolder) -> viewHolder.getTitle().setText(updatedTitle))
                         .build());
         setupPagedListView(items);
 
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getTitle().getText(), is(equalTo(updatedTitle)));
     }
 
     @Test
     public void testCustomViewBinderOnUnusedViewsHasNoEffect() {
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withViewBinder((viewHolder) -> viewHolder.getBody().setText("text"))
                         .build());
         setupPagedListView(items);
 
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getBody().getVisibility(), is(equalTo(View.GONE)));
         // Custom binder interacts with body but has no effect.
         // Expect card height to remain single line.
@@ -601,19 +601,19 @@ public class TextListItemTest {
     public void testSettingTitleOrBodyAsPrimaryText() {
         // Create 2 items, one with Title as primary (default) and one with Body.
         // The primary text, regardless of view, should have consistent look (as primary).
-        List<TextListItem> items = Arrays.asList(
-                new TextListItem.Builder(mActivity)
+        List<ListItem> items = Arrays.asList(
+                new ListItem.Builder(mActivity)
                         .withTitle("title")
                         .withBody("body")
                         .build(),
-                new TextListItem.Builder(mActivity)
+                new ListItem.Builder(mActivity)
                         .withTitle("title")
                         .withBody("body", true)
                         .build());
         setupPagedListView(items);
 
-        TextListItem.ViewHolder titlePrimary = getViewHolderAtPosition(0);
-        TextListItem.ViewHolder bodyPrimary = getViewHolderAtPosition(1);
+        ListItemAdapter.ViewHolder titlePrimary = getViewHolderAtPosition(0);
+        ListItemAdapter.ViewHolder bodyPrimary = getViewHolderAtPosition(1);
         assertThat(titlePrimary.getTitle().getTextSize(),
                 is(equalTo(bodyPrimary.getBody().getTextSize())));
         assertThat(titlePrimary.getTitle().getTextColors(),
@@ -622,13 +622,12 @@ public class TextListItemTest {
 
     @Test
     public void testNoCarriedOverLayoutParamsForTextView() throws Throwable {
-        TextListItem singleLine = new TextListItem.Builder(mActivity).withTitle("t").build();
+        ListItem singleLine = new ListItem.Builder(mActivity).withTitle("t").build();
         setupPagedListView(Arrays.asList(singleLine));
 
         // Manually rebind the view holder of a single line item to a double line item.
-        TextListItem doubleLine = new TextListItem.Builder(mActivity).withTitle("t").withBody("b")
-                .build();
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        ListItem doubleLine = new ListItem.Builder(mActivity).withTitle("t").withBody("b").build();
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
         mActivityRule.runOnUiThread(() -> doubleLine.bind(viewHolder));
 
         RelativeLayout.LayoutParams titleLayoutParams =
@@ -641,17 +640,17 @@ public class TextListItemTest {
 
     @Test
     public void testNoCarriedOverLayoutParamsForPrimaryIcon() throws Throwable {
-        TextListItem smallIcon = new TextListItem.Builder(mActivity)
+        ListItem smallIcon = new ListItem.Builder(mActivity)
                 .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                 .withBody("body")  // Small icon of items with body text should use top margin.
                 .build();
         setupPagedListView(Arrays.asList(smallIcon));
 
         // Manually rebind the view holder.
-        TextListItem largeIcon = new TextListItem.Builder(mActivity)
+        ListItem largeIcon = new ListItem.Builder(mActivity)
                 .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
                 .build();
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        ListItemAdapter.ViewHolder viewHolder = getViewHolderAtPosition(0);
         mActivityRule.runOnUiThread(() -> largeIcon.bind(viewHolder));
 
         RelativeLayout.LayoutParams iconLayoutParams =
