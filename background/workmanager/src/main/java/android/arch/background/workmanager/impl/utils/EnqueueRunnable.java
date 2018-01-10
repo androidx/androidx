@@ -36,7 +36,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Manages the enqueuing of a {@link WorkContinuationImpl}.
@@ -96,19 +98,20 @@ public class EnqueueRunnable implements Runnable {
             @NonNull WorkContinuationImpl workContinuation,
             @NonNull List<InternalWorkImpl> workToBeScheduled) {
 
-        WorkContinuationImpl parent = workContinuation.getParent();
-        if (parent != null) {
-            // When chaining off a completed continuation we need to pay
-            // attention to parents that may have been marked as enqueued before.
-            if (!parent.isEnqueued()) {
-                processContinuation(parent, workToBeScheduled);
-            } else {
-                Log.w(TAG,
-                        String.format(
-                                "Already enqueued work ids (%s).",
-                                TextUtils.join(", ", parent.getIds())));
+        List<WorkContinuationImpl> parents = workContinuation.getParents();
+        if (parents != null) {
+            for (WorkContinuationImpl parent : parents) {
+                // When chaining off a completed continuation we need to pay
+                // attention to parents that may have been marked as enqueued before.
+                if (!parent.isEnqueued()) {
+                    processContinuation(parent, workToBeScheduled);
+                } else {
+                    Log.w(TAG,
+                            String.format(
+                                    "Already enqueued work ids (%s).",
+                                    TextUtils.join(", ", parent.getIds())));
+                }
             }
-
         }
         enqueueContinuation(workContinuation, workToBeScheduled);
     }
@@ -117,13 +120,18 @@ public class EnqueueRunnable implements Runnable {
             @NonNull WorkContinuationImpl workContinuation,
             @NonNull List<InternalWorkImpl> workToBeScheduled) {
 
-        WorkContinuationImpl parent = workContinuation.getParent();
-        String[] prerequisiteIds = parent != null ? parent.getIds() : null;
+        List<WorkContinuationImpl> parents = workContinuation.getParents();
+        Set<String> prerequisiteIds = new HashSet<>();
+        if (parents != null) {
+            for (WorkContinuationImpl parent : parents) {
+                prerequisiteIds.addAll(parent.getIds());
+            }
+        }
 
         enqueueWorkWithPrerequisites(
                 workContinuation.getWorkManagerImpl(),
                 workContinuation.getWork(),
-                prerequisiteIds,
+                prerequisiteIds.toArray(new String[0]),
                 workContinuation.getUniqueTag(),
                 workContinuation.getExistingWorkPolicy(),
                 workToBeScheduled);

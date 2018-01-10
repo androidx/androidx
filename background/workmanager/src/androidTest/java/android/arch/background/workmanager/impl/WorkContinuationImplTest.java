@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verify;
 
 import android.arch.background.workmanager.TestLifecycleOwner;
 import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.executors.SynchronousExecutorService;
 import android.arch.background.workmanager.impl.utils.taskexecutor.InstantTaskExecutorRule;
 import android.arch.background.workmanager.worker.TestWorker;
@@ -106,9 +107,9 @@ public class WorkContinuationImplTest {
         WorkContinuationImpl continuation =
                 new WorkContinuationImpl(mWorkManagerImpl, testWork);
 
-        assertThat(continuation.getParent(), is(nullValue()));
-        assertThat(continuation.getIds().length, is(1));
-        assertThat(continuation.getIds()[0], is(testWork.getId()));
+        assertThat(continuation.getParents(), is(nullValue()));
+        assertThat(continuation.getIds().size(), is(1));
+        assertThat(continuation.getIds().get(0), is(testWork.getId()));
         assertThat(continuation.getAllIds().size(), is(1));
     }
 
@@ -121,10 +122,9 @@ public class WorkContinuationImplTest {
         WorkContinuationImpl dependent = (WorkContinuationImpl) (continuation.then(
                 dependentWork));
 
-        assertThat(dependent.getParent(), is(notNullValue()));
-        assertThat(dependent.getParent(), is(continuation));
-        assertThat(dependent.getIds().length, is(1));
-        assertThat(dependent.getIds()[0], is(dependentWork.getId()));
+        assertThat(dependent.getParents(), containsInAnyOrder(continuation));
+        assertThat(dependent.getIds().size(), is(1));
+        assertThat(dependent.getIds().get(0), is(dependentWork.getId()));
         assertThat(dependent.getAllIds().size(), is(2));
         assertThat(
                 dependent.getAllIds(),
@@ -167,12 +167,65 @@ public class WorkContinuationImplTest {
         verify(spy, times(0)).markEnqueued();
     }
 
+    @Test
+    public void testContinuation_join() {
+        WorkContinuationImpl first = new WorkContinuationImpl(mWorkManagerImpl,
+                createTestWorker());
+        WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
+                createTestWorker());
+        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(first,
+                second);
+        assertThat(dependent.getParents(), is(notNullValue()));
+        assertThat(dependent.getParents(), containsInAnyOrder(first, second));
+    }
+
+    @Test
+    public void testContinuation_joinAndEnqueue() {
+        WorkContinuationImpl first = new WorkContinuationImpl(mWorkManagerImpl,
+                createTestWorker());
+        WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
+                createTestWorker());
+
+        WorkContinuationImpl third = new WorkContinuationImpl(mWorkManagerImpl,
+                createTestWorker());
+        WorkContinuationImpl fourth = new WorkContinuationImpl(mWorkManagerImpl,
+                createTestWorker());
+
+        WorkContinuationImpl firstDependent = (WorkContinuationImpl) WorkContinuation.join(first,
+                second);
+        WorkContinuationImpl secondDependent = (WorkContinuationImpl) WorkContinuation.join(third,
+                fourth);
+        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(
+                firstDependent, secondDependent);
+        dependent.enqueue();
+        verifyEnqueued(dependent);
+    }
+
+    @Test
+    public void testContinuation_joinAndEnqueueWithOverlaps() {
+        WorkContinuationImpl first = new WorkContinuationImpl(mWorkManagerImpl,
+                createTestWorker());
+        WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
+                createTestWorker());
+        WorkContinuationImpl third = new WorkContinuationImpl(mWorkManagerImpl,
+                createTestWorker());
+        WorkContinuationImpl firstDependent = (WorkContinuationImpl) WorkContinuation.join(first,
+                second);
+        WorkContinuationImpl secondDependent = (WorkContinuationImpl) WorkContinuation.join(first,
+                third);
+        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(
+                firstDependent, secondDependent);
+        dependent.enqueue();
+        verifyEnqueued(dependent);
+    }
+
     private void verifyEnqueued(WorkContinuationImpl continuation) {
         assertThat(continuation.isEnqueued(), is(true));
-        WorkContinuationImpl parent = continuation.getParent();
-        while (parent != null) {
-            assertThat(parent.isEnqueued(), is(true));
-            parent = parent.getParent();
+        List<WorkContinuationImpl> parents = continuation.getParents();
+        if (parents != null) {
+            for (WorkContinuationImpl parent : parents) {
+                verifyEnqueued(parent);
+            }
         }
     }
 

@@ -23,6 +23,7 @@ import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.utils.BaseWorkHelper;
 import android.arch.background.workmanager.impl.utils.EnqueueRunnable;
+import android.arch.background.workmanager.impl.workers.JoinWorker;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,6 +32,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -48,10 +50,10 @@ public class WorkContinuationImpl extends WorkContinuation {
     private final String mUniqueTag;
     private final @WorkManager.ExistingWorkPolicy int mExistingWorkPolicy;
     private final BaseWork[] mWork;
-    private final String[] mIds;
+    private final List<String> mIds;
     private final List<String> mAllIds;
+    private final List<WorkContinuationImpl> mParents;
     private boolean mEnqueued;
-    private WorkContinuationImpl mParent;
 
     @NonNull
     public WorkManagerImpl getWorkManagerImpl() {
@@ -73,7 +75,7 @@ public class WorkContinuationImpl extends WorkContinuation {
     }
 
     @NonNull
-    public String[] getIds() {
+    public List<String> getIds() {
         return mIds;
     }
 
@@ -92,40 +94,42 @@ public class WorkContinuationImpl extends WorkContinuation {
         mEnqueued = true;
     }
 
-    public WorkContinuationImpl getParent() {
-        return mParent;
+    public List<WorkContinuationImpl> getParents() {
+        return mParents;
     }
 
-    WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl, @NonNull BaseWork... work) {
+    WorkContinuationImpl(
+            @NonNull WorkManagerImpl workManagerImpl,
+            @NonNull BaseWork... work) {
         this(workManagerImpl, null, WorkManager.KEEP_EXISTING_WORK, work, null);
     }
 
     WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
-            @NonNull String uniqueTag,
+            String uniqueTag,
             @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
             @NonNull BaseWork... work) {
         this(workManagerImpl, uniqueTag, existingWorkPolicy, work, null);
     }
 
-    private WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
+    WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
             String uniqueTag,
             @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
             @NonNull BaseWork[] work,
-            @Nullable WorkContinuationImpl parent) {
+            @Nullable List<WorkContinuationImpl> parents) {
         mWorkManagerImpl = workManagerImpl;
         mUniqueTag = uniqueTag;
         mExistingWorkPolicy = existingWorkPolicy;
         mWork = work;
-        mParent = parent;
-
-        final int parentSize = mParent != null ? mParent.mAllIds.size() : 0;
-        mIds = new String[mWork.length];
-        mAllIds = new ArrayList<>(mWork.length + parentSize);
-        if (parent != null) {
-            mAllIds.addAll(mParent.mAllIds);
+        mParents = parents;
+        mIds = new ArrayList<>(mWork.length);
+        mAllIds = new ArrayList<>();
+        if (parents != null) {
+            for (WorkContinuationImpl parent : parents) {
+                mAllIds.addAll(parent.mAllIds);
+            }
         }
         for (int i = 0; i < work.length; i++) {
-            mIds[i] = work[i].getId();
+            mIds.add(work[i].getId());
             mAllIds.add(work[i].getId());
         }
     }
@@ -138,7 +142,7 @@ public class WorkContinuationImpl extends WorkContinuation {
                 mUniqueTag,
                 WorkManager.KEEP_EXISTING_WORK,
                 work,
-                this);
+                Collections.singletonList(this));
     }
 
     @Override
@@ -147,7 +151,7 @@ public class WorkContinuationImpl extends WorkContinuation {
                 mUniqueTag,
                 WorkManager.KEEP_EXISTING_WORK,
                 BaseWorkHelper.convertWorkerClassListToWorkArray(workerClasses),
-                this);
+                Collections.singletonList(this));
     }
 
     @Override
@@ -167,5 +171,20 @@ public class WorkContinuationImpl extends WorkContinuation {
             Log.w(TAG,
                     String.format("Already enqueued work ids (%s).", TextUtils.join(", ", mIds)));
         }
+    }
+
+    @Override
+    protected WorkContinuation joinInternal(@NonNull WorkContinuation... continuations) {
+        List<WorkContinuationImpl> parents = new ArrayList<>(continuations.length);
+        for (WorkContinuation continuation : continuations) {
+            parents.add((WorkContinuationImpl) continuation);
+        }
+
+        Work work = Work.newBuilder(JoinWorker.class).build();
+        return new WorkContinuationImpl(mWorkManagerImpl,
+                null,
+                WorkManager.KEEP_EXISTING_WORK,
+                new BaseWork[]{work},
+                parents);
     }
 }
