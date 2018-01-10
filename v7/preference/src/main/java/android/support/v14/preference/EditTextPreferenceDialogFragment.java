@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package android.support.v14.preference;
@@ -65,8 +65,8 @@ public class EditTextPreferenceDialogFragment extends PreferenceDialogFragment {
         mEditText = (EditText) view.findViewById(android.R.id.edit);
 
         if (mEditText == null) {
-            throw new IllegalStateException("Dialog view must contain an EditText with id" +
-                    " @android:id/edit");
+            throw new IllegalStateException("Dialog view must contain an EditText with id"
+                    + " @android:id/edit");
         }
 
         mEditText.setText(mText);

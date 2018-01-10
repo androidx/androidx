@@ -27,4 +27,8 @@
         <item name="android:paddingEnd">16dp</item>
     </style>
 
+    <style name="PreferenceFragmentList.Material">
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+    </style>
 </resources>
