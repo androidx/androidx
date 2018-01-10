@@ -31,10 +31,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -85,6 +85,7 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
     // Max number of images that can show in a cell
     private static final int MAX_CELL_IMAGES = 1;
 
+    private int mRowIndex;
     private SliceItem mColorItem;
     private boolean mIsAllImages;
     private @SliceView.SliceMode int mSliceMode = 0;
@@ -93,6 +94,8 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
     private int mLargeIconSize;
     private int mBigPictureHeight;
     private int mAllImagesHeight;
+
+    private SliceView.SliceObserver mObserver;
 
     public GridRowView(Context context) {
         this(context, null);
@@ -121,9 +124,6 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
-    /**
-     * Set the color for the items in this view.
-     */
     @Override
     public void setColor(SliceItem colorItem) {
         mColorItem = colorItem;
@@ -139,11 +139,17 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         return mSliceMode;
     }
 
+    @Override
+    public void setSliceObserver(SliceView.SliceObserver observer) {
+        mObserver = observer;
+    }
+
     /**
      * This is called when GridView is being used as a small template.
      */
     @Override
     public void setSlice(Slice slice) {
+        mRowIndex = 0;
         mSliceMode = SliceView.MODE_SMALL;
         Slice.Builder sb = new Slice.Builder(slice.getUri());
         sb.addSubSlice(slice);
@@ -155,7 +161,10 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
      * This is called when GridView is being used as a component in a large template.
      */
     @Override
-    public void setSliceItem(SliceItem slice, boolean isHeader) {
+    public void setSliceItem(SliceItem slice, boolean isHeader, int index,
+            SliceView.SliceObserver observer) {
+        setSliceObserver(observer);
+        mRowIndex = index;
         mSliceMode = SliceView.MODE_LARGE;
         populateViews(new GridContent(slice));
     }
@@ -164,11 +173,12 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         mIsAllImages = gc.isAllImages();
         mColorItem = gc.getColorItem();
         ArrayList<GridContent.CellContent> cells = gc.getGridContent();
+        final int max = mIsAllImages ? MAX_IMAGES : MAX_ALL;
         for (int i = 0; i < cells.size(); i++) {
             if (isFull()) {
                 break;
             }
-            addCell(cells.get(i));
+            addCell(cells.get(i), i, Math.min(cells.size(), max));
         }
         if (ALLOW_SEE_MORE && mIsAllImages && cells.size() > getChildCount()) {
             addSeeMoreCount(cells.size() - getChildCount());
@@ -201,7 +211,7 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
     /**
      * Adds a cell to the grid view based on the provided {@link SliceItem}.
      */
-    private void addCell(GridContent.CellContent cell) {
+    private void addCell(GridContent.CellContent cell, int index, int total) {
         final int maxCellText = mSliceMode == SliceView.MODE_SMALL
                 ? MAX_CELL_TEXT_SMALL
                 : MAX_CELL_TEXT;
@@ -258,7 +268,11 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         if (added) {
             addView(cellContainer, new LayoutParams(0, WRAP_CONTENT, 1));
             if (contentIntentItem != null) {
-                cellContainer.setTag(contentIntentItem);
+                EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_BUTTON,
+                        EventInfo.ROW_TYPE_GRID, mRowIndex);
+                info.setPosition(EventInfo.POSITION_CELL, index, total);
+                Pair<SliceItem, EventInfo> tagItem = new Pair(contentIntentItem, info);
+                cellContainer.setTag(tagItem);
                 makeClickable(cellContainer);
             }
         }
@@ -306,18 +320,18 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
 
     @Override
     public void onClick(View view) {
-        final SliceItem actionTag = (SliceItem) view.getTag();
-        if (actionTag != null && FORMAT_ACTION.equals(actionTag.getFormat())) {
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        actionTag.getAction().send();
-                    } catch (PendingIntent.CanceledException e) {
-                        Log.w(TAG, "PendingIntent for slice cannot be sent", e);
-                    }
+        Pair<SliceItem, EventInfo> tagItem = (Pair<SliceItem, EventInfo>) view.getTag();
+        final SliceItem actionItem = tagItem.first;
+        final EventInfo info = tagItem.second;
+        if (actionItem != null && FORMAT_ACTION.equals(actionItem.getFormat())) {
+            try {
+                actionItem.getAction().send();
+                if (mObserver != null) {
+                    mObserver.onSliceAction(info, actionItem);
                 }
-            });
+            } catch (PendingIntent.CanceledException e) {
+                Log.w(TAG, "PendingIntent for slice cannot be sent", e);
+            }
         }
     }
 

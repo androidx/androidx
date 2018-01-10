@@ -91,11 +91,14 @@ public class RowContent {
         }
         if (rowItems.size() > 0) {
             // Start item
-            if (showStartItem && isStartType(rowItems.get(0))) {
-                mStartItem = rowItems.get(0);
-                rowItems.remove(mStartItem);
+            if (isStartType(rowItems.get(0))) {
+                if (showStartItem) {
+                    mStartItem = rowItems.get(0);
+                }
+                rowItems.remove(0);
             }
             // Text + end items
+            ArrayList<SliceItem> endItems = new ArrayList<>();
             for (int i = 0; i < rowItems.size(); i++) {
                 final SliceItem item = rowItems.get(i);
                 if (FORMAT_TEXT.equals(item.getFormat())) {
@@ -106,6 +109,24 @@ public class RowContent {
                         mSubtitleItem = item;
                     }
                 } else {
+                    endItems.add(item);
+                }
+            }
+            // Special rules for end items: only one timestamp, can't be mixture of icons / actions
+            boolean hasTimestamp = mStartItem != null
+                    && FORMAT_TIMESTAMP.equals(mStartItem.getFormat());
+            String desiredFormat = null;
+            for (int i = 0; i < endItems.size(); i++) {
+                final SliceItem item = endItems.get(i);
+                if (FORMAT_TIMESTAMP.equals(item.getFormat())) {
+                    if (!hasTimestamp) {
+                        hasTimestamp = true;
+                        mEndItems.add(item);
+                    }
+                } else if (desiredFormat == null) {
+                    desiredFormat = item.getFormat();
+                    mEndItems.add(item);
+                } else if (desiredFormat.equals(item.getFormat())) {
                     mEndItems.add(item);
                 }
             }
@@ -222,7 +243,6 @@ public class RowContent {
     private static boolean isStartType(SliceItem item) {
         final String type = item.getFormat();
         return (!item.hasHint(SliceHints.SUBTYPE_TOGGLE)
-                && item.hasHint(HINT_TITLE)
                 && (FORMAT_ACTION.equals(type) && (SliceQuery.find(item, FORMAT_IMAGE) != null)))
                 || FORMAT_IMAGE.equals(type)
                 || FORMAT_TIMESTAMP.equals(type);

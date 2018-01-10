@@ -61,10 +61,15 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     private final Context mContext;
     private List<SliceWrapper> mSlices = new ArrayList<>();
     private SliceItem mColor;
+    private SliceView.SliceObserver mSliceObserver;
 
     public LargeSliceAdapter(Context context) {
         mContext = context;
         setHasStableIds(true);
+    }
+
+    public void setSliceObserver(SliceView.SliceObserver observer) {
+        mSliceObserver = observer;
     }
 
     /**
@@ -113,7 +118,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         SliceWrapper slice = mSlices.get(position);
         if (holder.mSliceView != null) {
             holder.mSliceView.setColor(mColor);
-            holder.mSliceView.setSliceItem(slice.mItem, position == 0 /* isHeader */);
+            holder.mSliceView.setSliceItem(slice.mItem, position == 0 /* isHeader */, position,
+                    mSliceObserver);
         }
     }
 
@@ -179,7 +185,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         /**
          * Set the slice item for this view.
          */
-        void setSliceItem(SliceItem slice, boolean isHeader);
+        void setSliceItem(SliceItem slice, boolean isHeader, int index,
+                SliceView.SliceObserver observer);
 
         /**
          * Set the color for the items in this view.

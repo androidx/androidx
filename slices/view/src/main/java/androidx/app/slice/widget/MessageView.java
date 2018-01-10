@@ -47,6 +47,8 @@ public class MessageView extends LinearLayout implements LargeSliceAdapter.Slice
 
     private TextView mDetails;
     private ImageView mIcon;
+    private int mRowIndex;
+    private SliceView.SliceObserver mSliceObserver;
 
     public MessageView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -60,7 +62,10 @@ public class MessageView extends LinearLayout implements LargeSliceAdapter.Slice
     }
 
     @Override
-    public void setSliceItem(SliceItem slice, boolean isHeader) {
+    public void setSliceItem(SliceItem slice, boolean isHeader, int index,
+            SliceView.SliceObserver observer) {
+        mSliceObserver = observer;
+        mRowIndex = index;
         SliceItem source = SliceQuery.findSubtype(slice, FORMAT_IMAGE, SUBTYPE_SOURCE);
         if (source != null) {
             final int iconSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
