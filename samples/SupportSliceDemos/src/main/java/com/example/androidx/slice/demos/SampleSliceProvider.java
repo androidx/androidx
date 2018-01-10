@@ -222,12 +222,13 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createCustomToggleSlice(Uri sliceUri) {
+        // TODO: support 2 custom toggles in the same row
         return new ListBuilder(sliceUri)
                 .setColor(0xffff4081)
                 .addRow(b -> b
                     .setTitle("Custom toggle")
                     .setSubtitle("It can support two states")
-                    .addToggle(getBroadcastIntent(ACTION_TOAST, "start toggled"),
+                    .addToggle(getBroadcastIntent(ACTION_TOAST, "star toggled"),
                             true /* isChecked */,
                             Icon.createWithResource(getContext(), R.drawable.toggle_star)))
                 .build();
