@@ -21,6 +21,7 @@ import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
+import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SELECTED;
 import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
@@ -117,6 +118,26 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     public void addRange(TemplateBuilderImpl builder) {
         getBuilder().addSubSlice(builder.build(), SUBTYPE_RANGE);
     }
+
+    /**
+     */
+    @Override
+    public void addSeeMoreRow(TemplateBuilderImpl builder) {
+        builder.getBuilder().addHints(HINT_SEE_MORE);
+        getBuilder().addSubSlice(builder.build());
+    }
+
+    /**
+     */
+    @Override
+    public void addSeeMoreAction(PendingIntent intent) {
+        getBuilder().addSubSlice(
+                new Slice.Builder(getBuilder())
+                        .addHints(HINT_SEE_MORE)
+                        .addAction(intent, new Slice.Builder(getBuilder()).build(), null)
+                        .build());
+    }
+
 
     /**
      * Builder to construct an input row.

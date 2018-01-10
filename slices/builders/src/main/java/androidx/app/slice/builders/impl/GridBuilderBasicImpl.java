@@ -65,6 +65,18 @@ public class GridBuilderBasicImpl extends TemplateBuilderImpl implements GridBui
     /**
      */
     @Override
+    public void addSeeMoreCell(TemplateBuilderImpl impl) {
+    }
+
+    /**
+     */
+    @Override
+    public void addSeeMoreAction(PendingIntent intent) {
+    }
+
+    /**
+     */
+    @Override
     public Slice buildIndividual() {
         // Empty slice, nothing useful from a grid to basic.
         return getBuilder().build();

@@ -80,8 +80,19 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     /**
      */
     @Override
-    public void setColor(int color) {
+    public void addSeeMoreRow(TemplateBuilderImpl builder) {
+    }
 
+    /**
+     */
+    @Override
+    public void addSeeMoreAction(PendingIntent intent) {
+    }
+
+    /**
+     */
+    @Override
+    public void setColor(int color) {
     }
 
     /**

@@ -64,6 +64,27 @@ public interface ListBuilder {
     void addRange(TemplateBuilderImpl builder);
 
     /**
+     * If all content in a slice cannot be shown, the row added here will be displayed where the
+     * content is cut off. This row should have an affordance to take the user to an activity to
+     * see all of the content.
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     */
+    void addSeeMoreRow(TemplateBuilderImpl builder);
+    /**
+     * If all content in a slice cannot be shown, a "see more" affordance will be displayed where
+     * the content is cut off. The action added here should take the user to an activity to see
+     * all of the content, and will be invoked when the "see more" affordance is tapped.
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     */
+    void addSeeMoreAction(PendingIntent intent);
+
+    /**
      * Sets the color to tint items displayed by this template (e.g. icons).
      */
     void setColor(int color);

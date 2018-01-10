@@ -83,6 +83,7 @@ public class SampleSliceProvider extends SliceProvider {
     public Slice onBindSlice(Uri sliceUri) {
         String path = sliceUri.getPath();
         switch (path) {
+            // TODO: add list / grid slices with 'see more' options
             case "/message":
                 return createMessagingSlice(sliceUri);
             case "/wifi":
