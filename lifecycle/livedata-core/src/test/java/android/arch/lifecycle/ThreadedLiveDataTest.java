@@ -30,10 +30,13 @@ import android.support.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@RunWith(JUnit4.class)
 public class ThreadedLiveDataTest {
 
     private static final int TIMEOUT_SECS = 3;
