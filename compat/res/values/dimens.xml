@@ -70,10 +70,4 @@
 
     <!-- the paddingtop on the right side of the notification (for time etc.) -->
     <dimen name="notification_right_side_padding_top">2dp</dimen>
-
-    <!-- the maximum width of the large icon, above which it will be downscaled -->
-    <dimen name="notification_icon_max_width">320dp</dimen>
-
-    <!-- the maximum height of the large icon, above which it will be downscaled -->
-    <dimen name="notification_icon_max_height">320dp</dimen>
 </resources>
