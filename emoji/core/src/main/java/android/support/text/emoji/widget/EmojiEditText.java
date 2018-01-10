@@ -21,10 +21,8 @@ import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.text.emoji.EmojiCompat;
-import android.support.v4.widget.TextViewCompat;
 import android.text.method.KeyListener;
 import android.util.AttributeSet;
-import android.view.ActionMode;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
@@ -122,14 +120,5 @@ public class EmojiEditText extends EditText {
             mEmojiEditTextHelper = new EmojiEditTextHelper(this);
         }
         return mEmojiEditTextHelper;
-    }
-
-    /**
-     * See
-     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
-     */
-    @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
-        TextViewCompat.setCustomSelectionActionModeCallback(this, actionModeCallback);
     }
 }
