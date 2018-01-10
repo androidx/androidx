@@ -386,6 +386,28 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
     }
 
     @Test
+    fun boundaryCallback_singleInitialLoad() {
+        val shortList = ITEMS.subList(0, 4)
+        @Suppress("UNCHECKED_CAST")
+        val boundaryCallback =
+                mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<Item>
+        val pagedList = createCountedPagedList(0, listData = shortList,
+                initLoadSize = shortList.size, boundaryCallback = boundaryCallback)
+        assertEquals(shortList.size, pagedList.size)
+
+        // nothing yet
+        verifyNoMoreInteractions(boundaryCallback)
+
+        // onItemAtFrontLoaded / onItemAtEndLoaded posted, since creation often happens on BG thread
+        drain()
+        pagedList.loadAround(0)
+        drain()
+        verify(boundaryCallback).onItemAtFrontLoaded(shortList.first())
+        verify(boundaryCallback).onItemAtEndLoaded(shortList.last())
+        verifyNoMoreInteractions(boundaryCallback)
+    }
+
+    @Test
     fun boundaryCallback_delayed() {
         @Suppress("UNCHECKED_CAST")
         val boundaryCallback =
