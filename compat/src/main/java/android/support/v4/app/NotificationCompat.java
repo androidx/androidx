@@ -957,8 +957,34 @@ public class NotificationCompat {
          * Set the large icon that is shown in the ticker and notification.
          */
         public Builder setLargeIcon(Bitmap icon) {
-            mLargeIcon = icon;
+            mLargeIcon = reduceLargeIconSize(icon);
             return this;
+        }
+
+        /**
+         * Reduce the size of a notification icon if it's overly large. The framework does
+         * this automatically starting from API 27.
+         */
+        private Bitmap reduceLargeIconSize(Bitmap icon) {
+            if (icon == null || Build.VERSION.SDK_INT >= 27) {
+                return icon;
+            }
+
+            Resources res = mContext.getResources();
+            int maxWidth = res.getDimensionPixelSize(R.dimen.notification_icon_max_width);
+            int maxHeight = res.getDimensionPixelSize(R.dimen.notification_icon_max_height);
+            if (icon.getWidth() <= maxWidth && icon.getHeight() <= maxHeight) {
+                return icon;
+            }
+
+            double scale = Math.min(
+                    maxWidth / (double) Math.max(1, icon.getWidth()),
+                    maxHeight / (double) Math.max(1, icon.getHeight()));
+            return Bitmap.createScaledBitmap(
+                    icon,
+                    (int) Math.ceil(icon.getWidth() * scale),
+                    (int) Math.ceil(icon.getHeight() * scale),
+                    /* filtered */ true);
         }
 
         /**
