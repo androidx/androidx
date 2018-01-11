@@ -160,7 +160,11 @@ class TypeAdapterStore private constructor(
         }
         val targetTypes = targetTypeMirrorsFor(affinity)
         val binder = findTypeConverter(input, targetTypes) ?: return null
-        return CompositeAdapter(input, getAllColumnAdapters(binder.to).first(), binder, null)
+        // columnAdapter should not be null but we are receiving errors on crash in `first()` so
+        // this safeguard allows us to dispatch the real problem to the user (e.g. why we couldn't
+        // find the right adapter)
+        val columnAdapter = getAllColumnAdapters(binder.to).firstOrNull() ?: return null
+        return CompositeAdapter(input, columnAdapter, binder, null)
     }
 
     /**
