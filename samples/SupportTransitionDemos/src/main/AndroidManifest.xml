@@ -123,5 +123,14 @@
                 <category android:name="com.example.android.support.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".widget.SidePropagationUsage"
+                  android:label="@string/side_propagation"
+                  android:theme="@style/Theme.Transition">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.transition.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
