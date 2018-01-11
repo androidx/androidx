@@ -21,7 +21,6 @@ import android.arch.persistence.room.PrimaryKey
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Relation
 import android.arch.persistence.room.ext.LifecyclesTypeNames
-import android.arch.persistence.room.ext.PagingTypeNames
 import android.arch.persistence.room.ext.ReactiveStreamsTypeNames
 import android.arch.persistence.room.ext.RoomRxJava2TypeNames
 import android.arch.persistence.room.ext.RxJava2TypeNames
@@ -86,9 +85,8 @@ object COMMON {
         loadJavaCode("common/input/Rx2Room.java", RoomRxJava2TypeNames.RX_ROOM.toString())
     }
 
-    val LIVE_PAGED_LIST_PROVIDER by lazy {
-        loadJavaCode("common/input/LivePagedListProvider.java",
-                PagingTypeNames.LIVE_PAGED_LIST_PROVIDER.toString())
+    val DATA_SOURCE_FACTORY by lazy {
+        loadJavaCode("common/input/DataSource.java", "android.arch.paging.DataSource")
     }
 }
 fun testCodeGenScope(): CodeGenScope {

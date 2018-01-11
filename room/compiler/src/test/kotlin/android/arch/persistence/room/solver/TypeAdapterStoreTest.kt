@@ -17,6 +17,8 @@
 package android.arch.persistence.room.solver
 
 import COMMON
+import android.arch.paging.DataSource
+import android.arch.paging.PositionalDataSource
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.LifecyclesTypeNames
@@ -31,13 +33,11 @@ import android.arch.persistence.room.processor.ProcessorErrors
 import android.arch.persistence.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.FlowableQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.LiveDataQueryResultBinderProvider
-import android.arch.persistence.room.solver.binderprovider.LivePagedListQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
 import android.arch.persistence.room.solver.types.CompositeAdapter
 import android.arch.persistence.room.solver.types.TypeConverter
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.testing.TestProcessor
-import android.arch.paging.DataSource
-import android.arch.paging.TiledDataSource
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
@@ -263,11 +263,11 @@ class TypeAdapterStoreTest {
     }
 
     @Test
-    fun findTiledDataSource() {
+    fun findPositionalDataSource() {
         simpleRun {
             invocation ->
             val dataSource = invocation.processingEnv.elementUtils
-                    .getTypeElement(TiledDataSource::class.java.canonicalName)
+                    .getTypeElement(PositionalDataSource::class.java.canonicalName)
             assertThat(dataSource, notNullValue())
             assertThat(DataSourceQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(dataSource.asType())), `is`(true))
@@ -275,13 +275,13 @@ class TypeAdapterStoreTest {
     }
 
     @Test
-    fun findPagedListProvider() {
-        simpleRun(jfos = COMMON.LIVE_PAGED_LIST_PROVIDER) {
+    fun findDataSourceFactory() {
+        simpleRun(jfos = COMMON.DATA_SOURCE_FACTORY) {
             invocation ->
             val pagedListProvider = invocation.processingEnv.elementUtils
-                    .getTypeElement(PagingTypeNames.LIVE_PAGED_LIST_PROVIDER.toString())
+                    .getTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY.toString())
             assertThat(pagedListProvider, notNullValue())
-            assertThat(LivePagedListQueryResultBinderProvider(invocation.context).matches(
+            assertThat(DataSourceFactoryQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(pagedListProvider.asType())), `is`(true))
         }.compilesWithoutError()
     }

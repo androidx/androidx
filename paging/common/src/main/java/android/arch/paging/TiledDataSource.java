@@ -23,6 +23,8 @@ import android.support.annotation.WorkerThread;
 import java.util.Collections;
 import java.util.List;
 
+// NOTE: Room 1.0 depends on this class, so it should not be removed until
+// we can require a version of Room that uses PositionalDataSource directly
 /**
  * @param <T> Type loaded by the TiledDataSource.
  *
@@ -60,9 +62,11 @@ public abstract class TiledDataSource<T> extends PositionalDataSource<T> {
 
         // convert from legacy behavior
         List<T> list = loadRange(firstLoadPosition, firstLoadSize);
-        if (list != null) {
+        if (list != null && list.size() == firstLoadSize) {
             callback.onResult(list, firstLoadPosition, totalCount);
         } else {
+            // null list, or size doesn't match request
+            // The size check is a WAR for Room 1.0, subsequent versions do the check in Room
             invalidate();
         }
     }
