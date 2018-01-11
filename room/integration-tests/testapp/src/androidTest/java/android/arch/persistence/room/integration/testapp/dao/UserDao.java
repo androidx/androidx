@@ -18,8 +18,6 @@ package android.arch.persistence.room.integration.testapp.dao;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.paging.DataSource;
-import android.arch.paging.LivePagedListProvider;
-import android.arch.paging.TiledDataSource;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -190,15 +188,9 @@ public abstract class UserDao {
     @Query("SELECT * FROM user where mAge > :age")
     public abstract DataSource.Factory<Integer, User> loadPagedByAge(int age);
 
-    @Query("SELECT * FROM user where mAge > :age")
-    public abstract LivePagedListProvider<Integer, User> loadPagedByAge_legacy(int age);
-
     // TODO: switch to PositionalDataSource once Room supports it
     @Query("SELECT * FROM user ORDER BY mAge DESC")
     public abstract DataSource.Factory<Integer, User> loadUsersByAgeDesc();
-
-    @Query("SELECT * FROM user ORDER BY mAge DESC")
-    public abstract TiledDataSource<User> loadUsersByAgeDesc_legacy();
 
     @Query("DELETE FROM User WHERE mId IN (:ids) AND mAge == :age")
     public abstract int deleteByAgeAndIds(int age, List<Integer> ids);

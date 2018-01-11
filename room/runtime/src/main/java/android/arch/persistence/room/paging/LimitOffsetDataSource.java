@@ -16,7 +16,7 @@
 
 package android.arch.persistence.room.paging;
 
-import android.arch.paging.TiledDataSource;
+import android.arch.paging.PositionalDataSource;
 import android.arch.persistence.room.InvalidationTracker;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.RoomSQLiteQuery;
@@ -25,6 +25,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -42,7 +43,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class LimitOffsetDataSource<T> extends TiledDataSource<T> {
+public abstract class LimitOffsetDataSource<T> extends PositionalDataSource<T> {
     private final RoomSQLiteQuery mSourceQuery;
     private final String mCountQuery;
     private final String mLimitOffsetQuery;
@@ -67,7 +68,10 @@ public abstract class LimitOffsetDataSource<T> extends TiledDataSource<T> {
         db.getInvalidationTracker().addWeakObserver(mObserver);
     }
 
-    @Override
+    /**
+     * Count number of rows query can return
+     */
+    @SuppressWarnings("WeakerAccess")
     public int countItems() {
         final RoomSQLiteQuery sqLiteQuery = RoomSQLiteQuery.acquire(mCountQuery,
                 mSourceQuery.getArgCount());
@@ -93,8 +97,43 @@ public abstract class LimitOffsetDataSource<T> extends TiledDataSource<T> {
     @SuppressWarnings("WeakerAccess")
     protected abstract List<T> convertRows(Cursor cursor);
 
-    @Nullable
     @Override
+    public void loadInitial(@NonNull LoadInitialParams params,
+            @NonNull LoadInitialCallback<T> callback) {
+        int totalCount = countItems();
+        if (totalCount == 0) {
+            callback.onResult(Collections.<T>emptyList(), 0, 0);
+            return;
+        }
+
+        // bound the size requested, based on known count
+        final int firstLoadPosition = computeInitialLoadPosition(params, totalCount);
+        final int firstLoadSize = computeInitialLoadSize(params, firstLoadPosition, totalCount);
+
+        List<T> list = loadRange(firstLoadPosition, firstLoadSize);
+        if (list != null && list.size() == firstLoadSize) {
+            callback.onResult(list, firstLoadPosition, totalCount);
+        } else {
+            // null list, or size doesn't match request - DB modified between count and load
+            invalidate();
+        }
+    }
+
+    @Override
+    public void loadRange(@NonNull LoadRangeParams params,
+            @NonNull LoadRangeCallback<T> callback) {
+        List<T> list = loadRange(params.startPosition, params.loadSize);
+        if (list != null) {
+            callback.onResult(list);
+        } else {
+            invalidate();
+        }
+    }
+
+    /**
+     * Return the rows from startPos to startPos + loadCount
+     */
+    @Nullable
     public List<T> loadRange(int startPosition, int loadCount) {
         final RoomSQLiteQuery sqLiteQuery = RoomSQLiteQuery.acquire(mLimitOffsetQuery,
                 mSourceQuery.getArgCount() + 2);

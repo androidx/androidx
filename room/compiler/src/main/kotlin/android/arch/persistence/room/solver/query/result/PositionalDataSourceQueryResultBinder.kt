@@ -31,9 +31,9 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
-class TiledDataSourceQueryResultBinder(val listAdapter: ListQueryResultAdapter?,
-                                       val tableNames: List<String>)
-            : QueryResultBinder(listAdapter) {
+class PositionalDataSourceQueryResultBinder(
+        val listAdapter: ListQueryResultAdapter?,
+        val tableNames: List<String>) : QueryResultBinder(listAdapter) {
     val itemTypeName: TypeName = listAdapter?.rowAdapter?.out?.typeName() ?: TypeName.OBJECT
     val typeName: ParameterizedTypeName = ParameterizedTypeName.get(
             RoomTypeNames.LIMIT_OFFSET_DATA_SOURCE, itemTypeName)
@@ -53,7 +53,7 @@ class TiledDataSourceQueryResultBinder(val listAdapter: ListQueryResultAdapter?,
         }
     }
 
-    fun createConvertRowsMethod(scope: CodeGenScope): MethodSpec =
+    private fun createConvertRowsMethod(scope: CodeGenScope): MethodSpec =
             MethodSpec.methodBuilder("convertRows").apply {
                 addAnnotation(Override::class.java)
                 addModifiers(Modifier.PROTECTED)
