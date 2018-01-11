@@ -259,6 +259,7 @@ package android.support.v4.app {
     method public int getIcon();
     method public android.support.v4.app.RemoteInput[] getRemoteInputs();
     method public int getSemanticAction();
+    method public boolean getShowsUserInterface();
     method public java.lang.CharSequence getTitle();
     field public static final int SEMANTIC_ACTION_ARCHIVE = 5; // 0x5
     field public static final int SEMANTIC_ACTION_DELETE = 4; // 0x4
@@ -285,6 +286,7 @@ package android.support.v4.app {
     method public android.os.Bundle getExtras();
     method public android.support.v4.app.NotificationCompat.Action.Builder setAllowGeneratedReplies(boolean);
     method public android.support.v4.app.NotificationCompat.Action.Builder setSemanticAction(int);
+    method public android.support.v4.app.NotificationCompat.Action.Builder setShowsUserInterface(boolean);
   }
 
   public static abstract interface NotificationCompat.Action.Extender {
