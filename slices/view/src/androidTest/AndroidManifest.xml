@@ -15,5 +15,10 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.app.slice.view.test">
-    <uses-sdk android:minSdkVersion="28"/>
+
+    <application>
+        <provider android:name="androidx.app.slice.SliceManagerTest$TestSliceProvider"
+                  android:authorities="androidx.app.slice.view.test"
+                  android:exported="true"/>
+    </application>
 </manifest>

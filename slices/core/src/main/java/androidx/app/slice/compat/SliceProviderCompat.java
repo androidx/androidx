@@ -60,14 +60,21 @@ public class SliceProviderCompat extends ContentProvider {
     public static final String EXTRA_BIND_URI = "slice_uri";
     public static final String METHOD_SLICE = "bind_slice";
     public static final String METHOD_MAP_INTENT = "map_slice";
+    public static final String METHOD_PIN = "pin_slice";
+    public static final String METHOD_UNPIN = "unpin_slice";
+    public static final String METHOD_GET_PINNED_SPECS = "get_specs";
+
     public static final String EXTRA_INTENT = "slice_intent";
     public static final String EXTRA_SLICE = "slice";
     public static final String EXTRA_SUPPORTED_SPECS = "specs";
     public static final String EXTRA_SUPPORTED_SPECS_REVS = "revs";
+    private static final String EXTRA_PKG = "pkg";
+    private static final String DATA_PREFIX = "slice_data_";
 
     private static final boolean DEBUG = false;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private SliceProvider mSliceProvider;
+    private CompatPinnedList mPinnedList;
 
     public SliceProviderCompat(SliceProvider provider) {
         mSliceProvider = provider;
@@ -75,6 +82,8 @@ public class SliceProviderCompat extends ContentProvider {
 
     @Override
     public boolean onCreate() {
+        mPinnedList = new CompatPinnedList(getContext(),
+                DATA_PREFIX + mSliceProvider.getClass().getName());
         return mSliceProvider.onCreateSliceProvider();
     }
 
@@ -156,8 +165,68 @@ public class SliceProviderCompat extends ContentProvider {
                 b.putParcelable(EXTRA_SLICE, null);
             }
             return b;
+        } else if (method.equals(METHOD_PIN)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            List<SliceSpec> specs = getSpecs(extras);
+            String pkg = extras.getString(EXTRA_PKG);
+            if (mPinnedList.addPin(uri, pkg, specs)) {
+                handleSlicePinned(uri);
+            }
+            return null;
+        } else if (method.equals(METHOD_UNPIN)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            String pkg = extras.getString(EXTRA_PKG);
+            if (mPinnedList.removePin(uri, pkg)) {
+                handleSliceUnpinned(uri);
+            }
+            return null;
+        } else if (method.equals(METHOD_GET_PINNED_SPECS)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            Bundle b = new Bundle();
+            addSpecs(b, mPinnedList.getSpecs(uri));
+            return b;
         }
         return super.call(method, arg, extras);
+    }
+
+    private void handleSlicePinned(final Uri sliceUri) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            mSliceProvider.onSlicePinned(sliceUri);
+        } else {
+            final CountDownLatch latch = new CountDownLatch(1);
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mSliceProvider.onSlicePinned(sliceUri);
+                    latch.countDown();
+                }
+            });
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void handleSliceUnpinned(final Uri sliceUri) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            mSliceProvider.onSliceUnpinned(sliceUri);
+        } else {
+            final CountDownLatch latch = new CountDownLatch(1);
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mSliceProvider.onSliceUnpinned(sliceUri);
+                    latch.countDown();
+                }
+            });
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private Slice handleBindSlice(final Uri sliceUri, final List<SliceSpec> specs) {
@@ -291,6 +360,80 @@ public class SliceProviderCompat extends ContentProvider {
                 return null;
             }
             return new Slice((Bundle) bundle);
+        } catch (RemoteException e) {
+            // Arbitrary and not worth documenting, as Activity
+            // Manager will kill this process shortly anyway.
+            return null;
+        } finally {
+            provider.close();
+        }
+    }
+
+    /**
+     * Compat version of {@link android.app.slice.SliceManager#pinSlice}.
+     */
+    public static void pinSlice(Context context, Uri uri,
+            List<SliceSpec> supportedSpecs) {
+        ContentProviderClient provider = context.getContentResolver()
+                .acquireContentProviderClient(uri);
+        if (provider == null) {
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        try {
+            Bundle extras = new Bundle();
+            extras.putParcelable(EXTRA_BIND_URI, uri);
+            extras.putString(EXTRA_PKG, context.getPackageName());
+            addSpecs(extras, supportedSpecs);
+            provider.call(METHOD_PIN, null, extras);
+        } catch (RemoteException e) {
+            // Arbitrary and not worth documenting, as Activity
+            // Manager will kill this process shortly anyway.
+        } finally {
+            provider.close();
+        }
+    }
+
+    /**
+     * Compat version of {@link android.app.slice.SliceManager#unpinSlice}.
+     */
+    public static void unpinSlice(Context context, Uri uri,
+            List<SliceSpec> supportedSpecs) {
+        ContentProviderClient provider = context.getContentResolver()
+                .acquireContentProviderClient(uri);
+        if (provider == null) {
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        try {
+            Bundle extras = new Bundle();
+            extras.putParcelable(EXTRA_BIND_URI, uri);
+            extras.putString(EXTRA_PKG, context.getPackageName());
+            addSpecs(extras, supportedSpecs);
+            provider.call(METHOD_UNPIN, null, extras);
+        } catch (RemoteException e) {
+            // Arbitrary and not worth documenting, as Activity
+            // Manager will kill this process shortly anyway.
+        } finally {
+            provider.close();
+        }
+    }
+
+    /**
+     * Compat version of {@link android.app.slice.SliceManager#getPinnedSpecs(Uri)}.
+     */
+    public static List<SliceSpec> getPinnedSpecs(Context context, Uri uri) {
+        ContentProviderClient provider = context.getContentResolver()
+                .acquireContentProviderClient(uri);
+        if (provider == null) {
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        try {
+            Bundle extras = new Bundle();
+            extras.putParcelable(EXTRA_BIND_URI, uri);
+            final Bundle res = provider.call(METHOD_GET_PINNED_SPECS, null, extras);
+            if (res == null) {
+                return null;
+            }
+            return getSpecs(res);
         } catch (RemoteException e) {
             // Arbitrary and not worth documenting, as Activity
             // Manager will kill this process shortly anyway.

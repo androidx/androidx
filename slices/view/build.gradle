@@ -29,6 +29,11 @@ dependencies {
     api(ARCH_LIFECYCLE_EXTENSIONS, libs.exclude_annotations_transitive)
 
     androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
+}
+
+android {
 }
 
 supportLibrary {

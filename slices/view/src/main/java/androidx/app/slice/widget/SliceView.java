@@ -34,12 +34,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.Arrays;
 import java.util.List;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
-import androidx.app.slice.SliceSpec;
 import androidx.app.slice.core.SliceQuery;
 import androidx.app.slice.view.R;
 
@@ -75,13 +73,6 @@ import androidx.app.slice.view.R;
  * @see SliceLiveData
  */
 public class SliceView extends ViewGroup implements Observer<Slice> {
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static List<SliceSpec> SUPPORTED_SPECS = Arrays.asList(
-    );
 
     private static final String TAG = "SliceView";
 

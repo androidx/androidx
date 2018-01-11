@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="slice_provider">androidx.app.slice.compat.SliceProviderWrapper</string>
+    <string name="slice_provider">androidx.app.slice.compat.SliceProviderWrapperContainer.SliceProviderWrapper</string>
 </resources>

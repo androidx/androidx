@@ -27,6 +27,8 @@ dependencies {
     implementation project(":appcompat-v7")
 
     androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 }
 
 android {

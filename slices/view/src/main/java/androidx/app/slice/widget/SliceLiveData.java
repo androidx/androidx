@@ -15,22 +15,21 @@
  */
 package androidx.app.slice.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.arch.lifecycle.LiveData;
-import android.content.ContentProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import java.util.Arrays;
 import java.util.List;
 
 import androidx.app.slice.Slice;
+import androidx.app.slice.SliceManager;
 import androidx.app.slice.SliceSpec;
 import androidx.app.slice.SliceSpecs;
 
@@ -42,41 +41,12 @@ import androidx.app.slice.SliceSpecs;
  */
 public final class SliceLiveData {
 
-    private static final List<SliceSpec> SUPPORTED_SPECS = Arrays.asList(SliceSpecs.BASIC,
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static final List<SliceSpec> SUPPORTED_SPECS = Arrays.asList(SliceSpecs.BASIC,
             SliceSpecs.LIST);
-
-    /**
-     * Turns a slice Uri into slice content.
-     *
-     * @param context Context to be used.
-     * @param uri The URI to a slice provider
-     * @return The Slice provided by the app or null if none is given.
-     * @see Slice
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static @Nullable Slice bindSlice(Context context, @NonNull Uri uri) {
-        return Slice.bindSlice(context, uri, SUPPORTED_SPECS);
-    }
-
-
-    /**
-     * Turns a slice intent into slice content. Expects an explicit intent. If there is no
-     * {@link ContentProvider} associated with the given intent this will throw
-     * {@link IllegalArgumentException}.
-     *
-     * @param context The context to use.
-     * @param intent The intent associated with a slice.
-     * @return The Slice provided by the app or null if none is given.
-     * @see Slice
-     * @see androidx.app.slice.SliceProvider#onMapIntentToUri(Intent)
-     * @see Intent
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static @Nullable Slice bindSlice(Context context, @NonNull Intent intent) {
-        return Slice.bindSlice(context, intent, SUPPORTED_SPECS);
-    }
 
     /**
      * Produces an {@link LiveData} that tracks a Slice for a given Uri. To use
@@ -97,13 +67,13 @@ public final class SliceLiveData {
     }
 
     private static class SliceLiveDataImpl extends LiveData<Slice> {
-        private final Context mContext;
         private final Intent mIntent;
+        private final SliceManager mSliceManager;
         private Uri mUri;
 
         private SliceLiveDataImpl(Context context, Uri uri) {
             super();
-            mContext = context;
+            mSliceManager = SliceManager.get(context);
             mUri = uri;
             mIntent = null;
             // TODO: Check if uri points at a Slice?
@@ -111,7 +81,7 @@ public final class SliceLiveData {
 
         private SliceLiveDataImpl(Context context, Intent intent) {
             super();
-            mContext = context;
+            mSliceManager = SliceManager.get(context);
             mUri = null;
             mIntent = intent;
         }
@@ -120,35 +90,34 @@ public final class SliceLiveData {
         protected void onActive() {
             AsyncTask.execute(mUpdateSlice);
             if (mUri != null) {
-                mContext.getContentResolver().registerContentObserver(mUri, false, mObserver);
+                mSliceManager.registerSliceCallback(mUri, mSliceCallback);
             }
         }
 
         @Override
         protected void onInactive() {
             if (mUri != null) {
-                mContext.getContentResolver().unregisterContentObserver(mObserver);
+                mSliceManager.unregisterSliceCallback(mUri, mSliceCallback);
             }
         }
 
         private final Runnable mUpdateSlice = new Runnable() {
             @Override
             public void run() {
-                Slice s = mUri != null ? Slice.bindSlice(mContext, mUri, SUPPORTED_SPECS)
-                        : Slice.bindSlice(mContext, mIntent, SUPPORTED_SPECS);
+                Slice s = mUri != null ? mSliceManager.bindSlice(mUri)
+                        : mSliceManager.bindSlice(mIntent);
                 if (mUri == null && s != null) {
-                    mContext.getContentResolver().registerContentObserver(s.getUri(),
-                            false, mObserver);
                     mUri = s.getUri();
+                    mSliceManager.registerSliceCallback(mUri, mSliceCallback);
                 }
                 postValue(s);
             }
         };
 
-        private final ContentObserver mObserver = new ContentObserver(new Handler()) {
+        private final SliceManager.SliceCallback mSliceCallback = new SliceManager.SliceCallback() {
             @Override
-            public void onChange(boolean selfChange) {
-                AsyncTask.execute(mUpdateSlice);
+            public void onSliceUpdated(@NonNull Slice s) {
+                postValue(s);
             }
         };
     }

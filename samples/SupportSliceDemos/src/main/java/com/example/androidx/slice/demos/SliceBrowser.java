@@ -128,6 +128,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.SliceOb
             mSearchView.setQuery(savedInstanceState.getString("SELECTED_QUERY"), true);
         }
 
+        grantPackage(getPackageName());
         // TODO: Listen for changes.
         updateAvailableSlices();
         if (TEST_INTENT) {
@@ -183,12 +184,16 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.SliceOb
     private void authAllSlices() {
         List<ApplicationInfo> packages = getPackageManager().getInstalledApplications(0);
         packages.forEach(info -> {
-            for (int i = 0; i < URI_PATHS.length; i++) {
-                grantUriPermission(info.packageName, getUri(URI_PATHS[i], getApplicationContext()),
-                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-                                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            }
+            grantPackage(info.packageName);
         });
+    }
+
+    private void grantPackage(String packageName) {
+        for (int i = 0; i < URI_PATHS.length; i++) {
+            grantUriPermission(packageName, getUri(URI_PATHS[i], getApplicationContext()),
+                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        }
     }
 
     private void updateAvailableSlices() {

@@ -31,7 +31,7 @@ import java.util.List;
 
 import androidx.app.slice.compat.ContentProviderWrapper;
 import androidx.app.slice.compat.SliceProviderCompat;
-import androidx.app.slice.compat.SliceProviderWrapper;
+import androidx.app.slice.compat.SliceProviderWrapperContainer;
 
 /**
  * A SliceProvider allows an app to provide content to be displayed in system spaces. This content
@@ -80,7 +80,7 @@ public abstract class SliceProvider extends ContentProviderWrapper {
     public void attachInfo(Context context, ProviderInfo info) {
         ContentProvider impl;
         if (BuildCompat.isAtLeastP()) {
-            impl = new SliceProviderWrapper(this);
+            impl = new SliceProviderWrapperContainer.SliceProviderWrapper(this);
         } else {
             impl = new SliceProviderCompat(this);
         }
@@ -119,6 +119,42 @@ public abstract class SliceProvider extends ContentProviderWrapper {
      */
     // TODO: Provide alternate notifyChange that takes in the slice (i.e. notifyChange(Uri, Slice)).
     public abstract Slice onBindSlice(Uri sliceUri);
+
+    /**
+     * Called to inform an app that a slice has been pinned.
+     * <p>
+     * Pinning is a way that slice hosts use to notify apps of which slices
+     * they care about updates for. When a slice is pinned the content is
+     * expected to be relatively fresh and kept up to date.
+     * <p>
+     * Being pinned does not provide any escalated privileges for the slice
+     * provider. So apps should do things such as turn on syncing or schedule
+     * a job in response to a onSlicePinned.
+     * <p>
+     * Pinned state is not persisted through a reboot, and apps can expect a
+     * new call to onSlicePinned for any slices that should remain pinned
+     * after a reboot occurs.
+     *
+     * @param sliceUri The uri of the slice being unpinned.
+     * @see #onSliceUnpinned(Uri)
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void onSlicePinned(Uri sliceUri) {
+    }
+
+    /**
+     * Called to inform an app that a slices is no longer pinned.
+     * <p>
+     * This means that no other apps on the device care about updates to this
+     * slice anymore and therefore it is not important to be updated. Any syncs
+     * or jobs related to this slice should be cancelled.
+     * @see #onSlicePinned(Uri)
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void onSliceUnpinned(Uri sliceUri) {
+    }
 
     /**
      * This method must be overridden if an {@link IntentFilter} is specified on the SliceProvider.
