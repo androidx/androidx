@@ -172,7 +172,9 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
                 if (position + data.size() != totalCount
                         && data.size() % mPageSize != 0) {
                     throw new IllegalArgumentException("PositionalDataSource requires initial load"
-                            + " size to be a multiple of page size to support internal tiling.");
+                            + " size to be a multiple of page size to support internal tiling."
+                            + " loadSize " + data.size() + ", position " + position
+                            + ", totalCount " + totalCount + ", pageSize " + mPageSize);
                 }
 
                 if (mCountingEnabled) {
