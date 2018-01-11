@@ -29,7 +29,7 @@ import android.arch.persistence.room.solver.binderprovider.DataSourceQueryResult
 import android.arch.persistence.room.solver.binderprovider.FlowableQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.InstantQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.LiveDataQueryResultBinderProvider
-import android.arch.persistence.room.solver.binderprovider.LivePagedListQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.RxMaybeQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.RxSingleQueryResultBinderProvider
 import android.arch.persistence.room.solver.query.parameter.ArrayQueryParameterAdapter
@@ -135,7 +135,7 @@ class TypeAdapterStore private constructor(
             RxMaybeQueryResultBinderProvider(context),
             RxSingleQueryResultBinderProvider(context),
             DataSourceQueryResultBinderProvider(context),
-            LivePagedListQueryResultBinderProvider(context),
+            DataSourceFactoryQueryResultBinderProvider(context),
             InstantQueryResultBinderProvider(context)
     )
 

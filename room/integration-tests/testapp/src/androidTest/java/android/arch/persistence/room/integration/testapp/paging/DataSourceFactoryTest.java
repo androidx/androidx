@@ -60,37 +60,13 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
     @Test
     public void getUsersAsPagedList()
             throws InterruptedException, ExecutionException, TimeoutException {
-        validateUsersAsPagedList(new LivePagedListFactory() {
-            @Override
-            public LiveData<PagedList<User>> create() {
-                return new LivePagedListBuilder<>(
-                        mUserDao.loadPagedByAge(3),
-                        new PagedList.Config.Builder()
-                                .setPageSize(10)
-                                .setPrefetchDistance(1)
-                                .setInitialLoadSizeHint(10).build())
-                        .build();
-            }
-        });
-    }
-
-
-    // TODO: delete this and factory abstraction when LivePagedListProvider is removed
-    @Test
-    public void getUsersAsPagedList_legacyLivePagedListProvider()
-            throws InterruptedException, ExecutionException, TimeoutException {
-        validateUsersAsPagedList(new LivePagedListFactory() {
-            @Override
-            public LiveData<PagedList<User>> create() {
-                return mUserDao.loadPagedByAge_legacy(3).create(
-                        0,
-                        new PagedList.Config.Builder()
-                                .setPageSize(10)
-                                .setPrefetchDistance(1)
-                                .setInitialLoadSizeHint(10)
-                                .build());
-            }
-        });
+        validateUsersAsPagedList(() -> new LivePagedListBuilder<>(
+                mUserDao.loadPagedByAge(3),
+                new PagedList.Config.Builder()
+                        .setPageSize(10)
+                        .setPrefetchDistance(1)
+                        .setInitialLoadSizeHint(10).build())
+                .build());
     }
 
     private void validateUsersAsPagedList(LivePagedListFactory factory)
