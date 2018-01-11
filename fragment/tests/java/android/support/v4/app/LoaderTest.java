@@ -24,12 +24,14 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.testutils.FragmentActivityUtils;
+import android.support.testutils.RecreatedActivity;
 import android.support.v4.app.test.LoaderActivity;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -49,7 +51,7 @@ public class LoaderTest {
 
     @Rule
     public ActivityTestRule<LoaderActivity> mActivityRule =
-            new ActivityTestRule(LoaderActivity.class);
+            new ActivityTestRule<>(LoaderActivity.class);
 
     /**
      * Test to ensure that there is no Activity leak due to Loader
@@ -78,7 +80,8 @@ public class LoaderTest {
         FragmentTestUtil.executePendingTransactions(mActivityRule, fm);
         fm = null; // clear it so that it can be released
 
-        WeakReference<LoaderActivity> weakActivity = new WeakReference(LoaderActivity.sActivity);
+        WeakReference<RecreatedActivity> weakActivity =
+                new WeakReference<>(LoaderActivity.sActivity);
 
         activity = FragmentActivityUtils.recreateActivity(mActivityRule, activity);
 
@@ -109,6 +112,26 @@ public class LoaderTest {
         assertEquals("Loaded!", activity.textView.getText().toString());
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void enforceOnMainThread_initLoader() {
+        LoaderActivity activity = mActivityRule.getActivity();
+        activity.getSupportLoaderManager().initLoader(-1, null,
+                new DummyLoaderCallbacks(activity));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void enforceOnMainThread_restartLoader() {
+        LoaderActivity activity = mActivityRule.getActivity();
+        activity.getSupportLoaderManager().restartLoader(-1, null,
+                new DummyLoaderCallbacks(activity));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void enforceOnMainThread_destroyLoader() {
+        LoaderActivity activity = mActivityRule.getActivity();
+        activity.getSupportLoaderManager().destroyLoader(-1);
+    }
+
     /**
      * When a change is interrupted with stop, the data in the LoaderManager remains stale.
      */
@@ -125,6 +148,7 @@ public class LoaderTest {
                 final Loader<String> loader =
                         activity.getSupportLoaderManager().initLoader(DELAY_LOADER, null,
                                 new LoaderManager.LoaderCallbacks<String>() {
+                                    @NonNull
                                     @Override
                                     public Loader<String> onCreateLoader(int id, Bundle args) {
                                         return new AsyncTaskLoader<String>(activity) {
@@ -150,13 +174,14 @@ public class LoaderTest {
                                     }
 
                                     @Override
-                                    public void onLoadFinished(Loader<String> loader, String data) {
+                                    public void onLoadFinished(@NonNull Loader<String> loader,
+                                            String data) {
                                         activity.textViewB.setText(data);
                                         loadedLatch[0].countDown();
                                     }
 
                                     @Override
-                                    public void onLoaderReset(Loader<String> loader) {
+                                    public void onLoaderReset(@NonNull Loader<String> loader) {
                                     }
                                 });
                 loader.forceLoad();
@@ -195,29 +220,35 @@ public class LoaderTest {
 
     public static class LoaderFragment extends Fragment {
         private static final int LOADER_ID = 1;
-        private final LoaderManager.LoaderCallbacks<Boolean> mLoaderCallbacks =
-                new LoaderManager.LoaderCallbacks<Boolean>() {
-                    @Override
-                    public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-                        return new DummyLoader(getContext());
-                    }
-
-                    @Override
-                    public void onLoadFinished(Loader<Boolean> loader, Boolean data) {
-
-                    }
-
-                    @Override
-                    public void onLoaderReset(Loader<Boolean> loader) {
-
-                    }
-                };
 
         @Override
         public void onActivityCreated(@Nullable Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            getLoaderManager().initLoader(LOADER_ID, null, mLoaderCallbacks);
+            getLoaderManager().initLoader(LOADER_ID, null,
+                    new DummyLoaderCallbacks(getContext()));
+        }
+    }
+
+    static class DummyLoaderCallbacks implements LoaderManager.LoaderCallbacks<Boolean> {
+        private final Context mContext;
+
+        DummyLoaderCallbacks(Context context) {
+            mContext = context;
+        }
+
+        @NonNull
+        @Override
+        public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+            return new DummyLoader(mContext);
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<Boolean> loader, Boolean data) {
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<Boolean> loader) {
         }
     }
 
