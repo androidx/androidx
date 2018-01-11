@@ -21,25 +21,25 @@ import org.junit.Test
 class ProGuardTypesMapperTest {
 
     @Test fun proGuard_typeMapper_wildcard_simple() {
-        ProGuardTester
+        ProGuardTester()
             .testThatGivenType("*")
             .getsRewrittenTo("*")
     }
 
     @Test fun proGuard_typeMapper_wildcard_double() {
-        ProGuardTester
+        ProGuardTester()
             .testThatGivenType("**")
             .getsRewrittenTo("**")
     }
 
     @Test fun proGuard_typeMapper_wildcard_composed() {
-        ProGuardTester
+        ProGuardTester()
             .testThatGivenType("**/*")
             .getsRewrittenTo("**/*")
     }
 
     @Test fun proGuard_typeMapper_wildcard_viaMap() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -51,7 +51,7 @@ class ProGuardTypesMapperTest {
     }
 
     @Test fun proGuard_typeMapper_wildcard_viaMap2() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -63,7 +63,7 @@ class ProGuardTypesMapperTest {
     }
 
     @Test fun proGuard_typeMapper_wildcard_viaTypesMap() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -75,7 +75,7 @@ class ProGuardTypesMapperTest {
     }
 
     @Test fun proGuard_typeMapper_wildcard_notFoundInMap() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -87,7 +87,7 @@ class ProGuardTypesMapperTest {
     }
 
     @Test fun proGuard_typeMapper_differentPrefix_notRewritten() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -99,7 +99,7 @@ class ProGuardTypesMapperTest {
     }
 
     @Test fun proGuard_typeMapper_differentPrefix_wildcard_getsRewritten() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -111,7 +111,7 @@ class ProGuardTypesMapperTest {
     }
 
     @Test fun proGuard_typeMapper_innerClass() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -123,7 +123,7 @@ class ProGuardTypesMapperTest {
     }
 
     @Test fun proGuard_typeMapper_innerClass_wildcard() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -135,25 +135,25 @@ class ProGuardTypesMapperTest {
     }
 
     @Test fun proGuard_argsMapper_tripleDots() {
-        ProGuardTester
+        ProGuardTester()
             .testThatGivenArguments("...")
             .getRewrittenTo("...")
     }
 
     @Test fun proGuard_argsMapper_wildcard() {
-        ProGuardTester
+        ProGuardTester()
             .testThatGivenArguments("*")
             .getRewrittenTo("*")
     }
 
     @Test fun proGuard_argsMapper_wildcards() {
-        ProGuardTester
+        ProGuardTester()
             .testThatGivenArguments("**, **")
             .getRewrittenTo("**, **")
     }
 
     @Test fun proGuard_argsMapper_viaMaps() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -168,7 +168,7 @@ class ProGuardTypesMapperTest {
     }
 
     @Test fun proGuard_argsMapper_viaMaps_spaces() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -182,4 +182,41 @@ class ProGuardTypesMapperTest {
             .getRewrittenTo("test.Activity, test.v7.**, keep.Me")
     }
 
+    @Test fun proGuard_shouldIgnore() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenRules(
+                "support/v7/Activity" to "ignore"
+            )
+            .testThatGivenType("support.v7.Activity")
+            .getsRewrittenTo("support.v7.Activity")
+    }
+
+    @Test fun proGuard_shouldIgnore_withWildcard() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenRules(
+                "support/v7/(.*)" to "ignore"
+            )
+            .testThatGivenType("support.v7.**")
+            .getsRewrittenTo("support.v7.**")
+    }
+
+
+    @Test(expected = AssertionError::class)
+    fun proGuard_shouldNotIgnore() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenRules(
+                "support/v7/Activity" to "ignoreInPreprocessor"
+            )
+            .testThatGivenType("support.v7.Activity")
+            .getsRewrittenTo("support.v7.Activity")
+    }
 }

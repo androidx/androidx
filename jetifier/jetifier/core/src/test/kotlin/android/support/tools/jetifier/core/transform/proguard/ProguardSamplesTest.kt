@@ -21,7 +21,7 @@ import org.junit.Test
 class ProguardSamplesTest {
 
     @Test fun proGuard_sample() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "android/app/",
                 "android/view/",
@@ -39,51 +39,51 @@ class ProguardSamplesTest {
                 "android/webkit/JavascriptInterface" to "test/webkit/JavascriptInterface"
             )
             .testThatGivenProGuard(
-               "-injars      bin/classes \n" +
-               "-injars      libs \n" +
-               "-outjars     bin/classes-processed.jar \n" +
-               "-libraryjars /usr/local/java/android-sdk/platforms/android-9/android.jar \n" +
-               "\n" +
-               "-dontpreverify \n" +
-               "-repackageclasses '' \n" +
-               "-allowaccessmodification \n" +
-               "-optimizations !code/simplification/arithmetic \n" +
-               "-keepattributes *Annotation* \n" +
-               "\n" +
-               "-keep public class * extends android.app.Activity \n" +
-               "-keep public class * extends android.app.Application \n" +
-               " \n" +
-               "-keep public class * extends android.view.View { \n" +
-               "      public <init>(android.content.Context); \n" +
-               "      public <init>(android.content.Context, android.util.AttributeSet); \n" +
-               "      public <init>(android.content.Context, android.util.AttributeSet, int); \n" +
-               "      public void set*(...); \n" +
-               "} \n" +
-               "\n" +
-               "-keepclasseswithmembers class * { \n" +
-               "    public <init>(android.content.Context, android.util.AttributeSet); \n" +
-               "} \n" +
-               "\n" +
-               "-keepclasseswithmembers class * { \n" +
-               "    public <init>(android.content.Context, android.util.AttributeSet, int); \n" +
-               "} \n" +
-               "\n" +
-               "-keepclassmembers class * extends android.content.Context { \n" +
-               "    public void *(android.view.View); \n" +
-               "    public void *(android.view.MenuItem); \n" +
-               "} \n" +
-               "\n" +
-               "-keepclassmembers class * implements android.os.Parcelable { \n" +
-               "    static ** CREATOR; \n" +
-               "} \n" +
-               "\n" +
-               "-keepclassmembers class **.R\$* { \n" +
-               "    public static <fields>; \n" +
-               "} \n" +
-               "\n" +
-               "-keepclassmembers class * { \n" +
-               "    @android.webkit.JavascriptInterface <methods>; \n" +
-               "} "
+                "-injars      bin/classes \n" +
+                "-injars      libs \n" +
+                "-outjars     bin/classes-processed.jar \n" +
+                "-libraryjars /usr/local/java/android-sdk/platforms/android-9/android.jar \n" +
+                "\n" +
+                "-dontpreverify \n" +
+                "-repackageclasses '' \n" +
+                "-allowaccessmodification \n" +
+                "-optimizations !code/simplification/arithmetic \n" +
+                "-keepattributes *Annotation* \n" +
+                "\n" +
+                "-keep public class * extends android.app.Activity \n" +
+                "-keep public class * extends android.app.Application \n" +
+                " \n" +
+                "-keep public class * extends android.view.View { \n" +
+                "      public <init>(android.content.Context); \n" +
+                "      public <init>(android.content.Context, android.util.AttributeSet); \n" +
+                "      public <init>(android.content.Context, android.util.AttributeSet, int); \n" +
+                "      public void set*(...); \n" +
+                "} \n" +
+                "\n" +
+                "-keepclasseswithmembers class * { \n" +
+                "    public <init>(android.content.Context, android.util.AttributeSet); \n" +
+                "} \n" +
+                "\n" +
+                "-keepclasseswithmembers class * { \n" +
+                "    public <init>(android.content.Context, android.util.AttributeSet, int); \n" +
+                "} \n" +
+                "\n" +
+                "-keepclassmembers class * extends android.content.Context { \n" +
+                "    public void *(android.view.View); \n" +
+                "    public void *(android.view.MenuItem); \n" +
+                "} \n" +
+                "\n" +
+                "-keepclassmembers class * implements android.os.Parcelable { \n" +
+                "    static ** CREATOR; \n" +
+                "} \n" +
+                "\n" +
+                "-keepclassmembers class **.R\$* { \n" +
+                "    public static <fields>; \n" +
+                "} \n" +
+                "\n" +
+                "-keepclassmembers class * { \n" +
+                "    @android.webkit.JavascriptInterface <methods>; \n" +
+                "} "
             )
             .rewritesTo(
                 "-injars      bin/classes \n" +
@@ -135,7 +135,7 @@ class ProguardSamplesTest {
     }
 
     @Test fun proGuard_sample2() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "android/support/v7/"
             )
@@ -161,7 +161,7 @@ class ProguardSamplesTest {
     }
 
     @Test fun proGuard_sample3() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "android/support/design/",
                 "android/support/v7/"
@@ -191,7 +191,7 @@ class ProguardSamplesTest {
     }
 
     @Test fun proGuard_sample4() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "android/support/design/",
                 "android/support/v7/",
@@ -238,7 +238,7 @@ class ProguardSamplesTest {
     }
 
     @Test fun proGuard_sample5() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -270,5 +270,4 @@ class ProguardSamplesTest {
                 "}"
             )
     }
-
 }

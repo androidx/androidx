@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2017 The Android Open Source Project
  *
@@ -21,7 +22,6 @@ import android.support.tools.jetifier.core.rules.JavaType
 import android.support.tools.jetifier.core.rules.RewriteRule
 import com.google.common.truth.Truth
 import org.junit.Test
-
 
 class RewriteRuleTest {
 
@@ -75,6 +75,19 @@ class RewriteRuleTest {
             .into("A/C", "test")
     }
 
+    @Test fun typeRewrite_ignore() {
+        RuleTester
+            .testThatRule("A/B", "ignore")
+            .rewritesType("A/B")
+            .isIgnored()
+    }
+
+    @Test fun typeRewrite_ignoreInPreprocessor() {
+        RuleTester
+            .testThatRule("A/B", "ignoreInPreprocessorOnly")
+            .rewritesType("A/B")
+            .isIgnored()
+    }
 
     object RuleTester {
 
@@ -110,7 +123,6 @@ class RewriteRuleTest {
                 Truth.assertThat(result.result!!.owner.fullName).isEqualTo(expectedTypeName)
                 Truth.assertThat(result.result!!.name).isEqualTo(expectedFieldName)
             }
-
         }
 
         class RuleTesterFinalTypeStep(val fromType: String,
@@ -121,14 +133,20 @@ class RewriteRuleTest {
             fun into(expectedResult: String) {
                 val fieldRule = RewriteRule(fromType, toType, fieldSelectors)
                 val result = fieldRule.apply(JavaType(inputType))
-                Truth.assertThat(result).isNotNull()
 
                 Truth.assertThat(result).isNotNull()
                 Truth.assertThat(result.result!!.fullName).isEqualTo(expectedResult)
             }
 
-        }
-    }
+            fun isIgnored() {
+                val fieldRule = RewriteRule(fromType, toType, fieldSelectors)
+                val result = fieldRule.apply(JavaType(inputType))
 
+                Truth.assertThat(result).isNotNull()
+                Truth.assertThat(result.isIgnored).isTrue()
+            }
+        }
+
+    }
 }
 

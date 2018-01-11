@@ -21,7 +21,7 @@ import org.junit.Test
 class ClassSpecTest_NamedCtorSelector {
 
     @Test fun proGuard_ctorSelector() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -50,7 +50,7 @@ class ClassSpecTest_NamedCtorSelector {
     }
 
     @Test fun proGuard_ctorSelector_modifiers() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -64,7 +64,8 @@ class ClassSpecTest_NamedCtorSelector {
                 "  public static support.Activity(...); \n" +
                 "  !private support.Activity(*); \n" +
                 "  !public !static support.Activity(support.Activity); \n" +
-                "  !protected support.Activity(support.Activity, support.Fragment, keep.Please); \n" +
+                "  !protected support.Activity(support.Activity, support.Fragment, keep.Please);" +
+                " \n" +
                 "}"
             )
             .rewritesTo(
@@ -79,7 +80,7 @@ class ClassSpecTest_NamedCtorSelector {
     }
 
     @Test fun proGuard_ctorSelector_annotation() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -94,7 +95,8 @@ class ClassSpecTest_NamedCtorSelector {
                 "  @support.Annotation support.Activity(...); \n" +
                 "  @support.Annotation support.Activity(*); \n" +
                 "  @support.Annotation support.Activity(support.Activity); \n" +
-                "  @support.Annotation support.Activity(support.Activity, support.Fragment, keep.Please); \n" +
+                "  @support.Annotation support.Activity(support.Activity, support.Fragment, " +
+                "keep.Please); \n" +
                 "}"
             )
             .rewritesTo(
@@ -109,7 +111,7 @@ class ClassSpecTest_NamedCtorSelector {
     }
 
     @Test fun proGuard_ctorSelector_modifiers_annotation() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -124,7 +126,8 @@ class ClassSpecTest_NamedCtorSelector {
                 "  @support.Annotation public static support.Activity(...); \n" +
                 "  @support.Annotation !private support.Activity(*); \n" +
                 "  @support.Annotation !public !static support.Activity(support.Activity); \n" +
-                "  @support.Annotation !protected support.Activity(support.Activity, support.Fragment, keep.Please); \n" +
+                "  @support.Annotation !protected support.Activity(support.Activity, " +
+                "support.Fragment, keep.Please); \n" +
                 "}"
             )
             .rewritesTo(
@@ -133,13 +136,14 @@ class ClassSpecTest_NamedCtorSelector {
                 "  @test.Annotation public static test.Activity(...); \n" +
                 "  @test.Annotation !private test.Activity(*); \n" +
                 "  @test.Annotation !public !static test.Activity(test.Activity); \n" +
-                "  @test.Annotation !protected test.Activity(test.Activity, test.Fragment, keep.Please); \n" +
+                "  @test.Annotation !protected test.Activity(test.Activity, test.Fragment, " +
+                "keep.Please); \n" +
                 "}"
             )
     }
 
     @Test fun proGuard_ctorSelector_modifiers_annotation_spaces() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )

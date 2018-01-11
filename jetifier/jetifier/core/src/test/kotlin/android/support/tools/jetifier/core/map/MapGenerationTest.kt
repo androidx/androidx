@@ -270,10 +270,11 @@ class MapGenerationTest {
             .andIsComplete()
     }
 
-    @Test fun mapTwoTypes_shouldIgnoreOne() {
+    @Test fun mapTwoTypes_shouldIgnoreFirstTwo() {
         ScanTester
             .testThatRules(
                 RewriteRule("android/support/v7/(.*)", "ignore"),
+                RewriteRule("android/support/v8/(.*)", "ignoreInPreprocessorOnly"),
                 RewriteRule("android/support/v14/(.*)", "android/test/{0}")
             )
             .withAllowedPrefixes(
@@ -281,6 +282,7 @@ class MapGenerationTest {
             )
             .forGivenTypes(
                 JavaType("android/support/v7/pref/Preference"),
+                JavaType("android/support/v8/pref/Preference"),
                 JavaType("android/support/v14/pref/Preference")
             )
             .mapInto(

@@ -21,7 +21,7 @@ import org.junit.Test
 class ClassSpecTest {
 
     @Test fun proGuard_classSpec_simple() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -39,7 +39,7 @@ class ClassSpecTest {
     }
 
     @Test fun proGuard_classSpec_allExistingRules() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -71,7 +71,7 @@ class ClassSpecTest {
     }
 
     @Test fun proGuard_classSpec_rulesModifiers() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -99,7 +99,7 @@ class ClassSpecTest {
     }
 
     @Test fun proGuard_classSpec_extends() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -119,7 +119,7 @@ class ClassSpecTest {
     }
 
     @Test fun proGuard_classSpec_modifiers_extends() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -137,7 +137,7 @@ class ClassSpecTest {
     }
 
     @Test fun proGuard_classSpec_annotation() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -157,7 +157,7 @@ class ClassSpecTest {
     }
 
     @Test fun proGuard_classSpec_annotation_extends() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -177,7 +177,7 @@ class ClassSpecTest {
     }
 
     @Test fun proGuard_classSpec_annotation_extends_spaces() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -193,5 +193,4 @@ class ClassSpecTest {
                 "-keep \t @test.Annotation \t public  class  *  extends test.Activity"
             )
     }
-
 }

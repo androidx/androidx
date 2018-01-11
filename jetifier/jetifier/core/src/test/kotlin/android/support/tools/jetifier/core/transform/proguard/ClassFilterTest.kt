@@ -21,7 +21,7 @@ import org.junit.Test
 class ClassFilterTest {
 
     @Test fun proGuard_classFilter() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -38,7 +38,7 @@ class ClassFilterTest {
     }
 
     @Test fun proGuard_classFilter_newLineIgnored() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -57,7 +57,7 @@ class ClassFilterTest {
     }
 
     @Test fun proGuard_classFilter_spacesRespected() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -74,7 +74,7 @@ class ClassFilterTest {
     }
 
     @Test fun proGuard_classFilter_negation() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )

@@ -18,6 +18,7 @@ package android.support.tools.jetifier.core.transform
 
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.rules.JavaType
+import android.support.tools.jetifier.core.rules.RewriteRule.TypeRewriteResult
 import android.support.tools.jetifier.core.transform.proguard.ProGuardType
 import java.util.regex.Pattern
 
@@ -38,19 +39,26 @@ class TransformationContext(val config: Config) {
     var proGuardMappingNotFoundFailuresCount = 0
         private set
 
+    private var runtimeIgnoreRules = config.rewriteRules
+        .filter { it.isRuntimeIgnoreRule() }
+        .toTypedArray()
+
     /** Returns whether any errors were found during the transformation process */
     fun wasErrorFound() = mappingNotFoundFailuresCount > 0
+        || proGuardMappingNotFoundFailuresCount > 0
 
     /**
      * Returns whether the given type is eligible for rewrite.
      *
      * If not, the transformers should ignore it.
      */
-    fun isEligibleForRewrite(type: JavaType) : Boolean {
-        if (config.restrictToPackagePrefixes.isEmpty()) {
+    fun isEligibleForRewrite(type: JavaType): Boolean {
+        if (!isEligibleForRewriteInternal(type.fullName)) {
             return false
         }
-        return packagePrefixPattern.matcher(type.fullName).matches()
+
+        val isIgnored = runtimeIgnoreRules.any { it.apply(type) == TypeRewriteResult.IGNORED }
+        return !isIgnored
     }
 
     /**
@@ -60,11 +68,20 @@ class TransformationContext(val config: Config) {
      * like *.v7 are not matched by prefix support.v7. So don't rely on it and use
      * the [ProGuardTypesMap] as first.
      */
-    fun isEligibleForRewrite(type: ProGuardType) : Boolean {
+    fun isEligibleForRewrite(type: ProGuardType): Boolean {
+        if (!isEligibleForRewriteInternal(type.value)) {
+            return false
+        }
+
+        val isIgnored = runtimeIgnoreRules.any { it.doesThisIgnoreProGuard(type) }
+        return !isIgnored
+    }
+
+    private fun isEligibleForRewriteInternal(type: String): Boolean {
         if (config.restrictToPackagePrefixes.isEmpty()) {
             return false
         }
-        return packagePrefixPattern.matcher(type.value).matches()
+        return packagePrefixPattern.matcher(type).matches()
     }
 
     /**

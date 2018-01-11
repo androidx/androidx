@@ -21,7 +21,7 @@ import org.junit.Test
 class ClassSpecTest_MethodInitSelector {
 
     @Test fun proGuard_methodsInitSelector() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
             )
             .forGivenTypesMap(
@@ -39,7 +39,7 @@ class ClassSpecTest_MethodInitSelector {
     }
 
     @Test fun proGuard_methodsInitSelector_modifiers() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
             )
             .forGivenTypesMap(
@@ -63,7 +63,7 @@ class ClassSpecTest_MethodInitSelector {
     }
 
     @Test fun proGuard_methodsInitSelector_modifiers_annotation() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -89,7 +89,7 @@ class ClassSpecTest_MethodInitSelector {
     }
 
     @Test fun proGuard_methodInitSelector() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -118,7 +118,7 @@ class ClassSpecTest_MethodInitSelector {
     }
 
     @Test fun proGuard_methodInitSelector_modifiers() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -147,7 +147,7 @@ class ClassSpecTest_MethodInitSelector {
     }
 
     @Test fun proGuard_methodInitSelector_annotation() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -162,7 +162,8 @@ class ClassSpecTest_MethodInitSelector {
                 "  @support.Annotation <init>(*); \n" +
                 "  @support.Annotation <init>(...); \n" +
                 "  @keep.Me <init>(support.Activity); \n" +
-                "  @support.Annotation <init>(support.Activity, support.Fragment, keep.Please); \n" +
+                "  @support.Annotation <init>(support.Activity, support.Fragment, keep.Please);" +
+                " \n" +
                 "}"
             )
             .rewritesTo(
@@ -177,7 +178,7 @@ class ClassSpecTest_MethodInitSelector {
     }
 
     @Test fun proGuard_methodInitSelector_modifiers_annotation() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -192,7 +193,8 @@ class ClassSpecTest_MethodInitSelector {
                 "  @support.Annotation public static <init>(*); \n" +
                 "  @support.Annotation !public !static <init>(...); \n" +
                 "  @support.Annotation !private static <init>(support.Activity); \n" +
-                "  @support.Annotation public !abstract <init>(support.Activity, support.Fragment, keep.Please); \n" +
+                "  @support.Annotation public !abstract <init>(support.Activity, support.Fragment" +
+                ", keep.Please); \n" +
                 "}"
             )
             .rewritesTo(
@@ -201,13 +203,14 @@ class ClassSpecTest_MethodInitSelector {
                 "  @test.Annotation public static <init>(*); \n" +
                 "  @test.Annotation !public !static <init>(...); \n" +
                 "  @test.Annotation !private static <init>(test.Activity); \n" +
-                "  @test.Annotation public !abstract <init>(test.Activity, test.Fragment, keep.Please); \n" +
+                "  @test.Annotation public !abstract <init>(test.Activity, test.Fragment, " +
+                "keep.Please); \n" +
                 "}"
             )
     }
 
     @Test fun proGuard_methodInitSelector_modifiers_annotation_test() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -218,12 +221,14 @@ class ClassSpecTest_MethodInitSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation  public  !abstract \t <init> ( support.Activity , support.Fragment, keep.Please); \n" +
+                "  @support.Annotation  public  !abstract \t <init> ( support.Activity , " +
+                "support.Fragment, keep.Please); \n" +
                 "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation  public  !abstract \t <init> (test.Activity, test.Fragment, keep.Please); \n" +
+                "  @test.Annotation  public  !abstract \t <init> (test.Activity, test.Fragment, " +
+                "keep.Please); \n" +
                 "}"
             )
     }

@@ -20,55 +20,61 @@ import android.support.tools.jetifier.core.archive.ArchiveFile
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.map.TypesMap
 import android.support.tools.jetifier.core.rules.JavaType
+import android.support.tools.jetifier.core.rules.RewriteRule
 import android.support.tools.jetifier.core.transform.TransformationContext
 import com.google.common.truth.Truth
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 
-
 /**
  * Helper to test ProGuard rewriting logic using lightweight syntax.
  */
-object ProGuardTester {
+class ProGuardTester {
 
     private var javaTypes = emptyList<Pair<String, String>>()
+    private var rewriteRules = emptyList<Pair<String, String>>()
     private var proGuardTypes = emptyList<Pair<ProGuardType, ProGuardType>>()
     private var prefixes = emptyList<String>()
 
-    fun forGivenPrefixes(vararg prefixes: String) : ProGuardTester {
+    fun forGivenPrefixes(vararg prefixes: String): ProGuardTester {
         this.prefixes = prefixes.toList()
         return this
     }
 
-    fun forGivenTypesMap(vararg rules: Pair<String, String>) : ProGuardTester {
-        this.javaTypes = rules.toList()
+    fun forGivenTypesMap(vararg types: Pair<String, String>): ProGuardTester {
+        this.javaTypes = types.toList()
         return this
     }
 
-    fun forGivenProGuardMap(vararg rules: Pair<String, String>) : ProGuardTester {
+    fun forGivenRules(vararg rules: Pair<String, String>): ProGuardTester {
+        this.rewriteRules = rules.toList()
+        return this
+    }
+
+    fun forGivenProGuardMap(vararg rules: Pair<String, String>): ProGuardTester {
         this.proGuardTypes = rules.map {
             ProGuardType.fromDotNotation(it.first) to ProGuardType.fromDotNotation(it.second) }
             .toList()
         return this
     }
 
-    fun testThatGivenType(givenType: String) : ProGuardTesterForType {
+    fun testThatGivenType(givenType: String): ProGuardTesterForType {
         return ProGuardTesterForType(createConfig(), givenType)
     }
 
-    fun testThatGivenArguments(givenArgs: String) : ProGuardTesterForArgs {
+    fun testThatGivenArguments(givenArgs: String): ProGuardTesterForArgs {
         return ProGuardTesterForArgs(createConfig(), givenArgs)
     }
 
-    fun testThatGivenProGuard(given: String) : ProGuardTesterForFile {
+    fun testThatGivenProGuard(given: String): ProGuardTesterForFile {
         return ProGuardTesterForFile(createConfig(), given)
     }
 
-    private fun createConfig() : Config {
+    private fun createConfig(): Config {
         return Config(
             restrictToPackagePrefixes = prefixes,
-            rewriteRules = emptyList(),
-            pomRewriteRules =  emptyList(),
+            rewriteRules = rewriteRules.map { RewriteRule(it.first, it.second) },
+            pomRewriteRules = emptyList(),
             typesMap = TypesMap(
                 types = javaTypes.map { JavaType(it.first) to JavaType(it.second) }.toMap(),
                 fields = emptyMap()),
@@ -87,8 +93,8 @@ object ProGuardTester {
             val result = file.data.toString(StandardCharsets.UTF_8)
 
             Truth.assertThat(result).isEqualTo(expected)
+            Truth.assertThat(context.wasErrorFound()).isFalse()
         }
-
     }
 
     class ProGuardTesterForType(private val config: Config, private val given: String) {
@@ -99,8 +105,8 @@ object ProGuardTester {
             val result = mapper.replaceType(given)
 
             Truth.assertThat(result).isEqualTo(expectedType)
+            Truth.assertThat(context.wasErrorFound()).isFalse()
         }
-
     }
 
     class ProGuardTesterForArgs(private val config: Config, private val given: String) {
@@ -111,8 +117,7 @@ object ProGuardTester {
             val result = mapper.replaceMethodArgs(given)
 
             Truth.assertThat(result).isEqualTo(expectedArguments)
+            Truth.assertThat(context.wasErrorFound()).isFalse()
         }
     }
-
 }
-
