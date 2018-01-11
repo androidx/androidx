@@ -22,8 +22,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
-// NOTE: Room 1.0 depends on this class, so it should not be removed
-// until Room switches to using DataSource.Factory directly
+// NOTE: Room 1.0 depends on this class, so it should not be removed until
+// we can require a version of Room that uses DataSource.Factory directly
 /**
  * Provides a {@code LiveData<PagedList>}, given a means to construct a DataSource.
  * <p>

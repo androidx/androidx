@@ -21,7 +21,7 @@ import android.arch.persistence.room.parser.ParsedQuery
 import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.processor.ProcessorErrors
 import android.arch.persistence.room.solver.QueryResultBinderProvider
-import android.arch.persistence.room.solver.query.result.TiledDataSourceQueryResultBinder
+import android.arch.persistence.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import android.arch.persistence.room.solver.query.result.ListQueryResultAdapter
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
 import javax.lang.model.type.DeclaredType
@@ -33,9 +33,9 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
                 .getTypeElement(PagingTypeNames.DATA_SOURCE.toString())?.asType()
     }
 
-    private val tiledDataSourceTypeMirror: TypeMirror? by lazy {
+    private val positionalDataSourceTypeMirror: TypeMirror? by lazy {
         context.processingEnv.elementUtils
-                .getTypeElement(PagingTypeNames.TILED_DATA_SOURCE.toString())?.asType()
+                .getTypeElement(PagingTypeNames.POSITIONAL_DATA_SOURCE.toString())?.asType()
     }
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
@@ -43,11 +43,11 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
         }
-        return TiledDataSourceQueryResultBinder(listAdapter, query.tables.map { it.name })
+        return PositionalDataSourceQueryResultBinder(listAdapter, query.tables.map { it.name })
     }
 
     override fun matches(declared: DeclaredType): Boolean {
-        if (dataSourceTypeMirror == null || tiledDataSourceTypeMirror == null) {
+        if (dataSourceTypeMirror == null || positionalDataSourceTypeMirror == null) {
             return false
         }
         if (declared.typeArguments.isEmpty()) {
@@ -59,9 +59,9 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
         if (!isDataSource) {
             return false
         }
-        val isTiled = context.processingEnv.typeUtils
-                .isAssignable(erasure, tiledDataSourceTypeMirror)
-        if (!isTiled) {
+        val isPositional = context.processingEnv.typeUtils
+                .isAssignable(erasure, positionalDataSourceTypeMirror)
+        if (!isPositional) {
             context.logger.e(ProcessorErrors.PAGING_SPECIFY_DATA_SOURCE_TYPE)
         }
         return true
