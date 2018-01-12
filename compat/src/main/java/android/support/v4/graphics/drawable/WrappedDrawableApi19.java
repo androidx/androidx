@@ -23,13 +23,13 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(19)
-class DrawableWrapperApi19 extends DrawableWrapperApi14 {
+class WrappedDrawableApi19 extends WrappedDrawableApi14 {
 
-    DrawableWrapperApi19(Drawable drawable) {
+    WrappedDrawableApi19(Drawable drawable) {
         super(drawable);
     }
 
-    DrawableWrapperApi19(DrawableWrapperState state, Resources resources) {
+    WrappedDrawableApi19(DrawableWrapperState state, Resources resources) {
         super(state, resources);
     }
 
@@ -55,9 +55,10 @@ class DrawableWrapperApi19 extends DrawableWrapperApi14 {
             super(orig, res);
         }
 
+        @NonNull
         @Override
         public Drawable newDrawable(@Nullable Resources res) {
-            return new DrawableWrapperApi19(this, res);
+            return new WrappedDrawableApi19(this, res);
         }
     }
 }
