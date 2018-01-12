@@ -52,7 +52,11 @@ public class SliceProviderWrapper extends SliceProvider {
     @Override
     public Slice onBindSlice(Uri sliceUri, List<SliceSpec> supportedVersions) {
         androidx.app.slice.SliceProvider.setSpecs(wrap(supportedVersions));
-        return SliceConvert.unwrap(mSliceProvider.onBindSlice(sliceUri));
+        try {
+            return SliceConvert.unwrap(mSliceProvider.onBindSlice(sliceUri));
+        } finally {
+            androidx.app.slice.SliceProvider.setSpecs(null);
+        }
     }
 
     /**
