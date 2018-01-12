@@ -2796,6 +2796,62 @@ public class NotificationCompat {
      * to attach actions.
      */
     public static class Action {
+        /**
+         * {@link SemanticAction}: No semantic action defined.
+         */
+        public static final int SEMANTIC_ACTION_NONE = 0;
+
+        /**
+         * {@link SemanticAction}: Reply to a conversation, chat, group, or wherever replies
+         * may be appropriate.
+         */
+        public static final int SEMANTIC_ACTION_REPLY = 1;
+
+        /**
+         * {@link SemanticAction}: Mark content as read.
+         */
+        public static final int SEMANTIC_ACTION_MARK_AS_READ = 2;
+
+        /**
+         * {@link SemanticAction}: Mark content as unread.
+         */
+        public static final int SEMANTIC_ACTION_MARK_AS_UNREAD = 3;
+
+        /**
+         * {@link SemanticAction}: Delete the content associated with the notification. This
+         * could mean deleting an email, message, etc.
+         */
+        public static final int SEMANTIC_ACTION_DELETE = 4;
+
+        /**
+         * {@link SemanticAction}: Archive the content associated with the notification. This
+         * could mean archiving an email, message, etc.
+         */
+        public static final int SEMANTIC_ACTION_ARCHIVE = 5;
+
+        /**
+         * {@link SemanticAction}: Mute the content associated with the notification. This could
+         * mean silencing a conversation or currently playing media.
+         */
+        public static final int SEMANTIC_ACTION_MUTE = 6;
+
+        /**
+         * {@link SemanticAction}: Unmute the content associated with the notification. This could
+         * mean un-silencing a conversation or currently playing media.
+         */
+        public static final int SEMANTIC_ACTION_UNMUTE = 7;
+
+        /**
+         * {@link SemanticAction}: Mark content with a thumbs up.
+         */
+        public static final int SEMANTIC_ACTION_THUMBS_UP = 8;
+
+        /**
+         * {@link SemanticAction}: Mark content with a thumbs down.
+         */
+        public static final int SEMANTIC_ACTION_THUMBS_DOWN = 9;
+
+
         final Bundle mExtras;
         private final RemoteInput[] mRemoteInputs;
 
@@ -2813,6 +2869,8 @@ public class NotificationCompat {
 
         private boolean mAllowGeneratedReplies;
 
+        private final @SemanticAction int mSemanticAction;
+
         /**
          * Small icon representing the action.
          */
@@ -2828,12 +2886,12 @@ public class NotificationCompat {
         public PendingIntent actionIntent;
 
         public Action(int icon, CharSequence title, PendingIntent intent) {
-            this(icon, title, intent, new Bundle(), null, null, true);
+            this(icon, title, intent, new Bundle(), null, null, true, SEMANTIC_ACTION_NONE);
         }
 
         Action(int icon, CharSequence title, PendingIntent intent, Bundle extras,
                 RemoteInput[] remoteInputs, RemoteInput[] dataOnlyRemoteInputs,
-                boolean allowGeneratedReplies) {
+                boolean allowGeneratedReplies, @SemanticAction int semanticAction) {
             this.icon = icon;
             this.title = NotificationCompat.Builder.limitCharSequenceLength(title);
             this.actionIntent = intent;
@@ -2841,6 +2899,7 @@ public class NotificationCompat {
             this.mRemoteInputs = remoteInputs;
             this.mDataOnlyRemoteInputs = dataOnlyRemoteInputs;
             this.mAllowGeneratedReplies = allowGeneratedReplies;
+            this.mSemanticAction = semanticAction;
         }
 
         public int getIcon() {
@@ -2880,6 +2939,17 @@ public class NotificationCompat {
         }
 
         /**
+         * Returns the {@link SemanticAction} associated with this {@link Action}. A
+         * {@link SemanticAction} denotes what an {@link Action}'s {@link PendingIntent} will do
+         * (eg. reply, mark as read, delete, etc).
+         *
+         * @see SemanticAction
+         */
+        public @SemanticAction int getSemanticAction() {
+            return mSemanticAction;
+        }
+
+        /**
          * Get the list of inputs to be collected from the user that ONLY accept data when this
          * action is sent. These remote inputs are guaranteed to return true on a call to
          * {@link RemoteInput#isDataOnly}.
@@ -2903,6 +2973,7 @@ public class NotificationCompat {
             private boolean mAllowGeneratedReplies = true;
             private final Bundle mExtras;
             private ArrayList<RemoteInput> mRemoteInputs;
+            private @SemanticAction int mSemanticAction;
 
             /**
              * Construct a new builder for {@link Action} object.
@@ -2911,7 +2982,7 @@ public class NotificationCompat {
              * @param intent the {@link PendingIntent} to fire when users trigger this action
              */
             public Builder(int icon, CharSequence title, PendingIntent intent) {
-                this(icon, title, intent, new Bundle(), null, true);
+                this(icon, title, intent, new Bundle(), null, true, SEMANTIC_ACTION_NONE);
             }
 
             /**
@@ -2921,11 +2992,13 @@ public class NotificationCompat {
              */
             public Builder(Action action) {
                 this(action.icon, action.title, action.actionIntent, new Bundle(action.mExtras),
-                        action.getRemoteInputs(), action.getAllowGeneratedReplies());
+                        action.getRemoteInputs(), action.getAllowGeneratedReplies(),
+                        action.getSemanticAction());
             }
 
             private Builder(int icon, CharSequence title, PendingIntent intent, Bundle extras,
-                    RemoteInput[] remoteInputs, boolean allowGeneratedReplies) {
+                    RemoteInput[] remoteInputs, boolean allowGeneratedReplies,
+                    @SemanticAction int semanticAction) {
                 mIcon = icon;
                 mTitle = NotificationCompat.Builder.limitCharSequenceLength(title);
                 mIntent = intent;
@@ -2933,6 +3006,7 @@ public class NotificationCompat {
                 mRemoteInputs = remoteInputs == null ? null : new ArrayList<>(
                         Arrays.asList(remoteInputs));
                 mAllowGeneratedReplies = allowGeneratedReplies;
+                mSemanticAction = semanticAction;
             }
 
             /**
@@ -2988,6 +3062,19 @@ public class NotificationCompat {
             }
 
             /**
+             * Sets the {@link SemanticAction} for this {@link Action}. A {@link SemanticAction}
+             * denotes what an {@link Action}'s {@link PendingIntent} will do (eg. reply, mark
+             * as read, delete, etc).
+             * @param semanticAction a {@link SemanticAction} defined within {@link Action} with
+             * {@code SEMANTIC_ACTION_} prefixes
+             * @return this object for method chaining
+             */
+            public Builder setSemanticAction(@SemanticAction int semanticAction) {
+                mSemanticAction = semanticAction;
+                return this;
+            }
+
+            /**
              * Apply an extender to this action builder. Extenders may be used to add
              * metadata or change options on this builder.
              */
@@ -3018,7 +3105,7 @@ public class NotificationCompat {
                 RemoteInput[] textInputsArr = textInputs.isEmpty()
                         ? null : textInputs.toArray(new RemoteInput[textInputs.size()]);
                 return new Action(mIcon, mTitle, mIntent, mExtras, textInputsArr,
-                        dataOnlyInputsArr, mAllowGeneratedReplies);
+                        dataOnlyInputsArr, mAllowGeneratedReplies, mSemanticAction);
             }
         }
 
@@ -3278,6 +3365,27 @@ public class NotificationCompat {
                 return (mFlags & FLAG_HINT_DISPLAY_INLINE) != 0;
             }
         }
+
+        /**
+         * Provides meaning to an {@link Action} that hints at what the associated
+         * {@link PendingIntent} will do. For example, an {@link Action} with a
+         * {@link PendingIntent} that replies to a text message notification may have the
+         * {@link #SEMANTIC_ACTION_REPLY} {@link SemanticAction} set within it.
+         */
+        @IntDef({
+                SEMANTIC_ACTION_NONE,
+                SEMANTIC_ACTION_REPLY,
+                SEMANTIC_ACTION_MARK_AS_READ,
+                SEMANTIC_ACTION_MARK_AS_UNREAD,
+                SEMANTIC_ACTION_DELETE,
+                SEMANTIC_ACTION_ARCHIVE,
+                SEMANTIC_ACTION_MUTE,
+                SEMANTIC_ACTION_UNMUTE,
+                SEMANTIC_ACTION_THUMBS_UP,
+                SEMANTIC_ACTION_THUMBS_DOWN
+        })
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface SemanticAction {}
     }
 
 
@@ -4678,8 +4786,10 @@ public class NotificationCompat {
             allowGeneratedReplies = action.getExtras().getBoolean(
                     NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES);
         }
+
         return new Action(action.icon, action.title, action.actionIntent,
-                action.getExtras(), remoteInputs, null, allowGeneratedReplies);
+                action.getExtras(), remoteInputs, null, allowGeneratedReplies,
+                Action.SEMANTIC_ACTION_NONE);
     }
 
     /**

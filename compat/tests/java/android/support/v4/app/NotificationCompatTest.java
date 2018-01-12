@@ -569,6 +569,22 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         assertTrue(resultMessagingStyle.isGroupConversation());
     }
 
+    @Test
+    public void action_builder_hasDefault() {
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Test Title", null).build();
+        assertEquals(NotificationCompat.Action.SEMANTIC_ACTION_NONE, action.getSemanticAction());
+    }
+
+    @Test
+    public void action_builder_setSemanticAction() {
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Test Title", null)
+                        .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
+                        .build();
+        assertEquals(NotificationCompat.Action.SEMANTIC_ACTION_REPLY, action.getSemanticAction());
+    }
+
     private static RemoteInput newDataOnlyRemoteInput() {
         return new RemoteInput.Builder(DATA_RESULT_KEY)
             .setAllowFreeFormInput(false)
