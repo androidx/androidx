@@ -17,7 +17,6 @@
 package androidx.app.slice.builders;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -50,9 +49,7 @@ public class GridBuilder extends TemplateSliceBuilder {
     /**
      * Create a builder which will construct a slice displayed in a grid format.
      * @param uri Uri to tag for this slice.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     public GridBuilder(@NonNull Context context, @NonNull Uri uri) {
         super(new Slice.Builder(uri), context);
     }
@@ -60,25 +57,9 @@ public class GridBuilder extends TemplateSliceBuilder {
     /**
      * Create a builder which will construct a slice displayed in a grid format.
      * @param parent The builder constructing the parent slice.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     public GridBuilder(@NonNull ListBuilder parent) {
         super(parent.getImpl().createGridBuilder());
-    }
-
-    /**
-     */
-    public GridBuilder(@NonNull Uri uri) {
-        super(uri);
-        throw new RuntimeException("Stub, to be removed");
-    }
-
-    /**
-     */
-    public GridBuilder(@NonNull TemplateSliceBuilder z) {
-        super((Uri) null);
-        throw new RuntimeException("Stub, to be removed");
     }
 
     @Override
@@ -163,18 +144,9 @@ public class GridBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         */
-        public CellBuilder(@NonNull Uri uri) {
-            super(uri);
-            throw new RuntimeException("Stub, to be removed");
-        }
-
-        /**
          * Create a builder which will construct a slice displayed as a cell in a grid.
          * @param uri Uri to tag for this slice.
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         public CellBuilder(@NonNull GridBuilder parent, @NonNull Uri uri) {
             super(parent.mImpl.createGridBuilder(uri));
         }

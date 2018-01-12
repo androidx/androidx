@@ -1,8 +1,6 @@
 package androidx.app.slice {
 
   public final class Slice {
-    method public static androidx.app.slice.Slice bindSlice(android.content.Context, android.net.Uri);
-    method public static androidx.app.slice.Slice bindSlice(android.content.Context, android.content.Intent);
     method public java.util.List<java.lang.String> getHints();
     method public java.util.List<androidx.app.slice.SliceItem> getItems();
     method public android.net.Uri getUri();

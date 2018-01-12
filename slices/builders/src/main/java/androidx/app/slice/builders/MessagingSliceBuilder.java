@@ -29,7 +29,6 @@ import android.support.annotation.RestrictTo;
 
 import java.util.function.Consumer;
 
-import androidx.app.slice.Slice;
 import androidx.app.slice.SliceSpecs;
 import androidx.app.slice.builders.impl.MessagingBasicImpl;
 import androidx.app.slice.builders.impl.MessagingBuilder;
@@ -53,16 +52,8 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
     private MessagingBuilder mBuilder;
 
     /**
+     * Create a MessagingSliceBuilder with the specified uri.
      */
-    public MessagingSliceBuilder(@NonNull Uri uri) {
-        super(uri);
-        throw new RuntimeException("Stub, to be removed");
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
     public MessagingSliceBuilder(@NonNull Context context, @NonNull Uri uri) {
         super(context, uri);
     }
@@ -115,9 +106,7 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
 
         /**
          * Creates a MessageBuilder with the specified parent.
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         public MessageBuilder(MessagingSliceBuilder parent) {
             super(parent.mBuilder.createMessageBuilder());
         }
@@ -149,12 +138,6 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
         @Override
         void setImpl(TemplateBuilderImpl impl) {
             mImpl = (MessagingBuilder.MessageBuilder) impl;
-        }
-
-        /**
-         */
-        public void apply(Slice.Builder builder) {
-            throw new RuntimeException("Stub, to be removed");
         }
     }
 }
