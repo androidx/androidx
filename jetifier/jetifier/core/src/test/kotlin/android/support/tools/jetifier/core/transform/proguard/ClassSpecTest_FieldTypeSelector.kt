@@ -21,7 +21,7 @@ import org.junit.Test
 class ClassSpecTest_FieldTypeSelector {
 
     @Test fun proGuard_fieldTypeSelector() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -46,7 +46,7 @@ class ClassSpecTest_FieldTypeSelector {
     }
 
     @Test fun proGuard_fieldTypeSelector_modifiers() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -71,7 +71,7 @@ class ClassSpecTest_FieldTypeSelector {
     }
 
     @Test fun proGuard_fieldTypeSelector_annotation() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -95,7 +95,7 @@ class ClassSpecTest_FieldTypeSelector {
     }
 
     @Test fun proGuard_fieldTypeSelector_modifiers_annotation() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -121,7 +121,7 @@ class ClassSpecTest_FieldTypeSelector {
     }
 
     @Test fun proGuard_fieldTypeSelector_modifiers_annotation_spaces() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -141,5 +141,4 @@ class ClassSpecTest_FieldTypeSelector {
                 "}"
             )
     }
-
 }

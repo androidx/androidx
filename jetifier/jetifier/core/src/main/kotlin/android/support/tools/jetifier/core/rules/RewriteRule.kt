@@ -16,6 +16,7 @@
 
 package android.support.tools.jetifier.core.rules
 
+import android.support.tools.jetifier.core.transform.proguard.ProGuardType
 import com.google.gson.annotations.SerializedName
 import java.util.regex.Pattern
 
@@ -42,6 +43,28 @@ class RewriteRule(
     private val outputPattern = to.replace("$", "\$")
 
     private val fields = fieldSelectors.map { Pattern.compile("^$it$") }
+
+    /*
+     * Whether this is any type of an ignore rule.
+     */
+    fun isIgnoreRule() = isRuntimeIgnoreRule() || isPreprocessorOnlyIgnoreRule()
+
+    /*
+     * Whether this rules is an ignore rule.
+     *
+     * Any type matched to [from] will be in such case ignored by the preprocessor (thus missing
+     * from the map) but it will be also ignored during rewriting.
+     */
+    fun isRuntimeIgnoreRule() = to == "ignore"
+
+    /*
+     * Whether this rule is an ignore rule that should be used only in the preprocessor.
+     *
+     * That means that error is still thrown if [from] is found in a library that is being
+     * rewritten. Use this for types that are internal to support library. This is weaker version of
+     * [isRuntimeIgnoreRule].
+     */
+    fun isPreprocessorOnlyIgnoreRule() = to == "ignoreInPreprocessorOnly"
 
     /**
      * Rewrites the given java type. Returns null if this rule is not applicable for the given type.
@@ -83,7 +106,7 @@ class RewriteRule(
             return TypeRewriteResult.NOT_APPLIED
         }
 
-        if (to == "ignore") {
+        if (isIgnoreRule()) {
             return TypeRewriteResult.IGNORED
         }
 
@@ -93,6 +116,18 @@ class RewriteRule(
         }
 
         return TypeRewriteResult(JavaType(result))
+    }
+
+    /*
+     * Returns whether this rule is an ignore rule and applies to the given proGuard type.
+     */
+    fun doesThisIgnoreProGuard(type: ProGuardType): Boolean {
+        if (!isIgnoreRule()) {
+            return false
+        }
+
+        val matcher = inputPattern.matcher(type.value)
+        return matcher.matches()
     }
 
     override fun toString(): String {

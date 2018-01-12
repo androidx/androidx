@@ -21,7 +21,7 @@ import org.junit.Test
 class ClassSpecTest_MethodSelectorWithReturnType {
 
     @Test fun proGuard_methodReturnTypeSelector() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -54,7 +54,7 @@ class ClassSpecTest_MethodSelectorWithReturnType {
     }
 
     @Test fun proGuard_methodReturnTypeSelector_voidResult() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -83,7 +83,7 @@ class ClassSpecTest_MethodSelectorWithReturnType {
     }
 
     @Test fun proGuard_methodReturnTypeSelector_starResult() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -112,7 +112,7 @@ class ClassSpecTest_MethodSelectorWithReturnType {
     }
 
     @Test fun proGuard_methodReturnTypeSelector_typeResult() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -141,7 +141,7 @@ class ClassSpecTest_MethodSelectorWithReturnType {
     }
 
     @Test fun proGuard_methodReturnTypeSelector_typeResult_wildcards() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -170,7 +170,7 @@ class ClassSpecTest_MethodSelectorWithReturnType {
     }
 
     @Test fun proGuard_methodReturnTypeSelector_typeResult_modifiers() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -184,7 +184,8 @@ class ClassSpecTest_MethodSelectorWithReturnType {
                 "  public static support.Fragment get(...); \n" +
                 "  !public !static support.Fragment get(*); \n" +
                 "  private support.Fragment get(support.Activity); \n" +
-                "  public abstract support.Fragment get(support.Activity, support.Fragment, keep.Please); \n" +
+                "  public abstract support.Fragment get(support.Activity, support.Fragment, " +
+                "keep.Please); \n" +
                 "}"
             )
             .rewritesTo(
@@ -193,13 +194,14 @@ class ClassSpecTest_MethodSelectorWithReturnType {
                 "  public static test.Fragment get(...); \n" +
                 "  !public !static test.Fragment get(*); \n" +
                 "  private test.Fragment get(test.Activity); \n" +
-                "  public abstract test.Fragment get(test.Activity, test.Fragment, keep.Please); \n" +
+                "  public abstract test.Fragment get(test.Activity, test.Fragment, keep.Please); " +
+                "\n" +
                 "}"
             )
     }
 
     @Test fun proGuard_methodReturnTypeSelector_typeResult_annotation() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -214,7 +216,8 @@ class ClassSpecTest_MethodSelectorWithReturnType {
                 "  @support.Annotation support.Fragment get(...); \n" +
                 "  @support.Annotation support.Fragment get(*); \n" +
                 "  @keep.Me support.Fragment get(support.Activity); \n" +
-                "  @support.Annotation support.Fragment get(support.Activity, support.Fragment, keep.Please); \n" +
+                "  @support.Annotation support.Fragment get(support.Activity, support.Fragment, " +
+                "keep.Please); \n" +
                 "}"
             )
             .rewritesTo(
@@ -223,13 +226,14 @@ class ClassSpecTest_MethodSelectorWithReturnType {
                 "  @test.Annotation test.Fragment get(...); \n" +
                 "  @test.Annotation test.Fragment get(*); \n" +
                 "  @keep.Me test.Fragment get(test.Activity); \n" +
-                "  @test.Annotation test.Fragment get(test.Activity, test.Fragment, keep.Please); \n" +
+                "  @test.Annotation test.Fragment get(test.Activity, test.Fragment, keep.Please" +
+                "); \n" +
                 "}"
             )
     }
 
     @Test fun proGuard_methodReturnTypeSelector_typeResult_modifiers_annotation() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -244,7 +248,8 @@ class ClassSpecTest_MethodSelectorWithReturnType {
                 "  @support.Annotation public static support.Fragment get(...); \n" +
                 "  @support.Annotation !public !static support.Fragment get(*); \n" +
                 "  @support.Annotation private support.Fragment get(support.Activity); \n" +
-                "  @support.Annotation public abstract support.Fragment get(support.Activity, support.Fragment,  keep.Please); \n" +
+                "  @support.Annotation public abstract support.Fragment get(support.Activity, " +
+                "support.Fragment,  keep.Please); \n" +
                 "}"
             )
             .rewritesTo(
@@ -253,13 +258,14 @@ class ClassSpecTest_MethodSelectorWithReturnType {
                 "  @test.Annotation public static test.Fragment get(...); \n" +
                 "  @test.Annotation !public !static test.Fragment get(*); \n" +
                 "  @test.Annotation private test.Fragment get(test.Activity); \n" +
-                "  @test.Annotation public abstract test.Fragment get(test.Activity, test.Fragment, keep.Please); \n" +
+                "  @test.Annotation public abstract test.Fragment get(test.Activity, " +
+                "test.Fragment, keep.Please); \n" +
                 "}"
             )
     }
 
     @Test fun proGuard_methodReturnTypeSelector_typeResult_modifiers_annotation_spaces() {
-        ProGuardTester
+        ProGuardTester()
             .forGivenPrefixes(
                 "support/"
             )
@@ -270,12 +276,14 @@ class ClassSpecTest_MethodSelectorWithReturnType {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation  support.Fragment \t get(support.Activity ,  support.Fragment ,  keep.Please) ; \n" +
+                "  @support.Annotation  support.Fragment \t get(support.Activity ,  " +
+                "support.Fragment ,  keep.Please) ; \n" +
                 "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation  test.Fragment \t get(test.Activity, test.Fragment, keep.Please) ; \n" +
+                "  @test.Annotation  test.Fragment \t get(test.Activity, test.Fragment, " +
+                "keep.Please) ; \n" +
                 "}"
             )
     }
