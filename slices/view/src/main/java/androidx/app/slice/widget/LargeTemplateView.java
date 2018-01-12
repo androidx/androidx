@@ -46,6 +46,7 @@ public class LargeTemplateView extends FrameLayout implements SliceView.SliceMod
     private final int mDefaultHeight;
     private Slice mSlice;
     private boolean mIsScrollable;
+    private SliceView.SliceObserver mObserver;
 
     public LargeTemplateView(Context context) {
         super(context);
@@ -66,6 +67,14 @@ public class LargeTemplateView extends FrameLayout implements SliceView.SliceMod
     @Override
     public @SliceView.SliceMode int getMode() {
         return SliceView.MODE_LARGE;
+    }
+
+    @Override
+    public void setSliceObserver(SliceView.SliceObserver observer) {
+        mObserver = observer;
+        if (mAdapter != null) {
+            mAdapter.setSliceObserver(mObserver);
+        }
     }
 
     @Override

@@ -100,6 +100,15 @@ public class SliceItem {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
+    public SliceItem(Object obj, @SliceType String format, String subType,
+            @Slice.SliceHint List<String> hints) {
+        this (obj, format, subType, hints.toArray(new String[hints.size()]));
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
     public SliceItem(PendingIntent intent, Slice slice, String format, String subType,
             @Slice.SliceHint String[] hints) {
         this(new Pair<>(intent, slice), format, subType, hints);

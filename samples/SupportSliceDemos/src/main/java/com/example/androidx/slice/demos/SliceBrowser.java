@@ -31,6 +31,7 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -49,6 +50,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import androidx.app.slice.Slice;
+import androidx.app.slice.SliceItem;
+import androidx.app.slice.widget.EventInfo;
 import androidx.app.slice.widget.SliceLiveData;
 import androidx.app.slice.widget.SliceView;
 
@@ -57,7 +60,7 @@ import androidx.app.slice.widget.SliceView;
  * then displayed in the selected mode with SliceView.
  */
 @RequiresApi(api = 28)
-public class SliceBrowser extends AppCompatActivity {
+public class SliceBrowser extends AppCompatActivity implements SliceView.SliceObserver {
 
     private static final String TAG = "SlicePresenter";
 
@@ -213,6 +216,7 @@ public class SliceBrowser extends AppCompatActivity {
 
     private void addSlice(Intent intent) {
         SliceView v = new SliceView(getApplicationContext());
+        v.setSliceObserver(this);
         v.setTag(intent);
         if (mSliceLiveData != null) {
             mSliceLiveData.removeObservers(this);
@@ -227,6 +231,7 @@ public class SliceBrowser extends AppCompatActivity {
     private void addSlice(Uri uri) {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
             SliceView v = new SliceView(getApplicationContext());
+            v.setSliceObserver(this);
             v.setTag(uri);
             if (mSliceLiveData != null) {
                 mSliceLiveData.removeObservers(this);
@@ -269,5 +274,11 @@ public class SliceBrowser extends AppCompatActivity {
             c.addRow(new Object[]{i, suggestions.get(i)});
         }
         mAdapter.changeCursor(c);
+    }
+
+    @Override
+    public void onSliceAction(@NonNull EventInfo info, @NonNull SliceItem item) {
+        Log.w(TAG, "onSliceAction, info: " + info);
+        Log.w(TAG, "onSliceAction, sliceItem: \n" + item);
     }
 }

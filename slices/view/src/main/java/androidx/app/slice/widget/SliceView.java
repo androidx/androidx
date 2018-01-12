@@ -28,6 +28,7 @@ import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
@@ -87,6 +88,22 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     private static final String TAG = "SliceView";
 
     /**
+     * Implement this interface to be notified of interactions with the slice displayed
+     * in this view.
+     * @hide
+     * @see EventInfo
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public interface SliceObserver {
+        /**
+         * Called when an interaction has occurred with an element in this view.
+         * @param info the type of event that occurred.
+         * @param item the specific item within the {@link Slice} that was interacted with.
+         */
+        void onSliceAction(@NonNull EventInfo info, @NonNull SliceItem item);
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -101,6 +118,11 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
          * @param slice the slice to show in this view.
          */
         void setSlice(Slice slice);
+
+        /**
+         * Sets the observer to notify when an interaction events occur on the view.
+         */
+        void setSliceObserver(SliceObserver observer);
 
         /**
          * @return the view.
@@ -150,6 +172,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     private boolean mShowActions = true;
     private boolean mIsScrollable;
     private final int mShortcutSize;
+    private SliceObserver mSliceObserver;
 
     public SliceView(Context context) {
         this(context, null);
@@ -236,6 +259,17 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     }
 
     /**
+     * Sets the observer to notify when an interaction events occur on the view.
+     * @hide
+     * @see EventInfo
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setSliceObserver(@Nullable SliceObserver observer) {
+        mSliceObserver = observer;
+        mCurrentView.setSliceObserver(mSliceObserver);
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -300,6 +334,9 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         } else {
             removeAllViews();
             mCurrentView = createView(mode);
+            if (mSliceObserver != null) {
+                mCurrentView.setSliceObserver(mSliceObserver);
+            }
             addView(mCurrentView.getView(), getChildLp(mCurrentView.getView()));
             addView(mActions, getChildLp(mActions));
         }
@@ -337,6 +374,26 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         }
         if (sliceUri.getPathSegments().size() == 0) {
             throw new RuntimeException("Invalid uri " + sliceUri);
+        }
+    }
+
+    /**
+     * @return String representation of the provided mode.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static String modeToString(@SliceMode int mode) {
+        switch(mode) {
+            case MODE_AUTO:
+                return "MODE AUTO";
+            case MODE_SHORTCUT:
+                return "MODE SHORTCUT";
+            case MODE_SMALL:
+                return "MODE SMALL";
+            case MODE_LARGE:
+                return "MODE LARGE";
+            default:
+                return "unknown mode: " + mode;
         }
     }
 }

@@ -23,6 +23,8 @@ import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.app.slice.core.SliceHints.EXTRA_TOGGLE_STATE;
+import static androidx.app.slice.widget.SliceView.MODE_LARGE;
+import static androidx.app.slice.widget.SliceView.MODE_SMALL;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -30,10 +32,10 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
-import android.os.AsyncTask;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -67,7 +69,6 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     // The number of items that fit on the right hand side of a small slice
     private static final int MAX_END_ITEMS = 3;
 
-    private RowContent mRowContent;
     private int mIconSize;
     private int mPadding;
     private boolean mInSmallMode;
@@ -81,8 +82,12 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     private CompoundButton mToggle;
     private LinearLayout mEndContainer;
 
+    private int mRowIndex;
+    private RowContent mRowContent;
     private SliceItem mColorItem;
     private SliceItem mRowAction;
+
+    private SliceView.SliceObserver mObserver;
 
     public RowView(Context context) {
         super(context);
@@ -105,7 +110,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
 
     @Override
     public @SliceView.SliceMode int getMode() {
-        return SliceView.MODE_SMALL;
+        return mInSmallMode ? MODE_SMALL : MODE_LARGE;
     }
 
     @Override
@@ -113,11 +118,19 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         mColorItem = color;
     }
 
+    @Override
+    public void setSliceObserver(SliceView.SliceObserver observer) {
+        mObserver = observer;
+    }
+
     /**
      * This is called when RowView is being used as a component in a large template.
      */
     @Override
-    public void setSliceItem(SliceItem slice, boolean isHeader) {
+    public void setSliceItem(SliceItem slice, boolean isHeader, int index,
+            SliceView.SliceObserver observer) {
+        setSliceObserver(observer);
+        mRowIndex = index;
         mIsHeader = isHeader;
         mInSmallMode = false;
         populateViews(slice);
@@ -128,6 +141,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
      */
     @Override
     public void setSlice(Slice slice) {
+        mRowIndex = 0;
         mInSmallMode = true;
         ListContent lc = new ListContent(slice);
         populateViews(lc.getSummaryItem());
@@ -141,7 +155,11 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         boolean showStart = false;
         final SliceItem startItem = mRowContent.getStartItem();
         if (startItem != null) {
-            showStart = addItem(startItem, color, mStartContainer, 0 /* padding */);
+            final EventInfo info = new EventInfo(getMode(),
+                    EventInfo.ACTION_TYPE_BUTTON,
+                    EventInfo.ROW_TYPE_LIST, mRowIndex);
+            info.setPosition(EventInfo.POSITION_START, 0, 1);
+            showStart = addItem(startItem, color, true /* isStart */, 0 /* padding */, info);
         }
         mStartContainer.setVisibility(showStart ? View.VISIBLE : View.GONE);
 
@@ -178,12 +196,13 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
             final String desiredFormat = endItems.get(0).getFormat();
             for (int i = 0; i < endItems.size(); i++) {
                 final SliceItem endItem = endItems.get(i);
-                final String endFormat = endItem.getFormat();
-                // Only show one type of format at the end of the slice, use whatever is first
-                if (itemCount <= MAX_END_ITEMS
-                        && (desiredFormat.equals(endFormat)
-                        || FORMAT_TIMESTAMP.equals(endFormat))) {
-                    if (addItem(endItem, color, mEndContainer, mPadding)) {
+                if (itemCount <= MAX_END_ITEMS) {
+                    final EventInfo info = new EventInfo(getMode(),
+                            EventInfo.ACTION_TYPE_BUTTON,
+                            EventInfo.ROW_TYPE_LIST, mRowIndex);
+                    info.setPosition(EventInfo.POSITION_END, i,
+                            Math.min(endItems.size(), MAX_END_ITEMS));
+                    if (addItem(endItem, color, false /* isStart */, mPadding, info)) {
                         itemCount++;
                     }
                 }
@@ -240,6 +259,13 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
                     PendingIntent pi = toggleItem.getAction();
                     Intent i = new Intent().putExtra(EXTRA_TOGGLE_STATE, isChecked);
                     pi.send(getContext(), 0, i, null, null);
+                    if (mObserver != null) {
+                        final EventInfo info = new EventInfo(getMode(),
+                                EventInfo.ACTION_TYPE_TOGGLE,
+                                EventInfo.ROW_TYPE_LIST, mRowIndex);
+                        info.state = isChecked ? EventInfo.STATE_ON : EventInfo.STATE_OFF;
+                        mObserver.onSliceAction(info, toggleItem);
+                    }
                 } catch (CanceledException e) {
                     mToggle.setSelected(!isChecked);
                 }
@@ -254,10 +280,12 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
      *
      * @return Whether an item was added to the view.
      */
-    private boolean addItem(SliceItem sliceItem, int color, LinearLayout container, int padding) {
+    private boolean addItem(SliceItem sliceItem, int color, boolean isStart, int padding,
+            final EventInfo info) {
         SliceItem image = null;
         SliceItem action = null;
         SliceItem timeStamp = null;
+        ViewGroup container = isStart ? mStartContainer : mEndContainer;
         if (FORMAT_ACTION.equals(sliceItem.getFormat())
                 && !sliceItem.hasHint(SliceHints.SUBTYPE_TOGGLE)) {
             image = SliceQuery.find(sliceItem.getSlice(), FORMAT_IMAGE);
@@ -292,16 +320,14 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
             addedView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AsyncTask.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                sliceAction.getAction().send();
-                            } catch (CanceledException e) {
-                                e.printStackTrace();
-                            }
+                    try {
+                        sliceAction.getAction().send();
+                        if (mObserver != null) {
+                            mObserver.onSliceAction(info, sliceAction);
                         }
-                    });
+                    } catch (CanceledException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
             addedView.setBackground(SliceViewUtil.getDrawable(getContext(),
@@ -314,16 +340,16 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     public void onClick(View view) {
         if (mRowAction != null && FORMAT_ACTION.equals(mRowAction.getFormat())) {
             // Check for a row action
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        mRowAction.getAction().send();
-                    } catch (CanceledException e) {
-                        Log.w(TAG, "PendingIntent for slice cannot be sent", e);
-                    }
+            try {
+                mRowAction.getAction().send();
+                if (mObserver != null) {
+                    EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
+                            EventInfo.ROW_TYPE_LIST, mRowIndex);
+                    mObserver.onSliceAction(info, mRowAction);
                 }
-            });
+            } catch (CanceledException e) {
+                Log.w(TAG, "PendingIntent for slice cannot be sent", e);
+            }
         } else if (mToggle != null) {
             // Or no row action so let's just toggle if we've got one
             mToggle.toggle();
