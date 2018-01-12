@@ -26,7 +26,6 @@ import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 
 /**
  * Drawable which delegates all calls to its wrapped {@link Drawable}.
@@ -34,10 +33,8 @@ import android.support.annotation.RequiresApi;
  * Also allows backward compatible tinting via a color or {@link ColorStateList}.
  * This functionality is accessed via static methods in {@code DrawableCompat}.
  */
-
-@RequiresApi(14)
-class DrawableWrapperApi14 extends Drawable
-        implements Drawable.Callback, DrawableWrapper, TintAwareDrawable {
+class WrappedDrawableApi14 extends Drawable
+        implements Drawable.Callback, WrappedDrawable, TintAwareDrawable {
 
     static final PorterDuff.Mode DEFAULT_TINT_MODE = PorterDuff.Mode.SRC_IN;
 
@@ -50,7 +47,7 @@ class DrawableWrapperApi14 extends Drawable
 
     Drawable mDrawable;
 
-    DrawableWrapperApi14(@NonNull DrawableWrapperState state, @Nullable Resources res) {
+    WrappedDrawableApi14(@NonNull DrawableWrapperState state, @Nullable Resources res) {
         mState = state;
         updateLocalState(res);
     }
@@ -60,7 +57,7 @@ class DrawableWrapperApi14 extends Drawable
      *
      * @param dr the drawable to wrap
      */
-    DrawableWrapperApi14(@Nullable Drawable dr) {
+    WrappedDrawableApi14(@Nullable Drawable dr) {
         mState = mutateConstantState();
         // Now set the drawable...
         setWrappedDrawable(dr);
@@ -73,17 +70,8 @@ class DrawableWrapperApi14 extends Drawable
      */
     private void updateLocalState(@Nullable Resources res) {
         if (mState != null && mState.mDrawableState != null) {
-            final Drawable dr = newDrawableFromState(mState.mDrawableState, res);
-            setWrappedDrawable(dr);
+            setWrappedDrawable(mState.mDrawableState.newDrawable(res));
         }
-    }
-
-    /**
-     * Allows us to call ConstantState.newDrawable(*) is a API safe way
-     */
-    protected Drawable newDrawableFromState(@NonNull Drawable.ConstantState state,
-            @Nullable Resources res) {
-        return state.newDrawable(res);
     }
 
     @Override
@@ -92,7 +80,7 @@ class DrawableWrapperApi14 extends Drawable
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         mDrawable.draw(canvas);
     }
 
@@ -144,17 +132,19 @@ class DrawableWrapperApi14 extends Drawable
     }
 
     @Override
-    public boolean setState(final int[] stateSet) {
+    public boolean setState(@NonNull int[] stateSet) {
         boolean handled = mDrawable.setState(stateSet);
         handled = updateTint(stateSet) || handled;
         return handled;
     }
 
+    @NonNull
     @Override
     public int[] getState() {
         return mDrawable.getState();
     }
 
+    @NonNull
     @Override
     public Drawable getCurrent() {
         return mDrawable.getCurrent();
@@ -196,7 +186,7 @@ class DrawableWrapperApi14 extends Drawable
     }
 
     @Override
-    public boolean getPadding(Rect padding) {
+    public boolean getPadding(@NonNull Rect padding) {
         return mDrawable.getPadding(padding);
     }
 
@@ -210,6 +200,7 @@ class DrawableWrapperApi14 extends Drawable
         return null;
     }
 
+    @NonNull
     @Override
     public Drawable mutate() {
         if (!mMutated && super.mutate() == this) {
@@ -242,7 +233,7 @@ class DrawableWrapperApi14 extends Drawable
      * {@inheritDoc}
      */
     @Override
-    public void invalidateDrawable(Drawable who) {
+    public void invalidateDrawable(@NonNull Drawable who) {
         invalidateSelf();
     }
 
@@ -250,7 +241,7 @@ class DrawableWrapperApi14 extends Drawable
      * {@inheritDoc}
      */
     @Override
-    public void scheduleDrawable(Drawable who, Runnable what, long when) {
+    public void scheduleDrawable(@NonNull Drawable who, @NonNull Runnable what, long when) {
         scheduleSelf(what, when);
     }
 
@@ -258,7 +249,7 @@ class DrawableWrapperApi14 extends Drawable
      * {@inheritDoc}
      */
     @Override
-    public void unscheduleDrawable(Drawable who, Runnable what) {
+    public void unscheduleDrawable(@NonNull Drawable who, @NonNull Runnable what) {
         unscheduleSelf(what);
     }
 
@@ -279,7 +270,7 @@ class DrawableWrapperApi14 extends Drawable
     }
 
     @Override
-    public void setTintMode(PorterDuff.Mode tintMode) {
+    public void setTintMode(@NonNull PorterDuff.Mode tintMode) {
         mState.mTintMode = tintMode;
         updateTint(getState());
     }
@@ -364,11 +355,13 @@ class DrawableWrapperApi14 extends Drawable
             }
         }
 
+        @NonNull
         @Override
         public Drawable newDrawable() {
             return newDrawable(null);
         }
 
+        @NonNull
         @Override
         public abstract Drawable newDrawable(@Nullable Resources res);
 
@@ -389,9 +382,10 @@ class DrawableWrapperApi14 extends Drawable
             super(orig, res);
         }
 
+        @NonNull
         @Override
         public Drawable newDrawable(@Nullable Resources res) {
-            return new DrawableWrapperApi14(this, res);
+            return new WrappedDrawableApi14(this, res);
         }
     }
 }

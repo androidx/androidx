@@ -30,6 +30,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.graphics.drawable.WrappedDrawable;
 import android.util.Log;
 
 import java.lang.reflect.Field;
@@ -146,9 +147,9 @@ public class DrawableUtils {
                     }
                 }
             }
-        } else if (drawable instanceof android.support.v4.graphics.drawable.DrawableWrapper) {
+        } else if (drawable instanceof WrappedDrawable) {
             return canSafelyMutateDrawable(
-                    ((android.support.v4.graphics.drawable.DrawableWrapper) drawable)
+                    ((WrappedDrawable) drawable)
                             .getWrappedDrawable());
         } else if (drawable instanceof android.support.v7.graphics.drawable.DrawableWrapper) {
             return canSafelyMutateDrawable(
