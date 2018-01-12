@@ -28,7 +28,7 @@ import android.support.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public interface DrawableWrapper {
+public interface WrappedDrawable {
     Drawable getWrappedDrawable();
     void setWrappedDrawable(Drawable drawable);
 }

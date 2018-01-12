@@ -16,8 +16,6 @@
 
 package android.support.v4.graphics.drawable;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Outline;
@@ -32,22 +30,21 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.lang.reflect.Method;
 
 @RequiresApi(21)
-class DrawableWrapperApi21 extends DrawableWrapperApi19 {
-    private static final String TAG = "DrawableWrapperApi21";
+class WrappedDrawableApi21 extends WrappedDrawableApi19 {
+    private static final String TAG = "WrappedDrawableApi21";
     private static Method sIsProjectedDrawableMethod;
 
-    DrawableWrapperApi21(Drawable drawable) {
+    WrappedDrawableApi21(Drawable drawable) {
         super(drawable);
         findAndCacheIsProjectedDrawableMethod();
     }
 
-    DrawableWrapperApi21(DrawableWrapperState state, Resources resources) {
+    WrappedDrawableApi21(DrawableWrapperState state, Resources resources) {
         super(state, resources);
         findAndCacheIsProjectedDrawableMethod();
     }
@@ -63,10 +60,11 @@ class DrawableWrapperApi21 extends DrawableWrapperApi19 {
     }
 
     @Override
-    public void getOutline(Outline outline) {
+    public void getOutline(@NonNull Outline outline) {
         mDrawable.getOutline(outline);
     }
 
+    @NonNull
     @Override
     public Rect getDirtyBounds() {
         return mDrawable.getDirtyBounds();
@@ -100,7 +98,7 @@ class DrawableWrapperApi21 extends DrawableWrapperApi19 {
     }
 
     @Override
-    public boolean setState(int[] stateSet) {
+    public boolean setState(@NonNull int[] stateSet) {
         if (super.setState(stateSet)) {
             // Manually invalidate because the framework doesn't currently force an invalidation
             // on a state change
@@ -123,9 +121,9 @@ class DrawableWrapperApi21 extends DrawableWrapperApi19 {
     }
 
     /**
-     * @hide
+     * This method is overriding hidden framework method in {@link Drawable}. It is used by the
+     * system and thus it should not be removed.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public boolean isProjected() {
         if (mDrawable != null && sIsProjectedDrawableMethod != null) {
             try {
@@ -150,9 +148,10 @@ class DrawableWrapperApi21 extends DrawableWrapperApi19 {
             super(orig, res);
         }
 
+        @NonNull
         @Override
         public Drawable newDrawable(@Nullable Resources res) {
-            return new DrawableWrapperApi21(this, res);
+            return new WrappedDrawableApi21(this, res);
         }
     }
 
