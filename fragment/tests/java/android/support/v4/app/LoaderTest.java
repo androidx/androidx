@@ -18,6 +18,7 @@ package android.support.v4.app;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -26,6 +27,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
@@ -110,6 +112,33 @@ public class LoaderTest {
 
         // After orientation change, the text should still be loaded properly
         assertEquals("Loaded!", activity.textView.getText().toString());
+    }
+
+    @Test
+    public void testRedeliverWhenReattached() throws Throwable {
+        LoaderActivity activity = mActivityRule.getActivity();
+
+        FragmentManager fm = activity.getSupportFragmentManager();
+
+        LoaderActivity.TextLoaderFragment fragment =
+                (LoaderActivity.TextLoaderFragment) fm.findFragmentById(R.id.fragmentContainer);
+
+        assertNotNull(fragment);
+        assertEquals("Loaded!", fragment.textView.getText().toString());
+
+        fm.beginTransaction()
+                .detach(fragment)
+                .commit();
+
+        FragmentTestUtil.executePendingTransactions(mActivityRule, fm);
+
+        fm.beginTransaction()
+                .attach(fragment)
+                .commit();
+
+        FragmentTestUtil.executePendingTransactions(mActivityRule, fm);
+
+        assertEquals("Loaded!", fragment.textView.getText().toString());
     }
 
     @Test(expected = IllegalStateException.class)
