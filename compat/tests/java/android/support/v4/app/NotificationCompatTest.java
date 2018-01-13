@@ -621,6 +621,19 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         assertEquals(NotificationCompat.Action.SEMANTIC_ACTION_REPLY, action.getSemanticAction());
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 20)
+    public void action_semanticAction_toAndFromNotification() {
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Test Title", null)
+                        .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
+                        .build();
+        Notification notification = newNotificationBuilder().addAction(action).build();
+        NotificationCompat.Action result = NotificationCompat.getAction(notification, 0);
+
+        assertEquals(NotificationCompat.Action.SEMANTIC_ACTION_REPLY, result.getSemanticAction());
+    }
+
     private static RemoteInput newDataOnlyRemoteInput() {
         return new RemoteInput.Builder(DATA_RESULT_KEY)
             .setAllowFreeFormInput(false)
