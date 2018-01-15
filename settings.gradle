@@ -124,6 +124,9 @@ project(':slices-view').projectDir = new File(rootDir, 'slices/view')
 include ':slices-builders'
 project(':slices-builders').projectDir = new File(rootDir, 'slices/builders')
 
+include ':textclassifier'
+project(':textclassifier').projectDir = new File(rootDir, 'textclassifier')
+
 include ':webkit-codegen'
 project(':webkit-codegen').projectDir = new File(rootDir, 'webkit-codegen')
 

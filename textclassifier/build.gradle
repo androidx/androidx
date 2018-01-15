@@ -1,0 +1,28 @@
+import static android.support.dependencies.DependenciesKt.*
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
+
+dependencies {
+    api(project(":appcompat-v7"))
+    api(project(":support-annotations"))
+    api(project(":support-v4"))
+
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+}
+
+supportLibrary {
+    name = "Android TextClassifier Support Library"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2018"
+    description = "The TextClassifier Support Library can be added to an Android application in order to use the TextClassifier API introduced in Android O on all devices with API level 14 or later."
+    minSdkVersion = 14
+}

@@ -30,6 +30,7 @@ FRAMEWORKS_SUPPORT_SUBDIRS := \
     media-compat \
     percent \
     recommendation \
+    textclassifier \
     transition \
     tv-provider \
     v7/cardview \
