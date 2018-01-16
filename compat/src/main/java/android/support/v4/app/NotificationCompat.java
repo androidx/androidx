@@ -2851,6 +2851,8 @@ public class NotificationCompat {
          */
         public static final int SEMANTIC_ACTION_THUMBS_DOWN = 9;
 
+        static final String EXTRA_SHOWS_USER_INTERFACE =
+                "android.support.action.showsUserInterface";
 
         final Bundle mExtras;
         private final RemoteInput[] mRemoteInputs;
@@ -2868,6 +2870,7 @@ public class NotificationCompat {
         private final RemoteInput[] mDataOnlyRemoteInputs;
 
         private boolean mAllowGeneratedReplies;
+        private boolean mShowsUserInterface = true;
 
         private final @SemanticAction int mSemanticAction;
 
@@ -2886,12 +2889,13 @@ public class NotificationCompat {
         public PendingIntent actionIntent;
 
         public Action(int icon, CharSequence title, PendingIntent intent) {
-            this(icon, title, intent, new Bundle(), null, null, true, SEMANTIC_ACTION_NONE);
+            this(icon, title, intent, new Bundle(), null, null, true, SEMANTIC_ACTION_NONE, true);
         }
 
         Action(int icon, CharSequence title, PendingIntent intent, Bundle extras,
                 RemoteInput[] remoteInputs, RemoteInput[] dataOnlyRemoteInputs,
-                boolean allowGeneratedReplies, @SemanticAction int semanticAction) {
+                boolean allowGeneratedReplies, @SemanticAction int semanticAction,
+                boolean showsUserInterface) {
             this.icon = icon;
             this.title = NotificationCompat.Builder.limitCharSequenceLength(title);
             this.actionIntent = intent;
@@ -2900,6 +2904,7 @@ public class NotificationCompat {
             this.mDataOnlyRemoteInputs = dataOnlyRemoteInputs;
             this.mAllowGeneratedReplies = allowGeneratedReplies;
             this.mSemanticAction = semanticAction;
+            this.mShowsUserInterface = showsUserInterface;
         }
 
         public int getIcon() {
@@ -2964,6 +2969,14 @@ public class NotificationCompat {
         }
 
         /**
+         * Return whether or not triggering this {@link Action}'s {@link PendingIntent} will open a
+         * user interface.
+         */
+        public boolean getShowsUserInterface() {
+            return mShowsUserInterface;
+        }
+
+        /**
          * Builder class for {@link Action} objects.
          */
         public static final class Builder {
@@ -2974,6 +2987,7 @@ public class NotificationCompat {
             private final Bundle mExtras;
             private ArrayList<RemoteInput> mRemoteInputs;
             private @SemanticAction int mSemanticAction;
+            private boolean mShowsUserInterface = true;
 
             /**
              * Construct a new builder for {@link Action} object.
@@ -2982,7 +2996,7 @@ public class NotificationCompat {
              * @param intent the {@link PendingIntent} to fire when users trigger this action
              */
             public Builder(int icon, CharSequence title, PendingIntent intent) {
-                this(icon, title, intent, new Bundle(), null, true, SEMANTIC_ACTION_NONE);
+                this(icon, title, intent, new Bundle(), null, true, SEMANTIC_ACTION_NONE, true);
             }
 
             /**
@@ -2993,12 +3007,12 @@ public class NotificationCompat {
             public Builder(Action action) {
                 this(action.icon, action.title, action.actionIntent, new Bundle(action.mExtras),
                         action.getRemoteInputs(), action.getAllowGeneratedReplies(),
-                        action.getSemanticAction());
+                        action.getSemanticAction(), action.mShowsUserInterface);
             }
 
             private Builder(int icon, CharSequence title, PendingIntent intent, Bundle extras,
                     RemoteInput[] remoteInputs, boolean allowGeneratedReplies,
-                    @SemanticAction int semanticAction) {
+                    @SemanticAction int semanticAction, boolean showsUserInterface) {
                 mIcon = icon;
                 mTitle = NotificationCompat.Builder.limitCharSequenceLength(title);
                 mIntent = intent;
@@ -3007,6 +3021,7 @@ public class NotificationCompat {
                         Arrays.asList(remoteInputs));
                 mAllowGeneratedReplies = allowGeneratedReplies;
                 mSemanticAction = semanticAction;
+                mShowsUserInterface = showsUserInterface;
             }
 
             /**
@@ -3075,6 +3090,19 @@ public class NotificationCompat {
             }
 
             /**
+             * Set whether or not this {@link Action}'s {@link PendingIntent} will open a user
+             * interface.
+             * @param showsUserInterface {@code true} if this {@link Action}'s {@link PendingIntent}
+             * will open a user interface, otherwise {@code false}
+             * @return this object for method chaining
+             * The default value is {@code true}
+             */
+            public Builder setShowsUserInterface(boolean showsUserInterface) {
+                mShowsUserInterface = showsUserInterface;
+                return this;
+            }
+
+            /**
              * Apply an extender to this action builder. Extenders may be used to add
              * metadata or change options on this builder.
              */
@@ -3105,7 +3133,8 @@ public class NotificationCompat {
                 RemoteInput[] textInputsArr = textInputs.isEmpty()
                         ? null : textInputs.toArray(new RemoteInput[textInputs.size()]);
                 return new Action(mIcon, mTitle, mIntent, mExtras, textInputsArr,
-                        dataOnlyInputsArr, mAllowGeneratedReplies, mSemanticAction);
+                        dataOnlyInputsArr, mAllowGeneratedReplies, mSemanticAction,
+                        mShowsUserInterface);
             }
         }
 
@@ -4787,9 +4816,12 @@ public class NotificationCompat {
                     NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES);
         }
 
+        final boolean showsUserInterface =
+                action.getExtras().getBoolean(Action.EXTRA_SHOWS_USER_INTERFACE, true);
+
         return new Action(action.icon, action.title, action.actionIntent,
                 action.getExtras(), remoteInputs, null, allowGeneratedReplies,
-                Action.SEMANTIC_ACTION_NONE);
+                Action.SEMANTIC_ACTION_NONE, showsUserInterface);
     }
 
     /**

@@ -130,7 +130,7 @@ class NotificationCompatJellybean {
         }
         return new NotificationCompat.Action(icon, title, actionIntent, extras, remoteInputs,
                 dataOnlyRemoteInputs, allowGeneratedReplies,
-                NotificationCompat.Action.SEMANTIC_ACTION_NONE);
+                NotificationCompat.Action.SEMANTIC_ACTION_NONE, true);
     }
 
     public static Bundle writeActionAndGetExtras(
@@ -238,7 +238,8 @@ class NotificationCompatJellybean {
                 fromBundleArray(getBundleArrayFromBundle(bundle, KEY_REMOTE_INPUTS)),
                 fromBundleArray(getBundleArrayFromBundle(bundle, KEY_DATA_ONLY_REMOTE_INPUTS)),
                 allowGeneratedReplies,
-                NotificationCompat.Action.SEMANTIC_ACTION_NONE);
+                NotificationCompat.Action.SEMANTIC_ACTION_NONE,
+                true);
     }
 
     static Bundle getBundleForAction(NotificationCompat.Action action) {

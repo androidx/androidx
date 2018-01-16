@@ -200,10 +200,24 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @Test
+    public void testNotificationActionBuilder_defaultShowsUserInterfaceTrue() {
+        NotificationCompat.Action action = newActionBuilder().build();
+
+        assertTrue(action.getShowsUserInterface());
+    }
+
+    @Test
     public void testNotificationAction_defaultAllowGeneratedRepliesTrue() throws Throwable {
         NotificationCompat.Action a = new NotificationCompat.Action(0, null, null);
 
         assertTrue(a.getAllowGeneratedReplies());
+    }
+
+    @Test
+    public void testNotificationAction_defaultShowsUserInterfaceTrue() {
+        NotificationCompat.Action action = new NotificationCompat.Action(0, null, null);
+
+        assertTrue(action.getShowsUserInterface());
     }
 
     @Test
@@ -212,6 +226,28 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 .setAllowGeneratedReplies(false).build();
 
         assertFalse(a.getAllowGeneratedReplies());
+    }
+
+    @Test
+    public void testNotificationAction_setShowsUserInterfaceFalse() {
+        NotificationCompat.Action action = newActionBuilder()
+                .setShowsUserInterface(false).build();
+
+        assertFalse(action.getShowsUserInterface());
+    }
+
+    @SdkSuppress(minSdkVersion = 20)
+    @Test
+    public void testGetActionCompatFromAction_showsUserInterface() {
+        NotificationCompat.Action action = newActionBuilder()
+                .setShowsUserInterface(false).build();
+        Notification notification = newNotificationBuilder().addAction(action).build();
+        NotificationCompat.Action result =
+                NotificationCompat.getActionCompatFromAction(notification.actions[0]);
+
+        assertFalse(result.getExtras().getBoolean(
+                NotificationCompat.Action.EXTRA_SHOWS_USER_INTERFACE, true));
+        assertFalse(result.getShowsUserInterface());
     }
 
     @SdkSuppress(minSdkVersion = 17)
