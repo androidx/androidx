@@ -34,11 +34,12 @@ import androidx.car.widget.ListItem;
 import androidx.car.widget.ListItemAdapter;
 import androidx.car.widget.ListItemProvider;
 import androidx.car.widget.PagedListView;
+import androidx.car.widget.TextListItem;
 
 /**
  * Demo activity for {@link ListItem}.
  */
-public class ListItemActivity extends Activity {
+public class TextListItemActivity extends Activity {
 
     private static int pixelToDip(Context context, int pixels) {
         return (int) (pixels / context.getResources().getDisplayMetrics().density);
@@ -80,54 +81,52 @@ public class ListItemActivity extends Activity {
             mContext = context;
             mItems = new ArrayList<>();
 
-            mItems.add(new ListItem.Builder(mContext)
-                    .withOnClickListener(mOnClickListener)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
                     .withTitle("clickable single line with full icon and one action")
                     .withAction("card height", true, mGetParentHeight)
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withTitle("primary action set by drawable")
                     .withPrimaryActionIcon(mContext.getDrawable(R.drawable.pressed_icon), true)
                     .withViewBinder(vh -> vh.getPrimaryIcon().setClickable(true))
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
-                    .withOnClickListener(mOnClickListener)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                     .withTitle("clickable single line with small icon and clickable end icon")
                     .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true,
                             mGetParentHeight)
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                     .withTitle("single line without a list divider")
                     .withDividerHidden()
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withOnClickListener(mOnClickListener)
                     .withPrimaryActionEmptyIcon()
                     .withTitle("clickable single line with empty icon and end icon no divider")
                     .withSupplementalIcon(android.R.drawable.sym_def_app_icon, false)
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withTitle("title is single line and ellipsizes. "
                             + mContext.getString(R.string.long_text))
                     .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true)
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withTitle("Subtitle-like line without a list divider")
                     .withDividerHidden()
                     .withViewBinder(viewHolder ->
                             viewHolder.getTitle().setTextAppearance(R.style.CarListSubtitle))
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionNoIcon()
                     .withTitle("single line with two actions and no divider")
                     .withActions("action 1", false,
@@ -138,7 +137,7 @@ public class ListItemActivity extends Activity {
                                     v.getContext(), "action 2", Toast.LENGTH_SHORT).show())
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionNoIcon()
                     .withTitle("single line with two actions and action 2 divider")
                     .withActions("action 1", false,
@@ -149,7 +148,7 @@ public class ListItemActivity extends Activity {
                                     v.getContext(), "action 2", Toast.LENGTH_SHORT).show())
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionNoIcon()
                     .withTitle("single line with divider between actions. "
                             + mContext.getString(R.string.long_text))
@@ -161,7 +160,7 @@ public class ListItemActivity extends Activity {
                                     v.getContext(), "action 2", Toast.LENGTH_SHORT).show())
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
                     .withTitle("double line with full icon and no end icon divider")
                     .withBody("one line text")
@@ -169,7 +168,7 @@ public class ListItemActivity extends Activity {
                             mGetParentHeight)
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                     .withTitle("double line with small icon and one action")
                     .withBody("one line text")
@@ -177,7 +176,7 @@ public class ListItemActivity extends Activity {
                     .build());
 
             String tenChars = "Ten Chars.";
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                     .withTitle("Card with small icon and text longer than limit")
                     .withBody("some chars")
@@ -186,7 +185,7 @@ public class ListItemActivity extends Activity {
                             mGetParentHeight)
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionEmptyIcon()
                     .withTitle("double line with empty primary icon."
                             + mContext.getString(R.string.long_text))
@@ -202,7 +201,7 @@ public class ListItemActivity extends Activity {
                     }, "card height", true, mGetParentHeight)
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withTitle("double line with no primary action and one divider")
                     .withBody("one line text as primary", true)
                     .withActions("screen size", false, (v) -> {
@@ -216,18 +215,18 @@ public class ListItemActivity extends Activity {
                     }, "card height", true, mGetParentHeight)
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
                     .withBody("Only body - no title is set")
                     .withAction("card height", true, mGetParentHeight)
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
                     .withBody("Only body - no title. " + mContext.getString(R.string.long_text))
                     .build());
 
-            mItems.add(new ListItem.Builder(mContext)
+            mItems.add(new TextListItem.Builder(mContext)
                     .withTitle("Switch - initially unchecked")
                     .withSwitch(false, true, (button, isChecked) -> {
                         Toast.makeText(mContext,

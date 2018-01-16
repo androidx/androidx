@@ -40,8 +40,19 @@
                        android:value=".SupportCarDemoActivity" />
         </activity>
 
-        <activity android:name=".ListItemActivity"
-                  android:label="ListItem"
+        <activity android:name=".TextListItemActivity"
+                  android:label="TextListItem"
+                  android:parentActivityName=".SupportCarDemoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value=".SupportCarDemoActivity" />
+        </activity>
+
+        <activity android:name=".SeekbarListItemActivity"
+                  android:label="SeekbarListItem"
                   android:parentActivityName=".SupportCarDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
