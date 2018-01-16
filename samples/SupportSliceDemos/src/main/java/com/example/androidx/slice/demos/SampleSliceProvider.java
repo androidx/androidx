@@ -45,7 +45,7 @@ public class SampleSliceProvider extends SliceProvider {
     public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
 
     public static final String[] URI_PATHS = {"message", "wifi", "note", "ride", "toggle",
-            "contact", "gallery", "weather"};
+            "toggle2", "contact", "gallery", "weather"};
 
     /**
      * @return Uri with the provided path
@@ -83,6 +83,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createRideSlice(sliceUri);
             case "/toggle":
                 return createCustomToggleSlice(sliceUri);
+            case "/toggle2":
+                return createTwoCustomToggleSlices(sliceUri);
             case "/contact":
                 return createContact(sliceUri);
             case "/gallery":
@@ -222,7 +224,6 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createCustomToggleSlice(Uri sliceUri) {
-        // TODO: support 2 custom toggles in the same row
         return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xffff4081)
                 .addRow(b -> b
@@ -231,6 +232,21 @@ public class SampleSliceProvider extends SliceProvider {
                     .addToggle(getBroadcastIntent(ACTION_TOAST, "star toggled"),
                             true /* isChecked */,
                             Icon.createWithResource(getContext(), R.drawable.toggle_star)))
+                .build();
+    }
+
+    private Slice createTwoCustomToggleSlices(Uri sliceUri) {
+        return new ListBuilder(getContext(), sliceUri)
+                .setColor(0xffff4081)
+                .addRow(b -> b
+                        .setTitle("2 toggles")
+                        .setSubtitle("each supports two states")
+                        .addToggle(getBroadcastIntent(ACTION_TOAST, "first star toggled"),
+                                true /* isChecked */,
+                                Icon.createWithResource(getContext(), R.drawable.toggle_star))
+                        .addToggle(getBroadcastIntent(ACTION_TOAST, "second star toggled"),
+                                false /* isChecked */,
+                                Icon.createWithResource(getContext(), R.drawable.toggle_star)))
                 .build();
     }
 
