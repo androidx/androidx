@@ -173,8 +173,25 @@ public class WorkContinuationImplTest {
                 createTestWorker());
         WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
                 createTestWorker());
+
         WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(first,
                 second);
+        assertThat(dependent.getParents(), is(notNullValue()));
+        assertThat(dependent.getParents(), containsInAnyOrder(first, second));
+    }
+
+    public void testContinuation_withWorkJoin() {
+        WorkContinuationImpl first = new WorkContinuationImpl(mWorkManagerImpl,
+                createTestWorker());
+        WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
+                createTestWorker());
+
+        Work work = createTestWorker();
+
+        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(work, first,
+                second);
+
+        assertThat(dependent.getIds(), containsInAnyOrder(work.getId()));
         assertThat(dependent.getParents(), is(notNullValue()));
         assertThat(dependent.getParents(), containsInAnyOrder(first, second));
     }

@@ -174,13 +174,19 @@ public class WorkContinuationImpl extends WorkContinuation {
     }
 
     @Override
-    protected WorkContinuation joinInternal(@NonNull WorkContinuation... continuations) {
+    protected WorkContinuation joinInternal(
+            @Nullable Work work,
+            @NonNull WorkContinuation... continuations) {
+
+        if (work == null) {
+            work = Work.newBuilder(JoinWorker.class).build();
+        }
+
         List<WorkContinuationImpl> parents = new ArrayList<>(continuations.length);
         for (WorkContinuation continuation : continuations) {
             parents.add((WorkContinuationImpl) continuation);
         }
 
-        Work work = Work.newBuilder(JoinWorker.class).build();
         return new WorkContinuationImpl(mWorkManagerImpl,
                 null,
                 WorkManager.KEEP_EXISTING_WORK,

@@ -17,6 +17,7 @@ package android.arch.background.workmanager;
 
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -79,10 +80,34 @@ public abstract class WorkContinuation {
                     "WorkContinuation.join() needs at least 2 continuations.");
         }
 
-        return continuations[0].joinInternal(continuations);
+        return continuations[0].joinInternal(null, continuations);
+    }
+
+    /**
+     * Joins multiple {@link WorkContinuation}s to allow for complex chaining using the
+     * {@link Work} provided.
+     *
+     * @param work The {@link Work} which depends on the successful completion of the
+     *             provided {@link WorkContinuation}s
+     * @param continuations Two or more {@link WorkContinuation}s that are prerequisites for the
+     *                      {@link Work} provided.
+     * @return A {@link WorkContinuation} that allows further chaining
+     */
+    public static WorkContinuation join(
+            @NonNull Work work,
+            @NonNull WorkContinuation... continuations) {
+
+        if (continuations.length < 2) {
+            throw new IllegalArgumentException(
+                    "WorkContinuation.join() needs at least 2 continuations.");
+        }
+
+        return continuations[0].joinInternal(work, continuations);
     }
 
     protected abstract WorkContinuation then(List<Class<? extends Worker>> workerClasses);
 
-    protected abstract WorkContinuation joinInternal(@NonNull WorkContinuation... continuations);
+    protected abstract WorkContinuation joinInternal(
+            @Nullable Work work,
+            @NonNull WorkContinuation... continuations);
 }
