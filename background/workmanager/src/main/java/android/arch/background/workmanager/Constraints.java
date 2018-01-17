@@ -18,7 +18,6 @@ package android.arch.background.workmanager;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.persistence.room.ColumnInfo;
 import android.net.Uri;
 import android.support.annotation.IntDef;
@@ -26,9 +25,8 @@ import android.support.annotation.IntDef;
 import java.lang.annotation.Retention;
 
 /**
- * The constraints that can be applied to one {@link WorkSpec}.
+ * The constraints that can be applied to one {@link BaseWork}.
  */
-
 public class Constraints {
     @Retention(SOURCE)
     @IntDef({NETWORK_NOT_REQUIRED, NETWORK_CONNECTED, NETWORK_UNMETERED, NETWORK_NOT_ROAMING,
@@ -183,7 +181,7 @@ public class Constraints {
         private ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
 
         /**
-         * Specify whether device should be plugged in for {@link WorkSpec} to run.
+         * Specify whether device should be plugged in for {@link BaseWork} to run.
          * Default is false.
          *
          * @param requiresCharging true if device must be plugged in, false otherwise
@@ -195,7 +193,7 @@ public class Constraints {
         }
 
         /**
-         * Specify whether device should be idle for {@link WorkSpec} to run. Default is false.
+         * Specify whether device should be idle for {@link BaseWork} to run. Default is false.
          *
          * @param requiresDeviceIdle true if device must be idle, false otherwise
          * @return current builder
@@ -206,7 +204,7 @@ public class Constraints {
         }
 
         /**
-         * Specify whether device should have a particular {@link NetworkType} for {@link WorkSpec}
+         * Specify whether device should have a particular {@link NetworkType} for {@link BaseWork}
          * to run. Default is {@value #NETWORK_NOT_REQUIRED}
          *
          * @param networkType type of network required
@@ -219,7 +217,7 @@ public class Constraints {
 
         /**
          * Specify whether device battery should not be below critical threshold for
-         * {@link WorkSpec} to run. Default is false.
+         * {@link BaseWork} to run. Default is false.
          *
          * @param requiresBatteryNotLow true if battery should not be below critical threshold,
          *                              false otherwise
@@ -232,7 +230,7 @@ public class Constraints {
 
         /**
          * Specify whether device available storage should not be below critical threshold for
-         * {@link WorkSpec} to run. Default is false.
+         * {@link BaseWork} to run. Default is false.
          *
          * @param requiresStorageNotLow true if available storage should not be below critical
          *                              threshold, false otherwise
@@ -244,11 +242,11 @@ public class Constraints {
         }
 
         /**
-         * Specify whether {@link WorkSpec} should run when a content {@link android.net.Uri} is
+         * Specify whether {@link BaseWork} should run when a content {@link android.net.Uri} is
          * updated
          * @param uri {@link android.net.Uri} to observe
          * @param triggerForDescendants {@code true} if any changes in descendants cause this
-         *                              {@link WorkSpec} to run
+         *                              {@link BaseWork} to run
          * @return The current {@link Builder}
          */
         public Builder addContentUriTrigger(Uri uri, boolean triggerForDescendants) {
@@ -259,7 +257,7 @@ public class Constraints {
         /**
          * Generates the {@link Constraints} from this Builder.
          *
-         * @return new {@link Constraints} which can be attached to a {@link WorkSpec}
+         * @return new {@link Constraints} which can be attached to a {@link BaseWork}
          */
         public Constraints build() {
             return new Constraints(this);

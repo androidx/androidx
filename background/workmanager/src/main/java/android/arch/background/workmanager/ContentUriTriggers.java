@@ -16,7 +16,6 @@
 
 package android.arch.background.workmanager;
 
-import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.persistence.room.TypeConverter;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -33,7 +32,6 @@ import java.util.Set;
 /**
  * Stores a set of {@link Trigger}s
  */
-
 public class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> {
     private final Set<Trigger> mTriggers = new HashSet<>();
 
@@ -41,7 +39,7 @@ public class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> 
      * Add a Content {@link Uri} to observe
      * @param uri {@link Uri} to observe
      * @param triggerForDescendants {@code true} if any changes in descendants cause this
-     *                              {@link WorkSpec} to run
+     *                              {@link BaseWork} to run
      */
     public void add(Uri uri, boolean triggerForDescendants) {
         Trigger trigger = new Trigger(uri, triggerForDescendants);
@@ -156,7 +154,7 @@ public class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> 
     }
 
     /**
-     * Defines a content {@link Uri} trigger for a {@link WorkSpec}
+     * Defines a content {@link Uri} trigger for a {@link BaseWork}
      */
 
     public static class Trigger {
