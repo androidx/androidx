@@ -17,6 +17,7 @@
 package android.arch.persistence.room.util;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
+import android.arch.persistence.room.ColumnInfo;
 import android.database.Cursor;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -28,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -44,7 +46,8 @@ import java.util.TreeMap;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@SuppressWarnings({"WeakerAccess", "unused", "TryFinallyCanBeTryWithResources"})
+@SuppressWarnings({"WeakerAccess", "unused", "TryFinallyCanBeTryWithResources",
+        "SimplifiableIfStatement"})
 // if you change this class, you must change TableInfoWriter.kt
 public class TableInfo {
     /**
@@ -313,6 +316,14 @@ public class TableInfo {
          */
         public final String type;
         /**
+         * The column type after it is normalized to one of the basic types according to
+         * https://www.sqlite.org/datatype3.html Section 3.1.
+         * <p>
+         * This is the value Room uses for equality check.
+         */
+        @ColumnInfo.SQLiteTypeAffinity
+        public final int affinity;
+        /**
          * Whether or not the column can be NULL.
          */
         public final boolean notNull;
@@ -337,6 +348,40 @@ public class TableInfo {
             this.type = type;
             this.notNull = notNull;
             this.primaryKeyPosition = primaryKeyPosition;
+            this.affinity = findAffinity(type);
+        }
+
+        /**
+         * Implements https://www.sqlite.org/datatype3.html section 3.1
+         *
+         * @param type The type that was given to the sqlite
+         * @return The normalized type which is one of the 5 known affinities
+         */
+        @ColumnInfo.SQLiteTypeAffinity
+        private static int findAffinity(@Nullable String type) {
+            if (type == null) {
+                return ColumnInfo.BLOB;
+            }
+            String uppercaseType = type.toUpperCase(Locale.US);
+            if (uppercaseType.contains("INT")) {
+                return ColumnInfo.INTEGER;
+            }
+            if (uppercaseType.contains("CHAR")
+                    || uppercaseType.contains("CLOB")
+                    || uppercaseType.contains("TEXT")) {
+                return ColumnInfo.TEXT;
+            }
+            if (uppercaseType.contains("BLOB")) {
+                return ColumnInfo.BLOB;
+            }
+            if (uppercaseType.contains("REAL")
+                    || uppercaseType.contains("FLOA")
+                    || uppercaseType.contains("DOUB")) {
+                return ColumnInfo.REAL;
+            }
+            // sqlite returns NUMERIC here but it is like a catch all. We already
+            // have UNDEFINED so it is better to use UNDEFINED for consistency.
+            return ColumnInfo.UNDEFINED;
         }
 
         @Override
@@ -354,7 +399,7 @@ public class TableInfo {
             if (!name.equals(column.name)) return false;
             //noinspection SimplifiableIfStatement
             if (notNull != column.notNull) return false;
-            return type != null ? type.equalsIgnoreCase(column.type) : column.type == null;
+            return affinity == column.affinity;
         }
 
         /**
@@ -369,7 +414,7 @@ public class TableInfo {
         @Override
         public int hashCode() {
             int result = name.hashCode();
-            result = 31 * result + (type != null ? type.hashCode() : 0);
+            result = 31 * result + affinity;
             result = 31 * result + (notNull ? 1231 : 1237);
             result = 31 * result + primaryKeyPosition;
             return result;
@@ -380,6 +425,7 @@ public class TableInfo {
             return "Column{"
                     + "name='" + name + '\''
                     + ", type='" + type + '\''
+                    + ", affinity='" + affinity + '\''
                     + ", notNull=" + notNull
                     + ", primaryKeyPosition=" + primaryKeyPosition
                     + '}';
@@ -472,7 +518,7 @@ public class TableInfo {
         }
 
         @Override
-        public int compareTo(ForeignKeyWithSequence o) {
+        public int compareTo(@NonNull ForeignKeyWithSequence o) {
             final int idCmp = mId - o.mId;
             if (idCmp == 0) {
                 return mSequence - o.mSequence;
