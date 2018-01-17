@@ -16,6 +16,7 @@
 
 package androidx.car.widget;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearSnapHelper;
@@ -36,6 +37,7 @@ public class PagedSnapHelper extends LinearSnapHelper {
      */
     private static final float VIEW_VISIBLE_THRESHOLD = 0.5f;
 
+    private final PagedSmoothScroller mSmoothScroller;
     private RecyclerView mRecyclerView;
 
     // Orientation helpers are lazily created per LayoutManager.
@@ -44,6 +46,10 @@ public class PagedSnapHelper extends LinearSnapHelper {
 
     @Nullable
     private OrientationHelper mHorizontalHelper;
+
+    public PagedSnapHelper(Context context) {
+        mSmoothScroller = new PagedSmoothScroller(context);
+    }
 
     @Override
     public int[] calculateDistanceToFinalSnap(@NonNull RecyclerView.LayoutManager layoutManager,
@@ -164,6 +170,20 @@ public class PagedSnapHelper extends LinearSnapHelper {
     public void attachToRecyclerView(@Nullable RecyclerView recyclerView) {
         super.attachToRecyclerView(recyclerView);
         mRecyclerView = recyclerView;
+    }
+
+    /**
+     * Returns a scroller specific to this {@code PagedSnapHelper}. This scroller is used for all
+     * smooth scrolling operations, including flings.
+     *
+     * @param layoutManager The {@link RecyclerView.LayoutManager} associated with the attached
+     *                      {@link RecyclerView}.
+     *
+     * @return a {@link RecyclerView.SmoothScroller} which will handle the scrolling.
+     */
+    @Override
+    protected RecyclerView.SmoothScroller createScroller(RecyclerView.LayoutManager layoutManager) {
+        return mSmoothScroller;
     }
 
     /**
