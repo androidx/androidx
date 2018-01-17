@@ -31,6 +31,7 @@ import android.arch.persistence.room.util.TableInfo;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Pair;
 
 import org.junit.After;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -207,6 +209,28 @@ public class TableInfoTest {
                         new TableInfo.Index("foo_indexed", false,
                                 Arrays.asList("indexed"))))
         ));
+    }
+
+    @Test
+    public void compatColumnTypes() {
+        // see:https://www.sqlite.org/datatype3.html 3.1
+        List<Pair<String, String>> testCases = Arrays.asList(
+                new Pair<>("TINYINT", "integer"),
+                new Pair<>("VARCHAR", "text"),
+                new Pair<>("DOUBLE", "real"),
+                new Pair<>("BOOLEAN", "numeric"),
+                new Pair<>("FLOATING POINT", "integer")
+        );
+        for (Pair<String, String> testCase : testCases) {
+            mDb = createDatabase(
+                    "CREATE TABLE foo (id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                            + "name " + testCase.first + ")");
+            TableInfo info = TableInfo.read(mDb, "foo");
+            assertThat(info, is(new TableInfo("foo",
+                    toMap(new TableInfo.Column("id", "INTEGER", false, 1),
+                            new TableInfo.Column("name", testCase.second, false, 0)),
+                    Collections.<TableInfo.ForeignKey>emptySet())));
+        }
     }
 
     private static Map<String, TableInfo.Column> toMap(TableInfo.Column... columns) {
