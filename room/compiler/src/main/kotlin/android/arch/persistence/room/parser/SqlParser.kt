@@ -214,7 +214,7 @@ enum class SQLTypeAffinity {
         return when (this) {
             TEXT -> listOf(env.elementUtils.getTypeElement("java.lang.String").asType())
             INTEGER -> withBoxedTypes(env, TypeKind.INT, TypeKind.BYTE, TypeKind.CHAR,
-                    TypeKind.BOOLEAN, TypeKind.LONG, TypeKind.SHORT)
+                    TypeKind.LONG, TypeKind.SHORT)
             REAL -> withBoxedTypes(env, TypeKind.DOUBLE, TypeKind.FLOAT)
             BLOB -> listOf(typeUtils.getArrayType(
                     typeUtils.getPrimitiveType(TypeKind.BYTE)))

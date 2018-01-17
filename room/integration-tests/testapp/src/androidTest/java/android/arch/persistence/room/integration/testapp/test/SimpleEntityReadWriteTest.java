@@ -269,6 +269,18 @@ public class SimpleEntityReadWriteTest {
     }
 
     @Test
+    public void returnBoolean() {
+        User user1 = TestUtil.createUser(1);
+        User user2 = TestUtil.createUser(2);
+        user1.setAdmin(true);
+        user2.setAdmin(false);
+        mUserDao.insert(user1);
+        mUserDao.insert(user2);
+        assertThat(mUserDao.isAdmin(1), is(true));
+        assertThat(mUserDao.isAdmin(2), is(false));
+    }
+
+    @Test
     public void findByCollateNoCase() {
         User user = TestUtil.createUser(3);
         user.setCustomField("abc");
