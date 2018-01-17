@@ -315,6 +315,24 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         assertThat(weakLiveData.get(), nullValue());
     }
 
+    @Test
+    public void booleanLiveData() throws ExecutionException, InterruptedException,
+            TimeoutException {
+        User user = TestUtil.createUser(3);
+        user.setAdmin(false);
+        LiveData<Boolean> adminLiveData = mUserDao.isAdminLiveData(3);
+        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
+        final TestObserver<Boolean> observer = new TestObserver<>();
+        observe(adminLiveData, lifecycleOwner, observer);
+        assertThat(observer.get(), is(nullValue()));
+        mUserDao.insert(user);
+        assertThat(observer.get(), is(false));
+        user.setAdmin(true);
+        mUserDao.insertOrReplace(user);
+        assertThat(observer.get(), is(true));
+    }
+
     private void observe(final LiveData liveData, final LifecycleOwner provider,
             final Observer observer) throws ExecutionException, InterruptedException {
         FutureTask<Void> futureTask = new FutureTask<>(new Callable<Void>() {

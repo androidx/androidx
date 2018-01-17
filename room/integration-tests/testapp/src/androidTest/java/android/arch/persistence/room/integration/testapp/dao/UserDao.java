@@ -164,6 +164,12 @@ public abstract class UserDao {
     @Query("SELECT COUNT(*) from user")
     public abstract int count();
 
+    @Query("SELECT mAdmin from User where mId = :uid")
+    public abstract boolean isAdmin(int uid);
+
+    @Query("SELECT mAdmin from User where mId = :uid")
+    public abstract LiveData<Boolean> isAdminLiveData(int uid);
+
     public void insertBothByRunnable(final User a, final User b) {
         mDatabase.runInTransaction(new Runnable() {
             @Override
