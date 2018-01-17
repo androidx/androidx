@@ -52,7 +52,6 @@ import java.util.List;
  * <li>{@link android.app.slice.SliceItem#FORMAT_ACTION}</li>
  * <li>{@link android.app.slice.SliceItem#FORMAT_INT}</li>
  * <li>{@link android.app.slice.SliceItem#FORMAT_TIMESTAMP}</li>
- * <li>{@link android.app.slice.SliceItem#FORMAT_REMOTE_INPUT}</li>
  * <p>
  * The hints that a {@link SliceItem} are a set of strings which annotate
  * the content. The hints that are guaranteed to be understood by the system
@@ -195,8 +194,10 @@ public class SliceItem {
     /**
      * @return The remote input held by this {@link android.app.slice.SliceItem#FORMAT_REMOTE_INPUT}
      * SliceItem
+     * @hide
      */
     @RequiresApi(20)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public RemoteInput getRemoteInput() {
         return (RemoteInput) mObj;
     }

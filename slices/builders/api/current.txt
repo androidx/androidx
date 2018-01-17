@@ -45,20 +45,6 @@ package androidx.app.slice.builders {
     method public androidx.app.slice.builders.ListBuilder.RowBuilder setTitleItem(android.graphics.drawable.Icon, android.app.PendingIntent);
   }
 
-  public class MessagingSliceBuilder extends androidx.app.slice.builders.TemplateSliceBuilder {
-    ctor public MessagingSliceBuilder(android.net.Uri);
-    method public androidx.app.slice.builders.MessagingSliceBuilder add(androidx.app.slice.builders.MessagingSliceBuilder.MessageBuilder);
-    method public androidx.app.slice.builders.MessagingSliceBuilder add(java.util.function.Consumer<androidx.app.slice.builders.MessagingSliceBuilder.MessageBuilder>);
-    field public static final int MAXIMUM_RETAINED_MESSAGES = 50; // 0x32
-  }
-
-  public static final class MessagingSliceBuilder.MessageBuilder extends androidx.app.slice.builders.TemplateSliceBuilder {
-    method public androidx.app.slice.builders.MessagingSliceBuilder.MessageBuilder addSource(android.graphics.drawable.Icon);
-    method public androidx.app.slice.builders.MessagingSliceBuilder.MessageBuilder addText(java.lang.CharSequence);
-    method public androidx.app.slice.builders.MessagingSliceBuilder.MessageBuilder addTimestamp(long);
-    method public void apply(androidx.app.slice.Slice.Builder);
-  }
-
   public abstract class TemplateSliceBuilder {
     ctor public TemplateSliceBuilder(android.net.Uri);
     method public androidx.app.slice.Slice build();

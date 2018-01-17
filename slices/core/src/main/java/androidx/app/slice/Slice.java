@@ -307,7 +307,9 @@ public final class Slice {
          * Add remote input to the slice being constructed
          * @param subType Optional template-specific type information
          * @see {@link SliceItem#getSubType()}
+         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,
                 @SliceHint List<String> hints) {
             return addRemoteInput(remoteInput, subType, hints.toArray(new String[hints.size()]));
@@ -317,7 +319,9 @@ public final class Slice {
          * Add remote input to the slice being constructed
          * @param subType Optional template-specific type information
          * @see {@link SliceItem#getSubType()}
+         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,
                 @SliceHint String... hints) {
             mItems.add(new SliceItem(remoteInput, FORMAT_REMOTE_INPUT, subType, hints));
