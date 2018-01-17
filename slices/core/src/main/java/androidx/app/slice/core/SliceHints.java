@@ -36,13 +36,29 @@ public class SliceHints {
     public static final String SUBTYPE_TOGGLE = "toggle";
 
     /**
+     * Subtype indicating that this content is the maximum value for a slider or progress.
+     */
+    public static final String SUBTYPE_MAX = "max";
+
+    /**
+     * Subtype indicating that this content is the current value for a slider or progress.
+     */
+    public static final String SUBTYPE_PROGRESS = "progress";
+
+    /**
      * Key to retrieve an extra added to an intent when a control is changed.
      */
     public static final String EXTRA_TOGGLE_STATE = "android.app.slice.extra.TOGGLE_STATE";
+
+    /**
+     * Key to retrieve an extra added to an intent when the value of a slider has changed.
+     */
+    public static final String EXTRA_SLIDER_VALUE = "android.app.slice.extra.SLIDER_VALUE";
 
     /**
      * Hint indicating this content should be shown instead of the normal content when the slice
      * is in small format
      */
     public static final String HINT_SUMMARY = "summary";
+
 }

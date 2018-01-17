@@ -20,9 +20,13 @@ import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_SELECTED;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
+import static androidx.app.slice.core.SliceHints.EXTRA_SLIDER_VALUE;
 import static androidx.app.slice.core.SliceHints.EXTRA_TOGGLE_STATE;
+import static androidx.app.slice.core.SliceHints.SUBTYPE_MAX;
+import static androidx.app.slice.core.SliceHints.SUBTYPE_PROGRESS;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_TOGGLE;
 import static androidx.app.slice.widget.SliceView.MODE_LARGE;
 import static androidx.app.slice.widget.SliceView.MODE_SMALL;
@@ -41,6 +45,8 @@ import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -81,6 +87,8 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
     private View mDivider;
     private ArrayList<CompoundButton> mToggles = new ArrayList<>();
     private LinearLayout mEndContainer;
+    private SeekBar mSeekBar;
+    private ProgressBar mProgressBar;
 
     private int mRowIndex;
     private RowContent mRowContent;
@@ -101,6 +109,8 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         mSecondaryText = (TextView) findViewById(android.R.id.summary);
         mDivider = findViewById(R.id.divider);
         mEndContainer = (LinearLayout) findViewById(android.R.id.widget_frame);
+        mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
     }
 
     @Override
@@ -175,6 +185,12 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         }
         mSecondaryText.setVisibility(subTitle != null ? View.VISIBLE : View.GONE);
 
+        final SliceItem slider = mRowContent.getSlider();
+        if (slider != null) {
+            addSlider(slider);
+            return;
+        }
+
         mRowAction = mRowContent.getContentIntent();
         ArrayList<SliceItem> endItems = mRowContent.getEndItems();
         if (endItems.isEmpty()) {
@@ -225,6 +241,48 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
             if (mRowContent.endItemsContainAction() && itemCount == 1) {
                 setViewClickable(this, true);
             }
+        }
+    }
+
+    private void addSlider(final SliceItem slider) {
+        final ProgressBar progressBar;
+        if (FORMAT_ACTION.equals(slider.getFormat())) {
+            // Seek bar
+            progressBar = mSeekBar;
+            mSeekBar.setVisibility(View.VISIBLE);
+            SliceItem thumb = SliceQuery.find(slider, FORMAT_IMAGE);
+            if (thumb != null) {
+                mSeekBar.setThumb(thumb.getIcon().loadDrawable(getContext()));
+            }
+            mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    try {
+                        PendingIntent pi = slider.getAction();
+                        Intent i = new Intent().putExtra(EXTRA_SLIDER_VALUE, progress);
+                        // TODO: sending this PendingIntent should be rate limited.
+                        pi.send(getContext(), 0, i, null, null);
+                    } catch (CanceledException e) { }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) { }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) { }
+            });
+        } else {
+            // Progress bar
+            progressBar = mProgressBar;
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
+        SliceItem max = SliceQuery.findSubtype(slider, FORMAT_INT, SUBTYPE_MAX);
+        if (max != null) {
+            progressBar.setMax(max.getInt());
+        }
+        SliceItem progress = SliceQuery.findSubtype(slider, FORMAT_INT, SUBTYPE_PROGRESS);
+        if (progress != null) {
+            progressBar.setProgress(progress.getInt());
         }
     }
 
@@ -382,5 +440,7 @@ public class RowView extends FrameLayout implements SliceView.SliceModeView,
         mToggles.clear();
         mRowAction = null;
         mDivider.setVisibility(View.GONE);
+        mSeekBar.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
     }
 }
