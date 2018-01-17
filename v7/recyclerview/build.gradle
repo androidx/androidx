@@ -4,6 +4,7 @@ import android.support.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("kotlin-android")
 }
 
 dependencies {
@@ -16,6 +17,7 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(JUNIT)
+    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(project(":support-testutils"))
 
     testImplementation(JUNIT)

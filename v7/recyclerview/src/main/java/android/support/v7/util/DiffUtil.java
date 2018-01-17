@@ -16,7 +16,6 @@
 
 package android.support.v7.util;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.widget.RecyclerView;
@@ -369,7 +368,7 @@ public class DiffUtil {
          *
          * @see Callback#areItemsTheSame(int, int)
          */
-        public abstract boolean areItemsTheSame(@NonNull T oldItem, @NonNull T newItem);
+        public abstract boolean areItemsTheSame(T oldItem, T newItem);
 
         /**
          * Called to check whether two items have the same data.
@@ -392,7 +391,7 @@ public class DiffUtil {
          *
          * @see Callback#areContentsTheSame(int, int)
          */
-        public abstract boolean areContentsTheSame(@NonNull T oldItem, @NonNull T newItem);
+        public abstract boolean areContentsTheSame(T oldItem, T newItem);
 
         /**
          * When {@link #areItemsTheSame(T, T)} returns {@code true} for two items and
@@ -409,7 +408,7 @@ public class DiffUtil {
          * @see Callback#getChangePayload(int, int)
          */
         @SuppressWarnings({"WeakerAccess", "unused"})
-        public Object getChangePayload(@NonNull T oldItem, @NonNull T newItem) {
+        public Object getChangePayload(T oldItem, T newItem) {
             return null;
         }
     }
@@ -721,35 +720,16 @@ public class DiffUtil {
          *
          * @param adapter A RecyclerView adapter which was displaying the old list and will start
          *                displaying the new list.
+         * @see AdapterListUpdateCallback
          */
         public void dispatchUpdatesTo(final RecyclerView.Adapter adapter) {
-            dispatchUpdatesTo(new ListUpdateCallback() {
-                @Override
-                public void onInserted(int position, int count) {
-                    adapter.notifyItemRangeInserted(position, count);
-                }
-
-                @Override
-                public void onRemoved(int position, int count) {
-                    adapter.notifyItemRangeRemoved(position, count);
-                }
-
-                @Override
-                public void onMoved(int fromPosition, int toPosition) {
-                    adapter.notifyItemMoved(fromPosition, toPosition);
-                }
-
-                @Override
-                public void onChanged(int position, int count, Object payload) {
-                    adapter.notifyItemRangeChanged(position, count, payload);
-                }
-            });
+            dispatchUpdatesTo(new AdapterListUpdateCallback(adapter));
         }
 
         /**
          * Dispatches update operations to the given Callback.
          * <p>
-         * These updates are atomic such that the first update call effects every update call that
+         * These updates are atomic such that the first update call affects every update call that
          * comes after it (the same as RecyclerView).
          *
          * @param updateCallback The callback to receive the update operations.
