@@ -17,7 +17,6 @@
 package androidx.app.slice.widget;
 
 import static android.app.slice.Slice.HINT_TITLE;
-import static android.app.slice.Slice.SUBTYPE_SLIDER;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
@@ -25,6 +24,7 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
+import static androidx.app.slice.core.SliceHints.SUBTYPE_RANGE;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -50,7 +50,7 @@ public class RowContent {
     private SliceItem mSubtitleItem;
     private ArrayList<SliceItem> mEndItems = new ArrayList<>();
     private boolean mEndItemsContainAction;
-    private SliceItem mSlider;
+    private SliceItem mRange;
 
     public RowContent(SliceItem rowSlice, boolean showStartItem) {
         populate(rowSlice, showStartItem);
@@ -90,8 +90,8 @@ public class RowContent {
         if (FORMAT_ACTION.equals(rowSlice.getFormat())) {
             mContentIntent = rowSlice;
         }
-        if (SUBTYPE_SLIDER.equals(rowSlice.getSubType())) {
-            mSlider = rowSlice;
+        if (SUBTYPE_RANGE.equals(rowSlice.getSubType())) {
+            mRange = rowSlice;
         }
         if (rowItems.size() > 0) {
             // Start item
@@ -140,11 +140,11 @@ public class RowContent {
     }
 
     /**
-     * @return the {@link SliceItem} representing the slider in this row; can be null
+     * @return the {@link SliceItem} representing the range in the row; can be null.
      */
     @Nullable
-    public SliceItem getSlider() {
-        return mSlider;
+    public SliceItem getRange() {
+        return mRange;
     }
 
     /**
@@ -228,7 +228,7 @@ public class RowContent {
                 || FORMAT_TIMESTAMP.equals(itemFormat)
                 || FORMAT_REMOTE_INPUT.equals(itemFormat)
                 || FORMAT_ACTION.equals(itemFormat)
-                || (FORMAT_INT.equals(itemFormat) && SUBTYPE_SLIDER.equals(slice.getSubType()));
+                || (FORMAT_INT.equals(itemFormat) && SUBTYPE_RANGE.equals(slice.getSubType()));
     }
 
     /**

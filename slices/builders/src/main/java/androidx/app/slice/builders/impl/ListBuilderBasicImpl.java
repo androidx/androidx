@@ -16,7 +16,6 @@
 
 package androidx.app.slice.builders.impl;
 
-
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
@@ -68,6 +67,16 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         // Do nothing.
     }
 
+    @Override
+    public void addInputRange(TemplateBuilderImpl builder) {
+        // Do nothing.
+    }
+
+    @Override
+    public void addRange(TemplateBuilderImpl builder) {
+        // Do nothing.
+    }
+
     /**
      */
     @Override
@@ -114,6 +123,16 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     @Override
     public TemplateBuilderImpl createActionBuilder(Uri uri) {
         return new ActionBuilderImpl(uri);
+    }
+
+    @Override
+    public TemplateBuilderImpl createInputRangeBuilder() {
+        return new ListBuilderV1Impl.InputRangeBuilderImpl(getBuilder());
+    }
+
+    @Override
+    public TemplateBuilderImpl createRangeBuilder() {
+        return new ListBuilderV1Impl.RangeBuilderImpl(getBuilder());
     }
 
     /**

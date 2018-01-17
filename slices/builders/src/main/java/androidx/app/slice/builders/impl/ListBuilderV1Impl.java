@@ -33,6 +33,9 @@ import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.app.slice.core.SliceHints.SUBTYPE_MAX;
+import static androidx.app.slice.core.SliceHints.SUBTYPE_RANGE;
+import static androidx.app.slice.core.SliceHints.SUBTYPE_VALUE;
 
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
@@ -105,6 +108,90 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         mSliceActions = builder.build();
     }
 
+    @Override
+    public void addInputRange(TemplateBuilderImpl builder) {
+        getBuilder().addSubSlice(builder.build(), SUBTYPE_RANGE);
+    }
+
+    @Override
+    public void addRange(TemplateBuilderImpl builder) {
+        getBuilder().addSubSlice(builder.build(), SUBTYPE_RANGE);
+    }
+
+    /**
+     * Builder to construct an input row.
+     */
+    public static class RangeBuilderImpl extends TemplateBuilderImpl implements RangeBuilder {
+        private int mMax = 100;
+        private int mValue = 0;
+        private CharSequence mTitle;
+
+        public RangeBuilderImpl(Slice.Builder sb) {
+            super(sb, null);
+        }
+
+        @Override
+        public void setMax(int max) {
+            mMax = max;
+        }
+
+        @Override
+        public void setValue(int value) {
+            mValue = value;
+        }
+
+        @Override
+        public void setTitle(@NonNull CharSequence title) {
+            mTitle = title;
+        }
+
+        @Override
+        public void apply(Slice.Builder builder) {
+            if (mTitle != null) {
+                builder.addText(mTitle, null, HINT_TITLE);
+            }
+            builder.addHints(HINT_LIST_ITEM)
+                    .addInt(mMax, SUBTYPE_MAX)
+                    .addInt(mValue, SUBTYPE_VALUE);
+        }
+    }
+
+    /**
+     * Builder to construct an input range row.
+     */
+    public static class InputRangeBuilderImpl
+            extends RangeBuilderImpl implements InputRangeBuilder {
+        private PendingIntent mAction;
+        private Icon mThumb;
+
+        public InputRangeBuilderImpl(Slice.Builder sb) {
+            super(sb);
+        }
+
+        @Override
+        public void setAction(@NonNull PendingIntent action) {
+            mAction = action;
+        }
+
+        @Override
+        public void setThumb(@NonNull Icon thumb) {
+            mThumb = thumb;
+        }
+
+        @Override
+        public void apply(Slice.Builder builder) {
+            if (mAction == null) {
+                throw new IllegalStateException("Input ranges must have an associated action.");
+            }
+            Slice.Builder sb = new Slice.Builder(builder);
+            super.apply(sb);
+            if (mThumb != null) {
+                sb.addIcon(mThumb, null);
+            }
+            builder.addAction(mAction, sb.build(), SUBTYPE_RANGE).addHints(HINT_LIST_ITEM);
+        }
+    }
+
     /**
      */
     @NonNull
@@ -125,6 +212,17 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     @Override
     public TemplateBuilderImpl createRowBuilder(Uri uri) {
         return new RowBuilderImpl(uri);
+    }
+
+
+    @Override
+    public TemplateBuilderImpl createInputRangeBuilder() {
+        return new InputRangeBuilderImpl(createChildBuilder());
+    }
+
+    @Override
+    public TemplateBuilderImpl createRangeBuilder() {
+        return new RangeBuilderImpl(createChildBuilder());
     }
 
     /**

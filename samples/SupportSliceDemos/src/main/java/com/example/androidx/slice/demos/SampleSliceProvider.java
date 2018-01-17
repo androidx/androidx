@@ -48,12 +48,14 @@ public class SampleSliceProvider extends SliceProvider {
     public static final String ACTION_TOAST =
             "com.example.androidx.slice.action.TOAST";
     public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
+    public static final String ACTION_TOAST_RANGE_VALUE =
+            "com.example.androidx.slice.action.TOAST_RANGE_VALUE";
 
     public static final int LOADING_DELAY_MS = 4000;
 
     public static final String[] URI_PATHS = {"message", "wifi", "note", "ride", "toggle",
             "toggle2", "contact", "gallery", "weather", "reservation", "loadlist", "loadlist2",
-            "loadgrid", "loadgrid2"};
+            "loadgrid", "loadgrid2", "inputrange", "range"};
 
     /**
      * @return Uri with the provided path
@@ -109,6 +111,10 @@ public class SampleSliceProvider extends SliceProvider {
                 return createLoadingSlice(sliceUri, false /* loadAll */, false /* isList */);
             case "/loadgrid2":
                 return createLoadingSlice(sliceUri, true /* loadAll */, false /* isList */);
+            case "/inputrange":
+                return createStarRatingInputRange(sliceUri);
+            case "/range":
+                return createDownloadProgressRange(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -327,7 +333,29 @@ public class SampleSliceProvider extends SliceProvider {
                     .setSubtitle(state)
                     .addToggle(getBroadcastIntent(ACTION_WIFI_CHANGED, null), finalWifiEnabled)
                     .setContentIntent(getIntent(Settings.ACTION_WIFI_SETTINGS)))
-            .build();
+                .build();
+    }
+
+    private Slice createStarRatingInputRange(Uri sliceUri) {
+        return new ListBuilder(getContext(), sliceUri)
+                .setColor(0xffff4081)
+                .addInputRange(c -> c
+                        .setTitle("Star rating")
+                        .setThumb(Icon.createWithResource(getContext(), R.drawable.ic_star_on))
+                        .setAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
+                        .setMax(5)
+                        .setValue(3))
+                .build();
+    }
+
+    private Slice createDownloadProgressRange(Uri sliceUri) {
+        return new ListBuilder(getContext(), sliceUri)
+                .setColor(0xffff4081)
+                .addRange(c -> c
+                        .setTitle("Download progress")
+                        .setMax(100)
+                        .setValue(75))
+                .build();
     }
 
     private Handler mHandler = new Handler();

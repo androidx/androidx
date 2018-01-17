@@ -202,6 +202,149 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
+     * Add an input range row to the list builder.
+     */
+    @NonNull
+    public ListBuilder addInputRange(@NonNull InputRangeBuilder b) {
+        mImpl.addInputRange((TemplateBuilderImpl) b.mImpl);
+        return this;
+    }
+
+    /**
+     * Add an input range row to the list builder.
+     */
+    @NonNull
+    public ListBuilder addInputRange(@NonNull Consumer<InputRangeBuilder> c) {
+        InputRangeBuilder inputRangeBuilder = new InputRangeBuilder(this);
+        c.accept(inputRangeBuilder);
+        return addInputRange(inputRangeBuilder);
+    }
+
+    /**
+     * Add a range row to the list builder.
+     */
+    @NonNull
+    public ListBuilder addRange(@NonNull RangeBuilder rangeBuilder) {
+        mImpl.addRange((TemplateBuilderImpl) rangeBuilder.mImpl);
+        return this;
+    }
+
+    /**
+     * Add a range row to the list builder.
+     */
+    @NonNull
+    public ListBuilder addRange(@NonNull Consumer<RangeBuilder> c) {
+        RangeBuilder rangeBuilder = new RangeBuilder(this);
+        c.accept(rangeBuilder);
+        return addRange(rangeBuilder);
+    }
+
+    /**
+     * Builder to construct a range row.
+     */
+    public static class RangeBuilder extends TemplateSliceBuilder {
+        private androidx.app.slice.builders.impl.ListBuilder.RangeBuilder mImpl;
+
+        public RangeBuilder(@NonNull ListBuilder parent) {
+            super(parent.mImpl.createRangeBuilder());
+        }
+
+        /**
+         * Set the upper limit of the range. The default is 100.
+         */
+        @NonNull
+        public RangeBuilder setMax(int max) {
+            mImpl.setMax(max);
+            return this;
+        }
+
+        /**
+         * Set the current value of the range.
+         */
+        @NonNull
+        public RangeBuilder setValue(int value) {
+            mImpl.setValue(value);
+            return this;
+        }
+
+        /**
+         * Set the title.
+         */
+        @NonNull
+        public RangeBuilder setTitle(@NonNull CharSequence title) {
+            mImpl.setTitle(title);
+            return this;
+        }
+
+        @Override
+        void setImpl(TemplateBuilderImpl impl) {
+            mImpl = (androidx.app.slice.builders.impl.ListBuilder.RangeBuilder) impl;
+        }
+    }
+
+    /**
+     * Builder to construct a input range row.
+     */
+    public static class InputRangeBuilder extends TemplateSliceBuilder {
+        private androidx.app.slice.builders.impl.ListBuilder.InputRangeBuilder mImpl;
+
+        public InputRangeBuilder(@NonNull ListBuilder parent) {
+            super(parent.mImpl.createInputRangeBuilder());
+        }
+
+        /**
+         * Set the upper limit of the range. The default is 100.
+         */
+        @NonNull
+        public InputRangeBuilder setMax(int max) {
+            mImpl.setMax(max);
+            return this;
+        }
+
+        /**
+         * Set the current value of the range.
+         */
+        @NonNull
+        public InputRangeBuilder setValue(int value) {
+            mImpl.setValue(value);
+            return this;
+        }
+
+        /**
+         * Set the title.
+         */
+        @NonNull
+        public InputRangeBuilder setTitle(@NonNull CharSequence title) {
+            mImpl.setTitle(title);
+            return this;
+        }
+
+
+        /**
+         * Set the {@link PendingIntent} to send when the current value is updated.
+         */
+        @NonNull
+        public InputRangeBuilder setAction(@NonNull PendingIntent action) {
+            mImpl.setAction(action);
+            return this;
+        }
+
+        /**
+         * Set the {@link Icon} to be displayed as the thumb on the input range.
+         */
+        @NonNull
+        public InputRangeBuilder setThumb(@NonNull Icon thumb) {
+            mImpl.setThumb(thumb);
+            return this;
+        }
+
+        @Override
+        void setImpl(TemplateBuilderImpl impl) {
+            mImpl = (androidx.app.slice.builders.impl.ListBuilder.InputRangeBuilder) impl;
+        }
+    }
+
+    /**
      * Sub-builder to construct a row of slice content.
      * <p>
      * Row content can have:

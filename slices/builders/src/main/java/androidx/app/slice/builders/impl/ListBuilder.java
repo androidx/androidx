@@ -21,6 +21,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 /**
@@ -51,6 +52,16 @@ public interface ListBuilder {
      * large or small formats.
      */
     void setActions(TemplateBuilderImpl impl);
+
+    /**
+     * Add an input range row to the list builder.
+     */
+    void addInputRange(TemplateBuilderImpl builder);
+
+    /**
+     * Add a range row to the list builder.
+     */
+    void addRange(TemplateBuilderImpl builder);
 
     /**
      * Sets the color to tint items displayed by this template (e.g. icons).
@@ -87,8 +98,53 @@ public interface ListBuilder {
     TemplateBuilderImpl createActionBuilder(Uri uri);
 
     /**
+     * Create a builder that implements {@link InputRangeBuilder}.
      */
-    public interface RowBuilder {
+    TemplateBuilderImpl createInputRangeBuilder();
+
+    /**
+     * Create a builder that implements {@link RangeBuilder}.
+     */
+    TemplateBuilderImpl createRangeBuilder();
+
+    /**
+     * Builder to construct a range.
+     */
+    interface RangeBuilder {
+        /**
+         * Set the upper limit.
+         */
+        void setMax(int max);
+
+        /**
+         * Set the current value.
+         */
+        void setValue(int value);
+
+        /**
+         * Set the title.
+         */
+        void setTitle(@NonNull CharSequence title);
+    }
+
+    /**
+     * Builder to construct an input range.
+     */
+    interface InputRangeBuilder extends RangeBuilder {
+        /**
+         * Set the {@link PendingIntent} to send when the value changes.
+         */
+        void setAction(@NonNull PendingIntent action);
+
+        /**
+         * Set the {@link Icon} to be displayed as the thumb on the input range.
+         */
+        void setThumb(@NonNull Icon thumb);
+    }
+
+    /**
+     */
+    interface RowBuilder {
 
         /**
          * Sets the title item to be the provided timestamp. Only one timestamp can be added, if

@@ -17,7 +17,7 @@
 package com.example.androidx.slice.demos;
 
 import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
-
+import static androidx.app.slice.core.SliceHints.EXTRA_RANGE_VALUE;
 import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
 
 import android.content.BroadcastReceiver;
@@ -50,6 +50,10 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
                 String message = i.getExtras().getString(SampleSliceProvider.EXTRA_TOAST_MESSAGE,
                         "no message");
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                break;
+            case SampleSliceProvider.ACTION_TOAST_RANGE_VALUE:
+                int range = i.getExtras().getInt(EXTRA_RANGE_VALUE, 0);
+                Toast.makeText(context, "value: " + range, Toast.LENGTH_SHORT).show();
                 break;
         }
     }

@@ -27,17 +27,22 @@ import android.support.annotation.RestrictTo;
 @RestrictTo(LIBRARY_GROUP)
 public class SliceHints {
     /**
-     * Subtype indicating that this content is the maximum value for a slider or progress.
+     * Subtype to range an item representing a range.
+     */
+    public static final String SUBTYPE_RANGE = "range";
+
+    /**
+     * Subtype indicating that this content is the maximum value for a range.
      */
     public static final String SUBTYPE_MAX = "max";
 
     /**
-     * Subtype indicating that this content is the current value for a slider or progress.
+     * Subtype indicating that this content is the current value for a range.
      */
-    public static final String SUBTYPE_PROGRESS = "progress";
+    public static final String SUBTYPE_VALUE = "value";
 
     /**
-     * Key to retrieve an extra added to an intent when the value of a slider has changed.
+     * Key to retrieve an extra added to an intent when the value of an input range has changed.
      */
-    public static final String EXTRA_SLIDER_VALUE = "android.app.slice.extra.SLIDER_VALUE";
+    public static final String EXTRA_RANGE_VALUE = "android.app.slice.extra.RANGE_VALUE";
 }

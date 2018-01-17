@@ -24,10 +24,9 @@ import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
-
-import static androidx.app.slice.core.SliceHints.EXTRA_SLIDER_VALUE;
+import static androidx.app.slice.core.SliceHints.EXTRA_RANGE_VALUE;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_MAX;
-import static androidx.app.slice.core.SliceHints.SUBTYPE_PROGRESS;
+import static androidx.app.slice.core.SliceHints.SUBTYPE_VALUE;
 import static androidx.app.slice.widget.SliceView.MODE_LARGE;
 import static androidx.app.slice.widget.SliceView.MODE_SMALL;
 
@@ -185,9 +184,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mSecondaryText.setTextColor(mSubtitleColor);
         mSecondaryText.setVisibility(subTitle != null ? View.VISIBLE : View.GONE);
 
-        final SliceItem slider = mRowContent.getSlider();
-        if (slider != null) {
-            addSlider(slider);
+        final SliceItem range = mRowContent.getRange();
+        if (range != null) {
+            addRange(range);
             return;
         }
 
@@ -245,13 +244,13 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
     }
 
-    private void addSlider(final SliceItem slider) {
+    private void addRange(final SliceItem range) {
         final ProgressBar progressBar;
-        if (FORMAT_ACTION.equals(slider.getFormat())) {
-            // Seek bar
+        if (FORMAT_ACTION.equals(range.getFormat())) {
+            // An input range is displayed as a seek bar
             progressBar = mSeekBar;
             mSeekBar.setVisibility(View.VISIBLE);
-            SliceItem thumb = SliceQuery.find(slider, FORMAT_IMAGE);
+            SliceItem thumb = SliceQuery.find(range, FORMAT_IMAGE);
             if (thumb != null) {
                 mSeekBar.setThumb(thumb.getIcon().loadDrawable(getContext()));
             }
@@ -259,8 +258,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     try {
-                        PendingIntent pi = slider.getAction();
-                        Intent i = new Intent().putExtra(EXTRA_SLIDER_VALUE, progress);
+                        PendingIntent pi = range.getAction();
+                        Intent i = new Intent().putExtra(EXTRA_RANGE_VALUE, progress);
                         // TODO: sending this PendingIntent should be rate limited.
                         pi.send(getContext(), 0, i, null, null);
                     } catch (CanceledException e) { }
@@ -273,15 +272,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 public void onStopTrackingTouch(SeekBar seekBar) { }
             });
         } else {
-            // Progress bar
+            // A range is displayed as a progress bar.
             progressBar = mProgressBar;
             mProgressBar.setVisibility(View.VISIBLE);
         }
-        SliceItem max = SliceQuery.findSubtype(slider, FORMAT_INT, SUBTYPE_MAX);
+        SliceItem max = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MAX);
         if (max != null) {
             progressBar.setMax(max.getInt());
         }
-        SliceItem progress = SliceQuery.findSubtype(slider, FORMAT_INT, SUBTYPE_PROGRESS);
+        SliceItem progress = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_VALUE);
         if (progress != null) {
             progressBar.setProgress(progress.getInt());
         }
