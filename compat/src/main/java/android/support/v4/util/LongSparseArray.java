@@ -235,6 +235,14 @@ public class LongSparseArray<E> implements Cloneable {
     }
 
     /**
+     * Return true if size() is 0.
+     * @return true if size() is 0.
+     */
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    /**
      * Given an index in the range <code>0...size()-1</code>, returns
      * the key from the <code>index</code>th key-value mapping that this
      * LongSparseArray stores.
