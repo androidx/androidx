@@ -123,6 +123,10 @@ public class PagedListView extends FrameLayout {
 
     private boolean mNeedsFocus;
 
+    @Gutter
+    private int mGutter;
+    private int mGutterSize;
+
     /**
      * Interface for a {@link android.support.v7.widget.RecyclerView.Adapter} to cap the number of
      * items.
@@ -251,6 +255,10 @@ public class PagedListView extends FrameLayout {
         mRecyclerView.setOnScrollListener(mRecyclerViewOnScrollListener);
         mRecyclerView.getRecycledViewPool().setMaxRecycledViews(0, 12);
 
+        int defaultGutterSize = getResources().getDimensionPixelSize(R.dimen.car_margin);
+        mGutterSize = a.getDimensionPixelSize(R.styleable.PagedListView_gutterSize,
+                defaultGutterSize);
+
         if (a.hasValue(R.styleable.PagedListView_gutter)) {
             int gutter = a.getInt(R.styleable.PagedListView_gutter, Gutter.BOTH);
             setGutter(gutter);
@@ -360,26 +368,42 @@ public class PagedListView extends FrameLayout {
     /**
      * Set the gutter to the specified value.
      *
-     * The gutter is the space to the start/end of the list view items and will be equal in size
+     * <p>The gutter is the space to the start/end of the list view items and will be equal in size
      * to the scroll bars. By default, there is a gutter to both the left and right of the list
      * view items, to account for the scroll bar.
      *
      * @param gutter A {@link Gutter} value that identifies which sides to apply the gutter to.
      */
     public void setGutter(@Gutter int gutter) {
+        mGutter = gutter;
+
         int startPadding = 0;
         int endPadding = 0;
-        if ((gutter & Gutter.START) != 0) {
-            startPadding = getResources().getDimensionPixelSize(R.dimen.car_margin);
+        if ((mGutter & Gutter.START) != 0) {
+            startPadding = mGutterSize;
         }
-        if ((gutter & Gutter.END) != 0) {
-            endPadding = getResources().getDimensionPixelSize(R.dimen.car_margin);
+        if ((mGutter & Gutter.END) != 0) {
+            endPadding = mGutterSize;
         }
         mRecyclerView.setPaddingRelative(startPadding, 0, endPadding, 0);
 
         // If there's a gutter, set ClipToPadding to false so that CardView's shadow will still
         // appear outside of the padding.
         mRecyclerView.setClipToPadding(startPadding == 0 && endPadding == 0);
+    }
+
+    /**
+     * Sets the size of the gutter that appears at the start, end or both sizes of the items in
+     * the {@code PagedListView}.
+     *
+     * @param gutterSize The size of the gutter in pixels.
+     * @see #setGutter(int)
+     */
+    public void setGutterSize(int gutterSize) {
+        mGutterSize = gutterSize;
+
+        // Call setGutter to reset the gutter.
+        setGutter(mGutter);
     }
 
     /**
