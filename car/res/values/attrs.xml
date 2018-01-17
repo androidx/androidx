@@ -42,6 +42,10 @@ limitations under the License.
             <!-- Include a gutter on both sides of the list view items. -->
             <enum name="both" value="3" />
         </attr>
+        <!-- The size of the gutter that is either at the start, end or both sides of the
+             items in the PagedListView. There is a default value that changes per screen size if
+             a gutter size is not explicitly set.-->
+        <attr name="gutterSize" format="dimension" />
         <!-- Whether to display the scrollbar or not. Defaults to true. -->
         <attr name="scrollBarEnabled" format="boolean" />
         <!-- The top margin before the scroll bar is drawn. -->
