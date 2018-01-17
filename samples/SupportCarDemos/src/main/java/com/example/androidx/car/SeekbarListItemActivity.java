@@ -87,94 +87,109 @@ public class SeekbarListItemActivity extends Activity {
 
             String longText = mContext.getString(R.string.long_text);
 
+            TextListItem textListItem;
+            SeekbarListItem item;
+
             // Slider only.
-            mItems.add(new TextListItem.Builder(mContext).withTitle("Slider Only").build());
+            textListItem = new TextListItem(mContext);
+            textListItem.setTitle("Slider Only");
+            mItems.add(textListItem);
 
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, null)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            mItems.add(item);
 
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, "one line text")
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            mItems.add(item);
 
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, longText)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            mItems.add(item);
 
 
             // Start icon.
-            mItems.add(new TextListItem.Builder(mContext).withTitle("With Primary Action").build());
+            textListItem = new TextListItem(mContext);
+            textListItem.setTitle("With Primary Action");
+            mItems.add(textListItem);
             // Only slider. No text.
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, null)
-                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            mItems.add(item);
 
             // One line text.
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, "one line text")
-                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            mItems.add(item);
 
             // Long text.
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, longText)
-                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            mItems.add(item);
 
             // End icon with divider.
-            mItems.add(new TextListItem.Builder(mContext).withTitle(
-                    "With Supplemental Action").build());
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, null)
-                    .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true)
-                    .build());
+            textListItem = new TextListItem(mContext);
+            textListItem.setTitle(
+                    "With Supplemental Action");
+            mItems.add(textListItem);
+            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
+            mItems.add(item);
 
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, "one line text")
-                    .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
+            mItems.add(item);
 
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, longText)
-                    .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
+            mItems.add(item);
 
             // Empty end icon with divider.
-            mItems.add(new TextListItem.Builder(mContext).withTitle("With Empty Icon").build());
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, null)
-                    .withSupplementalEmptyIcon(true)
-                    .build());
+            textListItem = new TextListItem(mContext);
+            textListItem.setTitle("With Empty Icon");
+            mItems.add(textListItem);
+            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            item.setSupplementalEmptyIcon(true);
+            mItems.add(item);
 
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, "one line text")
-                    .withSupplementalEmptyIcon(true)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            item.setSupplementalEmptyIcon(true);
+            mItems.add(item);
 
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, longText)
-                    .withSupplementalEmptyIcon(true)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            item.setSupplementalEmptyIcon(true);
+            mItems.add(item);
 
             // End icon without divider.
-            mItems.add(new TextListItem.Builder(mContext).withTitle(
-                    "Without Supplemental Action Divider").build());
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, null)
-                    .withSupplementalIcon(android.R.drawable.sym_def_app_icon, false)
-                    .build());
+            textListItem = new TextListItem(mContext);
+            textListItem.setTitle(
+                    "Without Supplemental Action Divider");
+            mItems.add(textListItem);
+            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
+            mItems.add(item);
 
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, "one line text")
-                    .withSupplementalIcon(android.R.drawable.sym_def_app_icon, false)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
+            mItems.add(item);
 
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, longText)
-                    .withSupplementalIcon(android.R.drawable.sym_def_app_icon, false)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
+            mItems.add(item);
 
             // Empty end icon without divider.
-            mItems.add(new TextListItem.Builder(mContext).withTitle(
-                    "With Empty Icon No Divider").build());
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, null)
-                    .withSupplementalEmptyIcon(false)
-                    .build());
+            textListItem = new TextListItem(mContext);
+            textListItem.setTitle(
+                    "With Empty Icon No Divider");
+            mItems.add(textListItem);
+            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            item.setSupplementalEmptyIcon(false);
+            mItems.add(item);
 
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, "one line text")
-                    .withSupplementalEmptyIcon(false)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            item.setSupplementalEmptyIcon(false);
+            mItems.add(item);
 
-            mItems.add(new SeekbarListItem.Builder(mContext, 100, 0, mListener, longText)
-                    .withSupplementalEmptyIcon(false)
-                    .build());
+            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            item.setSupplementalEmptyIcon(false);
+            mItems.add(item);
 
             mListProvider = new ListItemProvider.ListProvider(mItems);
         }
