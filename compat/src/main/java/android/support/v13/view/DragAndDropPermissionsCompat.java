@@ -20,57 +20,16 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.view.DragAndDropPermissions;
 import android.view.DragEvent;
 
 /**
- * Helper for accessing features in {@link android.view.DragAndDropPermissions}
- * introduced after API level 13 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.view.DragAndDropPermissions} a backwards
+ * compatible fashion.
  */
 public final class DragAndDropPermissionsCompat {
-
-    interface DragAndDropPermissionsCompatImpl {
-        Object request(Activity activity, DragEvent dragEvent);
-        void release(Object dragAndDropPermissions);
-    }
-
-    static class BaseDragAndDropPermissionsCompatImpl implements DragAndDropPermissionsCompatImpl {
-        @Override
-        public Object request(Activity activity, DragEvent dragEvent) {
-            return null;
-        }
-
-        @Override
-        public void release(Object dragAndDropPermissions) {
-            // no-op
-        }
-    }
-
-    @RequiresApi(24)
-    static class Api24DragAndDropPermissionsCompatImpl
-            extends BaseDragAndDropPermissionsCompatImpl {
-        @Override
-        public Object request(Activity activity, DragEvent dragEvent) {
-            return activity.requestDragAndDropPermissions(dragEvent);
-        }
-
-        @Override
-        public void release(Object dragAndDropPermissions) {
-            ((DragAndDropPermissions) dragAndDropPermissions).release();
-        }
-    }
-
-    private static DragAndDropPermissionsCompatImpl IMPL;
-    static {
-        if (Build.VERSION.SDK_INT >= 24) {
-            IMPL = new Api24DragAndDropPermissionsCompatImpl();
-        } else {
-            IMPL = new BaseDragAndDropPermissionsCompatImpl();
-        }
-    }
-
     private Object mDragAndDropPermissions;
 
     private DragAndDropPermissionsCompat(Object dragAndDropPermissions) {
@@ -79,18 +38,24 @@ public final class DragAndDropPermissionsCompat {
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
+    @Nullable
     public static DragAndDropPermissionsCompat request(Activity activity, DragEvent dragEvent) {
-        Object dragAndDropPermissions = IMPL.request(activity, dragEvent);
-        if (dragAndDropPermissions != null) {
-            return new DragAndDropPermissionsCompat(dragAndDropPermissions);
+        if (Build.VERSION.SDK_INT >= 24) {
+            DragAndDropPermissions dragAndDropPermissions =
+                    activity.requestDragAndDropPermissions(dragEvent);
+            if (dragAndDropPermissions != null) {
+                return new DragAndDropPermissionsCompat(dragAndDropPermissions);
+            }
         }
         return null;
     }
 
-    /*
+    /**
      * Revoke the permission grant explicitly.
      */
     public void release() {
-        IMPL.release(mDragAndDropPermissions);
+        if (Build.VERSION.SDK_INT >= 24) {
+            ((DragAndDropPermissions) mDragAndDropPermissions).release();
+        }
     }
 }
