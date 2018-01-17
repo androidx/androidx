@@ -17,8 +17,10 @@
 package androidx.app.slice.widget;
 
 import static android.app.slice.Slice.HINT_TITLE;
+import static android.app.slice.Slice.SUBTYPE_SLIDER;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
@@ -49,6 +51,7 @@ public class RowContent {
     private SliceItem mSubtitleItem;
     private ArrayList<SliceItem> mEndItems = new ArrayList<>();
     private boolean mEndItemsContainAction;
+    private SliceItem mSlider;
 
     public RowContent(SliceItem rowSlice, boolean showStartItem) {
         populate(rowSlice, showStartItem);
@@ -75,18 +78,21 @@ public class RowContent {
             return false;
         }
         // Filter anything not viable for displaying in a row
-        ArrayList<SliceItem> rowItems = filterInvalidItems(rowSlice.getSlice().getItems());
+        ArrayList<SliceItem> rowItems = filterInvalidItems(rowSlice);
         // If we've only got one item that's a slice / action use those items instead
         if (rowItems.size() == 1 && (FORMAT_ACTION.equals(rowItems.get(0).getFormat())
                 || FORMAT_SLICE.equals(rowItems.get(0).getFormat()))) {
             if (isValidRow(rowItems.get(0))) {
                 rowSlice = rowItems.get(0);
-                rowItems = filterInvalidItems(rowSlice.getSlice().getItems());
+                rowItems = filterInvalidItems(rowSlice);
             }
         }
         // Content intent
         if (FORMAT_ACTION.equals(rowSlice.getFormat())) {
             mContentIntent = rowSlice;
+        }
+        if (SUBTYPE_SLIDER.equals(rowSlice.getSubType())) {
+            mSlider = rowSlice;
         }
         if (rowItems.size() > 0) {
             // Start item
@@ -135,6 +141,14 @@ public class RowContent {
     }
 
     /**
+     * @return the {@link SliceItem} representing the slider in this row; can be null
+     */
+    @Nullable
+    public SliceItem getSlider() {
+        return mSlider;
+    }
+
+    /**
      * @return whether this row has content that is valid to display.
      */
     public boolean isValid() {
@@ -178,25 +192,25 @@ public class RowContent {
     /**
      * @return whether this is a valid item to use to populate a row of content.
      */
-    private static boolean isValidRow(SliceItem item) {
+    private static boolean isValidRow(SliceItem rowSlice) {
         // Must be slice or action
-        if (FORMAT_SLICE.equals(item.getFormat()) || FORMAT_ACTION.equals(item.getFormat())) {
+        if (FORMAT_SLICE.equals(rowSlice.getFormat())
+                || FORMAT_ACTION.equals(rowSlice.getFormat())) {
             // Must have at least one legitimate child
-            List<SliceItem> rowItems = item.getSlice().getItems();
+            List<SliceItem> rowItems = rowSlice.getSlice().getItems();
             for (int i = 0; i < rowItems.size(); i++) {
-                if (isValidRowContent(rowItems.get(i))) {
+                if (isValidRowContent(rowSlice, rowItems.get(i))) {
                     return true;
                 }
             }
         }
-        Log.w(TAG, "invalid row content because not a slice or action");
         return false;
     }
 
-    private static ArrayList<SliceItem> filterInvalidItems(List<SliceItem> items) {
+    private static ArrayList<SliceItem> filterInvalidItems(SliceItem rowSlice) {
         ArrayList<SliceItem> filteredList = new ArrayList<>();
-        for (SliceItem i : items) {
-            if (isValidRowContent(i)) {
+        for (SliceItem i : rowSlice.getSlice().getItems()) {
+            if (isValidRowContent(rowSlice, i)) {
                 filteredList.add(i);
             }
         }
@@ -206,7 +220,7 @@ public class RowContent {
     /**
      * @return whether this item has valid content to display in a row.
      */
-    private static boolean isValidRowContent(SliceItem item) {
+    private static boolean isValidRowContent(SliceItem slice, SliceItem item) {
         // TODO -- filter for shortcut once that's in
         final String itemFormat = item.getFormat();
         // Must be a format that is presentable
@@ -214,7 +228,8 @@ public class RowContent {
                 || FORMAT_IMAGE.equals(itemFormat)
                 || FORMAT_TIMESTAMP.equals(itemFormat)
                 || FORMAT_REMOTE_INPUT.equals(itemFormat)
-                || FORMAT_ACTION.equals(itemFormat);
+                || FORMAT_ACTION.equals(itemFormat)
+                || (FORMAT_INT.equals(itemFormat) && SUBTYPE_SLIDER.equals(slice.getSubType()));
     }
 
     /**
