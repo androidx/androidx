@@ -22,6 +22,7 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import androidx.app.slice.Slice;
@@ -62,12 +63,35 @@ public interface GridBuilder {
         void addText(@NonNull CharSequence text);
 
         /**
+         * Adds text to the cell. There can be at most two text items, the first two added
+         * will be used, others will be ignored.
+         * <p>
+         * When set to true, the parameter {@code isLoading} indicates that the app is doing work
+         * to load this content in the background, in this case the template displays a placeholder
+         * until updated.
+         */
+        @NonNull
+        void addText(@Nullable CharSequence text, boolean isLoading);
+
+        /**
          * Adds text to the cell. Text added with this method will be styled as a title.
          * There can be at most two text items, the first two added will be used, others
          * will be ignored.
          */
         @NonNull
         void addTitleText(@NonNull CharSequence text);
+
+        /**
+         * Adds text to the cell. Text added with this method will be styled as a title.
+         * There can be at most two text items, the first two added will be used, others
+         * will be ignored.
+         * <p>
+         * When set to true, the parameter {@code isLoading} indicates that the app is doing work
+         * to load this content in the background, in this case the template displays a placeholder
+         * until updated.
+         */
+        @NonNull
+        void addTitleText(@Nullable CharSequence text, boolean isLoading);
 
         /**
          * Adds an image to the cell that should be displayed as large as the cell allows.
@@ -79,6 +103,17 @@ public interface GridBuilder {
         void addLargeImage(@NonNull Icon image);
 
         /**
+         * Adds an image to the cell that should be displayed as large as the cell allows.
+         * There can be at most one image, the first one added will be used, others will be ignored.
+         * <p>
+         * When set to true, the parameter {@code isLoading} indicates that the app is doing work
+         * to load this content in the background, in this case the template displays a placeholder
+         * until updated.
+         */
+        @NonNull
+        void addLargeImage(@Nullable Icon image, boolean isLoading);
+
+        /**
          * Adds an image to the cell. There can be at most one image, the first one added
          * will be used, others will be ignored.
          *
@@ -86,6 +121,17 @@ public interface GridBuilder {
          */
         @NonNull
         void addImage(@NonNull Icon image);
+
+        /**
+         * Adds an image to the cell. There can be at most one image, the first one added
+         * will be used, others will be ignored.
+         * <p>
+         * When set to true, the parameter {@code isLoading} indicates that the app is doing work
+         * to load this content in the background, in this case the template displays a placeholder
+         * until updated.l.
+         */
+        @NonNull
+        void addImage(@NonNull Icon image, boolean isLoading);
 
         /**
          * Sets the action to be invoked if the user taps on this cell in the row.

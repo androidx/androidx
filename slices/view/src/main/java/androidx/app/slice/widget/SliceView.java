@@ -120,6 +120,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
      * that selection.
      */
     private static final int MODE_AUTO = 0;
+
     private int mMode = MODE_AUTO;
     private SliceChildView mCurrentView;
     private Slice mCurrentSlice;

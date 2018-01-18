@@ -20,6 +20,7 @@ import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
+import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SELECTED;
 import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
@@ -37,6 +38,7 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import java.util.ArrayList;
@@ -196,7 +198,17 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @NonNull
         @Override
         public void setTitleItem(@NonNull Icon icon) {
+            setTitleItem(icon, false /* isLoading */);
+        }
+
+        /**
+         */
+        @Override
+        public void setTitleItem(@Nullable Icon icon, boolean isLoading) {
             mStartItem = new SliceItem(icon, FORMAT_IMAGE, null, new String[0]);
+            if (isLoading) {
+                mStartItem.addHint(HINT_PARTIAL);
+            }
         }
 
         /**
@@ -204,8 +216,18 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @NonNull
         @Override
         public void setTitleItem(@NonNull Icon icon, @NonNull PendingIntent action) {
+            setTitleItem(icon, action, false /* isLoading */);
+        }
+
+        /**
+         */
+        @Override
+        public void setTitleItem(Icon icon, PendingIntent action, boolean isLoading) {
             Slice actionSlice = new Slice.Builder(getBuilder()).addIcon(icon, null).build();
             mStartItem = new SliceItem(action, actionSlice, FORMAT_ACTION, null, new String[0]);
+            if (isLoading) {
+                mStartItem.addHint(HINT_PARTIAL);
+            }
         }
 
         /**
@@ -221,7 +243,17 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @NonNull
         @Override
         public void setTitle(CharSequence title) {
-            mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[]{HINT_TITLE});
+            setTitle(title, false /* isLoading */);
+        }
+
+        /**
+         */
+        @Override
+        public void setTitle(CharSequence title, boolean isLoading) {
+            mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});
+            if (isLoading) {
+                mTitleItem.addHint(HINT_PARTIAL);
+            }
         }
 
         /**
@@ -229,7 +261,17 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @NonNull
         @Override
         public void setSubtitle(CharSequence subtitle) {
+            setSubtitle(subtitle, false /* isLoading */);
+        }
+
+        /**
+         */
+        @Override
+        public void setSubtitle(CharSequence subtitle, boolean isLoading) {
             mSubtitleItem = new SliceItem(subtitle, FORMAT_TEXT, null, new String[0]);
+            if (isLoading) {
+                mSubtitleItem.addHint(HINT_PARTIAL);
+            }
         }
 
         /**
@@ -245,8 +287,19 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @NonNull
         @Override
         public void addEndItem(@NonNull Icon icon) {
-            mEndItems.add(new SliceItem(icon, FORMAT_IMAGE, null,
-                    new String[]{HINT_NO_TINT, HINT_LARGE}));
+            addEndItem(icon, false /* isLoading */);
+        }
+
+        /**
+         */
+        @Override
+        public void addEndItem(Icon icon, boolean isLoading) {
+            SliceItem item = new SliceItem(icon, FORMAT_IMAGE, null,
+                    new String[] {HINT_NO_TINT, HINT_LARGE});
+            if (isLoading) {
+                item.addHint(HINT_PARTIAL);
+            }
+            mEndItems.add(item);
         }
 
         /**
@@ -254,8 +307,20 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @NonNull
         @Override
         public void addEndItem(@NonNull Icon icon, @NonNull PendingIntent action) {
+            addEndItem(icon, action, false /* isLoading */);
+        }
+
+        /**
+         */
+        @Override
+        public void addEndItem(Icon icon, PendingIntent action, boolean isLoading) {
             Slice actionSlice = new Slice.Builder(getBuilder()).addIcon(icon, null).build();
-            mEndItems.add(new SliceItem(action, actionSlice, FORMAT_ACTION, null, new String[0]));
+            SliceItem item = new SliceItem(action, actionSlice, FORMAT_ACTION, null,
+                    new String[0]);
+            if (isLoading) {
+                item.addHint(HINT_PARTIAL);
+            }
+            mEndItems.add(item);
         }
 
         /**
@@ -264,6 +329,12 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @Override
         public void addToggle(@NonNull PendingIntent action, boolean isChecked,
                 @NonNull Icon icon) {
+            addToggle(action, isChecked, icon, false /* isLoading */);
+        }
+
+        @Override
+        public void addToggle(PendingIntent action, boolean isChecked, Icon icon,
+                boolean isLoading) {
             @Slice.SliceHint String[] hints = isChecked
                     ? new String[] {HINT_SELECTED}
                     : new String[0];
@@ -272,7 +343,12 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 actionSliceBuilder.addIcon(icon, null);
             }
             Slice actionSlice = actionSliceBuilder.build();
-            mEndItems.add(new SliceItem(action, actionSlice, FORMAT_ACTION, SUBTYPE_TOGGLE, hints));
+            SliceItem item = new SliceItem(action, actionSlice, FORMAT_ACTION, SUBTYPE_TOGGLE,
+                    hints);
+            if (isLoading) {
+                item.addHint(HINT_PARTIAL);
+            }
+            mEndItems.add(item);
         }
 
         /**
