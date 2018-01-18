@@ -39,7 +39,9 @@ import androidx.app.slice.builders.impl.TemplateBuilderImpl;
 
 /**
  * Builder to construct slice content in a messaging format.
+ * @hide
  */
+@RestrictTo(LIBRARY_GROUP)
 public class MessagingSliceBuilder extends TemplateSliceBuilder {
 
     /**

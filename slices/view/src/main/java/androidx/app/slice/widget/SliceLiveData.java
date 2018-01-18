@@ -43,7 +43,7 @@ import androidx.app.slice.SliceSpecs;
 public final class SliceLiveData {
 
     private static final List<SliceSpec> SUPPORTED_SPECS = Arrays.asList(SliceSpecs.BASIC,
-            SliceSpecs.MESSAGING, SliceSpecs.LIST);
+            SliceSpecs.LIST);
 
     /**
      * Turns a slice Uri into slice content.

@@ -20,7 +20,6 @@ package androidx.app.slice {
     method public java.util.List<java.lang.String> getHints();
     method public android.graphics.drawable.Icon getIcon();
     method public int getInt();
-    method public android.app.RemoteInput getRemoteInput();
     method public androidx.app.slice.Slice getSlice();
     method public java.lang.String getSubType();
     method public java.lang.CharSequence getText();
