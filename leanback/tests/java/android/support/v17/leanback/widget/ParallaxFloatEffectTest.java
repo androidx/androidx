@@ -20,7 +20,6 @@
 package android.support.v17.leanback.widget;
 
 import static org.junit.Assert.assertEquals;
-
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 

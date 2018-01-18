@@ -21,13 +21,16 @@ package android.support.v17.leanback.app;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
@@ -45,6 +48,7 @@ import android.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -100,6 +104,32 @@ public class BrowseFragmentTest {
         View row = mActivity.getBrowseTestFragment().getRowsFragment().getRowViewHolder(
                 mActivity.getBrowseTestFragment().getSelectedPosition()).view;
         PollingCheck.waitFor(WAIT_TRANSIITON_TIMEOUT, new PollingCheck.ViewStableOnScreen(row));
+        PollingCheck.waitFor(WAIT_TRANSIITON_TIMEOUT, new PollingCheck.PollingCheckCondition() {
+            public boolean canProceed() {
+                return !mActivity.getBrowseTestFragment().isInHeadersTransition();
+            }
+        });
+    }
+
+    @Test
+    public void testTouchMode() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
+        mActivity = activityTestRule.launchActivity(intent);
+
+        waitForEntranceTransitionFinished();
+
+        ListRowPresenter.ViewHolder rowVh = (ListRowPresenter.ViewHolder) mActivity
+                .getBrowseTestFragment().getRowsFragment().getRowViewHolder(0);
+        View card = rowVh.getGridView().getChildAt(0);
+        tapView(card);
+        waitForHeaderTransitionFinished();
+        assertTrue(card.hasFocus());
+        assertTrue(card.isInTouchMode());
+        sendKeys(KeyEvent.KEYCODE_BACK);
+        waitForHeaderTransitionFinished();
+        assertTrue((mActivity.getBrowseTestFragment().getHeadersFragment()
+                .getVerticalGridView().getChildAt(0)).hasFocus());
     }
 
     @Test
@@ -280,6 +310,31 @@ public class BrowseFragmentTest {
                         && mActivity.getBrowseTestFragment().getGridView().getChildCount() > 0;
             }
         });
+    }
+
+    static void tapView(View v) {
+        Instrumentation inst = InstrumentationRegistry.getInstrumentation();
+        int[] xy = new int[2];
+        v.getLocationOnScreen(xy);
+
+        final int viewWidth = v.getWidth();
+        final int viewHeight = v.getHeight();
+
+        final float x = xy[0] + (viewWidth / 2.0f);
+        float y = xy[1] + (viewHeight / 2.0f);
+
+        long downTime = SystemClock.uptimeMillis();
+        long eventTime = SystemClock.uptimeMillis();
+
+        MotionEvent event = MotionEvent.obtain(downTime, eventTime,
+                MotionEvent.ACTION_DOWN, x, y, 0);
+        inst.sendPointerSync(event);
+        inst.waitForIdleSync();
+
+        eventTime = SystemClock.uptimeMillis();
+        event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_UP, x, y, 0);
+        inst.sendPointerSync(event);
+        inst.waitForIdleSync();
     }
 
     private void sendKeys(int ...keys) {
