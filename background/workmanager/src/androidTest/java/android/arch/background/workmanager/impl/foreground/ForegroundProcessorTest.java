@@ -34,6 +34,7 @@ import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
 import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -71,7 +72,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
     @After
     @Override
     public void closeDb() {
-        postLifecycleStopOnMainThread();
+        postLifecycleEventOnMainThread(Lifecycle.Event.ON_STOP);
         try {
             drain();
         } catch (Exception e) {
@@ -87,10 +88,9 @@ public class ForegroundProcessorTest extends DatabaseTest {
         Work work = Work.newBuilder(TestWorker.class).build();
         insertWork(work);
         drain();
-        mForegroundProcessor.process(work.getId());
+        assertThat(mForegroundProcessor.process(work.getId()), is(true));
         drain();
-        assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
-                is(STATUS_SUCCEEDED));
+        assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()), is(STATUS_SUCCEEDED));
     }
 
     @Test
@@ -106,7 +106,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
         mDatabase.dependencyDao().insertDependency(
                 new Dependency(workSpec.getId(), prerequisite.getId()));
         drain();
-        mForegroundProcessor.process(prerequisite.getId());
+        assertThat(mForegroundProcessor.process(prerequisite.getId()), is(true));
         drain();
 
         assertThat(mDatabase.workSpecDao().getWorkSpecStatus(prerequisite.getId()),
@@ -117,23 +117,35 @@ public class ForegroundProcessorTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testProcess_processorInactive() throws TimeoutException, InterruptedException {
-        postLifecycleStopOnMainThread();
+    public void testProcess_activeLifecycle() throws TimeoutException, InterruptedException {
+        postLifecycleEventOnMainThread(Lifecycle.Event.ON_START);
         drain();
         Work work = Work.newBuilder(TestWorker.class).build();
         insertWork(work);
         drain();
-        mForegroundProcessor.process(work.getId());
+        assertThat(mForegroundProcessor.process(work.getId()), is(true));
         drain();
-        assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
-                is(STATUS_ENQUEUED));
+        assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()), is(STATUS_SUCCEEDED));
     }
 
-    private void postLifecycleStopOnMainThread() {
+    @Test
+    @SmallTest
+    public void testProcess_processorInactive() throws TimeoutException, InterruptedException {
+        postLifecycleEventOnMainThread(Lifecycle.Event.ON_STOP);
+        drain();
+        Work work = Work.newBuilder(TestWorker.class).build();
+        insertWork(work);
+        drain();
+        assertThat(mForegroundProcessor.process(work.getId()), is(false));
+        drain();
+        assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()), is(STATUS_ENQUEUED));
+    }
+
+    private void postLifecycleEventOnMainThread(@NonNull final Lifecycle.Event event) {
         ArchTaskExecutor.getInstance().postToMainThread(new Runnable() {
             @Override
             public void run() {
-                mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+                mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(event);
             }
         });
     }

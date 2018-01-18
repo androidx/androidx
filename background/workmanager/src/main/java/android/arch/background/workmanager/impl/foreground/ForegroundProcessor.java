@@ -75,13 +75,12 @@ public class ForegroundProcessor extends Processor
     }
 
     @Override
-    public void process(String id) {
-        Log.d(TAG, "Trying to process " + id);
-        if (isActive()) {
-            super.process(id);
-        } else {
+    public boolean process(String id) {
+        if (!isActive()) {
             Log.d(TAG, "Inactive lifecycle; not processing " + id);
+            return false;
         }
+        return super.process(id);
     }
 
     @Override

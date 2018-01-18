@@ -55,22 +55,24 @@ public abstract class Processor implements ExecutionListener {
     /**
      * Processes a given unit of work in the background.
      *
-     * @param id    The work id to execute.
+     * @param id The work id to execute.
+     * @return {@code true} if the work was successfully enqueued for processing
      */
-    public void process(String id) {
+    public boolean process(String id) {
         // Work may get triggered multiple times if they have passing constraints and new work with
         // those constraints are added.
         if (mEnqueuedWorkMap.containsKey(id)) {
-            return;
+            Log.d(TAG, "Work " + id + " is already enqueued for processing");
+            return false;
         }
 
         WorkerWrapper workWrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
                 .withListener(this)
                 .withScheduler(mScheduler)
                 .build();
-        Future<?> future = mExecutorService.submit(workWrapper);
-        mEnqueuedWorkMap.put(id, future);
-        Log.d(TAG, getClass().getSimpleName() + " submitted " + id + " to ExecutorService");
+        mEnqueuedWorkMap.put(id, mExecutorService.submit(workWrapper));
+        Log.d(TAG, getClass().getSimpleName() + ": processing " + id);
+        return true;
     }
 
     /**
