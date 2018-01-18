@@ -50,6 +50,10 @@ limitations under the License.
         <attr name="scrollBarEnabled" format="boolean" />
         <!-- The top margin before the scroll bar is drawn. -->
         <attr name="scrollBarTopMargin" format="dimension" />
+        <!-- The width of the container that will hold the scrollbar. The scrollbar is centered
+             within this value. If this value is not explicitly set, the scrollbar centers itself
+             within the car_margin value. -->
+        <attr name="scrollBarContainerWidth" format="dimension" />
         <!-- Whether or not to show a diving line between each item of the list. -->
         <attr name="showPagedListViewDivider" format="boolean" />
         <!-- An optional id that specifies a child View whose starting edge will be used to

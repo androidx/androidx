@@ -520,6 +520,36 @@ public final class PagedListViewTest {
         assertThat(mPagedListView.getRecyclerView().getPaddingEnd(), is(equalTo(gutterSize)));
     }
 
+    @Test
+    public void setDefaultScrollBarContainerWidth() {
+        if (!isAutoDevice()) {
+            return;
+        }
+
+        // Just need enough items to ensure the scroll bar is showing.
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+
+        Resources res = InstrumentationRegistry.getContext().getResources();
+        int defaultWidth = res.getDimensionPixelSize(R.dimen.car_margin);
+
+        onView(withId(R.id.paged_scroll_view)).check(matches(withWidth(defaultWidth)));
+    }
+
+    @Test
+    public void testSetScrollBarContainerWidth() {
+        if (!isAutoDevice()) {
+            return;
+        }
+
+        // Just need enough items to ensure the scroll bar is showing.
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+
+        int scrollBarContainerWidth = 120;
+        mPagedListView.setScrollBarContainerWidth(scrollBarContainerWidth);
+
+        onView(withId(R.id.paged_scroll_view)).check(matches(withWidth(scrollBarContainerWidth)));
+    }
+
     private static String itemText(int index) {
         return "Data " + index;
     }
@@ -649,6 +679,26 @@ public final class PagedListViewTest {
                 ViewGroup.MarginLayoutParams params =
                         (ViewGroup.MarginLayoutParams) view.getLayoutParams();
                 return topMargin == params.topMargin;
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher that matches {@link View}s that have the given width.
+     *
+     * @param width The width to match to.
+     */
+    @NonNull
+    public static Matcher<View> withWidth(int width) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with width: " + width);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                return width == view.getLayoutParams().width;
             }
         };
     }
