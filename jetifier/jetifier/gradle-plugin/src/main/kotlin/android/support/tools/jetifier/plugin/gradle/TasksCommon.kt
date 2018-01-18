@@ -31,8 +31,10 @@ class TasksCommon {
 
         var configFilePath: Path? = null
 
-
-        fun processFiles(config: Config, filesToProcess: Set<File>, logger: Logger, outputDir: File) : TransformationResult {
+        fun processFiles(config: Config,
+                         filesToProcess: Set<File>,
+                         logger: Logger,
+                         outputDir: File): TransformationResult {
             outputDir.mkdirs()
 
             logger.log(LogLevel.DEBUG, "Jetifier will now process the following files:")
@@ -43,15 +45,14 @@ class TasksCommon {
             // Hook to the gradle logger
             Log.logConsumer = JetifierLoggerAdapter(logger)
 
-            val processor = Processor(config)
+            val processor = Processor.createProcessor(config)
             return processor.transform(filesToProcess, outputDir.toPath())
         }
 
-        fun shouldSkipArtifact(artifactId: String, groupId: String?, config: Config) : Boolean {
+        fun shouldSkipArtifact(artifactId: String, groupId: String?, config: Config): Boolean {
             return config.pomRewriteRules.any {
                 it.from.artifactId == artifactId && it.from.groupId == groupId
             }
         }
     }
-
 }

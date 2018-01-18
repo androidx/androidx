@@ -58,12 +58,10 @@ data class TypesMap(
     }
 
     /**
-     * Validates that the current map can be used in reversed mode (values become keys). Throws
-     * exception if the map does not satisfy that.
+     * Creates reversed version of this map (values become keys). Throws exception if the map does
+     * not satisfy that.
      */
-    fun validateThatMapIsReversibleOrDie() {
-        Log.i(TAG, "Validating that the map is reversible")
-
+    fun reverseMapOrDie(): TypesMap {
         val typesReversed = mutableMapOf<JavaType, JavaType>()
         for ((from, to) in types) {
             val conflictFrom = typesReversed[to]
@@ -85,10 +83,11 @@ data class TypesMap(
         }
 
         if (types.size != typesReversed.size || fields.size != fieldsReversed.size) {
-            throw IllegalArgumentException(
-                "Map is not reversible as conflicts were found! See the log for more details.")
+            throw IllegalArgumentException("Types map is not reversible as conflicts were found! " +
+                "See the log for more details.")
         }
-        Log.i(TAG, "Map is reversible. Success!")
+
+        return TypesMap(types= typesReversed, fields= fieldsReversed)
     }
 
     /**
