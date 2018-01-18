@@ -225,11 +225,8 @@ project(':support-media-compat-test-lib').projectDir = new File(rootDir, 'media-
 //
 /////////////////////////////
 
+apply(from: 'include-composite-deps.gradle')
 File externalRoot = new File(rootDir, '../../external')
-
-includeBuild new File(externalRoot, 'doclava')
-
-includeBuild new File(externalRoot, 'jdiff')
 
 include ':noto-emoji-compat'
 project(':noto-emoji-compat').projectDir = new File(externalRoot, 'noto-fonts/emoji-compat')
