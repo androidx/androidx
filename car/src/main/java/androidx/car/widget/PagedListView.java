@@ -40,6 +40,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.car.R;
@@ -341,6 +342,13 @@ public class PagedListView extends FrameLayout {
             params.setMarginStart(0);
         }
 
+        if (a.hasValue(R.styleable.PagedListView_scrollBarContainerWidth)) {
+            int carMargin = getResources().getDimensionPixelSize(R.dimen.car_margin);
+            int scrollBarContainerWidth = a.getDimensionPixelSize(
+                    R.styleable.PagedListView_scrollBarContainerWidth, carMargin);
+            setScrollBarContainerWidth(scrollBarContainerWidth);
+        }
+
         setDayNightStyle(DayNightStyle.AUTO);
         a.recycle();
     }
@@ -407,6 +415,18 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
+     * Sets the width of the container that holds the scrollbar. The scrollbar will be centered
+     * within this width.
+     *
+     * @param width The width of the scrollbar container.
+     */
+    public void setScrollBarContainerWidth(int width) {
+        ViewGroup.LayoutParams layoutParams = mScrollBarView.getLayoutParams();
+        layoutParams.width = width;
+        mScrollBarView.requestLayout();
+    }
+
+    /**
      * Sets the top margin above the scroll bar. By default, this margin is 0.
      *
      * @param topMargin The top margin.
@@ -414,7 +434,7 @@ public class PagedListView extends FrameLayout {
     public void setScrollBarTopMargin(int topMargin) {
         MarginLayoutParams params = (MarginLayoutParams) mScrollBarView.getLayoutParams();
         params.topMargin = topMargin;
-        requestLayout();
+        mScrollBarView.requestLayout();
     }
 
     @NonNull
