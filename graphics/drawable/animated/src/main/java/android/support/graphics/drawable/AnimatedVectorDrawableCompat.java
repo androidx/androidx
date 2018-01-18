@@ -118,6 +118,9 @@ import java.util.List;
  *         <td>trimPathStart</td>
  *     </tr>
  *     <tr>
+ *         <td>trimPathEnd</td>
+ *     </tr>
+ *     <tr>
  *         <td>trimPathOffset</td>
  *     </tr>
  * </table>
