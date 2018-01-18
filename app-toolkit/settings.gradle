@@ -113,10 +113,5 @@ project(':room:integration-tests:kotlintestapp').projectDir = new File(supportRo
 // External
 //
 /////////////////////////////
-if (inAppToolkitProject) {
-    File externalRoot = new File(supportRoot, '../../external')
 
-    includeBuild new File(externalRoot, 'doclava')
-
-    includeBuild new File(externalRoot, 'jdiff')
-}
+apply(from: new File(supportRoot, 'include-composite-deps.gradle'))
