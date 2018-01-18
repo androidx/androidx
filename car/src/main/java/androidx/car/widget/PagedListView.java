@@ -249,7 +249,7 @@ public class PagedListView extends FrameLayout {
                 new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(layoutManager);
 
-        mSnapHelper = new PagedSnapHelper();
+        mSnapHelper = new PagedSnapHelper(context);
         mSnapHelper.attachToRecyclerView(mRecyclerView);
 
         mRecyclerView.setOnScrollListener(mRecyclerViewOnScrollListener);
@@ -428,14 +428,15 @@ public class PagedListView extends FrameLayout {
      * @param position The position in the list to scroll to.
      */
     public void scrollToPosition(int position) {
-        if (mRecyclerView.getLayoutManager() == null) {
+        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
+        if (layoutManager == null) {
             return;
         }
 
-        PagedSmoothScroller smoothScroller = new PagedSmoothScroller(getContext());
+        RecyclerView.SmoothScroller smoothScroller = mSnapHelper.createScroller(layoutManager);
         smoothScroller.setTargetPosition(position);
 
-        mRecyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
+        layoutManager.startSmoothScroll(smoothScroller);
 
         // Sometimes #scrollToPosition doesn't change the scroll state so we need to make sure
         // the pagination arrows actually get updated. See b/15801119
