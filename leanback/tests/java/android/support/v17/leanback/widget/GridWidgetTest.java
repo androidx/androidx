@@ -1499,6 +1499,80 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testScrollAfterRequestLayout() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 10);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setHasFixedSize(false);
+                mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
+                mGridView.setWindowAlignmentOffsetPercent(30);
+            }
+        });
+        waitOneUiCycle();
+
+        final boolean[] scrolled = new boolean[1];
+        mGridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dx != 0)  scrolled[0] = true;
+            }
+        });
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestLayout();
+                mGridView.setSelectedPosition(1);
+            }
+        });
+        waitOneUiCycle();
+        assertFalse(scrolled[0]);
+    }
+
+    @Test
+    public void testScrollAfterItemAnimator() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 10);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setHasFixedSize(false);
+                mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
+                mGridView.setWindowAlignmentOffsetPercent(30);
+            }
+        });
+        waitOneUiCycle();
+
+        final boolean[] scrolled = new boolean[1];
+        mGridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dx != 0)  scrolled[0] = true;
+            }
+        });
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.changeItem(0, 10);
+                mGridView.setSelectedPosition(1);
+            }
+        });
+        waitOneUiCycle();
+        assertFalse(scrolled[0]);
+    }
+
+    @Test
     public void testItemMovedHorizontal() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,

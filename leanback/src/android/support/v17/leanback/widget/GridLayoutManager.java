@@ -2645,8 +2645,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mPrimaryScrollExtra = primaryScrollExtra;
         View view = findViewByPosition(position);
         // scrollToView() is based on Adapter position. Only call scrollToView() when item
-        // is still valid.
-        if (view != null && getAdapterPositionByView(view) == position) {
+        // is still valid and no layout is requested, otherwise defer to next layout pass.
+        if (!mBaseGridView.isLayoutRequested()
+                && view != null && getAdapterPositionByView(view) == position) {
             mFlag |= PF_IN_SELECTION;
             scrollToView(view, smooth);
             mFlag &= ~PF_IN_SELECTION;
