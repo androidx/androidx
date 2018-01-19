@@ -608,8 +608,14 @@ public abstract class RoomDatabase {
                 }
                 boolean found = false;
                 for (int i = firstIndex; i != lastIndex; i += searchDirection) {
-                    int targetVersion = targetNodes.keyAt(i);
-                    if (targetVersion <= end && targetVersion > start) {
+                    final int targetVersion = targetNodes.keyAt(i);
+                    final boolean shouldAddToPath;
+                    if (upgrade) {
+                        shouldAddToPath = targetVersion <= end && targetVersion > start;
+                    } else {
+                        shouldAddToPath = targetVersion >= end && targetVersion < start;
+                    }
+                    if (shouldAddToPath) {
                         result.add(targetNodes.valueAt(i));
                         start = targetVersion;
                         found = true;
