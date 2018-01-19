@@ -177,7 +177,7 @@
     <color name="car_highlight_dark">@color/car_teal_200</color>
     <color name="car_highlight">@color/car_highlight_light</color>
 
-    <color name="car_accent_light">@color/car_teal_700</color>
-    <color name="car_accent_dark">@color/car_teal_200</color>
-    <color name="car_accent">@color/car_accent_light</color>
+    <color name="car_accent_dark">@color/car_teal_700</color>
+    <color name="car_accent_light">@color/car_teal_200</color>
+    <color name="car_accent">@color/car_accent_dark</color>
 </resources>
