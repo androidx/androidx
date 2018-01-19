@@ -54,8 +54,39 @@ public class TextListItemActivity extends Activity {
 
         mPagedListView = findViewById(R.id.paged_list_view);
 
-        ListItemAdapter adapter = new ListItemAdapter(this,
-                new SampleProvider(this), ListItemAdapter.BackgroundStyle.PANEL);
+        SampleProvider provider = new SampleProvider(this);
+        ListItemAdapter adapter = new ListItemAdapter(this, provider,
+                ListItemAdapter.BackgroundStyle.PANEL);
+
+        final boolean[] hideDivider = {true};
+        // Demonstrate how to update list item post construction.
+        TextListItem toBeUpdated = new TextListItem(this);
+        toBeUpdated.setPrimaryActionEmptyIcon();
+        toBeUpdated.setTitle("tap next item to update my icon");
+        toBeUpdated.setHideDivider(hideDivider[0]);
+        provider.mItems.add(0, toBeUpdated);
+
+        boolean[] useEmptyIcon = new boolean[]{false};
+        TextListItem update = new TextListItem(this);
+        update.setTitle("tap me to update the icon of item above");
+        update.setOnClickListener(v -> {
+            // Change icon.
+            if (useEmptyIcon[0]) {
+                toBeUpdated.setPrimaryActionEmptyIcon();
+            } else {
+                toBeUpdated.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+            }
+            useEmptyIcon[0] = !useEmptyIcon[0];
+
+            // Show/hide item divider.
+            toBeUpdated.setHideDivider(hideDivider[0]);
+            hideDivider[0] = !hideDivider[0];
+
+            // Make sure to notify adapter about the change.
+            adapter.notifyItemChanged(0);
+        });
+        provider.mItems.add(1, update);
+
         mPagedListView.setAdapter(adapter);
         mPagedListView.setMaxPages(PagedListView.UNLIMITED_PAGES);
         mPagedListView.setDividerVisibilityManager(adapter);
@@ -63,12 +94,12 @@ public class TextListItemActivity extends Activity {
 
     private static class SampleProvider extends ListItemProvider {
         private Context mContext;
-        private List<ListItem> mItems;
+        List<ListItem> mItems;
 
         private View.OnClickListener mOnClickListener = v ->
                 Toast.makeText(mContext, "Clicked!", Toast.LENGTH_SHORT).show();
 
-        private View.OnClickListener mGetParentHeight = (v) -> {
+        private View.OnClickListener mGetParentHeight = v -> {
             int parentHeight = ((FrameLayout) v.getParent().getParent().getParent()).getHeight();
             Toast.makeText(v.getContext(),
                     "card height is " + pixelToDip(mContext, parentHeight) + " dp",
@@ -81,158 +112,156 @@ public class TextListItemActivity extends Activity {
             mContext = context;
             mItems = new ArrayList<>();
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
-                    .withTitle("clickable single line with full icon and one action")
-                    .withAction("card height", true, mGetParentHeight)
-                    .build());
+            TextListItem item;
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withTitle("primary action set by drawable")
-                    .withPrimaryActionIcon(mContext.getDrawable(R.drawable.pressed_icon), true)
-                    .withViewBinder(vh -> vh.getPrimaryIcon().setClickable(true))
-                    .build());
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true);
+            item.setTitle("clickable single line with full icon and one action");
+            item.setAction("card height", true, mGetParentHeight);
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
-                    .withTitle("clickable single line with small icon and clickable end icon")
-                    .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true,
-                            mGetParentHeight)
-                    .build());
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(mContext.getDrawable(R.drawable.pressed_icon), true);
+            item.setTitle("primary action set by drawable");
+            item.addViewBinder(vh -> vh.getPrimaryIcon().setClickable(true));
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
-                    .withTitle("single line without a list divider")
-                    .withDividerHidden()
-                    .build());
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+            item.setTitle("clickable single line with small icon and clickable end icon");
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true, mGetParentHeight);
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withOnClickListener(mOnClickListener)
-                    .withPrimaryActionEmptyIcon()
-                    .withTitle("clickable single line with empty icon and end icon no divider")
-                    .withSupplementalIcon(android.R.drawable.sym_def_app_icon, false)
-                    .build());
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+            item.setTitle("single line without a list divider");
+            item.setHideDivider(true);
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withTitle("title is single line and ellipsizes. "
-                            + mContext.getString(R.string.long_text))
-                    .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true)
-                    .build());
+            item = new TextListItem(mContext);
+            item.setOnClickListener(mOnClickListener);
+            item.setPrimaryActionEmptyIcon();
+            item.setTitle("clickable single line with empty icon and end icon no divider");
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withTitle("Subtitle-like line without a list divider")
-                    .withDividerHidden()
-                    .withViewBinder(viewHolder ->
-                            viewHolder.getTitle().setTextAppearance(R.style.CarListSubtitle))
-                    .build());
+            item = new TextListItem(mContext);
+            item.setTitle("title is single line and ellipsizes. "
+                            + mContext.getString(R.string.long_text));
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionNoIcon()
-                    .withTitle("single line with two actions and no divider")
-                    .withActions("action 1", false,
-                            (v) -> Toast.makeText(
-                                    v.getContext(), "action 1", Toast.LENGTH_SHORT).show(),
-                            "action 2", false,
-                            (v) -> Toast.makeText(
-                                    v.getContext(), "action 2", Toast.LENGTH_SHORT).show())
-                    .build());
+            item = new TextListItem(mContext);
+            item.setTitle("Subtitle-like line without a list divider");
+            item.setHideDivider(true);
+            item.addViewBinder(viewHolder ->
+                            viewHolder.getTitle().setTextAppearance(R.style.CarListSubtitle));
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionNoIcon()
-                    .withTitle("single line with two actions and action 2 divider")
-                    .withActions("action 1", false,
-                            (v) -> Toast.makeText(
-                                    v.getContext(), "action 1", Toast.LENGTH_SHORT).show(),
-                            "action 2", true,
-                            (v) -> Toast.makeText(
-                                    v.getContext(), "action 2", Toast.LENGTH_SHORT).show())
-                    .build());
+            item = new TextListItem(mContext);
+            item.setPrimaryActionNoIcon();
+            item.setTitle("single line with two actions and no divider");
+            item.setActions("action 1", false,
+                    v -> Toast.makeText(
+                            v.getContext(), "action 1", Toast.LENGTH_SHORT).show(),
+                    "action 2", false,
+                    v -> Toast.makeText(
+                            v.getContext(), "action 2", Toast.LENGTH_SHORT).show());
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionNoIcon()
-                    .withTitle("single line with divider between actions. "
-                            + mContext.getString(R.string.long_text))
-                    .withActions("action 1", true,
-                            (v) -> Toast.makeText(
-                                    v.getContext(), "action 1", Toast.LENGTH_SHORT).show(),
-                            "action 2", false,
-                            (v) -> Toast.makeText(
-                                    v.getContext(), "action 2", Toast.LENGTH_SHORT).show())
-                    .build());
+            item = new TextListItem(mContext);
+            item.setPrimaryActionNoIcon();
+            item.setTitle("single line with two actions and action 2 divider");
+            item.setActions("action 1", false,
+                    v -> Toast.makeText(
+                            v.getContext(), "action 1", Toast.LENGTH_SHORT).show(),
+                    "action 2", true,
+                    v -> Toast.makeText(
+                            v.getContext(), "action 2", Toast.LENGTH_SHORT).show());
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
-                    .withTitle("double line with full icon and no end icon divider")
-                    .withBody("one line text")
-                    .withSupplementalIcon(android.R.drawable.sym_def_app_icon, false,
-                            mGetParentHeight)
-                    .build());
+            item = new TextListItem(mContext);
+            item.setPrimaryActionNoIcon();
+            item.setTitle("single line with divider between actions. "
+                    + mContext.getString(R.string.long_text));
+            item.setActions("action 1", true,
+                    v -> Toast.makeText(
+                            v.getContext(), "action 1", Toast.LENGTH_SHORT).show(),
+                    "action 2", false,
+                    v -> Toast.makeText(
+                            v.getContext(), "action 2", Toast.LENGTH_SHORT).show());
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
-                    .withTitle("double line with small icon and one action")
-                    .withBody("one line text")
-                    .withAction("card height", true, mGetParentHeight)
-                    .build());
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true);
+            item.setTitle("double line with full icon and no end icon divider");
+            item.setBody("one line text");
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false, mGetParentHeight);
+            mItems.add(item);
+
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+            item.setTitle("double line with small icon and one action");
+            item.setBody("one line text");
+            item.setAction("card height", true, mGetParentHeight);
+            mItems.add(item);
 
             String tenChars = "Ten Chars.";
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
-                    .withTitle("Card with small icon and text longer than limit")
-                    .withBody("some chars")
-                    .withBody(TextUtils.join("", Collections.nCopies(20, tenChars)))
-                    .withSupplementalIcon(android.R.drawable.sym_def_app_icon, true,
-                            mGetParentHeight)
-                    .build());
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+            item.setTitle("Card with small icon and text longer than limit");
+            item.setBody(TextUtils.join("", Collections.nCopies(20, tenChars)));
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true, mGetParentHeight);
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionEmptyIcon()
-                    .withTitle("double line with empty primary icon."
-                            + mContext.getString(R.string.long_text))
-                    .withBody("one line text as primary", true)
-                    .withActions("screen size", false, (v) -> {
-                        Context c = v.getContext();
-                        Point size = new Point();
-                        c.getSystemService(WindowManager.class).getDefaultDisplay().getSize(size);
+            item = new TextListItem(mContext);
+            item.setPrimaryActionEmptyIcon();
+            item.setTitle("double line with empty primary icon."
+                    + mContext.getString(R.string.long_text));
+            item.setBody("one line text as primary", true);
+            item.setActions("screen size", false, v -> {
+                Context c = v.getContext();
+                Point size = new Point();
+                c.getSystemService(WindowManager.class).getDefaultDisplay().getSize(size);
 
-                        Toast.makeText(v.getContext(),
-                                String.format("%s x %s dp", pixelToDip(c, size.x),
-                                        pixelToDip(c, size.y)), Toast.LENGTH_SHORT).show();
-                    }, "card height", true, mGetParentHeight)
-                    .build());
+                Toast.makeText(v.getContext(), String.format("%s x %s dp", pixelToDip(c, size.x),
+                        pixelToDip(c, size.y)),
+                        Toast.LENGTH_SHORT).show();
+            }, "card height", true, mGetParentHeight);
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withTitle("double line with no primary action and one divider")
-                    .withBody("one line text as primary", true)
-                    .withActions("screen size", false, (v) -> {
-                        Context c = v.getContext();
-                        Point size = new Point();
-                        c.getSystemService(WindowManager.class).getDefaultDisplay().getSize(size);
+            item = new TextListItem(mContext);
+            item.setTitle("double line with no primary action and one divider");
+            item.setBody("one line text as primary", true);
+            item.setActions("screen size", false, v -> {
+                Context c = v.getContext();
+                Point size = new Point();
+                c.getSystemService(WindowManager.class).getDefaultDisplay().getSize(size);
 
-                        Toast.makeText(v.getContext(),
-                                String.format("%s x %s dp", pixelToDip(c, size.x),
-                                        pixelToDip(c, size.y)), Toast.LENGTH_SHORT).show();
-                    }, "card height", true, mGetParentHeight)
-                    .build());
+                Toast.makeText(v.getContext(),
+                        String.format("%s x %s dp", pixelToDip(c, size.x),
+                                pixelToDip(c, size.y)), Toast.LENGTH_SHORT).show();
+            }, "card height", true, mGetParentHeight);
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true)
-                    .withBody("Only body - no title is set")
-                    .withAction("card height", true, mGetParentHeight)
-                    .build());
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true);
+            item.setBody("Only body - no title is set");
+            item.setAction("card height", true, mGetParentHeight);
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false)
-                    .withBody("Only body - no title. " + mContext.getString(R.string.long_text))
-                    .build());
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+            item.setBody("Only body - no title. " + mContext.getString(R.string.long_text));
+            mItems.add(item);
 
-            mItems.add(new TextListItem.Builder(mContext)
-                    .withTitle("Switch - initially unchecked")
-                    .withSwitch(false, true, (button, isChecked) -> {
-                        Toast.makeText(mContext,
-                                isChecked ? "checked" : "unchecked", Toast.LENGTH_SHORT).show();
-                    })
-                    .build());
+            item = new TextListItem(mContext);
+            item.setTitle("Switch - initially unchecked");
+            item.setSwitch(false, true, (button, isChecked) -> {
+                Toast.makeText(mContext,
+                        isChecked ? "checked" : "unchecked", Toast.LENGTH_SHORT).show();
+            });
+            mItems.add(item);
 
             mListProvider = new ListItemProvider.ListProvider(mItems);
         }

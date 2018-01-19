@@ -11,6 +11,13 @@ import java.util.function.Function;
  */
 public abstract class ListItem<VH extends RecyclerView.ViewHolder> {
 
+    // Whether the item should calculate view layout params. This usually happens when the item is
+    // updated after bind() is called. Calling bind() resets to false.
+    private boolean mDirty;
+
+    // Tag for indicating whether to hide the divider.
+    private boolean mHideDivider;
+
     /**
      * Classes that extends {@code ListItem} should register its view type in
      * {@link ListItemAdapter#registerListItemViewType(int, int, Function)}.
@@ -25,11 +32,47 @@ public abstract class ListItem<VH extends RecyclerView.ViewHolder> {
     public abstract void bind(VH viewHolder);
 
     /**
-     * @return whether the divider that comes after this ListItem should be hidden. Defaults to
-     *         false.
+     * Marks this item so that sub-views in ViewHolder will need layout params re-calculated
+     * in next bind().
+     *
+     * This method should be called in each setter.
+     */
+    protected void markDirty() {
+        mDirty = true;
+    }
+
+    /**
+     * Marks this item as not dirty - no need to calculate sub-view layout params in bind().
+     */
+    protected void markClean() {
+        mDirty = false;
+    }
+
+    /**
+     * @return {@code true} if this item needs to calculate sub-view layout params.
+     */
+    protected boolean isDirty() {
+        return mDirty;
+    }
+
+    /**
+     * Whether hide the item divider coming after this {@code ListItem}.
+     *
+     * <p>Note: For this to work, one must invoke
+     * {@code PagedListView.setDividerVisibilityManager(adapter} for {@link ListItemAdapter} and
+     * have dividers enabled on {@link PagedListView}.
+     */
+    public void setHideDivider(boolean hideDivider) {
+        mHideDivider = hideDivider;
+        markDirty();
+    }
+
+    /**
+     * @return {@code true} if the divider that comes after this ListItem should be hidden.
+     * Defaults to false.
      */
     public boolean shouldHideDivider() {
-        return false;
+        return mHideDivider;
     };
 
     /**
