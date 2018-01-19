@@ -37,4 +37,6 @@
     <color name="car_list_divider">@color/car_list_divider_dark</color>
     <color name="car_scrollbar_thumb">@color/car_scrollbar_thumb_light</color>
     <color name="car_scrollbar_thumb_inverse">@color/car_scrollbar_thumb_dark</color>
+
+    <color name="car_accent">@color/car_accent_light</color>
 </resources>
