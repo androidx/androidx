@@ -9,6 +9,7 @@ plugins {
 dependencies {
     api project(':appcompat-v7')
     api project(':cardview-v7')
+    api project(':design')
     api project(':support-annotations')
     api project(':support-v4')
     api project(':recyclerview-v7')

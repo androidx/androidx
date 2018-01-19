@@ -290,6 +290,12 @@ public class PagedListView extends FrameLayout {
             mRecyclerView.addItemDecoration(new ItemSpacingDecoration(itemSpacing));
         }
 
+        int listContentTopMargin =
+                a.getDimensionPixelSize(R.styleable.PagedListView_listContentTopOffset, 0);
+        if (listContentTopMargin > 0) {
+            mRecyclerView.addItemDecoration(new TopOffsetDecoration(listContentTopMargin));
+        }
+
         // Set this to true so that this view consumes clicks events and views underneath
         // don't receive this click event. Without this it's possible to click places in the
         // view that don't capture the event, and as a result, elements visually hidden consume
@@ -435,6 +441,32 @@ public class PagedListView extends FrameLayout {
         MarginLayoutParams params = (MarginLayoutParams) mScrollBarView.getLayoutParams();
         params.topMargin = topMargin;
         mScrollBarView.requestLayout();
+    }
+
+    /**
+     * Sets an offset above the first item in the {@code PagedListView}. This offset is scrollable
+     * with the contents of the list.
+     *
+     * @param offset The top offset to add.
+     */
+    public void setListContentTopOffset(int offset) {
+        TopOffsetDecoration existing = null;
+        for (int i = 0, count = mRecyclerView.getItemDecorationCount(); i < count; i++) {
+            RecyclerView.ItemDecoration itemDecoration = mRecyclerView.getItemDecorationAt(i);
+            if (itemDecoration instanceof TopOffsetDecoration) {
+                existing = (TopOffsetDecoration) itemDecoration;
+                break;
+            }
+        }
+
+        if (offset == 0 && existing != null) {
+            mRecyclerView.removeItemDecoration(existing);
+        } else if (existing == null) {
+            mRecyclerView.addItemDecoration(new TopOffsetDecoration(offset));
+        } else {
+            existing.setTopOffset(offset);
+        }
+        mRecyclerView.invalidateItemDecorations();
     }
 
     @NonNull
@@ -1154,6 +1186,37 @@ public class PagedListView extends FrameLayout {
 
         private boolean hideDividerForAdapterPosition(int position) {
             return mVisibilityManager != null && mVisibilityManager.shouldHideDivider(position);
+        }
+    }
+
+    /**
+     * A {@link android.support.v7.widget.RecyclerView.ItemDecoration} that will add a top offset
+     * to the first item in the RecyclerView it is added to.
+     */
+    private static class TopOffsetDecoration extends RecyclerView.ItemDecoration {
+        private int mTopOffset;
+
+        private TopOffsetDecoration(int topOffset) {
+            mTopOffset = topOffset;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+            int position = parent.getChildAdapterPosition(view);
+
+            // Only set the offset for the first item.
+            if (position == 0) {
+                outRect.top = mTopOffset;
+            }
+        }
+
+        /**
+         * @param topOffset sets spacing between each item.
+         */
+        public void setTopOffset(int topOffset) {
+            mTopOffset = topOffset;
         }
     }
 }
