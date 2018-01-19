@@ -29,6 +29,7 @@ import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v7.widget.RecyclerView;
 import android.util.ArrayMap;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,17 +52,19 @@ import androidx.app.slice.view.R;
 @TargetApi(24)
 public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.SliceViewHolder> {
 
-    public static final int TYPE_DEFAULT       = 1;
-    public static final int TYPE_HEADER        = 2; // TODO headers shouldn't scroll off
-    public static final int TYPE_GRID          = 3;
-    public static final int TYPE_MESSAGE       = 4;
-    public static final int TYPE_MESSAGE_LOCAL = 5;
+    static final int TYPE_DEFAULT       = 1;
+    static final int TYPE_HEADER        = 2; // TODO: headers shouldn't scroll off
+    static final int TYPE_GRID          = 3;
+    static final int TYPE_MESSAGE       = 4;
+    static final int TYPE_MESSAGE_LOCAL = 5;
 
     private final IdGenerator mIdGen = new IdGenerator();
     private final Context mContext;
     private List<SliceWrapper> mSlices = new ArrayList<>();
-    private SliceItem mColor;
+
     private SliceView.SliceObserver mSliceObserver;
+    private int mColor;
+    private AttributeSet mAttrs;
 
     public LargeSliceAdapter(Context context) {
         mContext = context;
@@ -75,7 +78,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     /**
      * Set the {@link SliceItem}'s to be displayed in the adapter and the accent color.
      */
-    public void setSliceItems(List<SliceItem> slices, SliceItem color) {
+    public void setSliceItems(List<SliceItem> slices, int color) {
         if (slices == null) {
             mSlices.clear();
         } else {
@@ -88,6 +91,14 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             }).collect(Collectors.<SliceWrapper>toList());
         }
         mColor = color;
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Sets the attribute set to use for views in the list.
+     */
+    public void setStyle(AttributeSet attrs) {
+        mAttrs = attrs;
         notifyDataSetChanged();
     }
 
@@ -117,9 +128,10 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     public void onBindViewHolder(SliceViewHolder holder, int position) {
         SliceWrapper slice = mSlices.get(position);
         if (holder.mSliceView != null) {
-            holder.mSliceView.setColor(mColor);
-            holder.mSliceView.setSliceItem(slice.mItem, position == 0 /* isHeader */, position,
-                    mSliceObserver);
+            holder.mSliceView.setTint(mColor);
+            holder.mSliceView.setStyle(mAttrs);
+            holder.mSliceView.setSliceItem(slice.mItem, position == 0 /* isHeader */,
+                    position, mSliceObserver);
         }
     }
 
@@ -170,28 +182,12 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
      * A {@link RecyclerView.ViewHolder} for presenting slices in {@link LargeSliceAdapter}.
      */
     public static class SliceViewHolder extends RecyclerView.ViewHolder {
-        public final SliceListView mSliceView;
+        public final SliceChildView mSliceView;
 
         public SliceViewHolder(View itemView) {
             super(itemView);
-            mSliceView = itemView instanceof SliceListView ? (SliceListView) itemView : null;
+            mSliceView = itemView instanceof SliceChildView ? (SliceChildView) itemView : null;
         }
-    }
-
-    /**
-     * View slices being displayed in {@link LargeSliceAdapter}.
-     */
-    public interface SliceListView {
-        /**
-         * Set the slice item for this view.
-         */
-        void setSliceItem(SliceItem slice, boolean isHeader, int index,
-                SliceView.SliceObserver observer);
-
-        /**
-         * Set the color for the items in this view.
-         */
-        void setColor(SliceItem color);
     }
 
     private static class IdGenerator {

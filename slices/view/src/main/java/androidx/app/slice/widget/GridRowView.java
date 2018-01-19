@@ -31,6 +31,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.support.annotation.ColorInt;
 import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -62,17 +63,15 @@ import androidx.app.slice.view.R;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @TargetApi(24)
-public class GridRowView extends LinearLayout implements LargeSliceAdapter.SliceListView,
-        View.OnClickListener, SliceView.SliceModeView {
+public class GridRowView extends SliceChildView implements View.OnClickListener {
 
     private static final String TAG = "GridView";
 
-    // TODO -- Should addRow notion to the builder so that apps could define the "see more" intent
+    // TODO -- Should add notion to the builder so that apps could define the "see more" intent
     private static final boolean ALLOW_SEE_MORE = false;
 
     private static final int TITLE_TEXT_LAYOUT = R.layout.abc_slice_title;
     private static final int TEXT_LAYOUT = R.layout.abc_slice_secondary_text;
-
     // Max number of *just* images that can be shown in a row
     private static final int MAX_IMAGES = 3;
     // Max number of normal cell items that can be shown in a row
@@ -86,7 +85,6 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
     private static final int MAX_CELL_IMAGES = 1;
 
     private int mRowIndex;
-    private SliceItem mColorItem;
     private boolean mIsAllImages;
     private @SliceView.SliceMode int mSliceMode = 0;
 
@@ -94,8 +92,8 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
     private int mLargeIconSize;
     private int mBigPictureHeight;
     private int mAllImagesHeight;
-
-    private SliceView.SliceObserver mObserver;
+    private GridContent mGridContent;
+    private LinearLayout mViewContainer;
 
     public GridRowView(Context context) {
         this(context, null);
@@ -108,6 +106,9 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         mLargeIconSize = res.getDimensionPixelSize(R.dimen.abc_slice_large_icon_size);
         mBigPictureHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_big_picture_height);
         mAllImagesHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_image_only_height);
+        mViewContainer = new LinearLayout(getContext());
+        mViewContainer.setOrientation(LinearLayout.HORIZONTAL);
+        addView(mViewContainer, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
     }
 
     @Override
@@ -125,23 +126,18 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
     }
 
     @Override
-    public void setColor(SliceItem colorItem) {
-        mColorItem = colorItem;
-    }
-
-    @Override
-    public View getView() {
-        return this;
-    }
-
-    @Override
     public int getMode() {
         return mSliceMode;
     }
 
     @Override
-    public void setSliceObserver(SliceView.SliceObserver observer) {
-        mObserver = observer;
+    public void setTint(@ColorInt int tintColor) {
+        super.setTint(tintColor);
+        if (mGridContent != null) {
+            // TODO -- could be smarter about this
+            resetView();
+            populateViews(mGridContent);
+        }
     }
 
     /**
@@ -154,7 +150,8 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         Slice.Builder sb = new Slice.Builder(slice.getUri());
         sb.addSubSlice(slice);
         Slice parentSlice = sb.build();
-        populateViews(new GridContent(parentSlice.getItems().get(0)));
+        mGridContent = new GridContent(parentSlice.getItems().get(0));
+        populateViews(mGridContent);
     }
 
     /**
@@ -166,12 +163,12 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         setSliceObserver(observer);
         mRowIndex = index;
         mSliceMode = SliceView.MODE_LARGE;
-        populateViews(new GridContent(slice));
+        mGridContent = new GridContent(slice);
+        populateViews(mGridContent);
     }
 
     private void populateViews(GridContent gc) {
         mIsAllImages = gc.isAllImages();
-        mColorItem = gc.getColorItem();
         ArrayList<GridContent.CellContent> cells = gc.getGridContent();
         final int max = mIsAllImages ? MAX_IMAGES : MAX_ALL;
         for (int i = 0; i < cells.size(); i++) {
@@ -201,7 +198,7 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         v.setGravity(Gravity.CENTER);
         frame.addView(v, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
-        addView(frame);
+        mViewContainer.addView(frame);
     }
 
     private boolean isFull() {
@@ -218,7 +215,6 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         LinearLayout cellContainer = new LinearLayout(getContext());
         cellContainer.setOrientation(LinearLayout.VERTICAL);
         cellContainer.setGravity(Gravity.CENTER_HORIZONTAL);
-        final int color = mColorItem != null ? mColorItem.getInt() : -1;
 
         ArrayList<SliceItem> cellItems = cell.getCellItems();
         SliceItem contentIntentItem = cell.getContentIntent();
@@ -254,19 +250,20 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
                 if (textItems != null && !textItems.contains(item)) {
                     continue;
                 }
-                if (addItem(item, color, cellContainer, singleItem)) {
+                if (addItem(item, mTintColor, cellContainer, singleItem)) {
                     textCount++;
                     added = true;
                 }
             } else if (imageCount < MAX_CELL_IMAGES && FORMAT_IMAGE.equals(item.getFormat())) {
-                if (addItem(item, color, cellContainer, singleItem)) {
+                if (addItem(item, mTintColor, cellContainer, singleItem)) {
                     imageCount++;
                     added = true;
                 }
             }
         }
         if (added) {
-            addView(cellContainer, new LayoutParams(0, WRAP_CONTENT, 1));
+            mViewContainer.addView(cellContainer,
+                    new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1));
             if (contentIntentItem != null) {
                 EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_BUTTON,
                         EventInfo.ROW_TYPE_GRID, mRowIndex);
@@ -298,7 +295,7 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
         } else if (FORMAT_IMAGE.equals(format)) {
             ImageView iv = new ImageView(getContext());
             iv.setImageIcon(item.getIcon());
-            if (color != -1 && !item.hasHint(HINT_NO_TINT)) {
+            if (color != -1 && !item.hasHint(HINT_NO_TINT) && !item.hasHint(HINT_LARGE)) {
                 iv.setColorFilter(color);
             }
             int size = mIconSize;
@@ -338,6 +335,7 @@ public class GridRowView extends LinearLayout implements LargeSliceAdapter.Slice
     @Override
     public void resetView() {
         mIsAllImages = true;
-        removeAllViews();
+        mGridContent = null;
+        mViewContainer.removeAllViews();
     }
 }
