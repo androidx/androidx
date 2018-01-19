@@ -137,6 +137,7 @@ limitations under the License.
     <style name="Widget.Car.Button.Borderless.Colored"
            parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:layout_height">@dimen/car_button_height</item>
+        <item name="android:minWidth">@dimen/car_button_min_width</item>
         <item name="android:paddingStart">@dimen/car_borderless_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_borderless_button_horizontal_padding</item>
         <item name="android:textSize">@dimen/car_action1_size</item>
