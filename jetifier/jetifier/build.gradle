@@ -15,12 +15,15 @@
  */
 
 buildscript {
-    ext.supportRootFolder = "${project.projectDir}/../../"
-    apply from: "$supportRootFolder/buildSrc/repos.gradle"
+    ext.supportRootFolder = "${project.projectDir}/../.."
+    def prebuiltsDir = "${ext.supportRootFolder}/../../prebuilts"
+    repositories {
+        maven {
+            url "${prebuiltsDir}/tools/common/m2/repository"
+        }
+    }
 
     ext.kotlin_version = '1.2.0'
-
-    repos.addMavenRepositories(repositories)
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -34,9 +37,14 @@ subprojects {
     group 'androidx.tools.jetifier'
 
     ext.supportRootFolder = "${project.projectDir}/../../.."
+    def prebuiltsDir = "${ext.supportRootFolder}/../../prebuilts"
+    repositories {
+        maven {
+            url "${prebuiltsDir}/tools/common/m2/repository"
+        }
+    }
 
     apply plugin: 'kotlin'
-    apply from: "$supportRootFolder/buildSrc/repos.gradle"
 
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
@@ -44,8 +52,6 @@ subprojects {
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
-
-    repos.addMavenRepositories(repositories)
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
