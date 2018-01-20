@@ -20,7 +20,6 @@ import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
 import android.arch.navigation.safe.args.generator.models.Id
-import android.arch.navigation.safe.args.generator.models.Type
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -39,13 +38,15 @@ class NavParserTest {
         val nameFirst = "android.arch.navigation.testapp.MainFragment"
         val nameNext = "android.arch.navigation.testapp.NextFragment"
         val expectedFirst = Destination(id("first_screen"), "fragment", nameFirst,
-                listOf(Argument("myarg1", Type.STRING, "one")),
+                listOf(Argument("myarg1", StringType, "one")),
                 listOf(Action(id("next"), id("next_fragment"), listOf(
-                        Argument("myarg2", Type.STRING),
-                        Argument("randomArgument", Type.STRING)))))
+                        Argument("myarg2", StringType),
+                        Argument("randomArgument", StringType),
+                        Argument("intArgument", IntegerType, "261")
+                ))))
 
         val expectedNext = Destination(id("next_fragment"), "fragment", nameNext,
-                listOf(Argument("myarg2", Type.STRING)),
+                listOf(Argument("myarg2", StringType)),
                 listOf(Action(id("next"), id("first_screen")),
                         Action(id("finish"), null)))
 

@@ -59,7 +59,7 @@ public class MainFragmentDirections {
     public static class Next implements NavDirections {
         private final String main;
 
-        private String optional;
+        private String optional = "bla";
 
         public Next(String main) {
             this.main = main;

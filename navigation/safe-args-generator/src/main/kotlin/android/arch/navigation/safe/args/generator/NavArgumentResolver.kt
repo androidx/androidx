@@ -49,7 +49,7 @@ private fun mergeArguments(args1: List<Argument>, args2: List<Argument>) =
                 if (duplicate.type != arg.type) {
                     // TODO: needs context to print better exception
                     throw IllegalArgumentException("Incompatible types ${duplicate.type} and " +
-                            "${arg.type}  of argument ${arg.name}")
+                            "${arg.type} of argument ${arg.name}")
                 }
                 result
             } else {

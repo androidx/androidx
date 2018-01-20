@@ -16,6 +16,9 @@
 
 package android.arch.navigation.safe.args.generator
 
+import android.arch.navigation.safe.args.generator.ext.N
+import android.arch.navigation.safe.args.generator.ext.S
+import android.arch.navigation.safe.args.generator.ext.T
 import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
@@ -31,27 +34,26 @@ private const val NAVIGATION_PACKAGE = "android.arch.navigation"
 private val NAV_DIRECTION_CLASSNAME: ClassName = ClassName.get(NAVIGATION_PACKAGE, "NavDirections")
 private val NAV_OPTIONS_CLASSNAME: ClassName = ClassName.get(NAVIGATION_PACKAGE, "NavOptions")
 private val BUNDLE_CLASSNAME: ClassName = ClassName.get("android.os", "Bundle")
-private const val N = "\$N"
-private const val T = "\$T"
-private const val S = "\$S"
 
 private class ClassWithArgsSpecs(val args: List<Argument>) {
 
     fun fieldSpecs() = args.map { arg ->
-        FieldSpec.builder(String::class.java, arg.name)
+        FieldSpec.builder(arg.type.typeName(), arg.name)
                 .apply {
                     addModifiers(Modifier.PRIVATE)
                     if (!arg.isOptional()) {
                         addModifiers(Modifier.FINAL)
+                    } else {
+                        initializer(arg.type.write(arg.defaultValue!!))
                     }
                 }
                 .build()
     }
 
-    fun setters(thisClassName: ClassName) = args.filter(Argument::isOptional).map { (name) ->
+    fun setters(thisClassName: ClassName) = args.filter(Argument::isOptional).map { (name, type) ->
         MethodSpec.methodBuilder("set${name.capitalize()}")
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(String::class.java, name)
+                .addParameter(type.typeName(), name)
                 .addStatement("this.$N = $N", name, name)
                 .addStatement("return this")
                 .returns(thisClassName)
@@ -60,8 +62,8 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
 
     fun writeConstructor(builder: MethodSpec.Builder) = builder.apply {
         addModifiers(Modifier.PUBLIC)
-        args.filterNot(Argument::isOptional).forEach { (argName) ->
-            addParameter(String::class.java, argName)
+        args.filterNot(Argument::isOptional).forEach { (argName, type) ->
+            addParameter(type.typeName(), argName)
             addStatement("this.$N = $N", argName, argName)
         }
     }
@@ -71,8 +73,8 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
         returns(BUNDLE_CLASSNAME)
         val bundleName = "__outBundle"
         addStatement("$T $N = new $T()", BUNDLE_CLASSNAME, bundleName, BUNDLE_CLASSNAME)
-        args.forEach { (argName) ->
-            addStatement("$N.putString($S, $N)", bundleName, argName, argName)
+        args.forEach { (argName, type) ->
+            addStatement("$N.$N($S, $N)", bundleName, type.bundlePutMethod(), argName, argName)
         }
         addStatement("return $N", bundleName)
     }

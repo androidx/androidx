@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-package android.arch.navigation.safe.args.generator.models
+package android.arch.navigation.safe.args.generator.ext
 
-import android.arch.navigation.safe.args.generator.NavType
-
-data class Argument(val name: String, val type: NavType, val defaultValue: String? = null) {
-    fun isOptional() = defaultValue != null
-}
-
+const val N = "\$N"
+const val T = "\$T"
+const val S = "\$S"

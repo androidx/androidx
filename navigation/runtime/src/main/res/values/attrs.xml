@@ -35,6 +35,8 @@
     <declare-styleable name="NavArgument">
         <attr name="android:name" />
         <attr name="android:defaultValue" />
+        <!--free format since in future it could be Parcelable-->
+        <attr name="type"/>
     </declare-styleable>
 
     <declare-styleable name="NavDeepLink">
