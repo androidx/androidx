@@ -41,11 +41,11 @@ dependencies {
 }
 
 supportLibrary {
-    name = "Android Lifecycle Extensions"
+    name = "Android Paging-Runtime"
     publish = true
     mavenVersion = LibraryVersions.PAGING
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2017"
-    description = "Android Lifecycle Extensions"
+    description = "Android Paging-Runtime"
     url = SupportLibraryExtension.ARCHITECTURE_URL
 }
