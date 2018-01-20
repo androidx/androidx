@@ -184,7 +184,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
         mRowAction = mRowContent.getContentIntent();
         ArrayList<SliceItem> endItems = mRowContent.getEndItems();
+        boolean hasRowAction = mRowAction != null;
         if (endItems.isEmpty()) {
+            if (hasRowAction) setViewClickable(this, true);
             return;
         }
 
@@ -216,7 +218,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             }
         }
 
-        boolean hasRowAction = mRowAction != null;
         boolean hasEndItemAction = FORMAT_ACTION.contentEquals(desiredFormat);
         // If there is a row action and the first end item is a default toggle, show the divider.
         mDivider.setVisibility(hasRowAction && firstItemIsADefaultToggle
