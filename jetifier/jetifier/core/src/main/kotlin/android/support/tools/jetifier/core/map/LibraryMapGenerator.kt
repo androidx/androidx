@@ -43,7 +43,7 @@ class LibraryMapGenerator constructor(config: Config) : ArchiveItemVisitor {
      */
     fun generateMap(): TypesMap {
         val map = remapper.createTypesMap()
-        map.validateThatMapIsReversibleOrDie()
+        map.reverseMapOrDie()
         return map
     }
 

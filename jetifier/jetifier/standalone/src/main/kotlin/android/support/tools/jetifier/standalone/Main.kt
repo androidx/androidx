@@ -37,16 +37,19 @@ class Main {
 
         val OPTIONS = Options()
         val OPTION_INPUT = createOption("i", "Input libraries paths", multiple = true)
-        val OPTION_OUTPUT = createOption("o", "Output config path")
+        val OPTION_OUTPUT = createOption("o", "Output directory path")
         val OPTION_CONFIG = createOption("c", "Input config path", isRequired = false)
         val OPTION_LOG_LEVEL = createOption("l", "Logging level. debug, verbose, default",
+            isRequired = false)
+        val OPTION_REVERSED = createOption("r", "Run reversed process", hasArgs = false,
             isRequired = false)
 
         private fun createOption(argName: String,
                                  desc: String,
+                                 hasArgs: Boolean = true,
                                  isRequired: Boolean = true,
-                                 multiple: Boolean = false) : Option {
-            val op = Option(argName, true, desc)
+                                 multiple: Boolean = false): Option {
+            val op = Option(argName, hasArgs, desc)
             op.isRequired = isRequired
             if (multiple) {
                 op.args = Option.UNLIMITED_VALUES
@@ -56,7 +59,7 @@ class Main {
         }
     }
 
-    fun run(args : Array<String>) {
+    fun run(args: Array<String>) {
         val cmd = parseCmdLine(args)
         if (cmd == null) {
             System.exit(1)
@@ -68,7 +71,7 @@ class Main {
         val inputLibraries = cmd.getOptionValues(OPTION_INPUT.opt).map { File(it) }.toSet()
         val outputPath = Paths.get(cmd.getOptionValue(OPTION_OUTPUT.opt))
 
-        val config : Config?
+        val config: Config?
         if (cmd.hasOption(OPTION_CONFIG.opt)) {
             val configPath = Paths.get(cmd.getOptionValue(OPTION_CONFIG.opt))
             config = ConfigParser.loadFromFile(configPath)
@@ -82,11 +85,17 @@ class Main {
             return
         }
 
-        val processor = Processor(config)
+        val isReversed = cmd.hasOption(OPTION_REVERSED.opt)
+        val processor = if (isReversed) {
+            Processor.createReversedProcessor(config)
+        } else {
+            Processor.createProcessor(config)
+        }
+
         processor.transform(inputLibraries, outputPath)
     }
 
-    private fun parseCmdLine(args : Array<String>) : CommandLine? {
+    private fun parseCmdLine(args: Array<String>): CommandLine? {
         try {
             return DefaultParser().parse(OPTIONS, args)
         } catch (e: ParseException) {
@@ -95,10 +104,8 @@ class Main {
         }
         return null
     }
-
 }
 
-
-fun main(args : Array<String>) {
+fun main(args: Array<String>) {
     Main().run(args)
 }

@@ -16,28 +16,56 @@
 
 package android.support.tools.jetifier.core.transform.proguard
 
+import android.support.tools.jetifier.core.utils.Log
+
 /**
  * Contains custom mappings to map support library types referenced in ProGuard to new ones.
  */
 data class ProGuardTypesMap(val rules: Map<ProGuardType, ProGuardType>) {
 
     companion object {
+        const val TAG = "ProGuardTypesMap"
+
         val EMPTY = ProGuardTypesMap(emptyMap())
     }
 
     /** Returns JSON data model of this class */
-    fun toJson() : JsonData {
+    fun toJson(): JsonData {
         return JsonData(rules.map { it.key.value to it.value.value }.toMap())
     }
 
     /**
      * JSON data model for [ProGuardTypesMap].
      */
-    data class JsonData(val rules: Map<String, String>)  {
+    data class JsonData(val rules: Map<String, String>) {
 
         /** Creates instance of [ProGuardTypesMap] */
-        fun toMappings() : ProGuardTypesMap {
-            return ProGuardTypesMap(rules.map { ProGuardType(it.key) to ProGuardType(it.value) }.toMap())
+        fun toMappings(): ProGuardTypesMap {
+            return ProGuardTypesMap(
+                rules.map { ProGuardType(it.key) to ProGuardType(it.value) }.toMap())
         }
+    }
+
+    /**
+     * Creates reversed version of this map (values become keys). Throws exception if the map does
+     * not satisfy that.
+     */
+    fun reverseMapOrDie(): ProGuardTypesMap {
+        val reversed = mutableMapOf<ProGuardType, ProGuardType>()
+        for ((from, to) in rules) {
+            val conflictFrom = reversed[to]
+            if (conflictFrom != null) {
+                Log.e(TAG, "Conflict: %s -> (%s, %s)", to, from, conflictFrom)
+                continue
+            }
+            reversed[to] = from
+        }
+
+        if (rules.size != reversed.size || rules.size != reversed.size) {
+            throw IllegalArgumentException("Types map is not reversible as conflicts were found! " +
+                "See the log for more details.")
+        }
+
+        return ProGuardTypesMap(reversed)
     }
 }
