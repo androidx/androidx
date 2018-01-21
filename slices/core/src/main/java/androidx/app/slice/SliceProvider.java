@@ -137,9 +137,7 @@ public abstract class SliceProvider extends ContentProviderWrapper {
      *
      * @param sliceUri The uri of the slice being unpinned.
      * @see #onSliceUnpinned(Uri)
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void onSlicePinned(Uri sliceUri) {
     }
 
@@ -150,9 +148,7 @@ public abstract class SliceProvider extends ContentProviderWrapper {
      * slice anymore and therefore it is not important to be updated. Any syncs
      * or jobs related to this slice should be cancelled.
      * @see #onSlicePinned(Uri)
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void onSliceUnpinned(Uri sliceUri) {
     }
 

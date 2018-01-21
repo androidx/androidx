@@ -1,5 +1,20 @@
 package androidx.app.slice {
 
+  public abstract class SliceManager {
+    method public abstract androidx.app.slice.Slice bindSlice(android.net.Uri);
+    method public abstract androidx.app.slice.Slice bindSlice(android.content.Intent);
+    method public static androidx.app.slice.SliceManager getInstance(android.content.Context);
+    method public abstract void pinSlice(android.net.Uri);
+    method public abstract void registerSliceCallback(android.net.Uri, androidx.app.slice.SliceManager.SliceCallback);
+    method public abstract void registerSliceCallback(android.net.Uri, java.util.concurrent.Executor, androidx.app.slice.SliceManager.SliceCallback);
+    method public abstract void unpinSlice(android.net.Uri);
+    method public abstract void unregisterSliceCallback(android.net.Uri, androidx.app.slice.SliceManager.SliceCallback);
+  }
+
+  public static abstract interface SliceManager.SliceCallback {
+    method public abstract void onSliceUpdated(androidx.app.slice.Slice);
+  }
+
   public class SliceUtils {
     method public static androidx.app.slice.Slice parseSlice(java.io.InputStream, java.lang.String) throws java.io.IOException;
     method public static void serializeSlice(androidx.app.slice.Slice, android.content.Context, java.io.OutputStream, java.lang.String, androidx.app.slice.SliceUtils.SerializeOptions) throws java.io.IOException;

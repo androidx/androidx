@@ -31,21 +31,26 @@ import java.util.concurrent.Executor;
  * Class to handle interactions with {@link Slice}s.
  * <p>
  * The SliceManager manages permissions and pinned state for slices.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class SliceManager {
 
     /**
      * Get a {@link SliceManager}.
      */
     @SuppressWarnings("NewApi")
-    public static @NonNull SliceManager get(@NonNull Context context) {
+    public static @NonNull SliceManager getInstance(@NonNull Context context) {
         if (BuildCompat.isAtLeastP()) {
             return new SliceManagerWrapper(context);
         } else {
             return new SliceManagerCompat(context);
         }
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    SliceManager() {
     }
 
     /**

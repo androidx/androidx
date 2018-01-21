@@ -32,6 +32,8 @@ package androidx.app.slice {
     method public abstract androidx.app.slice.Slice onBindSlice(android.net.Uri);
     method public abstract boolean onCreateSliceProvider();
     method public android.net.Uri onMapIntentToUri(android.content.Intent);
+    method public void onSlicePinned(android.net.Uri);
+    method public void onSliceUnpinned(android.net.Uri);
   }
 
 }
