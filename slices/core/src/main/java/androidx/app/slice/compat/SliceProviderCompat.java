@@ -15,15 +15,19 @@
  */
 package androidx.app.slice.compat;
 
+import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.SliceProvider.SLICE_TYPE;
 
 import android.Manifest.permission;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
@@ -37,6 +41,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.RestrictTo.Scope;
 import android.util.Log;
@@ -48,6 +53,7 @@ import java.util.concurrent.CountDownLatch;
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceProvider;
 import androidx.app.slice.SliceSpec;
+import androidx.app.slice.core.R;
 
 /**
  * @hide
@@ -68,16 +74,28 @@ public class SliceProviderCompat extends ContentProvider {
     public static final String EXTRA_SLICE = "slice";
     public static final String EXTRA_SUPPORTED_SPECS = "specs";
     public static final String EXTRA_SUPPORTED_SPECS_REVS = "revs";
-    private static final String EXTRA_PKG = "pkg";
+    public static final String EXTRA_PKG = "pkg";
+    public static final String EXTRA_PROVIDER_PKG = "provider_pkg";
     private static final String DATA_PREFIX = "slice_data_";
 
     private static final boolean DEBUG = false;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private SliceProvider mSliceProvider;
     private CompatPinnedList mPinnedList;
+    private String mBindingPkg;
 
     public SliceProviderCompat(SliceProvider provider) {
         mSliceProvider = provider;
+    }
+
+    /**
+     * Return the package name of the caller that initiated the binding request
+     * currently happening. The returned package will have been
+     * verified to belong to the calling UID. Returns {@code null} if not
+     * currently performing an {@link SliceProvider#onBindSlice(Uri)}.
+     */
+    public final @Nullable String getBindingPackage() {
+        return mBindingPkg;
     }
 
     @Override
@@ -145,7 +163,7 @@ public class SliceProviderCompat extends ContentProvider {
             }
             List<SliceSpec> specs = getSpecs(extras);
 
-            Slice s = handleBindSlice(uri, specs);
+            Slice s = handleBindSlice(uri, specs, getCallingPackage());
             Bundle b = new Bundle();
             b.putParcelable(EXTRA_SLICE, s.toBundle());
             return b;
@@ -159,7 +177,7 @@ public class SliceProviderCompat extends ContentProvider {
             Bundle b = new Bundle();
             if (uri != null) {
                 List<SliceSpec> specs = getSpecs(extras);
-                Slice s = handleBindSlice(uri, specs);
+                Slice s = handleBindSlice(uri, specs, getCallingPackage());
                 b.putParcelable(EXTRA_SLICE, s.toBundle());
             } else {
                 b.putParcelable(EXTRA_SLICE, null);
@@ -229,16 +247,31 @@ public class SliceProviderCompat extends ContentProvider {
         }
     }
 
-    private Slice handleBindSlice(final Uri sliceUri, final List<SliceSpec> specs) {
+    private Slice handleBindSlice(final Uri sliceUri, final List<SliceSpec> specs,
+            final String callingPkg) {
+        // This can be removed once Slice#bindSlice is removed and everyone is using
+        // SliceManager#bindSlice.
+        String pkg = callingPkg != null ? callingPkg
+                : getContext().getPackageManager().getNameForUid(Binder.getCallingUid());
+        if (Binder.getCallingUid() != Process.myUid()) {
+            try {
+                getContext().enforceUriPermission(sliceUri,
+                        Binder.getCallingPid(), Binder.getCallingUid(),
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                        "Slice binding requires write access to Uri");
+            } catch (SecurityException e) {
+                return createPermissionSlice(getContext(), sliceUri, pkg);
+            }
+        }
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            return onBindSliceStrict(sliceUri, specs);
+            return onBindSliceStrict(sliceUri, specs, callingPkg);
         } else {
             final CountDownLatch latch = new CountDownLatch(1);
             final Slice[] output = new Slice[1];
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    output[0] = onBindSliceStrict(sliceUri, specs);
+                    output[0] = onBindSliceStrict(sliceUri, specs, callingPkg);
                     latch.countDown();
                 }
             });
@@ -251,7 +284,54 @@ public class SliceProviderCompat extends ContentProvider {
         }
     }
 
-    private Slice onBindSliceStrict(Uri sliceUri, List<SliceSpec> specs) {
+    /**
+     * Generate a slice that contains a permission request.
+     */
+    public static Slice createPermissionSlice(Context context, Uri sliceUri,
+            String callingPackage) {
+        return new Slice.Builder(sliceUri)
+                .addAction(createPermissionIntent(context, sliceUri, callingPackage),
+                        new Slice.Builder(sliceUri.buildUpon().appendPath("permission").build())
+                                .addText(getPermissionString(context, callingPackage), null)
+                                .build(), null)
+                .addHints(HINT_LIST_ITEM)
+                .build();
+    }
+
+    /**
+     * Create a PendingIntent pointing at the permission dialog.
+     */
+    public static PendingIntent createPermissionIntent(Context context, Uri sliceUri,
+            String callingPackage) {
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName(context.getPackageName(),
+                "androidx.app.slice.compat.SlicePermissionActivity"));
+        intent.putExtra(EXTRA_BIND_URI, sliceUri);
+        intent.putExtra(EXTRA_PKG, callingPackage);
+        intent.putExtra(EXTRA_PROVIDER_PKG, context.getPackageName());
+        // Unique pending intent.
+        intent.setData(sliceUri.buildUpon().appendQueryParameter("package", callingPackage)
+                .build());
+
+        return PendingIntent.getActivity(context, 0, intent, 0);
+    }
+
+    /**
+     * Get string describing permission request.
+     */
+    public static CharSequence getPermissionString(Context context, String callingPackage) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            return context.getString(R.string.abc_slices_permission_request,
+                    pm.getApplicationInfo(callingPackage, 0).loadLabel(pm),
+                    context.getApplicationInfo().loadLabel(pm));
+        } catch (PackageManager.NameNotFoundException e) {
+            // This shouldn't be possible since the caller is verified.
+            throw new RuntimeException("Unknown calling app", e);
+        }
+    }
+
+    private Slice onBindSliceStrict(Uri sliceUri, List<SliceSpec> specs, String callingPackage) {
         ThreadPolicy oldPolicy = StrictMode.getThreadPolicy();
         try {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
@@ -260,8 +340,10 @@ public class SliceProviderCompat extends ContentProvider {
                     .build());
             SliceProvider.setSpecs(specs);
             try {
+                mBindingPkg = callingPackage;
                 return mSliceProvider.onBindSlice(sliceUri);
             } finally {
+                mBindingPkg = null;
                 SliceProvider.setSpecs(null);
             }
         } finally {
