@@ -17,7 +17,9 @@
 package androidx.car.widget;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -144,25 +146,64 @@ public final class DividerVisibilityManagerTest {
 
     @Test
     public void testListItemAdapterAsVisibilityManager() {
+        TextListItem item0 = new TextListItem(mActivity);
+        item0.setHideDivider(true);
+
+        TextListItem item1 = new TextListItem(mActivity);
+        item1.setHideDivider(false);
+
+        TextListItem item2 = new TextListItem(mActivity);
+        item2.setHideDivider(true);
+
+        TextListItem item3 = new TextListItem(mActivity);
+        item3.setHideDivider(true);
+
         // Create and populate ListItemAdapter.
         ListItemProvider provider = new ListItemProvider.ListProvider(Arrays.asList(
-                new TextListItem.Builder(mActivity)
-                        .withDividerHidden()
-                        .build(),
-                new TextListItem.Builder(mActivity)
-                        .build(),
-                new TextListItem.Builder(mActivity)
-                        .withDividerHidden()
-                        .build(),
-                new TextListItem.Builder(mActivity)
-                        .withDividerHidden()
-                        .build()));
+                item0, item1, item2, item3));
 
         ListItemAdapter itemAdapter = new ListItemAdapter(mActivity, provider);
         assertTrue(itemAdapter.shouldHideDivider(0));
         assertFalse(itemAdapter.shouldHideDivider(1));
         assertTrue(itemAdapter.shouldHideDivider(2));
         assertTrue(itemAdapter.shouldHideDivider(3));
+    }
+
+    @Test
+    public void testSettingItemDividersHidden() throws Throwable {
+        TextListItem item0 = new TextListItem(mActivity);
+        item0.setHideDivider(true);
+
+        TextListItem item1 = new TextListItem(mActivity);
+
+        ListItemProvider provider = new ListItemProvider.ListProvider(Arrays.asList(item0, item1));
+        mActivityRule.runOnUiThread(() -> {
+            mPagedListView.setAdapter(new ListItemAdapter(mActivity, provider));
+        });
+
+        assertThat(item0.shouldHideDivider(), is(true));
+        assertThat(item1.shouldHideDivider(), is(false));
+
+        // First verify hiding divider works.
+        PagedListView.DividerVisibilityManager dvm = (PagedListView.DividerVisibilityManager)
+                mPagedListView.getAdapter();
+        assertThat(dvm, is(notNullValue()));
+        assertThat(dvm.shouldHideDivider(0), is(true));
+        assertThat(dvm.shouldHideDivider(1), is(false));
+
+        // Then verify we can show divider by checking the space between items reserved by
+        // divider decorator.
+        item0.setHideDivider(false);
+        mActivityRule.runOnUiThread(() -> {
+            mPagedListView.getAdapter().notifyDataSetChanged();
+        });
+
+        assertThat(dvm.shouldHideDivider(0), is(false));
+        int upper = mPagedListView.getRecyclerView().getLayoutManager()
+                .findViewByPosition(0).getBottom();
+        int lower = mPagedListView.getRecyclerView().getLayoutManager()
+                .findViewByPosition(1).getTop();
+        assertThat(lower - upper, is(greaterThan(0)));
     }
 
     private class TestDividerVisibilityManager implements PagedListView.DividerVisibilityManager {
