@@ -46,7 +46,7 @@ import java.lang.annotation.RetentionPolicy;
 @UiThread
 public class BoxInsetLayout extends ViewGroup {
 
-    private static final float FACTOR = 0.146467f; //(1 - sqrt(2)/2)/2
+    private static final float FACTOR = 0.146447f; //(1 - sqrt(2)/2)/2
     private static final int DEFAULT_CHILD_GRAVITY = Gravity.TOP | Gravity.START;
 
     private final int mScreenHeight;
