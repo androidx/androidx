@@ -16,7 +16,7 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="androidx.recyclerview.selection.test">
+          package="androidx.widget.recyclerview.selection.test">
     <uses-sdk android:minSdkVersion="14" />
 
     <application android:supportsRtl="true">
