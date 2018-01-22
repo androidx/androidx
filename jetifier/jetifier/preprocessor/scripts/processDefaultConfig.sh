@@ -18,6 +18,8 @@
 # Grabs all the support libraries and runs them through a preprocessor
 # using the default Jetifier config to generate the final mappings.
 
+set -e
+
 ROOT_DIR=$(dirname $(readlink -f $0))
 OUT_DIR="$ROOT_DIR/out"
 TEMP_LOG="$OUT_DIR/tempLog"
@@ -34,12 +36,6 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-function exitAndFail() {
-	cat $TEMP_LOG
-	echo -e "${RED}FAILED${NC}"
-	exit 1
-}
-
 function printSectionStart() {
 	echo ""
 	echo "======================================================"
@@ -53,16 +49,17 @@ function printSuccess() {
 
 function buildProjectUsingGradle() {
 	cd $1
-	sh gradlew clean build $2 > $TEMP_LOG --stacktrace || exitAndFail 2>&1
+	sh gradlew clean build $2 > $TEMP_LOG --stacktrace
 }
 
 
-rm -r $OUT_DIR
+rm -rf $OUT_DIR
 mkdir $OUT_DIR
 echo "OUT dir is at '$OUT_DIR'"
 
 printSectionStart "Downloading all affected support libraries"
-wget -nd -i $ROOT_DIR/repo-links -P $SUPPORT_LIBS_DOWNLOADED
+# Ignore commented lines; download the rest
+grep -v '^#' $ROOT_DIR/repo-links | xargs wget -nd -P $SUPPORT_LIBS_DOWNLOADED
 
 printSectionStart "Preparing Jetifier"
 buildProjectUsingGradle $JETIFIER_DIR
