@@ -2854,6 +2854,8 @@ public class NotificationCompat {
         static final String EXTRA_SHOWS_USER_INTERFACE =
                 "android.support.action.showsUserInterface";
 
+        static final String EXTRA_SEMANTIC_ACTION = "android.support.action.semanticAction";
+
         final Bundle mExtras;
         private final RemoteInput[] mRemoteInputs;
 
@@ -4819,9 +4821,17 @@ public class NotificationCompat {
         final boolean showsUserInterface =
                 action.getExtras().getBoolean(Action.EXTRA_SHOWS_USER_INTERFACE, true);
 
+        final @Action.SemanticAction int semanticAction;
+        if (Build.VERSION.SDK_INT >= 28) {
+            semanticAction = action.getSemanticAction();
+        } else {
+            semanticAction = action.getExtras().getInt(
+                    Action.EXTRA_SEMANTIC_ACTION, Action.SEMANTIC_ACTION_NONE);
+        }
+
         return new Action(action.icon, action.title, action.actionIntent,
                 action.getExtras(), remoteInputs, null, allowGeneratedReplies,
-                Action.SEMANTIC_ACTION_NONE, showsUserInterface);
+                semanticAction, showsUserInterface);
     }
 
     /**
