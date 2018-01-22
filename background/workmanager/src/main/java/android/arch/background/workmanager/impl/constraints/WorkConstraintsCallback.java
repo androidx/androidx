@@ -24,7 +24,7 @@ import java.util.List;
  * A callback for when constraints change.
  */
 
-public interface ConstraintsMetCallback {
+public interface WorkConstraintsCallback {
     /**
      * Called when all constraints are met.
      *

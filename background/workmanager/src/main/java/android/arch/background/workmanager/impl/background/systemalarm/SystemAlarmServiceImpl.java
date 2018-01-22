@@ -20,7 +20,7 @@ import android.app.Service;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.impl.background.BackgroundProcessor;
-import android.arch.background.workmanager.impl.constraints.ConstraintsTracker;
+import android.arch.background.workmanager.impl.constraints.WorkConstraintsTracker;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.content.Intent;
@@ -52,16 +52,16 @@ class SystemAlarmServiceImpl {
     private final Context mContext;
     private final AllWorkExecutedCallback mCallback;
     private final BackgroundProcessor mProcessor;
-    private final ConstraintsTracker mConstraintsTracker;
+    private final WorkConstraintsTracker mWorkConstraintsTracker;
 
     SystemAlarmServiceImpl(
             @NonNull Context context,
             @NonNull BackgroundProcessor processor,
-            @NonNull ConstraintsTracker constraintsTracker,
+            @NonNull WorkConstraintsTracker workConstraintsTracker,
             @NonNull AllWorkExecutedCallback callback) {
         mContext = context.getApplicationContext();
         mProcessor = processor;
-        mConstraintsTracker = constraintsTracker;
+        mWorkConstraintsTracker = workConstraintsTracker;
         mCallback = callback;
     }
 
@@ -91,7 +91,7 @@ class SystemAlarmServiceImpl {
     }
 
     private void updateConstraintsTrackerAndProxy() {
-        mConstraintsTracker.replace(mDelayMetWorkSpecs);
+        mWorkConstraintsTracker.replace(mDelayMetWorkSpecs);
         ConstraintProxy.updateAll(mContext, mDelayMetWorkSpecs);
     }
 

@@ -21,8 +21,8 @@ import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.impl.Processor;
 import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkDatabase;
-import android.arch.background.workmanager.impl.constraints.ConstraintsMetCallback;
-import android.arch.background.workmanager.impl.constraints.ConstraintsTracker;
+import android.arch.background.workmanager.impl.constraints.WorkConstraintsCallback;
+import android.arch.background.workmanager.impl.constraints.WorkConstraintsTracker;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.LiveDataUtils;
 import android.arch.lifecycle.Lifecycle;
@@ -48,12 +48,12 @@ import java.util.concurrent.Future;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ForegroundProcessor extends Processor
-        implements Observer<List<WorkSpec>>, LifecycleObserver, ConstraintsMetCallback {
+        implements Observer<List<WorkSpec>>, LifecycleObserver, WorkConstraintsCallback {
 
     private static final String TAG = "ForegroundProcessor";
 
     private LifecycleOwner mLifecycleOwner;
-    private ConstraintsTracker mConstraintsTracker;
+    private WorkConstraintsTracker mWorkConstraintsTracker;
 
     public ForegroundProcessor(
             Context appContext,
@@ -64,7 +64,7 @@ public class ForegroundProcessor extends Processor
         super(appContext, workDatabase, scheduler, executorService);
         mLifecycleOwner = lifecycleOwner;
         mLifecycleOwner.getLifecycle().addObserver(this);
-        mConstraintsTracker = new ConstraintsTracker(mAppContext, this);
+        mWorkConstraintsTracker = new WorkConstraintsTracker(mAppContext, this);
         LiveDataUtils.dedupedLiveDataFor(
                 mWorkDatabase.workSpecDao().getForegroundEligibleWorkSpecs())
                 .observe(mLifecycleOwner, this);
@@ -97,9 +97,9 @@ public class ForegroundProcessor extends Processor
                 process(workSpec.getId());
             }
         }
-        // ConstraintsTracker will only consider WorkSpecs which have constraints that it can
+        // WorkConstraintsTracker will only consider WorkSpecs which have constraints that it can
         // monitor. The rest will be ignored.
-        mConstraintsTracker.replace(workSpecs);
+        mWorkConstraintsTracker.replace(workSpecs);
     }
 
     /**
@@ -108,7 +108,7 @@ public class ForegroundProcessor extends Processor
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onLifecycleStop() {
         Log.d(TAG, "onLifecycleStop");
-        mConstraintsTracker.reset();
+        mWorkConstraintsTracker.reset();
         Iterator<Map.Entry<String, Future<?>>> it = mEnqueuedWorkMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Future<?>> entry = it.next();

@@ -40,7 +40,7 @@ import java.util.List;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class ConstraintsTrackerTest {
+public class WorkConstraintsTrackerTest {
     private static final List<String> TEST_WORKSPEC_IDS = new ArrayList<>();
     static {
         TEST_WORKSPEC_IDS.add("A");
@@ -48,7 +48,7 @@ public class ConstraintsTrackerTest {
         TEST_WORKSPEC_IDS.add("C");
     }
 
-    private ConstraintsMetCallback mCallback = new ConstraintsMetCallback() {
+    private WorkConstraintsCallback mCallback = new WorkConstraintsCallback() {
         @Override
         public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
             mUnconstrainedWorkSpecIds = workSpecIds;
@@ -63,30 +63,30 @@ public class ConstraintsTrackerTest {
     private ConstraintController mMockController = mock(ConstraintController.class);
     private List<String> mUnconstrainedWorkSpecIds;
     private List<String> mConstrainedWorkSpecIds;
-    private ConstraintsTracker mConstraintsTracker;
+    private WorkConstraintsTracker mWorkConstraintsTracker;
 
     @Before
     public void setUp() {
         ConstraintController[] controllers = new ConstraintController[] {mMockController};
-        mConstraintsTracker = new ConstraintsTracker(mCallback, controllers);
+        mWorkConstraintsTracker = new WorkConstraintsTracker(mCallback, controllers);
     }
 
     @Test
     public void testReplace() {
         List<WorkSpec> emptyList = Collections.emptyList();
-        mConstraintsTracker.replace(emptyList);
+        mWorkConstraintsTracker.replace(emptyList);
         verify(mMockController).replace(emptyList);
     }
 
     @Test
     public void testReset() {
-        mConstraintsTracker.reset();
+        mWorkConstraintsTracker.reset();
         verify(mMockController).reset();
     }
 
     @Test
     public void testOnConstraintMet_controllerInvoked() {
-        mConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
+        mWorkConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
         for (String id : TEST_WORKSPEC_IDS) {
             verify(mMockController).isWorkSpecConstrained(id);
         }
@@ -95,7 +95,7 @@ public class ConstraintsTrackerTest {
     @Test
     public void testOnConstraintMet_allConstraintsMet() {
         when(mMockController.isWorkSpecConstrained(any(String.class))).thenReturn(false);
-        mConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
+        mWorkConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
         assertThat(mUnconstrainedWorkSpecIds, is(TEST_WORKSPEC_IDS));
     }
 
@@ -104,7 +104,7 @@ public class ConstraintsTrackerTest {
         when(mMockController.isWorkSpecConstrained(TEST_WORKSPEC_IDS.get(0))).thenReturn(true);
         when(mMockController.isWorkSpecConstrained(TEST_WORKSPEC_IDS.get(1))).thenReturn(false);
         when(mMockController.isWorkSpecConstrained(TEST_WORKSPEC_IDS.get(2))).thenReturn(false);
-        mConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
+        mWorkConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
         assertThat(mUnconstrainedWorkSpecIds,
                 containsInAnyOrder(TEST_WORKSPEC_IDS.get(1), TEST_WORKSPEC_IDS.get(2)));
     }
@@ -112,13 +112,13 @@ public class ConstraintsTrackerTest {
     @Test
     public void testOnConstraintMet_allConstraintsNotMet() {
         when(mMockController.isWorkSpecConstrained(any(String.class))).thenReturn(true);
-        mConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
+        mWorkConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
         assertThat(mUnconstrainedWorkSpecIds, is(empty()));
     }
 
     @Test
     public void testOnConstraintNotMet() {
-        mConstraintsTracker.onConstraintNotMet(TEST_WORKSPEC_IDS);
+        mWorkConstraintsTracker.onConstraintNotMet(TEST_WORKSPEC_IDS);
         assertThat(mConstrainedWorkSpecIds, is(TEST_WORKSPEC_IDS));
     }
 }

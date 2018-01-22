@@ -15,6 +15,7 @@
  */
 package android.arch.background.workmanager.impl.constraints;
 
+import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.impl.constraints.controllers.BatteryChargingController;
 import android.arch.background.workmanager.impl.constraints.controllers.BatteryNotLowController;
 import android.arch.background.workmanager.impl.constraints.controllers.ConstraintController;
@@ -33,17 +34,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A class to update the current status of various constraints.
+ * Tracks {@link WorkSpec}s and their {@link Constraints}, and notifies a
+ * {@link WorkConstraintsCallback} when all of their constraints are met or not met.
  */
 
-public class ConstraintsTracker implements ConstraintController.OnConstraintUpdatedCallback {
+public class WorkConstraintsTracker implements ConstraintController.OnConstraintUpdatedCallback {
 
-    private static final String TAG = "ConstraintsTracker";
+    private static final String TAG = "WorkConstraintsTracker";
 
-    private final ConstraintsMetCallback mCallback;
+    private final WorkConstraintsCallback mCallback;
     private final ConstraintController[] mConstraintControllers;
 
-    public ConstraintsTracker(Context context, ConstraintsMetCallback callback) {
+    public WorkConstraintsTracker(Context context, WorkConstraintsCallback callback) {
         Context appContext = context.getApplicationContext();
         mCallback = callback;
         mConstraintControllers = new ConstraintController[] {
@@ -58,7 +60,7 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
     }
 
     @VisibleForTesting
-    ConstraintsTracker(ConstraintsMetCallback callback, ConstraintController[] controllers) {
+    WorkConstraintsTracker(WorkConstraintsCallback callback, ConstraintController[] controllers) {
         mCallback = callback;
         mConstraintControllers = controllers;
     }

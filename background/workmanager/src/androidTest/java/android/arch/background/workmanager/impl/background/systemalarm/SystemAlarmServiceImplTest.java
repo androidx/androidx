@@ -28,7 +28,7 @@ import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkManagerTest;
 import android.arch.background.workmanager.impl.background.BackgroundProcessor;
-import android.arch.background.workmanager.impl.constraints.ConstraintsTracker;
+import android.arch.background.workmanager.impl.constraints.WorkConstraintsTracker;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.content.Context;
@@ -45,7 +45,7 @@ import java.util.List;
 public class SystemAlarmServiceImplTest extends WorkManagerTest {
     private SystemAlarmServiceImpl mSystemAlarmServiceImpl;
     private BackgroundProcessor mMockProcessor;
-    private ConstraintsTracker mMockConstraintsTracker;
+    private WorkConstraintsTracker mMockWorkConstraintsTracker;
     private SystemAlarmServiceImpl.AllWorkExecutedCallback mMockCallback;
     private Context mContext;
 
@@ -53,10 +53,10 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
     public void setUp() {
         mContext = InstrumentationRegistry.getTargetContext();
         mMockProcessor = mock(BackgroundProcessor.class);
-        mMockConstraintsTracker = mock(ConstraintsTracker.class);
+        mMockWorkConstraintsTracker = mock(WorkConstraintsTracker.class);
         mMockCallback = mock(SystemAlarmServiceImpl.AllWorkExecutedCallback.class);
         mSystemAlarmServiceImpl = new SystemAlarmServiceImpl(
-                mContext, mMockProcessor, mMockConstraintsTracker, mMockCallback);
+                mContext, mMockProcessor, mMockWorkConstraintsTracker, mMockCallback);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
         mSystemAlarmServiceImpl.onEligibleWorkChanged(workSpecs);
 
         verify(mMockProcessor).process(workSpec.getId());
-        verify(mMockConstraintsTracker).replace(Collections.<WorkSpec>emptyList());
+        verify(mMockWorkConstraintsTracker).replace(Collections.<WorkSpec>emptyList());
         verifyZeroInteractions(mMockCallback);
         assertThat(mSystemAlarmServiceImpl.getDelayMetWorkSpecs(), is(empty()));
         assertThat(mSystemAlarmServiceImpl.getDelayNotMetWorkSpecs(), is(empty()));
@@ -89,7 +89,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
 
         mSystemAlarmServiceImpl.onEligibleWorkChanged(workSpecs);
 
-        verify(mMockConstraintsTracker).replace(workSpecs);
+        verify(mMockWorkConstraintsTracker).replace(workSpecs);
         verifyZeroInteractions(mMockProcessor, mMockCallback);
         assertThat(mSystemAlarmServiceImpl.getDelayMetWorkSpecs(), is(workSpecs));
         assertThat(mSystemAlarmServiceImpl.getDelayNotMetWorkSpecs(), is(empty()));
@@ -107,7 +107,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
 
         mSystemAlarmServiceImpl.onEligibleWorkChanged(workSpecs);
 
-        verify(mMockConstraintsTracker).replace(Collections.<WorkSpec>emptyList());
+        verify(mMockWorkConstraintsTracker).replace(Collections.<WorkSpec>emptyList());
         verifyZeroInteractions(mMockProcessor);
         assertThat(mSystemAlarmServiceImpl.getDelayMetWorkSpecs(), is(empty()));
         assertThat(mSystemAlarmServiceImpl.getDelayNotMetWorkSpecs(), is(workSpecs));
@@ -119,7 +119,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
         String workSpecId = "SOME_WORKSPEC_WHOSE_DELAY_IS_MET";
         Intent intent = SystemAlarmService.createDelayMetIntent(mContext, workSpecId);
         mSystemAlarmServiceImpl.onStartCommand(intent);
-        verifyZeroInteractions(mMockConstraintsTracker, mMockProcessor, mMockCallback);
+        verifyZeroInteractions(mMockWorkConstraintsTracker, mMockProcessor, mMockCallback);
     }
 
     @Test
@@ -160,7 +160,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
 
         assertThat(mSystemAlarmServiceImpl.getDelayNotMetWorkSpecs(), is(workSpecs));
         assertThat(mSystemAlarmServiceImpl.getDelayMetWorkSpecs(), is(empty()));
-        verify(mMockConstraintsTracker).replace(Collections.<WorkSpec>emptyList());
+        verify(mMockWorkConstraintsTracker).replace(Collections.<WorkSpec>emptyList());
 
         // Delay has been met
         Intent intent = SystemAlarmService.createDelayMetIntent(mContext, workSpec.getId());
@@ -169,7 +169,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
         assertThat(mSystemAlarmServiceImpl.getDelayNotMetWorkSpecs(), is(empty()));
         assertThat(mSystemAlarmServiceImpl.getDelayMetWorkSpecs(), is(workSpecs));
         // TODO(xbhatnag): Why times(2)? this method is invoked exactly once with these arguments.
-        verify(mMockConstraintsTracker, times(2)).replace(workSpecs);
+        verify(mMockWorkConstraintsTracker, times(2)).replace(workSpecs);
     }
 
     @Test
@@ -184,14 +184,14 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
         WorkSpec workSpec = getWorkSpec(work);
         List<WorkSpec> workSpecs = Collections.singletonList(workSpec);
         mSystemAlarmServiceImpl.onEligibleWorkChanged(workSpecs);
-        verify(mMockConstraintsTracker).replace(Collections.<WorkSpec>emptyList());
+        verify(mMockWorkConstraintsTracker).replace(Collections.<WorkSpec>emptyList());
 
         // Delay has been met
         Intent intent = SystemAlarmService.createDelayMetIntent(mContext, workSpec.getId());
         mSystemAlarmServiceImpl.onStartCommand(intent);
         assertThat(mSystemAlarmServiceImpl.getDelayMetWorkSpecs(), is(workSpecs));
         // TODO(xbhatnag): Why times(2)? this method is invoked exactly once with these arguments.
-        verify(mMockConstraintsTracker, times(2)).replace(workSpecs);
+        verify(mMockWorkConstraintsTracker, times(2)).replace(workSpecs);
 
         // Constraints met
         List<String> workSpecIds = Collections.singletonList(workSpec.getId());
@@ -202,6 +202,6 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
         mSystemAlarmServiceImpl.onExecuted(workSpec.getId(), false);
         assertThat(mSystemAlarmServiceImpl.getDelayMetWorkSpecs(), is(empty()));
         // TODO(xbhatnag): Why times(3)? this method is invoked exactly twice with these arguments.
-        verify(mMockConstraintsTracker, times(3)).replace(Collections.<WorkSpec>emptyList());
+        verify(mMockWorkConstraintsTracker, times(3)).replace(Collections.<WorkSpec>emptyList());
     }
 }
