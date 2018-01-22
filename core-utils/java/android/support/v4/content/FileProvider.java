@@ -29,6 +29,7 @@ import android.content.res.XmlResourceParser;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
@@ -176,6 +177,17 @@ import java.util.Map;
  *     Represents files in the root of your app's external cache area. The root path of this
  *     subdirectory is the same as the value returned by
  *     {@link Context#getExternalCacheDir() Context.getExternalCacheDir()}.
+ *     </dd>
+ *     <dt>
+ * <pre class="prettyprint">
+ *&lt;external-media-path name="<i>name</i>" path="<i>path</i>" /&gt;
+ *</pre>
+ *     </dt>
+ *     <dd>
+ *     Represents files in the root of your app's external media area. The root path of this
+ *     subdirectory is the same as the value returned by the first result of
+ *     {@link Context#getExternalMediaDirs() Context.getExternalMediaDirs()}.
+ *     <p><strong>Note:</strong> this directory is only available on API 21+ devices.</p>
  *     </dd>
  * </dl>
  * <p>
@@ -336,6 +348,7 @@ public class FileProvider extends ContentProvider {
     private static final String TAG_EXTERNAL = "external-path";
     private static final String TAG_EXTERNAL_FILES = "external-files-path";
     private static final String TAG_EXTERNAL_CACHE = "external-cache-path";
+    private static final String TAG_EXTERNAL_MEDIA = "external-media-path";
 
     private static final String ATTR_NAME = "name";
     private static final String ATTR_PATH = "path";
@@ -621,6 +634,12 @@ public class FileProvider extends ContentProvider {
                     File[] externalCacheDirs = ContextCompat.getExternalCacheDirs(context);
                     if (externalCacheDirs.length > 0) {
                         target = externalCacheDirs[0];
+                    }
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                        && TAG_EXTERNAL_MEDIA.equals(tag)) {
+                    File[] externalMediaDirs = context.getExternalMediaDirs();
+                    if (externalMediaDirs.length > 0) {
+                        target = externalMediaDirs[0];
                     }
                 }
 
