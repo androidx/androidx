@@ -25,7 +25,7 @@ limitations under the License.
         android:layout_height="match_parent">
 
         <!-- The main content view. Fragments will be added here. -->
-        <FrameLayout
+      <androidx.car.moderator.SpeedBumpView
             android:id="@+id/content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
