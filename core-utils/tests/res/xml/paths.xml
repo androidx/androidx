@@ -15,4 +15,6 @@
     <external-files-path name="test_external_files" />
     <!-- /storage/emulated/0/Android/com.example/cache -->
     <external-cache-path name="test_external_cache" />
+    <!-- /storage/emulated/0/Android/com.example/media -->
+    <external-media-path name="test_external_media" />
 </paths>
