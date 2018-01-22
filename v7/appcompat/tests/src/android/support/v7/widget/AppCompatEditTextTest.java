@@ -58,4 +58,26 @@ public class AppCompatEditTextTest {
             super.setText(text, type);
         }
     }
+
+    @Test
+    @UiThreadTest
+    public void testGetTextBeforeConstructor() {
+        // This subclass calls getText before the TextView constructor. This should not cause
+        // a null pointer exception.
+        GetTextEditText2 editText = new GetTextEditText2(mActivityTestRule.getActivity());
+    }
+
+    private class GetTextEditText2 extends AppCompatEditText {
+
+        GetTextEditText2(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void setOverScrollMode(int overScrollMode) {
+            // This method is called by the View constructor before the TextView/EditText
+            // constructors.
+            Editable text = getText();
+        }
+    }
 }

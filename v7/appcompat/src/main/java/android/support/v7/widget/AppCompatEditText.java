@@ -73,19 +73,18 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         mTextHelper.applyCompoundDrawablesTints();
     }
 
+    /**
+     * Return the text that the view is displaying. If an editable text has not been set yet, this
+     * will return null.
+     */
     @Override
-    public Editable getText() {
+    @Nullable public Editable getText() {
         if (BuildCompat.isAtLeastP()) {
             return super.getText();
         }
-        // A bug pre-P makes getText() crash if called before the first setText due to a cast.
-        Editable text = super.getEditableText();
-        if (text != null) {
-            return text;
-        }
-        // The empty String is the value set during the constructor before the first setText call.
-        super.setText("", BufferType.EDITABLE);
-        return super.getText();
+        // A bug pre-P makes getText() crash if called before the first setText due to a cast, so
+        // retrieve the editable text.
+        return super.getEditableText();
     }
 
     @Override
