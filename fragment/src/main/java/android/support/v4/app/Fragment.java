@@ -575,6 +575,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Return the {@link Context} this fragment is currently associated with.
      */
+    @Nullable
     public Context getContext() {
         return mHost == null ? null : mHost.getContext();
     }
@@ -584,6 +585,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * May return {@code null} if the fragment is associated with a {@link Context}
      * instead.
      */
+    @Nullable
     final public FragmentActivity getActivity() {
         return mHost == null ? null : (FragmentActivity) mHost.getActivity();
     }
@@ -592,6 +594,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Return the host object of this fragment. May return {@code null} if the fragment
      * isn't currently being hosted.
      */
+    @Nullable
     final public Object getHost() {
         return mHost == null ? null : mHost.onGetHost();
     }
@@ -652,6 +655,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p>If this Fragment is a child of another Fragment, the FragmentManager
      * returned here will be the parent's {@link #getChildFragmentManager()}.
      */
+    @Nullable
     final public FragmentManager getFragmentManager() {
         return mFragmentManager;
     }
