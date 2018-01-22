@@ -17,18 +17,16 @@
 package android.support.tools.jetifier.core.map
 
 import android.support.tools.jetifier.core.config.Config
-import android.support.tools.jetifier.core.rules.JavaField
 import android.support.tools.jetifier.core.rules.JavaType
 import android.support.tools.jetifier.core.transform.bytecode.CoreRemapper
-import android.support.tools.jetifier.core.transform.bytecode.asm.CustomClassRemapper
 import android.support.tools.jetifier.core.transform.bytecode.asm.CustomRemapper
 import android.support.tools.jetifier.core.utils.Log
 import org.objectweb.asm.ClassVisitor
-import java.util.regex.Pattern
+import org.objectweb.asm.commons.ClassRemapper
 
 /**
  * Hooks to asm remapping to collect data for [TypesMap] by applying all the [RewriteRule]s from the
- * given [config] on all discovered and eligible types and fields.
+ * given [config] on all discovered and eligible types.
  */
 class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
 
@@ -37,25 +35,12 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
     }
 
     private val typesRewritesMap = hashMapOf<JavaType, JavaType>()
-    private val fieldsRewritesMap = hashMapOf<JavaField, JavaField>()
 
     var isMapNotComplete = false
         private set
 
-    /**
-     * Ignore mPrefix types and anything that contains $ as these are internal fields that won't be
-     * ever referenced.
-     */
-    private val ignoredFields = Pattern.compile("(^m[A-Z]+.*$)|(.*\\$.*)")
-
-    /**
-     * Ignores types ending with '$digit' as these are private inner classes and won't be ever
-     * referenced.
-     */
-    private val ignoredTypes = Pattern.compile("^(.*)\\$[0-9]+$")
-
-    fun createClassRemapper(visitor: ClassVisitor): CustomClassRemapper {
-        return CustomClassRemapper(visitor, CustomRemapper(this))
+    fun createClassRemapper(visitor: ClassVisitor): ClassRemapper {
+        return ClassRemapper(visitor, CustomRemapper(this))
     }
 
     override fun rewriteType(type: JavaType): JavaType {
@@ -64,10 +49,6 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
         }
 
         if (typesRewritesMap.contains(type)) {
-            return type
-        }
-
-        if (isTypeIgnored(type)) {
             return type
         }
 
@@ -92,58 +73,16 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
         return type
     }
 
-    override fun rewriteField(field: JavaField): JavaField {
-        if (!isTypeSupported(field.owner)) {
-            return field
-        }
-
-        if (isTypeIgnored(field.owner) || isFieldIgnored(field)) {
-            return field
-        }
-
-        if (fieldsRewritesMap.contains(field)) {
-            return field
-        }
-
-        // Try to find a rule
-        for (rule in config.rewriteRules) {
-            val fieldRewriteResult = rule.apply(field)
-            if (fieldRewriteResult.isIgnored) {
-                Log.i(TAG, "Ignoring: " + field)
-                return field
-            }
-            if (fieldRewriteResult.result == null) {
-                continue
-            }
-            fieldsRewritesMap.put(field, fieldRewriteResult.result)
-            Log.i(TAG, "  map: %s -> %s", field, fieldRewriteResult.result)
-            return fieldRewriteResult.result
-        }
-
-        isMapNotComplete = true
-        Log.e(TAG, "No rule for: " + field)
-        fieldsRewritesMap.put(field, field) // Identity
-        return field
-    }
-
     override fun rewriteString(value: String): String {
         // We don't build map from strings
         return value
     }
 
     fun createTypesMap(): TypesMap {
-        return TypesMap(typesRewritesMap, fieldsRewritesMap)
+        return TypesMap(typesRewritesMap)
     }
 
     private fun isTypeSupported(type: JavaType): Boolean {
         return config.restrictToPackagePrefixes.any { type.fullName.startsWith(it) }
-    }
-
-    private fun isTypeIgnored(type: JavaType): Boolean {
-        return ignoredTypes.matcher(type.fullName).matches()
-    }
-
-    private fun isFieldIgnored(field: JavaField): Boolean {
-        return ignoredFields.matcher(field.name).matches()
     }
 }

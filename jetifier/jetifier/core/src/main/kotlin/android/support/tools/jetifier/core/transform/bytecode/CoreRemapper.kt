@@ -16,7 +16,6 @@
 
 package android.support.tools.jetifier.core.transform.bytecode
 
-import android.support.tools.jetifier.core.rules.JavaField
 import android.support.tools.jetifier.core.rules.JavaType
 
 /**
@@ -24,8 +23,6 @@ import android.support.tools.jetifier.core.rules.JavaType
  */
 interface CoreRemapper {
     fun rewriteType(type: JavaType): JavaType
-
-    fun rewriteField(field: JavaField): JavaField
 
     fun rewriteString(value: String): String
 }

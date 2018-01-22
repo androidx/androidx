@@ -16,13 +16,12 @@
 
 package android.support.tools.jetifier.core.transform.bytecode.asm
 
-import android.support.tools.jetifier.core.rules.JavaField
 import android.support.tools.jetifier.core.rules.JavaType
 import android.support.tools.jetifier.core.transform.bytecode.CoreRemapper
 import org.objectweb.asm.commons.Remapper
 
 /**
- * Extends [Remapper] with a capability to rewrite field names together with their owner.
+ * Extends [Remapper] to allow further customizations.
  */
 class CustomRemapper(private val remapper: CoreRemapper) : Remapper() {
 
@@ -37,13 +36,5 @@ class CustomRemapper(private val remapper: CoreRemapper) : Remapper() {
         }
 
         return remapper.rewriteString(stringMaybe)
-    }
-
-    fun mapField(ownerName: String, fieldName: String): JavaField {
-        return remapper.rewriteField(JavaField(ownerName, fieldName))
-    }
-
-    override fun mapFieldName(owner: String?, name: String, desc: String?): String {
-        throw RuntimeException("This should not be called")
     }
 }
