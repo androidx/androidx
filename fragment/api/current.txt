@@ -104,6 +104,10 @@ package android.support.v4.app {
     method public void postponeEnterTransition();
     method public void registerForContextMenu(android.view.View);
     method public final void requestPermissions(java.lang.String[], int);
+    method public final android.support.v4.app.FragmentActivity requireActivity();
+    method public final android.content.Context requireContext();
+    method public final android.support.v4.app.FragmentManager requireFragmentManager();
+    method public final java.lang.Object requireHost();
     method public void setAllowEnterTransitionOverlap(boolean);
     method public void setAllowReturnTransitionOverlap(boolean);
     method public void setArguments(android.os.Bundle);
