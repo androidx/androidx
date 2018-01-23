@@ -365,7 +365,7 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter>
         @Override
         public void onSeekFinished(boolean cancelled) {
             if (!cancelled) {
-                if (mLastUserPosition > 0) {
+                if (mLastUserPosition >= 0) {
                     seekTo(mLastUserPosition);
                 }
             } else {
