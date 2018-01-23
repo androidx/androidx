@@ -89,8 +89,7 @@ class AndroidResources {
 
     public static final int[] STYLEABLE_ANIMATOR = {
             0x01010141, 0x01010198, 0x010101be, 0x010101bf,
-            0x010101c0, 0x010102de, 0x010102df, 0x010102e0,
-            0x0111009c
+            0x010101c0, 0x010102de, 0x010102df, 0x010102e0
     };
 
     public static final int STYLEABLE_ANIMATOR_INTERPOLATOR = 0;
@@ -101,7 +100,6 @@ class AndroidResources {
     public static final int STYLEABLE_ANIMATOR_VALUE_FROM = 5;
     public static final int STYLEABLE_ANIMATOR_VALUE_TO = 6;
     public static final int STYLEABLE_ANIMATOR_VALUE_TYPE = 7;
-    public static final int STYLEABLE_ANIMATOR_REMOVE_BEFORE_M_RELEASE = 8;
     public static final int[] STYLEABLE_ANIMATOR_SET = {
             0x010102e2
     };
