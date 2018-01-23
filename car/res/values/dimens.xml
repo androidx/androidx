@@ -176,4 +176,8 @@ limitations under the License.
 
     <!-- The margin between text is lies on top of each other. -->
     <dimen name="car_text_vertical_margin">2dp</dimen>
+
+    <!-- Speed Bump -->
+    <dimen name="speed_bump_lock_out_message_height">96dp</dimen>
+    <dimen name="speed_bump_lock_out_drawable_margin_bottom">8dp</dimen>
 </resources>
