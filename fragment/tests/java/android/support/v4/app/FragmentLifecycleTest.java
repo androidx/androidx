@@ -258,6 +258,70 @@ public class FragmentLifecycleTest {
 
     @Test
     @UiThreadTest
+    public void setInitialSavedState() throws Throwable {
+        FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        // Add a StateSaveFragment
+        StateSaveFragment fragment = new StateSaveFragment("Saved", "");
+        fm.beginTransaction().add(fragment, "tag").commit();
+        executePendingTransactions(fm);
+
+        // Change the user visible hint before we save state
+        fragment.setUserVisibleHint(false);
+
+        // Save its state and remove it
+        Fragment.SavedState state = fm.saveFragmentInstanceState(fragment);
+        fm.beginTransaction().remove(fragment).commit();
+        executePendingTransactions(fm);
+
+        // Create a new instance, calling setInitialSavedState
+        fragment = new StateSaveFragment("", "");
+        fragment.setInitialSavedState(state);
+
+        // Add the new instance
+        fm.beginTransaction().add(fragment, "tag").commit();
+        executePendingTransactions(fm);
+
+        assertEquals("setInitialSavedState did not restore saved state",
+                "Saved", fragment.getSavedState());
+        assertEquals("setInitialSavedState did not restore user visible hint",
+                false, fragment.getUserVisibleHint());
+    }
+
+    @Test
+    @UiThreadTest
+    public void setInitialSavedStateWithSetUserVisibleHint() throws Throwable {
+        FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        // Add a StateSaveFragment
+        StateSaveFragment fragment = new StateSaveFragment("Saved", "");
+        fm.beginTransaction().add(fragment, "tag").commit();
+        executePendingTransactions(fm);
+
+        // Save its state and remove it
+        Fragment.SavedState state = fm.saveFragmentInstanceState(fragment);
+        fm.beginTransaction().remove(fragment).commit();
+        executePendingTransactions(fm);
+
+        // Create a new instance, calling setInitialSavedState
+        fragment = new StateSaveFragment("", "");
+        fragment.setInitialSavedState(state);
+
+        // Change the user visible hint after we call setInitialSavedState
+        fragment.setUserVisibleHint(false);
+
+        // Add the new instance
+        fm.beginTransaction().add(fragment, "tag").commit();
+        executePendingTransactions(fm);
+
+        assertEquals("setInitialSavedState did not restore saved state",
+                "Saved", fragment.getSavedState());
+        assertEquals("setUserVisibleHint should override setInitialSavedState",
+                false, fragment.getUserVisibleHint());
+    }
+
+    @Test
+    @UiThreadTest
     public void restoreRetainedInstanceFragments() throws Throwable {
         // Create a new FragmentManager in isolation, nest some assorted fragments
         // and then restore them to a second new FragmentManager.

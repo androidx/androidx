@@ -860,6 +860,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
         mUserVisibleHint = isVisibleToUser;
         mDeferStart = mState < STARTED && !isVisibleToUser;
+        if (mSavedFragmentState != null) {
+            // Ensure that if the user visible hint is set before the Fragment has
+            // restored its state that we don't lose the new value
+            mSavedFragmentState.putBoolean(FragmentManagerImpl.USER_VISIBLE_HINT_TAG,
+                    mUserVisibleHint);
+        }
     }
 
     /**
