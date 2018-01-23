@@ -62,7 +62,6 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
     private final BandHost mHost;
     private final ItemKeyProvider<K> mKeyProvider;
     private final SelectionTracker<K> mSelectionTracker;
-    private final SelectionPredicate<K> mSelectionPredicate;
     private final BandPredicate mBandPredicate;
     private final FocusDelegate<K> mFocusDelegate;
     private final OperationMonitor mLock;
@@ -81,7 +80,6 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
             @NonNull AutoScroller scroller,
             @NonNull ItemKeyProvider<K> keyProvider,
             @NonNull SelectionTracker<K> selectionTracker,
-            @NonNull SelectionPredicate<K> selectionPredicate,
             @NonNull BandPredicate bandPredicate,
             @NonNull FocusDelegate<K> focusDelegate,
             @NonNull OperationMonitor lock) {
@@ -90,7 +88,6 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
         checkArgument(scroller != null);
         checkArgument(keyProvider != null);
         checkArgument(selectionTracker != null);
-        checkArgument(selectionPredicate != null);
         checkArgument(bandPredicate != null);
         checkArgument(focusDelegate != null);
         checkArgument(lock != null);
@@ -98,7 +95,6 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
         mHost = host;
         mKeyProvider = keyProvider;
         mSelectionTracker = selectionTracker;
-        mSelectionPredicate = selectionPredicate;
         mBandPredicate = bandPredicate;
         mFocusDelegate = focusDelegate;
         mLock = lock;
@@ -142,7 +138,6 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
                 scroller,
                 keyProvider,
                 selectionTracker,
-                selectionPredicate,
                 bandPredicate,
                 focusDelegate,
                 lock);

@@ -236,8 +236,8 @@
     <string name="appcompat_vector_disabled">AnimatedVectorDrawableCompat does not work on devices running API v10 or below</string>
     <string name="appcompat_vector_title">AppCompat/Integrations/AnimatedVectorDrawable</string>
 
-    <string name="simple_selection_demo_activity">RecyclerView Selection</string>
-    <string name="fancy_selection_demo_activity">RecyclerView: Gesture+Pointer Selection</string>
+    <string name="simple_selection_demo_activity">RecyclerView Selection: Gesture Only</string>
+    <string name="fancy_selection_demo_activity">RecyclerView Selection: Gesture and Pointer</string>
 
     <string name="night_mode">DAY</string>
 
