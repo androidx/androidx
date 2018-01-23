@@ -15,6 +15,8 @@
  */
 
 import static android.support.dependencies.DependenciesKt.*
+import android.support.LibraryGroups
+import android.support.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -27,8 +29,8 @@ dependencies {
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(JUNIT)
 }
 
@@ -43,8 +45,10 @@ android {
 
 supportLibrary {
     name 'Android RecyclerView Selection'
-    publish false
-    legacySourceLocation true
+    publish true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear '2017'
-    description 'Library providing item selection framework for RecyclerView. Support for single and multi selection is provided.'
+    description 'Library providing item selection framework for RecyclerView. Support for touch based and band selection is provided.'
+    legacySourceLocation true
 }

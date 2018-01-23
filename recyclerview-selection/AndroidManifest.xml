@@ -14,6 +14,6 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="androidx.recyclerview.selection">
+        package="androidx.widget.recyclerview.selection">
     <uses-sdk android:minSdkVersion="14" />
 </manifest>

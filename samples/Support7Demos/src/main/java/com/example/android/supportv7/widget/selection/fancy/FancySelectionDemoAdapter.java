@@ -29,8 +29,8 @@ import android.widget.LinearLayout;
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
 
-import androidx.recyclerview.selection.ItemKeyProvider;
-import androidx.recyclerview.selection.SelectionHelper;
+import androidx.widget.recyclerview.selection.ItemKeyProvider;
+import androidx.widget.recyclerview.selection.SelectionTracker;
 
 final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> {
 
@@ -38,7 +38,7 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
     private final Context mContext;
 
     // This should be replaced at "bind" time with a real test that
-    // asks SelectionHelper.
+    // asks SelectionTracker.
     private SelectionTest mSelTest;
 
     FancySelectionDemoAdapter(Context context) {
@@ -48,7 +48,7 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
             @Override
             public boolean isSelected(Uri id) {
                 throw new IllegalStateException(
-                        "Adapter must be initialized with SelectionHelper.");
+                        "Adapter must be initialized with SelectionTracker.");
             }
         };
 
@@ -62,13 +62,13 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
         return mKeyProvider;
     }
 
-    // Glue together SelectionHelper and the adapter.
-    public void bindSelectionHelper(final SelectionHelper<Uri> selectionHelper) {
-        checkArgument(selectionHelper != null);
+    // Glue together SelectionTracker and the adapter.
+    public void bindSelectionHelper(final SelectionTracker<Uri> selectionTracker) {
+        checkArgument(selectionTracker != null);
         mSelTest = new SelectionTest() {
             @Override
             public boolean isSelected(Uri id) {
-                return selectionHelper.isSelected(id);
+                return selectionTracker.isSelected(id);
             }
         };
     }

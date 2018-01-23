@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 import com.example.android.supportv7.R;
 
-import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.widget.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 
 final class FancyHolder extends RecyclerView.ViewHolder {
 
