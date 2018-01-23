@@ -180,4 +180,8 @@
     <color name="car_accent_dark">@color/car_teal_700</color>
     <color name="car_accent_light">@color/car_teal_200</color>
     <color name="car_accent">@color/car_accent_dark</color>
+
+    <!-- Speed Bump -->
+    <!-- The color of the scrim that is behind the speed bump lock-out message. -->
+    <color name="speed_bump_background">#FFD0D0D0</color>
 </resources>
