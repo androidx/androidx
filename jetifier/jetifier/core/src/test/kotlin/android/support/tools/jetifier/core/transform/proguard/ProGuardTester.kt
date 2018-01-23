@@ -76,8 +76,8 @@ class ProGuardTester {
             rewriteRules = rewriteRules.map { RewriteRule(it.first, it.second) },
             pomRewriteRules = emptyList(),
             typesMap = TypesMap(
-                types = javaTypes.map { JavaType(it.first) to JavaType(it.second) }.toMap(),
-                fields = emptyMap()),
+                types = javaTypes.map { JavaType(it.first) to JavaType(it.second) }.toMap()
+            ),
             proGuardMap = ProGuardTypesMap(proGuardTypes.toMap()))
     }
 

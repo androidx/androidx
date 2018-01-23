@@ -17,7 +17,6 @@
 
 package android.support.tools.jetifier.core.transform
 
-import android.support.tools.jetifier.core.rules.JavaField
 import android.support.tools.jetifier.core.rules.JavaType
 import android.support.tools.jetifier.core.rules.RewriteRule
 import com.google.common.truth.Truth
@@ -53,26 +52,11 @@ class RewriteRuleTest {
             .into("A/C\$D")
     }
 
-    @Test fun fieldRule_noRegEx_shouldRewrite() {
-        RuleTester
-            .testThatRule("A/B", "A/C")
-            .withFieldSelector("MyField")
-            .rewritesField("A/B", "MyField")
-            .into("A/C", "MyField")
-    }
-
     @Test fun fieldRule_innerClass_groupRegEx_shouldRewrite() {
         RuleTester
             .testThatRule("A/B$(.*)", "A/C\${0}")
             .rewritesType("A/B\$D")
             .into("A/C\$D")
-    }
-
-    @Test fun noFieldRule_shouldRewriteEvenWithField() {
-        RuleTester
-            .testThatRule("A/B", "A/C")
-            .rewritesField("A/B", "test")
-            .into("A/C", "test")
     }
 
     @Test fun typeRewrite_ignore() {
@@ -95,43 +79,16 @@ class RewriteRuleTest {
 
         class RuleTesterStep1(val from: String, val to: String) {
 
-            val fieldSelectors: MutableList<String> = mutableListOf()
-
-            fun withFieldSelector(input: String): RuleTesterStep1 {
-                fieldSelectors.add(input)
-                return this
-            }
-
-            fun rewritesField(inputType: String, inputField: String)
-                    = RuleTesterFinalFieldStep(from, to, inputType, inputField, fieldSelectors)
-
             fun rewritesType(inputType: String)
-                    = RuleTesterFinalTypeStep(from, to, inputType, fieldSelectors)
-        }
-
-        class RuleTesterFinalFieldStep(val fromType: String,
-                                       val toType: String,
-                                       val inputType: String,
-                                       val inputField: String,
-                                       val fieldSelectors: List<String>) {
-
-            fun into(expectedTypeName: String, expectedFieldName: String) {
-                val fieldRule = RewriteRule(fromType, toType, fieldSelectors)
-                val result = fieldRule.apply(JavaField(inputType, inputField))
-                Truth.assertThat(result).isNotNull()
-
-                Truth.assertThat(result.result!!.owner.fullName).isEqualTo(expectedTypeName)
-                Truth.assertThat(result.result!!.name).isEqualTo(expectedFieldName)
-            }
+                    = RuleTesterFinalTypeStep(from, to, inputType)
         }
 
         class RuleTesterFinalTypeStep(val fromType: String,
                                       val toType: String,
-                                      val inputType: String,
-                                      val fieldSelectors: List<String>) {
+                                      val inputType: String) {
 
             fun into(expectedResult: String) {
-                val fieldRule = RewriteRule(fromType, toType, fieldSelectors)
+                val fieldRule = RewriteRule(fromType, toType)
                 val result = fieldRule.apply(JavaType(inputType))
 
                 Truth.assertThat(result).isNotNull()
@@ -139,7 +96,7 @@ class RewriteRuleTest {
             }
 
             fun isIgnored() {
-                val fieldRule = RewriteRule(fromType, toType, fieldSelectors)
+                val fieldRule = RewriteRule(fromType, toType)
                 val result = fieldRule.apply(JavaType(inputType))
 
                 Truth.assertThat(result).isNotNull()

@@ -241,8 +241,7 @@ class XmlResourcesTransformerTest {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
             "$expectedXml\n"
 
-        val typesMap = TypesMap(map.map{ JavaType(it.key) to JavaType(it.value) }.toMap(),
-            emptyMap())
+        val typesMap = TypesMap(map.map{ JavaType(it.key) to JavaType(it.value) }.toMap())
         val config = Config(prefixes, emptyList(), emptyList(), typesMap, ProGuardTypesMap.EMPTY)
         val context = TransformationContext(config)
         val processor = XmlResourcesTransformer(context)
