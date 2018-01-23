@@ -31,13 +31,12 @@ import android.widget.Toast;
 
 import com.example.android.supportv7.R;
 
-import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
-import androidx.recyclerview.selection.ItemKeyProvider;
-import androidx.recyclerview.selection.SelectionHelper;
-import androidx.recyclerview.selection.SelectionHelper.SelectionObserver;
-import androidx.recyclerview.selection.SelectionHelperBuilder;
-import androidx.recyclerview.selection.SelectionPredicates;
-import androidx.recyclerview.selection.SelectionStorage;
+import androidx.widget.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.widget.recyclerview.selection.ItemKeyProvider;
+import androidx.widget.recyclerview.selection.SelectionPredicates;
+import androidx.widget.recyclerview.selection.SelectionTracker;
+import androidx.widget.recyclerview.selection.SelectionTracker.SelectionObserver;
+import androidx.widget.recyclerview.selection.StorageStrategy;
 
 /**
  * ContentPager demo activity.
@@ -48,8 +47,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     private static final String EXTRA_COLUMN_COUNT = "demo-column-count";
 
     private FancySelectionDemoAdapter mAdapter;
-    private SelectionHelper<Uri> mSelectionHelper;
-    private SelectionStorage<Uri> mSelectionStorage;
+    private SelectionTracker<Uri> mSelectionTracker;
 
     private GridLayoutManager mLayout;
     private int mColumnCount = 1;  // This will get updated when layout changes.
@@ -67,38 +65,35 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         recView.setAdapter(mAdapter);
         ItemKeyProvider<Uri> keyProvider = mAdapter.getItemKeyProvider();
 
-        SelectionHelperBuilder<Uri> builder = new SelectionHelperBuilder<>(
+        SelectionTracker.Builder<Uri> builder = new SelectionTracker.Builder<>(
+                "fancy-demo",
                 recView,
                 keyProvider,
-                new FancyDetailsLookup(recView));
+                new FancyDetailsLookup(recView),
+                StorageStrategy.createParcelableStorage(Uri.class));
 
         // Override default behaviors and build in multi select mode.
-        // Call .withSelectionPredicate(SelectionHelper.SelectionPredicate.SINGLE_ANYTHING)
+        // Call .withSelectionPredicate(SelectionTracker.SelectionPredicate.SINGLE_ANYTHING)
         // for single selection mode.
-        mSelectionHelper = builder
-                .withSelectionPredicate(SelectionPredicates.selectAnything())
-                .withTouchCallbacks(new TouchCallbacks(this))
-                .withMouseCallbacks(new MouseCallbacks(this))
-                .withActivationCallbacks(new ActivationCallbacks(this))
-                .withFocusCallbacks(new FocusCallbacks(this))
+        mSelectionTracker = builder
+                .withSelectionPredicate(SelectionPredicates.createSelectAnything())
+                .withOnDragInitiatedListener(new OnDragInitiatedListener(this))
+                .withOnContextClickListener(new OnContextClickListener(this))
+                .withOnItemActivatedListener(new OnItemActivatedListener(this))
+                .withFocusDelegate(new FocusDelegate(this))
                 .withBandOverlay(R.drawable.selection_demo_band_overlay)
                 .build();
 
-        // Provide glue between activity lifecycle and selection for purposes
-        // restoring selection.
-        mSelectionStorage = new SelectionStorage<>(
-                SelectionStorage.TYPE_STRING, mSelectionHelper);
-
-        // Lazily bind SelectionHelper. Allows us to defer initialization of the
-        // SelectionHelper dependency until after the adapter is created.
-        mAdapter.bindSelectionHelper(mSelectionHelper);
+        // Lazily bind SelectionTracker. Allows us to defer initialization of the
+        // SelectionTracker dependency until after the adapter is created.
+        mAdapter.bindSelectionHelper(mSelectionTracker);
 
         // TODO: Glue selection to ActionMode, since that'll be a common practice.
-        mSelectionHelper.addObserver(
+        mSelectionTracker.addObserver(
                 new SelectionObserver<Long>() {
                     @Override
                     public void onSelectionChanged() {
-                        Log.i(TAG, "Selection changed to: " + mSelectionHelper.getSelection());
+                        Log.i(TAG, "Selection changed to: " + mSelectionTracker.getSelection());
                     }
                 });
 
@@ -109,12 +104,12 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
-        mSelectionStorage.onSaveInstanceState(state);
+        mSelectionTracker.onSaveInstanceState(state);
         state.putInt(EXTRA_COLUMN_COUNT, mColumnCount);
     }
 
     private void updateFromSavedState(Bundle state) {
-        mSelectionStorage.onRestoreInstanceState(state);
+        mSelectionTracker.onRestoreInstanceState(state);
 
         if (state != null) {
             if (state.containsKey(EXTRA_COLUMN_COUNT)) {
@@ -159,7 +154,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (mSelectionHelper.clear()) {
+        if (mSelectionTracker.clearSelection()) {
             return;
         } else {
             super.onBackPressed();
@@ -172,7 +167,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        mSelectionHelper.clearSelection();
+        mSelectionTracker.clearSelection();
         super.onDestroy();
     }
 
@@ -182,30 +177,12 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         mAdapter.loadData();
     }
 
-    // Implementation of MouseInputHandler.Callbacks allows handling
-    // of higher level events, like onActivated.
-    private static final class ActivationCallbacks extends
-            androidx.recyclerview.selection.ActivationCallbacks<Uri> {
+    private static final class FocusDelegate extends
+            androidx.widget.recyclerview.selection.FocusDelegate<Uri> {
 
         private final Context mContext;
 
-        ActivationCallbacks(Context context) {
-            mContext = context;
-        }
-
-        @Override
-        public boolean onItemActivated(ItemDetails<Uri> item, MotionEvent e) {
-            toast(mContext, "Activate item: " + item.getSelectionKey());
-            return true;
-        }
-    }
-
-    private static final class FocusCallbacks extends
-            androidx.recyclerview.selection.FocusCallbacks<Uri> {
-
-        private final Context mContext;
-
-        private FocusCallbacks(Context context) {
+        private FocusDelegate(Context context) {
             mContext = context;
         }
 
@@ -230,14 +207,28 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         }
     }
 
-    // Implementation of MouseInputHandler.Callbacks allows handling
-    // of higher level events, like onActivated.
-    private static final class MouseCallbacks extends
-            androidx.recyclerview.selection.MouseCallbacks {
+    private static final class OnItemActivatedListener implements
+            androidx.widget.recyclerview.selection.OnItemActivatedListener<Uri> {
 
         private final Context mContext;
 
-        MouseCallbacks(Context context) {
+        OnItemActivatedListener(Context context) {
+            mContext = context;
+        }
+
+        @Override
+        public boolean onItemActivated(ItemDetails<Uri> item, MotionEvent e) {
+            toast(mContext, "Activate item: " + item.getSelectionKey());
+            return true;
+        }
+    }
+
+    private static final class OnContextClickListener implements
+            androidx.widget.recyclerview.selection.OnContextClickListener {
+
+        private final Context mContext;
+
+        OnContextClickListener(Context context) {
             mContext = context;
         }
 
@@ -248,12 +239,12 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         }
     };
 
-    private static final class TouchCallbacks extends
-            androidx.recyclerview.selection.TouchCallbacks {
+    private static final class OnDragInitiatedListener implements
+            androidx.widget.recyclerview.selection.OnDragInitiatedListener {
 
         private final Context mContext;
 
-        private TouchCallbacks(Context context) {
+        private OnDragInitiatedListener(Context context) {
             mContext = context;
         }
 
