@@ -36,10 +36,10 @@ import java.util.List;
  * <p>
  * The host {@link android.app.Activity} or {@link android.app.Fragment} should avoid changing
  * {@link android.support.v7.widget.RecyclerView.Adapter Adapter} data while there
- * are active selection operations as this can result in a poor user experience.
+ * are active selection operations, as this can result in a poor user experience.
  *
  * <p>
- * To known when an operation is active listen to changes using an {@link OnChangeListener}.
+ * To know when an operation is active listen to changes using an {@link OnChangeListener}.
  */
 public final class OperationMonitor {
 

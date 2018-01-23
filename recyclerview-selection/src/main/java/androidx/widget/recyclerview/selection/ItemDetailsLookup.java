@@ -93,7 +93,6 @@ public abstract class ItemDetailsLookup<K> {
      *
      * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
      */
-    // TODO: Can this be merged with ViewHolder?
     public abstract static class ItemDetails<K> {
 
         /** @return the position of an item. */
