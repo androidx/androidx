@@ -18,4 +18,8 @@ package android.arch.persistence.room.vo
 
 import javax.lang.model.element.ExecutableElement
 
-class TransactionMethod(val element: ExecutableElement, val name: String)
+class TransactionMethod(val element: ExecutableElement, val name: String, val callType: CallType) {
+    enum class CallType {
+        CONCRETE, DEFAULT_IN_INTERFACE
+    }
+}

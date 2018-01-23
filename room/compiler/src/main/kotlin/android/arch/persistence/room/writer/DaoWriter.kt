@@ -185,7 +185,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
                 } else {
                     null
                 }
-                addDelegateToSuperStatement(method.element, resultVar)
+                addDelegateToSuperStatement(method.element, method.callType, resultVar)
                 addStatement("$N.setTransactionSuccessful()", dbField)
                 if (returnsValue) {
                     addStatement("return $N", resultVar)
@@ -201,6 +201,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
 
     private fun MethodSpec.Builder.addDelegateToSuperStatement(
             element: ExecutableElement,
+            callType: TransactionMethod.CallType,
             result: String?) {
         val params: MutableList<Any> = mutableListOf()
         val format = buildString {
@@ -209,8 +210,17 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
                 params.add(element.returnType)
                 params.add(result)
             }
-            append("super.$N(")
-            params.add(element.simpleName)
+            when (callType) {
+                TransactionMethod.CallType.CONCRETE -> {
+                    append("super.$N(")
+                    params.add(element.simpleName)
+                }
+                TransactionMethod.CallType.DEFAULT_IN_INTERFACE -> {
+                    append("$N.super.$N(")
+                    params.add(element.enclosingElement.simpleName)
+                    params.add(element.simpleName)
+                }
+            }
             var first = true
             element.parameters.forEach {
                 if (first) {
