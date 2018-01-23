@@ -46,7 +46,7 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
      */
     @Override
     public void apply(Slice.Builder builder) {
-
+        builder.addHints(HINT_HORIZONTAL, HINT_LIST_ITEM);
     }
 
     /**
