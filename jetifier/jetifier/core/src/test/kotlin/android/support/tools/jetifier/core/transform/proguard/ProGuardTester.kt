@@ -85,7 +85,7 @@ class ProGuardTester {
     class ProGuardTesterForFile(private val config: Config, private val given: String) {
 
         fun rewritesTo(expected: String) {
-            val context = TransformationContext(config)
+            val context = TransformationContext(config, rewritingSupportLib = false)
             val transformer = ProGuardTransformer(context)
             val file = ArchiveFile(Paths.get("proguard.txt"), given.toByteArray())
             transformer.runTransform(file)
@@ -100,7 +100,7 @@ class ProGuardTester {
     class ProGuardTesterForType(private val config: Config, private val given: String) {
 
         fun getsRewrittenTo(expectedType: String) {
-            val context = TransformationContext(config)
+            val context = TransformationContext(config, rewritingSupportLib = false)
             val mapper = ProGuardTypesMapper(context)
             val result = mapper.replaceType(given)
 
@@ -112,7 +112,7 @@ class ProGuardTester {
     class ProGuardTesterForArgs(private val config: Config, private val given: String) {
 
         fun getRewrittenTo(expectedArguments: String) {
-            val context = TransformationContext(config)
+            val context = TransformationContext(config, rewritingSupportLib = false)
             val mapper = ProGuardTypesMapper(context)
             val result = mapper.replaceMethodArgs(given)
 
