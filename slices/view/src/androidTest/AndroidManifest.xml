@@ -16,9 +16,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.app.slice.view.test">
 
+    <uses-sdk android:targetSdkVersion="21" />
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <application>
         <provider android:name="androidx.app.slice.SliceManagerTest$TestSliceProvider"
                   android:authorities="androidx.app.slice.view.test"
                   android:exported="true"/>
+
+        <activity android:name="androidx.app.slice.render.SliceRenderActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
