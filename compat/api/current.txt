@@ -87,6 +87,7 @@ package android.support.v4.app {
     method public static void postponeEnterTransition(android.app.Activity);
     method public static android.support.v13.view.DragAndDropPermissionsCompat requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent);
     method public static void requestPermissions(android.app.Activity, java.lang.String[], int);
+    method public static <T extends android.view.View> T requireViewById(android.app.Activity, int);
     method public static void setEnterSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
     method public static void setExitSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
     method public static void setPermissionCompatDelegate(android.support.v4.app.ActivityCompat.PermissionCompatDelegate);
@@ -1725,6 +1726,7 @@ package android.support.v4.view {
     method public static void postOnAnimation(android.view.View, java.lang.Runnable);
     method public static void postOnAnimationDelayed(android.view.View, java.lang.Runnable, long);
     method public static void requestApplyInsets(android.view.View);
+    method public static <T extends android.view.View> T requireViewById(android.view.View, int);
     method public static deprecated int resolveSizeAndState(int, int, int);
     method public static boolean restoreDefaultFocus(android.view.View);
     method public static void setAccessibilityDelegate(android.view.View, android.support.v4.view.AccessibilityDelegateCompat);
@@ -1907,6 +1909,7 @@ package android.support.v4.view {
   }
 
   public final class WindowCompat {
+    method public static <T extends android.view.View> T requireViewById(android.view.Window, int);
     field public static final int FEATURE_ACTION_BAR = 8; // 0x8
     field public static final int FEATURE_ACTION_BAR_OVERLAY = 9; // 0x9
     field public static final int FEATURE_ACTION_MODE_OVERLAY = 10; // 0xa
