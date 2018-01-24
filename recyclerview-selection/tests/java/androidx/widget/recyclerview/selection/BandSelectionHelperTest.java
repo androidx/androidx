@@ -32,7 +32,6 @@ import org.junit.runner.RunWith;
 import java.util.Collections;
 import java.util.List;
 
-import androidx.widget.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.widget.recyclerview.selection.testing.TestAdapter;
 import androidx.widget.recyclerview.selection.testing.TestAutoScroller;
 import androidx.widget.recyclerview.selection.testing.TestBandPredicate;
@@ -66,12 +65,11 @@ public class BandSelectionHelperTest {
         ItemKeyProvider<String> keyProvider =
                 new TestItemKeyProvider<>(ItemKeyProvider.SCOPE_MAPPED, mAdapter);
         OperationMonitor operationMonitor = new OperationMonitor();
-        SelectionPredicate<String> selectionTest = SelectionPredicates.createSelectAnything();
 
         SelectionTracker<String> helper = new DefaultSelectionTracker<String>(
                 "band-selection-test",
                 keyProvider,
-                selectionTest,
+                SelectionPredicates.createSelectAnything(),
                 StorageStrategy.createStringStorage());
 
         EventBridge.install(mAdapter, helper, keyProvider);
@@ -82,7 +80,6 @@ public class BandSelectionHelperTest {
                 new TestAutoScroller(),
                 keyProvider,
                 helper,
-                selectionTest,
                 mBandPredicate,
                 focusDelegate,
                 operationMonitor) {

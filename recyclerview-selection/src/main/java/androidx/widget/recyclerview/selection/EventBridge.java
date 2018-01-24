@@ -83,11 +83,8 @@ public class EventBridge {
 
         @Override
         public void onItemRangeChanged(int startPosition, int itemCount, @Nullable Object payload) {
-            // No change in position. Ignore, since we assume
-            // selection is a user driven activity. So changes
-            // in properties of items shouldn't result in a
-            // change of selection.
-            // TODO: It is possible properties of items chould change to make them unselectable.
+            // No change in position. Ignore.
+            // TODO(b/72393576): Properties of items could change. Should reevaluate selected status
         }
 
         @Override
