@@ -43,12 +43,18 @@ class Main {
             isRequired = false)
         val OPTION_REVERSED = createOption("r", "Run reversed process", hasArgs = false,
             isRequired = false)
+        val OPTION_REWRITE_SUPPORT_LIB = createOption("s", "If set, all libraries being rewritten" +
+            " are assumed to be part of Support Library. Otherwise only general dependencies are" +
+            " expected.",
+            hasArgs = false, isRequired = false)
 
-        private fun createOption(argName: String,
-                                 desc: String,
-                                 hasArgs: Boolean = true,
-                                 isRequired: Boolean = true,
-                                 multiple: Boolean = false): Option {
+        private fun createOption(
+            argName: String,
+            desc: String,
+            hasArgs: Boolean = true,
+            isRequired: Boolean = true,
+            multiple: Boolean = false
+        ): Option {
             val op = Option(argName, hasArgs, desc)
             op.isRequired = isRequired
             if (multiple) {
@@ -86,12 +92,11 @@ class Main {
         }
 
         val isReversed = cmd.hasOption(OPTION_REVERSED.opt)
-        val processor = if (isReversed) {
-            Processor.createReversedProcessor(config)
-        } else {
-            Processor.createProcessor(config)
-        }
-
+        val rewriteSupportLib = cmd.hasOption(OPTION_REWRITE_SUPPORT_LIB.opt)
+        val processor = Processor.createProcessor(
+            config = config,
+            reversedMode = isReversed,
+            rewritingSupportLib = rewriteSupportLib)
         processor.transform(inputLibraries, outputPath)
     }
 

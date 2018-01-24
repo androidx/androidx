@@ -25,7 +25,7 @@ import java.util.regex.Pattern
 /**
  * Context to share the transformation state between individual [Transformer]s.
  */
-class TransformationContext(val config: Config) {
+class TransformationContext(val config: Config, val rewritingSupportLib: Boolean) {
 
     // Merges all packages prefixes into one regEx pattern
     private val packagePrefixPattern = Pattern.compile(

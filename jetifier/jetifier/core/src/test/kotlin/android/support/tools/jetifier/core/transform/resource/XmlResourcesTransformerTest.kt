@@ -107,7 +107,7 @@ class XmlResourcesTransformerTest {
                 "<android.test.pref.Preference \n" +
                 "    someAttribute=\"android.support.v7.preference.Preference\"/>",
             prefixes = listOf("android/support/"),
-            map =  mapOf(
+            map = mapOf(
                 "android/support/v7/preference/Preference" to "android/test/pref/Preference"
             )
         )
@@ -179,7 +179,8 @@ class XmlResourcesTransformerTest {
                 "</android.support.v7.preference.Preference>",
             prefixes = listOf("android/support/"),
             map = mapOf(
-                "android/support/v7/preference/Preference" to "android/support/v7/preference/Preference"
+                "android/support/v7/preference/Preference"
+                    to "android/support/v7/preference/Preference"
             )
         )
     }
@@ -215,24 +216,32 @@ class XmlResourcesTransformerTest {
                 "android/support/v14/"
             ),
             map = mapOf(
-                "android/support/v7/preference/ListPreference" to "android/test/pref/ListPref",
-                "android/support/v7/preference/Preference" to "android/test/pref/Preference",
-                "android/support/v14/preference/DialogPreference" to "android/test14/pref/DialogPreference",
-                "android/support/v21/preference/DialogPreference" to "android/test21/pref/DialogPreference"
+                "android/support/v7/preference/ListPreference"
+                    to "android/test/pref/ListPref",
+                "android/support/v7/preference/Preference"
+                    to "android/test/pref/Preference",
+                "android/support/v14/preference/DialogPreference"
+                    to "android/test14/pref/DialogPreference",
+                "android/support/v21/preference/DialogPreference"
+                    to "android/test21/pref/DialogPreference"
             )
         )
     }
 
-    private fun testRewriteToTheSame(givenAndExpectedXml: String,
-                                     prefixes: List<String>,
-                                     map: Map<String, String>) {
+    private fun testRewriteToTheSame(
+        givenAndExpectedXml: String,
+        prefixes: List<String>,
+        map: Map<String, String>
+    ) {
         testRewrite(givenAndExpectedXml, givenAndExpectedXml, prefixes, map)
     }
 
-    private fun testRewrite(givenXml : String,
-                            expectedXml : String,
-                            prefixes: List<String>,
-                            map: Map<String, String>) {
+    private fun testRewrite(
+        givenXml: String,
+        expectedXml: String,
+        prefixes: List<String>,
+        map: Map<String, String>
+    ) {
         val given =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
             "$givenXml\n"
@@ -241,9 +250,9 @@ class XmlResourcesTransformerTest {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
             "$expectedXml\n"
 
-        val typesMap = TypesMap(map.map{ JavaType(it.key) to JavaType(it.value) }.toMap())
+        val typesMap = TypesMap(map.map { JavaType(it.key) to JavaType(it.value) }.toMap())
         val config = Config(prefixes, emptyList(), emptyList(), typesMap, ProGuardTypesMap.EMPTY)
-        val context = TransformationContext(config)
+        val context = TransformationContext(config, rewritingSupportLib = false)
         val processor = XmlResourcesTransformer(context)
         val result = processor.transform(given.toByteArray())
         val strResult = result.toString(Charset.defaultCharset())

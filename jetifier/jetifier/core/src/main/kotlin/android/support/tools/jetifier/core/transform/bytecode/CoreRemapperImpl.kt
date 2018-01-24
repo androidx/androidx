@@ -23,6 +23,7 @@ import android.support.tools.jetifier.core.transform.bytecode.asm.CustomRemapper
 import android.support.tools.jetifier.core.utils.Log
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.commons.ClassRemapper
+import java.nio.file.Path
 
 /**
  * Applies mappings defined in [TypesMap] during the remapping process.
@@ -70,5 +71,25 @@ class CoreRemapperImpl(private val context: TransformationContext) : CoreRemappe
         // We do not treat string content mismatches as errors
         return value
     }
-}
 
+    fun rewritePath(path: Path): Path {
+        if (!context.rewritingSupportLib) {
+            return path
+        }
+
+        val owner = path.toFile().path.replace('\\', '/').removeSuffix(".class")
+        val type = JavaType(owner)
+        if (!context.isEligibleForRewrite(type)) {
+            return path
+        }
+
+        val result = rewriteType(type)
+        if (result != type) {
+            return path.fileSystem.getPath(result.fullName + ".class")
+        }
+
+        context.reportNoMappingFoundFailure()
+        Log.e(TAG, "No mapping for: " + type)
+        return path
+    }
+}

@@ -17,7 +17,6 @@
 package android.support.tools.jetifier.core.transform.bytecode
 
 import android.support.tools.jetifier.core.archive.ArchiveFile
-import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.transform.Transformer
 import org.objectweb.asm.ClassReader
@@ -30,7 +29,6 @@ class ByteCodeTransformer internal constructor(context: TransformationContext) :
 
     private val remapper: CoreRemapperImpl = CoreRemapperImpl(context)
 
-
     override fun canTransform(file: ArchiveFile) = file.isClassFile()
 
     override fun runTransform(file: ArchiveFile) {
@@ -42,5 +40,6 @@ class ByteCodeTransformer internal constructor(context: TransformationContext) :
         reader.accept(visitor, 0 /* flags */)
 
         file.data = writer.toByteArray()
+        file.updateRelativePath(remapper.rewritePath(file.relativePath))
     }
 }

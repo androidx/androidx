@@ -37,7 +37,8 @@ import java.nio.file.Path
  * the registered [Transformer]s over the set and creates new archives that will contain the
  * transformed files.
  */
-class Processor private constructor (private val config: Config) : ArchiveItemVisitor {
+class Processor private constructor (private val context: TransformationContext)
+    : ArchiveItemVisitor {
 
     companion object {
         private const val TAG = "Processor"
@@ -49,27 +50,31 @@ class Processor private constructor (private val config: Config) : ArchiveItemVi
 
         /**
          * Creates a new instance of the [Processor].
+         * [config] Transformation configuration
+         * [reversedMode] Whether the processor should run in reversed mode
+         * [rewritingSupportLib] Whether we are rewriting the support library itself
          */
-        fun createProcessor(config: Config): Processor {
-            return Processor(config)
-        }
+        fun createProcessor(
+            config: Config,
+            reversedMode: Boolean = false,
+            rewritingSupportLib: Boolean = false
+        ): Processor {
+            var newConfig = config
 
-        /**
-         * Create a new instance of the [Processor] to run in reversed mode.
-         */
-        fun createReversedProcessor(config: Config): Processor {
-            val reversedConfig = Config(
-                restrictToPackagePrefixes = listOf(REVERSE_RESTRICT_TO_PACKAGE),
-                rewriteRules = emptyList(), // We don't need those
-                pomRewriteRules = emptyList(), // TODO: This will need a new set of rules
-                typesMap = config.typesMap.reverseMapOrDie(),
-                proGuardMap = config.proGuardMap.reverseMapOrDie()
-            )
-            return Processor(reversedConfig)
+            if (reversedMode) {
+                newConfig = Config(
+                    restrictToPackagePrefixes = listOf(REVERSE_RESTRICT_TO_PACKAGE),
+                    rewriteRules = emptyList(), // We don't need those
+                    pomRewriteRules = emptyList(), // TODO: This will need a new set of rules
+                    typesMap = config.typesMap.reverseMapOrDie(),
+                    proGuardMap = config.proGuardMap.reverseMapOrDie()
+                )
+            }
+
+            val context = TransformationContext(newConfig, rewritingSupportLib)
+            return Processor(context)
         }
     }
-
-    private val context = TransformationContext(config)
 
     private val transformers = listOf(
             // Register your transformers here
@@ -130,7 +135,7 @@ class Processor private constructor (private val config: Config) : ArchiveItemVi
     }
 
     private fun scanPomFiles(libraries: List<Archive>): List<PomDocument> {
-        val scanner = PomScanner(config)
+        val scanner = PomScanner(context.config)
 
         libraries.forEach { scanner.scanArchiveForPomFile(it) }
         if (scanner.wasErrorFound()) {
@@ -143,7 +148,7 @@ class Processor private constructor (private val config: Config) : ArchiveItemVi
 
     private fun transformPomFiles(files: List<PomDocument>) {
         files.forEach {
-            it.applyRules(config.pomRewriteRules)
+            it.applyRules(context.config.pomRewriteRules)
             it.saveBackToFileIfNeeded()
         }
     }
