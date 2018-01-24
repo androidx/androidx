@@ -77,7 +77,7 @@ final class MotionEvents {
         return isButtonPressed(e, MotionEvent.BUTTON_TERTIARY);
     }
 
-    // TODO: Replace with MotionEvent.isButtonPressed once targeting 21 or higher.
+    // NOTE: Can replace this with MotionEvent.isButtonPressed once targeting 21 or higher.
     private static boolean isButtonPressed(MotionEvent e, int button) {
         if (button == 0) {
             return false;

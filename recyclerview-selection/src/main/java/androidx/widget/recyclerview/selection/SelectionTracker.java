@@ -189,9 +189,12 @@ public abstract class SelectionTracker<K> {
     abstract void onDataSetChanged();
 
     /**
-     * Specifies the "anchor" item position denoting the beginning of a range.
+     * Attempts to establish a range selection at {@code position}, selecting the item
+     * at {@code position} if needed.
      *
-     * @param position The anchor position for the selection range.
+     * @param position The "anchor" position for the range. Subsequent range operations
+     *                 (primarily keyboard and mouse based operations like SHIFT + click)
+     *                 work with the established anchor point to define selection ranges.
      */
     abstract void startRange(int position);
 
@@ -245,7 +248,9 @@ public abstract class SelectionTracker<K> {
      */
     abstract void setProvisionalSelection(@NonNull Set<K> newSelection);
 
-    /** Clears any existing provisional selection */
+    /**
+     * Clears any existing provisional selection
+     */
     abstract void clearProvisionalSelection();
 
     /**
@@ -780,8 +785,6 @@ public abstract class SelectionTracker<K> {
 
             // Band selection not supported in single select mode, or when key access
             // is limited to anything less than the entire corpus.
-            // TODO: Since we cach grid info from laid out items, we could cache key too.
-            // Then we couldn't have to limit to CORPUS access.
             if (mKeyProvider.hasAccess(ItemKeyProvider.SCOPE_MAPPED)
                     && mSelectionPredicate.canSelectMultiple()) {
                 // BandSelectionHelper provides support for band selection on-top of a RecyclerView

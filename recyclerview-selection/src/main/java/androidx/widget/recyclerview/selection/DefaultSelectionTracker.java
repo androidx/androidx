@@ -242,8 +242,10 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
 
     @Override
     public void startRange(int position) {
-        select(mKeyProvider.getKey(position));
-        anchorRange(position);
+        if (mSelection.contains(mKeyProvider.getKey(position))
+                || select(mKeyProvider.getKey(position))) {
+            anchorRange(position);
+        }
     }
 
     @Override
