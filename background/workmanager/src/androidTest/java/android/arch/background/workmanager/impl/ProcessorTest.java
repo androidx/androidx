@@ -60,7 +60,7 @@ public class ProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testProcess_doesNotProcessTwice() {
-        Work work = Work.newBuilder(InfiniteTestWorker.class).build();
+        Work work = new Work.Builder(InfiniteTestWorker.class).build();
         String id = work.getId();
         insertWork(work);
         assertThat(mProcessor.process(id), is(true));
@@ -70,7 +70,7 @@ public class ProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testHasWork() {
-        Work work = Work.newBuilder(InfiniteTestWorker.class).build();
+        Work work = new Work.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
         assertThat(mProcessor.hasWork(), is(false));

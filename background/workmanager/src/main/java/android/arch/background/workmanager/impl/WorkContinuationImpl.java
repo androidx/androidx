@@ -179,7 +179,7 @@ public class WorkContinuationImpl extends WorkContinuation {
             @NonNull WorkContinuation... continuations) {
 
         if (work == null) {
-            work = Work.newBuilder(JoinWorker.class).build();
+            work = new Work.Builder(JoinWorker.class).build();
         }
 
         List<WorkContinuationImpl> parents = new ArrayList<>(continuations.length);

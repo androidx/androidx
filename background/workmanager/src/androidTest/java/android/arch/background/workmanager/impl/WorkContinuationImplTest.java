@@ -247,6 +247,6 @@ public class WorkContinuationImplTest {
     }
 
     private static Work createTestWorker() {
-        return Work.newBuilder(TestWorker.class).build();
+        return new Work.Builder(TestWorker.class).build();
     }
 }

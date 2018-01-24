@@ -138,7 +138,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final int workCount = 3;
         final Work[] workArray = new Work[workCount];
         for (int i = 0; i < workCount; ++i) {
-            workArray[i] = Work.newBuilder(TestWorker.class).build();
+            workArray[i] = new Work.Builder(TestWorker.class).build();
         }
         mWorkManagerImpl.createWith(workArray[0]).then(workArray[1]).then(workArray[2]).enqueue();
 
@@ -155,9 +155,9 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testEnqueue_insertMultipleWork() {
-        Work work1 = Work.newBuilder(TestWorker.class).build();
-        Work work2 = Work.newBuilder(TestWorker.class).build();
-        Work work3 = Work.newBuilder(TestWorker.class).build();
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        Work work3 = new Work.Builder(TestWorker.class).build();
 
         mWorkManagerImpl.enqueue(work1, work2, work3);
 
@@ -170,11 +170,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testEnqueue_insertWithDependencies() {
-        Work work1a = Work.newBuilder(TestWorker.class).build();
-        Work work1b = Work.newBuilder(TestWorker.class).build();
-        Work work2 = Work.newBuilder(TestWorker.class).build();
-        Work work3a = Work.newBuilder(TestWorker.class).build();
-        Work work3b = Work.newBuilder(TestWorker.class).build();
+        Work work1a = new Work.Builder(TestWorker.class).build();
+        Work work1b = new Work.Builder(TestWorker.class).build();
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        Work work3a = new Work.Builder(TestWorker.class).build();
+        Work work3b = new Work.Builder(TestWorker.class).build();
 
         mWorkManagerImpl.createWith(work1a, work1b).then(work2).then(work3a, work3b).enqueue();
 
@@ -204,7 +204,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testEnqueue_insertWithCompletedDependencies_isNotStatusBlocked() {
-        Work work1 = Work.newBuilder(TestWorker.class).build();
+        Work work1 = new Work.Builder(TestWorker.class).build();
 
         mLifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.STARTED);
         WorkContinuation workContinuation = mWorkManagerImpl.createWith(work1);
@@ -213,7 +213,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(workSpecDao.getWorkSpecStatus(work1.getId()), is(STATUS_SUCCEEDED));
 
         mLifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.CREATED);
-        Work work2 = Work.newBuilder(TestWorker.class).build();
+        Work work2 = new Work.Builder(TestWorker.class).build();
         workContinuation.then(work2).enqueue();
         assertThat(workSpecDao.getWorkSpecStatus(work2.getId()), is(STATUS_ENQUEUED));
     }
@@ -224,7 +224,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Uri testUri1 = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         Uri testUri2 = MediaStore.Images.Media.INTERNAL_CONTENT_URI;
 
-        Work work0 = Work.newBuilder(TestWorker.class)
+        Work work0 = new Work.Builder(TestWorker.class)
                 .withConstraints(
                         new Constraints.Builder()
                                 .setRequiresCharging(true)
@@ -236,7 +236,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
                                 .addContentUriTrigger(testUri2, false)
                                 .build())
                 .build();
-        Work work1 = Work.newBuilder(TestWorker.class).build();
+        Work work1 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl.createWith(work0).then(work1).enqueue();
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
@@ -269,10 +269,10 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @SmallTest
     public void testEnqueue_insertWorkInitialDelay() {
         final long expectedInitialDelay = 5000L;
-        Work work0 = Work.newBuilder(TestWorker.class)
+        Work work0 = new Work.Builder(TestWorker.class)
                 .withInitialDelay(expectedInitialDelay)
                 .build();
-        Work work1 = Work.newBuilder(TestWorker.class).build();
+        Work work1 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl.createWith(work0).then(work1).enqueue();
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
@@ -285,10 +285,10 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testEnqueue_insertWorkBackoffPolicy() {
-        Work work0 = Work.newBuilder(TestWorker.class)
+        Work work0 = new Work.Builder(TestWorker.class)
                 .withBackoffCriteria(BaseWork.BACKOFF_POLICY_LINEAR, 50000)
                 .build();
-        Work work1 = Work.newBuilder(TestWorker.class).build();
+        Work work1 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl.createWith(work0).then(work1).enqueue();
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
@@ -308,9 +308,9 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String secondTag = "second_tag";
         final String thirdTag = "third_tag";
 
-        Work work0 = Work.newBuilder(TestWorker.class).addTag(firstTag).addTag(secondTag).build();
-        Work work1 = Work.newBuilder(TestWorker.class).addTag(firstTag).build();
-        Work work2 = Work.newBuilder(TestWorker.class).build();
+        Work work0 = new Work.Builder(TestWorker.class).addTag(firstTag).addTag(secondTag).build();
+        Work work1 = new Work.Builder(TestWorker.class).addTag(firstTag).build();
+        Work work2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl.createWith(work0).then(work1).then(work2).enqueue();
 
         WorkTagDao workTagDao = mDatabase.workTagDao();
@@ -323,7 +323,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testEnqueue_insertPeriodicWork() {
-        PeriodicWork periodicWork = PeriodicWork.newBuilder(
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
                 TestWorker.class,
                 PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
                 .build();
@@ -338,7 +338,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testEnqueued_work_setsPeriodStartTime() {
-        Work work = Work.newBuilder(TestWorker.class).build();
+        Work work = new Work.Builder(TestWorker.class).build();
         assertThat(getWorkSpec(work).getPeriodStartTime(), is(0L));
 
         long beforeEnqueueTime = System.currentTimeMillis();
@@ -352,7 +352,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testEnqueued_periodicWork_setsPeriodStartTime() {
-        PeriodicWork periodicWork = PeriodicWork.newBuilder(
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
                 TestWorker.class,
                 PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
                 .build();
@@ -371,7 +371,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testUniqueTagSequence_setsUniqueTag() {
         final String testTag = "mytag";
 
-        Work work = Work.newBuilder(TestWorker.class).build();
+        Work work = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl.createWithUniqueTag(testTag, WorkManager.REPLACE_EXISTING_WORK)
                 .then(work)
                 .enqueue();
@@ -385,11 +385,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testUniqueTagSequence_deletesOldTagsOnReplace() {
         final String testTag = "mytag";
 
-        Work originalWork = Work.newBuilder(TestWorker.class).addTag(testTag).build();
+        Work originalWork = new Work.Builder(TestWorker.class).addTag(testTag).build();
         insertWorkSpecAndTags(originalWork);
 
-        Work replacementWork1 = Work.newBuilder(TestWorker.class).build();
-        Work replacementWork2 = Work.newBuilder(TestWorker.class).build();
+        Work replacementWork1 = new Work.Builder(TestWorker.class).build();
+        Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
                 .createWithUniqueTag(testTag, WorkManager.REPLACE_EXISTING_WORK, replacementWork1)
                 .then(replacementWork2)
@@ -411,11 +411,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testUniqueTagSequence_keepsExistingWorkOnKeep() {
         final String testTag = "mytag";
 
-        Work originalWork = Work.newBuilder(TestWorker.class).addTag(testTag).build();
+        Work originalWork = new Work.Builder(TestWorker.class).addTag(testTag).build();
         insertWorkSpecAndTags(originalWork);
 
-        Work replacementWork1 = Work.newBuilder(TestWorker.class).build();
-        Work replacementWork2 = Work.newBuilder(TestWorker.class).build();
+        Work replacementWork1 = new Work.Builder(TestWorker.class).build();
+        Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
                 .createWithUniqueTag(testTag, WorkManager.KEEP_EXISTING_WORK, replacementWork1)
                 .then(replacementWork2)
@@ -434,8 +434,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @SmallTest
     @SuppressWarnings("unchecked")
     public void testGetStatuses() {
-        Work work0 = Work.newBuilder(TestWorker.class).build();
-        Work work1 = Work.newBuilder(TestWorker.class).build();
+        Work work0 = new Work.Builder(TestWorker.class).build();
+        Work work1 = new Work.Builder(TestWorker.class).build();
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
 
@@ -484,8 +484,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testCancelWorkForId() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
-        Work work0 = Work.newBuilder(TestWorker.class).build();
-        Work work1 = Work.newBuilder(TestWorker.class).build();
+        Work work0 = new Work.Builder(TestWorker.class).build();
+        Work work1 = new Work.Builder(TestWorker.class).build();
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
 
@@ -503,10 +503,10 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String tagToClear = "tag_to_clear";
         final String tagNotToClear = "tag_not_to_clear";
 
-        Work work0 = Work.newBuilder(TestWorker.class).addTag(tagToClear).build();
-        Work work1 = Work.newBuilder(TestWorker.class).addTag(tagToClear).build();
-        Work work2 = Work.newBuilder(TestWorker.class).addTag(tagNotToClear).build();
-        Work work3 = Work.newBuilder(TestWorker.class).addTag(tagNotToClear).build();
+        Work work0 = new Work.Builder(TestWorker.class).addTag(tagToClear).build();
+        Work work1 = new Work.Builder(TestWorker.class).addTag(tagToClear).build();
+        Work work2 = new Work.Builder(TestWorker.class).addTag(tagNotToClear).build();
+        Work work3 = new Work.Builder(TestWorker.class).addTag(tagNotToClear).build();
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
         insertWorkSpecAndTags(work2);
@@ -525,11 +525,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testCancelAllWorkWithTag_deletesDependentWork() {
         String tag = "tag";
 
-        Work work0 = Work.newBuilder(TestWorker.class).addTag(tag).build();
-        Work work1 = Work.newBuilder(TestWorker.class).build();
-        Work work2 = Work.newBuilder(TestWorker.class).build();
-        Work work3 = Work.newBuilder(TestWorker.class).build();
-        Work work4 = Work.newBuilder(TestWorker.class).build();
+        Work work0 = new Work.Builder(TestWorker.class).addTag(tag).build();
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        Work work3 = new Work.Builder(TestWorker.class).build();
+        Work work4 = new Work.Builder(TestWorker.class).build();
 
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
@@ -571,15 +571,15 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testPruneDatabase() {
-        Work enqueuedWork = Work.newBuilder(TestWorker.class).build();
+        Work enqueuedWork = new Work.Builder(TestWorker.class).build();
         Work finishedPrerequisiteWork1A =
-                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedPrerequisiteWork1B =
-                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedPrerequisiteWork2 =
-                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedFinalWork =
-                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
 
         insertWorkSpecAndTags(enqueuedWork);
         insertWorkSpecAndTags(finishedPrerequisiteWork1A);
@@ -614,7 +614,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
-        Work work = Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_RUNNING).build();
+        Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_RUNNING).build();
         workSpecDao.insertWorkSpec(getWorkSpec(work));
 
         assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(STATUS_RUNNING));

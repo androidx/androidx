@@ -39,7 +39,7 @@ public class WorkSpecTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_firstRunAttempt_oneOff() {
-        Work work = Work.newBuilder(InfiniteTestWorker.class)
+        Work work = new Work.Builder(InfiniteTestWorker.class)
                 .withInitialDelay(DEFAULT_INITIAL_DELAY_TIME_MS)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
@@ -50,7 +50,7 @@ public class WorkSpecTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_firstRunAttempt_periodic() {
-        PeriodicWork periodicWork = PeriodicWork.newBuilder(
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
                 InfiniteTestWorker.class, DEFAULT_INTERVAL_TIME_MS, DEFAULT_FLEX_TIME_MS)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
@@ -61,19 +61,19 @@ public class WorkSpecTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_exponential() {
-        Work work1 = Work.newBuilder(InfiniteTestWorker.class)
+        Work work1 = new Work.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BaseWork.BACKOFF_POLICY_EXPONENTIAL, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(1)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        Work work2 = Work.newBuilder(InfiniteTestWorker.class)
+        Work work2 = new Work.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BaseWork.BACKOFF_POLICY_EXPONENTIAL, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(2)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        Work work3 = Work.newBuilder(InfiniteTestWorker.class)
+        Work work3 = new Work.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BaseWork.BACKOFF_POLICY_EXPONENTIAL, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(3)
@@ -94,17 +94,17 @@ public class WorkSpecTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_linear() {
-        Work work1 = Work.newBuilder(InfiniteTestWorker.class)
+        Work work1 = new Work.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(BaseWork.BACKOFF_POLICY_LINEAR, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(1)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        Work work2 = Work.newBuilder(InfiniteTestWorker.class)
+        Work work2 = new Work.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(BaseWork.BACKOFF_POLICY_LINEAR, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(2)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
                 .build();
-        Work work3 = Work.newBuilder(InfiniteTestWorker.class)
+        Work work3 = new Work.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(BaseWork.BACKOFF_POLICY_LINEAR, DEFAULT_BACKOFF_DELAY_TIME_MS)
                 .withInitialRunAttemptCount(3)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME)
@@ -123,7 +123,7 @@ public class WorkSpecTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_linear_upperBound() {
-        Work work = Work.newBuilder(InfiniteTestWorker.class)
+        Work work = new Work.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BaseWork.BACKOFF_POLICY_LINEAR, BaseWork.MAX_BACKOFF_MILLIS + 1)
                 .withInitialRunAttemptCount(1)
@@ -136,7 +136,7 @@ public class WorkSpecTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_exponential_upperBound() {
-        Work work = Work.newBuilder(InfiniteTestWorker.class)
+        Work work = new Work.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BaseWork.BACKOFF_POLICY_EXPONENTIAL, BaseWork.MAX_BACKOFF_MILLIS + 1)
                 .withInitialRunAttemptCount(1)

@@ -58,7 +58,7 @@ public class BackgroundProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testOnExecuted() throws InterruptedException {
-        Work work = Work.newBuilder(TestWorker.class).build();
+        Work work = new Work.Builder(TestWorker.class).build();
         String workSpecId = work.getId();
 
         insertWork(work);

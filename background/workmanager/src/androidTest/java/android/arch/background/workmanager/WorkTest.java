@@ -36,7 +36,7 @@ public class WorkTest extends WorkManagerTest {
 
     @Before
     public void setUp() {
-        mBuilder = Work.newBuilder(TestWorker.class);
+        mBuilder = new Work.Builder(TestWorker.class);
     }
 
     @Test
