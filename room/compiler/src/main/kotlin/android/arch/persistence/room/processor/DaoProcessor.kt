@@ -126,7 +126,6 @@ class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: D
             member.hasAnnotation(Transaction::class)
                     && member.kind == ElementKind.METHOD
                     && PROCESSED_ANNOTATIONS.none { member.hasAnnotation(it) }
-            // TODO: Exclude abstract methods and let @Query handle that case
         }.map {
             TransactionMethodProcessor(
                     baseContext = context,
