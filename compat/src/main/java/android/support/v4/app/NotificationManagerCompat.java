@@ -190,7 +190,7 @@ public final class NotificationManagerCompat {
      * @param id the ID of the notification
      * @param notification the notification to post to the system
      */
-    public void notify(int id, Notification notification) {
+    public void notify(int id, @NonNull Notification notification) {
         notify(null, id, notification);
     }
 
