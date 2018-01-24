@@ -301,10 +301,10 @@ public class ShortcutInfoCompat {
         public ShortcutInfoCompat build() {
             // Verify the arguments
             if (TextUtils.isEmpty(mInfo.mLabel)) {
-                throw new IllegalArgumentException("Shortcut much have a non-empty label");
+                throw new IllegalArgumentException("Shortcut must have a non-empty label");
             }
             if (mInfo.mIntents == null || mInfo.mIntents.length == 0) {
-                throw new IllegalArgumentException("Shortcut much have an intent");
+                throw new IllegalArgumentException("Shortcut must have an intent");
             }
             return mInfo;
         }
