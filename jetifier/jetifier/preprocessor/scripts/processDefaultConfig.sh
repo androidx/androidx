@@ -68,7 +68,6 @@ function getPreRenamedSupportLib() {
 	INPUT_FILENAME="top-of-tree-m2repository-$SUPPORT_LIBS_BUILD_NUMBER.zip"
 	printSectionStart "Downloading all affected support libraries"
 	mkdir -p "$SUPPORT_LIBS_DOWNLOADED"
-	cd "$SUPPORT_LIBS_DOWNLOADED"
 
 	if [ "$FETCH_ARTIFACT" == "" ]; then
 		if which fetch_artifact; then
@@ -78,10 +77,15 @@ function getPreRenamedSupportLib() {
 	if [ ! -f "$FETCH_ARTIFACT" ]; then
 		die "fetch_artifact not found. Please set the environment variable FETCH_ARTIFACT equal to the path of fetch_artifact and try again"
 	fi
-	"$FETCH_ARTIFACT" --bid "$SUPPORT_LIBS_BUILD_NUMBER" --target support_library "$INPUT_FILENAME"
+
+	cd "$SUPPORT_LIBS_DOWNLOADED"
+	"$FETCH_ARTIFACT" --bid "$SUPPORT_LIBS_BUILD_NUMBER" --target support_library "$INPUT_FILENAME" "$SUPPORT_LIBS_DOWNLOADED/support-lib-${SUPPORT_LIBS_BUILD_NUMBER}.zip"
+	"$FETCH_ARTIFACT" --bid "$SUPPORT_LIBS_BUILD_NUMBER" --target support_library_app_toolkit "$INPUT_FILENAME" "$SUPPORT_LIBS_DOWNLOADED/arch-${SUPPORT_LIBS_BUILD_NUMBER}.zip"
 	cd -
 
-	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/$INPUT_FILENAME" -d "$SUPPORT_LIBS_UNPACKED"
+
+	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/support-lib-${SUPPORT_LIBS_BUILD_NUMBER}.zip" -d "$SUPPORT_LIBS_UNPACKED"
+	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/arch-${SUPPORT_LIBS_BUILD_NUMBER}.zip" -d "$SUPPORT_LIBS_UNPACKED"
 }
 getPreRenamedSupportLib
 
