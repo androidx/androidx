@@ -24,6 +24,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
@@ -342,6 +343,89 @@ public class PlaybackTransportRowPresenterTest {
         verifyGetThumbCalls(1, 2, provider, positions);
     }
 
+    @Test
+    public void playSeekToZero() {
+        when(mImpl.isPrepared()).thenReturn(true);
+        when(mImpl.getCurrentPosition()).thenReturn(0L);
+        when(mImpl.getDuration()).thenReturn(20000L);
+        when(mImpl.getBufferedPosition()).thenReturn(321L);
+        mImpl.getCallback().onCurrentPositionChanged(mImpl);
+        mImpl.getCallback().onDurationChanged(mImpl);
+        mImpl.getCallback().onBufferedPositionChanged(mImpl);
+
+        PlaybackSeekProviderSample provider = Mockito.spy(
+                new PlaybackSeekProviderSample(10000L, 101));
+        final long[] positions = provider.getSeekPositions();
+        mGlue.setSeekProvider(provider);
+
+        // start play
+        mGlue.play();
+        verify(mImpl).play();
+
+        // focus to seek bar
+        mViewHolder.mProgressBar.requestFocus();
+        assertTrue(mViewHolder.mProgressBar.hasFocus());
+
+        // using DPAD_RIGHT to initiate seeking
+        sendKeyUIThread(KeyEvent.KEYCODE_DPAD_RIGHT);
+        sendKeyUIThread(KeyEvent.KEYCODE_DPAD_RIGHT);
+        verifyAtHeroIndex(positions, 2);
+        // press DPAD_CENTER to seek to new position and continue play
+        sendKeyUIThread(KeyEvent.KEYCODE_DPAD_CENTER);
+        verify(mImpl).seekTo(positions[2]);
+        verify(mImpl).play();
+
+        // press DPAD_LEFT seek to 0
+        sendKeyUIThread(KeyEvent.KEYCODE_DPAD_LEFT);
+        sendKeyUIThread(KeyEvent.KEYCODE_DPAD_LEFT);
+        verifyAtHeroIndex(positions, 0);
+        // press DPAD_CENTER to continue play from 0
+        sendKeyUIThread(KeyEvent.KEYCODE_DPAD_CENTER);
+        verify(mImpl).seekTo(0);
+        verify(mImpl).play();
+    }
+
+    @Test
+    public void playSeekAndCancel() {
+        when(mImpl.isPrepared()).thenReturn(true);
+        when(mImpl.getCurrentPosition()).thenReturn(0L);
+        when(mImpl.getDuration()).thenReturn(20000L);
+        when(mImpl.getBufferedPosition()).thenReturn(321L);
+        mImpl.getCallback().onCurrentPositionChanged(mImpl);
+        mImpl.getCallback().onDurationChanged(mImpl);
+        mImpl.getCallback().onBufferedPositionChanged(mImpl);
+
+        PlaybackSeekProviderSample provider = Mockito.spy(
+                new PlaybackSeekProviderSample(10000L, 101));
+        final long[] positions = provider.getSeekPositions();
+        mGlue.setSeekProvider(provider);
+
+        // start play
+        mGlue.play();
+        verify(mImpl).play();
+
+        // focus to seek bar
+        mViewHolder.mProgressBar.requestFocus();
+        assertTrue(mViewHolder.mProgressBar.hasFocus());
+
+        // using DPAD_RIGHT to initiate seeking
+        sendKeyUIThread(KeyEvent.KEYCODE_DPAD_RIGHT);
+        sendKeyUIThread(KeyEvent.KEYCODE_DPAD_RIGHT);
+        verifyAtHeroIndex(positions, 2);
+        // press DPAD_CENTER to seek to new position and continue play
+        sendKeyUIThread(KeyEvent.KEYCODE_DPAD_CENTER);
+        verify(mImpl).seekTo(positions[2]);
+        verify(mImpl).play();
+
+        // press DPAD_LEFT seek to 0
+        sendKeyUIThread(KeyEvent.KEYCODE_DPAD_LEFT);
+        sendKeyUIThread(KeyEvent.KEYCODE_DPAD_LEFT);
+        verifyAtHeroIndex(positions, 0);
+        // press BACK to cancel and continue play from position before seek
+        sendKeyUIThread(KeyEvent.KEYCODE_BACK);
+        verify(mImpl).seekTo(positions[2]);
+        verify(mImpl).play();
+    }
 
     @Test
     public void seekHoldKeyDown() {
