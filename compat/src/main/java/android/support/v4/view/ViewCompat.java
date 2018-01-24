@@ -2435,6 +2435,30 @@ public class ViewCompat {
     }
 
     /**
+     * Finds the first descendant view with the given ID, the view itself if the ID matches
+     * {@link View#getId()}, or throws an IllegalArgumentException if the ID is invalid or there
+     * is no matching view in the hierarchy.
+     * <p>
+     * <strong>Note:</strong> In most cases -- depending on compiler support --
+     * the resulting view is automatically cast to the target class type. If
+     * the target class type is unconstrained, an explicit cast may be
+     * necessary.
+     *
+     * @param id the ID to search for
+     * @return a view with given ID
+     * @see View#findViewById(int)
+     */
+    @NonNull
+    public static <T extends View> T requireViewById(@NonNull View view, @IdRes int id) {
+        // TODO: use and link to View#requireViewById() directly, once available
+        T targetView = view.findViewById(id);
+        if (targetView == null) {
+            throw new IllegalArgumentException("ID does not reference a View inside this View");
+        }
+        return targetView;
+    }
+
+    /**
      * Indicates whether this View is opaque. An opaque View guarantees that it will
      * draw all the pixels overlapping its bounds using a fully opaque color.
      *
