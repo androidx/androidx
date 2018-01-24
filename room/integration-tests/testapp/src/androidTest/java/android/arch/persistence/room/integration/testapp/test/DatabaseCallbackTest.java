@@ -50,26 +50,38 @@ public class DatabaseCallbackTest {
     public void createAndOpen() {
         Context context = InstrumentationRegistry.getTargetContext();
         TestDatabaseCallback callback1 = new TestDatabaseCallback();
-        TestDatabase db1 = Room.databaseBuilder(context, TestDatabase.class, "test")
-                .addCallback(callback1)
-                .build();
-        assertFalse(callback1.mCreated);
-        assertFalse(callback1.mOpened);
-        User user1 = TestUtil.createUser(3);
-        user1.setName("george");
-        db1.getUserDao().insert(user1);
-        assertTrue(callback1.mCreated);
-        assertTrue(callback1.mOpened);
-        TestDatabaseCallback callback2 = new TestDatabaseCallback();
-        TestDatabase db2 = Room.databaseBuilder(context, TestDatabase.class, "test")
-                .addCallback(callback2)
-                .build();
-        assertFalse(callback2.mCreated);
-        assertFalse(callback2.mOpened);
-        User user2 = db2.getUserDao().load(3);
-        assertThat(user2.getName(), is("george"));
-        assertFalse(callback2.mCreated); // Not called; already created by db1
-        assertTrue(callback2.mOpened);
+        TestDatabase db1 = null;
+        TestDatabase db2 = null;
+        try {
+            db1 = Room.databaseBuilder(context, TestDatabase.class, "test")
+                    .addCallback(callback1)
+                    .build();
+            assertFalse(callback1.mCreated);
+            assertFalse(callback1.mOpened);
+            User user1 = TestUtil.createUser(3);
+            user1.setName("george");
+            db1.getUserDao().insert(user1);
+            assertTrue(callback1.mCreated);
+            assertTrue(callback1.mOpened);
+            TestDatabaseCallback callback2 = new TestDatabaseCallback();
+            db2 = Room.databaseBuilder(context, TestDatabase.class, "test")
+                    .addCallback(callback2)
+                    .build();
+            assertFalse(callback2.mCreated);
+            assertFalse(callback2.mOpened);
+            User user2 = db2.getUserDao().load(3);
+            assertThat(user2.getName(), is("george"));
+            assertFalse(callback2.mCreated); // Not called; already created by db1
+            assertTrue(callback2.mOpened);
+        } finally {
+            if (db1 != null) {
+                db1.close();
+            }
+            if (db2 != null) {
+                db2.close();
+            }
+            assertTrue(context.deleteDatabase("test"));
+        }
     }
 
     @Test
