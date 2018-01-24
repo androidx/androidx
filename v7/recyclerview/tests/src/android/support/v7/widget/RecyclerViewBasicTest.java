@@ -31,11 +31,14 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.recyclerview.test.R;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,7 +69,7 @@ public class RecyclerViewBasicTest {
     }
 
     private Context getContext() {
-        return InstrumentationRegistry.getContext();
+        return InstrumentationRegistry.getTargetContext();
     }
 
     @Test
@@ -364,6 +367,40 @@ public class RecyclerViewBasicTest {
 
         mRecyclerView.smoothScrollBy(0, -100);
         assertSame(RecyclerView.sQuinticInterpolator, mRecyclerView.mViewFlinger.mInterpolator);
+    }
+
+    @Test
+    public void createAttachedException() {
+        mRecyclerView.setAdapter(new RecyclerView.Adapter() {
+            @NonNull
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                    int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_view, parent, true)
+                        .findViewById(R.id.item_view); // find child, since parent is returned
+                return new RecyclerView.ViewHolder(view) {};
+            }
+
+            @Override
+            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+                fail("shouldn't get here, should throw during create");
+            }
+
+            @Override
+            public int getItemCount() {
+                return 1;
+            }
+        });
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        try {
+            measure();
+            //layout();
+            fail("IllegalStateException expected");
+        } catch (IllegalStateException e) {
+            // expected
+        }
     }
 
     @Test
