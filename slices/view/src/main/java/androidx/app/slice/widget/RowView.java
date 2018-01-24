@@ -129,9 +129,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
      */
     @Override
     public void setSliceItem(SliceItem slice, boolean isHeader, int index,
-            SliceView.SliceObserver observer) {
+            SliceView.OnSliceActionListener observer) {
+        setSliceActionListener(observer);
         mInSmallMode = false;
-        setSliceObserver(observer);
         mRowIndex = index;
         mIsHeader = isHeader;
         mRowContent = new RowContent(slice, !mIsHeader /* showStartItem */);

@@ -62,7 +62,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     private final Context mContext;
     private List<SliceWrapper> mSlices = new ArrayList<>();
 
-    private SliceView.SliceObserver mSliceObserver;
+    private SliceView.OnSliceActionListener mSliceObserver;
     private int mColor;
     private AttributeSet mAttrs;
 
@@ -71,7 +71,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         setHasStableIds(true);
     }
 
-    public void setSliceObserver(SliceView.SliceObserver observer) {
+    public void setSliceObserver(SliceView.OnSliceActionListener observer) {
         mSliceObserver = observer;
     }
 

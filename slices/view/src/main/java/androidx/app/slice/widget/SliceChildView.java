@@ -34,7 +34,7 @@ import androidx.app.slice.SliceItem;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class SliceChildView extends FrameLayout {
 
-    protected SliceView.SliceObserver mObserver;
+    protected SliceView.OnSliceActionListener mObserver;
     protected int mTintColor;
 
     public SliceChildView(@NonNull Context context) {
@@ -77,7 +77,7 @@ public abstract class SliceChildView extends FrameLayout {
     /**
      * Sets the observer to notify when an interaction events occur on the view.
      */
-    public void setSliceObserver(SliceView.SliceObserver observer) {
+    public void setSliceActionListener(SliceView.OnSliceActionListener observer) {
         mObserver = observer;
     }
 
@@ -92,7 +92,7 @@ public abstract class SliceChildView extends FrameLayout {
      * Called when the slice being displayed in this view is an element of a larger list.
      */
     public void setSliceItem(SliceItem slice, boolean isHeader, int rowIndex,
-            SliceView.SliceObserver observer) {
+            SliceView.OnSliceActionListener observer) {
         // Do nothing
     }
 }

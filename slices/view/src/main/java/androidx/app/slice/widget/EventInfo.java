@@ -21,9 +21,7 @@ import android.support.annotation.RestrictTo;
 
 /**
  * Represents information associated with a logged event on {@link SliceView}.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EventInfo {
 
     /**

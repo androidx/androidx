@@ -79,11 +79,9 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     /**
      * Implement this interface to be notified of interactions with the slice displayed
      * in this view.
-     * @hide
      * @see EventInfo
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public interface SliceObserver {
+    public interface OnSliceActionListener {
         /**
          * Called when an interaction has occurred with an element in this view.
          * @param info the type of event that occurred.
@@ -126,7 +124,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     private Slice mCurrentSlice;
     private final ActionRow mActions;
     private final int mShortcutSize;
-    private SliceObserver mSliceObserver;
+    private OnSliceActionListener mSliceObserver;
 
     private boolean mShowActions = true;
     private boolean mIsScrollable = true;
@@ -240,14 +238,12 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     }
 
     /**
-     * Sets the observer to notify when an interaction events occur on the view.
-     * @hide
+     * Sets the listener to notify when an interaction events occur on the view.
      * @see EventInfo
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setSliceObserver(@Nullable SliceObserver observer) {
+    public void setOnSliceActionListener(@Nullable OnSliceActionListener observer) {
         mSliceObserver = observer;
-        mCurrentView.setSliceObserver(mSliceObserver);
+        mCurrentView.setSliceActionListener(mSliceObserver);
     }
 
     /**
@@ -311,7 +307,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
             removeAllViews();
             mCurrentView = createView(mode);
             if (mSliceObserver != null) {
-                mCurrentView.setSliceObserver(mSliceObserver);
+                mCurrentView.setSliceActionListener(mSliceObserver);
             }
             addView(mCurrentView.getView(), getChildLp(mCurrentView.getView()));
             addView(mActions, getChildLp(mActions));

@@ -160,9 +160,9 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
      */
     @Override
     public void setSliceItem(SliceItem slice, boolean isHeader, int index,
-            SliceView.SliceObserver observer) {
+            SliceView.OnSliceActionListener observer) {
         resetView();
-        setSliceObserver(observer);
+        setSliceActionListener(observer);
         mRowIndex = index;
         mSliceMode = SliceView.MODE_LARGE;
         mGridContent = new GridContent(slice);

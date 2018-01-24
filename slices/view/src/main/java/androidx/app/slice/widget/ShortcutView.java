@@ -65,8 +65,6 @@ public class ShortcutView extends SliceChildView {
     private int mLargeIconSize;
     private int mSmallIconSize;
 
-    private SliceView.SliceObserver mObserver;
-
     public ShortcutView(Context context) {
         super(context);
         final Resources res = getResources();
