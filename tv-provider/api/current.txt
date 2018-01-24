@@ -8,6 +8,7 @@ package android.support.media.tv {
     method public android.net.Uri getAppLinkIntentUri();
     method public android.net.Uri getAppLinkPosterArtUri();
     method public java.lang.String getAppLinkText();
+    method public int getConfigurationDisplayOrder();
     method public java.lang.String getDescription();
     method public java.lang.String getDisplayName();
     method public java.lang.String getDisplayNumber();
@@ -44,6 +45,7 @@ package android.support.media.tv {
     method public android.support.media.tv.Channel.Builder setAppLinkIntentUri(android.net.Uri);
     method public android.support.media.tv.Channel.Builder setAppLinkPosterArtUri(android.net.Uri);
     method public android.support.media.tv.Channel.Builder setAppLinkText(java.lang.String);
+    method public android.support.media.tv.Channel.Builder setConfigurationDisplayOrder(int);
     method public android.support.media.tv.Channel.Builder setDescription(java.lang.String);
     method public android.support.media.tv.Channel.Builder setDisplayName(java.lang.String);
     method public android.support.media.tv.Channel.Builder setDisplayNumber(java.lang.String);
@@ -156,6 +158,7 @@ package android.support.media.tv {
     field public static final java.lang.String COLUMN_APP_LINK_POSTER_ART_URI = "app_link_poster_art_uri";
     field public static final java.lang.String COLUMN_APP_LINK_TEXT = "app_link_text";
     field public static final java.lang.String COLUMN_BROWSABLE = "browsable";
+    field public static final java.lang.String COLUMN_CONFIGURATION_DISPLAY_ORDER = "configuration_display_order";
     field public static final java.lang.String COLUMN_DESCRIPTION = "description";
     field public static final java.lang.String COLUMN_DISPLAY_NAME = "display_name";
     field public static final java.lang.String COLUMN_DISPLAY_NUMBER = "display_number";
