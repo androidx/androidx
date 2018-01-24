@@ -1,4 +1,42 @@
+package android.support.v7.recyclerview.extensions {
+
+  public abstract class ListAdapter<T, VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends android.support.v7.widget.RecyclerView.Adapter {
+    ctor protected ListAdapter(android.support.v7.util.DiffUtil.ItemCallback<T>);
+    ctor protected ListAdapter(android.support.v7.recyclerview.extensions.ListAdapterConfig<T>);
+    method protected T getItem(int);
+    method public int getItemCount();
+    method public void setList(java.util.List<T>);
+  }
+
+  public final class ListAdapterConfig<T> {
+    method public android.support.v7.util.DiffUtil.ItemCallback<T> getDiffCallback();
+  }
+
+  public static class ListAdapterConfig.Builder<T> {
+    ctor public ListAdapterConfig.Builder(android.support.v7.util.DiffUtil.ItemCallback<T>);
+    method public android.support.v7.recyclerview.extensions.ListAdapterConfig<T> build();
+    method public android.support.v7.recyclerview.extensions.ListAdapterConfig.Builder<T> setBackgroundThreadExecutor(java.util.concurrent.Executor);
+  }
+
+  public class ListAdapterHelper<T> {
+    ctor public ListAdapterHelper(android.support.v7.widget.RecyclerView.Adapter, android.support.v7.util.DiffUtil.ItemCallback<T>);
+    ctor public ListAdapterHelper(android.support.v7.util.ListUpdateCallback, android.support.v7.recyclerview.extensions.ListAdapterConfig<T>);
+    method public T getItem(int);
+    method public int getItemCount();
+    method public void setList(java.util.List<T>);
+  }
+
+}
+
 package android.support.v7.util {
+
+  public final class AdapterListUpdateCallback implements android.support.v7.util.ListUpdateCallback {
+    ctor public AdapterListUpdateCallback(android.support.v7.widget.RecyclerView.Adapter);
+    method public void onChanged(int, int, java.lang.Object);
+    method public void onInserted(int, int);
+    method public void onMoved(int, int);
+    method public void onRemoved(int, int);
+  }
 
   public class AsyncListUtil<T> {
     ctor public AsyncListUtil(java.lang.Class<T>, int, android.support.v7.util.AsyncListUtil.DataCallback<T>, android.support.v7.util.AsyncListUtil.ViewCallback);
