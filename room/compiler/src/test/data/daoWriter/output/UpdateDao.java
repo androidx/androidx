@@ -207,6 +207,17 @@ public class UpdateDao_Impl implements UpdateDao {
   }
 
   @Override
+  public void updateAndAge(User user) {
+    __db.beginTransaction();
+    try {
+      UpdateDao.super.updateAndAge(user);
+      __db.setTransactionSuccessful();
+    } finally {
+      __db.endTransaction();
+    }
+  }
+
+  @Override
   public void ageUserByUid(String uid) {
     final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserByUid.acquire();
     __db.beginTransaction();
