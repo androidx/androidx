@@ -40,6 +40,7 @@ import android.graphics.drawable.Icon;
 import android.support.annotation.ColorInt;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -168,12 +169,20 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (titleItem != null) {
             mPrimaryText.setText(titleItem.getText());
         }
+        mPrimaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
+                ? mHeaderTitleSize
+                : mTitleSize);
+        mPrimaryText.setTextColor(mTitleColor);
         mPrimaryText.setVisibility(titleItem != null ? View.VISIBLE : View.GONE);
 
         final SliceItem subTitle = mRowContent.getSubtitleItem();
         if (subTitle != null) {
             mSecondaryText.setText(subTitle.getText());
         }
+        mSecondaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
+                ? mHeaderSubtitleSize
+                : mSubtitleSize);
+        mSecondaryText.setTextColor(mSubtitleColor);
         mSecondaryText.setVisibility(subTitle != null ? View.VISIBLE : View.GONE);
 
         final SliceItem slider = mRowContent.getSlider();
@@ -371,6 +380,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         } else if (timeStamp != null) {
             TextView tv = new TextView(getContext());
             tv.setText(SliceViewUtil.getRelativeTimeString(sliceItem.getTimestamp()));
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSubtitleSize);
+            tv.setTextColor(mSubtitleColor);
             container.addView(tv);
             addedView = tv;
         }

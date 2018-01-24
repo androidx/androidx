@@ -43,16 +43,12 @@
         <TextView android:id="@android:id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceListItem"
-            android:textColor="?android:attr/textColorPrimary"
             android:maxLines="2"/>
 
         <TextView android:id="@android:id/summary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignStart="@android:id/title"
-            android:textAppearance="?attr/textAppearanceListItemSecondary"
-            android:textColor="?android:attr/textColorSecondary"
             android:maxLines="10" />
 
         <SeekBar

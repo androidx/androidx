@@ -24,6 +24,7 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 
 import android.arch.lifecycle.Observer;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
@@ -129,24 +130,31 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     private boolean mShowActions = true;
     private boolean mIsScrollable = true;
 
-    private int mThemeTintColor = -1;
     private AttributeSet mAttrs;
+    private int mThemeTintColor;
 
     public SliceView(Context context) {
         this(context, null);
     }
 
     public SliceView(Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, R.attr.sliceViewStyle);
     }
 
     public SliceView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
+        this(context, attrs, defStyleAttr, R.style.Widget_SliceView);
     }
 
     public SliceView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         mAttrs = attrs;
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
+                defStyleAttr, defStyleRes);
+        try {
+            mThemeTintColor = a.getColor(R.styleable.SliceView_tintColor, -1);
+        } finally {
+            a.recycle();
+        }
         mActions = new ActionRow(getContext(), true);
         mActions.setBackground(new ColorDrawable(0xffeeeeee));
         mCurrentView = new LargeTemplateView(getContext());
@@ -247,6 +255,18 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     }
 
     /**
+     * Contents of a slice such as icons, text, and controls (e.g. toggle) can be tinted. Normally
+     * a color for tinting will be provided by the slice. Using this method will override
+     * this color information and instead tint elements with the provided color.
+     *
+     * @param tintColor the color to use for tinting contents of this view.
+     */
+    public void setTint(int tintColor) {
+        mThemeTintColor = tintColor;
+        mCurrentView.setTint(tintColor);
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -318,6 +338,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         }
         // Styles
         mCurrentView.setStyle(mAttrs);
+        mCurrentView.setTint(getTintColor());
         // Set the slice
         SliceItem actionRow = SliceQuery.find(mCurrentSlice, FORMAT_SLICE,
                 HINT_ACTIONS,

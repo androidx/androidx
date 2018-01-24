@@ -288,6 +288,8 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
             boolean title = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
             TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(title
                     ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, title ? mTitleSize : mSubtitleSize);
+            tv.setTextColor(title ? mTitleColor : mSubtitleColor);
             CharSequence text = FORMAT_TIMESTAMP.equals(format)
                     ? SliceViewUtil.getRelativeTimeString(item.getTimestamp())
                     : item.getText();
