@@ -366,7 +366,11 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         return insets;
     }
 
-    final WindowInsetsCompat getLastWindowInsets() {
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public final WindowInsetsCompat getLastWindowInsets() {
         return mLastInsets;
     }
 
