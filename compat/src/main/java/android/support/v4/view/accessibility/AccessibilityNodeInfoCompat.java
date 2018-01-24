@@ -2343,16 +2343,18 @@ public class AccessibilityNodeInfoCompat {
 
     public void setCollectionInfo(Object collectionInfo) {
         if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.setCollectionInfo((AccessibilityNodeInfo.CollectionInfo)
-                    ((CollectionInfoCompat) collectionInfo).mInfo);
+            mInfo.setCollectionInfo((collectionInfo == null) ? null
+                    : (AccessibilityNodeInfo.CollectionInfo) ((CollectionInfoCompat)
+                            collectionInfo).mInfo);
         }
 
     }
 
     public void setCollectionItemInfo(Object collectionItemInfo) {
         if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.setCollectionItemInfo((AccessibilityNodeInfo.CollectionItemInfo)
-                    ((CollectionItemInfoCompat) collectionItemInfo).mInfo);
+            mInfo.setCollectionItemInfo((collectionItemInfo == null) ? null
+                    : (AccessibilityNodeInfo.CollectionItemInfo) ((CollectionItemInfoCompat)
+                            collectionItemInfo).mInfo);
         }
     }
 
