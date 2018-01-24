@@ -497,6 +497,36 @@ public class SimpleEntityReadWriteTest {
     }
 
     @Test
+    public void transactionByDefaultImplementation() {
+        Pet pet1 = TestUtil.createPet(1);
+        mPetDao.insertOrReplace(pet1);
+        assertThat(mPetDao.count(), is(1));
+        assertThat(mPetDao.allIds()[0], is(1));
+        Pet pet2 = TestUtil.createPet(2);
+        mPetDao.deleteAndInsert(pet1, pet2, false);
+        assertThat(mPetDao.count(), is(1));
+        assertThat(mPetDao.allIds()[0], is(2));
+    }
+
+    @Test
+    public void transactionByDefaultImplementation_failure() {
+        Pet pet1 = TestUtil.createPet(1);
+        mPetDao.insertOrReplace(pet1);
+        assertThat(mPetDao.count(), is(1));
+        assertThat(mPetDao.allIds()[0], is(1));
+        Pet pet2 = TestUtil.createPet(2);
+        Throwable throwable = null;
+        try {
+            mPetDao.deleteAndInsert(pet1, pet2, true);
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        assertNotNull("Was expecting an exception", throwable);
+        assertThat(mPetDao.count(), is(1));
+        assertThat(mPetDao.allIds()[0], is(1));
+    }
+
+    @Test
     public void multipleInParamsFollowedByASingleParam_delete() {
         User user = TestUtil.createUser(3);
         user.setAge(30);

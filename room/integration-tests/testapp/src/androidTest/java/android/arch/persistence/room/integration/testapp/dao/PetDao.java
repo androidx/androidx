@@ -17,9 +17,11 @@
 package android.arch.persistence.room.integration.testapp.dao;
 
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Transaction;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.PetWithToyIds;
 
@@ -38,4 +40,19 @@ public interface PetDao {
 
     @Query("SELECT * FROM Pet ORDER BY Pet.mPetId ASC")
     List<PetWithToyIds> allPetsWithToyIds();
+
+    @Delete
+    void delete(Pet pet);
+
+    @Query("SELECT mPetId FROM Pet")
+    int[] allIds();
+
+    @Transaction
+    default void deleteAndInsert(Pet oldPet, Pet newPet, boolean shouldFail) {
+        delete(oldPet);
+        if (shouldFail) {
+            throw new RuntimeException();
+        }
+        insertOrReplace(newPet);
+    }
 }
