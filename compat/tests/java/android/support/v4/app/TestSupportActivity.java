@@ -17,8 +17,8 @@
 package android.support.v4.app;
 
 import android.os.Bundle;
+import android.support.compat.test.R;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 
 public class TestSupportActivity extends SupportActivity {
     @Override
@@ -26,6 +26,6 @@ public class TestSupportActivity extends SupportActivity {
         super.onCreate(savedInstanceState);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(new FrameLayout(this));
+        setContentView(R.layout.activity_compat_activity);
     }
 }
