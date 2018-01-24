@@ -145,6 +145,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
      */
     @Override
     public void setSlice(Slice slice) {
+        resetView();
         mRowIndex = 0;
         mSliceMode = SliceView.MODE_SMALL;
         Slice.Builder sb = new Slice.Builder(slice.getUri());
@@ -160,6 +161,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     @Override
     public void setSliceItem(SliceItem slice, boolean isHeader, int index,
             SliceView.SliceObserver observer) {
+        resetView();
         setSliceObserver(observer);
         mRowIndex = index;
         mSliceMode = SliceView.MODE_LARGE;
@@ -335,7 +337,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     @Override
     public void resetView() {
         mIsAllImages = true;
-        mGridContent = null;
         mViewContainer.removeAllViews();
     }
 }
