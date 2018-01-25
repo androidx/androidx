@@ -34,7 +34,8 @@ class NavGeneratorTest {
     @Test
     fun test() {
         generateSafeArgs("foo", File("src/tests/test-data/naive_test.xml"), workingDir.root)
-        assertThat(File(workingDir.root, "foo/MainFragmentDirections.java").exists(), `is`(true))
+        assertThat(File(workingDir.root,
+                "android/arch/navigation/testapp/MainFragmentDirections.java").exists(), `is`(true))
         assertThat(File(workingDir.root, "foo/NextFragmentDirections.java").exists(), `is`(true))
     }
 }

@@ -29,6 +29,9 @@ import org.junit.runners.JUnit4
 import java.io.File
 import java.util.Properties
 
+private const val NEXT_DIRECTIONS = "android/arch/navigation/testapp/NextFragmentDirections.java"
+private const val FOO_DIRECTIONS = "safe/gradle/test/app/foo/FooFragmentDirections.java"
+
 // Does not work in the Android Studio
 @RunWith(JUnit4::class)
 class PluginTest {
@@ -70,13 +73,31 @@ class PluginTest {
             android {
                 compileSdkVersion $compileSdkVersion
                 buildToolsVersion "$buildToolsVersion"
+                flavorDimensions "mode"
+                productFlavors {
+                    foo {
+                        dimension "mode"
+                        applicationIdSuffix ".foo"
+                    }
+                    notfoo {
+                        dimension "mode"
+                    }
+
+                }
             }
         """.trimIndent())
 
         val result = GradleRunner.create().withProjectDir(projectRoot())
                 .withPluginClasspath()
-                .withDebug(true)
-                .withArguments("generateSafeArgsDebug").build()
-        assertThat(result.task(":generateSafeArgsDebug")!!.outcome, `is`(TaskOutcome.SUCCESS))
+                .withArguments("generateSafeArgsNotfooDebug", "generateSafeArgsFooDebug").build()
+        assertThat(result.task(":generateSafeArgsNotfooDebug")!!.outcome, `is`(TaskOutcome.SUCCESS))
+        assertThat(result.task(":generateSafeArgsFooDebug")!!.outcome, `is`(TaskOutcome.SUCCESS))
+        val buildDir = File(projectRoot(), "build")
+        assertThat(File(buildDir, "$GENERATED_PATH/notfoo/debug/$NEXT_DIRECTIONS").exists(),
+                `is`(true))
+        assertThat(File(buildDir, "$GENERATED_PATH/foo/debug/$NEXT_DIRECTIONS").exists(),
+                `is`(false))
+        assertThat(File(buildDir, "$GENERATED_PATH/foo/debug/$FOO_DIRECTIONS").exists(),
+                `is`(true))
     }
 }

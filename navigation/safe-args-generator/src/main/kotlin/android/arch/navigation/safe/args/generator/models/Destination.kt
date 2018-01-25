@@ -16,19 +16,10 @@
 
 package android.arch.navigation.safe.args.generator.models
 
-import com.squareup.javapoet.ClassName
-
 data class Destination(
         val id: Id?,
         val type: String,
-        private val name: String,
+        val name: String,
         val args: List<Argument>,
         val actions: List<Action>,
-        val nested: List<Destination> = emptyList()) {
-
-    val className: ClassName by lazy {
-        val simpleName = name.substringAfterLast('.', "")
-        val packageName = name.substringBeforeLast('.', "")
-        ClassName.get(packageName, simpleName)
-    }
-}
+        val nested: List<Destination> = emptyList())
