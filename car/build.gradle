@@ -39,6 +39,5 @@ supportLibrary {
     inceptionYear = "2017"
     description = "Android Car Support UI"
     java8Library = true
-    legacySourceLocation = true
     minSdkVersion = 24
 }
