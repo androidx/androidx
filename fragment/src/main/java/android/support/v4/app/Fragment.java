@@ -574,6 +574,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Return the {@link Context} this fragment is currently associated with.
+     *
+     * @see #requireContext()
      */
     @Nullable
     public Context getContext() {
@@ -581,9 +583,26 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
+     * Return the {@link Context} this fragment is currently associated with.
+     *
+     * @throws IllegalStateException if not currently associated with a context.
+     * @see #getContext()
+     */
+    @NonNull
+    public final Context requireContext() {
+        Context context = getContext();
+        if (context == null) {
+            throw new IllegalStateException("Fragment " + this + " not attached to a context.");
+        }
+        return context;
+    }
+
+    /**
      * Return the {@link FragmentActivity} this fragment is currently associated with.
      * May return {@code null} if the fragment is associated with a {@link Context}
      * instead.
+     *
+     * @see #requireActivity()
      */
     @Nullable
     final public FragmentActivity getActivity() {
@@ -591,8 +610,26 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
+     * Return the {@link FragmentActivity} this fragment is currently associated with.
+     *
+     * @throws IllegalStateException if not currently associated with an activity or if associated
+     * only with a context.
+     * @see #getActivity()
+     */
+    @NonNull
+    public final FragmentActivity requireActivity() {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            throw new IllegalStateException("Fragment " + this + " not attached to an activity.");
+        }
+        return activity;
+    }
+
+    /**
      * Return the host object of this fragment. May return {@code null} if the fragment
      * isn't currently being hosted.
+     *
+     * @see #requireHost()
      */
     @Nullable
     final public Object getHost() {
@@ -600,14 +637,26 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Return <code>getActivity().getResources()</code>.
+     * Return the host object of this fragment.
+     *
+     * @throws IllegalStateException if not currently associated with a host.
+     * @see #getHost()
+     */
+    @NonNull
+    public final Object requireHost() {
+        Object host = getHost();
+        if (host == null) {
+            throw new IllegalStateException("Fragment " + this + " not attached to a host.");
+        }
+        return host;
+    }
+
+    /**
+     * Return <code>requireActivity().getResources()</code>.
      */
     @NonNull
     final public Resources getResources() {
-        if (mHost == null) {
-            throw new IllegalStateException("Fragment " + this + " not attached to Activity");
-        }
-        return mHost.getContext().getResources();
+        return requireContext().getResources();
     }
 
     /**
@@ -654,10 +703,35 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * <p>If this Fragment is a child of another Fragment, the FragmentManager
      * returned here will be the parent's {@link #getChildFragmentManager()}.
+     *
+     * @see #requireFragmentManager()
      */
     @Nullable
     final public FragmentManager getFragmentManager() {
         return mFragmentManager;
+    }
+
+    /**
+     * Return the FragmentManager for interacting with fragments associated
+     * with this fragment's activity.  Note that this will available slightly
+     * before {@link #getActivity()}, during the time from when the fragment is
+     * placed in a {@link FragmentTransaction} until it is committed and
+     * attached to its activity.
+     *
+     * <p>If this Fragment is a child of another Fragment, the FragmentManager
+     * returned here will be the parent's {@link #getChildFragmentManager()}.
+     *
+     * @throws IllegalStateException if not associated with a transaction or host.
+     * @see #getFragmentManager()
+     */
+    @NonNull
+    public final FragmentManager requireFragmentManager() {
+        FragmentManager fragmentManager = getFragmentManager();
+        if (fragmentManager == null) {
+            throw new IllegalStateException(
+                    "Fragment " + this + " not associated with a fragment manager.");
+        }
+        return fragmentManager;
     }
 
     /**

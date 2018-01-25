@@ -17,6 +17,7 @@ package android.support.v4.app;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import android.app.Instrumentation;
 import android.os.Bundle;
@@ -149,6 +150,32 @@ public class FragmentTest {
         assertNotNull(content.getChildAt(0).findViewById(R.id.textA));
         assertNotNull(content.getChildAt(1).findViewById(R.id.textB));
         assertNotNull(content.getChildAt(2).findViewById(R.id.textC));
+    }
+
+    @SmallTest
+    @Test
+    public void requireMethodsThrowsWhenNotAttached() {
+        Fragment fragment = new Fragment();
+        try {
+            fragment.requireContext();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            fragment.requireActivity();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            fragment.requireHost();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            fragment.requireFragmentManager();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
     }
 
     public static class OrderFragment extends Fragment {
