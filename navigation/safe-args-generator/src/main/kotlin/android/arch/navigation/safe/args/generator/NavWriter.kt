@@ -78,8 +78,9 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
     }
 }
 
-fun generateDirectionsTypeSpec(packageName: String, destination: Destination): TypeSpec {
-    val className = ClassName.get(packageName, "${destination.className.simpleName()}Directions")
+fun generateDestinationDirectionsTypeSpec(
+        className: ClassName,
+        destination: Destination): TypeSpec {
     val actionTypes = destination.actions.map { action ->
         action to generateDirectionsTypeSpec(action)
     }
@@ -142,5 +143,24 @@ fun generateDirectionsTypeSpec(action: Action): TypeSpec {
 
 fun idAccessor(id: Id?) = id?.let { "${id.packageName}.R.id.${id.name}" } ?: "0"
 
-fun generateDirectionsJavaFile(packageName: String, destination: Destination) =
-        JavaFile.builder(packageName, generateDirectionsTypeSpec(packageName, destination)).build()
+fun generateDirectionsJavaFile(packageName: String, destination: Destination): JavaFile {
+    val className = when {
+        destination.name.isNotEmpty() -> {
+            val simpleName = destination.name.substringAfterLast('.')
+            val specifiedPackage = destination.name.substringBeforeLast('.', "")
+            val classPackage = when {
+                specifiedPackage.isNotEmpty() -> specifiedPackage
+                destination.name.startsWith(".") -> packageName
+                else -> ""
+            }
+            ClassName.get(classPackage, "${simpleName}Directions")
+        }
+        destination.id != null -> ClassName.get(destination.id.packageName,
+                "${destination.id.name.capitalize()}Directions")
+        else -> throw IllegalArgumentException(
+                "Destination with actions should have either name or id")
+    }
+
+    val typeSpec = generateDestinationDirectionsTypeSpec(className, destination)
+    return JavaFile.builder(className.packageName(), typeSpec).build()
+}

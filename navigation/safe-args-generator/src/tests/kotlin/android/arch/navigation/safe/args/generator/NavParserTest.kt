@@ -37,7 +37,7 @@ class NavParserTest {
         val navGraph = parseNavigationFile(File("src/tests/test-data/naive_test.xml"), "a.b")
 
         val nameFirst = "android.arch.navigation.testapp.MainFragment"
-        val nameNext = "android.arch.navigation.testapp.NextFragment"
+        val nameNext = ".NextFragment"
         val expectedFirst = Destination(id("first_screen"), "fragment", nameFirst,
                 listOf(Argument("myarg1", Type.STRING, "one")),
                 listOf(Action(id("next"), id("next_fragment"), listOf(

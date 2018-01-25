@@ -23,7 +23,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import java.io.File
 
-private const val GENERATED_PATH = "generated/source/args"
+internal const val GENERATED_PATH = "generated/source/args"
 
 @Suppress("unused")
 class SafeArgsPlugin : Plugin<Project> {
@@ -36,13 +36,12 @@ class SafeArgsPlugin : Plugin<Project> {
                     ArgumentsGenerationTask::class.java) { task ->
                 task.applicationId = variant.applicationId
                 task.navigationFiles = navigationFiles(variant)
-                task.outputDir = File(project.buildDir, GENERATED_PATH)
+                task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
             }
             variant.registerJavaGeneratingTask(task, task.outputDir)
         }
     }
 
-    //TODO: make it real
     private fun navigationFiles(variant: BaseVariant) = variant.sourceSets
             .flatMap { it.resDirectories }
             .mapNotNull {
@@ -51,4 +50,6 @@ class SafeArgsPlugin : Plugin<Project> {
                 }
             }
             .flatMap { navFolder -> navFolder.listFiles().asIterable() }
+            .groupBy { file -> file.name }
+            .map { entry -> entry.value.last() }
 }
