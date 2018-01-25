@@ -142,8 +142,6 @@ public class ImageProcessingWorker extends Worker {
 
     static Work createWork(String uriString) {
         Arguments arguments = new Arguments.Builder().putString(URI_KEY, uriString).build();
-        return Work.newBuilder(ImageProcessingWorker.class)
-                .withArguments(arguments)
-                .build();
+        return new Work.Builder(ImageProcessingWorker.class).withArguments(arguments).build();
     }
 }

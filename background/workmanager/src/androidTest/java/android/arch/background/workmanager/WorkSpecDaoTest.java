@@ -39,15 +39,15 @@ public class WorkSpecDaoTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testPruneLeaves() {
-        Work enqueuedWork = Work.newBuilder(TestWorker.class).build();
+        Work enqueuedWork = new Work.Builder(TestWorker.class).build();
         Work finishedPrerequisiteWork1A =
-                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedPrerequisiteWork1B =
-                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedPrerequisiteWork2 =
-                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
         Work finishedFinalWork =
-                Work.newBuilder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialStatus(STATUS_SUCCEEDED).build();
 
         insertWork(enqueuedWork);
         insertWork(finishedPrerequisiteWork1A);

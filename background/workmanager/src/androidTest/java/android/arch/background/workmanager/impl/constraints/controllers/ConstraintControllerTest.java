@@ -54,7 +54,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
     }
 
     private WorkSpec createTestWorkSpec(Constraints constraints) {
-        return getWorkSpec(Work.newBuilder(TestWorker.class)
+        return getWorkSpec(new Work.Builder(TestWorker.class)
                 .withConstraints(constraints)
                 .build());
     }

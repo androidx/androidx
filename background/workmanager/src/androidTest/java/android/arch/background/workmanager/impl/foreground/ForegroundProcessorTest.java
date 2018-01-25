@@ -85,7 +85,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testProcess_singleWorker() throws TimeoutException, InterruptedException {
-        Work work = Work.newBuilder(TestWorker.class).build();
+        Work work = new Work.Builder(TestWorker.class).build();
         insertWork(work);
         drain();
         assertThat(mForegroundProcessor.process(work.getId()), is(true));
@@ -96,8 +96,8 @@ public class ForegroundProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testProcess_dependentWorkers() throws TimeoutException, InterruptedException {
-        Work prerequisite = Work.newBuilder(TestWorker.class).build();
-        Work workSpec = Work.newBuilder(TestWorker.class)
+        Work prerequisite = new Work.Builder(TestWorker.class).build();
+        Work workSpec = new Work.Builder(TestWorker.class)
                 .withInitialStatus(STATUS_BLOCKED)
                 .build();
 
@@ -120,7 +120,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
     public void testProcess_activeLifecycle() throws TimeoutException, InterruptedException {
         postLifecycleEventOnMainThread(Lifecycle.Event.ON_START);
         drain();
-        Work work = Work.newBuilder(TestWorker.class).build();
+        Work work = new Work.Builder(TestWorker.class).build();
         insertWork(work);
         drain();
         assertThat(mForegroundProcessor.process(work.getId()), is(true));
@@ -133,7 +133,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
     public void testProcess_processorInactive() throws TimeoutException, InterruptedException {
         postLifecycleEventOnMainThread(Lifecycle.Event.ON_STOP);
         drain();
-        Work work = Work.newBuilder(TestWorker.class).build();
+        Work work = new Work.Builder(TestWorker.class).build();
         insertWork(work);
         drain();
         assertThat(mForegroundProcessor.process(work.getId()), is(false));

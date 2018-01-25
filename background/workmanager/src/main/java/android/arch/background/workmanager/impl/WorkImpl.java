@@ -25,6 +25,7 @@ import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -62,38 +63,40 @@ public class WorkImpl extends Work implements InternalWorkImpl {
     /**
      * The Builder for {@link WorkImpl} class.
      */
-    public static class Builder extends Work.Builder {
+    public static class Builder implements WorkBuilder<WorkImpl, Builder> {
 
         private boolean mBackoffCriteriaSet = false;
         WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
         Set<String> mTags = new HashSet<>();
 
         public Builder(Class<? extends Worker> workerClass) {
-            super(workerClass);
             mWorkSpec.setWorkerClassName(workerClass.getName());
             mWorkSpec.setInputMergerClassName(OverwritingInputMerger.class.getName());
         }
 
+        @VisibleForTesting
         @Override
-        public Work.Builder withInitialStatus(@BaseWork.WorkStatus int status) {
+        public Builder withInitialStatus(@BaseWork.WorkStatus int status) {
             mWorkSpec.setStatus(status);
             return this;
         }
 
+        @VisibleForTesting
         @Override
-        public Work.Builder withInitialRunAttemptCount(int runAttemptCount) {
+        public Builder withInitialRunAttemptCount(int runAttemptCount) {
             mWorkSpec.setRunAttemptCount(runAttemptCount);
             return this;
         }
 
+        @VisibleForTesting
         @Override
-        public Work.Builder withPeriodStartTime(long periodStartTime) {
+        public Builder withPeriodStartTime(long periodStartTime) {
             mWorkSpec.setPeriodStartTime(periodStartTime);
             return this;
         }
 
         @Override
-        public Work.Builder withBackoffCriteria(
+        public Builder withBackoffCriteria(
                 @BaseWork.BackoffPolicy int backoffPolicy,
                 long backoffDelayMillis) {
             mBackoffCriteriaSet = true;
@@ -103,37 +106,37 @@ public class WorkImpl extends Work implements InternalWorkImpl {
         }
 
         @Override
-        public Work.Builder withConstraints(@NonNull Constraints constraints) {
+        public Builder withConstraints(@NonNull Constraints constraints) {
             mWorkSpec.setConstraints(constraints);
             return this;
         }
 
         @Override
-        public Work.Builder withArguments(@NonNull Arguments arguments) {
+        public Builder withArguments(@NonNull Arguments arguments) {
             mWorkSpec.setArguments(arguments);
             return this;
         }
 
         @Override
-        public Work.Builder addTag(@NonNull String tag) {
+        public Builder addTag(@NonNull String tag) {
             mTags.add(tag);
             return this;
         }
 
         @Override
-        public Work.Builder withInitialDelay(long duration) {
+        public Builder withInitialDelay(long duration) {
             mWorkSpec.setInitialDelay(duration);
             return this;
         }
 
         @Override
-        public Work.Builder withInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
+        public Builder withInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
             mWorkSpec.setInputMergerClassName(inputMerger.getName());
             return this;
         }
 
         @Override
-        public Work build() {
+        public WorkImpl build() {
             if (mBackoffCriteriaSet && mWorkSpec.getConstraints().requiresDeviceIdle()) {
                 throw new IllegalArgumentException(
                         "Cannot set backoff criteria on an idle mode job");

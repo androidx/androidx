@@ -77,33 +77,6 @@ public interface BaseWork {
     interface Builder<W, B extends Builder<W, B>> {
 
         /**
-         * Set the initial status for this work.  Used in testing only.
-         *
-         * @param status The {@link WorkStatus} to set
-         * @return The current {@link Builder}
-         */
-        @VisibleForTesting
-        B withInitialStatus(@WorkStatus int status);
-
-        /**
-         * Set the initial run attempt count for this work.  Used in testing only.
-         *
-         * @param runAttemptCount The initial run attempt count
-         * @return The current {@link Builder}
-         */
-        @VisibleForTesting
-        B withInitialRunAttemptCount(int runAttemptCount);
-
-        /**
-         * Set the period start time for this work. Used in testing only.
-         *
-         * @param periodStartTime the period start time
-         * @return The current {@link Builder}
-         */
-        @VisibleForTesting
-        B withPeriodStartTime(long periodStartTime);
-
-        /**
          * Change backoff policy and delay for the work.
          * Default is {@value BaseWork#BACKOFF_POLICY_EXPONENTIAL} and 30 seconds.
          * Maximum backoff delay duration is {@value BaseWork#MAX_BACKOFF_MILLIS}.
@@ -112,8 +85,7 @@ public interface BaseWork {
          * @param backoffDelayMillis Time to wait before restarting {@link Worker} (in milliseconds)
          * @return The current {@link Builder}.
          */
-        B withBackoffCriteria(@BackoffPolicy int backoffPolicy,
-                long backoffDelayMillis);
+        B withBackoffCriteria(@BackoffPolicy int backoffPolicy, long backoffDelayMillis);
 
         /**
          * Add constraints to the {@link Work}.
@@ -146,5 +118,57 @@ public interface BaseWork {
          * @return The concrete implementation of the work associated with this builder
          */
         W build();
+
+        /**
+         * Set the initial status for this work.  Used in testing only.
+         *
+         * @param status The {@link BaseWork.WorkStatus} to set
+         * @return The current {@link Builder}
+         */
+        @VisibleForTesting
+        B withInitialStatus(@WorkStatus int status);
+
+        /**
+         * Set the initial run attempt count for this work.  Used in testing only.
+         *
+         * @param runAttemptCount The initial run attempt count
+         * @return The current {@link Builder}
+         */
+        @VisibleForTesting
+        B withInitialRunAttemptCount(int runAttemptCount);
+
+        /**
+         * Set the period start time for this work. Used in testing only.
+         *
+         * @param periodStartTime the period start time
+         * @return The current {@link Builder}
+         */
+        @VisibleForTesting
+        B withPeriodStartTime(long periodStartTime);
+    }
+
+    /**
+     * A builder for {@link Work}.
+     *
+     * @param <W> The {@link Work} class being created by this builder
+     * @param <B> The concrete implementation of this builder
+     */
+    interface WorkBuilder<W, B extends Builder<W, B>> extends Builder<W, B> {
+
+        /**
+         * Specify whether {@link Work} should run with an initial delay. Default is 0ms.
+         *
+         * @param duration initial delay before running WorkSpec (in milliseconds)
+         * @return The current {@link WorkBuilder}
+         */
+        B withInitialDelay(long duration);
+
+        /**
+         * Specify an {@link InputMerger}.  The default is {@link OverwritingInputMerger}.
+         *
+         * @param inputMerger The class name of the {@link InputMerger} to use for this {@link Work}
+         * @return The current {@link WorkBuilder}
+         */
+        B withInputMerger(@NonNull Class<? extends InputMerger> inputMerger);
     }
 }

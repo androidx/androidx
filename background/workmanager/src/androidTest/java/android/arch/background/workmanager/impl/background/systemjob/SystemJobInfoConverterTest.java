@@ -283,6 +283,6 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     }
 
     private WorkSpec getTestWorkSpecWithConstraints(Constraints constraints) {
-        return getWorkSpec(Work.newBuilder(TestWorker.class).withConstraints(constraints).build());
+        return getWorkSpec(new Work.Builder(TestWorker.class).withConstraints(constraints).build());
     }
 }

@@ -23,6 +23,7 @@ import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -60,14 +61,13 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
     /**
      * Builder for {@link PeriodicWorkImpl} class.
      */
-    public static class Builder extends PeriodicWork.Builder {
+    public static class Builder implements BaseWork.Builder<PeriodicWorkImpl, Builder> {
 
         private boolean mBackoffCriteriaSet = false;
         WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
         Set<String> mTags = new HashSet<>();
 
         public Builder(Class<? extends Worker> workerClass, long intervalMillis) {
-            super(workerClass, intervalMillis);
             mWorkSpec.setWorkerClassName(workerClass.getName());
             mWorkSpec.setPeriodic(intervalMillis);
         }
@@ -76,31 +76,33 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
                 Class<? extends Worker> workerClass,
                 long intervalMillis,
                 long flexMillis) {
-            super(workerClass, intervalMillis, flexMillis);
             mWorkSpec.setWorkerClassName(workerClass.getName());
             mWorkSpec.setPeriodic(intervalMillis, flexMillis);
         }
 
+        @VisibleForTesting
         @Override
-        public PeriodicWork.Builder withInitialStatus(@BaseWork.WorkStatus int status) {
+        public Builder withInitialStatus(@BaseWork.WorkStatus int status) {
             mWorkSpec.setStatus(status);
             return this;
         }
 
+        @VisibleForTesting
         @Override
-        public PeriodicWork.Builder withInitialRunAttemptCount(int runAttemptCount) {
+        public Builder withInitialRunAttemptCount(int runAttemptCount) {
             mWorkSpec.setRunAttemptCount(runAttemptCount);
             return this;
         }
 
+        @VisibleForTesting
         @Override
-        public PeriodicWork.Builder withPeriodStartTime(long periodStartTime) {
+        public Builder withPeriodStartTime(long periodStartTime) {
             mWorkSpec.setPeriodStartTime(periodStartTime);
             return this;
         }
 
         @Override
-        public PeriodicWork.Builder withBackoffCriteria(
+        public Builder withBackoffCriteria(
                 @BaseWork.BackoffPolicy int backoffPolicy,
                 long backoffDelayMillis) {
             mBackoffCriteriaSet = true;
@@ -110,25 +112,25 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
         }
 
         @Override
-        public PeriodicWork.Builder withConstraints(@NonNull Constraints constraints) {
+        public Builder withConstraints(@NonNull Constraints constraints) {
             mWorkSpec.setConstraints(constraints);
             return this;
         }
 
         @Override
-        public PeriodicWork.Builder withArguments(@NonNull Arguments arguments) {
+        public Builder withArguments(@NonNull Arguments arguments) {
             mWorkSpec.setArguments(arguments);
             return this;
         }
 
         @Override
-        public PeriodicWork.Builder addTag(@NonNull String tag) {
+        public Builder addTag(@NonNull String tag) {
             mTags.add(tag);
             return this;
         }
 
         @Override
-        public PeriodicWork build() {
+        public PeriodicWorkImpl build() {
             if (mBackoffCriteriaSet && mWorkSpec.getConstraints().requiresDeviceIdle()) {
                 throw new IllegalArgumentException(
                         "Cannot set backoff criteria on an idle mode job");

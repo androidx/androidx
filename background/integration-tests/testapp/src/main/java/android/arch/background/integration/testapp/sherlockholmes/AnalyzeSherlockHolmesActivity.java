@@ -76,11 +76,11 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
     private void enqueueWork() {
         WorkManager workManager = WorkManager.getInstance();
 
-        Work textReducingWork = Work.newBuilder(TextReducingWorker.class)
+        Work textReducingWork = new Work.Builder(TextReducingWorker.class)
                 .withInputMerger(ArrayCreatingInputMerger.class)
                 .build();
 
-        Work startupWork = Work.newBuilder(TextStartupWorker.class).build();
+        Work startupWork = new Work.Builder(TextStartupWorker.class).build();
         workManager
                 .createWith(startupWork)
                 .then(TextMappingWorker.create("advs.txt").build(),

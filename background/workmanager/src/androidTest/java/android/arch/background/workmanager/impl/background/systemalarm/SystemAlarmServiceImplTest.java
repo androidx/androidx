@@ -62,7 +62,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testOnChanged_processImmediately() {
-        Work work = Work.newBuilder(TestWorker.class)
+        Work work = new Work.Builder(TestWorker.class)
                 .withPeriodStartTime(0)
                 .build();
         WorkSpec workSpec = getWorkSpec(work);
@@ -80,7 +80,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testOnChanged_constrained() {
-        Work work = Work.newBuilder(TestWorker.class)
+        Work work = new Work.Builder(TestWorker.class)
                 .withPeriodStartTime(0)
                 .withConstraints(new Constraints.Builder().setRequiresBatteryNotLow(true).build())
                 .build();
@@ -99,7 +99,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
     @SmallTest
     public void testOnChanged_delayNotMet() {
         long futureTime = System.currentTimeMillis() + (60 * 60 * 1000); // 1 hour from now
-        Work work = Work.newBuilder(TestWorker.class)
+        Work work = new Work.Builder(TestWorker.class)
                 .withPeriodStartTime(futureTime)
                 .build();
         WorkSpec workSpec = getWorkSpec(work);
@@ -127,7 +127,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
     public void testOnIntentReceived_delayMet_processImmediately() {
         // Add a WorkSpec with a delay
         long futureTime = System.currentTimeMillis() + (60 * 60 * 1000); // 1 hour from now
-        Work work = Work.newBuilder(TestWorker.class)
+        Work work = new Work.Builder(TestWorker.class)
                 .withPeriodStartTime(futureTime)
                 .build();
         WorkSpec workSpec = getWorkSpec(work);
@@ -150,7 +150,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
     public void testOnIntentReceived_delayMet_observe() {
         // Add a WorkSpec with a delay
         long futureTime = System.currentTimeMillis() + (60 * 60 * 1000); // 1 hour from now
-        Work work = Work.newBuilder(TestWorker.class)
+        Work work = new Work.Builder(TestWorker.class)
                 .withPeriodStartTime(futureTime)
                 .withConstraints(new Constraints.Builder().setRequiresBatteryNotLow(true).build())
                 .build();
@@ -177,7 +177,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
     public void testOnExecuted_removedFromObserverList() {
         // Add a WorkSpec with a delay
         long futureTime = System.currentTimeMillis() + (60 * 60 * 1000); // 1 hour from now
-        Work work = Work.newBuilder(TestWorker.class)
+        Work work = new Work.Builder(TestWorker.class)
                 .withPeriodStartTime(futureTime)
                 .withConstraints(new Constraints.Builder().setRequiresBatteryNotLow(true).build())
                 .build();
