@@ -1128,23 +1128,61 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         if (lp.mFullSpan) {
             if (mOrientation == VERTICAL) {
                 measureChildWithDecorationsAndMargin(child, mFullSizeSpec,
-                        getChildMeasureSpec(getHeight(), getHeightMode(), 0, lp.height, true),
+                        getChildMeasureSpec(
+                                getHeight(),
+                                getHeightMode(),
+                                getPaddingTop() + getPaddingBottom(),
+                                lp.height,
+                                true),
                         alreadyMeasured);
             } else {
-                measureChildWithDecorationsAndMargin(child,
-                        getChildMeasureSpec(getWidth(), getWidthMode(), 0, lp.width, true),
-                        mFullSizeSpec, alreadyMeasured);
+                measureChildWithDecorationsAndMargin(
+                        child,
+                        getChildMeasureSpec(
+                                getWidth(),
+                                getWidthMode(),
+                                getPaddingLeft() + getPaddingRight(),
+                                lp.width,
+                                true),
+                        mFullSizeSpec,
+                        alreadyMeasured);
             }
         } else {
             if (mOrientation == VERTICAL) {
-                measureChildWithDecorationsAndMargin(child,
-                        getChildMeasureSpec(mSizePerSpan, getWidthMode(), 0, lp.width, false),
-                        getChildMeasureSpec(getHeight(), getHeightMode(), 0, lp.height, true),
+                // Padding for width measure spec is 0 because left and right padding were already
+                // factored into mSizePerSpan.
+                measureChildWithDecorationsAndMargin(
+                        child,
+                        getChildMeasureSpec(
+                                mSizePerSpan,
+                                getWidthMode(),
+                                0,
+                                lp.width,
+                                false),
+                        getChildMeasureSpec(
+                                getHeight(),
+                                getHeightMode(),
+                                getPaddingTop() + getPaddingBottom(),
+                                lp.height,
+                                true),
                         alreadyMeasured);
             } else {
-                measureChildWithDecorationsAndMargin(child,
-                        getChildMeasureSpec(getWidth(), getWidthMode(), 0, lp.width, true),
-                        getChildMeasureSpec(mSizePerSpan, getHeightMode(), 0, lp.height, false),
+                // Padding for height measure spec is 0 because top and bottom padding were already
+                // factored into mSizePerSpan.
+                measureChildWithDecorationsAndMargin(
+                        child,
+                        getChildMeasureSpec(
+                                getWidth(),
+                                getWidthMode(),
+                                getPaddingLeft() + getPaddingRight(),
+                                lp.width,
+                                true),
+                        getChildMeasureSpec(
+                                mSizePerSpan,
+                                getHeightMode(),
+                                0,
+                                lp.height,
+                                false),
                         alreadyMeasured);
             }
         }
