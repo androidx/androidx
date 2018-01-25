@@ -21,6 +21,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.widget.ListViewAutoScrollHelper;
@@ -102,6 +103,12 @@ class DropDownListView extends ListView {
     private ListViewAutoScrollHelper mScrollHelper;
 
     /**
+     * Runnable posted when we are awaiting hover event resolution. When set,
+     * drawable state changes are postponed.
+     */
+    private ResolveHoverRunnable mResolveHoverRunnable;
+
+    /**
      * <p>Creates a new list view wrapper.</p>
      *
      * @param context this view's context
@@ -174,6 +181,11 @@ class DropDownListView extends ListView {
 
     @Override
     protected void drawableStateChanged() {
+        //postpone drawableStateChanged until pending hover to pressed transition finishes.
+        if (mResolveHoverRunnable != null) {
+            return;
+        }
+
         super.drawableStateChanged();
 
         setSelectorEnabled(true);
@@ -196,6 +208,10 @@ class DropDownListView extends ListView {
             case MotionEvent.ACTION_DOWN:
                 mMotionPosition = pointToPosition((int) ev.getX(), (int) ev.getY());
                 break;
+        }
+        if (mResolveHoverRunnable != null) {
+            // Resolved hover event as hover => touch transition.
+            mResolveHoverRunnable.cancel();
         }
         return super.onTouchEvent(ev);
     }
@@ -406,6 +422,53 @@ class DropDownListView extends ListView {
             }
             return false;
         }
+    }
+
+    @Override
+    public boolean onHoverEvent(@NonNull MotionEvent ev) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            // For SDK_INT prior to O the code below fails to change the selection.
+            // This is because prior to O mouse events used to enable touch mode, and
+            //  View.setSelectionFromTop does not do the right thing in touch mode.
+            return super.onHoverEvent(ev);
+        }
+
+        final int action = ev.getActionMasked();
+        if (action == MotionEvent.ACTION_HOVER_EXIT && mResolveHoverRunnable == null) {
+            // This may be transitioning to TOUCH_DOWN. Postpone drawable state
+            // updates until either the next frame or the next touch event.
+            mResolveHoverRunnable = new ResolveHoverRunnable();
+            mResolveHoverRunnable.post();
+        }
+
+        // Allow the super class to handle hover state management first.
+        final boolean handled = super.onHoverEvent(ev);
+        if (action == MotionEvent.ACTION_HOVER_ENTER
+                || action == MotionEvent.ACTION_HOVER_MOVE) {
+            final int position = pointToPosition((int) ev.getX(), (int) ev.getY());
+
+            if (position != INVALID_POSITION && position != getSelectedItemPosition()) {
+                final View hoveredItem = getChildAt(position - getFirstVisiblePosition());
+                if (hoveredItem.isEnabled()) {
+                    // Force a focus on the hovered item so that
+                    // the proper selector state gets used when we update.
+                    setSelectionFromTop(position, hoveredItem.getTop() - this.getTop());
+                }
+                updateSelectorStateCompat();
+            }
+        } else {
+            // Do not cancel the selected position if the selection is visible
+            // by other means.
+            setSelection(INVALID_POSITION);
+        }
+
+        return handled;
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        mResolveHoverRunnable = null;
+        super.onDetachedFromWindow();
     }
 
     /**
@@ -627,5 +690,26 @@ class DropDownListView extends ListView {
 
     private boolean touchModeDrawsInPressedStateCompat() {
         return mDrawsInPressedState;
+    }
+
+    /**
+     * Runnable that forces hover event resolution and updates drawable state.
+     */
+    private class ResolveHoverRunnable implements Runnable {
+        @Override
+        public void run() {
+            // Resolved hover event as standard hover exit.
+            mResolveHoverRunnable = null;
+            drawableStateChanged();
+        }
+
+        public void cancel() {
+            mResolveHoverRunnable = null;
+            removeCallbacks(this);
+        }
+
+        public void post() {
+            DropDownListView.this.post(this);
+        }
     }
 }

@@ -34,6 +34,7 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ListView;
 import android.widget.PopupWindow.OnDismissListener;
 
 /**
@@ -335,4 +336,11 @@ public class MenuPopupHelper implements MenuHelper {
             MenuPopupHelper.this.onDismiss();
         }
     };
+
+    /**
+     * API to get the underlying ListView of the Popup
+     */
+    public ListView getListView() {
+        return getPopup().getListView();
+    }
 }
