@@ -16,19 +16,21 @@
 
 package androidx.app.slice.builders.impl;
 
+import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_SELECTED;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
+import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
+import static android.app.slice.Slice.SUBTYPE_PRIORITY;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
-import static androidx.app.slice.core.SliceHints.HINT_SUMMARY;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_TOGGLE;
 
 import android.app.PendingIntent;
@@ -42,12 +44,16 @@ import java.util.ArrayList;
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
 import androidx.app.slice.SliceSpec;
+import androidx.app.slice.core.SliceHints;
 
 /**
  * @hide
  */
 @RestrictTo(LIBRARY)
 public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilder {
+
+    private Slice mSliceActions;
+    private Slice mSliceHeader;
 
     /**
      */
@@ -59,7 +65,12 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @Override
     public void apply(Slice.Builder builder) {
-
+        if (mSliceHeader != null) {
+            builder.addSubSlice(mSliceHeader);
+        }
+        if (mSliceActions != null) {
+            builder.addSubSlice(mSliceActions);
+        }
     }
 
     /**
@@ -82,9 +93,15 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     /**
      */
     @Override
-    public void addSummaryRow(TemplateBuilderImpl builder) {
-        builder.getBuilder().addHints(HINT_SUMMARY);
-        getBuilder().addSubSlice(builder.build(), null);
+    public void setHeader(@NonNull TemplateBuilderImpl builder) {
+        mSliceHeader = builder.build();
+    }
+
+    /**
+     */
+    @Override
+    public void setActions(@NonNull TemplateBuilderImpl builder) {
+        mSliceActions = builder.build();
     }
 
     /**
@@ -118,10 +135,31 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
     /**
      */
+    @Override
+    public TemplateBuilderImpl createHeaderBuilder() {
+        return new HeaderBuilderImpl(this);
+    }
+
+    @Override
+    public TemplateBuilderImpl createHeaderBuilder(Uri uri) {
+        return new HeaderBuilderImpl(uri);
+    }
+
+    @Override
+    public TemplateBuilderImpl createActionBuilder() {
+        return new ActionBuilderImpl(this);
+    }
+
+    @Override
+    public TemplateBuilderImpl createActionBuilder(Uri uri) {
+        return new ActionBuilderImpl(uri);
+    }
+
+    /**
+     */
     public static class RowBuilderImpl extends TemplateBuilderImpl
             implements ListBuilder.RowBuilder {
 
-        private boolean mIsHeader;
         private PendingIntent mContentIntent;
         private SliceItem mTitleItem;
         private SliceItem mSubtitleItem;
@@ -144,14 +182,6 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
          */
         public RowBuilderImpl(Slice.Builder builder) {
             super(builder, null);
-        }
-
-        /**
-         */
-        @NonNull
-        @Override
-        public void setIsHeader(boolean isHeader) {
-            mIsHeader = isHeader;
         }
 
         /**
@@ -270,7 +300,118 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             if (mContentIntent != null) {
                 wrapped.addAction(mContentIntent, b.build(), null);
             }
-            wrapped.addHints(mIsHeader ? null : HINT_LIST_ITEM);
+            wrapped.addHints(HINT_LIST_ITEM);
+        }
+    }
+
+    /**
+     */
+    public static class HeaderBuilderImpl extends TemplateBuilderImpl
+            implements ListBuilder.HeaderBuilder {
+
+        private CharSequence mTitle;
+        private CharSequence mSubtitle;
+        private CharSequence mSummarySubtitle;
+        private PendingIntent mContentIntent;
+
+        /**
+         */
+        public HeaderBuilderImpl(@NonNull ListBuilderV1Impl parent) {
+            super(parent.createChildBuilder(), null);
+        }
+
+        /**
+         */
+        public HeaderBuilderImpl(@NonNull Uri uri) {
+            super(new Slice.Builder(uri), null);
+        }
+
+        /**
+         */
+        @Override
+        public void apply(Slice.Builder b) {
+            Slice.Builder wrapped = b;
+            if (mContentIntent != null) {
+                b = new Slice.Builder(wrapped);
+            }
+            if (mTitle != null) {
+                b.addText(mTitle, null /* subtype */, HINT_TITLE);
+            }
+            if (mSubtitle != null) {
+                b.addText(mSubtitle, null /* subtype */);
+            }
+            if (mSummarySubtitle != null) {
+                b.addText(mSummarySubtitle, null /* subtype */, SliceHints.HINT_SUMMARY);
+            }
+            if (mContentIntent != null) {
+                wrapped.addAction(mContentIntent, b.build(), null /* subtype */);
+            }
+            wrapped.addHints(HINT_TITLE);
+        }
+
+        /**
+         */
+        @Override
+        public void setTitle(CharSequence title) {
+            mTitle = title;
+        }
+
+        /**
+         */
+        @Override
+        public void setSubtitle(CharSequence subtitle) {
+            mSubtitle = subtitle;
+        }
+
+        /**
+         */
+        @Override
+        public void setSummarySubtitle(CharSequence summarySubtitle) {
+            mSummarySubtitle = summarySubtitle;
+        }
+
+        /**
+         */
+        @Override
+        public void setContentIntent(PendingIntent intent) {
+            mContentIntent = intent;
+        }
+    }
+
+    /**
+     */
+    public static class ActionBuilderImpl extends TemplateBuilderImpl
+            implements ListBuilder.ActionBuilder {
+
+        /**
+         */
+        public ActionBuilderImpl(@NonNull ListBuilderV1Impl parent) {
+            super(parent.createChildBuilder(), null);
+        }
+
+        /**
+         */
+        public ActionBuilderImpl(@NonNull Uri uri) {
+            super(new Slice.Builder(uri), null);
+        }
+
+        /**
+         */
+        @Override
+        public void apply(Slice.Builder builder) {
+            builder.addHints(HINT_ACTIONS);
+        }
+
+        /**
+         */
+        @Override
+        public void addAction(PendingIntent action, Icon actionIcon,
+                CharSequence contentDescription, int priority) {
+            getBuilder().addAction(action, new Slice.Builder(getBuilder())
+                    .addIcon(actionIcon, null /* subtype */)
+                    .addInt(priority, SUBTYPE_PRIORITY /* subtype */)
+                    .addText(contentDescription, SUBTYPE_CONTENT_DESCRIPTION)
+                    .addHints(HINT_ACTIONS).build(), null /* subtype */);
         }
     }
 }

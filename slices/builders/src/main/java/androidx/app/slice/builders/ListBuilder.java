@@ -47,7 +47,7 @@ import androidx.app.slice.builders.impl.TemplateBuilderImpl;
  * <ul>
  *     <li>Shortcut - The slice is displayed as an icon with a text label.</li>
  *     <li>Small - Only a single row of content is displayed in small format, to specify which
- *         row to display in small format see {@link #addSummaryRow(RowBuilder)}.</li>
+ *         row to display in small format see {@link #setHeader(HeaderBuilder)}.</li>
  *     <li>Large - As many rows of content are shown as possible. If the presenter of the slice
  *         allows scrolling then all rows of content will be displayed in a scrollable view.</li>
  * </ul>
@@ -57,7 +57,6 @@ import androidx.app.slice.builders.impl.TemplateBuilderImpl;
  */
 public class ListBuilder extends TemplateSliceBuilder {
 
-    private boolean mHasSummary;
     private androidx.app.slice.builders.impl.ListBuilder mImpl;
 
     /**
@@ -91,7 +90,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         RowBuilder b = new RowBuilder(this);
         c.accept(b);
         return addRow(b);
-
     }
 
     /**
@@ -115,42 +113,59 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Add a summary row for this template. The summary content is displayed
-     * when the slice is displayed in small format.
+     * Adds a header to this template.
      * <p>
-     * Only one summary row can be added, this throws {@link IllegalArgumentException} if
-     * called more than once.
-     * </p>
+     * The header should contain a title that is representative of the content in this slice along
+     * with an intent that links to the app activity associated with this content.
      */
-    public ListBuilder addSummaryRow(RowBuilder builder) {
-        if (mHasSummary) {
-            throw new IllegalArgumentException("Trying to add summary row when one has "
-                    + "already been added");
-        }
-        mImpl.addSummaryRow((TemplateBuilderImpl) builder.mImpl);
-        mHasSummary = true;
+    @NonNull
+    public ListBuilder setHeader(@NonNull HeaderBuilder builder) {
+        mImpl.setHeader((TemplateBuilderImpl) builder.mImpl);
         return this;
     }
 
     /**
-     * Add a summary row for this template. The summary content is displayed
-     * when the slice is displayed in small format.
+     * Adds a header to this template.
      * <p>
-     * Only one summary row can be added, this throws {@link IllegalArgumentException} if
-     * called more than once.
-     * </p>
+     * The header should contain a title that is representative of the content in this slice along
+     * with an intent that links to the app activity associated with this content.
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public ListBuilder addSummaryRow(Consumer<RowBuilder> c) {
-        if (mHasSummary) {
-            throw new IllegalArgumentException("Trying to add summary row when one has "
-                    + "already been added");
-        }
-        RowBuilder b = new RowBuilder(this);
+    @NonNull
+    public ListBuilder setHeader(@NonNull Consumer<HeaderBuilder> c) {
+        HeaderBuilder b = new HeaderBuilder(this);
         c.accept(b);
-        mImpl.addSummaryRow((TemplateBuilderImpl) b.mImpl);
-        mHasSummary = true;
+        return setHeader(b);
+    }
+
+    /**
+     * Sets the group of actions for this template. These actions may be shown on the template in
+     * large or small formats. Generally these actions will be displayed in the order they were
+     * added to the {@link ActionBuilder}, however, if not all actions can be displayed then
+     * actions with a higher priority may be shown first.
+     *
+     * @see ActionBuilder#addAction(PendingIntent, Icon, CharSequence, int)
+     */
+    @NonNull
+    public ListBuilder setActions(@NonNull ActionBuilder builder) {
+        mImpl.setActions((TemplateBuilderImpl) builder.mImpl);
         return this;
+    }
+
+    /**
+     * Sets the group of actions for this template. These actions may be shown on the template in
+     * large or small formats. Generally these actions will be displayed in the order they were
+     * added to the {@link ActionBuilder}, however, if not all actions can be displayed then
+     * actions with a higher priority may be shown first.
+     *
+     * @see ActionBuilder#addAction(PendingIntent, Icon, CharSequence, int)
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @NonNull
+    public ListBuilder setActions(@NonNull Consumer<ActionBuilder> c) {
+        ActionBuilder b = new ActionBuilder(this);
+        c.accept(b);
+        return setActions(b);
     }
 
     /**
@@ -237,16 +252,6 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         public RowBuilder(@NonNull Context context, @NonNull Uri uri) {
             super(new ListBuilder(context, uri).mImpl.createRowBuilder(uri));
-        }
-
-        /**
-         * Sets this row to be the header of the slice. This item will be displayed at the top of
-         * the slice and other items in the slice will scroll below it.
-         */
-        @NonNull
-        public RowBuilder setIsHeader(boolean isHeader) {
-            mImpl.setIsHeader(isHeader);
-            return this;
         }
 
         /**
@@ -410,6 +415,134 @@ public class ListBuilder extends TemplateSliceBuilder {
         @Override
         void setImpl(TemplateBuilderImpl impl) {
             mImpl = (androidx.app.slice.builders.impl.ListBuilder.RowBuilder) impl;
+        }
+    }
+
+    /**
+     * Builder to construct a header. A header is displayed at the top of a list and can have
+     * a title, subtitle, and an action.
+     *
+     * @see ListBuilder#setHeader(HeaderBuilder)
+     */
+    public static class HeaderBuilder extends TemplateSliceBuilder {
+        private androidx.app.slice.builders.impl.ListBuilder.HeaderBuilder mImpl;
+
+        /**
+         * Create builder for header templates.
+         */
+        public HeaderBuilder(@NonNull ListBuilder parent) {
+            super(parent.mImpl.createHeaderBuilder());
+        }
+
+        /**
+         * Create builder for header templates.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public HeaderBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
+            super(parent.mImpl.createHeaderBuilder(uri));
+        }
+
+        /**
+         * Sets the title to be shown in this header.
+         */
+        @NonNull
+        public HeaderBuilder setTitle(@NonNull CharSequence title) {
+            mImpl.setTitle(title);
+            return this;
+        }
+
+        /**
+         * Sets the subtitle to be shown in this header.
+         */
+        @NonNull
+        public HeaderBuilder setSubtitle(@NonNull CharSequence subtitle) {
+            mImpl.setSubtitle(subtitle);
+            return this;
+        }
+
+        /**
+         * Sets the summary subtitle to be shown in this header. If unset, the normal subtitle
+         * will be used. The summary is used when the parent template is presented in a
+         * small format.
+         */
+        @NonNull
+        public HeaderBuilder setSummarySubtitle(@NonNull CharSequence summarySubtitle) {
+            mImpl.setSummarySubtitle(summarySubtitle);
+            return this;
+        }
+
+        /**
+         * Sets the pending intent to activate when the header is activated.
+         */
+        @NonNull
+        public HeaderBuilder setContentIntent(@NonNull PendingIntent intent) {
+            mImpl.setContentIntent(intent);
+            return this;
+        }
+
+        @Override
+        void setImpl(TemplateBuilderImpl impl) {
+            mImpl = (androidx.app.slice.builders.impl.ListBuilder.HeaderBuilder) impl;
+        }
+    }
+
+    /**
+     * Builder to construct a group of actions.
+     *
+     * @see ListBuilder#setActions(ActionBuilder)
+     */
+    public static class ActionBuilder extends TemplateSliceBuilder  {
+        private androidx.app.slice.builders.impl.ListBuilder.ActionBuilder mImpl;
+
+        /**
+         * Create a builder to construct a group of actions
+         */
+        public ActionBuilder(@NonNull ListBuilder parent) {
+            super(parent.mImpl.createActionBuilder());
+        }
+
+        /**
+         * Create a builder to construct a group of actions
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public ActionBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
+            super(parent.mImpl.createHeaderBuilder(uri));
+        }
+
+        /**
+         * Adds an action to this builder.
+         *
+         * @param action the pending intent to send when the action is activated.
+         * @param actionIcon the icon to display for this action.
+         * @param contentDescription the content description to use for accessibility.
+         * @param priority what priority to display this action in, with the lowest priority having
+         *                 the highest ranking.
+         */
+        @NonNull
+        public ActionBuilder addAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+                @NonNull CharSequence contentDescription, int priority) {
+            mImpl.addAction(action, actionIcon, contentDescription, priority);
+            return this;
+        }
+
+        /**
+         * Adds an action to this builder.
+         *
+         * @param action the pending intent to send when the action is activated.
+         * @param actionIcon the icon to display for this action.
+         * @param contentDescription the content description to use for accessibility.
+         */
+        @NonNull
+        public ActionBuilder addAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+                @NonNull CharSequence contentDescription) {
+            return addAction(action, actionIcon, contentDescription, -1);
+        }
+
+        @Override
+        void setImpl(TemplateBuilderImpl impl) {
+            mImpl = (androidx.app.slice.builders.impl.ListBuilder.ActionBuilder) impl;
         }
     }
 }

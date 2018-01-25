@@ -57,17 +57,15 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     /**
      */
     @Override
-    public void addSummaryRow(TemplateBuilderImpl builder) {
-        RowBuilderImpl row = (RowBuilderImpl) builder;
-        if (row.mIcon != null) {
-            getBuilder().addIcon(row.mIcon, null);
-        }
-        if (row.mTitle != null) {
-            getBuilder().addText(row.mTitle, null, android.app.slice.Slice.HINT_TITLE);
-        }
-        if (row.mSubtitle != null) {
-            getBuilder().addText(row.mSubtitle, null);
-        }
+    public void setActions(TemplateBuilderImpl impl) {
+        // Do nothing.
+    }
+
+    /**
+     */
+    @Override
+    public void setHeader(TemplateBuilderImpl impl) {
+        // Do nothing.
     }
 
     /**
@@ -96,6 +94,26 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     @Override
     public TemplateBuilderImpl createGridBuilder() {
         return new GridBuilderBasicImpl(createChildBuilder(), null);
+    }
+
+    @Override
+    public TemplateBuilderImpl createHeaderBuilder() {
+        return new HeaderBuilderImpl(this);
+    }
+
+    @Override
+    public TemplateBuilderImpl createHeaderBuilder(Uri uri) {
+        return new HeaderBuilderImpl(uri);
+    }
+
+    @Override
+    public TemplateBuilderImpl createActionBuilder() {
+        return new ActionBuilderImpl(this);
+    }
+
+    @Override
+    public TemplateBuilderImpl createActionBuilder(Uri uri) {
+        return new ActionBuilderImpl(uri);
     }
 
     /**
@@ -143,13 +161,6 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
          */
         @Override
         public void addToggle(PendingIntent action, boolean isChecked, Icon icon) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setIsHeader(boolean isHeader) {
 
         }
 
@@ -206,6 +217,92 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
          */
         @Override
         public void apply(Slice.Builder builder) {
+
+        }
+    }
+
+    /**
+     */
+    public static class HeaderBuilderImpl extends TemplateBuilderImpl
+            implements ListBuilder.HeaderBuilder {
+
+        /**
+         */
+        public HeaderBuilderImpl(@NonNull ListBuilderBasicImpl parent) {
+            super(parent.createChildBuilder(), null);
+        }
+
+        /**
+         */
+        public HeaderBuilderImpl(@NonNull Uri uri) {
+            super(new Slice.Builder(uri), null);
+        }
+
+        /**
+         */
+        @Override
+        public void apply(Slice.Builder builder) {
+
+        }
+
+        /**
+         */
+        @Override
+        public void setTitle(CharSequence title) {
+
+        }
+
+        /**
+         */
+        @Override
+        public void setSubtitle(CharSequence subtitle) {
+
+        }
+
+        /**
+         */
+        @Override
+        public void setSummarySubtitle(CharSequence summarySubtitle) {
+
+        }
+
+        /**
+         */
+        @Override
+        public void setContentIntent(PendingIntent intent) {
+
+        }
+    }
+
+    /**
+     */
+    public static class ActionBuilderImpl extends TemplateBuilderImpl
+            implements ListBuilder.ActionBuilder {
+
+        /**
+         */
+        public ActionBuilderImpl(@NonNull ListBuilderBasicImpl parent) {
+            super(parent.createChildBuilder(), null);
+        }
+
+        /**
+         */
+        public ActionBuilderImpl(@NonNull Uri uri) {
+            super(new Slice.Builder(uri), null);
+        }
+
+        /**
+         */
+        @Override
+        public void apply(Slice.Builder builder) {
+
+        }
+
+        /**
+         */
+        @Override
+        public void addAction(PendingIntent action, Icon actionIcon,
+                CharSequence contentDescription, int priority) {
 
         }
     }
