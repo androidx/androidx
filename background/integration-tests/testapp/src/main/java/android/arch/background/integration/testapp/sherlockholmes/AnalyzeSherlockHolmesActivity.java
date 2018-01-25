@@ -16,16 +16,16 @@
 
 package android.arch.background.integration.testapp.sherlockholmes;
 
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_FAILED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_SUCCEEDED;
+
 import android.arch.background.integration.testapp.R;
 import android.arch.background.integration.testapp.db.TestDatabase;
 import android.arch.background.integration.testapp.db.WordCount;
 import android.arch.background.workmanager.ArrayCreatingInputMerger;
-import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkManager;
-import android.arch.lifecycle.Observer;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -50,26 +50,18 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_analyze_sherlock_holmes);
 
         mAnalyzeButton = findViewById(R.id.analyze);
-        mAnalyzeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                enqueueWork();
-            }
-        });
+        mAnalyzeButton.setOnClickListener(v -> enqueueWork());
 
         mProgressBar = findViewById(R.id.progress);
         mResultsView = findViewById(R.id.results);
 
         TestDatabase.getInstance(this).getWordCountDao().getWordCounts().observe(
                 this,
-                new Observer<List<WordCount>>() {
-                    @Override
-                    public void onChanged(@Nullable List<WordCount> wordCounts) {
-                        if (wordCounts == null) {
-                            return;
-                        }
-                        mResultsView.setText(getWordCountsString(wordCounts));
+                wordCounts -> {
+                    if (wordCounts == null) {
+                        return;
                     }
+                    mResultsView.setText(getWordCountsString(wordCounts));
                 });
     }
 
@@ -91,17 +83,14 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
                 .then(textReducingWork)
                 .enqueue();
 
-        workManager.getStatusForId(textReducingWork.getId()).observe(
+        workManager.getStatus(textReducingWork.getId()).observe(
                 this,
-                new Observer<Integer>() {
-                    @Override
-                    public void onChanged(@Nullable Integer status) {
-                        boolean loading = (status != null
-                                && status != BaseWork.STATUS_SUCCEEDED
-                                && status != BaseWork.STATUS_FAILED);
-                        mProgressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
-                        mResultsView.setVisibility(loading ? View.GONE : View.VISIBLE);
-                    }
+                status -> {
+                    boolean loading = (status != null
+                            && status != STATUS_SUCCEEDED
+                            && status != STATUS_FAILED);
+                    mProgressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
+                    mResultsView.setVisibility(loading ? View.GONE : View.VISIBLE);
                 }
         );
     }

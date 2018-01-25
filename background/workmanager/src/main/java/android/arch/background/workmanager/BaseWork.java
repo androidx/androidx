@@ -29,23 +29,46 @@ import java.lang.annotation.Retention;
 
 public interface BaseWork {
 
-    @Retention(SOURCE)
-    @IntDef({STATUS_ENQUEUED, STATUS_RUNNING, STATUS_SUCCEEDED, STATUS_FAILED, STATUS_BLOCKED,
-            STATUS_CANCELLED})
-    @interface WorkStatus {
+    /**
+     * The current status of a unit of work.
+     */
+    enum WorkStatus {
+        /**
+         * The status for work that is enqueued (hasn't completed and isn't running)
+         */
+        STATUS_ENQUEUED,
+
+        /**
+         * The status for work that is currently being executed
+         */
+        STATUS_RUNNING,
+
+        /**
+         * The status for work that has completed successfully
+         */
+        STATUS_SUCCEEDED,
+
+        /**
+         * The status for work that has completed in a failure state
+         */
+        STATUS_FAILED,
+
+        /**
+         * The status for work that is currently blocked because its prerequisites haven't finished
+         * successfully
+         */
+        STATUS_BLOCKED,
+
+        /**
+         * The status for work that has been cancelled and will not execute
+         */
+        STATUS_CANCELLED
     }
 
     @Retention(SOURCE)
     @IntDef({BACKOFF_POLICY_EXPONENTIAL, BACKOFF_POLICY_LINEAR})
     @interface BackoffPolicy {
     }
-
-    int STATUS_ENQUEUED = 0;
-    int STATUS_RUNNING = 1;
-    int STATUS_SUCCEEDED = 2;
-    int STATUS_FAILED = 3;
-    int STATUS_BLOCKED = 4;
-    int STATUS_CANCELLED = 5;
 
     int BACKOFF_POLICY_EXPONENTIAL = 0;
     int BACKOFF_POLICY_LINEAR = 1;
@@ -126,7 +149,7 @@ public interface BaseWork {
          * @return The current {@link Builder}
          */
         @VisibleForTesting
-        B withInitialStatus(@WorkStatus int status);
+        B withInitialStatus(WorkStatus status);
 
         /**
          * Set the initial run attempt count for this work.  Used in testing only.

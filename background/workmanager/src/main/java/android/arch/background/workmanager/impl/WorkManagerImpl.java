@@ -17,6 +17,7 @@
 package android.arch.background.workmanager.impl;
 
 import android.arch.background.workmanager.Arguments;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
@@ -195,7 +196,7 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public LiveData<Integer> getStatusForId(@NonNull String id) {
+    public LiveData<BaseWork.WorkStatus> getStatus(@NonNull String id) {
         return LiveDataUtils.dedupedLiveDataFor(
                 mWorkDatabase.workSpecDao().getWorkSpecLiveDataStatus(id));
     }
@@ -205,9 +206,10 @@ public class WorkManagerImpl extends WorkManager {
         return LiveDataUtils.dedupedLiveDataFor(mWorkDatabase.workSpecDao().getOutput(id));
     }
 
-    LiveData<Map<String, Integer>> getStatusesFor(@NonNull List<String> workSpecIds) {
+    LiveData<Map<String, BaseWork.WorkStatus>> getStatusesFor(@NonNull List<String> workSpecIds) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
-        final MediatorLiveData<Map<String, Integer>> mediatorLiveData = new MediatorLiveData<>();
+        final MediatorLiveData<Map<String, BaseWork.WorkStatus>> mediatorLiveData =
+                new MediatorLiveData<>();
         mediatorLiveData.addSource(
                 LiveDataUtils.dedupedLiveDataFor(dao.getWorkSpecStatuses(workSpecIds)),
                 new Observer<List<WorkSpec.IdAndStatus>>() {
@@ -217,7 +219,8 @@ public class WorkManagerImpl extends WorkManager {
                             return;
                         }
 
-                        Map<String, Integer> idToStatusMap = new HashMap<>(idAndStatuses.size());
+                        Map<String, BaseWork.WorkStatus> idToStatusMap =
+                                new HashMap<>(idAndStatuses.size());
                         for (WorkSpec.IdAndStatus idAndStatus : idAndStatuses) {
                             idToStatusMap.put(idAndStatus.id, idAndStatus.status);
                         }

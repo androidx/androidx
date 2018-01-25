@@ -142,9 +142,9 @@ public abstract class WorkManager {
      * Gets the {@link BaseWork.WorkStatus} for a given work id.
      *
      * @param id The id of the work
-     * @return A {@link LiveData} of the status
+     * @return A {@link LiveData} of the {@link BaseWork.WorkStatus}
      */
-    public abstract LiveData<Integer> getStatusForId(@NonNull String id);
+    public abstract LiveData<BaseWork.WorkStatus> getStatus(@NonNull String id);
 
     /**
      * Gets the output for a given work id.

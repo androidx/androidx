@@ -76,7 +76,7 @@ public class WorkImpl extends Work implements InternalWorkImpl {
 
         @VisibleForTesting
         @Override
-        public Builder withInitialStatus(@BaseWork.WorkStatus int status) {
+        public Builder withInitialStatus(BaseWork.WorkStatus status) {
             mWorkSpec.setStatus(status);
             return this;
         }

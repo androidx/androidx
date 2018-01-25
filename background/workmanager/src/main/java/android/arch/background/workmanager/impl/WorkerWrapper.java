@@ -16,16 +16,17 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
-import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
-import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
-import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_CANCELLED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_FAILED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_RUNNING;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_SUCCEEDED;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_FAILURE;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_RETRY;
 import static android.arch.background.workmanager.Worker.WORKER_RESULT_SUCCESS;
 
 import android.arch.background.workmanager.Arguments;
+import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.InputMerger;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.model.DependencyDao;
@@ -130,7 +131,7 @@ public class WorkerWrapper implements Runnable {
     }
 
     private void notifyIncorrectStatus() {
-        int status = mWorkSpec.getStatus();
+        BaseWork.WorkStatus status = mWorkSpec.getStatus();
         if (status == STATUS_RUNNING) {
             Log.d(TAG, "Status for " + mWorkSpecId + " is RUNNING; "
                     + "not doing any work and rescheduling for later execution");

@@ -16,10 +16,10 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
-import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
-import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_CANCELLED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_RUNNING;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -439,14 +439,15 @@ public class WorkManagerImplTest extends WorkManagerTest {
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
 
-        Observer<Map<String, Integer>> mockObserver = mock(Observer.class);
+        Observer<Map<String, BaseWork.WorkStatus>> mockObserver = mock(Observer.class);
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
-        LiveData<Map<String, Integer>> liveData =
+        LiveData<Map<String, BaseWork.WorkStatus>> liveData =
                 mWorkManagerImpl.getStatusesFor(Arrays.asList(work0.getId(), work1.getId()));
         liveData.observe(testLifecycleOwner, mockObserver);
 
-        ArgumentCaptor<Map<String, Integer>> captor = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<Map<String, BaseWork.WorkStatus>> captor =
+                ArgumentCaptor.forClass(Map.class);
         verify(mockObserver).onChanged(captor.capture());
         assertThat(captor.getValue(), is(not(nullValue())));
         assertThat(captor.getValue().size(), is(2));

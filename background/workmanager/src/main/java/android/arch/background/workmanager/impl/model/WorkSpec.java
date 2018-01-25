@@ -18,7 +18,7 @@ package android.arch.background.workmanager.impl.model;
 
 import static android.arch.background.workmanager.BaseWork.MAX_BACKOFF_MILLIS;
 import static android.arch.background.workmanager.BaseWork.MIN_BACKOFF_MILLIS;
-import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.PeriodicWork.MIN_PERIODIC_FLEX_MILLIS;
 import static android.arch.background.workmanager.PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
 
@@ -45,8 +45,7 @@ public class WorkSpec {
     String mId;
 
     @ColumnInfo(name = "status")
-    @BaseWork.WorkStatus
-    int mStatus = BaseWork.STATUS_ENQUEUED;
+    BaseWork.WorkStatus mStatus = STATUS_ENQUEUED;
 
     @ColumnInfo(name = "worker_class_name")
     String mWorkerClassName;
@@ -101,11 +100,11 @@ public class WorkSpec {
         mId = id;
     }
 
-    public int getStatus() {
+    public BaseWork.WorkStatus getStatus() {
         return mStatus;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(BaseWork.WorkStatus status) {
         mStatus = status;
     }
 
@@ -336,7 +335,7 @@ public class WorkSpec {
     @Override
     public int hashCode() {
         int result = mId.hashCode();
-        result = 31 * result + mStatus;
+        result = 31 * result + mStatus.hashCode();
         result = 31 * result + (mWorkerClassName != null ? mWorkerClassName.hashCode() : 0);
         result = 31 * result
                 + (mInputMergerClassName != null ? mInputMergerClassName.hashCode() : 0);
@@ -367,7 +366,7 @@ public class WorkSpec {
 
 
         @ColumnInfo(name = "status")
-        public @BaseWork.WorkStatus int status;
+        public BaseWork.WorkStatus status;
 
         @Override
         public boolean equals(Object o) {
@@ -383,7 +382,7 @@ public class WorkSpec {
         @Override
         public int hashCode() {
             int result = id.hashCode();
-            result = 31 * result + status;
+            result = 31 * result + status.hashCode();
             return result;
         }
     }

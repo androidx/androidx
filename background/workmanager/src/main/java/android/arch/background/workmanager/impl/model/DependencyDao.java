@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.impl.model;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_SUCCEEDED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.persistence.room.Dao;
@@ -45,7 +45,7 @@ public interface DependencyDao {
      * @return {@code true} if the {@link WorkSpec} has no pending prerequisites.
      */
     @Query("SELECT COUNT(*)=0 FROM dependency WHERE work_spec_id=:id AND prerequisite_id IN "
-            + "(SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + ")")
+            + "(SELECT id FROM workspec WHERE status!=" + ID_STATUS_SUCCEEDED + ")")
     boolean hasCompletedAllPrerequisites(String id);
 
     /**

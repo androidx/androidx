@@ -16,13 +16,14 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_ENQUEUED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_RUNNING;
 
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.impl.model.Dependency;
 import android.arch.background.workmanager.impl.model.DependencyDao;
+import android.arch.background.workmanager.impl.model.EnumTypeConverters;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkSpecDao;
 import android.arch.background.workmanager.impl.model.WorkTag;
@@ -44,12 +45,12 @@ import android.support.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Database(entities = {Dependency.class, WorkSpec.class, WorkTag.class},
         version = 1)
-@TypeConverters(value = {Arguments.class, ContentUriTriggers.class})
+@TypeConverters(value = {Arguments.class, ContentUriTriggers.class, EnumTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "android.arch.background.workmanager.work";
-    private static final String CLEANUP_SQL =
-            "UPDATE workspec SET status=" + STATUS_ENQUEUED + " WHERE status=" + STATUS_RUNNING;
+    private static final String CLEANUP_SQL = "UPDATE workspec SET status=" + ID_STATUS_ENQUEUED
+            + " WHERE status=" + ID_STATUS_RUNNING;
 
     /**
      * Creates an instance of the WorkDatabase.

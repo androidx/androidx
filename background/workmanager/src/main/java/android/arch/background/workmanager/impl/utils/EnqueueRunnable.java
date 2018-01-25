@@ -16,8 +16,8 @@
 
 package android.arch.background.workmanager.impl.utils;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_BLOCKED;
-import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_BLOCKED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_SUCCEEDED;
 
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.WorkManager;

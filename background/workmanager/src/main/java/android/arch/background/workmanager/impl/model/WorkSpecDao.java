@@ -16,11 +16,11 @@
 
 package android.arch.background.workmanager.impl.model;
 
-import static android.arch.background.workmanager.BaseWork.STATUS_CANCELLED;
-import static android.arch.background.workmanager.BaseWork.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.STATUS_FAILED;
-import static android.arch.background.workmanager.BaseWork.STATUS_RUNNING;
-import static android.arch.background.workmanager.BaseWork.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_CANCELLED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_ENQUEUED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_FAILED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_RUNNING;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_SUCCEEDED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.background.workmanager.Arguments;
@@ -94,7 +94,7 @@ public interface WorkSpecDao {
      * @return The number of rows that were updated
      */
     @Query("UPDATE workspec SET status=:status WHERE id IN (:ids)")
-    int setStatus(@BaseWork.WorkStatus int status, String... ids);
+    int setStatus(BaseWork.WorkStatus status, String... ids);
 
     /**
      * Updates the output of a {@link WorkSpec}.
@@ -139,8 +139,7 @@ public interface WorkSpecDao {
      * @return The status of the {@link WorkSpec}
      */
     @Query("SELECT status FROM workspec WHERE id=:id")
-    @BaseWork.WorkStatus
-    int getWorkSpecStatus(String id);
+    BaseWork.WorkStatus getWorkSpecStatus(String id);
 
     /**
      * For a list of {@link WorkSpec} identifiers, retrieves a {@link LiveData} list of their ids
@@ -157,10 +156,10 @@ public interface WorkSpecDao {
      * Retrieves a {@link LiveData} status of a {@link WorkSpec}
      *
      * @param id The identifier for the {@link WorkSpec}
-     * @return The {@link LiveData} status of the {@link WorkSpec}
+     * @return The {@link LiveData} {@link BaseWork.WorkStatus} of the {@link WorkSpec}
      */
     @Query("SELECT status FROM workspec WHERE id=:id")
-    LiveData<Integer> getWorkSpecLiveDataStatus(String id);
+    LiveData<BaseWork.WorkStatus> getWorkSpecLiveDataStatus(String id);
 
     /**
      * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED} or
@@ -168,8 +167,8 @@ public interface WorkSpecDao {
      *
      * @return A {@link LiveData} list of {@link WorkSpec}s.
      */
-    @Query("SELECT * FROM workspec WHERE (status=" + STATUS_ENQUEUED + " OR status="
-            + STATUS_RUNNING + ") AND initial_delay=0 AND interval_duration=0")
+    @Query("SELECT * FROM workspec WHERE (status=" + ID_STATUS_ENQUEUED + " OR status="
+            + ID_STATUS_RUNNING + ") AND initial_delay=0 AND interval_duration=0")
     LiveData<List<WorkSpec>> getForegroundEligibleWorkSpecs();
 
     /**
@@ -178,8 +177,8 @@ public interface WorkSpecDao {
      *
      * @return A {@link LiveData} list of {@link WorkSpec}s.
      */
-    @Query("SELECT * FROM workspec WHERE status=" + STATUS_ENQUEUED + " OR status="
-            + STATUS_RUNNING)
+    @Query("SELECT * FROM workspec WHERE status=" + ID_STATUS_ENQUEUED + " OR status="
+            + ID_STATUS_RUNNING)
     LiveData<List<WorkSpec>> getSystemAlarmEligibleWorkSpecs();
 
     /**
@@ -208,8 +207,8 @@ public interface WorkSpecDao {
      * @param tag The tag used to identify the work
      * @return A list of work ids
      */
-    @Query("SELECT id FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND status!="
-            + STATUS_FAILED + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
+    @Query("SELECT id FROM workspec WHERE status!=" + ID_STATUS_SUCCEEDED + " AND status!="
+            + ID_STATUS_FAILED + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
     List<String> getUnfinishedWorkWithTag(@NonNull String tag);
 
     /**
@@ -220,7 +219,7 @@ public interface WorkSpecDao {
      * @return The number of deleted work items
      */
     @Query("DELETE FROM workspec WHERE status IN "
-            + "(" + STATUS_CANCELLED + ", " + STATUS_FAILED + ", " + STATUS_SUCCEEDED + ") AND "
-            + "id NOT IN (SELECT DISTINCT prerequisite_id FROM dependency)")
+            + "(" + ID_STATUS_CANCELLED + ", " + ID_STATUS_FAILED + ", " + ID_STATUS_SUCCEEDED + ")"
+            + " AND id NOT IN (SELECT DISTINCT prerequisite_id FROM dependency)")
     int pruneLeaves();
 }

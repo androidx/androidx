@@ -155,7 +155,7 @@ public class WorkContinuationImpl extends WorkContinuation {
     }
 
     @Override
-    public LiveData<Map<String, Integer>> getStatuses() {
+    public LiveData<Map<String, BaseWork.WorkStatus>> getStatuses() {
         return mWorkManagerImpl.getStatusesFor(mAllIds);
     }
 

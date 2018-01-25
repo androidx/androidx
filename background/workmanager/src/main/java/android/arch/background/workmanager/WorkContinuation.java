@@ -60,7 +60,7 @@ public abstract class WorkContinuation {
      * @return A {@link LiveData} containing a map of work identifiers to their corresponding
      * {@link BaseWork.WorkStatus}
      */
-    public abstract LiveData<Map<String, Integer>> getStatuses();
+    public abstract LiveData<Map<String, BaseWork.WorkStatus>> getStatuses();
 
     /**
      * Enqueues the instance of {@link WorkContinuation} on the background thread.
