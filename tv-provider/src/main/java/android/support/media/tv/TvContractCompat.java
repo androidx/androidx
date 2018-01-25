@@ -2262,6 +2262,21 @@ public final class TvContractCompat {
         @RestrictTo(LIBRARY_GROUP)
         public static final String COLUMN_SYSTEM_APPROVED = "system_approved";
 
+        /**
+         * A value that can be used to define the order an app's channels should be displayed in
+         * the configure channels menu.
+         *
+         * <p>If not specified, this value is set to 0 (unordered) by default.
+         * A value of 0 indicates that there is no defined order for this TV channel and it will
+         * default to alphabetical ordering after any channels ordered by this value.
+         * For example, given channels A, B, and C, with orders 0, 1, and 2 respectively,
+         * the final order will be B, C, A.
+         *
+         * <p>Type: INTEGER
+         */
+        public static final String COLUMN_CONFIGURATION_DISPLAY_ORDER =
+                "configuration_display_order";
+
         private Channels() {}
 
         /**
