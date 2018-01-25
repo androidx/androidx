@@ -16,11 +16,6 @@
 
 package android.arch.background.workmanager.impl.model;
 
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_CANCELLED;
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_ENQUEUED;
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_FAILED;
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_RUNNING;
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_SUCCEEDED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.background.workmanager.Arguments;
@@ -162,23 +157,24 @@ public interface WorkSpecDao {
     LiveData<BaseWork.WorkStatus> getWorkSpecLiveDataStatus(String id);
 
     /**
-     * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED} or
-     * {@code STATUS_RUNNING}, no initial delay, and are not periodic.
+     * Retrieves {@link WorkSpec}s that have status {@code ENQUEUED} or
+     * {@code RUNNING}, no initial delay, and are not periodic.
      *
      * @return A {@link LiveData} list of {@link WorkSpec}s.
      */
-    @Query("SELECT * FROM workspec WHERE (status=" + ID_STATUS_ENQUEUED + " OR status="
-            + ID_STATUS_RUNNING + ") AND initial_delay=0 AND interval_duration=0")
+    @Query("SELECT * FROM workspec WHERE (status=" + EnumTypeConverters.StatusIds.ENQUEUED
+            + " OR status=" + EnumTypeConverters.StatusIds.RUNNING
+            + ") AND initial_delay=0 AND interval_duration=0")
     LiveData<List<WorkSpec>> getForegroundEligibleWorkSpecs();
 
     /**
-     * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED} or
-     * {@code STATUS_RUNNING}
+     * Retrieves {@link WorkSpec}s that have status {@code ENQUEUED} or
+     * {@code RUNNING}
      *
      * @return A {@link LiveData} list of {@link WorkSpec}s.
      */
-    @Query("SELECT * FROM workspec WHERE status=" + ID_STATUS_ENQUEUED + " OR status="
-            + ID_STATUS_RUNNING)
+    @Query("SELECT * FROM workspec WHERE status=" + EnumTypeConverters.StatusIds.ENQUEUED
+            + " OR status=" + EnumTypeConverters.StatusIds.RUNNING)
     LiveData<List<WorkSpec>> getSystemAlarmEligibleWorkSpecs();
 
     /**
@@ -207,8 +203,9 @@ public interface WorkSpecDao {
      * @param tag The tag used to identify the work
      * @return A list of work ids
      */
-    @Query("SELECT id FROM workspec WHERE status!=" + ID_STATUS_SUCCEEDED + " AND status!="
-            + ID_STATUS_FAILED + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
+    @Query("SELECT id FROM workspec WHERE status!=" + EnumTypeConverters.StatusIds.SUCCEEDED
+            + " AND status!=" + EnumTypeConverters.StatusIds.FAILED
+            + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
     List<String> getUnfinishedWorkWithTag(@NonNull String tag);
 
     /**
@@ -219,7 +216,9 @@ public interface WorkSpecDao {
      * @return The number of deleted work items
      */
     @Query("DELETE FROM workspec WHERE status IN "
-            + "(" + ID_STATUS_CANCELLED + ", " + ID_STATUS_FAILED + ", " + ID_STATUS_SUCCEEDED + ")"
+            + "(" + EnumTypeConverters.StatusIds.CANCELLED + ", "
+            + EnumTypeConverters.StatusIds.FAILED + ", "
+            + EnumTypeConverters.StatusIds.SUCCEEDED + ")"
             + " AND id NOT IN (SELECT DISTINCT prerequisite_id FROM dependency)")
     int pruneLeaves();
 }

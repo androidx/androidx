@@ -103,7 +103,7 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
 
         @Override
         public Builder withBackoffCriteria(
-                @BaseWork.BackoffPolicy int backoffPolicy,
+                BaseWork.BackoffPolicy backoffPolicy,
                 long backoffDelayMillis) {
             mBackoffCriteriaSet = true;
             mWorkSpec.setBackoffPolicy(backoffPolicy);

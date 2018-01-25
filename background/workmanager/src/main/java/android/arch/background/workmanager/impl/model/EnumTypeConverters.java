@@ -16,12 +16,14 @@
 
 package android.arch.background.workmanager.impl.model;
 
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_BLOCKED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_CANCELLED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_FAILED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_RUNNING;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.BackoffPolicy.EXPONENTIAL;
+import static android.arch.background.workmanager.BaseWork.BackoffPolicy.LINEAR;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.BLOCKED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.CANCELLED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.FAILED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
 
 import android.arch.background.workmanager.BaseWork;
 import android.arch.persistence.room.TypeConverter;
@@ -32,12 +34,25 @@ import android.arch.persistence.room.TypeConverter;
 
 public class EnumTypeConverters {
 
-    public static final int ID_STATUS_ENQUEUED = 0;
-    public static final int ID_STATUS_RUNNING = 1;
-    public static final int ID_STATUS_SUCCEEDED = 2;
-    public static final int ID_STATUS_FAILED = 3;
-    public static final int ID_STATUS_BLOCKED = 4;
-    public static final int ID_STATUS_CANCELLED = 5;
+    /**
+     * Integer identifiers that map to {@link BaseWork.WorkStatus}.
+     */
+    public interface StatusIds {
+        int ENQUEUED = 0;
+        int RUNNING = 1;
+        int SUCCEEDED = 2;
+        int FAILED = 3;
+        int BLOCKED = 4;
+        int CANCELLED = 5;
+    }
+
+    /**
+     * Integer identifiers that map to {@link BaseWork.BackoffPolicy}.
+     */
+    public interface BackoffPolicyIds {
+        int EXPONENTIAL = 0;
+        int LINEAR = 1;
+    }
 
     /**
      * TypeConverter for a WorkStatus to an int.
@@ -48,23 +63,23 @@ public class EnumTypeConverters {
     @TypeConverter
     public static int workStatusToInt(BaseWork.WorkStatus workStatus) {
         switch (workStatus) {
-            case STATUS_ENQUEUED:
-                return ID_STATUS_ENQUEUED;
+            case ENQUEUED:
+                return StatusIds.ENQUEUED;
 
-            case STATUS_RUNNING:
-                return ID_STATUS_RUNNING;
+            case RUNNING:
+                return StatusIds.RUNNING;
 
-            case STATUS_SUCCEEDED:
-                return ID_STATUS_SUCCEEDED;
+            case SUCCEEDED:
+                return StatusIds.SUCCEEDED;
 
-            case STATUS_FAILED:
-                return ID_STATUS_FAILED;
+            case FAILED:
+                return StatusIds.FAILED;
 
-            case STATUS_BLOCKED:
-                return ID_STATUS_BLOCKED;
+            case BLOCKED:
+                return StatusIds.BLOCKED;
 
-            case STATUS_CANCELLED:
-                return ID_STATUS_CANCELLED;
+            case CANCELLED:
+                return StatusIds.CANCELLED;
 
             default:
                 throw new IllegalArgumentException(
@@ -81,27 +96,69 @@ public class EnumTypeConverters {
     @TypeConverter
     public static BaseWork.WorkStatus intToWorkStatus(int value) {
         switch (value) {
-            case ID_STATUS_ENQUEUED:
-                return STATUS_ENQUEUED;
+            case StatusIds.ENQUEUED:
+                return ENQUEUED;
 
-            case ID_STATUS_RUNNING:
-                return STATUS_RUNNING;
+            case StatusIds.RUNNING:
+                return RUNNING;
 
-            case ID_STATUS_SUCCEEDED:
-                return STATUS_SUCCEEDED;
+            case StatusIds.SUCCEEDED:
+                return SUCCEEDED;
 
-            case ID_STATUS_FAILED:
-                return STATUS_FAILED;
+            case StatusIds.FAILED:
+                return FAILED;
 
-            case ID_STATUS_BLOCKED:
-                return STATUS_BLOCKED;
+            case StatusIds.BLOCKED:
+                return BLOCKED;
 
-            case ID_STATUS_CANCELLED:
-                return STATUS_CANCELLED;
+            case StatusIds.CANCELLED:
+                return CANCELLED;
 
             default:
                 throw new IllegalArgumentException(
                         "Could not convert " + value + " to WorkStatus");
+        }
+    }
+
+    /**
+     * TypeConverter for a BackoffPolicy to an int.
+     *
+     * @param backoffPolicy The input BackoffPolicy
+     * @return The associated int constant
+     */
+    @TypeConverter
+    public static int backoffPolicyToInt(BaseWork.BackoffPolicy backoffPolicy) {
+        switch (backoffPolicy) {
+            case EXPONENTIAL:
+                return BackoffPolicyIds.EXPONENTIAL;
+
+            case LINEAR:
+                return BackoffPolicyIds.LINEAR;
+
+            default:
+                throw new IllegalArgumentException(
+                        "Could not convert " + backoffPolicy + " to int");
+        }
+    }
+
+    /**
+     * TypeConverter for an int to a BackoffPolicy.
+     *
+     * @param value The input integer
+     * @return The associated BackoffPolicy enum value
+     */
+    @TypeConverter
+    public static BaseWork.BackoffPolicy intToBackoffPolicy(int value) {
+        switch (value) {
+            case BackoffPolicyIds.EXPONENTIAL:
+                return EXPONENTIAL;
+
+            case BackoffPolicyIds.LINEAR:
+                return LINEAR;
+
+            default:
+                throw new IllegalArgumentException(
+                        "Could not convert " + value + " to BackoffPolicy");
         }
     }
 

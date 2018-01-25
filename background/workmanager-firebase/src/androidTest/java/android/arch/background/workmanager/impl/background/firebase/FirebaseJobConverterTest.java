@@ -85,7 +85,7 @@ public class FirebaseJobConverterTest extends WorkManagerTest {
         long givenBackoffDelayDuration = 50000L;
         WorkSpec workSpec = new WorkSpec("id");
         workSpec.setBackoffDelayDuration(givenBackoffDelayDuration);
-        workSpec.setBackoffPolicy(BaseWork.BACKOFF_POLICY_LINEAR);
+        workSpec.setBackoffPolicy(BaseWork.BackoffPolicy.LINEAR);
         Job job = mConverter.convert(workSpec);
 
         int expectedBackoffDelayDuration = (int) TimeUnit.SECONDS

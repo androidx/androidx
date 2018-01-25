@@ -15,13 +15,8 @@
  */
 package android.arch.background.workmanager;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
-
-import java.lang.annotation.Retention;
 
 /**
  * The base interface for units of work.
@@ -36,42 +31,53 @@ public interface BaseWork {
         /**
          * The status for work that is enqueued (hasn't completed and isn't running)
          */
-        STATUS_ENQUEUED,
+        ENQUEUED,
 
         /**
          * The status for work that is currently being executed
          */
-        STATUS_RUNNING,
+        RUNNING,
 
         /**
          * The status for work that has completed successfully
          */
-        STATUS_SUCCEEDED,
+        SUCCEEDED,
 
         /**
          * The status for work that has completed in a failure state
          */
-        STATUS_FAILED,
+        FAILED,
 
         /**
          * The status for work that is currently blocked because its prerequisites haven't finished
          * successfully
          */
-        STATUS_BLOCKED,
+        BLOCKED,
 
         /**
          * The status for work that has been cancelled and will not execute
          */
-        STATUS_CANCELLED
+        CANCELLED
     }
 
-    @Retention(SOURCE)
-    @IntDef({BACKOFF_POLICY_EXPONENTIAL, BACKOFF_POLICY_LINEAR})
-    @interface BackoffPolicy {
+    /**
+     * The backoff policy to use when rescheduling work.
+     */
+    enum BackoffPolicy {
+        /**
+         * An exponentially-increasing backoff policy
+         */
+        EXPONENTIAL,
+
+        /**
+         * A linearly-increasing backoff policy
+         */
+        LINEAR
     }
 
-    int BACKOFF_POLICY_EXPONENTIAL = 0;
-    int BACKOFF_POLICY_LINEAR = 1;
+    /**
+     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#77}
+     */
     long DEFAULT_BACKOFF_DELAY_MILLIS = 30000L;
 
     /**
@@ -101,14 +107,14 @@ public interface BaseWork {
 
         /**
          * Change backoff policy and delay for the work.
-         * Default is {@value BaseWork#BACKOFF_POLICY_EXPONENTIAL} and 30 seconds.
+         * Default is {@link BaseWork.BackoffPolicy#EXPONENTIAL} and 30 seconds.
          * Maximum backoff delay duration is {@value BaseWork#MAX_BACKOFF_MILLIS}.
          *
          * @param backoffPolicy Backoff Policy to use for work
          * @param backoffDelayMillis Time to wait before restarting {@link Worker} (in milliseconds)
          * @return The current {@link Builder}.
          */
-        B withBackoffCriteria(@BackoffPolicy int backoffPolicy, long backoffDelayMillis);
+        B withBackoffCriteria(BackoffPolicy backoffPolicy, long backoffDelayMillis);
 
         /**
          * Add constraints to the {@link Work}.

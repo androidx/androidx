@@ -85,8 +85,7 @@ public abstract class PeriodicWork implements BaseWork {
         }
 
         @Override
-        public Builder withBackoffCriteria(@BackoffPolicy int backoffPolicy,
-                long backoffDelayMillis) {
+        public Builder withBackoffCriteria(BackoffPolicy backoffPolicy, long backoffDelayMillis) {
             mInternalBuilder.withBackoffCriteria(backoffPolicy, backoffDelayMillis);
             return this;
         }

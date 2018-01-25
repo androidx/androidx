@@ -86,7 +86,7 @@ class SystemJobInfoConverter {
 
         if (!constraints.requiresDeviceIdle()) {
             // Device Idle and Backoff Criteria cannot be set together
-            int backoffPolicy = workSpec.getBackoffPolicy() == BaseWork.BACKOFF_POLICY_LINEAR
+            int backoffPolicy = workSpec.getBackoffPolicy() == BaseWork.BackoffPolicy.LINEAR
                     ? JobInfo.BACKOFF_POLICY_LINEAR : JobInfo.BACKOFF_POLICY_EXPONENTIAL;
             builder.setBackoffCriteria(workSpec.getBackoffDelayDuration(), backoffPolicy);
         }

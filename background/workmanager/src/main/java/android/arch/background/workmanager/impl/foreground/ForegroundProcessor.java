@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.impl.foreground;
 
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
 
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.impl.Processor;
@@ -91,7 +91,7 @@ public class ForegroundProcessor extends Processor
         // status as well.
         Log.d(TAG, "Enqueued WorkSpecs updated. Size : " + workSpecs.size());
         for (WorkSpec workSpec : workSpecs) {
-            if (workSpec.getStatus() == STATUS_ENQUEUED
+            if (workSpec.getStatus() == ENQUEUED
                     && Constraints.NONE.equals(workSpec.getConstraints())) {
                 Log.d(TAG, workSpec + " can be processed immediately");
                 process(workSpec.getId());

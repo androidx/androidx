@@ -50,7 +50,7 @@ public class WorkTest extends WorkManagerTest {
     public void testBuild_setBackoffCriteria_exceedMaxBackoffDuration() {
         final long backoffDuration = BaseWork.MAX_BACKOFF_MILLIS + 123L;
         Work work = mBuilder
-                .withBackoffCriteria(BaseWork.BACKOFF_POLICY_EXPONENTIAL, backoffDuration)
+                .withBackoffCriteria(BaseWork.BackoffPolicy.EXPONENTIAL, backoffDuration)
                 .build();
         assertThat(getWorkSpec(work).getBackoffDelayDuration(), is(BaseWork.MAX_BACKOFF_MILLIS));
     }
@@ -59,7 +59,7 @@ public class WorkTest extends WorkManagerTest {
     public void testBuild_setBackoffCriteria_lessThanMinBackoffDuration() {
         final long backoffDuration = BaseWork.MIN_BACKOFF_MILLIS - 123L;
         Work work = mBuilder
-                .withBackoffCriteria(BaseWork.BACKOFF_POLICY_EXPONENTIAL, backoffDuration)
+                .withBackoffCriteria(BaseWork.BackoffPolicy.EXPONENTIAL, backoffDuration)
                 .build();
         assertThat(getWorkSpec(work).getBackoffDelayDuration(), is(BaseWork.MIN_BACKOFF_MILLIS));
     }
@@ -70,7 +70,7 @@ public class WorkTest extends WorkManagerTest {
         Constraints constraints = new Constraints.Builder()
                 .setRequiresDeviceIdle(true)
                 .build();
-        mBuilder.withBackoffCriteria(BaseWork.BACKOFF_POLICY_EXPONENTIAL, 123L)
+        mBuilder.withBackoffCriteria(BaseWork.BackoffPolicy.EXPONENTIAL, 123L)
                 .withConstraints(constraints)
                 .build();
     }

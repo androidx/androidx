@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.impl.background.systemalarm;
 
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
 
 import android.app.Service;
 import android.arch.background.workmanager.Constraints;
@@ -195,7 +195,7 @@ class SystemAlarmServiceImpl {
     }
 
     private static boolean isEnqueued(@NonNull WorkSpec workSpec) {
-        return workSpec.getStatus() == STATUS_ENQUEUED;
+        return workSpec.getStatus() == ENQUEUED;
     }
 
     private static WorkSpec removeWorkSpecWithId(String workSpecId, List<WorkSpec> workSpecs) {

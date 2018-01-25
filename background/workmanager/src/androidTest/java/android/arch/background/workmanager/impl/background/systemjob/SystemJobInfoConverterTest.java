@@ -101,7 +101,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         long expectedBackoffDelayDuration = 50000;
         WorkSpec workSpec = new WorkSpec("id");
         workSpec.setBackoffDelayDuration(expectedBackoffDelayDuration);
-        workSpec.setBackoffPolicy(BaseWork.BACKOFF_POLICY_LINEAR);
+        workSpec.setBackoffPolicy(BaseWork.BackoffPolicy.LINEAR);
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.getInitialBackoffMillis(), is(expectedBackoffDelayDuration));
         assertThat(jobInfo.getBackoffPolicy(), is(JobInfo.BACKOFF_POLICY_LINEAR));

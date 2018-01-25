@@ -16,12 +16,12 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_BLOCKED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_CANCELLED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_FAILED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_RUNNING;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.BLOCKED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.CANCELLED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.FAILED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -96,7 +96,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build()
                 .run();
         verify(mMockListener).onExecuted(work.getId(), false);
-        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_SUCCEEDED));
+        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(SUCCEEDED));
     }
 
     @Test
@@ -139,7 +139,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testNotEnqueued() throws InterruptedException {
-        Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_RUNNING).build();
+        Work work = new Work.Builder(TestWorker.class).withInitialStatus(RUNNING).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -151,14 +151,14 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testCancelled() throws InterruptedException {
-        Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_CANCELLED).build();
+        Work work = new Work.Builder(TestWorker.class).withInitialStatus(CANCELLED).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
                 .build()
                 .run();
         verify(mMockListener).onExecuted(work.getId(), false);
-        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_CANCELLED));
+        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(CANCELLED));
     }
 
     @Test
@@ -172,7 +172,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build()
                 .run();
         verify(mMockListener).onExecuted(work.getId(), false);
-        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_FAILED));
+        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(FAILED));
     }
 
     @Test
@@ -186,7 +186,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build()
                 .run();
         verify(mMockListener).onExecuted(work.getId(), false);
-        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_FAILED));
+        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(FAILED));
     }
 
     @Test
@@ -199,7 +199,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build()
                 .run();
         verify(mMockListener).onExecuted(work.getId(), false);
-        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_FAILED));
+        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(FAILED));
     }
 
     @Test
@@ -212,7 +212,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build();
         Executors.newSingleThreadExecutor().submit(wrapper);
         Thread.sleep(2000L); // Async wait duration.
-        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_RUNNING));
+        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(RUNNING));
         Thread.sleep(SleepTestWorker.SLEEP_DURATION);
         verify(mMockListener).onExecuted(work.getId(), false);
     }
@@ -221,7 +221,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testDependencies() {
         Work prerequisiteWork = new Work.Builder(TestWorker.class).build();
-        Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_BLOCKED).build();
+        Work work = new Work.Builder(TestWorker.class).withInitialStatus(BLOCKED).build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
 
         mDatabase.beginTransaction();
@@ -234,8 +234,8 @@ public class WorkerWrapperTest extends DatabaseTest {
             mDatabase.endTransaction();
         }
 
-        assertThat(mWorkSpecDao.getWorkSpecStatus(prerequisiteWork.getId()), is(STATUS_ENQUEUED));
-        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_BLOCKED));
+        assertThat(mWorkSpecDao.getWorkSpecStatus(prerequisiteWork.getId()), is(ENQUEUED));
+        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(BLOCKED));
         assertThat(mDependencyDao.hasCompletedAllPrerequisites(work.getId()), is(false));
 
         new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
@@ -244,8 +244,8 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build()
                 .run();
 
-        assertThat(mWorkSpecDao.getWorkSpecStatus(prerequisiteWork.getId()), is(STATUS_SUCCEEDED));
-        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_ENQUEUED));
+        assertThat(mWorkSpecDao.getWorkSpecStatus(prerequisiteWork.getId()), is(SUCCEEDED));
+        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(ENQUEUED));
         assertThat(mDependencyDao.hasCompletedAllPrerequisites(work.getId()), is(true));
 
         ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
@@ -257,7 +257,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testDependencies_passesOutputs() {
         Work prerequisiteWork = new Work.Builder(ChainedArgumentWorker.class).build();
-        Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_BLOCKED).build();
+        Work work = new Work.Builder(TestWorker.class).withInitialStatus(BLOCKED).build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
 
         mDatabase.beginTransaction();
@@ -327,7 +327,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testDependencies_setsPeriodStartTimesForUnblockedWork() {
         Work prerequisiteWork = new Work.Builder(TestWorker.class).build();
-        Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_BLOCKED).build();
+        Work work = new Work.Builder(TestWorker.class).withInitialStatus(BLOCKED).build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
 
         mDatabase.beginTransaction();
@@ -416,7 +416,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
         verify(mMockListener).onExecuted(periodicWorkId, false);
         assertThat(periodicWorkSpecAfterFirstRun.getRunAttemptCount(), is(0));
-        assertThat(periodicWorkSpecAfterFirstRun.getStatus(), is(STATUS_ENQUEUED));
+        assertThat(periodicWorkSpecAfterFirstRun.getStatus(), is(ENQUEUED));
     }
 
     @Test
@@ -437,7 +437,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
         verify(mMockListener).onExecuted(periodicWorkId, false);
         assertThat(periodicWorkSpecAfterFirstRun.getRunAttemptCount(), is(0));
-        assertThat(periodicWorkSpecAfterFirstRun.getStatus(), is(STATUS_ENQUEUED));
+        assertThat(periodicWorkSpecAfterFirstRun.getStatus(), is(ENQUEUED));
     }
 
     @Test
@@ -458,7 +458,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
         verify(mMockListener).onExecuted(periodicWorkId, true);
         assertThat(periodicWorkSpecAfterFirstRun.getRunAttemptCount(), is(1));
-        assertThat(periodicWorkSpecAfterFirstRun.getStatus(), is(STATUS_ENQUEUED));
+        assertThat(periodicWorkSpecAfterFirstRun.getStatus(), is(ENQUEUED));
     }
 
     @Test

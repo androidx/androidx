@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.impl.utils;
 
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_CANCELLED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.CANCELLED;
 
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
@@ -81,6 +81,6 @@ public class CancelWorkRunnable implements Runnable {
         for (String id : dependentIds) {
             recursivelyCancelWorkAndDependencies(id);
         }
-        workSpecDao.setStatus(STATUS_CANCELLED, workSpecId);
+        workSpecDao.setStatus(CANCELLED, workSpecId);
     }
 }

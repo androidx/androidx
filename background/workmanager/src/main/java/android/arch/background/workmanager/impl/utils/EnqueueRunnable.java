@@ -16,8 +16,8 @@
 
 package android.arch.background.workmanager.impl.utils;
 
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_BLOCKED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.BLOCKED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
 
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.WorkManager;
@@ -172,7 +172,7 @@ public class EnqueueRunnable implements Runnable {
                     return;
                 }
                 hasCompletedAllPrerequisites &=
-                        (prerequisiteWorkSpec.getStatus() == STATUS_SUCCEEDED);
+                        (prerequisiteWorkSpec.getStatus() == SUCCEEDED);
             }
         }
 
@@ -198,7 +198,7 @@ public class EnqueueRunnable implements Runnable {
             WorkSpec workSpec = work.getWorkSpec();
 
             if (hasPrerequisite && !hasCompletedAllPrerequisites) {
-                workSpec.setStatus(STATUS_BLOCKED);
+                workSpec.setStatus(BLOCKED);
             } else {
                 // Set scheduled times only for work without prerequisites. Dependent work
                 // will set their scheduled times when they are unblocked.

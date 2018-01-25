@@ -97,7 +97,7 @@ class FirebaseJobConverter {
     }
 
     private RetryStrategy createRetryStrategy(WorkSpec workSpec) {
-        int policy = workSpec.getBackoffPolicy() == BaseWork.BACKOFF_POLICY_LINEAR
+        int policy = workSpec.getBackoffPolicy() == BaseWork.BackoffPolicy.LINEAR
                 ? RetryStrategy.RETRY_POLICY_LINEAR : RetryStrategy.RETRY_POLICY_EXPONENTIAL;
         int initialBackoff = (int) TimeUnit.SECONDS
                 .convert(workSpec.getBackoffDelayDuration(), TimeUnit.MILLISECONDS);

@@ -16,9 +16,6 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_ENQUEUED;
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.ID_STATUS_RUNNING;
-
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.impl.model.Dependency;
@@ -49,8 +46,9 @@ import android.support.annotation.RestrictTo;
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "android.arch.background.workmanager.work";
-    private static final String CLEANUP_SQL = "UPDATE workspec SET status=" + ID_STATUS_ENQUEUED
-            + " WHERE status=" + ID_STATUS_RUNNING;
+    private static final String CLEANUP_SQL = "UPDATE workspec SET status="
+            + EnumTypeConverters.StatusIds.ENQUEUED + " WHERE status="
+            + EnumTypeConverters.StatusIds.RUNNING;
 
     /**
      * Creates an instance of the WorkDatabase.
