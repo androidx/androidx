@@ -16,6 +16,8 @@
 
 package com.example.androidx.slice.demos;
 
+import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
+
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -25,7 +27,9 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.text.SpannableString;
 import android.text.format.DateUtils;
+import android.text.style.ForegroundColorSpan;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceProvider;
@@ -45,7 +49,7 @@ public class SampleSliceProvider extends SliceProvider {
     public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
 
     public static final String[] URI_PATHS = {"message", "wifi", "note", "ride", "toggle",
-            "toggle2", "contact", "gallery", "weather"};
+            "toggle2", "contact", "gallery", "weather", "reservation"};
 
     /**
      * @return Uri with the provided path
@@ -91,6 +95,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createGallery(sliceUri);
             case "/weather":
                 return createWeather(sliceUri);
+            case "/reservation":
+                return createReservationSlice(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -121,15 +127,24 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createGallery(Uri sliceUri) {
-        return new GridBuilder(getContext(), sliceUri)
-                .addCell(cb -> cb
-                    .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_1)))
-                .addCell(cb -> cb
-                    .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_2)))
-                .addCell(cb -> cb
-                    .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_3)))
-                .addCell(cb -> cb
-                    .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_4)))
+        return new ListBuilder(getContext(), sliceUri)
+                .setColor(0xff4285F4)
+                .addRow(b -> b
+                    .setTitle("Family trip to Hawaii")
+                    .setSubtitle("Sep 30, 2017 - Oct 2, 2017")
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_cast),
+                            getBroadcastIntent(ACTION_TOAST, "cast photo album"))
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_share),
+                            getBroadcastIntent(ACTION_TOAST, "share photo album")))
+                .addGrid(b -> b
+                    .addCell(cb -> cb
+                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_1)))
+                    .addCell(cb -> cb
+                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_2)))
+                    .addCell(cb -> cb
+                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_3)))
+                    .addCell(cb -> cb
+                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_4))))
                 .build();
     }
 
@@ -196,12 +211,44 @@ public class SampleSliceProvider extends SliceProvider {
                 .build();
     }
 
-    private Slice createRideSlice(Uri sliceUri) {
+    private Slice createReservationSlice(Uri sliceUri) {
         return new ListBuilder(getContext(), sliceUri)
-                .setColor(0xff1b5e20)
+                .setColor(0xffFF5252)
+                .addRow(b -> b
+                    .setTitle("Upcoming trip to Seattle")
+                    .setSubtitle("Feb 1 - 19 | 2 guests")
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_location),
+                            getBroadcastIntent(ACTION_TOAST, "show reservation location on map"))
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_text),
+                            getBroadcastIntent(ACTION_TOAST, "contact host")))
+                .addGrid(b -> b
+                    .addCell(cb -> cb
+                        .addLargeImage(
+                                Icon.createWithResource(getContext(), R.drawable.reservation))))
+                .addGrid(b -> b
+                    .addCell(cb -> cb
+                        .addTitleText("Check In")
+                        .addText("12:00 PM, Feb 1"))
+                    .addCell(cb -> cb
+                        .addTitleText("Check Out")
+                        .addText("11:00 AM, Feb 19")))
+                .build();
+    }
+
+    private Slice createRideSlice(Uri sliceUri) {
+        final ForegroundColorSpan colorSpan = new ForegroundColorSpan(0xff0F9D58);
+        SpannableString headerSubtitle = new SpannableString("Ride in 4 min");
+        headerSubtitle.setSpan(colorSpan, 8, headerSubtitle.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+        SpannableString homeSubtitle = new SpannableString("12 miles | 12 min | $9.00");
+        homeSubtitle.setSpan(colorSpan, 20, homeSubtitle.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+        SpannableString workSubtitle = new SpannableString("44 miles | 1 hour 45 min | $31.41");
+        workSubtitle.setSpan(colorSpan, 27, workSubtitle.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        return new ListBuilder(getContext(), sliceUri)
+                .setColor(0xff0F9D58)
                 .addSummaryRow(b -> b
                     .setTitle("Get ride")
-                    .setSubtitle("Multiple cars 4 minutes away")
+                    .setSubtitle(headerSubtitle)
                     .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_home),
                             getBroadcastIntent(ACTION_TOAST, "home"))
                     .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_work),
@@ -209,17 +256,15 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(b -> b
                     .setContentIntent(getBroadcastIntent(ACTION_TOAST, "work"))
                     .setTitle("Work")
-                    .setSubtitle("2 min")
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_work)))
+                    .setSubtitle(workSubtitle)
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_work),
+                            getBroadcastIntent(ACTION_TOAST, "work")))
                 .addRow(b -> b
                     .setContentIntent(getBroadcastIntent(ACTION_TOAST, "home"))
                     .setTitle("Home")
-                    .setSubtitle("2 hours 33 min via 101")
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_home)))
-                .addRow(b -> b
-                    .setContentIntent(getBroadcastIntent(ACTION_TOAST, "book ride"))
-                    .setTitle("Book ride")
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_car)))
+                    .setSubtitle(homeSubtitle)
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_home),
+                            getBroadcastIntent(ACTION_TOAST, "home")))
                 .build();
     }
 
