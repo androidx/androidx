@@ -31,7 +31,6 @@ import android.support.annotation.RestrictTo;
 
 import java.util.function.Consumer;
 
-import androidx.app.slice.Slice;
 import androidx.app.slice.SliceSpecs;
 import androidx.app.slice.builders.impl.ListBuilderBasicImpl;
 import androidx.app.slice.builders.impl.ListBuilderV1Impl;
@@ -62,18 +61,9 @@ public class ListBuilder extends TemplateSliceBuilder {
     private androidx.app.slice.builders.impl.ListBuilder mImpl;
 
     /**
-     */
-    public ListBuilder(@NonNull Uri uri) {
-        super(uri);
-        throw new RuntimeException("Stub, to be removed");
-    }
-
-    /**
      * Create a builder which will construct a slice that will display rows of content.
      * @param uri Uri to tag for this slice.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     public ListBuilder(@NonNull Context context, @NonNull Uri uri) {
         super(context, uri);
     }
@@ -234,18 +224,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         */
-        public RowBuilder(@NonNull Uri uri) {
-            super(uri);
-            throw new RuntimeException("Stub, to be removed");
-        }
-
-        /**
          * Create a builder which will construct a slice displayed in a row format.
          * @param uri Uri to tag for this slice.
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         public RowBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
             super(parent.mImpl.createRowBuilder(uri));
         }
@@ -253,9 +234,7 @@ public class ListBuilder extends TemplateSliceBuilder {
         /**
          * Create a builder which will construct a slice displayed in a row format.
          * @param uri Uri to tag for this slice.
-         * @hide
          */
-        @RestrictTo(LIBRARY)
         public RowBuilder(@NonNull Context context, @NonNull Uri uri) {
             super(new ListBuilder(context, uri).mImpl.createRowBuilder(uri));
         }
@@ -431,12 +410,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         @Override
         void setImpl(TemplateBuilderImpl impl) {
             mImpl = (androidx.app.slice.builders.impl.ListBuilder.RowBuilder) impl;
-        }
-
-        /**
-         */
-        public void apply(Slice.Builder builder) {
-            throw new RuntimeException("Stub, to be removed");
         }
     }
 }

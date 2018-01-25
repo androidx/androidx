@@ -46,13 +46,6 @@ public abstract class TemplateSliceBuilder {
     private List<SliceSpec> mSpecs;
 
     /**
-     */
-    public TemplateSliceBuilder(Uri uri) {
-        this(null, uri);
-        throw new RuntimeException("Stub, to be removed");
-    }
-
-    /**
      * @hide
      */
     @RestrictTo(LIBRARY)

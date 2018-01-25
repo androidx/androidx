@@ -425,18 +425,6 @@ public final class Slice {
     }
 
     /**
-     */
-    public static @Nullable Slice bindSlice(Context context, @NonNull Uri uri) {
-        throw new RuntimeException("Stub, to be removed");
-    }
-
-    /**
-     */
-    public static @Nullable Slice bindSlice(Context context, @NonNull Intent intent) {
-        throw new RuntimeException("Stub, to be removed");
-    }
-
-    /**
      * Turns a slice Uri into slice content.
      *
      * @hide
