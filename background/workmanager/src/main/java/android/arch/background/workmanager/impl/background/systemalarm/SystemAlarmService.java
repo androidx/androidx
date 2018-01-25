@@ -23,7 +23,6 @@ import android.arch.background.workmanager.impl.ExecutionListener;
 import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
-import android.arch.background.workmanager.impl.background.BackgroundProcessor;
 import android.arch.background.workmanager.impl.constraints.WorkConstraintsCallback;
 import android.arch.background.workmanager.impl.constraints.WorkConstraintsTracker;
 import android.arch.background.workmanager.impl.logger.Logger;
@@ -60,15 +59,20 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
         Scheduler scheduler = workManagerImpl.getBackgroundScheduler();
         Context context = getApplicationContext();
 
-        BackgroundProcessor processor = new BackgroundProcessor(
+        WorkTimer workTimer = new WorkTimer();
+        TimedBackgroundProcessor processor = new TimedBackgroundProcessor(
                 context,
                 database,
                 scheduler,
-                workManagerImpl.getBackgroundExecutorService(),
-                this);
-        WorkConstraintsTracker workConstraintsTracker = new WorkConstraintsTracker(context, this);
-        mSystemAlarmServiceImpl =
-                new SystemAlarmServiceImpl(context, processor, workConstraintsTracker, this);
+                 workManagerImpl.getBackgroundExecutorService(),
+                this,
+                workTimer);
+
+        WorkConstraintsTracker workConstraintsTracker = new WorkConstraintsTracker(
+                context, this);
+
+        mSystemAlarmServiceImpl = new SystemAlarmServiceImpl(
+                context, processor, workConstraintsTracker, this);
 
         LiveDataUtils
                 .dedupedLiveDataFor(database.workSpecDao().getSystemAlarmEligibleWorkSpecs())
