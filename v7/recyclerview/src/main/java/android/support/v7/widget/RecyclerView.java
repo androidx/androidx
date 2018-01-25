@@ -2642,7 +2642,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         removeCallbacks(mItemAnimatorRunner);
         mViewInfoStore.onDetach();
 
-        if (ALLOW_THREAD_GAP_WORK) {
+        if (ALLOW_THREAD_GAP_WORK && mGapWorker != null) {
             // Unregister with gap worker
             mGapWorker.remove(this);
             mGapWorker = null;
