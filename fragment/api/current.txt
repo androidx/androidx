@@ -16,6 +16,7 @@ package android.support.v4.app {
     method public void setStyle(int, int);
     method public void show(android.support.v4.app.FragmentManager, java.lang.String);
     method public int show(android.support.v4.app.FragmentTransaction, java.lang.String);
+    method public void showNow(android.support.v4.app.FragmentManager, java.lang.String);
     field public static final int STYLE_NORMAL = 0; // 0x0
     field public static final int STYLE_NO_FRAME = 2; // 0x2
     field public static final int STYLE_NO_INPUT = 3; // 0x3
