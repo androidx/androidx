@@ -21,7 +21,6 @@ import static android.support.content.TestContentProvider.UNPAGED_URI;
 
 import android.app.Activity;
 import android.database.Cursor;
-import android.os.Looper;
 import android.support.content.ContentPager.ContentCallback;
 import android.support.content.ContentPager.QueryRunner;
 import android.support.test.filters.MediumTest;
@@ -56,26 +55,13 @@ public class LoaderQueryRunnerTest {
         int offset = 0;
         int limit = 10;
 
-        // Note: For some when running this test via tradefed (vs gradle) this
-        // looper setup code doesn't work when run *in setUp*. Works fine in Gradle.
-        // So this test fails when run on treehugger or run via tradefed.
-        // To work around that issue we prepare the looper here.
-        //
-        // "Wait!" you say, why do you need to prepare a looper? We're using
-        // a CursorLoader under the hoods which deep down creates an handler
-        // to listen for content changes. That's not critical to our test
-        // since we're waiting on results w/ latches, but we need to avoid the error.
-        if (Looper.myLooper() == null) {
-            Looper.prepare();
-        }
-
         ContentCallback dummyContentCallback = new ContentCallback() {
             @Override
             public void onCursorReady(Query query, Cursor cursor) {
                 // Nothing to see here. Move along.
             }
         };
-        Query query = new Query(
+        final Query query = new Query(
                 UNPAGED_URI,
                 null,
                 createArgs(offset, limit),
@@ -83,7 +69,14 @@ public class LoaderQueryRunnerTest {
                 dummyContentCallback);
 
         mCallback.reset(1);
-        mRunner.query(query, mCallback);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // This calls through to LoaderManager.restartLoader
+                // which must always be called on the main thread
+                mRunner.query(query, mCallback);
+            }
+        });
 
         mCallback.waitFor(10);
         mCallback.assertQueried(query.getId());
