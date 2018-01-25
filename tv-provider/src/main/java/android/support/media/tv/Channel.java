@@ -318,6 +318,13 @@ public final class Channel {
     }
 
     /**
+     * @return The value of {@link Channels#COLUMN_CONFIGURATION_DISPLAY_ORDER} for the channel.
+     */
+    public int getConfigurationDisplayOrder() {
+        return mValues.getAsInteger(Channels.COLUMN_CONFIGURATION_DISPLAY_ORDER);
+    }
+
+    /**
      * @return The value of {@link Channels#COLUMN_LOCKED} for the channel.
      */
     public boolean isLocked() {
@@ -374,6 +381,7 @@ public final class Channel {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             values.remove(Channels.COLUMN_INTERNAL_PROVIDER_ID);
             values.remove(Channels.COLUMN_TRANSIENT);
+            values.remove(Channels.COLUMN_CONFIGURATION_DISPLAY_ORDER);
         }
 
         if (!includeProtectedFields) {
@@ -513,6 +521,10 @@ public final class Channel {
                     && !cursor.isNull(index)) {
                 builder.setSystemApproved(cursor.getInt(index) == IS_SYSTEM_APPROVED);
             }
+            if ((index = cursor.getColumnIndex(Channels.COLUMN_CONFIGURATION_DISPLAY_ORDER)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setConfigurationDisplayOrder(cursor.getInt(index));
+            }
         }
         return builder.build();
     }
@@ -552,6 +564,7 @@ public final class Channel {
                 Channels.COLUMN_INTERNAL_PROVIDER_ID,
                 Channels.COLUMN_TRANSIENT,
                 Channels.COLUMN_SYSTEM_APPROVED,
+                Channels.COLUMN_CONFIGURATION_DISPLAY_ORDER,
         };
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return CollectionUtils.concatAll(baseColumns, marshmallowColumns, oReleaseColumns);
@@ -925,6 +938,19 @@ public final class Channel {
         @RestrictTo(LIBRARY_GROUP)
         public Builder setSystemApproved(boolean value) {
             mValues.put(Channels.COLUMN_SYSTEM_APPROVED, value ? IS_SYSTEM_APPROVED : 0);
+            return this;
+        }
+
+        /**
+         * Sets the configuration display order for this channel. This value will be used to
+         * order channels within the configure channels menu.
+         *
+         * @param value The value of {@link Channels#COLUMN_CONFIGURATION_DISPLAY_ORDER} for the
+         *              channel
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setConfigurationDisplayOrder(int value) {
+            mValues.put(Channels.COLUMN_CONFIGURATION_DISPLAY_ORDER, value);
             return this;
         }
 
