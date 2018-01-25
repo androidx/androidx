@@ -26,4 +26,6 @@ limitations under the License.
     <dimen name="car_keyline_3">152dp</dimen>
     <dimen name="car_keyline_1_neg">-48dp</dimen>
     <dimen name="car_keyline_3_neg">-152dp</dimen>
+    <!-- The diff between keyline 1 and keyline 3. -->
+    <dimen name="car_keyline_1_keyline_3_diff">104dp</dimen>
 </resources>
