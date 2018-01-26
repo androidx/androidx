@@ -432,6 +432,34 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
+    public void testUniqueTagSequence_replacesExistingWorkOnKeepWhenExistingWorkIsFinished() {
+        final String testTag = "mytag";
+
+        Work originalWork = new Work.Builder(TestWorker.class)
+                .withInitialStatus(SUCCEEDED)
+                .addTag(testTag)
+                .build();
+        insertWorkSpecAndTags(originalWork);
+
+        Work replacementWork1 = new Work.Builder(TestWorker.class).build();
+        Work replacementWork2 = new Work.Builder(TestWorker.class).build();
+        mWorkManagerImpl
+                .createWithUniqueTag(testTag, WorkManager.KEEP_EXISTING_WORK, replacementWork1)
+                .then(replacementWork2)
+                .enqueue();
+
+        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        assertThat(workSpecIds,
+                containsInAnyOrder(replacementWork1.getId(), replacementWork2.getId()));
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(originalWork.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(replacementWork1.getId()), is(not(nullValue())));
+        assertThat(workSpecDao.getWorkSpec(replacementWork2.getId()), is(not(nullValue())));
+    }
+
+    @Test
+    @SmallTest
     @SuppressWarnings("unchecked")
     public void testGetStatuses() {
         Work work0 = new Work.Builder(TestWorker.class).build();
