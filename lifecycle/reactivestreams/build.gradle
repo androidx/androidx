@@ -31,6 +31,8 @@ dependencies {
     api(SUPPORT_ANNOTATIONS)
     api(REACTIVE_STREAMS)
 
+    annotationProcessor(NULLAWAY)
+
     testImplementation(JUNIT)
     testImplementation(RX_JAVA)
     testImplementation(TEST_RUNNER)
