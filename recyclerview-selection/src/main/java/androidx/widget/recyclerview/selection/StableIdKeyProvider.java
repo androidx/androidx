@@ -16,11 +16,8 @@
 
 package androidx.widget.recyclerview.selection;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnChildAttachStateChangeListener;
 import android.util.SparseArray;
@@ -30,18 +27,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * ItemKeyProvider that provides stable ids by way of cached {@link RecyclerView.Adapter}
- * stable ids. Items enter the cache as they are laid out by RecyclerView, and are removed
- * from the cache as they are recycled.
+ * An {@link ItemKeyProvider} that provides stable ids by way of cached
+ * {@link RecyclerView.Adapter} stable ids. Items enter the cache as they are laid out by
+ * RecyclerView, and are removed from the cache as they are recycled.
  *
  * <p>
  * There are trade-offs with this implementation as it necessarily auto-boxes {@code long}
  * stable id values into {@code Long} values for use as selection keys. The core Selection API
  * uses a parameterized key type to permit other keys (such as Strings or URIs).
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
 public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
 
     private final SparseArray<Long> mPositionToKey = new SparseArray<>();

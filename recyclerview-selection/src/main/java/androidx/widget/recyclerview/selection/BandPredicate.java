@@ -89,7 +89,7 @@ public abstract class BandPredicate {
     /**
      * A BandPredicate that allows initiation of band selection in any area that is not
      * draggable as determined by consulting
-     * {@link ItemDetailsLookup#inItemDragRegion(MotionEvent)}. By default empty
+     * {@link ItemDetailsLookup.ItemDetails#inDragRegion(MotionEvent)}. By default empty
      * areas (those with a position that maps to {@link RecyclerView#NO_POSITION}
      * are considered non-draggable.
      *
@@ -100,7 +100,7 @@ public abstract class BandPredicate {
      * and individual list items may contain extra white space (like
      * in a list of varying length words).
      *
-     * @see ItemDetailsLookup#inItemDragRegion(MotionEvent)
+     * @see ItemDetailsLookup.ItemDetails#inDragRegion(MotionEvent)
      */
     public static final class NonDraggableArea extends BandPredicate {
 

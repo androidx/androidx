@@ -36,7 +36,7 @@ public interface OnDragInitiatedListener {
      * <p>
      * The RecyclerView item at the coordinates of the MotionEvent is not supplied as a parameter
      * to this method as there may be multiple items selected. Clients can obtain the current
-     * list of selected items from {@link SelectionTracker#copySelection(Selection)}.
+     * list of selected items from {@link SelectionTracker#copySelection(MutableSelection)}.
      *
      * @param e the event associated with the drag.
      * @return true if the event was handled.
