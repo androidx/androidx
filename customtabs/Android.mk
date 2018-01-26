@@ -30,11 +30,13 @@ LOCAL_AIDL_INCLUDES := $(LOCAL_PATH)/src/main/java
 LOCAL_SRC_FILES := \
     $(call all-java-files-under,src/main/java) \
     $(call all-Iaidl-files-under,src/main/java)
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/src/main/res
 LOCAL_JAVA_LIBRARIES := \
     android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
-    android-support-compat
+    android-support-v7-appcompat \
+    android-support-compat \
+    android-support-core-ui
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
 include $(BUILD_STATIC_JAVA_LIBRARY)
