@@ -42,6 +42,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -375,7 +376,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         // no-op
     }
 
-    private class TabView extends LinearLayoutCompat {
+    private class TabView extends LinearLayout {
         private final int[] BG_ATTRS = {
                 android.R.attr.background
         };
