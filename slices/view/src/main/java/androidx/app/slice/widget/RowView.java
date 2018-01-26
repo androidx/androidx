@@ -16,18 +16,18 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_SELECTED;
+import static android.app.slice.Slice.SUBTYPE_TOGGLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.app.slice.core.SliceHints.EXTRA_SLIDER_VALUE;
-import static androidx.app.slice.core.SliceHints.EXTRA_TOGGLE_STATE;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_MAX;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_PROGRESS;
-import static androidx.app.slice.core.SliceHints.SUBTYPE_TOGGLE;
 import static androidx.app.slice.widget.SliceView.MODE_LARGE;
 import static androidx.app.slice.widget.SliceView.MODE_SMALL;
 
@@ -343,7 +343,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         SliceItem timeStamp = null;
         ViewGroup container = isStart ? mStartContainer : mEndContainer;
         if (FORMAT_ACTION.equals(sliceItem.getFormat())) {
-            if (SliceQuery.hasHints(sliceItem.getSlice(), SUBTYPE_TOGGLE)) {
+            if (SUBTYPE_TOGGLE.equals(sliceItem.getSubType())) {
                 addToggle(sliceItem, color, container);
                 return true;
             }

@@ -24,6 +24,7 @@ import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SELECTED;
+import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -57,7 +58,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import androidx.app.slice.compat.SliceProviderCompat;
-import androidx.app.slice.core.SliceHints;
 
 /**
  * A slice is a piece of app content and actions that can be surfaced outside of the app.
@@ -80,8 +80,7 @@ public final class Slice {
      */
     @RestrictTo(Scope.LIBRARY)
     @StringDef({HINT_TITLE, HINT_LIST, HINT_LIST_ITEM, HINT_LARGE, HINT_ACTIONS, HINT_SELECTED,
-            HINT_HORIZONTAL, HINT_NO_TINT, HINT_PARTIAL,
-            SliceHints.HINT_SUMMARY, SliceHints.SUBTYPE_TOGGLE})
+            HINT_HORIZONTAL, HINT_NO_TINT, HINT_PARTIAL, HINT_SUMMARY})
     public @interface SliceHint{ }
 
     private final SliceItem[] mItems;

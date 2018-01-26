@@ -16,6 +16,8 @@
 
 package com.example.androidx.slice.demos;
 
+import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
+
 import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
 
 import android.content.BroadcastReceiver;
@@ -24,8 +26,6 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.widget.Toast;
-
-import androidx.app.slice.core.SliceHints;
 
 /**
  * Responds to actions performed on slices and notifies slices of updates in state changes.
@@ -38,8 +38,7 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
         switch (action) {
             case SampleSliceProvider.ACTION_WIFI_CHANGED:
                 WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                boolean newState = i.getBooleanExtra(SliceHints.EXTRA_TOGGLE_STATE,
-                        wm.isWifiEnabled());
+                boolean newState = i.getBooleanExtra(EXTRA_TOGGLE_STATE, wm.isWifiEnabled());
                 wm.setWifiEnabled(newState);
                 // Wait a bit for wifi to update (TODO: is there a better way to do this?)
                 Handler h = new Handler();

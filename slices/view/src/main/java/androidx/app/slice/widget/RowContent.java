@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.app.slice.SliceItem;
-import androidx.app.slice.core.SliceHints;
 import androidx.app.slice.core.SliceQuery;
 
 /**
@@ -238,8 +237,7 @@ public class RowContent {
      */
     private static boolean isStartType(SliceItem item) {
         final String type = item.getFormat();
-        return (!item.hasHint(SliceHints.SUBTYPE_TOGGLE)
-                && (FORMAT_ACTION.equals(type) && (SliceQuery.find(item, FORMAT_IMAGE) != null)))
+        return (FORMAT_ACTION.equals(type) && (SliceQuery.find(item, FORMAT_IMAGE) != null))
                 || FORMAT_IMAGE.equals(type)
                 || FORMAT_TIMESTAMP.equals(type);
     }
