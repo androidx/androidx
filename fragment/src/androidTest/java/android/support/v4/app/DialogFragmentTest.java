@@ -55,6 +55,25 @@ public class DialogFragmentTest {
     }
 
     @Test
+    public void testDialogFragmentShowsNow() throws Throwable {
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        final TestDialogFragment fragment = new TestDialogFragment();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fragment.showNow(mActivityTestRule.getActivity().getSupportFragmentManager(),
+                        null);
+            }
+        });
+
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        assertNotNull("Dialog was null", fragment.getDialog());
+        assertTrue("Dialog was not being shown", fragment.getDialog().isShowing());
+    }
+
+    @Test
     public void testDialogFragmentDismiss() {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
