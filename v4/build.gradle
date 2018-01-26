@@ -13,13 +13,6 @@ dependencies {
     api(project(":support-fragment"))
 }
 
-android {
-    defaultConfig {
-        // This disables the builds tools automatic vector -> PNG generation
-        generatedDensities = []
-    }
-}
-
 supportLibrary {
     name = "Android Support Library v4"
     publish = true
@@ -27,5 +20,4 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
-    legacySourceLocation = true
 }

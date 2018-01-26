@@ -36,6 +36,7 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     android-support-core-ui \
     android-support-fragment
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_MANIFEST_FILE := src/main/AndroidManifest.xml
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
