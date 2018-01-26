@@ -45,8 +45,8 @@ limitations under the License.
     <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"تعطيل الترتيب العشوائي"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"تمكين الجودة العالية"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"تعطيل الجودة العالية"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"تمكين الترجمة المصاحبة"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"تعطيل الترجمة المصاحبة"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"تفعيل الترجمة والشرح"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"إيقاف الترجمة والشرح"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"إدخال صورة في وضع الصورة"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
     <string name="lb_playback_controls_shown" msgid="6382160135512023238">"تم إظهار عناصر التحكم في الوسائط"</string>
