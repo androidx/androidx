@@ -17,6 +17,8 @@
 package android.arch.background.workmanager.impl.utils;
 
 import static android.arch.background.workmanager.BaseWork.WorkStatus.BLOCKED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
 
 import android.arch.background.workmanager.BaseWork;
@@ -28,6 +30,7 @@ import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.Dependency;
 import android.arch.background.workmanager.impl.model.WorkSpec;
+import android.arch.background.workmanager.impl.model.WorkSpecDao;
 import android.arch.background.workmanager.impl.model.WorkTag;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -176,11 +179,15 @@ public class EnqueueRunnable implements Runnable {
 
         boolean hasUniqueTag = !TextUtils.isEmpty(uniqueTag);
         if (hasUniqueTag && !hasPrerequisite) {
-            List<String> existingWorkSpecIds =
-                    workDatabase.workSpecDao().getWorkSpecIdsForTag(uniqueTag);
-            if (!existingWorkSpecIds.isEmpty()) {
+            List<WorkSpec.IdAndStatus> existingWorkSpecIdAndStatuses =
+                    workDatabase.workSpecDao().getWorkSpecIdAndStatusesForTag(uniqueTag);
+            if (!existingWorkSpecIdAndStatuses.isEmpty()) {
                 if (existingWorkPolicy == WorkManager.KEEP_EXISTING_WORK) {
-                    return;
+                    for (WorkSpec.IdAndStatus idAndStatus : existingWorkSpecIdAndStatuses) {
+                        if (idAndStatus.status == ENQUEUED || idAndStatus.status == RUNNING) {
+                            return;
+                        }
+                    }
                 }
 
                 // Cancel all of these workers.
@@ -188,7 +195,10 @@ public class EnqueueRunnable implements Runnable {
                         new CancelWorkRunnable(workManagerImpl, null, uniqueTag);
                 cancelWorkRunnable.run();
                 // And delete all the database records.
-                workDatabase.workSpecDao().delete(existingWorkSpecIds);
+                WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+                for (WorkSpec.IdAndStatus idAndStatus : existingWorkSpecIdAndStatuses) {
+                    workSpecDao.delete(idAndStatus.id);
+                }
             }
         }
 

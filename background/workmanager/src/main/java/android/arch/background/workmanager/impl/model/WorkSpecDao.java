@@ -45,10 +45,10 @@ public interface WorkSpecDao {
     /**
      * Deletes {@link WorkSpec}s from the database.
      *
-     * @param workSpecIds The WorkSpec ids to delete.
+     * @param id The WorkSpec id to delete.
      */
-    @Query("DELETE FROM workspec WHERE id IN (:workSpecIds)")
-    void delete(List<String> workSpecIds);
+    @Query("DELETE FROM workspec WHERE id=:id")
+    void delete(String id);
 
     /**
      * @param id The identifier
@@ -72,8 +72,9 @@ public interface WorkSpecDao {
      * @param tag The tag of the desired {@link WorkSpec}s.
      * @return The {@link WorkSpec}s with the requested tag.
      */
-    @Query("SELECT id FROM workspec WHERE id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
-    List<String> getWorkSpecIdsForTag(String tag);
+    @Query("SELECT id, status FROM workspec WHERE id IN "
+            + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
+    List<WorkSpec.IdAndStatus> getWorkSpecIdAndStatusesForTag(String tag);
 
     /**
      * @return All WorkSpec ids in the database.
