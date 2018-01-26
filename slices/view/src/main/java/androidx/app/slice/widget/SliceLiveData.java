@@ -73,7 +73,7 @@ public final class SliceLiveData {
 
         private SliceLiveDataImpl(Context context, Uri uri) {
             super();
-            mSliceManager = SliceManager.get(context);
+            mSliceManager = SliceManager.getInstance(context);
             mUri = uri;
             mIntent = null;
             // TODO: Check if uri points at a Slice?
@@ -81,7 +81,7 @@ public final class SliceLiveData {
 
         private SliceLiveDataImpl(Context context, Intent intent) {
             super();
-            mSliceManager = SliceManager.get(context);
+            mSliceManager = SliceManager.getInstance(context);
             mUri = null;
             mIntent = intent;
         }

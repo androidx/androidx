@@ -83,7 +83,7 @@ public class SliceManagerTest {
             }).when(manager).unpinSlice(any(Uri.class));
             return new SliceManagerWrapper(context, manager);
         } else {
-            return SliceManager.get(context);
+            return SliceManager.getInstance(context);
         }
     }
 
