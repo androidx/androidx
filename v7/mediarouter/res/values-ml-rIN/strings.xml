@@ -26,7 +26,7 @@
     <string name="mr_chooser_searching" msgid="6349900579507521956">"ഉപകരണങ്ങൾ കണ്ടെത്തുന്നു"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"വിച്ഛേദിക്കുക"</string>
     <string name="mr_controller_stop" msgid="4570331844078181931">"കാസ്റ്റുചെയ്യൽ നിർത്തുക"</string>
-    <string name="mr_controller_close_description" msgid="7333862312480583260">"അടയ്‌ക്കുക"</string>
+    <string name="mr_controller_close_description" msgid="7333862312480583260">"അവസാനിപ്പിക്കുക"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"പ്ലേ ചെയ്യുക"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"തൽക്കാലം നിർത്തൂ"</string>
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"വികസിപ്പിക്കുക"</string>
