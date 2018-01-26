@@ -24,11 +24,11 @@ import android.arch.background.workmanager.impl.constraints.controllers.NetworkM
 import android.arch.background.workmanager.impl.constraints.controllers.NetworkNotRoamingController;
 import android.arch.background.workmanager.impl.constraints.controllers.NetworkUnmeteredController;
 import android.arch.background.workmanager.impl.constraints.controllers.StorageNotLowController;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,8 +88,8 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
     private boolean areAllConstraintsMet(@NonNull String workSpecId) {
         for (ConstraintController constraintController : mConstraintControllers) {
             if (constraintController.isWorkSpecConstrained(workSpecId)) {
-                Log.d(TAG, "Work " + workSpecId + " constrained by "
-                        + constraintController.getClass().getSimpleName());
+                Logger.debug(TAG, "Work %s constrained by %s", workSpecId,
+                        constraintController.getClass().getSimpleName());
                 return false;
             }
         }
@@ -101,7 +101,7 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
         List<String> unconstrainedWorkSpecIds = new ArrayList<>();
         for (String workSpecId : workSpecIds) {
             if (areAllConstraintsMet(workSpecId)) {
-                Log.d(TAG, "Constraints met for " + workSpecId);
+                Logger.debug(TAG, "Constraints met for %s", workSpecId);
                 unconstrainedWorkSpecIds.add(workSpecId);
             }
         }

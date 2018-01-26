@@ -15,10 +15,10 @@
  */
 package android.arch.background.workmanager.impl;
 
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +62,7 @@ public abstract class Processor implements ExecutionListener {
         // Work may get triggered multiple times if they have passing constraints and new work with
         // those constraints are added.
         if (mEnqueuedWorkMap.containsKey(id)) {
-            Log.d(TAG, "Work " + id + " is already enqueued for processing");
+            Logger.debug(TAG, "Work %s is already enqueued for processing", id);
             return false;
         }
 
@@ -71,7 +71,7 @@ public abstract class Processor implements ExecutionListener {
                 .withScheduler(mScheduler)
                 .build();
         mEnqueuedWorkMap.put(id, mExecutorService.submit(workWrapper));
-        Log.d(TAG, getClass().getSimpleName() + ": processing " + id);
+        Logger.debug(TAG, "%s: processing %s", getClass().getSimpleName(), id);
         return true;
     }
 
@@ -84,21 +84,21 @@ public abstract class Processor implements ExecutionListener {
      * @return {@code true} if the work was cancelled successfully.
      */
     public boolean cancel(String id, boolean mayInterruptIfRunning) {
-        Log.d(TAG,
-                getClass().getSimpleName() + " canceling " + id
-                        + "; mayInterruptIfRunning = " + mayInterruptIfRunning);
+        Logger.debug(TAG, "%s canceling %s; mayInterruptIfRunning = %s", getClass().getSimpleName(),
+                id, mayInterruptIfRunning);
         Future<?> future = mEnqueuedWorkMap.get(id);
         if (future != null) {
             boolean cancelled = future.cancel(mayInterruptIfRunning);
             if (cancelled) {
                 mEnqueuedWorkMap.remove(id);
-                Log.d(TAG, "Future successfully canceled for " + id);
+                Logger.debug(TAG, "Future successfully canceled for %s", id);
             } else {
-                Log.d(TAG, "Future could not be canceled for " + id);
+                Logger.debug(TAG, "Future could not be canceled for %s", id);
             }
             return cancelled;
         } else {
-            Log.d(TAG, getClass().getSimpleName() + " future not found for " + id);
+            Logger.debug(TAG, "%s future could not be found for %s",
+                    getClass().getSimpleName(), id);
         }
         return false;
     }
@@ -113,8 +113,8 @@ public abstract class Processor implements ExecutionListener {
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         mEnqueuedWorkMap.remove(workSpecId);
-        Log.d(TAG,
-                getClass().getSimpleName() + " " + workSpecId + " executed; reschedule = "
-                        + needsReschedule);
+        Logger.debug(TAG, "%s %s executed; reschedule = %s",
+                getClass().getSimpleName(), workSpecId, needsReschedule);
+
     }
 }

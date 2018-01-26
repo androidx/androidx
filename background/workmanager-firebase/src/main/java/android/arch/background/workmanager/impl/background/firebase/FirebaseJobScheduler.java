@@ -19,6 +19,7 @@ package android.arch.background.workmanager.impl.background.firebase;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.arch.background.workmanager.impl.Scheduler;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.IdGenerator;
 import android.content.Context;
@@ -26,7 +27,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
@@ -77,10 +77,10 @@ public class FirebaseJobScheduler implements Scheduler {
 
     void scheduleNow(WorkSpec workSpec) {
         Job job = mJobConverter.convert(workSpec);
-        Log.d(TAG, "Scheduling work now, ID: " + workSpec.getId());
+        Logger.debug(TAG, "Scheduling work now, ID: %s", workSpec.getId());
         int result = mDispatcher.schedule(job);
         if (result != FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS) {
-            Log.e(TAG, "Schedule failed. Result = " + result);
+            Logger.error(TAG, "Schedule failed. Result = %s", result);
         }
     }
 
@@ -91,7 +91,7 @@ public class FirebaseJobScheduler implements Scheduler {
         if (mIdGenerator == null) {
             mIdGenerator = new IdGenerator(mAppContext);
         }
-        Log.d(TAG, "Scheduling work later, ID: " + workSpec.getId());
+        Logger.debug(TAG, "Scheduling work later, ID: %s", workSpec.getId());
         PendingIntent pendingIntent = createScheduleLaterPendingIntent(workSpec);
 
         // This wakes up the device at exactly the next run time.

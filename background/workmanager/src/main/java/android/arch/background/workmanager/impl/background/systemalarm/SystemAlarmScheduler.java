@@ -21,6 +21,7 @@ import static android.app.AlarmManager.RTC_WAKEUP;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.arch.background.workmanager.impl.Scheduler;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.IdGenerator;
 import android.content.Context;
@@ -28,7 +29,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 /**
  * A {@link Scheduler} that schedules work using {@link android.app.AlarmManager}.
@@ -74,7 +74,7 @@ public class SystemAlarmScheduler implements Scheduler {
         int nextAlarmId = mIdGenerator.nextAlarmManagerId();
         Intent intent = SystemAlarmService.createDelayMetIntent(mAppContext, workSpec.getId());
         setExactAlarm(nextAlarmId, triggerAtMillis, intent);
-        Log.d(TAG, "Scheduled work with ID: " + workSpec.getId());
+        Logger.debug(TAG, "Scheduled work with ID: %s", workSpec.getId());
     }
 
     private void setExactAlarm(int alarmId, long triggerAtMillis, @NonNull Intent intent) {

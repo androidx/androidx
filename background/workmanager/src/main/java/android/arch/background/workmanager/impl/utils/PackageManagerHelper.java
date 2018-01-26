@@ -15,10 +15,10 @@
  */
 package android.arch.background.workmanager.impl.utils;
 
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
 /**
  * Helper class for common {@link PackageManager} functions
@@ -53,11 +53,11 @@ public class PackageManagerHelper {
                             ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                             : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                     PackageManager.DONT_KILL_APP);
-            Log.d(TAG, className + " " + (enabled ? "enabled" : "disabled"));
-        } catch (Exception e) {
-            Log.d(TAG,
-                    className + " could not be " + (enabled ? "enabled" : "disabled"),
-                    e);
+
+            Logger.debug(TAG, "%s %s", className, (enabled ? "enabled" : "disabled"));
+        } catch (Exception exception) {
+            Logger.debug(TAG, "% could not be %s", exception, className,
+                    (enabled ? "enabled" : "disabled"));
         }
     }
 

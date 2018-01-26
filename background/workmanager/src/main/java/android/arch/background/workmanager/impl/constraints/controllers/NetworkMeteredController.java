@@ -20,11 +20,11 @@ import static android.arch.background.workmanager.Constraints.NETWORK_METERED;
 
 import android.arch.background.workmanager.impl.constraints.NetworkState;
 import android.arch.background.workmanager.impl.constraints.trackers.Trackers;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 /**
  * A {@link ConstraintController} for monitoring that the network connection is metered.
@@ -49,7 +49,7 @@ public class NetworkMeteredController extends ConstraintController<NetworkState>
     @Override
     boolean isConstrained(@NonNull NetworkState state) {
         if (Build.VERSION.SDK_INT < 26) {
-            Log.d(TAG, "Metered network constraint is not supported before API 26, "
+            Logger.debug(TAG, "Metered network constraint is not supported before API 26, "
                     + "only checking for connected state.");
             return !state.isConnected();
         }

@@ -16,9 +16,9 @@
 
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.persistence.room.TypeConverter;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -423,7 +423,7 @@ public final class Arguments {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 if (value == null) {
-                    Log.w(TAG, "Ignoring null value for key " + key);
+                    Logger.warn(TAG, "Ignoring null value for key %s", key);
                     continue;
                 }
                 Class valueType = value.getClass();
@@ -439,7 +439,7 @@ public final class Arguments {
                         || valueType == String[].class) {
                     mValues.put(key, value);
                 } else {
-                    Log.w(TAG, "Ignoring key " + key + " because of invalid type " + valueType);
+                    Logger.warn(TAG, "Ignoring key %s because of invalid type %s", key, valueType);
                 }
             }
         }

@@ -16,12 +16,12 @@
 package android.arch.background.workmanager.impl.background.systemalarm;
 
 import android.arch.background.workmanager.Constraints;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.PackageManagerHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ abstract class ConstraintProxy extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "onReceive : " + intent);
+        Logger.debug(TAG, "onReceive : %s", intent);
         Intent constraintChangedIntent = SystemAlarmService.createConstraintChangedIntent(context);
         context.startService(constraintChangedIntent);
     }

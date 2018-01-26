@@ -15,12 +15,12 @@
  */
 package android.arch.background.workmanager.impl.constraints.trackers;
 
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 /**
  * Tracks whether or not the device's battery level is low.
@@ -55,7 +55,7 @@ class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent intent = mAppContext.registerReceiver(null, intentFilter);
         if (intent == null) {
-            Log.e(TAG, "getInitialState - null intent received");
+            Logger.error(TAG, "getInitialState - null intent received");
             return null;
         }
         int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, BATTERY_PLUGGED_NONE);
@@ -83,7 +83,7 @@ class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
             return;
         }
 
-        Log.d(TAG, "Received " + intent.getAction());
+        Logger.debug(TAG, "Received %s", intent.getAction());
 
         switch (intent.getAction()) {
             case Intent.ACTION_BATTERY_OKAY:

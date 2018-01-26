@@ -23,6 +23,7 @@ import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.constraints.WorkConstraintsCallback;
 import android.arch.background.workmanager.impl.constraints.WorkConstraintsTracker;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.LiveDataUtils;
 import android.arch.lifecycle.Lifecycle;
@@ -33,7 +34,6 @@ import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 import java.util.Iterator;
 import java.util.List;
@@ -77,7 +77,7 @@ public class ForegroundProcessor extends Processor
     @Override
     public boolean process(String id) {
         if (!isActive()) {
-            Log.d(TAG, "Inactive lifecycle; not processing " + id);
+            Logger.debug(TAG, "Inactive lifecycle; not processing %s", id);
             return false;
         }
         return super.process(id);
@@ -89,11 +89,11 @@ public class ForegroundProcessor extends Processor
         // list or can we safely ignore them as we are doing right now?
         // Note that this query currently gets triggered when items are REMOVED from the runnable
         // status as well.
-        Log.d(TAG, "Enqueued WorkSpecs updated. Size : " + workSpecs.size());
+        Logger.debug(TAG, "Enqueued WorkSpecs updated. Size : ", workSpecs.size());
         for (WorkSpec workSpec : workSpecs) {
             if (workSpec.getStatus() == ENQUEUED
                     && Constraints.NONE.equals(workSpec.getConstraints())) {
-                Log.d(TAG, workSpec + " can be processed immediately");
+                Logger.debug(TAG, "%s can be processed immediately", workSpec);
                 process(workSpec.getId());
             }
         }
@@ -107,16 +107,16 @@ public class ForegroundProcessor extends Processor
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onLifecycleStop() {
-        Log.d(TAG, "onLifecycleStop");
+        Logger.debug(TAG, "onLifecycleStop");
         mWorkConstraintsTracker.reset();
         Iterator<Map.Entry<String, Future<?>>> it = mEnqueuedWorkMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Future<?>> entry = it.next();
             if (entry.getValue().cancel(false)) {
                 it.remove();
-                Log.d(TAG, "Canceled " + entry.getKey());
+                Logger.debug(TAG, "Canceled %s", entry.getKey());
             } else {
-                Log.d(TAG, "Cannot cancel " + entry.getKey());
+                Logger.debug(TAG, "Cannot cancel %s", entry.getKey());
             }
         }
     }

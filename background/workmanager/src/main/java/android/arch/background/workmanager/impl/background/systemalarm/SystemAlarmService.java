@@ -26,6 +26,7 @@ import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.background.BackgroundProcessor;
 import android.arch.background.workmanager.impl.constraints.WorkConstraintsCallback;
 import android.arch.background.workmanager.impl.constraints.WorkConstraintsTracker;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.LiveDataUtils;
 import android.arch.lifecycle.LifecycleService;
@@ -35,7 +36,6 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 import java.util.List;
 
@@ -86,7 +86,7 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
         if (workSpecs == null) {
             return;
         }
-        Log.d(TAG, "onChanged. Number of WorkSpecs: " + workSpecs.size());
+        Logger.debug(TAG, "onChanged. Number of WorkSpecs: %s", workSpecs.size());
         mSystemAlarmServiceImpl.onEligibleWorkChanged(workSpecs);
     }
 
@@ -102,13 +102,13 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
 
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-        Log.d(TAG, workSpecId + " executed on AlarmManager");
+        Logger.debug(TAG, "%s executed on AlarmManager", workSpecId);
         mSystemAlarmServiceImpl.onExecuted(workSpecId, needsReschedule);
     }
 
     @Override
     public void onAllWorkExecuted() {
-        Log.d(TAG, "All work executed. Stopping self");
+        Logger.debug(TAG, "All work executed. Stopping self");
         stopSelf();
     }
 

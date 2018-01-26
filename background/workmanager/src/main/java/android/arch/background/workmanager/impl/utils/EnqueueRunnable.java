@@ -25,6 +25,7 @@ import android.arch.background.workmanager.impl.InternalWorkImpl;
 import android.arch.background.workmanager.impl.WorkContinuationImpl;
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.Dependency;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkTag;
@@ -32,7 +33,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,10 +106,8 @@ public class EnqueueRunnable implements Runnable {
                 if (!parent.isEnqueued()) {
                     processContinuation(parent, workToBeScheduled);
                 } else {
-                    Log.w(TAG,
-                            String.format(
-                                    "Already enqueued work ids (%s).",
-                                    TextUtils.join(", ", parent.getIds())));
+                    Logger.warn(TAG, "Already enqueued work ids (%s).",
+                            TextUtils.join(", ", parent.getIds()));
                 }
             }
         }
@@ -168,7 +166,7 @@ public class EnqueueRunnable implements Runnable {
             for (String id : prerequisiteIds) {
                 WorkSpec prerequisiteWorkSpec = workDatabase.workSpecDao().getWorkSpec(id);
                 if (prerequisiteWorkSpec == null) {
-                    Log.e(TAG, "Prerequisite " + id + " doesn't exist; not enqueuing");
+                    Logger.error(TAG, "Prerequisite %s doesn't exist; not enqueuing", id);
                     return;
                 }
                 hasCompletedAllPrerequisites &=

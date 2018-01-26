@@ -19,11 +19,11 @@ import android.annotation.TargetApi;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.arch.background.workmanager.impl.Scheduler;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class SystemJobScheduler implements Scheduler {
     public void schedule(WorkSpec... workSpecs) {
         for (WorkSpec workSpec : workSpecs) {
             JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec);
-            Log.d(TAG, "Scheduling work, ID: " + workSpec.getId() + " Job ID: " + jobInfo.getId());
+            Logger.debug(TAG, "Scheduling work ID %s Job ID %s", workSpec.getId(), jobInfo.getId());
             mJobScheduler.schedule(jobInfo);
         }
     }
