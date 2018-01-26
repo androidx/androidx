@@ -22,7 +22,7 @@
     <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Igortzeko botoia. Deskonektatuta"</string>
     <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Igortzeko botoia. Konektatzen"</string>
     <string name="mr_cast_button_connected" msgid="5088427771788648085">"Igortzeko botoia. Konektatuta"</string>
-    <string name="mr_chooser_title" msgid="414301941546135990">"Igorri hona"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"Igorri hona:"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Gailuak bilatzen"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Deskonektatu"</string>
     <string name="mr_controller_stop_casting" msgid="8857886794086583226">"Utzi igortzeari"</string>

@@ -34,7 +34,7 @@
     <string name="mr_controller_collapse_group" msgid="7924809056904240926">"Skjul"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"Albumgrafik"</string>
     <string name="mr_controller_volume_slider" msgid="2361785992211841709">"Lydstyrkeskyder"</string>
-    <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"Der er ikke valgt nogen medier"</string>
+    <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"Ingen medier er markeret"</string>
     <string name="mr_controller_no_info_available" msgid="5585418471741142924">"Der er ingen tilgængelige oplysninger"</string>
     <string name="mr_controller_casting_screen" msgid="4868457957151124867">"Skærmen castes"</string>
 </resources>

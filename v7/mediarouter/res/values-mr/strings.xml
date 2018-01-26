@@ -20,7 +20,7 @@
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"डिव्हाइसेस"</string>
     <string name="mr_button_content_description" msgid="3698378085901466129">"कास्ट बटण"</string>
     <string name="mr_cast_button_disconnected" msgid="816305490427819240">"कास्ट बटण. डिस्कनेक्ट केले"</string>
-    <string name="mr_cast_button_connecting" msgid="2187642765091873834">"कास्ट बटण. कनेक्ट करीत आहे"</string>
+    <string name="mr_cast_button_connecting" msgid="2187642765091873834">"कास्ट बटण. कनेक्ट करत आहे"</string>
     <string name="mr_cast_button_connected" msgid="5088427771788648085">"कास्ट बटण. कनेक्ट केले"</string>
     <string name="mr_chooser_title" msgid="414301941546135990">"यावर कास्ट करा"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"डिव्हाइसेस शोधत आहे"</string>
@@ -36,5 +36,5 @@
     <string name="mr_controller_volume_slider" msgid="2361785992211841709">"व्हॉल्यूम स्लायडर"</string>
     <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"मीडिया निवडला नाही"</string>
     <string name="mr_controller_no_info_available" msgid="5585418471741142924">"कोणतीही माहिती उपलब्ध नाही"</string>
-    <string name="mr_controller_casting_screen" msgid="4868457957151124867">"स्क्रीन कास्‍ट करीत आहे"</string>
+    <string name="mr_controller_casting_screen" msgid="4868457957151124867">"स्क्रीन कास्‍ट करत आहे"</string>
 </resources>
