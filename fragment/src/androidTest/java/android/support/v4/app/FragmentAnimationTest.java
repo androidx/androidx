@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.AnimRes;
 import android.support.fragment.test.R;
@@ -32,14 +33,20 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.view.ViewCompat;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -442,6 +449,54 @@ public class FragmentAnimationTest {
         });
     }
 
+    // When a view is animated out, is parent should be null after the animation completes
+    @Test
+    public void parentNullAfterAnimation() throws Throwable {
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        final EndAnimationListenerFragment fragment1 = new EndAnimationListenerFragment();
+        fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .commit();
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        final EndAnimationListenerFragment fragment2 = new EndAnimationListenerFragment();
+
+        fm.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out,
+                        android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.fragmentContainer, fragment2)
+                .addToBackStack(null)
+                .commit();
+
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        assertTrue(fragment1.exitLatch.await(1, TimeUnit.SECONDS));
+        assertTrue(fragment2.enterLatch.await(1, TimeUnit.SECONDS));
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertNotNull(fragment1.view);
+                assertNotNull(fragment2.view);
+                assertNull(fragment1.view.getParent());
+            }
+        });
+
+        // Now pop the transaction
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+
+        assertTrue(fragment2.exitLatch.await(1, TimeUnit.SECONDS));
+        assertTrue(fragment1.enterLatch.await(1, TimeUnit.SECONDS));
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertNull(fragment2.view.getParent());
+            }
+        });
+    }
+
     private void assertEnterPopExit(AnimatorFragment fragment) throws Throwable {
         assertFragmentAnimation(fragment, 1, true, ENTER);
 
@@ -514,6 +569,52 @@ public class FragmentAnimationTest {
             this.resourceId = nextAnim;
             this.enter = enter;
             return this.animation;
+        }
+    }
+
+    public static class EndAnimationListenerFragment extends StrictViewFragment {
+        public View view;
+        public final CountDownLatch enterLatch = new CountDownLatch(1);
+        public final CountDownLatch exitLatch = new CountDownLatch(1);
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            if (view != null) {
+                return view;
+            }
+            view = super.onCreateView(inflater, container, savedInstanceState);
+            return view;
+        }
+
+        @Override
+        public Animation onCreateAnimation(int transit, final boolean enter, int nextAnim) {
+            if (nextAnim == 0) {
+                return null;
+            }
+            Animation anim = AnimationUtils.loadAnimation(getActivity(), nextAnim);
+            if (anim != null) {
+                anim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        if (enter) {
+                            enterLatch.countDown();
+                        } else {
+                            exitLatch.countDown();
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+            }
+            return anim;
         }
     }
 }

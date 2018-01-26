@@ -61,6 +61,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.ScaleAnimation;
+import android.view.animation.Transformation;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -1504,8 +1505,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         dispatchOnFragmentViewDestroyed(f, false);
                         if (f.mView != null && f.mContainer != null) {
                             // Stop any current animations:
-                            f.mView.clearAnimation();
                             f.mContainer.endViewTransition(f.mView);
+                            f.mView.clearAnimation();
                             AnimationOrAnimator anim = null;
                             if (mCurState > Fragment.INITIALIZING && !mDestroyed
                                     && f.mView.getVisibility() == View.VISIBLE
@@ -1598,21 +1599,21 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         container.startViewTransition(viewToAnimate);
         fragment.setStateAfterAnimating(newState);
         if (anim.animation != null) {
-            Animation animation = anim.animation;
+            Animation animation =
+                    new EndViewTransitionAnimator(anim.animation, container, viewToAnimate);
             fragment.setAnimatingAway(fragment.mView);
             AnimationListener listener = getAnimationListener(animation);
             animation.setAnimationListener(new AnimationListenerWrapper(listener) {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     super.onAnimationEnd(animation);
+
                     // onAnimationEnd() comes during draw(), so there can still be some
                     // draw events happening after this call. We don't want to detach
                     // the view until after the onAnimationEnd()
                     container.post(new Runnable() {
                         @Override
                         public void run() {
-                            container.endViewTransition(viewToAnimate);
-
                             if (fragment.getAnimatingAway() != null) {
                                 fragment.setAnimatingAway(null);
                                 moveToState(fragment, fragment.getStateAfterAnimating(), 0, 0,
@@ -4001,6 +4002,60 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         public void onAnimationEnd(Animator animation) {
             mView.setLayerType(View.LAYER_TYPE_NONE, null);
             animation.removeListener(this);
+        }
+    }
+
+    /**
+     * We must call endViewTransition() before the animation ends or else the parent doesn't
+     * get nulled out. We use both startViewTransition() and startAnimation() to solve a problem
+     * with Views remaining in the hierarchy as disappearing children after the view has been
+     * removed in some edge cases.
+     */
+    private static class EndViewTransitionAnimator extends AnimationSet implements Runnable {
+        private final ViewGroup mParent;
+        private final View mChild;
+        private boolean mEnded;
+        private boolean mTransitionEnded;
+
+        EndViewTransitionAnimator(@NonNull Animation animation,
+                @NonNull ViewGroup parent, @NonNull View child) {
+            super(false);
+            mParent = parent;
+            mChild = child;
+            addAnimation(animation);
+        }
+
+        @Override
+        public boolean getTransformation(long currentTime, Transformation t) {
+            if (mEnded) {
+                return !mTransitionEnded;
+            }
+            boolean more = super.getTransformation(currentTime, t);
+            if (!more) {
+                mEnded = true;
+                mParent.post(this);
+            }
+            return true;
+        }
+
+        @Override
+        public boolean getTransformation(long currentTime, Transformation outTransformation,
+                float scale) {
+            if (mEnded) {
+                return !mTransitionEnded;
+            }
+            boolean more = super.getTransformation(currentTime, outTransformation, scale);
+            if (!more) {
+                mEnded = true;
+                mParent.post(this);
+            }
+            return true;
+        }
+
+        @Override
+        public void run() {
+            mParent.endViewTransition(mChild);
+            mTransitionEnded = true;
         }
     }
 }
