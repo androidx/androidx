@@ -21,6 +21,7 @@ import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.Worker;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.utils.BaseWorkHelper;
 import android.arch.background.workmanager.impl.utils.EnqueueRunnable;
 import android.arch.background.workmanager.impl.workers.JoinWorker;
@@ -29,7 +30,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -168,8 +168,7 @@ public class WorkContinuationImpl extends WorkContinuation {
             mWorkManagerImpl.getTaskExecutor()
                     .executeOnBackgroundThread(new EnqueueRunnable(this));
         } else {
-            Log.w(TAG,
-                    String.format("Already enqueued work ids (%s).", TextUtils.join(", ", mIds)));
+            Logger.warn(TAG, "Already enqueued work ids (%s)", TextUtils.join(", ", mIds));
         }
     }
 

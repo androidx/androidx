@@ -29,6 +29,7 @@ import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.InputMerger;
 import android.arch.background.workmanager.Worker;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.DependencyDao;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkSpecDao;
@@ -80,7 +81,7 @@ public class WorkerWrapper implements Runnable {
     public void run() {
         mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
         if (mWorkSpec == null) {
-            Log.e(TAG, "Didn't find WorkSpec for id " + mWorkSpecId);
+            Logger.error(TAG, "Didn't find WorkSpec for id %s", mWorkSpecId);
             notifyListener(false);
             return;
         }
@@ -97,7 +98,8 @@ public class WorkerWrapper implements Runnable {
             InputMerger inputMerger = InputMerger.fromClassName(
                     mWorkSpec.getInputMergerClassName());
             if (inputMerger == null) {
-                Log.e(TAG, "Could not create Input Merger " + mWorkSpec.getInputMergerClassName());
+                Logger.error(TAG, "Could not create Input Merger %s",
+                        mWorkSpec.getInputMergerClassName());
                 setFailedAndNotify();
                 return;
             }
@@ -110,7 +112,7 @@ public class WorkerWrapper implements Runnable {
 
         mWorker = workerFromWorkSpec(mAppContext, mWorkSpec, arguments);
         if (mWorker == null) {
-            Log.e(TAG, "Could not create Worker " + mWorkSpec.getWorkerClassName());
+            Logger.error(TAG, "Could for create Worker %s", mWorkSpec.getWorkerClassName());
             setFailedAndNotify();
             return;
         }
@@ -125,7 +127,7 @@ public class WorkerWrapper implements Runnable {
                 handleResult(result);
             }
         } catch (InterruptedException e) {
-            Log.d(TAG, "Work interrupted for " + mWorkSpecId);
+            Logger.debug(TAG, "Work interrupted for %s", mWorkSpecId);
             rescheduleAndNotify();
         }
     }
@@ -133,11 +135,11 @@ public class WorkerWrapper implements Runnable {
     private void notifyIncorrectStatus() {
         BaseWork.WorkStatus status = mWorkSpec.getStatus();
         if (status == RUNNING) {
-            Log.d(TAG, "Status for " + mWorkSpecId + " is RUNNING; "
-                    + "not doing any work and rescheduling for later execution");
+            Logger.debug(TAG, "Status for %s is RUNNING;"
+                    + "not doing any work and rescheduling for later execution", mWorkSpecId);
             notifyListener(true);
         } else {
-            Log.e(TAG, "Status for " + mWorkSpecId + " is " + status + "; not doing any work");
+            Logger.error(TAG, "Status for %s is %s; not doing any work", mWorkSpecId, status);
             notifyListener(false);
         }
     }
@@ -163,7 +165,7 @@ public class WorkerWrapper implements Runnable {
     private void handleResult(@Worker.WorkerResult int result) {
         switch (result) {
             case WORKER_RESULT_SUCCESS: {
-                Log.d(TAG, "Worker result SUCCESS for " + mWorkSpecId);
+                Logger.debug(TAG, "Worker result SUCCESS for %s", mWorkSpecId);
                 if (mWorkSpec.isPeriodic()) {
                     resetPeriodicAndNotify();
                 } else {
@@ -173,14 +175,14 @@ public class WorkerWrapper implements Runnable {
             }
 
             case WORKER_RESULT_RETRY: {
-                Log.d(TAG, "Worker result RETRY for " + mWorkSpecId);
+                Logger.debug(TAG, "WWorker result RETRY for %s", mWorkSpecId);
                 rescheduleAndNotify();
                 break;
             }
 
             case WORKER_RESULT_FAILURE:
             default: {
-                Log.d(TAG, "Worker result FAILURE for " + mWorkSpecId);
+                Logger.debug(TAG, "Worker result FAILURE for %s", mWorkSpecId);
                 if (mWorkSpec.isPeriodic()) {
                     resetPeriodicAndNotify();
                 } else {
@@ -251,7 +253,7 @@ public class WorkerWrapper implements Runnable {
             List<String> unblockedWorkIds = new ArrayList<>();
             for (String dependentWorkId : dependentWorkIds) {
                 if (mDependencyDao.hasCompletedAllPrerequisites(dependentWorkId)) {
-                    Log.d(TAG, "Setting status to enqueued for " + dependentWorkId);
+                    Logger.debug(TAG, "Setting status to enqueued for %s", dependentWorkId);
                     mWorkSpecDao.setStatus(ENQUEUED, dependentWorkId);
                     mWorkSpecDao.setPeriodStartTime(dependentWorkId, currentTimeMillis);
                     unblockedWorkIds.add(dependentWorkId);
@@ -260,8 +262,9 @@ public class WorkerWrapper implements Runnable {
 
             int unblockedWorkCount = unblockedWorkIds.size();
             if (unblockedWorkCount > 0) {
-                Log.d(TAG, "Setting status to enqueued for " + unblockedWorkCount + " Works "
-                        + "that were dependent on Work ID " + mWorkSpecId);
+                Logger.debug(TAG,
+                        "Setting status to enqueued for %s Works that were dependent on Work ID %s",
+                        unblockedWorkCount, mWorkSpecId);
             }
             mWorkDatabase.setTransactionSuccessful();
 

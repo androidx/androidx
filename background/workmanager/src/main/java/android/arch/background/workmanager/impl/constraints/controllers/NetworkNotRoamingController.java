@@ -20,11 +20,11 @@ import static android.arch.background.workmanager.Constraints.NETWORK_NOT_ROAMIN
 
 import android.arch.background.workmanager.impl.constraints.NetworkState;
 import android.arch.background.workmanager.impl.constraints.trackers.Trackers;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 /**
  * A {@link ConstraintController} for monitoring that the network connection is not roaming.
@@ -49,7 +49,7 @@ public class NetworkNotRoamingController extends ConstraintController<NetworkSta
     @Override
     boolean isConstrained(@NonNull NetworkState state) {
         if (Build.VERSION.SDK_INT < 24) {
-            Log.d(TAG, "Not-roaming network constraint is not supported before API 24, "
+            Logger.debug(TAG, "Not-roaming network constraint is not supported before API 24, "
                     + "only checking for connected state.");
             return !state.isConnected();
         }

@@ -23,12 +23,12 @@ import android.arch.background.workmanager.impl.ExecutionListener;
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.background.BackgroundProcessor;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.content.Context;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,18 +64,18 @@ public class SystemJobService extends JobService implements ExecutionListener {
         PersistableBundle extras = params.getExtras();
         String workSpecId = extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
-            Log.e(TAG, "WorkSpec id not found!");
+            Logger.error(TAG, "WorkSpec id not found!");
             return false;
         }
 
         boolean isPeriodic = extras.getBoolean(SystemJobInfoConverter.EXTRA_IS_PERIODIC, false);
         if (isPeriodic && params.isOverrideDeadlineExpired()) {
-            Log.d(TAG, "Override deadline expired for id " + workSpecId + ". Retry requested");
+            Logger.debug(TAG, "Override deadline expired for id %s. Retry requested", workSpecId);
             jobFinished(params, true);
             return false;
         }
 
-        Log.d(TAG, workSpecId + " started on JobScheduler");
+        Logger.debug(TAG, "%s started on JobScheduler", workSpecId);
         mJobParameters.put(workSpecId, params);
         mProcessor.process(workSpecId);
         return true;
@@ -85,17 +85,17 @@ public class SystemJobService extends JobService implements ExecutionListener {
     public boolean onStopJob(JobParameters params) {
         String workSpecId = params.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
-            Log.e(TAG, "WorkSpec id not found!");
+            Logger.error(TAG, "WorkSpec id not found!");
             return false;
         }
         boolean cancelled = mProcessor.cancel(workSpecId, true);
-        Log.d(TAG, "onStopJob for " + workSpecId + "; Processor.cancel = " + cancelled);
+        Logger.debug(TAG, "onStopJob for %s; Processor.cancel = %s", workSpecId, cancelled);
         return cancelled;
     }
 
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-        Log.d(TAG, workSpecId + " executed on JobScheduler");
+        Logger.debug(TAG, "%s executed on JobScheduler", workSpecId);
         JobParameters parameters = mJobParameters.get(workSpecId);
         jobFinished(parameters, needsReschedule);
     }

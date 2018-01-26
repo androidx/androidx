@@ -22,6 +22,7 @@ import android.app.job.JobInfo;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.ContentUriTriggers;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.IdGenerator;
 import android.content.ComponentName;
@@ -31,7 +32,6 @@ import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 /**
  * Converts a {@link WorkSpec} into a JobInfo.
@@ -149,7 +149,7 @@ class SystemJobInfoConverter {
                 }
                 break;
         }
-        Log.d(TAG, "API version too low. Cannot convert network type value " + networkType);
+        Logger.debug(TAG, "API version too low. Cannot convert network type value %s", networkType);
         return JobInfo.NETWORK_TYPE_ANY;
     }
 
@@ -161,7 +161,7 @@ class SystemJobInfoConverter {
             builder.setPeriodic(intervalDuration, flexDuration);
         } else {
             // TODO(janclarin): Support flex for JobScheduler before API 24.
-            Log.d(TAG, "Flex duration is currently not supported before API 24. Ignoring.");
+            Logger.debug(TAG, "Flex duration is currently not supported before API 24. Ignoring.");
             builder.setPeriodic(intervalDuration);
         }
         return builder;

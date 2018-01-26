@@ -15,11 +15,11 @@
  */
 package android.arch.background.workmanager.impl.constraints.trackers;
 
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 /**
  * Tracks whether or not the device's storage is low.
@@ -74,7 +74,7 @@ class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
             return; // Should never happen since the IntentFilter was configured.
         }
 
-        Log.d(TAG, "Received " + intent.getAction());
+        Logger.debug(TAG, "Received %s", intent.getAction());
 
         switch (intent.getAction()) {
             case Intent.ACTION_DEVICE_STORAGE_OK:

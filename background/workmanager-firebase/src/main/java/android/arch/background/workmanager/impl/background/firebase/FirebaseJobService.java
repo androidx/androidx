@@ -20,11 +20,11 @@ import android.arch.background.workmanager.impl.ExecutionListener;
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.background.BackgroundProcessor;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
@@ -61,10 +61,10 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
     public boolean onStartJob(JobParameters params) {
         String workSpecId = params.getTag();
         if (TextUtils.isEmpty(workSpecId)) {
-            Log.e(TAG, "WorkSpec id not found!");
+            Logger.error(TAG, "WorkSpec id not found!");
             return false;
         }
-        Log.d(TAG, workSpecId + " started on FirebaseJobDispatcher");
+        Logger.debug(TAG, "%s started on FirebaseJobDispatcher", workSpecId);
         mJobParameters.put(workSpecId, params);
 
         mProcessor.process(workSpecId);
@@ -75,17 +75,17 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
     public boolean onStopJob(JobParameters params) {
         String workSpecId = params.getTag();
         if (TextUtils.isEmpty(workSpecId)) {
-            Log.e(TAG, "WorkSpec id not found!");
+            Logger.error(TAG, "WorkSpec id not found!");
             return false;
         }
         boolean cancelled = mProcessor.cancel(workSpecId, true);
-        Log.d(TAG, "onStopJob for " + workSpecId + "; Processor.cancel = " + cancelled);
+        Logger.debug(TAG, "onStopJob for %s; Processor.cancel = ", workSpecId, cancelled);
         return cancelled;
     }
 
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-        Log.d(TAG, workSpecId + " executed on FirebaseJobDispatcher");
+        Logger.debug(TAG, "%s executed on FirebaseJobDispatcher", workSpecId);
         JobParameters parameters = mJobParameters.get(workSpecId);
         jobFinished(parameters, needsReschedule);
     }

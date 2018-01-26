@@ -16,12 +16,12 @@
 
 package android.arch.background.workmanager.impl.constraints.trackers;
 
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 /**
  * A {@link ConstraintTracker} with a {@link BroadcastReceiver} for monitoring constraint changes.
@@ -59,13 +59,13 @@ abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTracker<T
 
     @Override
     public void startTracking() {
-        Log.d(TAG, getClass().getSimpleName() + ": registering receiver");
+        Logger.debug(TAG, "%s: registering receiver", getClass().getSimpleName());
         mAppContext.registerReceiver(mBroadcastReceiver, getIntentFilter());
     }
 
     @Override
     public void stopTracking() {
-        Log.d(TAG, getClass().getSimpleName() + ": unregistering receiver");
+        Logger.debug(TAG, "%s: unregistering receiver", getClass().getSimpleName());
         mAppContext.unregisterReceiver(mBroadcastReceiver);
     }
 }

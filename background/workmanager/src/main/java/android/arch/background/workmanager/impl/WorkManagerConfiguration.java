@@ -25,6 +25,7 @@ import android.arch.background.workmanager.impl.background.systemalarm.SystemAla
 import android.arch.background.workmanager.impl.background.systemalarm.SystemAlarmService;
 import android.arch.background.workmanager.impl.background.systemjob.SystemJobScheduler;
 import android.arch.background.workmanager.impl.background.systemjob.SystemJobService;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
@@ -32,7 +33,6 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
@@ -114,17 +114,17 @@ class WorkManagerConfiguration {
         if (Build.VERSION.SDK_INT >= 23) {
             scheduler = new SystemJobScheduler(context);
             setComponentEnabled(context, SystemJobService.class, true);
-            Log.d(TAG, "Created SystemJobScheduler and enabled SystemJobService");
+            Logger.debug(TAG, "Created SystemJobScheduler and enabled SystemJobService");
         } else {
             try {
                 scheduler = tryCreateFirebaseJobScheduler(context);
                 enableFirebaseJobService = true;
-                Log.d(TAG, "Created FirebaseJobScheduler");
+                Logger.debug(TAG, "Created FirebaseJobScheduler");
             } catch (Exception e) {
                 // Also catches the exception thrown if Play Services was not found on the device.
                 scheduler = new SystemAlarmScheduler(context);
                 enableSystemAlarmService = true;
-                Log.d(TAG, "Created SystemAlarmScheduler");
+                Logger.debug(TAG, "Created SystemAlarmScheduler");
             }
         }
 

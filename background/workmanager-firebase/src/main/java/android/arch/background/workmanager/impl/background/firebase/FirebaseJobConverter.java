@@ -19,8 +19,8 @@ package android.arch.background.workmanager.impl.background.firebase;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.ContentUriTriggers;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
-import android.util.Log;
 
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
@@ -126,23 +126,24 @@ class FirebaseJobConverter {
         }
 
         if (constraints.requiresBatteryNotLow()) {
-            Log.w(TAG, "Battery Not Low is not a supported constraint "
-                    + "with FirebaseJobDispatcher");
+            Logger.warn(TAG,
+                    "Battery Not Low is not a supported constraint "
+                            + "with FirebaseJobDispatcher");
         }
 
         if (constraints.requiresStorageNotLow()) {
-            Log.w(TAG, "Storage Not Low is not a supported constraint "
+            Logger.warn(TAG, "Storage Not Low is not a supported constraint "
                     + "with FirebaseJobDispatcher");
         }
 
         switch (constraints.getRequiredNetworkType()) {
             case Constraints.NETWORK_METERED:
-                Log.w(TAG, "Metered Network is not a supported constraint with "
+                Logger.warn(TAG, "Metered Network is not a supported constraint with "
                         + "FirebaseJobDispatcher. Falling back to Any Network constraint.");
                 mConstraints.add(Constraint.ON_ANY_NETWORK);
                 break;
             case Constraints.NETWORK_NOT_ROAMING:
-                Log.w(TAG, "Not Roaming Network is not a supported constraint with "
+                Logger.warn(TAG, "Not Roaming Network is not a supported constraint with "
                         + "FirebaseJobDispatcher. Falling back to Any Network constraint.");
                 mConstraints.add(Constraint.ON_ANY_NETWORK);
                 break;

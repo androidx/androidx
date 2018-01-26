@@ -17,11 +17,18 @@
 package android.arch.background.workmanager;
 
 import android.arch.background.workmanager.impl.InternalWorkImpl;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
+import android.util.Log;
 
 import java.util.Set;
 
 public abstract class WorkManagerTest {
+
+    // set log level to verbose for tests
+    static {
+        Logger.LOG_LEVEL = Log.VERBOSE;
+    }
 
     protected WorkSpec getWorkSpec(BaseWork work) {
         return ((InternalWorkImpl) work).getWorkSpec();

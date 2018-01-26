@@ -17,12 +17,12 @@ package android.arch.background.workmanager.impl.background.firebase;
 
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 /**
  * Schedules a {@link WorkSpec} after an initial delay with {@link FirebaseJobScheduler}
@@ -50,7 +50,7 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
                 if (workSpec != null) {
                     scheduler.scheduleNow(workSpec);
                 } else {
-                    Log.e(TAG, "WorkSpec not found! Cannot schedule!");
+                    Logger.error(TAG, "WorkSpec not found! Cannot schedule!");
                 }
                 pendingResult.finish();
             }

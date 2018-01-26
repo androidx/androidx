@@ -22,6 +22,7 @@ import android.app.Service;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.impl.background.BackgroundProcessor;
 import android.arch.background.workmanager.impl.constraints.WorkConstraintsTracker;
+import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +30,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -69,7 +69,7 @@ class SystemAlarmServiceImpl {
     int onStartCommand(@Nullable Intent intent) {
         // TODO(janclarin): Keep wakelock.
         if (intent == null || intent.getAction() == null) {
-            Log.e(TAG, "Null intent/action. Likely caused by sticky service");
+            Logger.error(TAG, "Null intent/action. Likely caused by sticky service");
             return Service.START_STICKY;
         }
 
@@ -80,11 +80,11 @@ class SystemAlarmServiceImpl {
                 onDelayMet(workSpecId);
                 break;
             case ACTION_CANCEL_WORK:
-                Log.d(TAG, "Cancelling work " + workSpecId);
+                Logger.debug(TAG, "Cancelling work %s", workSpecId);
                 mProcessor.cancel(workSpecId, true);
                 break;
             case ACTION_CONSTRAINT_CHANGED:
-                Log.d(TAG, "Constraint Changed. Service woken");
+                Logger.debug(TAG, "Constraint Changed. Service woken");
                 break;
         }
 
@@ -103,21 +103,21 @@ class SystemAlarmServiceImpl {
      * @param workSpecId ID of {@link WorkSpec} whose delay has been met
      */
     private void onDelayMet(@NonNull String workSpecId) {
-        Log.d(TAG, "Delay Met intent received for " + workSpecId);
+        Logger.debug(TAG, "Delay Met intent received for %s", workSpecId);
         synchronized (mLock) {
             WorkSpec workSpec = removeWorkSpecWithId(workSpecId, mDelayNotMetWorkSpecs);
             if (workSpec == null) {
-                Log.d(TAG, "Could not find " + workSpecId + " in Delay Not Met list. "
-                        + "Is LiveData initialized right now?");
+                Logger.debug(TAG, "Could not find %s in Delay Not Met list."
+                        + " Is LiveData initialized right now?", workSpecId);
             } else if (hasConstraints(workSpec)) {
-                Log.d(TAG, "Observing constraints for " + workSpec);
+                Logger.debug(TAG, "Observing constraints for %s", workSpec);
                 mDelayMetWorkSpecs.add(workSpec);
                 updateConstraintsTrackerAndProxy();
             } else if (isEnqueued(workSpec)) {
-                Log.d(TAG, "Processing " + workSpec + " immediately");
+                Logger.debug(TAG, "Processing %s immediately", workSpec);
                 mProcessor.process(workSpec.getId());
             } else {
-                Log.d(TAG, workSpec + " is unconstrained and currently running");
+                Logger.debug(TAG, "%s is unconstrained and currently running", workSpec);
             }
         }
     }
@@ -129,16 +129,16 @@ class SystemAlarmServiceImpl {
 
             for (WorkSpec workSpec : workSpecs) {
                 if (!isDelayMet(workSpec)) {
-                    Log.d(TAG, "Delay not met for " + workSpec);
+                    Logger.debug(TAG, "Delay not met for %s", workSpec);
                     mDelayNotMetWorkSpecs.add(workSpec);
                 } else if (hasConstraints(workSpec)) {
-                    Log.d(TAG, "Observing constraints for " + workSpec);
+                    Logger.debug(TAG, "Observing constraints for %s", workSpec);
                     mDelayMetWorkSpecs.add(workSpec);
                 } else if (isEnqueued(workSpec)) {
-                    Log.d(TAG, "Processing " + workSpec + " immediately");
+                    Logger.debug(TAG, "Processing %s immediately", workSpec);
                     mProcessor.process(workSpec.getId());
                 } else {
-                    Log.d(TAG, workSpec + " is unconstrained and currently running");
+                    Logger.debug(TAG, "%s is unconstrained and currently running", workSpec);
                 }
             }
 
@@ -166,7 +166,8 @@ class SystemAlarmServiceImpl {
             if (executedWorkSpec != null) {
                 updateConstraintsTrackerAndProxy();
             } else {
-                Log.d(TAG, workSpecId + " not found in DelayMetWorkSpecs. May not have delay");
+                Logger.debug(TAG, "%s not found in DelayMetWorkSpecs. May not have delay",
+                        workSpecId);
             }
         }
 
