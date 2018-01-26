@@ -37,8 +37,8 @@ LOCAL_JAVA_LIBRARIES := \
     android-support-v4 \
     android-support-compat \
     android-slices-core \
-    apptoolkit-lifecycle-extensions \
-    apptoolkit-arch-core-runtime
+    android-arch-lifecycle-extensions \
+    android-arch-lifecycle-runtime
 
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-v7-appcompat \
