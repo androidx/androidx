@@ -136,7 +136,7 @@ public class FragmentController {
     @Deprecated
     public void restoreAllState(Parcelable state, List<Fragment> nonConfigList) {
         mHost.mFragmentManager.restoreAllState(state,
-                new FragmentManagerNonConfig(nonConfigList, null));
+                new FragmentManagerNonConfig(nonConfigList, null, null));
     }
 
     /**
