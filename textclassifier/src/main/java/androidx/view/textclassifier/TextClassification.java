@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.textclassifier;
+package androidx.view.textclassifier;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import androidx.textclassifier.TextClassifier.EntityType;
+import androidx.view.textclassifier.TextClassifier.EntityType;
 
 /**
  * Information for generating a widget to handle classified text.
