@@ -938,7 +938,7 @@ public class GuidedAction extends Action {
         }
     }
 
-    final static boolean isPasswordVariant(int inputType) {
+    static boolean isPasswordVariant(int inputType) {
         final int variation = inputType & InputType.TYPE_MASK_VARIATION;
         return variation == InputType.TYPE_TEXT_VARIATION_PASSWORD
                 || variation == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD

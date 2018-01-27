@@ -375,7 +375,7 @@ public abstract class LocalPlayer extends Player implements
     }
 
     private static final class ICSMediaPlayer {
-        public static final void setSurface(MediaPlayer player, Surface surface) {
+        public static void setSurface(MediaPlayer player, Surface surface) {
             player.setSurface(surface);
         }
     }

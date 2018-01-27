@@ -220,7 +220,7 @@ public class FontsContractCompat {
      * @hide
      **/
     @RestrictTo(LIBRARY_GROUP)
-    public static final void resetCache() {
+    public static void resetCache() {
         sTypefaceCache.evictAll();
     }
 
