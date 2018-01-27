@@ -1199,7 +1199,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         return EXTRA_BUTTON_ACTION_PREFIX + action.getId();
     }
 
-    final static boolean isSaveEnabled(GuidedAction action) {
+    static boolean isSaveEnabled(GuidedAction action) {
         return action.isAutoSaveRestoreEnabled() && action.getId() != GuidedAction.NO_ID;
     }
 

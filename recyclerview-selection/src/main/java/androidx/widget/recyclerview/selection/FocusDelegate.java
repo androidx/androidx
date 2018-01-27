@@ -29,7 +29,7 @@ import androidx.widget.recyclerview.selection.ItemDetailsLookup.ItemDetails;
  */
 public abstract class FocusDelegate<K> {
 
-    static final <K> FocusDelegate<K> dummy() {
+    static <K> FocusDelegate<K> dummy() {
         return new FocusDelegate<K>() {
             @Override
             public void focusItem(@NonNull ItemDetails<K> item) {
