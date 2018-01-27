@@ -20,6 +20,8 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.ViewModelStore;
+import android.arch.lifecycle.ViewModelStoreOwner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -65,6 +67,7 @@ import java.util.Collection;
  * </ul>
  */
 public class FragmentActivity extends BaseFragmentActivityApi16 implements
+        ViewModelStoreOwner,
         ActivityCompat.OnRequestPermissionsResultCallback,
         ActivityCompat.RequestPermissionsRequestCodeValidator {
     private static final String TAG = "FragmentActivity";
@@ -99,6 +102,8 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     };
     final FragmentController mFragments = FragmentController.createController(new HostCallbacks());
 
+    private ViewModelStore mViewModelStore;
+
     boolean mCreated;
     boolean mResumed;
     boolean mStopped = true;
@@ -120,6 +125,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
 
     static final class NonConfigurationInstances {
         Object custom;
+        ViewModelStore viewModelStore;
         FragmentManagerNonConfig fragments;
         SimpleArrayMap<String, LoaderManager> loaders;
     }
@@ -278,6 +284,24 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     /**
+     * Returns the {@link ViewModelStore} associated with this activity
+     *
+     * @return a {@code ViewModelStore}
+     */
+    @NonNull
+    @Override
+    public ViewModelStore getViewModelStore() {
+        if (getApplication() == null) {
+            throw new IllegalStateException("Your activity is not yet attached to the "
+                    + "Application instance. You can't request ViewModel before onCreate call.");
+        }
+        if (mViewModelStore == null) {
+            mViewModelStore = new ViewModelStore();
+        }
+        return mViewModelStore;
+    }
+
+    /**
      * Returns the Lifecycle of the provider.
      *
      * @return The lifecycle of the provider.
@@ -300,6 +324,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         NonConfigurationInstances nc =
                 (NonConfigurationInstances) getLastNonConfigurationInstance();
         if (nc != null) {
+            mViewModelStore = nc.viewModelStore;
             mFragments.restoreLoaderNonConfig(nc.loaders);
         }
         if (savedInstanceState != null) {
@@ -359,6 +384,10 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         super.onDestroy();
 
         doReallyStop(false);
+
+        if (mViewModelStore != null && !mRetaining) {
+            mViewModelStore.clear();
+        }
 
         mFragments.dispatchDestroy();
         mFragments.doLoaderDestroy();
@@ -520,12 +549,13 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         FragmentManagerNonConfig fragments = mFragments.retainNestedNonConfig();
         SimpleArrayMap<String, LoaderManager> loaders = mFragments.retainLoaderNonConfig();
 
-        if (fragments == null && loaders == null && custom == null) {
+        if (fragments == null && loaders == null && mViewModelStore == null && custom == null) {
             return null;
         }
 
         NonConfigurationInstances nci = new NonConfigurationInstances();
         nci.custom = custom;
+        nci.viewModelStore = mViewModelStore;
         nci.fragments = fragments;
         nci.loaders = loaders;
         return nci;
