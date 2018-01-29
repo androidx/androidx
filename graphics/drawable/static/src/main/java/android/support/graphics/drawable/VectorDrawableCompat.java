@@ -651,11 +651,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             case 15:
                 return Mode.SCREEN;
             case 16:
-                if (Build.VERSION.SDK_INT >= 11) {
-                    return Mode.ADD;
-                } else {
-                    return defaultMode;
-                }
+                return Mode.ADD;
             default:
                 return defaultMode;
         }
