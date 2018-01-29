@@ -17,6 +17,7 @@
 package androidx.app.slice.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -26,6 +27,7 @@ import android.widget.FrameLayout;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
+import androidx.app.slice.view.R;
 
 /**
  * Base class for children views of {@link SliceView}.
@@ -35,7 +37,15 @@ import androidx.app.slice.SliceItem;
 public abstract class SliceChildView extends FrameLayout {
 
     protected SliceView.OnSliceActionListener mObserver;
-    protected int mTintColor;
+    protected int mTintColor = -1;
+    protected int mTitleColor;
+    protected int mSubtitleColor;
+    protected int mHeaderTitleSize;
+    protected int mHeaderSubtitleSize;
+    protected int mTitleSize;
+    protected int mSubtitleSize;
+    protected int mGridTitleSize;
+    protected int mGridSubtitleSize;
 
     public SliceChildView(@NonNull Context context) {
         super(context);
@@ -85,7 +95,26 @@ public abstract class SliceChildView extends FrameLayout {
      * Populates style information for this view.
      */
     public void setStyle(AttributeSet attrs) {
-        // TODO
+        TypedArray a = getContext().getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
+                R.attr.sliceViewStyle, R.style.Widget_SliceView);
+        try {
+            int themeColor = a.getColor(R.styleable.SliceView_tintColor, -1);
+            mTintColor = themeColor != -1 ? themeColor : mTintColor;
+            mTitleColor = a.getColor(R.styleable.SliceView_titleColor, 0);
+            mSubtitleColor = a.getColor(R.styleable.SliceView_subtitleColor, 0);
+            mHeaderTitleSize = (int) a.getDimension(
+                    R.styleable.SliceView_headerTitleSize, 0);
+            mHeaderSubtitleSize = (int) a.getDimension(
+                    R.styleable.SliceView_headerSubtitleSize, 0);
+            mTitleSize = (int) a.getDimension(R.styleable.SliceView_titleSize, 0);
+            mSubtitleSize = (int) a.getDimension(
+                    R.styleable.SliceView_subtitleSize, 0);
+            mGridTitleSize = (int) a.getDimension(R.styleable.SliceView_gridTitleSize, 0);
+            mGridSubtitleSize = (int) a.getDimension(
+                    R.styleable.SliceView_gridSubtitleSize, 0);
+        } finally {
+            a.recycle();
+        }
     }
 
     /**

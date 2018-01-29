@@ -246,15 +246,13 @@ public class SampleSliceProvider extends SliceProvider {
         return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff0F9D58)
                 .addRow(b -> b
-                    .setContentIntent(getBroadcastIntent(ACTION_TOAST, "work"))
                     .setTitle("Work")
                     .setSubtitle(workSubtitle)
                     .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_work),
                             getBroadcastIntent(ACTION_TOAST, "work")))
                 .addRow(b -> b
-                    .setContentIntent(getBroadcastIntent(ACTION_TOAST, "home"))
                     .setTitle("Home")
-                    .setSubtitle(homeSubtitle)
+                    .setSubtitle("2 hours 33 min via 101")
                     .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_home),
                             getBroadcastIntent(ACTION_TOAST, "home")))
                 .build();

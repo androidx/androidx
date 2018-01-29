@@ -54,6 +54,12 @@ public class LargeTemplateView extends SliceChildView {
     }
 
     @Override
+    public void setTint(int tint) {
+        super.setTint(tint);
+        populate();
+    }
+
+    @Override
     public @SliceView.SliceMode int getMode() {
         return SliceView.MODE_LARGE;
     }
