@@ -24,7 +24,6 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,8 +92,6 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     private final Context mContext;
 
     private final List<ViewBinder<ViewHolder>> mBinders = new ArrayList<>();
-    // Store custom binders separately so they will bind after binders created by setters.
-    private final List<ViewBinder<ViewHolder>> mCustomBinders = new ArrayList<>();
 
     @PrimaryActionType private int mPrimaryActionType = PRIMARY_ACTION_TYPE_NO_ICON;
     private int mPrimaryActionIconResId;
@@ -156,33 +153,32 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     }
 
     /**
-     * Applies all {@link ViewBinder} to {@code ViewHolder}.
+     * Calculates the layout params for views in {@link ViewHolder}.
      */
     @Override
-    public void bind(ViewHolder viewHolder) {
-        if (isDirty()) {
-            mBinders.clear();
+    protected void resolveDirtyState() {
+        mBinders.clear();
 
-            // Create binders that adjust layout params of each view.
-            setItemLayoutHeight();
-            setPrimaryAction();
-            setSeekBarAndText();
-            setSupplementalAction();
+        // Create binders that adjust layout params of each view.
+        setItemLayoutHeight();
+        setPrimaryAction();
+        setSeekBarAndText();
+        setSupplementalAction();
+    }
 
-            // Custom view binders are always applied after the one created by this class.
-            mBinders.addAll(mCustomBinders);
-
-            markClean();
-        }
-
+    /**
+     * Hides all views in {@link ViewHolder} then applies ViewBinders to adjust view layout params.
+     */
+    @Override
+    protected void onBind(ViewHolder viewHolder) {
         // Hide all subviews then apply view binders to adjust subviews.
-        setSubViewsGone(viewHolder);
+        hideSubViews(viewHolder);
         for (ViewBinder binder : mBinders) {
             binder.bind(viewHolder);
         }
     }
 
-    private void setSubViewsGone(ViewHolder vh) {
+    private void hideSubViews(ViewHolder vh) {
         View[] subviews = new View[] {
                 vh.getPrimaryIcon(),
                 // SeekBar is always visible.
@@ -499,31 +495,9 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     }
 
     /**
-     * Adds {@code ViewBinder} to interact with sub-views in {@link ViewHolder}. These ViewBinders
-     * will always be applied after other {@code setFoobar} methods have bound.
-     *
-     * <p>Make sure to call setFoobar() method on the intended sub-view first.
-     *
-     * <p>Example:
-     * <pre>
-     * {@code
-     * SeekbarListItem item = new SeebarListItem(context);
-     * item.setPrimaryActionIcon(R.drawable.icon);
-     * item.addViewBinder((viewHolder) -> {
-     *     viewHolder.getPrimaryIcon().doMoreStuff();
-     * });
-     * }
-     * </pre>
-     */
-    public void addViewBinder(ViewBinder<ViewHolder> viewBinder) {
-        mCustomBinders.add(viewBinder);
-        markDirty();
-    }
-
-    /**
      * Holds views of SeekbarListItem.
      */
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends ListItem.ViewHolder {
 
         private RelativeLayout mContainerLayout;
 

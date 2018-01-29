@@ -18,7 +18,6 @@ package com.example.androidx.car;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -40,17 +39,12 @@ public class SeekbarListItemActivity extends Activity {
 
     PagedListView mPagedListView;
 
-    private static int pixelToDip(Context context, int pixels) {
-        return (int) (pixels / context.getResources().getDisplayMetrics().density);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_paged_list_view);
 
         mPagedListView = findViewById(R.id.paged_list_view);
-        mPagedListView.setBackgroundColor(Color.BLUE);
 
         ListItemAdapter adapter = new ListItemAdapter(this,
                 new SampleProvider(this), ListItemAdapter.BackgroundStyle.PANEL);

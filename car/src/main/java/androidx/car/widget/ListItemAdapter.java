@@ -43,7 +43,7 @@ import androidx.car.utils.ListItemBackgroundResolver;
  *
  */
 public class ListItemAdapter extends
-        RecyclerView.Adapter<RecyclerView.ViewHolder> implements PagedListView.ItemCap,
+        RecyclerView.Adapter<ListItem.ViewHolder> implements PagedListView.ItemCap,
         PagedListView.DividerVisibilityManager {
 
     /**
@@ -74,7 +74,7 @@ public class ListItemAdapter extends
     static final int LIST_ITEM_TYPE_SEEKBAR = 2;
 
     private final SparseIntArray mViewHolderLayoutResIds = new SparseIntArray();
-    private final SparseArray<Function<View, RecyclerView.ViewHolder>> mViewHolderCreator =
+    private final SparseArray<Function<View, ListItem.ViewHolder>> mViewHolderCreator =
             new SparseArray<>();
 
     /**
@@ -90,7 +90,7 @@ public class ListItemAdapter extends
      * @param function function to create ViewHolder for {@code viewType}.
      */
     public void registerListItemViewType(int viewType, @LayoutRes int layoutResId,
-            Function<View, RecyclerView.ViewHolder> function) {
+            Function<View, ListItem.ViewHolder> function) {
         if (mViewHolderLayoutResIds.get(viewType) != 0
                 || mViewHolderCreator.get(viewType) != null) {
             throw new IllegalArgumentException("View type is already registered.");
@@ -121,7 +121,7 @@ public class ListItemAdapter extends
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ListItem.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (mViewHolderLayoutResIds.get(viewType) == 0
                 || mViewHolderCreator.get(viewType) == null) {
             throw new IllegalArgumentException("Unregistered view type.");
@@ -175,7 +175,7 @@ public class ListItemAdapter extends
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(ListItem.ViewHolder holder, int position) {
         ListItem item = mItemProvider.get(position);
         item.bind(holder);
 
