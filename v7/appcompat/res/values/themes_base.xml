@@ -22,8 +22,13 @@
         unbundled Action Bar.
     -->
     <eat-comment/>
-    <style name="Platform.AppCompat" parent="android:Theme">
+    <style name="Platform.AppCompat" parent="android:Theme.Holo">
         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+
+        <item name="android:buttonBarStyle">?attr/buttonBarStyle</item>
+        <item name="android:buttonBarButtonStyle">?attr/buttonBarButtonStyle</item>
+        <item name="android:borderlessButtonStyle">?attr/borderlessButtonStyle</item>
 
         <!-- Window colors -->
         <item name="android:colorForeground">@color/foreground_material_dark</item>
@@ -45,7 +50,10 @@
         <item name="android:textColorHint">@color/abc_hint_foreground_material_dark</item>
         <item name="android:textColorHintInverse">@color/abc_hint_foreground_material_light</item>
         <item name="android:textColorHighlight">@color/highlighted_text_material_dark</item>
+        <item name="android:textColorHighlightInverse">@color/highlighted_text_material_light</item>
         <item name="android:textColorLink">?attr/colorAccent</item>
+        <item name="android:textColorLinkInverse">?attr/colorAccent</item>
+        <item name="android:textColorAlertDialogListItem">@color/abc_primary_text_material_dark</item>
 
         <!-- Text styles -->
         <item name="android:textAppearance">@style/TextAppearance.AppCompat</item>
@@ -60,13 +68,26 @@
         <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_radio_material</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
 
+        <item name="android:listPreferredItemPaddingLeft">@dimen/abc_list_item_padding_horizontal_material</item>
+        <item name="android:listPreferredItemPaddingRight">@dimen/abc_list_item_padding_horizontal_material</item>
+
+        <item name="android:actionModeCutDrawable">?actionModeCutDrawable</item>
+        <item name="android:actionModeCopyDrawable">?actionModeCopyDrawable</item>
+        <item name="android:actionModePasteDrawable">?actionModePasteDrawable</item>
+        <item name="android:actionModeSelectAllDrawable">?actionModeSelectAllDrawable</item>
+
         <item name="android:textSelectHandle">@drawable/abc_text_select_handle_middle_mtrl_dark</item>
         <item name="android:textSelectHandleLeft">@drawable/abc_text_select_handle_left_mtrl_dark</item>
         <item name="android:textSelectHandleRight">@drawable/abc_text_select_handle_right_mtrl_dark</item>
     </style>
 
-    <style name="Platform.AppCompat.Light" parent="android:Theme.Light">
+    <style name="Platform.AppCompat.Light" parent="android:Theme.Holo.Light">
         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+
+        <item name="android:buttonBarStyle">?attr/buttonBarStyle</item>
+        <item name="android:buttonBarButtonStyle">?attr/buttonBarButtonStyle</item>
+        <item name="android:borderlessButtonStyle">?attr/borderlessButtonStyle</item>
 
         <!-- Window colors -->
         <item name="android:colorForeground">@color/foreground_material_light</item>
@@ -89,7 +110,10 @@
         <item name="android:textColorHint">@color/abc_hint_foreground_material_light</item>
         <item name="android:textColorHintInverse">@color/abc_hint_foreground_material_dark</item>
         <item name="android:textColorHighlight">@color/highlighted_text_material_light</item>
+        <item name="android:textColorHighlightInverse">@color/highlighted_text_material_dark</item>
         <item name="android:textColorLink">?attr/colorAccent</item>
+        <item name="android:textColorLinkInverse">?attr/colorAccent</item>
+        <item name="android:textColorAlertDialogListItem">@color/abc_primary_text_material_light</item>
 
         <!-- Text styles -->
         <item name="android:textAppearance">@style/TextAppearance.AppCompat</item>
@@ -103,6 +127,14 @@
 
         <item name="android:listChoiceIndicatorSingle">@drawable/abc_btn_radio_material</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
+
+        <item name="android:listPreferredItemPaddingLeft">@dimen/abc_list_item_padding_horizontal_material</item>
+        <item name="android:listPreferredItemPaddingRight">@dimen/abc_list_item_padding_horizontal_material</item>
+
+        <item name="android:actionModeCutDrawable">?actionModeCutDrawable</item>
+        <item name="android:actionModeCopyDrawable">?actionModeCopyDrawable</item>
+        <item name="android:actionModePasteDrawable">?actionModePasteDrawable</item>
+        <item name="android:actionModeSelectAllDrawable">?actionModeSelectAllDrawable</item>
 
         <item name="android:textSelectHandle">@drawable/abc_text_select_handle_middle_mtrl_light</item>
         <item name="android:textSelectHandleLeft">@drawable/abc_text_select_handle_left_mtrl_light</item>
@@ -504,6 +536,10 @@
         <item name="listPreferredItemPaddingRight">24dip</item>
 
         <item name="android:listDivider">@null</item>
+
+        <item name="android:buttonBarStyle">@style/Widget.AppCompat.ButtonBar.AlertDialog</item>
+        <item name="android:borderlessButtonStyle">@style/Widget.AppCompat.Button.Borderless</item>
+        <item name="android:windowCloseOnTouchOutside">@bool/abc_config_closeDialogWhenTouchOutside</item>
     </style>
 
     <style name="Base.V7.Theme.AppCompat.Light.Dialog" parent="Base.Theme.AppCompat.Light">
@@ -527,29 +563,33 @@
         <item name="listPreferredItemPaddingRight">24dip</item>
 
         <item name="android:listDivider">@null</item>
+
+        <item name="android:buttonBarStyle">@style/Widget.AppCompat.ButtonBar.AlertDialog</item>
+        <item name="android:borderlessButtonStyle">@style/Widget.AppCompat.Button.Borderless</item>
+        <item name="android:windowCloseOnTouchOutside">@bool/abc_config_closeDialogWhenTouchOutside</item>
     </style>
 
     <style name="Base.Theme.AppCompat.Dialog" parent="Base.V7.Theme.AppCompat.Dialog" />
     <style name="Base.Theme.AppCompat.Light.Dialog" parent="Base.V7.Theme.AppCompat.Light.Dialog" />
 
     <style name="Base.Theme.AppCompat.Dialog.Alert">
-        <item name="windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
-        <item name="windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
+        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
     </style>
 
     <style name="Base.Theme.AppCompat.Light.Dialog.Alert">
-        <item name="windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
-        <item name="windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
+        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
     </style>
 
     <style name="Base.Theme.AppCompat.Dialog.MinWidth">
-        <item name="windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
-        <item name="windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
+        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
     </style>
 
     <style name="Base.Theme.AppCompat.Light.Dialog.MinWidth">
-        <item name="windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
-        <item name="windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
+        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
     </style>
 
     <style name="Base.Theme.AppCompat.Dialog.FixedSize">
@@ -668,8 +708,8 @@
     <style name="Base.ThemeOverlay.AppCompat.Dialog" parent="Base.V7.ThemeOverlay.AppCompat.Dialog" />
 
     <style name="Base.ThemeOverlay.AppCompat.Dialog.Alert">
-        <item name="windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
-        <item name="windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
+        <item name="android:windowMinWidthMajor">@dimen/abc_dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@dimen/abc_dialog_min_width_minor</item>
     </style>
 
     <!-- Theme overlay that overrides window properties to display as a dialog. -->
@@ -699,6 +739,10 @@
         <item name="windowFixedWidthMinor">@null</item>
         <item name="windowFixedHeightMajor">@null</item>
         <item name="windowFixedHeightMinor">@null</item>
+
+        <item name="android:buttonBarStyle">@style/Widget.AppCompat.ButtonBar.AlertDialog</item>
+        <item name="android:borderlessButtonStyle">@style/Widget.AppCompat.Button.Borderless</item>
+        <item name="android:windowCloseOnTouchOutside">@bool/abc_config_closeDialogWhenTouchOutside</item>
     </style>
 
 </resources>

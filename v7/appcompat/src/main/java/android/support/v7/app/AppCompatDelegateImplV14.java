@@ -32,13 +32,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.view.SupportActionModeWrapper;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.View;
 import android.view.Window;
 
 @RequiresApi(14)
-class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
+class AppCompatDelegateImplV14 extends AppCompatDelegateImplV9 {
 
     private static final String KEY_LOCAL_NIGHT_MODE = "appcompat:local_night_mode";
 
@@ -64,6 +66,18 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
             mLocalNightMode = savedInstanceState.getInt(KEY_LOCAL_NIGHT_MODE,
                     MODE_NIGHT_UNSPECIFIED);
         }
+    }
+
+    @Override
+    public boolean hasWindowFeature(int featureId) {
+        return super.hasWindowFeature(featureId) || mWindow.hasFeature(featureId);
+    }
+
+    @Override
+    View callActivityOnCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        // On Honeycomb+, Activity's private inflater factory will handle calling its
+        // onCreateView(...)
+        return null;
     }
 
     @Override
