@@ -418,12 +418,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     private void startScaleUpAnimation(AnimationListener listener) {
         mCircleView.setVisibility(View.VISIBLE);
-        if (android.os.Build.VERSION.SDK_INT >= 11) {
-            // Pre API 11, alpha is used in place of scale up to show the
-            // progress circle appearing.
-            // Don't adjust the alpha during appearance otherwise.
-            mProgress.setAlpha(MAX_ALPHA);
-        }
+        mProgress.setAlpha(MAX_ALPHA);
         mScaleAnimation = new Animation() {
             @Override
             public void applyTransformation(float interpolatedTime, Transformation t) {
