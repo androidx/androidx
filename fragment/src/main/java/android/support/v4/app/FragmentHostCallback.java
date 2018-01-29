@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.util.SimpleArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -44,15 +43,6 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     private final Handler mHandler;
     final int mWindowAnimations;
     final FragmentManagerImpl mFragmentManager = new FragmentManagerImpl();
-    /** The loader managers for individual fragments [i.e. Fragment#getLoaderManager()] */
-    private SimpleArrayMap<String, LoaderManager> mAllLoaderManagers;
-    /** Whether or not fragment loaders should retain their state */
-    private boolean mRetainLoaders;
-    /** The loader manger for the fragment host [i.e. Activity#getLoaderManager()] */
-    private LoaderManagerImpl mLoaderManager;
-    private boolean mCheckedForLoaderManager;
-    /** Whether or not the fragment host loader manager was started */
-    private boolean mLoadersStarted;
 
     public FragmentHostCallback(Context context, Handler handler, int windowAnimations) {
         this(context instanceof Activity ? (Activity) context : null, context, handler,
@@ -207,165 +197,6 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
         return mFragmentManager;
     }
 
-    LoaderManagerImpl getLoaderManagerImpl() {
-        if (mLoaderManager != null) {
-            return mLoaderManager;
-        }
-        mCheckedForLoaderManager = true;
-        mLoaderManager = getLoaderManager("(root)", mLoadersStarted, true /*create*/);
-        return mLoaderManager;
-    }
-
-    void inactivateFragment(String who) {
-        //Log.v(TAG, "invalidateSupportFragment: who=" + who);
-        if (mAllLoaderManagers != null) {
-            LoaderManagerImpl lm = (LoaderManagerImpl) mAllLoaderManagers.get(who);
-            if (lm != null && !lm.mRetaining) {
-                lm.doDestroy();
-                mAllLoaderManagers.remove(who);
-            }
-        }
-    }
-
     void onAttachFragment(Fragment fragment) {
-    }
-
-    boolean getRetainLoaders() {
-        return mRetainLoaders;
-    }
-
-    void doLoaderStart() {
-        if (mLoadersStarted) {
-            return;
-        }
-        mLoadersStarted = true;
-
-        if (mLoaderManager != null) {
-            mLoaderManager.doStart();
-        } else if (!mCheckedForLoaderManager) {
-            mLoaderManager = getLoaderManager("(root)", mLoadersStarted, false);
-            // the returned loader manager may be a new one, so we have to start it
-            if ((mLoaderManager != null) && (!mLoaderManager.mStarted)) {
-                mLoaderManager.doStart();
-            }
-        }
-        mCheckedForLoaderManager = true;
-    }
-
-    // retain -- whether to stop the loader or retain it
-    void doLoaderStop(boolean retain) {
-        mRetainLoaders = retain;
-
-        if (mLoaderManager == null) {
-            return;
-        }
-
-        if (!mLoadersStarted) {
-            return;
-        }
-        mLoadersStarted = false;
-
-        if (retain) {
-            mLoaderManager.doRetain();
-        } else {
-            mLoaderManager.doStop();
-        }
-    }
-
-    void doLoaderRetain() {
-        if (mLoaderManager == null) {
-            return;
-        }
-        mLoaderManager.doRetain();
-    }
-
-    void doLoaderDestroy() {
-        if (mLoaderManager == null) {
-            return;
-        }
-        mLoaderManager.doDestroy();
-    }
-
-    void reportLoaderStart() {
-        if (mAllLoaderManagers != null) {
-            final int N = mAllLoaderManagers.size();
-            LoaderManagerImpl loaders[] = new LoaderManagerImpl[N];
-            for (int i=N-1; i>=0; i--) {
-                loaders[i] = (LoaderManagerImpl) mAllLoaderManagers.valueAt(i);
-            }
-            for (int i=0; i<N; i++) {
-                LoaderManagerImpl lm = loaders[i];
-                lm.finishRetain();
-                lm.doReportStart();
-            }
-        }
-    }
-
-    LoaderManagerImpl getLoaderManager(String who, boolean started, boolean create) {
-        if (mAllLoaderManagers == null) {
-            mAllLoaderManagers = new SimpleArrayMap<String, LoaderManager>();
-        }
-        LoaderManagerImpl lm = (LoaderManagerImpl) mAllLoaderManagers.get(who);
-        if (lm == null && create) {
-            lm = new LoaderManagerImpl(who, this, started);
-            mAllLoaderManagers.put(who, lm);
-        } else if (started && lm != null && !lm.mStarted) {
-            lm.doStart();
-        }
-        return lm;
-    }
-
-    SimpleArrayMap<String, LoaderManager> retainLoaderNonConfig() {
-        boolean retainLoaders = false;
-        if (mAllLoaderManagers != null) {
-            // Restart any loader managers that were already stopped so that they
-            // will be ready to retain
-            final int N = mAllLoaderManagers.size();
-            LoaderManagerImpl loaders[] = new LoaderManagerImpl[N];
-            for (int i=N-1; i>=0; i--) {
-                loaders[i] = (LoaderManagerImpl) mAllLoaderManagers.valueAt(i);
-            }
-            final boolean doRetainLoaders = getRetainLoaders();
-            for (int i=0; i<N; i++) {
-                LoaderManagerImpl lm = loaders[i];
-                if (!lm.mRetaining && doRetainLoaders) {
-                    if (!lm.mStarted) {
-                        lm.doStart();
-                    }
-                    lm.doRetain();
-                }
-                if (lm.mRetaining) {
-                    retainLoaders = true;
-                } else {
-                    lm.doDestroy();
-                    mAllLoaderManagers.remove(lm.mWho);
-                }
-            }
-        }
-
-        if (retainLoaders) {
-            return mAllLoaderManagers;
-        }
-        return null;
-    }
-
-    void restoreLoaderNonConfig(SimpleArrayMap<String, LoaderManager> loaderManagers) {
-        if (loaderManagers != null) {
-            for (int i = 0, N = loaderManagers.size(); i < N; i++) {
-                ((LoaderManagerImpl) loaderManagers.valueAt(i)).updateHostController(this);
-            }
-        }
-        mAllLoaderManagers = loaderManagers;
-    }
-
-    void dumpLoaders(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
-        writer.print(prefix); writer.print("mLoadersStarted=");
-        writer.println(mLoadersStarted);
-        if (mLoaderManager != null) {
-            writer.print(prefix); writer.print("Loader Manager ");
-            writer.print(Integer.toHexString(System.identityHashCode(mLoaderManager)));
-            writer.println(":");
-            mLoaderManager.dump(prefix + "  ", fd, writer, args);
-        }
     }
 }

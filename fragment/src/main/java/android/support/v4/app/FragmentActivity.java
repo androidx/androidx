@@ -35,7 +35,6 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -101,6 +100,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
 
     };
     final FragmentController mFragments = FragmentController.createController(new HostCallbacks());
+    LoaderManager mLoaderManager;
 
     private ViewModelStore mViewModelStore;
 
@@ -127,7 +127,6 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         Object custom;
         ViewModelStore viewModelStore;
         FragmentManagerNonConfig fragments;
-        SimpleArrayMap<String, LoaderManager> loaders;
     }
 
     // ------------------------------------------------------------------------
@@ -312,7 +311,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     /**
-     * Perform initialization of all fragments and loaders.
+     * Perform initialization of all fragments.
      */
     @SuppressWarnings("deprecation")
     @Override
@@ -325,7 +324,6 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
                 (NonConfigurationInstances) getLastNonConfigurationInstance();
         if (nc != null) {
             mViewModelStore = nc.viewModelStore;
-            mFragments.restoreLoaderNonConfig(nc.loaders);
         }
         if (savedInstanceState != null) {
             Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
@@ -377,7 +375,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     /**
-     * Destroy all fragments and loaders.
+     * Destroy all fragments.
      */
     @Override
     protected void onDestroy() {
@@ -390,7 +388,6 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         }
 
         mFragments.dispatchDestroy();
-        mFragments.doLoaderDestroy();
     }
 
     /**
@@ -534,7 +531,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     /**
-     * Retain all appropriate fragment and loader state.  You can NOT
+     * Retain all appropriate fragment state.  You can NOT
      * override this yourself!  Use {@link #onRetainCustomNonConfigurationInstance()}
      * if you want to retain your own state.
      */
@@ -547,9 +544,8 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         Object custom = onRetainCustomNonConfigurationInstance();
 
         FragmentManagerNonConfig fragments = mFragments.retainNestedNonConfig();
-        SimpleArrayMap<String, LoaderManager> loaders = mFragments.retainLoaderNonConfig();
 
-        if (fragments == null && loaders == null && mViewModelStore == null && custom == null) {
+        if (fragments == null && mViewModelStore == null && custom == null) {
             return null;
         }
 
@@ -557,7 +553,6 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         nci.custom = custom;
         nci.viewModelStore = mViewModelStore;
         nci.fragments = fragments;
-        nci.loaders = loaders;
         return nci;
     }
 
@@ -587,8 +582,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     /**
-     * Dispatch onStart() to all fragments.  Ensure any created loaders are
-     * now started.
+     * Dispatch onStart() to all fragments.
      */
     @Override
     protected void onStart() {
@@ -606,16 +600,13 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         mFragments.noteStateNotSaved();
         mFragments.execPendingActions();
 
-        mFragments.doLoaderStart();
-
         // NOTE: HC onStart goes here.
 
         mFragments.dispatchStart();
-        mFragments.reportLoaderStart();
     }
 
     /**
-     * Dispatch onStop() to all fragments.  Ensure all loaders are stopped.
+     * Dispatch onStop() to all fragments.
      */
     @Override
     protected void onStop() {
@@ -687,7 +678,9 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
                 writer.print(mResumed); writer.print(" mStopped=");
                 writer.print(mStopped); writer.print(" mReallyStopped=");
                 writer.println(mReallyStopped);
-        mFragments.dumpLoaders(innerPrefix, fd, writer, args);
+        if (mLoaderManager != null) {
+            mLoaderManager.dump(innerPrefix, fd, writer, args);
+        }
         mFragments.getSupportFragmentManager().dump(prefix, fd, writer, args);
     }
 
@@ -697,13 +690,6 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
             mRetaining = retaining;
             mHandler.removeMessages(MSG_REALLY_STOPPED);
             onReallyStop();
-        } else if (retaining) {
-            // We're already really stopped, but we've been asked to retain.
-            // Our fragments are taken care of but we need to mark the loaders for retention.
-            // In order to do this correctly we need to restart the loaders first before
-            // handing them off to the next activity.
-            mFragments.doLoaderStart();
-            mFragments.doLoaderStop(true);
         }
     }
 
@@ -715,8 +701,6 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
      * tell us what we need to know.
      */
     void onReallyStop() {
-        mFragments.doLoaderStop(mRetaining);
-
         mFragments.dispatchReallyStop();
     }
 
@@ -744,7 +728,11 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     public LoaderManager getSupportLoaderManager() {
-        return mFragments.getSupportLoaderManager();
+        if (mLoaderManager != null) {
+            return mLoaderManager;
+        }
+        mLoaderManager = new LoaderManagerImpl(this, getViewModelStore());
+        return mLoaderManager;
     }
 
     /**

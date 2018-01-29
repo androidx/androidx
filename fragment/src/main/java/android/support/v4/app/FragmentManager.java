@@ -1881,7 +1881,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         // concurrent modification while iterating over mActive
         mActive.put(f.mIndex, null);
 
-        mHost.inactivateFragment(f.mWho);
         f.initState();
     }
 
