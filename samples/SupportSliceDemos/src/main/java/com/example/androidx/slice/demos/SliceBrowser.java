@@ -123,8 +123,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         });
 
         mSelectedMode = (savedInstanceState != null)
-                ? savedInstanceState.getInt("SELECTED_MODE", SliceView.MODE_SHORTCUT)
-                : SliceView.MODE_SHORTCUT;
+                ? savedInstanceState.getInt("SELECTED_MODE", SliceView.MODE_LARGE)
+                : SliceView.MODE_LARGE;
         if (savedInstanceState != null) {
             mSearchView.setQuery(savedInstanceState.getString("SELECTED_QUERY"), true);
         }
@@ -140,7 +140,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         mTypeMenu = menu.addSubMenu("Type");
-        mTypeMenu.setIcon(R.drawable.ic_shortcut);
+        mTypeMenu.setIcon(R.drawable.ic_large);
         mTypeMenu.getItem().setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         mTypeMenu.add("Shortcut");
         mTypeMenu.add("Small");
