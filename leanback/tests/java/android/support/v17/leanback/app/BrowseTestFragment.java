@@ -95,9 +95,7 @@ public class BrowseTestFragment extends BrowseFragment {
             @Override
             public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                     RowPresenter.ViewHolder rowViewHolder, Row row) {
-                Log.i(TAG, "onItemSelected: " + item + " row " + row.getHeaderItem().getName()
-                        + " " + rowViewHolder
-                        + " " + ((ListRowPresenter.ViewHolder) rowViewHolder).getGridView());
+                Log.i(TAG, "onItemSelected: " + item + " row " + row);
             }
         });
         if (TEST_ENTRANCE_TRANSITION) {
