@@ -14,26 +14,31 @@
  * limitations under the License
  */
 
-apply plugin: 'maven'
+import static android.support.dependencies.DependenciesKt.KOTLIN_STDLIB
 
-version '0.2'
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportKotlinLibraryPlugin")
+}
 
 dependencies {
     compile("org.ow2.asm:asm:5.2")
     compile("org.ow2.asm:asm-commons:5.2")
     compile("com.google.code.gson:gson:2.8.0")
     compile("org.jdom:jdom2:2.0.6")
+    compile(KOTLIN_STDLIB)
     testCompile("junit:junit:4.12")
     testCompile("com.google.truth:truth:0.31")
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: rootProject.ext.repoDir)
-        }
-    }
+supportLibrary {
+    name = "Android Jetifier Core"
+    publish = true
+    mavenVersion = LibraryVersions.JETIFIER
+    mavenGroup = LibraryGroups.JETIFIER
+    generateDocs = false
+    inceptionYear = "2017"
+    description = "Android Jetifier Core"
 }
-
-rootProject.mainUpload.dependsOn tasks["uploadArchives"]
-tasks["uploadArchives"].dependsOn rootProject.prepareRepo

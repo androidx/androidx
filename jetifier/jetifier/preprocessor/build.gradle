@@ -14,13 +14,16 @@
  * limitations under the License
  */
 
-version '1.0'
+plugins {
+    id("SupportKotlinLibraryPlugin")
+    id("application")
+}
 
-apply plugin: "application"
+version '1.0'
 
 mainClassName = "android.support.tools.jetifier.preprocessor.MainKt"
 
 dependencies {
-    compile project(':core')
+    compile project(':jetifier-core')
     compile group: 'commons-cli', name: 'commons-cli', version: '1.3.1'
 }

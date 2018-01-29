@@ -14,30 +14,29 @@
  * limitations under the License
  */
 
-apply plugin: 'maven'
+import static android.support.dependencies.DependenciesKt.KOTLIN_STDLIB
 
-version '0.2'
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+  id("SupportKotlinLibraryPlugin")
+}
 
 dependencies {
-    compile project(':core')
+    compile project(':jetifier-core')
+    compile(KOTLIN_STDLIB)
     compileOnly gradleApi()
 }
 
-// Task to create a jar with all the required dependencies bundled inside
-task fatJar(type: Jar) {
-    baseName = project.name + '-all'
-    destinationDir = rootProject.ext.distDir
-    from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+
+supportLibrary {
+    name = "Android Jetifier Gradle Plugin"
+    publish = true
+    mavenVersion = LibraryVersions.JETIFIER
+    mavenGroup = LibraryGroups.JETIFIER
+    generateDocs = false
+    inceptionYear = "2017"
+    description = "Android Jetifier Gradle Plugin"
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: rootProject.ext.repoDir)
-        }
-    }
-}
-
-rootProject.mainUpload.dependsOn tasks["uploadArchives"]
-tasks["uploadArchives"].dependsOn rootProject.prepareRepo
