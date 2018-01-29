@@ -96,7 +96,7 @@ public final class LinkifyCompat {
      *
      *  @return True if at least one link is found and applied.
      */
-    public static final boolean addLinks(@NonNull Spannable text, @LinkifyMask int mask) {
+    public static boolean addLinks(@NonNull Spannable text, @LinkifyMask int mask) {
         if (Build.VERSION.SDK_INT >= 27) {
             return Linkify.addLinks(text, mask);
         }
@@ -160,7 +160,7 @@ public final class LinkifyCompat {
      *
      *  @return True if at least one link is found and applied.
      */
-    public static final boolean addLinks(@NonNull TextView text, @LinkifyMask int mask) {
+    public static boolean addLinks(@NonNull TextView text, @LinkifyMask int mask) {
         if (Build.VERSION.SDK_INT >= 26) {
             return Linkify.addLinks(text, mask);
         }
@@ -202,7 +202,7 @@ public final class LinkifyCompat {
      *  @param scheme       URL scheme string (eg <code>http://</code>) to be
      *                      prepended to the links that do not start with this scheme.
      */
-    public static final void addLinks(@NonNull TextView text, @NonNull Pattern pattern,
+    public static void addLinks(@NonNull TextView text, @NonNull Pattern pattern,
             @Nullable String scheme) {
         if (Build.VERSION.SDK_INT >= 26) {
             Linkify.addLinks(text, pattern, scheme);
@@ -225,7 +225,7 @@ public final class LinkifyCompat {
      *                      additional control over which pattern matches are
      *                      to be converted into links.
      */
-    public static final void addLinks(@NonNull TextView text, @NonNull Pattern pattern,
+    public static void addLinks(@NonNull TextView text, @NonNull Pattern pattern,
             @Nullable String scheme, @Nullable MatchFilter matchFilter,
             @Nullable TransformFilter transformFilter) {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -252,7 +252,7 @@ public final class LinkifyCompat {
      *                      over which pattern matches are to be converted into links.
      *  @param transformFilter Filter to allow the client code to update the link found.
      */
-    public static final void addLinks(@NonNull TextView text, @NonNull Pattern pattern,
+    public static void addLinks(@NonNull TextView text, @NonNull Pattern pattern,
             @Nullable String defaultScheme, @Nullable String[] schemes,
             @Nullable MatchFilter matchFilter, @Nullable TransformFilter transformFilter) {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -278,7 +278,7 @@ public final class LinkifyCompat {
      *  @param scheme       URL scheme string (eg <code>http://</code>) to be
      *                      prepended to the links that do not start with this scheme.
      */
-    public static final boolean addLinks(@NonNull Spannable text, @NonNull Pattern pattern,
+    public static boolean addLinks(@NonNull Spannable text, @NonNull Pattern pattern,
             @Nullable String scheme) {
         if (Build.VERSION.SDK_INT >= 26) {
             return Linkify.addLinks(text, pattern, scheme);
@@ -301,7 +301,7 @@ public final class LinkifyCompat {
      *
      * @return True if at least one link is found and applied.
      */
-    public static final boolean addLinks(@NonNull Spannable spannable, @NonNull Pattern pattern,
+    public static boolean addLinks(@NonNull Spannable spannable, @NonNull Pattern pattern,
             @Nullable String scheme, @Nullable MatchFilter matchFilter,
             @Nullable TransformFilter transformFilter) {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -327,7 +327,7 @@ public final class LinkifyCompat {
      *
      * @return True if at least one link is found and applied.
      */
-    public static final boolean addLinks(@NonNull Spannable spannable, @NonNull Pattern pattern,
+    public static boolean addLinks(@NonNull Spannable spannable, @NonNull Pattern pattern,
             @Nullable  String defaultScheme, @Nullable String[] schemes,
             @Nullable MatchFilter matchFilter, @Nullable TransformFilter transformFilter) {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -436,7 +436,7 @@ public final class LinkifyCompat {
         text.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
-    private static final void gatherMapLinks(ArrayList<LinkSpec> links, Spannable s) {
+    private static void gatherMapLinks(ArrayList<LinkSpec> links, Spannable s) {
         String string = s.toString();
         String address;
         int base = 0;
@@ -477,7 +477,7 @@ public final class LinkifyCompat {
         }
     }
 
-    private static final void pruneOverlaps(ArrayList<LinkSpec> links, Spannable text) {
+    private static void pruneOverlaps(ArrayList<LinkSpec> links, Spannable text) {
         // Append spans added by framework
         URLSpan[] urlSpans = text.getSpans(0, text.length(), URLSpan.class);
         for (int i = 0; i < urlSpans.length; i++) {
