@@ -134,7 +134,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mInSmallMode = false;
         mRowIndex = index;
         mIsHeader = isHeader;
-        mRowContent = new RowContent(slice, !mIsHeader /* showStartItem */);
+        mRowContent = new RowContent(slice, mIsHeader);
         populateViews();
     }
 
@@ -147,7 +147,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mRowIndex = 0;
         mIsHeader = true;
         ListContent lc = new ListContent(slice);
-        mRowContent = new RowContent(lc.getSummaryItem(), false /* showStartItem */);
+        mRowContent = new RowContent(lc.getHeaderItem(), true /* isHeader */);
         populateViews();
     }
 
@@ -174,7 +174,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mPrimaryText.setTextColor(mTitleColor);
         mPrimaryText.setVisibility(titleItem != null ? View.VISIBLE : View.GONE);
 
-        final SliceItem subTitle = mRowContent.getSubtitleItem();
+        final SliceItem subTitle = mInSmallMode
+                ? mRowContent.getSummaryItem()
+                : mRowContent.getSubtitleItem();
         if (subTitle != null) {
             mSecondaryText.setText(subTitle.getText());
         }

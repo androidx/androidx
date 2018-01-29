@@ -32,6 +32,8 @@ import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 
+import java.util.Calendar;
+
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceProvider;
 import androidx.app.slice.builders.GridBuilder;
@@ -167,12 +169,25 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createContact(Uri sliceUri) {
+        final long lastCalled = System.currentTimeMillis() - 20 * DateUtils.MINUTE_IN_MILLIS;
+        CharSequence lastCalledString = DateUtils.getRelativeTimeSpanString(lastCalled,
+                Calendar.getInstance().getTimeInMillis(),
+                DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
         return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff3949ab)
-                .addRow(b -> b
+                .setHeader(b -> b
                         .setTitle("Mady Pitza")
-                        .setSubtitle("Frequently contacted contact")
-                        .addEndItem(Icon.createWithResource(getContext(), R.drawable.mady)))
+                        .setSummarySubtitle("Called " + lastCalledString)
+                        .setContentIntent(getBroadcastIntent(ACTION_TOAST, "See contact info")))
+                .addRow(b -> b
+                        .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_call))
+                        .setTitle("314-259-2653")
+                        .setSubtitle("Call lasted 1 hr 17 min")
+                        .addEndItem(lastCalled))
+                .addRow(b -> b
+                        .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_text))
+                        .setTitle("You: Coooooool see you then")
+                        .addEndItem(System.currentTimeMillis() - 40 * DateUtils.MINUTE_IN_MILLIS))
                 .addGrid(b -> b
                         .addCell(cb -> cb
                             .addImage(Icon.createWithResource(getContext(), R.drawable.ic_call))
@@ -263,6 +278,11 @@ public class SampleSliceProvider extends SliceProvider {
 
         return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff0F9D58)
+                .setHeader(b -> b
+                    .setTitle("Get ride")
+                    .setSubtitle(headerSubtitle)
+                    .setSummarySubtitle("Ride to work in 12 min | Ride home in 1 hour 45 min")
+                    .setContentIntent(getBroadcastIntent(ACTION_TOAST, "get ride")))
                 .addRow(b -> b
                     .setTitle("Work")
                     .setSubtitle(workSubtitle)
@@ -270,7 +290,7 @@ public class SampleSliceProvider extends SliceProvider {
                             getBroadcastIntent(ACTION_TOAST, "work")))
                 .addRow(b -> b
                     .setTitle("Home")
-                    .setSubtitle("2 hours 33 min via 101")
+                    .setSubtitle(homeSubtitle)
                     .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_home),
                             getBroadcastIntent(ACTION_TOAST, "home")))
                 .build();

@@ -288,7 +288,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @NonNull
         @Override
         public void setTitleItem(long timeStamp) {
-            mStartItem = new SliceItem(timeStamp, FORMAT_TIMESTAMP, null, new String[0]);
+            mStartItem = new SliceItem(timeStamp, FORMAT_TIMESTAMP, null, new String[]{HINT_TITLE});
         }
 
         /**
@@ -303,7 +303,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
          */
         @Override
         public void setTitleItem(@Nullable Icon icon, boolean isLoading) {
-            mStartItem = new SliceItem(icon, FORMAT_IMAGE, null, new String[0]);
+            mStartItem = new SliceItem(icon, FORMAT_IMAGE, null, new String[]{HINT_TITLE});
             if (isLoading) {
                 mStartItem.addHint(HINT_PARTIAL);
             }
@@ -322,7 +322,8 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @Override
         public void setTitleItem(Icon icon, PendingIntent action, boolean isLoading) {
             Slice actionSlice = new Slice.Builder(getBuilder()).addIcon(icon, null).build();
-            mStartItem = new SliceItem(action, actionSlice, FORMAT_ACTION, null, new String[0]);
+            mStartItem = new SliceItem(action, actionSlice, FORMAT_ACTION, null,
+                    new String[]{HINT_TITLE});
             if (isLoading) {
                 mStartItem.addHint(HINT_PARTIAL);
             }
@@ -519,7 +520,6 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             if (mContentIntent != null) {
                 wrapped.addAction(mContentIntent, b.build(), null /* subtype */);
             }
-            wrapped.addHints(HINT_TITLE);
         }
 
         /**

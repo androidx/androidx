@@ -16,6 +16,7 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -48,12 +49,14 @@ public class RowContent {
     private SliceItem mStartItem;
     private SliceItem mTitleItem;
     private SliceItem mSubtitleItem;
+    private SliceItem mSummaryItem;
     private ArrayList<SliceItem> mEndItems = new ArrayList<>();
     private boolean mEndItemsContainAction;
     private SliceItem mRange;
+    private boolean mIsHeader;
 
-    public RowContent(SliceItem rowSlice, boolean showStartItem) {
-        populate(rowSlice, showStartItem);
+    public RowContent(SliceItem rowSlice, boolean isHeader) {
+        populate(rowSlice, isHeader);
     }
 
     /**
@@ -65,13 +68,15 @@ public class RowContent {
         mTitleItem = null;
         mSubtitleItem = null;
         mEndItems.clear();
+        mIsHeader = false;
     }
 
     /**
      * @return whether this row has content that is valid to display.
      */
-    public boolean populate(SliceItem rowSlice, boolean showStartItem) {
+    public boolean populate(SliceItem rowSlice, boolean isHeader) {
         reset();
+        mIsHeader = isHeader;
         if (!isValidRow(rowSlice)) {
             Log.w(TAG, "Provided SliceItem is invalid for RowContent");
             return false;
@@ -96,9 +101,7 @@ public class RowContent {
         if (rowItems.size() > 0) {
             // Start item
             if (isStartType(rowItems.get(0))) {
-                if (showStartItem) {
-                    mStartItem = rowItems.get(0);
-                }
+                mStartItem = rowItems.get(0);
                 rowItems.remove(0);
             }
             // Text + end items
@@ -107,10 +110,12 @@ public class RowContent {
                 final SliceItem item = rowItems.get(i);
                 if (FORMAT_TEXT.equals(item.getFormat())) {
                     if ((mTitleItem == null || !mTitleItem.hasHint(HINT_TITLE))
-                            && item.hasHint(HINT_TITLE)) {
+                            && item.hasHint(HINT_TITLE) && !item.hasHint(HINT_SUMMARY)) {
                         mTitleItem = item;
-                    } else if (mSubtitleItem == null) {
+                    } else if (mSubtitleItem == null && !item.hasHint(HINT_SUMMARY)) {
                         mSubtitleItem = item;
+                    } else if (mSummaryItem == null && item.hasHint(HINT_SUMMARY)) {
+                        mSummaryItem = item;
                     }
                 } else {
                     endItems.add(item);
@@ -164,7 +169,7 @@ public class RowContent {
 
     @Nullable
     public SliceItem getStartItem() {
-        return mStartItem;
+        return mIsHeader ? null : mStartItem;
     }
 
     @Nullable
@@ -175,6 +180,11 @@ public class RowContent {
     @Nullable
     public SliceItem getSubtitleItem() {
         return mSubtitleItem;
+    }
+
+    @Nullable
+    public SliceItem getSummaryItem() {
+        return mSummaryItem == null ? mSubtitleItem : mSummaryItem;
     }
 
     public ArrayList<SliceItem> getEndItems() {
@@ -192,6 +202,9 @@ public class RowContent {
      * @return whether this is a valid item to use to populate a row of content.
      */
     private static boolean isValidRow(SliceItem rowSlice) {
+        if (rowSlice == null) {
+            return false;
+        }
         // Must be slice or action
         if (FORMAT_SLICE.equals(rowSlice.getFormat())
                 || FORMAT_ACTION.equals(rowSlice.getFormat())) {
@@ -237,8 +250,9 @@ public class RowContent {
      */
     private static boolean isStartType(SliceItem item) {
         final String type = item.getFormat();
-        return (FORMAT_ACTION.equals(type) && (SliceQuery.find(item, FORMAT_IMAGE) != null))
-                || FORMAT_IMAGE.equals(type)
-                || FORMAT_TIMESTAMP.equals(type);
+        return item.hasHint(HINT_TITLE)
+                && ((FORMAT_ACTION.equals(type) && (SliceQuery.find(item, FORMAT_IMAGE) != null))
+                    || FORMAT_IMAGE.equals(type)
+                    || FORMAT_TIMESTAMP.equals(type));
     }
 }
