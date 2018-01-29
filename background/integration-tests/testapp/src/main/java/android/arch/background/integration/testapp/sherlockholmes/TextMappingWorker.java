@@ -53,7 +53,7 @@ public class TextMappingWorker extends Worker {
     }
 
     @Override
-    public @WorkerResult int doWork() {
+    public WorkerResult doWork() {
         Arguments args = getArguments();
         String inputFileName = args.getString(INPUT_FILE, null);
         String outputFileName = "out_" + inputFileName;
@@ -75,7 +75,7 @@ public class TextMappingWorker extends Worker {
                 }
             }
         } catch (IOException e) {
-            return WORKER_RESULT_FAILURE;
+            return WorkerResult.FAILURE;
         } finally {
             if (scanner != null) {
                 scanner.close();
@@ -99,7 +99,7 @@ public class TextMappingWorker extends Worker {
                 dataOutputStream.writeInt(entry.getValue());
             }
         } catch (IOException e) {
-            return WORKER_RESULT_FAILURE;
+            return WorkerResult.FAILURE;
         } finally {
             if (dataOutputStream != null) {
                 try {
@@ -120,6 +120,6 @@ public class TextMappingWorker extends Worker {
         setOutput(new Arguments.Builder().putString(INPUT_FILE, outputFileName).build());
 
         Log.d("Map", "Mapping finished for " + inputFileName);
-        return WORKER_RESULT_SUCCESS;
+        return WorkerResult.SUCCESS;
     }
 }

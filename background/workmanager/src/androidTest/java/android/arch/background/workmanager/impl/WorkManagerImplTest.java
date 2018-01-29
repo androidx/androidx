@@ -20,7 +20,8 @@ import static android.arch.background.workmanager.BaseWork.WorkStatus.CANCELLED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
-
+import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK;
+import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.REPLACE_EXISTING_WORK;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -42,7 +43,6 @@ import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.TestLifecycleOwner;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
-import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.WorkManagerTest;
 import android.arch.background.workmanager.executors.SynchronousExecutorService;
 import android.arch.background.workmanager.impl.model.Dependency;
@@ -372,7 +372,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String testTag = "mytag";
 
         Work work = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.createWithUniqueTag(testTag, WorkManager.REPLACE_EXISTING_WORK)
+        mWorkManagerImpl.createWithUniqueTag(testTag, REPLACE_EXISTING_WORK)
                 .then(work)
                 .enqueue();
 
@@ -391,7 +391,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .createWithUniqueTag(testTag, WorkManager.REPLACE_EXISTING_WORK, replacementWork1)
+                .createWithUniqueTag(testTag, REPLACE_EXISTING_WORK, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 
@@ -417,7 +417,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .createWithUniqueTag(testTag, WorkManager.KEEP_EXISTING_WORK, replacementWork1)
+                .createWithUniqueTag(testTag, KEEP_EXISTING_WORK, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 
@@ -444,7 +444,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .createWithUniqueTag(testTag, WorkManager.KEEP_EXISTING_WORK, replacementWork1)
+                .createWithUniqueTag(testTag, KEEP_EXISTING_WORK, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 

@@ -21,8 +21,8 @@ import android.arch.background.workmanager.Worker;
 public class EchoingWorker extends Worker {
 
     @Override
-    public int doWork() {
+    public WorkerResult doWork() {
         setOutput(getArguments());
-        return WORKER_RESULT_SUCCESS;
+        return WorkerResult.SUCCESS;
     }
 }

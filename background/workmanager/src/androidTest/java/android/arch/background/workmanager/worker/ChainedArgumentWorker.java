@@ -29,9 +29,9 @@ public class ChainedArgumentWorker extends Worker {
     public static final String ARGUMENT_VALUE = "value";
 
     @Override
-    public int doWork() {
+    public WorkerResult doWork() {
         setOutput(getChainedArguments());
-        return WORKER_RESULT_SUCCESS;
+        return WorkerResult.SUCCESS;
     }
 
     public static Arguments getChainedArguments() {

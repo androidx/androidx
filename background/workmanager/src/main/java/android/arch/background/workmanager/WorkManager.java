@@ -16,14 +16,10 @@
 
 package android.arch.background.workmanager;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.lifecycle.LiveData;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 
-import java.lang.annotation.Retention;
 import java.util.Arrays;
 import java.util.List;
 
@@ -103,8 +99,9 @@ public abstract class WorkManager {
      * run, then the entire chain will be considered a no-op.
      *
      * @param tag A tag which should uniquely label all the work in this chain
-     * @param existingWorkPolicy One of {@code REPLACE_EXISTING_WORK} or {@code KEEP_EXISTING_WORK}.
-     *                           {@code REPLACE_EXISTING_WORK} ensures that if there is pending work
+     * @param existingWorkPolicy One of {@link ExistingWorkPolicy#REPLACE_EXISTING_WORK} or
+     *                           {@link ExistingWorkPolicy#KEEP_EXISTING_WORK}.
+     *                           @code REPLACE_EXISTING_WORK} ensures that if there is pending work
      *                           labelled with {@code tag}, it will be cancelled and the new work
      *                           will run.  {@code KEEP_EXISTING_WORK} will run the new sequence of
      *                           work only if there is no pending work labelled with {@code tag}.
@@ -112,7 +109,7 @@ public abstract class WorkManager {
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public abstract WorkContinuation createWithUniqueTag(
-            @NonNull String tag, @ExistingWorkPolicy int existingWorkPolicy, @NonNull Work... work);
+            @NonNull String tag, ExistingWorkPolicy existingWorkPolicy, @NonNull Work... work);
 
     /**
      * Cancels work with the given id, regardless of the current state of the work.  Note that
@@ -154,13 +151,10 @@ public abstract class WorkManager {
      */
     public abstract LiveData<Arguments> getOutput(@NonNull String id);
 
-    @Retention(SOURCE)
-    @IntDef({REPLACE_EXISTING_WORK, KEEP_EXISTING_WORK})
-    public @interface ExistingWorkPolicy {
+    public enum ExistingWorkPolicy {
+        REPLACE_EXISTING_WORK,
+        KEEP_EXISTING_WORK
     }
-
-    public static final int REPLACE_EXISTING_WORK = 0;
-    public static final int KEEP_EXISTING_WORK = 1;
 
     protected abstract void enqueue(List<Class<? extends Worker>> workerClasses);
     protected abstract WorkContinuation createWith(List<Class<? extends Worker>> workerClasses);

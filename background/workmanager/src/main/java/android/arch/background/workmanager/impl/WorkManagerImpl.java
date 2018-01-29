@@ -175,7 +175,7 @@ public class WorkManagerImpl extends WorkManager {
     @Override
     public WorkContinuation createWithUniqueTag(
             @NonNull String tag,
-            @ExistingWorkPolicy int existingWorkPolicy,
+            ExistingWorkPolicy existingWorkPolicy,
             @NonNull Work... work) {
         return new WorkContinuationImpl(this, tag, existingWorkPolicy, work);
     }

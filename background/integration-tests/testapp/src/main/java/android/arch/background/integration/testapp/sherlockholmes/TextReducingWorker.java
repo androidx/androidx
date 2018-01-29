@@ -26,7 +26,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,7 @@ public class TextReducingWorker extends Worker {
     private Map<String, Integer> mWordCount = new HashMap<>();
 
     @Override
-    public @WorkerResult int doWork() {
+    public WorkerResult doWork() {
         Arguments args = getArguments();
         String[] inputFiles = args.getStringArray(INPUT_FILE);
         if (inputFiles == null) {
@@ -63,7 +62,7 @@ public class TextReducingWorker extends Worker {
                     mWordCount.put(word, count);
                 }
             } catch (IOException e) {
-                return WORKER_RESULT_FAILURE;
+                return WorkerResult.FAILURE;
             } finally {
                 if (dataInputStream != null) {
                     try {
@@ -84,12 +83,7 @@ public class TextReducingWorker extends Worker {
 
         List<Map.Entry<String, Integer>> sortedList = new ArrayList<>(mWordCount.size());
         sortedList.addAll(mWordCount.entrySet());
-        Collections.sort(sortedList, new Comparator<Map.Entry<String, Integer>>() {
-            @Override
-            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                return o2.getValue().compareTo(o1.getValue());
-            }
-        });
+        Collections.sort(sortedList, (o1, o2) -> o2.getValue().compareTo(o1.getValue()));
 
         TestDatabase db = TestDatabase.getInstance(getAppContext());
         db.beginTransaction();
@@ -106,6 +100,6 @@ public class TextReducingWorker extends Worker {
         }
 
         Log.d("Reduce", "Reduction finished");
-        return WORKER_RESULT_SUCCESS;
+        return WorkerResult.SUCCESS;
     }
 }

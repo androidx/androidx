@@ -21,9 +21,6 @@ import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.FAILED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
-import static android.arch.background.workmanager.Worker.WORKER_RESULT_FAILURE;
-import static android.arch.background.workmanager.Worker.WORKER_RESULT_RETRY;
-import static android.arch.background.workmanager.Worker.WORKER_RESULT_SUCCESS;
 
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.BaseWork;
@@ -121,7 +118,7 @@ public class WorkerWrapper implements Runnable {
 
         try {
             checkForInterruption();
-            int result = mWorker.doWork();
+            Worker.WorkerResult result = mWorker.doWork();
             if (mWorkSpecDao.getWorkSpecStatus(mWorkSpecId) != CANCELLED) {
                 checkForInterruption();
                 handleResult(result);
@@ -162,9 +159,9 @@ public class WorkerWrapper implements Runnable {
         });
     }
 
-    private void handleResult(@Worker.WorkerResult int result) {
+    private void handleResult(Worker.WorkerResult result) {
         switch (result) {
-            case WORKER_RESULT_SUCCESS: {
+            case SUCCESS: {
                 Logger.debug(TAG, "Worker result SUCCESS for %s", mWorkSpecId);
                 if (mWorkSpec.isPeriodic()) {
                     resetPeriodicAndNotify();
@@ -174,13 +171,13 @@ public class WorkerWrapper implements Runnable {
                 break;
             }
 
-            case WORKER_RESULT_RETRY: {
+            case RETRY: {
                 Logger.debug(TAG, "WWorker result RETRY for %s", mWorkSpecId);
                 rescheduleAndNotify();
                 break;
             }
 
-            case WORKER_RESULT_FAILURE:
+            case FAILURE:
             default: {
                 Logger.debug(TAG, "Worker result FAILURE for %s", mWorkSpecId);
                 if (mWorkSpec.isPeriodic()) {

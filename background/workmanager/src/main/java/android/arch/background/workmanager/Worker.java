@@ -16,28 +16,20 @@
 
 package android.arch.background.workmanager;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import android.content.Context;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
-
-import java.lang.annotation.Retention;
 
 /**
  * The basic unit of work.
  */
 public abstract class Worker {
 
-    @Retention(SOURCE)
-    @IntDef({WORKER_RESULT_SUCCESS, WORKER_RESULT_FAILURE, WORKER_RESULT_RETRY})
-    public @interface WorkerResult {
+    public enum WorkerResult {
+        SUCCESS,
+        FAILURE,
+        RETRY
     }
-
-    public static final int WORKER_RESULT_SUCCESS = 0;
-    public static final int WORKER_RESULT_FAILURE = 1;
-    public static final int WORKER_RESULT_RETRY = 2;
 
     private Context mAppContext;
     private @NonNull String mId;
@@ -60,10 +52,11 @@ public abstract class Worker {
      * Override this method to do your actual background processing.
      *
      * @return The result of the work, corresponding to a {@link WorkerResult} value.  If a
-     * different value is returned, the result shall be defaulted to {@code WORKER_RESULT_FAILURE}.
+     * different value is returned, the result shall be defaulted to
+     * {@link Worker.WorkerResult#FAILURE}.
      */
     @WorkerThread
-    public abstract @WorkerResult int doWork();
+    public abstract WorkerResult doWork();
 
     /**
      * Call this method to pass an {@link Arguments} object to {@link Work} that is dependent on
@@ -72,8 +65,8 @@ public abstract class Worker {
      * unique.  New values and types will clobber old values and types, and if there are multiple
      * parent Workers of a child Worker, the order of clobbering may not be deterministic.
      *
-     * This method is invoked after {@link #doWork()} returns {@link #WORKER_RESULT_SUCCESS} and
-     * there are chained jobs available.
+     * This method is invoked after {@link #doWork()} returns {@link Worker.WorkerResult#SUCCESS}
+     * and there are chained jobs available.
      *
      * For example, if you had this structure:
      *

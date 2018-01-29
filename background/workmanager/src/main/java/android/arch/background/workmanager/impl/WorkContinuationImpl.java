@@ -48,7 +48,7 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     private final WorkManagerImpl mWorkManagerImpl;
     private final String mUniqueTag;
-    private final @WorkManager.ExistingWorkPolicy int mExistingWorkPolicy;
+    private final WorkManager.ExistingWorkPolicy mExistingWorkPolicy;
     private final BaseWork[] mWork;
     private final List<String> mIds;
     private final List<String> mAllIds;
@@ -65,7 +65,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         return mUniqueTag;
     }
 
-    public @WorkManager.ExistingWorkPolicy int getExistingWorkPolicy() {
+    public WorkManager.ExistingWorkPolicy getExistingWorkPolicy() {
         return mExistingWorkPolicy;
     }
 
@@ -101,19 +101,24 @@ public class WorkContinuationImpl extends WorkContinuation {
     WorkContinuationImpl(
             @NonNull WorkManagerImpl workManagerImpl,
             @NonNull BaseWork... work) {
-        this(workManagerImpl, null, WorkManager.KEEP_EXISTING_WORK, work, null);
+        this(
+                workManagerImpl,
+                null,
+                WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK,
+                work,
+                null);
     }
 
     WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
             String uniqueTag,
-            @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
+            WorkManager.ExistingWorkPolicy existingWorkPolicy,
             @NonNull BaseWork... work) {
         this(workManagerImpl, uniqueTag, existingWorkPolicy, work, null);
     }
 
     WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
             String uniqueTag,
-            @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
+            WorkManager.ExistingWorkPolicy existingWorkPolicy,
             @NonNull BaseWork[] work,
             @Nullable List<WorkContinuationImpl> parents) {
         mWorkManagerImpl = workManagerImpl;
@@ -140,7 +145,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         // an initial call to enqueue()
         return new WorkContinuationImpl(mWorkManagerImpl,
                 mUniqueTag,
-                WorkManager.KEEP_EXISTING_WORK,
+                WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK,
                 work,
                 Collections.singletonList(this));
     }
@@ -149,7 +154,7 @@ public class WorkContinuationImpl extends WorkContinuation {
     public WorkContinuation then(List<Class<? extends Worker>> workerClasses) {
         return new WorkContinuationImpl(mWorkManagerImpl,
                 mUniqueTag,
-                WorkManager.KEEP_EXISTING_WORK,
+                WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK,
                 BaseWorkHelper.convertWorkerClassListToWorkArray(workerClasses),
                 Collections.singletonList(this));
     }
@@ -188,7 +193,7 @@ public class WorkContinuationImpl extends WorkContinuation {
 
         return new WorkContinuationImpl(mWorkManagerImpl,
                 null,
-                WorkManager.KEEP_EXISTING_WORK,
+                WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK,
                 new BaseWork[]{work},
                 parents);
     }

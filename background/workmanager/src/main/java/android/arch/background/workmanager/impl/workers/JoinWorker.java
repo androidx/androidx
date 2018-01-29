@@ -28,7 +28,7 @@ import android.support.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class JoinWorker extends Worker {
     @Override
-    public int doWork() {
-        return WORKER_RESULT_SUCCESS;
+    public WorkerResult doWork() {
+        return WorkerResult.SUCCESS;
     }
 }

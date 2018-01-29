@@ -24,9 +24,9 @@ import android.arch.background.workmanager.Worker;
 public class TestWorker extends Worker {
 
     @Override
-    public @WorkerResult int doWork() {
+    public WorkerResult doWork() {
         int x = 0;
         x++;
-        return WORKER_RESULT_SUCCESS;
+        return WorkerResult.SUCCESS;
     }
 }

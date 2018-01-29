@@ -148,7 +148,7 @@ public class EnqueueRunnable implements Runnable {
             @NonNull BaseWork[] workArray,
             String[] prerequisiteIds,
             String uniqueTag,
-            @WorkManager.ExistingWorkPolicy int existingWorkPolicy,
+            WorkManager.ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<InternalWorkImpl> workToBeScheduled) {
 
         long currentTimeMillis = System.currentTimeMillis();
@@ -182,7 +182,7 @@ public class EnqueueRunnable implements Runnable {
             List<WorkSpec.IdAndStatus> existingWorkSpecIdAndStatuses =
                     workDatabase.workSpecDao().getWorkSpecIdAndStatusesForTag(uniqueTag);
             if (!existingWorkSpecIdAndStatuses.isEmpty()) {
-                if (existingWorkPolicy == WorkManager.KEEP_EXISTING_WORK) {
+                if (existingWorkPolicy == WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK) {
                     for (WorkSpec.IdAndStatus idAndStatus : existingWorkSpecIdAndStatuses) {
                         if (idAndStatus.status == ENQUEUED || idAndStatus.status == RUNNING) {
                             return;
