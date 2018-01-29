@@ -19,6 +19,7 @@ package androidx.app.slice.widget;
 import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_LIST;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
+import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_INT;
@@ -33,7 +34,6 @@ import java.util.List;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
-import androidx.app.slice.core.SliceHints;
 import androidx.app.slice.core.SliceQuery;
 
 /**
@@ -76,7 +76,7 @@ public class ListContent {
         for (int i = 0; i < children.size(); i++) {
             final SliceItem child = children.get(i);
             final String format = child.getFormat();
-            if (!child.hasAnyHints(SliceHints.HINT_SUMMARY, HINT_ACTIONS)
+            if (!child.hasAnyHints(HINT_SUMMARY, HINT_ACTIONS)
                     && (FORMAT_ACTION.equals(format) || FORMAT_SLICE.equals(format))) {
                 if (!mHasHeader && !child.hasHint(HINT_LIST_ITEM)) {
                     mHasHeader = true;
@@ -125,7 +125,7 @@ public class ListContent {
     private static SliceItem getSummaryItem(@NonNull Slice slice) {
         List<SliceItem> items = slice.getItems();
         // See if a summary is specified
-        SliceItem summary = SliceQuery.find(slice, FORMAT_SLICE, SliceHints.HINT_SUMMARY, null);
+        SliceItem summary = SliceQuery.find(slice, FORMAT_SLICE, HINT_SUMMARY, null);
         if (summary != null) {
             return summary;
         }

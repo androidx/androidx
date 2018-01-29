@@ -21,17 +21,17 @@ import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_SELECTED;
+import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 import static android.app.slice.Slice.SUBTYPE_PRIORITY;
+import static android.app.slice.Slice.SUBTYPE_TOGGLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
-
-import static androidx.app.slice.core.SliceHints.SUBTYPE_TOGGLE;
 
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
 import androidx.app.slice.SliceSpec;
-import androidx.app.slice.core.SliceHints;
 
 /**
  * @hide
@@ -266,14 +265,14 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         public void addToggle(@NonNull PendingIntent action, boolean isChecked,
                 @NonNull Icon icon) {
             @Slice.SliceHint String[] hints = isChecked
-                    ? new String[] {SUBTYPE_TOGGLE, HINT_SELECTED}
-                    : new String[] {SUBTYPE_TOGGLE};
+                    ? new String[] {HINT_SELECTED}
+                    : new String[0];
             Slice.Builder actionSliceBuilder = new Slice.Builder(getBuilder()).addHints(hints);
             if (icon != null) {
                 actionSliceBuilder.addIcon(icon, null);
             }
             Slice actionSlice = actionSliceBuilder.build();
-            mEndItems.add(new SliceItem(action, actionSlice, FORMAT_ACTION, null, hints));
+            mEndItems.add(new SliceItem(action, actionSlice, FORMAT_ACTION, SUBTYPE_TOGGLE, hints));
         }
 
         /**
@@ -341,7 +340,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 b.addText(mSubtitle, null /* subtype */);
             }
             if (mSummarySubtitle != null) {
-                b.addText(mSummarySubtitle, null /* subtype */, SliceHints.HINT_SUMMARY);
+                b.addText(mSummarySubtitle, null /* subtype */, HINT_SUMMARY);
             }
             if (mContentIntent != null) {
                 wrapped.addAction(mContentIntent, b.build(), null /* subtype */);
