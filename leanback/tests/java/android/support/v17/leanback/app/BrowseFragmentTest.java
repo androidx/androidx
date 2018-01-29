@@ -43,7 +43,7 @@ import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.RowHeaderPresenter;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
@@ -115,6 +115,7 @@ public class BrowseFragmentTest {
     public void testTouchMode() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
+        intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY , 0L);
         mActivity = activityTestRule.launchActivity(intent);
 
         waitForEntranceTransitionFinished();
@@ -134,7 +135,7 @@ public class BrowseFragmentTest {
 
     @Test
     public void testTwoBackKeysWithBackStack() throws Throwable {
-        final long dataLoadingDelay = 1000;
+        final long dataLoadingDelay = 0L;
         Intent intent = new Intent();
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
@@ -150,7 +151,7 @@ public class BrowseFragmentTest {
 
     @Test
     public void testTwoBackKeysWithoutBackStack() throws Throwable {
-        final long dataLoadingDelay = 1000;
+        final long dataLoadingDelay = 0L;
         Intent intent = new Intent();
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
@@ -207,13 +208,18 @@ public class BrowseFragmentTest {
     @Test
     public void testPressCenterBeforeMainFragmentCreated() throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, 0);
+        intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, 0L);
         mActivity = activityTestRule.launchActivity(intent);
 
         final BrowseFragment fragment = mActivity.getBrowseTestFragment();
         fragment.getMainFragmentRegistry().registerFragment(MyRow.class, new MyFragmentFactory());
 
-        final ArrayObjectAdapter adapter = new ArrayObjectAdapter(new RowHeaderPresenter());
+        final ArrayObjectAdapter adapter = new ArrayObjectAdapter(new RowPresenter() {
+            protected ViewHolder createRowViewHolder(ViewGroup parent) {
+                View view = new FrameLayout(parent.getContext());
+                return new RowPresenter.ViewHolder(view);
+            }
+        });
         adapter.add(new MyRow());
         activityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -238,7 +244,7 @@ public class BrowseFragmentTest {
         final int selectRow = 10;
         final int selectItem = 20;
         Intent intent = new Intent();
-        final long dataLoadingDelay = 1000;
+        final long dataLoadingDelay = 0L;
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , true);
         mActivity = activityTestRule.launchActivity(intent);
@@ -275,7 +281,7 @@ public class BrowseFragmentTest {
 
     @Test
     public void activityRecreate_notCrash() throws Throwable {
-        final long dataLoadingDelay = 1000;
+        final long dataLoadingDelay = 0L;
         Intent intent = new Intent();
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_ADD_TO_BACKSTACK , false);
@@ -296,7 +302,7 @@ public class BrowseFragmentTest {
 
     @Test
     public void lateLoadingHeaderDisabled() throws Throwable {
-        final long dataLoadingDelay = 1000;
+        final long dataLoadingDelay = 0L;
         Intent intent = new Intent();
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
         intent.putExtra(BrowseFragmentTestActivity.EXTRA_HEADERS_STATE,
