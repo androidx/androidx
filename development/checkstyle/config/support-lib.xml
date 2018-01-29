@@ -28,6 +28,8 @@
         &defaultJavadocChecks;
         &defaultTreewalkerChecks;
 
+        <module name="RedundantModifierCheck" />
+
         <!-- Custom support library check for @RestrictTo / @hide. -->
         <module name="com.android.support.checkstyle.MismatchedAnnotationCheck">
             <property name="severity" value="error" />

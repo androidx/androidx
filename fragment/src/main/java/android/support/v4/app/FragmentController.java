@@ -43,7 +43,7 @@ public class FragmentController {
     /**
      * Returns a {@link FragmentController}.
      */
-    public static final FragmentController createController(FragmentHostCallback<?> callbacks) {
+    public static FragmentController createController(FragmentHostCallback<?> callbacks) {
         return new FragmentController(callbacks);
     }
 

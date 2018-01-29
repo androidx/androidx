@@ -37,13 +37,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class AudioAttributesCompatTest {
     // some macros for conciseness
-    static final AudioAttributesCompat.Builder mkBuilder(
+    static AudioAttributesCompat.Builder mkBuilder(
             @AudioAttributesCompat.AttributeContentType int type,
             @AudioAttributesCompat.AttributeUsage int usage) {
         return new AudioAttributesCompat.Builder().setContentType(type).setUsage(usage);
     }
 
-    static final AudioAttributesCompat.Builder mkBuilder(int legacyStream) {
+    static AudioAttributesCompat.Builder mkBuilder(int legacyStream) {
         return new AudioAttributesCompat.Builder().setLegacyStreamType(legacyStream);
     }
 
