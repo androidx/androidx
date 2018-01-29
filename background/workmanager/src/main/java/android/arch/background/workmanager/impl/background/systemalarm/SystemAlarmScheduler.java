@@ -16,17 +16,11 @@
 
 package android.arch.background.workmanager.impl.background.systemalarm;
 
-import static android.app.AlarmManager.RTC_WAKEUP;
-
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
-import android.arch.background.workmanager.impl.utils.IdGenerator;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
@@ -37,16 +31,13 @@ import android.support.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemAlarmScheduler implements Scheduler {
+
     private static final String TAG = "SystemAlarmScheduler";
 
-    private final AlarmManager mAlarmManager;
-    private final IdGenerator mIdGenerator;
-    private final Context mAppContext;
+    private final Context mContext;
 
-    public SystemAlarmScheduler(Context context) {
-        mAppContext = context.getApplicationContext();
-        mIdGenerator = new IdGenerator(mAppContext);
-        mAlarmManager = (AlarmManager) mAppContext.getSystemService(Context.ALARM_SERVICE);
+    public SystemAlarmScheduler(@NonNull Context context) {
+        mContext = context.getApplicationContext();
     }
 
     @Override
@@ -58,10 +49,9 @@ public class SystemAlarmScheduler implements Scheduler {
 
     @Override
     public void cancel(@NonNull String workSpecId) {
-        // TODO(janclarin): Retrieve alarm id mapping for work spec id.
-        // TODO(xbhatnag): Cancel pending alarms via AlarmManager.
-        Intent cancelIntent = SystemAlarmService.createCancelWorkIntent(mAppContext, workSpecId);
-        mAppContext.startService(cancelIntent);
+        //TODO (rahulrav@) Store mapping alarm ids along / in a separate table
+        Intent cancelIntent = CommandHandler.createCancelWorkIntent(mContext, workSpecId);
+        mContext.startService(cancelIntent);
     }
 
     /**
@@ -69,21 +59,8 @@ public class SystemAlarmScheduler implements Scheduler {
      * times to drift to guarantee that the interval duration always elapses between alarms.
      */
     private void scheduleWorkSpec(@NonNull WorkSpec workSpec) {
-        // TODO(janclarin): Store alarm id mapping for work spec in the database for cancelling.
-        long triggerAtMillis = workSpec.calculateNextRunTime();
-        int nextAlarmId = mIdGenerator.nextAlarmManagerId();
-        Intent intent = SystemAlarmService.createDelayMetIntent(mAppContext, workSpec.getId());
-        setExactAlarm(nextAlarmId, triggerAtMillis, intent);
-        Logger.debug(TAG, "Scheduled work with ID: %s", workSpec.getId());
-    }
-
-    private void setExactAlarm(int alarmId, long triggerAtMillis, @NonNull Intent intent) {
-        PendingIntent pendingIntent = PendingIntent.getService(mAppContext, alarmId, intent,
-                PendingIntent.FLAG_ONE_SHOT);
-        if (Build.VERSION.SDK_INT >= 19) {
-            mAlarmManager.setExact(RTC_WAKEUP, triggerAtMillis, pendingIntent);
-        } else {
-            mAlarmManager.set(RTC_WAKEUP, triggerAtMillis, pendingIntent);
-        }
+        Logger.debug(TAG, "Scheduling work with workSpecId %s", workSpec.getId());
+        Intent scheduleIntent = CommandHandler.createScheduleWorkIntent(mContext, workSpec.getId());
+        mContext.startService(scheduleIntent);
     }
 }
