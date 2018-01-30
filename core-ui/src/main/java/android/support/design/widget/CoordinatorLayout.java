@@ -632,22 +632,34 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     LayoutParams getResolvedLayoutParams(View child) {
         final LayoutParams result = (LayoutParams) child.getLayoutParams();
         if (!result.mBehaviorResolved) {
-            Class<?> childClass = child.getClass();
-            DefaultBehavior defaultBehavior = null;
-            while (childClass != null &&
-                    (defaultBehavior = childClass.getAnnotation(DefaultBehavior.class)) == null) {
-                childClass = childClass.getSuperclass();
-            }
-            if (defaultBehavior != null) {
-                try {
-                    result.setBehavior(
-                            defaultBehavior.value().getDeclaredConstructor().newInstance());
-                } catch (Exception e) {
-                    Log.e(TAG, "Default behavior class " + defaultBehavior.value().getName() +
-                            " could not be instantiated. Did you forget a default constructor?", e);
+            if (child instanceof AttachedBehavior) {
+                Behavior attachedBehavior = ((AttachedBehavior) child).getBehavior();
+                if (attachedBehavior == null) {
+                    Log.e(TAG, "Attached behavior class is null");
                 }
+                result.setBehavior(attachedBehavior);
+                result.mBehaviorResolved = true;
+            } else {
+                // The deprecated path that looks up the attached behavior based on annotation
+                Class<?> childClass = child.getClass();
+                DefaultBehavior defaultBehavior = null;
+                while (childClass != null
+                        && (defaultBehavior = childClass.getAnnotation(DefaultBehavior.class))
+                                == null) {
+                    childClass = childClass.getSuperclass();
+                }
+                if (defaultBehavior != null) {
+                    try {
+                        result.setBehavior(
+                                defaultBehavior.value().getDeclaredConstructor().newInstance());
+                    } catch (Exception e) {
+                        Log.e(TAG, "Default behavior class " + defaultBehavior.value().getName()
+                                        + " could not be instantiated. Did you forget"
+                                        + " a default constructor?", e);
+                    }
+                }
+                result.mBehaviorResolved = true;
             }
-            result.mBehaviorResolved = true;
         }
         return result;
     }
@@ -1970,10 +1982,29 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      * can be overridden using {@link LayoutParams#setBehavior}.</p>
      *
      * <p>Example: <code>@DefaultBehavior(MyBehavior.class)</code></p>
+     * @deprecated Use {@link AttachedBehavior} instead
      */
+    @Deprecated
     @Retention(RetentionPolicy.RUNTIME)
     public @interface DefaultBehavior {
         Class<? extends Behavior> value();
+    }
+
+    /**
+     * Defines the default attached {@link Behavior} of a {@link View} class
+     *
+     * <p>When writing a custom view, implement this interface to return the default behavior
+     * when used as a direct child of an {@link CoordinatorLayout}. The default behavior
+     * can be overridden using {@link LayoutParams#setBehavior}.</p>
+     */
+    public interface AttachedBehavior {
+        /**
+         * Returns the behavior associated with the matching {@link View} class.
+         *
+         * @return The behavior associated with the matching {@link View} class. Must be
+         * non-null.
+         */
+        @NonNull Behavior getBehavior();
     }
 
     /**
