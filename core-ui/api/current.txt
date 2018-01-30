@@ -379,10 +379,10 @@ package android.support.v4.widget {
   public class ContentLoadingProgressBar extends android.widget.ProgressBar {
     ctor public ContentLoadingProgressBar(android.content.Context);
     ctor public ContentLoadingProgressBar(android.content.Context, android.util.AttributeSet);
-    method public void hide();
+    method public synchronized void hide();
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
-    method public void show();
+    method public synchronized void show();
   }
 
   public abstract class CursorAdapter extends android.widget.BaseAdapter implements android.widget.Filterable {

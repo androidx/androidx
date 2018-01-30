@@ -1895,7 +1895,7 @@ package android.support.v17.leanback.widget {
     ctor public GuidedActionDiffCallback();
     method public boolean areContentsTheSame(android.support.v17.leanback.widget.GuidedAction, android.support.v17.leanback.widget.GuidedAction);
     method public boolean areItemsTheSame(android.support.v17.leanback.widget.GuidedAction, android.support.v17.leanback.widget.GuidedAction);
-    method public static final android.support.v17.leanback.widget.GuidedActionDiffCallback getInstance();
+    method public static android.support.v17.leanback.widget.GuidedActionDiffCallback getInstance();
   }
 
   public class GuidedActionEditText extends android.widget.EditText implements android.support.v17.leanback.widget.ImeKeyMonitor {
