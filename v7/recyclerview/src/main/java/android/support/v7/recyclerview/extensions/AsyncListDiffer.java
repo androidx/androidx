@@ -17,29 +17,35 @@
 package android.support.v7.recyclerview.extensions;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.util.AdapterListUpdateCallback;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 import android.support.v7.widget.RecyclerView;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Helper object for displaying a List in
- * {@link android.support.v7.widget.RecyclerView.Adapter RecyclerView.Adapter}, which signals the
- * adapter of changes when the List is changed by computing changes with DiffUtil in the
- * background.
+ * Helper for computing the difference between two lists via {@link DiffUtil} on a background
+ * thread.
+ * <p>
+ * It can be connected to a
+ * {@link android.support.v7.widget.RecyclerView.Adapter RecyclerView.Adapter}, and will signal the
+ * adapter of changes between sumbitted lists.
  * <p>
  * For simplicity, the {@link ListAdapter} wrapper class can often be used instead of the
- * helper directly. This helper class is exposed for complex cases, and where overriding an adapter
- * base class to support List diffing isn't convenient.
+ * AsyncListDiffer directly. This AsyncListDiffer can be used for complex cases, where overriding an
+ * adapter base class to support asynchronous List diffing isn't convenient.
  * <p>
- * The ListAdapterHelper can consume the values from a LiveData of <code>List</code> and present the
- * data simply for an adapter. It computes differences in List contents via {@link DiffUtil} on a
+ * The AsyncListDiffer can consume the values from a LiveData of <code>List</code> and present the
+ * data simply for an adapter. It computes differences in list contents via {@link DiffUtil} on a
  * background thread as new <code>List</code>s are received.
  * <p>
- * It provides a simple list-like API with {@link #getItem(int)} and {@link #getItemCount()} for an
- * adapter to acquire and present data objects.
+ * Use {@link #getCurrentList()} to access the current List, and present its data objects. Diff
+ * results will be dispatched to the ListUpdateCallback immediately before the current list is
+ * updated. If you're dispatching list updates directly to an Adapter, this means the Adapter can
+ * safely access list items and total size via {@link #getCurrentList()}.
  * <p>
  * A complete usage pattern with Room would look like this:
  * <pre>
@@ -63,24 +69,23 @@ import java.util.List;
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
  *         UserAdapter&lt;User> adapter = new UserAdapter();
- *         viewModel.usersList.observe(this, list -> adapter.setList(list));
+ *         viewModel.usersList.observe(this, list -> adapter.submitList(list));
  *         recyclerView.setAdapter(adapter);
  *     }
  * }
  *
  * class UserAdapter extends RecyclerView.Adapter&lt;UserViewHolder> {
- *     private final ListAdapterHelper&lt;User> mHelper =
- *             new ListAdapterHelper(this, DIFF_CALLBACK);
+ *     private final AsyncListDiffer&lt;User> mDiffer = new AsyncListDiffer(this, DIFF_CALLBACK);
  *     {@literal @}Override
  *     public int getItemCount() {
- *         return mHelper.getItemCount();
+ *         return mDiffer.getCurrentList().size();
  *     }
- *     public void setList(List&lt;User> list) {
- *         mHelper.setList(list);
+ *     public void submitList(List&lt;User> list) {
+ *         mDiffer.submitList(list);
  *     }
  *     {@literal @}Override
  *     public void onBindViewHolder(UserViewHolder holder, int position) {
- *         User user = mHelper.getItem(position);
+ *         User user = mDiffer.getCurrentList().get(position);
  *         holder.bindTo(user);
  *     }
  *     public static final DiffUtil.ItemCallback&lt;User> DIFF_CALLBACK
@@ -101,30 +106,33 @@ import java.util.List;
  *     }
  * }</pre>
  *
- * @param <T> Type of the lists this helper will receive.
+ * @param <T> Type of the lists this AsyncListDiffer will receive.
+ *
+ * @see DiffUtil
+ * @see AdapterListUpdateCallback
  */
-public class ListAdapterHelper<T> {
+public class AsyncListDiffer<T> {
     private final ListUpdateCallback mUpdateCallback;
-    private final ListAdapterConfig<T> mConfig;
+    private final AsyncDifferConfig<T> mConfig;
 
     /**
      * Convenience for
-     * {@code PagedListAdapterHelper(new AdapterListUpdateCallback(adapter),
-     * new ListAdapterConfig.Builder().setDiffCallback(diffCallback).build());}
+     * {@code AsyncListDiffer(new AdapterListUpdateCallback(adapter),
+     * new AsyncDifferConfig.Builder().setDiffCallback(diffCallback).build());}
      *
      * @param adapter Adapter to dispatch position updates to.
      * @param diffCallback ItemCallback that compares items to dispatch appropriate animations when
      *
      * @see DiffUtil.DiffResult#dispatchUpdatesTo(RecyclerView.Adapter)
      */
-    public ListAdapterHelper(@NonNull RecyclerView.Adapter adapter,
+    public AsyncListDiffer(@NonNull RecyclerView.Adapter adapter,
             @NonNull DiffUtil.ItemCallback<T> diffCallback) {
         mUpdateCallback = new AdapterListUpdateCallback(adapter);
-        mConfig = new ListAdapterConfig.Builder<>(diffCallback).build();
+        mConfig = new AsyncDifferConfig.Builder<>(diffCallback).build();
     }
 
     /**
-     * Create a ListAdapterHelper with the provided config, and ListUpdateCallback to dispatch
+     * Create a AsyncListDiffer with the provided config, and ListUpdateCallback to dispatch
      * updates to.
      *
      * @param listUpdateCallback Callback to dispatch updates to.
@@ -134,43 +142,40 @@ public class ListAdapterHelper<T> {
      * @see DiffUtil.DiffResult#dispatchUpdatesTo(RecyclerView.Adapter)
      */
     @SuppressWarnings("WeakerAccess")
-    public ListAdapterHelper(@NonNull ListUpdateCallback listUpdateCallback,
-            @NonNull ListAdapterConfig<T> config) {
+    public AsyncListDiffer(@NonNull ListUpdateCallback listUpdateCallback,
+            @NonNull AsyncDifferConfig<T> config) {
         mUpdateCallback = listUpdateCallback;
         mConfig = config;
     }
 
+    @Nullable
     private List<T> mList;
+
+    /**
+     * Non-null, unmodifiable version of mList.
+     * <p>
+     * Collections.emptyList when mList is null, wrapped by Collections.unmodifiableList otherwise
+     */
+    @NonNull
+    private List<T> mReadOnlyList = Collections.emptyList();
 
     // Max generation of currently scheduled runnable
     private int mMaxScheduledGeneration;
 
-
     /**
-     * Get the item from the current List at the specified index.
+     * Get the current List - any diffing to present this list has already been computed and
+     * dispatched via the ListUpdateCallback.
+     * <p>
+     * If a <code>null</code> List, or no List has been submitted, an empty list will be returned.
+     * <p>
+     * The returned list may not be mutated - mutations to content must be done through
+     * {@link #submitList(List)}.
      *
-     * @param index Index of item to get, must be >= 0, and &lt; {@link #getItemCount()}.
-     * @return The item at the specified List position.
+     * @return current List.
      */
-    @SuppressWarnings("WeakerAccess")
-    public T getItem(int index) {
-        if (mList == null) {
-            throw new IndexOutOfBoundsException("Item count is zero, getItem() call is invalid");
-        }
-
-        return mList.get(index);
-    }
-
-    /**
-     * Get the number of items currently presented by this AdapterHelper. This value can be directly
-     * returned to {@link android.support.v7.widget.RecyclerView.Adapter#getItemCount()
-     * RecyclerView.Adapter.getItemCount()}.
-     *
-     * @return Number of items being presented.
-     */
-    @SuppressWarnings("WeakerAccess")
-    public int getItemCount() {
-        return mList == null ? 0 : mList.size();
+    @NonNull
+    public List<T> getCurrentList() {
+        return mReadOnlyList;
     }
 
     /**
@@ -184,7 +189,7 @@ public class ListAdapterHelper<T> {
      * @param newList The new List.
      */
     @SuppressWarnings("WeakerAccess")
-    public void setList(final List<T> newList) {
+    public void submitList(final List<T> newList) {
         if (newList == mList) {
             // nothing to do
             return;
@@ -194,8 +199,10 @@ public class ListAdapterHelper<T> {
         final int runGeneration = ++mMaxScheduledGeneration;
 
         if (newList == null) {
+            //noinspection ConstantConditions
             mUpdateCallback.onRemoved(0, mList.size());
             mList = null;
+            mReadOnlyList = Collections.emptyList();
             return;
         }
 
@@ -203,6 +210,7 @@ public class ListAdapterHelper<T> {
             // fast simple first insert
             mUpdateCallback.onInserted(0, newList.size());
             mList = newList;
+            mReadOnlyList = Collections.unmodifiableList(newList);
             return;
         }
 
@@ -246,8 +254,9 @@ public class ListAdapterHelper<T> {
         });
     }
 
-    private void latchList(List<T> newList, DiffUtil.DiffResult diffResult) {
+    private void latchList(@NonNull List<T> newList, @NonNull DiffUtil.DiffResult diffResult) {
         diffResult.dispatchUpdatesTo(mUpdateCallback);
         mList = newList;
+        mReadOnlyList = Collections.unmodifiableList(newList);
     }
 }
