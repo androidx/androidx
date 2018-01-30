@@ -27,11 +27,11 @@ import java.util.List;
  * {@link RecyclerView.Adapter RecyclerView.Adapter} base class for presenting List data in a
  * {@link RecyclerView}, including computing diffs between Lists on a background thread.
  * <p>
- * This class is a convenience wrapper around ListAdapterHelper that implements common default
- * behavior for item access and counting.
+ * This class is a convenience wrapper around {@link AsyncListDiffer} that implements Adapter common
+ * default behavior for item access and counting.
  * <p>
  * While using a LiveData&lt;List> is an easy way to provide data to the adapter, it isn't required
- * - you can use {@link #setList(List)} when new lists are available.
+ * - you can use {@link #submitList(List)} when new lists are available.
  * <p>
  * A complete usage pattern with Room would look like this:
  * <pre>
@@ -55,7 +55,7 @@ import java.util.List;
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
  *         UserAdapter&lt;User> adapter = new UserAdapter();
- *         viewModel.usersList.observe(this, list -> adapter.setList(list));
+ *         viewModel.usersList.observe(this, list -> adapter.submitList(list));
  *         recyclerView.setAdapter(adapter);
  *     }
  * }
@@ -87,7 +87,7 @@ import java.util.List;
  * }</pre>
  *
  * Advanced users that wish for more control over adapter behavior, or to provide a specific base
- * class should refer to {@link ListAdapterHelper}, which provides custom mapping from diff events
+ * class should refer to {@link AsyncListDiffer}, which provides custom mapping from diff events
  * to adapter positions.
  *
  * @param <T> Type of the Lists this Adapter will receive.
@@ -95,38 +95,39 @@ import java.util.List;
  */
 public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
         extends RecyclerView.Adapter<VH> {
-    private final ListAdapterHelper<T> mHelper;
+    private final AsyncListDiffer<T> mHelper;
 
     @SuppressWarnings("unused")
     protected ListAdapter(@NonNull DiffUtil.ItemCallback<T> diffCallback) {
-        mHelper = new ListAdapterHelper<>(new AdapterListUpdateCallback(this),
-                new ListAdapterConfig.Builder<>(diffCallback).build());
+        mHelper = new AsyncListDiffer<>(new AdapterListUpdateCallback(this),
+                new AsyncDifferConfig.Builder<>(diffCallback).build());
     }
 
     @SuppressWarnings("unused")
-    protected ListAdapter(@NonNull ListAdapterConfig<T> config) {
-        mHelper = new ListAdapterHelper<>(new AdapterListUpdateCallback(this), config);
+    protected ListAdapter(@NonNull AsyncDifferConfig<T> config) {
+        mHelper = new AsyncListDiffer<>(new AdapterListUpdateCallback(this), config);
     }
 
     /**
-     * Set the new list to be displayed.
+     * Submits a new list to be diffed, and displayed.
      * <p>
      * If a list is already being displayed, a diff will be computed on a background thread, which
      * will dispatch Adapter.notifyItem events on the main thread.
      *
      * @param list The new list to be displayed.
      */
-    public void setList(List<T> list) {
-        mHelper.setList(list);
+    @SuppressWarnings("WeakerAccess")
+    public void submitList(List<T> list) {
+        mHelper.submitList(list);
     }
 
     @SuppressWarnings("unused")
     protected T getItem(int position) {
-        return mHelper.getItem(position);
+        return mHelper.getCurrentList().get(position);
     }
 
     @Override
     public int getItemCount() {
-        return mHelper.getItemCount();
+        return mHelper.getCurrentList().size();
     }
 }

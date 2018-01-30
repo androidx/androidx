@@ -20,6 +20,8 @@ import android.support.test.filters.SmallTest
 import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertSame
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -27,6 +29,8 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.verifyZeroInteractions
+import java.lang.UnsupportedOperationException
+import java.util.Collections.emptyList
 import java.util.LinkedList
 import java.util.concurrent.Executor
 
@@ -51,14 +55,14 @@ class TestExecutor : Executor {
 
 @SmallTest
 @RunWith(JUnit4::class)
-class ListAdapterHelperTest {
+class AsyncListDifferTest {
     private val mMainThread = TestExecutor()
     private val mBackgroundThread = TestExecutor()
 
     private fun <T> createHelper(listUpdateCallback: ListUpdateCallback,
-            diffCallback: DiffUtil.ItemCallback<T>): ListAdapterHelper<T> {
-        return ListAdapterHelper(listUpdateCallback,
-                ListAdapterConfig.Builder<T>(diffCallback)
+            diffCallback: DiffUtil.ItemCallback<T>): AsyncListDiffer<T> {
+        return AsyncListDiffer(listUpdateCallback,
+                AsyncDifferConfig.Builder<T>(diffCallback)
                         .setMainThreadExecutor(mMainThread)
                         .setBackgroundThreadExecutor(mBackgroundThread)
                         .build())
@@ -68,40 +72,70 @@ class ListAdapterHelperTest {
     fun initialState() {
         val callback = mock(ListUpdateCallback::class.java)
         val helper = createHelper(callback, STRING_DIFF_CALLBACK)
-        assertEquals(0, helper.itemCount)
+        assertEquals(0, helper.currentList.size)
         verifyZeroInteractions(callback)
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getEmpty() {
         val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.getItem(0)
+        helper.currentList[0]
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getNegative() {
         val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.setList(listOf("a", "b"))
-        helper.getItem(-1)
+        helper.submitList(listOf("a", "b"))
+        helper.currentList[-1]
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getPastEnd() {
         val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.setList(listOf("a", "b"))
-        helper.getItem(2)
+        helper.submitList(listOf("a", "b"))
+        helper.currentList[2]
+    }
+
+    fun getCurrentList() {
+        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+
+        // null is emptyList
+        assertSame(emptyList<String>(), helper.currentList)
+
+        // other list is wrapped
+        val list = listOf("a", "b")
+        helper.submitList(list)
+        assertEquals(list, helper.currentList)
+        assertNotSame(list, helper.currentList)
+
+        // null again, empty again
+        helper.submitList(null)
+        assertSame(emptyList<String>(), helper.currentList)
+    }
+
+    @Test(expected = UnsupportedOperationException::class)
+    fun mutateCurrentListEmpty() {
+        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        helper.currentList[0] = ""
+    }
+
+    @Test(expected = UnsupportedOperationException::class)
+    fun mutateCurrentListNonEmpty() {
+        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        helper.submitList(listOf("a"))
+        helper.currentList[0] = ""
     }
 
     @Test
-    fun setListSimple() {
+    fun submitListSimple() {
         val callback = mock(ListUpdateCallback::class.java)
         val helper = createHelper(callback, STRING_DIFF_CALLBACK)
 
-        helper.setList(listOf("a", "b"))
+        helper.submitList(listOf("a", "b"))
 
-        assertEquals(2, helper.itemCount)
-        assertEquals("a", helper.getItem(0))
-        assertEquals("b", helper.getItem(1))
+        assertEquals(2, helper.currentList.size)
+        assertEquals("a", helper.currentList[0])
+        assertEquals("b", helper.currentList[1])
 
         verify(callback).onInserted(0, 2)
         verifyNoMoreInteractions(callback)
@@ -110,26 +144,26 @@ class ListAdapterHelperTest {
     }
 
     @Test
-    fun setListUpdate() {
+    fun submitListUpdate() {
         val callback = mock(ListUpdateCallback::class.java)
         val helper = createHelper(callback, STRING_DIFF_CALLBACK)
 
         // initial list (immediate)
-        helper.setList(listOf("a", "b"))
+        helper.submitList(listOf("a", "b"))
         verify(callback).onInserted(0, 2)
         verifyNoMoreInteractions(callback)
         drain()
         verifyNoMoreInteractions(callback)
 
         // update (deferred)
-        helper.setList(listOf("a", "b", "c"))
+        helper.submitList(listOf("a", "b", "c"))
         verifyNoMoreInteractions(callback)
         drain()
         verify(callback).onInserted(2, 1)
         verifyNoMoreInteractions(callback)
 
         // clear (immediate)
-        helper.setList(null)
+        helper.submitList(null)
         verify(callback).onRemoved(0, 3)
         verifyNoMoreInteractions(callback)
         drain()

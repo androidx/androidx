@@ -30,7 +30,10 @@ import java.util.List;
  * DiffUtil is a utility class that can calculate the difference between two lists and output a
  * list of update operations that converts the first list into the second one.
  * <p>
- * It can be used to calculate updates for a RecyclerView Adapter.
+ * It can be used to calculate updates for a RecyclerView Adapter. See
+ * {@link android.support.v7.recyclerview.extensions.ListAdapter} and
+ * {@link android.support.v7.recyclerview.extensions.AsyncListDiffer} which can compute diffs using
+ * DiffUtil on a background thread.
  * <p>
  * DiffUtil uses Eugene W. Myers's difference algorithm to calculate the minimal number of updates
  * to convert one list into another. Myers's algorithm does not handle items that are moved so
@@ -62,6 +65,8 @@ import java.util.List;
  * </ul>
  * <p>
  * Due to implementation constraints, the max size of the list can be 2^26.
+ *
+ * @see android.support.v7.recyclerview.extensions.AsyncListDiffer
  */
 public class DiffUtil {
 
