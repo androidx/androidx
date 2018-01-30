@@ -1,29 +1,29 @@
 package android.support.v7.recyclerview.extensions {
 
-  public abstract class ListAdapter<T, VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends android.support.v7.widget.RecyclerView.Adapter {
-    ctor protected ListAdapter(android.support.v7.util.DiffUtil.ItemCallback<T>);
-    ctor protected ListAdapter(android.support.v7.recyclerview.extensions.ListAdapterConfig<T>);
-    method protected T getItem(int);
-    method public int getItemCount();
-    method public void setList(java.util.List<T>);
-  }
-
-  public final class ListAdapterConfig<T> {
+  public final class AsyncDifferConfig<T> {
+    method public java.util.concurrent.Executor getBackgroundThreadExecutor();
     method public android.support.v7.util.DiffUtil.ItemCallback<T> getDiffCallback();
   }
 
-  public static class ListAdapterConfig.Builder<T> {
-    ctor public ListAdapterConfig.Builder(android.support.v7.util.DiffUtil.ItemCallback<T>);
-    method public android.support.v7.recyclerview.extensions.ListAdapterConfig<T> build();
-    method public android.support.v7.recyclerview.extensions.ListAdapterConfig.Builder<T> setBackgroundThreadExecutor(java.util.concurrent.Executor);
+  public static final class AsyncDifferConfig.Builder<T> {
+    ctor public AsyncDifferConfig.Builder(android.support.v7.util.DiffUtil.ItemCallback<T>);
+    method public android.support.v7.recyclerview.extensions.AsyncDifferConfig<T> build();
+    method public android.support.v7.recyclerview.extensions.AsyncDifferConfig.Builder<T> setBackgroundThreadExecutor(java.util.concurrent.Executor);
   }
 
-  public class ListAdapterHelper<T> {
-    ctor public ListAdapterHelper(android.support.v7.widget.RecyclerView.Adapter, android.support.v7.util.DiffUtil.ItemCallback<T>);
-    ctor public ListAdapterHelper(android.support.v7.util.ListUpdateCallback, android.support.v7.recyclerview.extensions.ListAdapterConfig<T>);
-    method public T getItem(int);
+  public class AsyncListDiffer<T> {
+    ctor public AsyncListDiffer(android.support.v7.widget.RecyclerView.Adapter, android.support.v7.util.DiffUtil.ItemCallback<T>);
+    ctor public AsyncListDiffer(android.support.v7.util.ListUpdateCallback, android.support.v7.recyclerview.extensions.AsyncDifferConfig<T>);
+    method public java.util.List<T> getCurrentList();
+    method public void submitList(java.util.List<T>);
+  }
+
+  public abstract class ListAdapter<T, VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends android.support.v7.widget.RecyclerView.Adapter {
+    ctor protected ListAdapter(android.support.v7.util.DiffUtil.ItemCallback<T>);
+    ctor protected ListAdapter(android.support.v7.recyclerview.extensions.AsyncDifferConfig<T>);
+    method protected T getItem(int);
     method public int getItemCount();
-    method public void setList(java.util.List<T>);
+    method public void submitList(java.util.List<T>);
   }
 
 }

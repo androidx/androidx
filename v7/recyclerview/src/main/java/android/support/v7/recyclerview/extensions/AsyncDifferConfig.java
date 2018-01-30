@@ -26,7 +26,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
- * Configuration object for {@link ListAdapter}, {@link ListAdapterHelper}, and similar
+ * Configuration object for {@link ListAdapter}, {@link AsyncListDiffer}, and similar
  * background-thread list diffing adapter logic.
  * <p>
  * At minimum, defines item diffing behavior with a {@link DiffUtil.ItemCallback}, used to compute
@@ -34,7 +34,7 @@ import java.util.concurrent.Executors;
  *
  * @param <T> Type of items in the lists, and being compared.
  */
-public final class ListAdapterConfig<T> {
+public final class AsyncDifferConfig<T> {
     @NonNull
     private final Executor mMainThreadExecutor;
     @NonNull
@@ -42,7 +42,7 @@ public final class ListAdapterConfig<T> {
     @NonNull
     private final DiffUtil.ItemCallback<T> mDiffCallback;
 
-    private ListAdapterConfig(
+    private AsyncDifferConfig(
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
             @NonNull DiffUtil.ItemCallback<T> diffCallback) {
@@ -59,9 +59,7 @@ public final class ListAdapterConfig<T> {
         return mMainThreadExecutor;
     }
 
-    /** @hide */
     @SuppressWarnings("WeakerAccess")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public Executor getBackgroundThreadExecutor() {
         return mBackgroundThreadExecutor;
@@ -74,11 +72,11 @@ public final class ListAdapterConfig<T> {
     }
 
     /**
-     * Builder class for {@link ListAdapterConfig}.
+     * Builder class for {@link AsyncDifferConfig}.
      *
      * @param <T>
      */
-    public static class Builder<T> {
+    public static final class Builder<T> {
         private Executor mMainThreadExecutor;
         private Executor mBackgroundThreadExecutor;
         private final DiffUtil.ItemCallback<T> mDiffCallback;
@@ -130,12 +128,12 @@ public final class ListAdapterConfig<T> {
         }
 
         /**
-         * Creates a {@link ListAdapterHelper} with the given parameters.
+         * Creates a {@link AsyncListDiffer} with the given parameters.
          *
-         * @return A new ListAdapterConfig.
+         * @return A new AsyncDifferConfig.
          */
         @NonNull
-        public ListAdapterConfig<T> build() {
+        public AsyncDifferConfig<T> build() {
             if (mMainThreadExecutor == null) {
                 mMainThreadExecutor = sMainThreadExecutor;
             }
@@ -147,7 +145,7 @@ public final class ListAdapterConfig<T> {
                 }
                 mBackgroundThreadExecutor = sDiffExecutor;
             }
-            return new ListAdapterConfig<>(
+            return new AsyncDifferConfig<>(
                     mMainThreadExecutor,
                     mBackgroundThreadExecutor,
                     mDiffCallback);
