@@ -101,6 +101,7 @@
     <string name="design_appbar_collapsing_toolbar_with_image">AppBar/Collapsing Toolbar + Parallax Image</string>
     <string name="design_appbar_collapsing_toolbar_with_image_insets">AppBar/Collapsing Toolbar + Parallax Image + Insets</string>
     <string name="design_appbar_parallax_overlap">AppBar/Parallax Overlapping content</string>
+    <string name="design_appbar_recyclerview">AppBar/RecyclerView</string>
     <string name="scroll_top">Top</string>
     <string name="scroll_bottom">Bottom</string>
     <string name="menu_search">Search</string>
@@ -132,4 +133,5 @@
     <string name="bottomnavigation_remove">Remove an item</string>
     <string name="bottomnavigation_tint">Toggle tint</string>
     <string name="bottomnavigation_select_next">Select next item</string>
+    <string name="app_bar_layout_recyclerview_toolbar_title">RecyclerView</string>
 </resources>

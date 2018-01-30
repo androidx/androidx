@@ -1,6 +1,11 @@
+buildscript {
+    ext.kotlin_version = '1.2.0'
+}
+
 plugins {
     id("SupportAndroidTestAppPlugin")
     id("androidx.tools.jetifier")
+    id("kotlin-android")
 }
 
 dependencies {
@@ -18,6 +23,7 @@ dependencies {
     implementation(project(":recyclerview"))
     implementation(project(":appcompat"))
     implementation(project(":cardview"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
 }
 
 android {
