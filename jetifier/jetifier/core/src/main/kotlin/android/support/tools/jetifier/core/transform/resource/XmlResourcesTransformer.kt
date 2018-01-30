@@ -18,7 +18,8 @@ package android.support.tools.jetifier.core.transform.resource
 
 import android.support.tools.jetifier.core.archive.ArchiveFile
 import android.support.tools.jetifier.core.map.TypesMap
-import android.support.tools.jetifier.core.rules.JavaTypeXmlRef
+import android.support.tools.jetifier.core.rules.JavaType
+import android.support.tools.jetifier.core.rules.PackageName
 import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.transform.Transformer
 import android.support.tools.jetifier.core.utils.Log
@@ -40,10 +41,13 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         const val TAG = "XmlResourcesTransformer"
 
         const val PATTERN_TYPE_GROUP = 1
+
+        const val MANIFEST_FILE_NAME = "AndroidManifest.xml"
     }
 
     /**
-     * List of regular expression patterns used to find support library references in XML files.
+     * List of regular expression patterns used to find support library types references in XML
+     * files.
      *
      * Matches xml tags in form of:
      * 1. '<(/)prefix(SOMETHING)'.
@@ -57,42 +61,39 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         Pattern.compile("<view[^>]*class=\"([a-zA-Z0-9.\$_]+)\"[^>]*>")
     )
 
+    /**
+     * List of regular expression patterns used to find support library package references in
+     * manifest files.
+     *
+     * Matches xml tag in form of:
+     * 1. <manifest package="package.name" ...>
+     */
+    private val packagePatterns = listOf(
+        Pattern.compile("<manifest[^>]*package=\"([a-zA-Z0-9._]+)\"[^>]*>")
+    )
+
     private val typesMap = context.config.typesMap
 
     override fun canTransform(file: ArchiveFile) = file.isXmlFile() && !file.isPomFile()
 
     override fun runTransform(file: ArchiveFile) {
-        file.data = transform(file.data)
-    }
+        val isManifestFile = file.fileName.equals(MANIFEST_FILE_NAME, ignoreCase = true)
+        val charset = getCharset(file.data)
+        val sb = StringBuilder(file.data.toString(charset))
 
-    fun transform(data: ByteArray) : ByteArray {
-        var changesDone = false
+        var changesDone = replaceWithPatterns(sb, patterns, { rewriteType(it) })
 
-        val charset = getCharset(data)
-        val sb = StringBuilder(data.toString(charset))
-        for (pattern in patterns) {
-            var matcher = pattern.matcher(sb)
-            while (matcher.find()) {
-                val typeToReplace = JavaTypeXmlRef(matcher.group(PATTERN_TYPE_GROUP))
-                val result = rewriteType(typeToReplace)
-                if (result == typeToReplace) {
-                    continue
-                }
-                sb.replace(matcher.start(PATTERN_TYPE_GROUP), matcher.end(PATTERN_TYPE_GROUP),
-                    result.fullName)
-                changesDone = true
-                matcher = pattern.matcher(sb)
-            }
+        if (isManifestFile && context.rewritingSupportLib) {
+            changesDone = replaceWithPatterns(sb, packagePatterns,
+                { rewritePackage(it, context.libraryName) }) || changesDone
         }
 
         if (changesDone) {
-            return sb.toString().toByteArray(charset)
+            file.data = sb.toString().toByteArray(charset)
         }
-
-        return data
     }
 
-    fun getCharset(data: ByteArray) : Charset {
+    fun getCharset(data: ByteArray): Charset {
         data.inputStream().use {
             val xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(it)
 
@@ -107,20 +108,78 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         }
     }
 
-    fun rewriteType(type: JavaTypeXmlRef): JavaTypeXmlRef {
-        val javaType = type.toJavaType()
-        if (!context.isEligibleForRewrite(javaType)) {
-            return type
+    /**
+     * For each pattern in [patterns] matching a portion of the string represented by [sb], applies
+     * [mappingFunction] to the match and puts the result back into [sb].
+     */
+    private fun replaceWithPatterns(
+        sb: StringBuilder,
+        patterns: List<Pattern>,
+        mappingFunction: (String) -> String
+    ): Boolean {
+        var changesDone = false
+
+        for (pattern in patterns) {
+            var lastSeenChar = 0
+            val processedInput = sb.toString()
+            sb.setLength(0)
+            val matcher = pattern.matcher(processedInput)
+
+            while (matcher.find()) {
+                if (lastSeenChar < matcher.start()) {
+                    sb.append(processedInput, lastSeenChar, matcher.start())
+                }
+
+                val toReplace = matcher.group(PATTERN_TYPE_GROUP)
+                val matched = matcher.group(0)
+                val replacement = mappingFunction(toReplace)
+                changesDone = changesDone || replacement != toReplace
+
+                val localStart = matcher.start(PATTERN_TYPE_GROUP) - matcher.start()
+                val localEnd = matcher.end(PATTERN_TYPE_GROUP) - matcher.start()
+
+                val result = matched.replaceRange(
+                    startIndex = localStart,
+                    endIndex = localEnd,
+                    replacement = replacement)
+
+                sb.append(result)
+                lastSeenChar = matcher.end()
+            }
+
+            if (lastSeenChar <= processedInput.length - 1) {
+                sb.append(processedInput, lastSeenChar, processedInput.length)
+            }
         }
 
-        val result = typesMap.types[javaType]
+        return changesDone
+    }
+
+    private fun rewriteType(typeName: String): String {
+        val type = JavaType.fromDotVersion(typeName)
+        if (!context.isEligibleForRewrite(type)) {
+            return typeName
+        }
+
+        val result = typesMap.types[type]
         if (result != null) {
             Log.i(TAG, "  map: %s -> %s", type, result)
-            return JavaTypeXmlRef(result)
+            return result.toDotNotation()
         }
 
         context.reportNoMappingFoundFailure()
         Log.e(TAG, "No mapping for: " + type)
-        return type
+        return typeName
+    }
+
+    private fun rewritePackage(packageName: String, archiveName: String): String {
+        val pckg = PackageName.fromDotVersion(packageName)
+        val result = context.config.packageMap.getPackageFor(pckg, archiveName)
+        if (result != null) {
+            return result.toDotNotation()
+        }
+        context.reportNoPackageMappingFoundFailure()
+        Log.e(TAG, "No mapping for package: '$pckg' in artifact: '$archiveName'")
+        return packageName
     }
 }

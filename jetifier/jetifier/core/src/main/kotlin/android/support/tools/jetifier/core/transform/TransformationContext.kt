@@ -39,13 +39,25 @@ class TransformationContext(val config: Config, val rewritingSupportLib: Boolean
     var proGuardMappingNotFoundFailuresCount = 0
         private set
 
-    private var runtimeIgnoreRules = config.rewriteRules
+    /** Counter for [reportNoPackageMappingFoundFailure] calls. */
+    var packageMappingNotFoundFailuresCounts = 0
+
+    var libraryName: String = ""
+
+    private var runtimeIgnoreRules =
+        (
+            if (rewritingSupportLib) {
+                config.slRules
+            } else {
+                config.rewriteRules
+            }
+        )
         .filter { it.isRuntimeIgnoreRule() }
         .toTypedArray()
 
-    /** Returns whether any errors were found during the transformation process */
-    fun wasErrorFound() = mappingNotFoundFailuresCount > 0
-        || proGuardMappingNotFoundFailuresCount > 0
+    /** Total amount of errors found during the transformation process */
+    fun errorsTotal() = mappingNotFoundFailuresCount + proGuardMappingNotFoundFailuresCount +
+        packageMappingNotFoundFailuresCounts
 
     /**
      * Returns whether the given type is eligible for rewrite.
@@ -85,7 +97,7 @@ class TransformationContext(val config: Config, val rewritingSupportLib: Boolean
     }
 
     /**
-     * Used to report that there was a reference found that satisfies [isEligibleForRewrite] but no
+     * Reports that there was a reference found that satisfies [isEligibleForRewrite] but no
      * mapping was found to rewrite it.
      */
     fun reportNoMappingFoundFailure() {
@@ -93,10 +105,18 @@ class TransformationContext(val config: Config, val rewritingSupportLib: Boolean
     }
 
     /**
-     * Used to report that there was a reference found in the ProGuard file that satisfies
+     * Reports that there was a reference found in a ProGuard file that satisfies
      * [isEligibleForRewrite] but no mapping was found to rewrite it.
      */
     fun reportNoProGuardMappingFoundFailure() {
         proGuardMappingNotFoundFailuresCount++
+    }
+
+    /**
+     * Reports that there was a package reference found in a manifest file during a support library
+     * artifact rewrite but no mapping was found for it.
+     */
+    fun reportNoPackageMappingFoundFailure() {
+        packageMappingNotFoundFailuresCounts++
     }
 }

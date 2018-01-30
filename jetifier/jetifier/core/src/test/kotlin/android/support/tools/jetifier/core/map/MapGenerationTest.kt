@@ -161,6 +161,7 @@ class MapGenerationTest {
                     val config = Config(
                         restrictToPackagePrefixes = prefixes,
                         rewriteRules = rules,
+                        slRules = emptyList(),
                         pomRewriteRules = emptyList(),
                         typesMap = TypesMap.EMPTY,
                         proGuardMap = ProGuardTypesMap.EMPTY)

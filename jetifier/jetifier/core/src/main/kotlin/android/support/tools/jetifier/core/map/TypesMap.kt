@@ -63,6 +63,20 @@ data class TypesMap(
         return TypesMap(types= typesReversed)
     }
 
+    fun mergetWith(typesMap: TypesMap): TypesMap {
+        val mergedMap = mutableMapOf<JavaType, JavaType>()
+        mergedMap.putAll(types)
+        typesMap.types.forEach {
+            if (mergedMap.containsKey(it.key)) {
+                throw RuntimeException("Failed to merge the given types maps as there is" +
+                    " a duplicity with key '${it.key.fullName}' for values '${it.value}' and " +
+                    "'${mergedMap[it.key]}'.")
+            }
+            mergedMap.put(it.key, it.value)
+        }
+        return TypesMap(mergedMap)
+    }
+
     /**
      * JSON data model for [TypesMap].
      */

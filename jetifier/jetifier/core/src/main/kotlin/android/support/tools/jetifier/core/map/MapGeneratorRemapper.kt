@@ -34,7 +34,7 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
         private const val TAG: String = "MapGeneratorRemapper"
     }
 
-    private val typesRewritesMap = hashMapOf<JavaType, JavaType>()
+    private val typesRewritesMap = mutableMapOf<JavaType, JavaType>()
 
     var isMapNotComplete = false
         private set

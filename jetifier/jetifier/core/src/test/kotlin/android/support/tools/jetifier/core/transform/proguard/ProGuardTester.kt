@@ -74,13 +74,13 @@ class ProGuardTester {
         return Config(
             restrictToPackagePrefixes = prefixes,
             rewriteRules = rewriteRules.map { RewriteRule(it.first, it.second) },
+            slRules = emptyList(),
             pomRewriteRules = emptyList(),
             typesMap = TypesMap(
                 types = javaTypes.map { JavaType(it.first) to JavaType(it.second) }.toMap()
             ),
             proGuardMap = ProGuardTypesMap(proGuardTypes.toMap()))
     }
-
 
     class ProGuardTesterForFile(private val config: Config, private val given: String) {
 
@@ -93,7 +93,7 @@ class ProGuardTester {
             val result = file.data.toString(StandardCharsets.UTF_8)
 
             Truth.assertThat(result).isEqualTo(expected)
-            Truth.assertThat(context.wasErrorFound()).isFalse()
+            Truth.assertThat(context.errorsTotal()).isEqualTo(0)
         }
     }
 
@@ -105,7 +105,7 @@ class ProGuardTester {
             val result = mapper.replaceType(given)
 
             Truth.assertThat(result).isEqualTo(expectedType)
-            Truth.assertThat(context.wasErrorFound()).isFalse()
+            Truth.assertThat(context.errorsTotal()).isEqualTo(0)
         }
     }
 
@@ -117,7 +117,7 @@ class ProGuardTester {
             val result = mapper.replaceMethodArgs(given)
 
             Truth.assertThat(result).isEqualTo(expectedArguments)
-            Truth.assertThat(context.wasErrorFound()).isFalse()
+            Truth.assertThat(context.errorsTotal()).isEqualTo(0)
         }
     }
 }

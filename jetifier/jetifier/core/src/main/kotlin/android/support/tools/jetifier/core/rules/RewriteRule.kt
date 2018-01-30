@@ -34,6 +34,11 @@ class RewriteRule(
         private val from: String,
         private val to: String) {
 
+    companion object {
+        const val IGNORE_RUNTIME = "ignore"
+        const val IGNORE_PREPROCESSOR_ONLY = "ignoreInPreprocessorOnly"
+    }
+
     // We escape '$' so we don't conflict with regular expression symbols.
     private val inputPattern = Pattern.compile("^${from.replace("$", "\\$")}$")
     private val outputPattern = to.replace("$", "\$")
@@ -49,7 +54,7 @@ class RewriteRule(
      * Any type matched to [from] will be in such case ignored by the preprocessor (thus missing
      * from the map) but it will be also ignored during rewriting.
      */
-    fun isRuntimeIgnoreRule() = to == "ignore"
+    fun isRuntimeIgnoreRule() = to == IGNORE_RUNTIME
 
     /*
      * Whether this rule is an ignore rule that should be used only in the preprocessor.
@@ -58,7 +63,7 @@ class RewriteRule(
      * rewritten. Use this for types that are internal to support library. This is weaker version of
      * [isRuntimeIgnoreRule].
      */
-    fun isPreprocessorOnlyIgnoreRule() = to == "ignoreInPreprocessorOnly"
+    fun isPreprocessorOnlyIgnoreRule() = to == IGNORE_PREPROCESSOR_ONLY
 
     /**
      * Rewrites the given java type. Returns null if this rule is not applicable for the given type.

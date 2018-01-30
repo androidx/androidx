@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,24 @@
 package android.support.tools.jetifier.core.rules
 
 /**
- * Wrapper for Java type declaration.
- *
- * For packages use [PackageName].
+ * Wrapper for Java package name declaration.
  */
-data class JavaType(val fullName: String) {
+data class PackageName(val fullName: String) {
 
     init {
         if (fullName.contains('.')) {
-            throw IllegalArgumentException("The type does not support '.' as package separator!")
+            throw IllegalArgumentException("The type does not support '.' as a package separator!")
         }
     }
 
     companion object {
-        /** Creates the type from notation where packages are separated using '.' */
-        fun fromDotVersion(fullName: String): JavaType {
-            return JavaType(fullName.replace('.', '/'))
+        /** Creates the package from notation where packages are separated using '.' */
+        fun fromDotVersion(fullName: String): PackageName {
+            return PackageName(fullName.replace('.', '/'))
         }
     }
 
-    /** Returns the type as a string where packages are separated using '.' */
+    /** Returns the package as a string where packages are separated using '.' */
     fun toDotNotation(): String {
         return fullName.replace('/', '.')
     }

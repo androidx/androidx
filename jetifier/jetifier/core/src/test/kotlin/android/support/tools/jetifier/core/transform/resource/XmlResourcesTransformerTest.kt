@@ -16,14 +16,17 @@
 
 package android.support.tools.jetifier.core.transform.resource
 
+import android.support.tools.jetifier.core.archive.ArchiveFile
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.rules.JavaType
 import android.support.tools.jetifier.core.map.TypesMap
+import android.support.tools.jetifier.core.transform.PackageMap
 import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.transform.proguard.ProGuardTypesMap
 import com.google.common.truth.Truth
 import org.junit.Test
 import java.nio.charset.Charset
+import java.nio.file.Paths
 
 class XmlResourcesTransformerTest {
 
@@ -45,7 +48,8 @@ class XmlResourcesTransformerTest {
                 "<android.support.v7.preference.Preference>\n" +
                 "</android.support.v7.preference.Preference>",
             prefixes = listOf("android/support/v7/"),
-            map = mapOf()
+            map = mapOf(),
+            errorsExpected = true
         )
     }
 
@@ -81,7 +85,8 @@ class XmlResourcesTransformerTest {
             prefixes = listOf("android/support/"),
             map = mapOf(
                 "android/support2/v7/preference/Preference" to "android/test/pref/Preference"
-            )
+            ),
+            errorsExpected = true
         )
     }
 
@@ -92,7 +97,7 @@ class XmlResourcesTransformerTest {
             expectedXml =
                 "<android.test.pref.Preference/>",
             prefixes = listOf("android/support/"),
-            map = mapOf(
+            typesMap = mapOf(
                 "android/support/v7/preference/Preference" to "android/test/pref/Preference"
             )
         )
@@ -107,7 +112,7 @@ class XmlResourcesTransformerTest {
                 "<android.test.pref.Preference \n" +
                 "    someAttribute=\"android.support.v7.preference.Preference\"/>",
             prefixes = listOf("android/support/"),
-            map = mapOf(
+            typesMap = mapOf(
                 "android/support/v7/preference/Preference" to "android/test/pref/Preference"
             )
         )
@@ -122,7 +127,7 @@ class XmlResourcesTransformerTest {
                 "<android.test.pref.Preference>\n" +
                 "</android.test.pref.Preference>",
             prefixes = listOf("android/support/"),
-            map = mapOf(
+            typesMap = mapOf(
                 "android/support/v7/preference/Preference" to "android/test/pref/Preference"
             )
         )
@@ -135,7 +140,7 @@ class XmlResourcesTransformerTest {
             expectedXml =
                 "<view class=\"android.test.pref.Preference\">",
             prefixes = listOf("android/support/"),
-            map = mapOf(
+            typesMap = mapOf(
                 "android/support/v7/preference/Preference" to "android/test/pref/Preference"
             )
         )
@@ -152,7 +157,7 @@ class XmlResourcesTransformerTest {
                 "      class=\"android.test.pref.Preference\"" +
                 "      ignoreMe=\"android.support.v7.preference.Preference\">",
             prefixes = listOf("android/support/"),
-            map = mapOf(
+            typesMap = mapOf(
                 "android/support/v7/preference/Preference" to "android/test/pref/Preference"
             )
         )
@@ -178,7 +183,7 @@ class XmlResourcesTransformerTest {
                 "<android.support.v7.preference.Preference>\n" +
                 "</android.support.v7.preference.Preference>",
             prefixes = listOf("android/support/"),
-            map = mapOf(
+            typesMap = mapOf(
                 "android/support/v7/preference/Preference"
                     to "android/support/v7/preference/Preference"
             )
@@ -215,7 +220,7 @@ class XmlResourcesTransformerTest {
                 "android/support/v7/",
                 "android/support/v14/"
             ),
-            map = mapOf(
+            typesMap = mapOf(
                 "android/support/v7/preference/ListPreference"
                     to "android/test/pref/ListPref",
                 "android/support/v7/preference/Preference"
@@ -228,19 +233,84 @@ class XmlResourcesTransformerTest {
         )
     }
 
+    @Test fun manifestFile_packageRewrite() {
+        testRewrite(
+            givenXml =
+                "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                "          package=\"android.support.v7.preference\">\n" +
+                "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
+                "</manifest>",
+            expectedXml =
+                "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                "          package=\"androidx.preference\">\n" +
+                "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
+                "</manifest>",
+            prefixes = listOf(
+            ),
+            typesMap = mapOf(
+            ),
+            packageMap = PackageMap(listOf(
+                PackageMap.PackageRule(
+                    from = "android/support/v7/preference",
+                    to = "androidx/preference")
+            )),
+            rewritingSupportLib = true,
+            isManifestFile = true
+        )
+    }
+
+    @Test fun manifestFile_packageRewrite_chooseBasedOnArtifactName() {
+        testRewrite(
+            givenXml =
+            "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                "          package=\"androidx.preference\">\n" +
+                "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
+                "</manifest>",
+            expectedXml =
+            "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                "          package=\"android.support.v14.preference\">\n" +
+                "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
+                "</manifest>",
+            prefixes = listOf(
+            ),
+            typesMap = mapOf(
+            ),
+            packageMap = PackageMap(listOf(
+                PackageMap.PackageRule(
+                    from = "androidx/preference",
+                    to = "android/support/v7/preference",
+                    filePrefix = "preference-7"),
+                PackageMap.PackageRule(
+                    from = "androidx/preference",
+                    to = "android/support/v14/preference",
+                    filePrefix = "preference-v14")
+            )),
+            rewritingSupportLib = true,
+            isManifestFile = true,
+            libraryName = "preference-v14-28.0.0-123.aar"
+        )
+    }
+
     private fun testRewriteToTheSame(
         givenAndExpectedXml: String,
         prefixes: List<String>,
-        map: Map<String, String>
+        map: Map<String, String>,
+        errorsExpected: Boolean = false
     ) {
-        testRewrite(givenAndExpectedXml, givenAndExpectedXml, prefixes, map)
+        testRewrite(givenAndExpectedXml, givenAndExpectedXml, prefixes, map,
+            errorsExpected = errorsExpected)
     }
 
     private fun testRewrite(
         givenXml: String,
         expectedXml: String,
         prefixes: List<String>,
-        map: Map<String, String>
+        typesMap: Map<String, String>,
+        packageMap: PackageMap = PackageMap.EMPTY,
+        rewritingSupportLib: Boolean = false,
+        isManifestFile: Boolean = false,
+        libraryName: String = "",
+        errorsExpected: Boolean = false
     ) {
         val given =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
@@ -250,14 +320,35 @@ class XmlResourcesTransformerTest {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
             "$expectedXml\n"
 
-        val typesMap = TypesMap(map.map { JavaType(it.key) to JavaType(it.value) }.toMap())
-        val config = Config(prefixes, emptyList(), emptyList(), typesMap, ProGuardTypesMap.EMPTY)
-        val context = TransformationContext(config, rewritingSupportLib = false)
+        val typeMap = TypesMap(typesMap.map { JavaType(it.key) to JavaType(it.value) }.toMap())
+        val config = Config(
+            restrictToPackagePrefixes = prefixes,
+            rewriteRules = emptyList(),
+            slRules = emptyList(),
+            pomRewriteRules = emptyList(),
+            typesMap = typeMap,
+            proGuardMap = ProGuardTypesMap.EMPTY,
+            packageMap = packageMap
+        )
+        val context = TransformationContext(config, rewritingSupportLib)
+        context.libraryName = libraryName
         val processor = XmlResourcesTransformer(context)
-        val result = processor.transform(given.toByteArray())
-        val strResult = result.toString(Charset.defaultCharset())
+        val fileName = if (isManifestFile) {
+            Paths.get("AndroidManifest.xml")
+        } else {
+            Paths.get("random.xml")
+        }
+        val file = ArchiveFile(fileName, given.toByteArray())
+        processor.runTransform(file)
+        val strResult = file.data.toString(Charset.defaultCharset())
 
         Truth.assertThat(strResult).isEqualTo(expected)
+
+        if (errorsExpected) {
+            Truth.assertThat(context.errorsTotal()).isAtLeast(1)
+        } else {
+            Truth.assertThat(context.errorsTotal()).isEqualTo(0)
+        }
     }
 }
 

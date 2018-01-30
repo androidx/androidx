@@ -18,17 +18,17 @@ package android.support.tools.jetifier.core.utils
 
 object Log {
 
-    var currentLevel : LogLevel = LogLevel.INFO
+    var currentLevel: LogLevel = LogLevel.INFO
 
-    var logConsumer : LogConsumer = StdOutLogConsumer()
+    var logConsumer: LogConsumer = StdOutLogConsumer()
 
     fun setLevel(level: String?) {
         currentLevel = when (level) {
+            "error" -> LogLevel.ERROR
             "debug" -> LogLevel.DEBUG
             "verbose" -> LogLevel.VERBOSE
             else -> LogLevel.INFO
         }
-
     }
 
     fun e(tag: String, message: String, vararg args: Any?) {
@@ -54,5 +54,4 @@ object Log {
             logConsumer.verbose("[$tag] $message".format(*args))
         }
     }
-
 }

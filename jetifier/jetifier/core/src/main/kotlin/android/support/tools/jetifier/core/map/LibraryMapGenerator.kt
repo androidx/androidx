@@ -42,9 +42,7 @@ class LibraryMapGenerator constructor(config: Config) : ArchiveItemVisitor {
      * Creates the [TypesMap] based on the meta-data aggregated via previous [scanFile] calls
      */
     fun generateMap(): TypesMap {
-        val map = remapper.createTypesMap()
-        map.reverseMapOrDie()
-        return map
+        return remapper.createTypesMap()
     }
 
     override fun visit(archive: Archive) {
