@@ -105,9 +105,13 @@ public class SystemAlarmService extends LifecycleService implements ExecutionLis
     }
 
     @Override
-    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
+    public void onExecuted(
+            @NonNull String workSpecId,
+            boolean isSuccessful,
+            boolean needsReschedule) {
+
         Logger.debug(TAG, "%s executed on AlarmManager", workSpecId);
-        mSystemAlarmServiceImpl.onExecuted(workSpecId, needsReschedule);
+        mSystemAlarmServiceImpl.onExecuted(workSpecId, isSuccessful, needsReschedule);
     }
 
     @Override

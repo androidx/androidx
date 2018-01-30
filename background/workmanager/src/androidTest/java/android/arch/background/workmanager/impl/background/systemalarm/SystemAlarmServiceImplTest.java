@@ -199,7 +199,7 @@ public class SystemAlarmServiceImplTest extends WorkManagerTest {
         verify(mMockProcessor).process(workSpec.getId());
 
         // Processing complete
-        mSystemAlarmServiceImpl.onExecuted(workSpec.getId(), false);
+        mSystemAlarmServiceImpl.onExecuted(workSpec.getId(), true, false);
         assertThat(mSystemAlarmServiceImpl.getDelayMetWorkSpecs(), is(empty()));
         // TODO(xbhatnag): Why times(3)? this method is invoked exactly twice with these arguments.
         verify(mMockWorkConstraintsTracker, times(3)).replace(Collections.<WorkSpec>emptyList());

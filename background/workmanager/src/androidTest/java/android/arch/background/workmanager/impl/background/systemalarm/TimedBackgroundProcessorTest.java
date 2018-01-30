@@ -88,8 +88,8 @@ public class TimedBackgroundProcessorTest extends DatabaseTest {
     @SmallTest
     public void testOnExecuted_stopsTimer() {
         final String testId = "workSpecId";
-        mTimedBackgroundProcessor.onExecuted(testId, false);
-        verify(mMockExecutionListener).onExecuted(testId, false);
+        mTimedBackgroundProcessor.onExecuted(testId, true, false);
+        verify(mMockExecutionListener).onExecuted(testId, true, false);
         verify(mMockWorkTimer).stopTimer(testId);
     }
 

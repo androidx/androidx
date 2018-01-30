@@ -79,7 +79,7 @@ public class WorkerWrapper implements Runnable {
         mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
         if (mWorkSpec == null) {
             Logger.error(TAG, "Didn't find WorkSpec for id %s", mWorkSpecId);
-            notifyListener(false);
+            notifyListener(false, false);
             return;
         }
 
@@ -125,19 +125,20 @@ public class WorkerWrapper implements Runnable {
             }
         } catch (InterruptedException e) {
             Logger.debug(TAG, "Work interrupted for %s", mWorkSpecId);
-            rescheduleAndNotify();
+            rescheduleAndNotify(false);
         }
     }
 
     private void notifyIncorrectStatus() {
+        // incorrect status is treated as a false-y attempt at execution
         BaseWork.WorkStatus status = mWorkSpec.getStatus();
         if (status == RUNNING) {
             Logger.debug(TAG, "Status for %s is RUNNING;"
                     + "not doing any work and rescheduling for later execution", mWorkSpecId);
-            notifyListener(true);
+            notifyListener(false, true);
         } else {
             Logger.error(TAG, "Status for %s is %s; not doing any work", mWorkSpecId, status);
-            notifyListener(false);
+            notifyListener(false, false);
         }
     }
 
@@ -147,14 +148,14 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    private void notifyListener(final boolean needsReschedule) {
+    private void notifyListener(final boolean isSuccessful, final boolean needsReschedule) {
         if (mListener == null) {
             return;
         }
         WorkManagerTaskExecutor.getInstance().postToMainThread(new Runnable() {
             @Override
             public void run() {
-                mListener.onExecuted(mWorkSpecId, needsReschedule);
+                mListener.onExecuted(mWorkSpecId, isSuccessful, needsReschedule);
             }
         });
     }
@@ -164,7 +165,7 @@ public class WorkerWrapper implements Runnable {
             case SUCCESS: {
                 Logger.debug(TAG, "Worker result SUCCESS for %s", mWorkSpecId);
                 if (mWorkSpec.isPeriodic()) {
-                    resetPeriodicAndNotify();
+                    resetPeriodicAndNotify(true);
                 } else {
                     setSucceededAndNotify();
                 }
@@ -172,8 +173,8 @@ public class WorkerWrapper implements Runnable {
             }
 
             case RETRY: {
-                Logger.debug(TAG, "WWorker result RETRY for %s", mWorkSpecId);
-                rescheduleAndNotify();
+                Logger.debug(TAG, "Worker result RETRY for %s", mWorkSpecId);
+                rescheduleAndNotify(false /* treating current attempt as a false*/);
                 break;
             }
 
@@ -181,7 +182,7 @@ public class WorkerWrapper implements Runnable {
             default: {
                 Logger.debug(TAG, "Worker result FAILURE for %s", mWorkSpecId);
                 if (mWorkSpec.isPeriodic()) {
-                    resetPeriodicAndNotify();
+                    resetPeriodicAndNotify(false);
                 } else {
                     setFailedAndNotify();
                 }
@@ -202,10 +203,10 @@ public class WorkerWrapper implements Runnable {
 
     private void setFailedAndNotify() {
         mWorkSpecDao.setStatus(FAILED, mWorkSpecId);
-        notifyListener(false);
+        notifyListener(false, false);
     }
 
-    private void rescheduleAndNotify() {
+    private void rescheduleAndNotify(boolean isSuccessful) {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setStatus(ENQUEUED, mWorkSpecId);
@@ -214,11 +215,11 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
-            notifyListener(true);
+            notifyListener(isSuccessful, true);
         }
     }
 
-    private void resetPeriodicAndNotify() {
+    private void resetPeriodicAndNotify(boolean isSuccessful) {
         mWorkDatabase.beginTransaction();
         try {
             long currentPeriodStartTime = mWorkSpec.getPeriodStartTime();
@@ -229,7 +230,7 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
-            notifyListener(false);
+            notifyListener(isSuccessful, false);
         }
     }
 
@@ -271,7 +272,7 @@ public class WorkerWrapper implements Runnable {
             }
         } finally {
             mWorkDatabase.endTransaction();
-            notifyListener(false);
+            notifyListener(true, false);
         }
     }
 

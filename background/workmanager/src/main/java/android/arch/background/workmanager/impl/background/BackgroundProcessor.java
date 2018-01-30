@@ -47,10 +47,13 @@ public class BackgroundProcessor extends Processor {
     }
 
     @Override
-    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-        super.onExecuted(workSpecId, needsReschedule);
+    public void onExecuted(
+            @NonNull String workSpecId,
+            boolean isSuccessful,
+            boolean needsReschedule) {
+        super.onExecuted(workSpecId, isSuccessful, needsReschedule);
         if (mOuterListener != null) {
-            mOuterListener.onExecuted(workSpecId, needsReschedule);
+            mOuterListener.onExecuted(workSpecId, isSuccessful, needsReschedule);
         }
     }
 }

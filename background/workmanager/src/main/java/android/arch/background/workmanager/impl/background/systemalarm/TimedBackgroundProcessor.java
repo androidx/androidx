@@ -80,9 +80,13 @@ class TimedBackgroundProcessor extends BackgroundProcessor
     }
 
     @Override
-    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
+    public void onExecuted(
+            @NonNull String workSpecId,
+            boolean isSuccessful,
+            boolean needsReschedule) {
+
         mWorkTimer.stopTimer(workSpecId);
-        super.onExecuted(workSpecId, needsReschedule);
+        super.onExecuted(workSpecId, isSuccessful, needsReschedule);
     }
 
     @Override

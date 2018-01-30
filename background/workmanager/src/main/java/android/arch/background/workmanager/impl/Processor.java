@@ -111,10 +111,14 @@ public abstract class Processor implements ExecutionListener {
     }
 
     @Override
-    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
+    public void onExecuted(
+            @NonNull String workSpecId,
+            boolean isSuccessful,
+            boolean needsReschedule) {
+
         mEnqueuedWorkMap.remove(workSpecId);
-        Logger.debug(TAG, "%s %s executed; reschedule = %s",
-                getClass().getSimpleName(), workSpecId, needsReschedule);
+        Logger.debug(TAG, "%s %s executed; isSuccessful = %s, reschedule = %s",
+                getClass().getSimpleName(), workSpecId, isSuccessful, needsReschedule);
 
     }
 }
