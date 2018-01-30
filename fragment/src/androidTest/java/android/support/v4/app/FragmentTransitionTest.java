@@ -789,6 +789,52 @@ public class FragmentTransitionTest {
         }
     }
 
+    // When there is no matching shared element, the transition name should not be changed
+    @Test
+    public void noMatchingSharedElementRetainName() throws Throwable {
+        TransitionFragment fragment1 = setupInitialFragment();
+
+        final View startBlue = findBlue();
+        final View startGreen = findGreen();
+        final Rect startGreenBounds = getBoundsOnScreen(startGreen);
+
+        TransitionFragment fragment2 = new TransitionFragment();
+        fragment2.setLayoutId(R.layout.scene3);
+
+        mFragmentManager.beginTransaction()
+                .setReorderingAllowed(mReorderingAllowed)
+                .addSharedElement(startGreen, "greenSquare")
+                .addSharedElement(startBlue, "blueSquare")
+                .replace(R.id.fragmentContainer, fragment2)
+                .addToBackStack(null)
+                .commit();
+
+        fragment2.waitForTransition();
+        final View midGreen = findGreen();
+        final View midBlue = findBlue();
+        final View midRed = findRed();
+        final Rect midGreenBounds = getBoundsOnScreen(midGreen);
+        if (mReorderingAllowed) {
+            verifyAndClearTransition(fragment2.sharedElementEnter, startGreenBounds, startGreen,
+                    midGreen);
+        } else {
+            verifyAndClearTransition(fragment2.sharedElementEnter, startGreenBounds, startGreen,
+                    midGreen, startBlue);
+        }
+        verifyAndClearTransition(fragment2.enterTransition, midGreenBounds, midBlue, midRed);
+        verifyNoOtherTransitions(fragment2);
+
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        fragment2.waitForTransition();
+        fragment1.waitForTransition();
+
+        final View endBlue = findBlue();
+        final View endGreen = findGreen();
+
+        assertEquals("blueSquare", endBlue.getTransitionName());
+        assertEquals("greenSquare", endGreen.getTransitionName());
+    }
+
     private TransitionFragment setupInitialFragment() throws Throwable {
         TransitionFragment fragment1 = new TransitionFragment();
         fragment1.setLayoutId(R.layout.scene1);
