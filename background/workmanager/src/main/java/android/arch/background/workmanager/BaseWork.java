@@ -114,7 +114,7 @@ public interface BaseWork {
          * @param backoffDelayMillis Time to wait before restarting {@link Worker} (in milliseconds)
          * @return The current {@link Builder}.
          */
-        B withBackoffCriteria(BackoffPolicy backoffPolicy, long backoffDelayMillis);
+        B withBackoffCriteria(@NonNull BackoffPolicy backoffPolicy, long backoffDelayMillis);
 
         /**
          * Add constraints to the {@link Work}.
@@ -155,7 +155,7 @@ public interface BaseWork {
          * @return The current {@link Builder}
          */
         @VisibleForTesting
-        B withInitialStatus(WorkStatus status);
+        B withInitialStatus(@NonNull WorkStatus status);
 
         /**
          * Set the initial run attempt count for this work.  Used in testing only.

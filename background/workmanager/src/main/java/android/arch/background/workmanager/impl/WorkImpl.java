@@ -76,7 +76,7 @@ public class WorkImpl extends Work implements InternalWorkImpl {
 
         @VisibleForTesting
         @Override
-        public Builder withInitialStatus(BaseWork.WorkStatus status) {
+        public Builder withInitialStatus(@NonNull BaseWork.WorkStatus status) {
             mWorkSpec.setStatus(status);
             return this;
         }
@@ -97,7 +97,7 @@ public class WorkImpl extends Work implements InternalWorkImpl {
 
         @Override
         public Builder withBackoffCriteria(
-                BaseWork.BackoffPolicy backoffPolicy,
+                @NonNull BaseWork.BackoffPolicy backoffPolicy,
                 long backoffDelayMillis) {
             mBackoffCriteriaSet = true;
             mWorkSpec.setBackoffPolicy(backoffPolicy);

@@ -101,15 +101,17 @@ public abstract class WorkManager {
      * @param tag A tag which should uniquely label all the work in this chain
      * @param existingWorkPolicy One of {@link ExistingWorkPolicy#REPLACE_EXISTING_WORK} or
      *                           {@link ExistingWorkPolicy#KEEP_EXISTING_WORK}.
-     *                           @code REPLACE_EXISTING_WORK} ensures that if there is pending work
+     * @param work One or more {@link Work} to enqueue
+     * @code REPLACE_EXISTING_WORK} ensures that if there is pending work
      *                           labelled with {@code tag}, it will be cancelled and the new work
      *                           will run.  {@code KEEP_EXISTING_WORK} will run the new sequence of
      *                           work only if there is no pending work labelled with {@code tag}.
-     * @param work One or more {@link Work} to enqueue
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public abstract WorkContinuation createWithUniqueTag(
-            @NonNull String tag, ExistingWorkPolicy existingWorkPolicy, @NonNull Work... work);
+            @NonNull String tag,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull Work... work);
 
     /**
      * Cancels work with the given id, regardless of the current state of the work.  Note that

@@ -67,7 +67,9 @@ public abstract class Work implements BaseWork {
         }
 
         @Override
-        public Builder withBackoffCriteria(BackoffPolicy backoffPolicy, long backoffDelayMillis) {
+        public Builder withBackoffCriteria(
+                @NonNull BackoffPolicy backoffPolicy,
+                long backoffDelayMillis) {
             mInternalBuilder.withBackoffCriteria(backoffPolicy, backoffDelayMillis);
             return this;
         }
