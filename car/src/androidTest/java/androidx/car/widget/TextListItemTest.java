@@ -38,6 +38,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -584,6 +585,43 @@ public class TextListItemTest {
         assertThat((double) viewHolder.itemView.getHeight(), is(closeTo(
                 InstrumentationRegistry.getContext().getResources().getDimension(
                         R.dimen.car_single_line_list_item_height), 1.0d)));
+    }
+
+    @Test
+    public void testRevertingViewBinder() throws Throwable {
+        TextListItem item0 = new TextListItem(mActivity);
+        item0.setBody("one item");
+        item0.addViewBinder(
+                (viewHolder) -> viewHolder.getBody().setEllipsize(TextUtils.TruncateAt.END),
+                (viewHolder -> viewHolder.getBody().setEllipsize(null)));
+
+        List<TextListItem> items = Arrays.asList(item0);
+        setupPagedListView(items);
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+
+        // Bind view holder to a new item - the customization made by item0 should be reverted.
+        TextListItem item1 = new TextListItem(mActivity);
+        item1.setBody("new item");
+        mActivityRule.runOnUiThread(() -> item1.bind(viewHolder));
+
+        assertThat(viewHolder.getBody().getEllipsize(), is(equalTo(null)));
+    }
+
+    @Test
+    public void testRemovingViewBinder() {
+        TextListItem item0 = new TextListItem(mActivity);
+        item0.setBody("one item");
+        ListItem.ViewBinder<TextListItem.ViewHolder> binder =
+                (viewHolder) -> viewHolder.getTitle().setEllipsize(TextUtils.TruncateAt.END);
+        item0.addViewBinder(binder);
+
+        assertTrue(item0.removeViewBinder(binder));
+
+        List<TextListItem> items = Arrays.asList(item0);
+        setupPagedListView(items);
+
+        assertThat(getViewHolderAtPosition(0).getBody().getEllipsize(), is(equalTo(null)));
     }
 
     @Test
