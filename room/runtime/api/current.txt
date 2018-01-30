@@ -5,6 +5,7 @@ package android.arch.persistence.room {
     field public final boolean allowMainThreadQueries;
     field public final java.util.List<android.arch.persistence.room.RoomDatabase.Callback> callbacks;
     field public final android.content.Context context;
+    field public final android.arch.persistence.room.RoomDatabase.JournalMode journalMode;
     field public final android.arch.persistence.room.RoomDatabase.MigrationContainer migrationContainer;
     field public final java.lang.String name;
     field public final boolean requireMigration;
@@ -61,12 +62,21 @@ package android.arch.persistence.room {
     method public android.arch.persistence.room.RoomDatabase.Builder<T> fallbackToDestructiveMigration();
     method public android.arch.persistence.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationFrom(java.lang.Integer...);
     method public android.arch.persistence.room.RoomDatabase.Builder<T> openHelperFactory(android.arch.persistence.db.SupportSQLiteOpenHelper.Factory);
+    method public android.arch.persistence.room.RoomDatabase.Builder<T> setJournalMode(android.arch.persistence.room.RoomDatabase.JournalMode);
   }
 
   public static abstract class RoomDatabase.Callback {
     ctor public RoomDatabase.Callback();
     method public void onCreate(android.arch.persistence.db.SupportSQLiteDatabase);
     method public void onOpen(android.arch.persistence.db.SupportSQLiteDatabase);
+  }
+
+  public static final class RoomDatabase.JournalMode extends java.lang.Enum {
+    method public static android.arch.persistence.room.RoomDatabase.JournalMode valueOf(java.lang.String);
+    method public static final android.arch.persistence.room.RoomDatabase.JournalMode[] values();
+    enum_constant public static final android.arch.persistence.room.RoomDatabase.JournalMode AUTOMATIC;
+    enum_constant public static final android.arch.persistence.room.RoomDatabase.JournalMode TRUNCATE;
+    enum_constant public static final android.arch.persistence.room.RoomDatabase.JournalMode WRITE_AHEAD_LOGGING;
   }
 
   public static class RoomDatabase.MigrationContainer {
