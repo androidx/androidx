@@ -30,6 +30,7 @@ import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -185,6 +186,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
         try {
             observer.onStateChanged(mOwner, ON_START);
+            fail();
         } catch (Exception e) {
             assertThat("exception cause is wrong",
                     e.getCause() instanceof UnprecedentedError);
