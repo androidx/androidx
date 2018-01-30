@@ -36,4 +36,31 @@
         <item name="android:elevation">@dimen/ws_wearable_drawer_view_elevation</item>
         <item name="android:background">?android:attr/colorBackgroundFloating</item>
     </style>
+    <style name="WsPageIndicatorViewStyle">
+        <item name="wsPageIndicatorDotSpacing">7.8dp</item>
+        <item name="wsPageIndicatorDotRadius">2.1dp</item>
+        <item name="wsPageIndicatorDotRadiusSelected">3.1dp</item>
+        <item name="wsPageIndicatorDotColor">?android:attr/colorForeground</item>
+        <item name="wsPageIndicatorDotColorSelected">?android:attr/colorForeground</item>
+        <item name="wsPageIndicatorDotFadeOutDelay">1000</item>
+        <item name="wsPageIndicatorDotFadeOutDuration">250</item>
+        <item name="wsPageIndicatorDotFadeInDuration">100</item>
+        <item name="wsPageIndicatorDotFadeWhenIdle">true</item>
+        <item name="wsPageIndicatorDotShadowColor">#66000000</item>
+        <item name="wsPageIndicatorDotShadowRadius">1dp</item>
+        <item name="wsPageIndicatorDotShadowDx">0.5dp</item>
+        <item name="wsPageIndicatorDotShadowDy">0.5dp</item>
+    </style>
+
+    <style name="WsWearableActionDrawerItemText">
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:fontFamily">sans-serif-condensed-light</item>
+        <item name="android:maxLines">3</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">@dimen/ws_action_drawer_item_text_size</item>
+    </style>
+    <style name="WsWearableActionDrawerTitleText" parent="android:TextAppearance.Material.Subhead">
+        <item name="android:alpha">0.7</item>
+    </style>
 </resources>
