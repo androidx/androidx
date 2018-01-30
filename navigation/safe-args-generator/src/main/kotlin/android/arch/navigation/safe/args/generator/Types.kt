@@ -37,10 +37,14 @@ sealed class NavType {
     abstract fun write(value: String): CodeBlock
 
     abstract fun bundlePutMethod(): String
+
+    abstract fun bundleGetMethod(): String
 }
 
 object IntegerType : NavType() {
     override fun bundlePutMethod() = "putInt"
+
+    override fun bundleGetMethod() = "getInt"
 
     override fun write(value: String): CodeBlock = CodeBlock.of(value)
 
@@ -59,6 +63,8 @@ object IntegerType : NavType() {
 object StringType : NavType() {
 
     override fun bundlePutMethod() = "putString"
+
+    override fun bundleGetMethod() = "getString"
 
     override fun typeName(): TypeName = ClassName.get(String::class.java)
 

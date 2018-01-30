@@ -22,6 +22,7 @@ import android.arch.navigation.safe.args.generator.models.Destination
 import android.arch.navigation.safe.args.generator.models.Id
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubject
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
@@ -93,10 +94,10 @@ class WriterTest {
                         Argument("arg1", StringType),
                         Argument("arg2", StringType)))
 
-        val dest = Destination(null, "fragment", "a.b.MainFragment", listOf(),
+        val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
                 listOf(prevAction, nextAction))
 
-        generateDirectionsJavaFile("a.b", dest).writeTo(destination)
+        generateDirectionsJavaFile(dest).writeTo(destination)
         val expected = load("a.b.MainFragmentDirections", "expected")
         val rFile = load("a.b.R", "a/b")
         val generated = File(destination, "/a/b/MainFragmentDirections.java")
@@ -104,5 +105,21 @@ class WriterTest {
         val actual = JavaFileObjects.forResource(generated.toURI().toURL())
         JavaSourcesSubject.assertThat(actual).parsesAs(expected)
         JavaSourcesSubject.assertThat(actual, rFile).compilesWithoutError()
+    }
+
+    @Test
+    fun testArgumentsClassGeneration() {
+        val destination = workingDir.newFolder()
+
+        val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(
+                Argument("main", StringType), Argument("optional", IntegerType, "-1")), listOf())
+
+        generateArgsJavaFile(dest).writeTo(destination)
+        val expected = load("a.b.MainFragmentArgs", "expected")
+        val generated = File(destination, "/a/b/MainFragmentArgs.java")
+        MatcherAssert.assertThat(generated.exists(), CoreMatchers.`is`(true))
+        val actual = JavaFileObjects.forResource(generated.toURI().toURL())
+        JavaSourcesSubject.assertThat(actual).parsesAs(expected)
+        JavaSourcesSubject.assertThat(actual).compilesWithoutError()
     }
 }

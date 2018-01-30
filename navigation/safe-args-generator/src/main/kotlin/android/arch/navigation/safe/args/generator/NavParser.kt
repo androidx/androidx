@@ -38,7 +38,8 @@ private const val ATTRIBUTE_TYPE = "type"
 private const val NAMESPACE_RES_AUTO = "http://schemas.android.com/apk/res-auto"
 private const val NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/android"
 
-private fun parseDestination(parser: XmlPullParser, defaultPackageName: String): Destination {
+private fun parseDestination(parser: XmlPullParser, rFilePackage: String,
+                             applicationId: String): Destination {
     val type = parser.name
     val name = parser.attrValue(NAMESPACE_ANDROID, ATTRIBUTE_NAME) ?: ""
     val idValue = parser.attrValue(NAMESPACE_ANDROID, ATTRIBUTE_ID)
@@ -47,14 +48,20 @@ private fun parseDestination(parser: XmlPullParser, defaultPackageName: String):
     val nested = mutableListOf<Destination>()
     parser.traverseInnerStartTags {
         when {
-            parser.name == TAG_ACTION -> actions.add(parseAction(parser, defaultPackageName))
+            parser.name == TAG_ACTION -> actions.add(parseAction(parser, rFilePackage))
             parser.name == TAG_ARGUMENT -> args.add(parseArgument(parser))
-            type == TAG_NAVIGATION -> nested.add(parseDestination(parser, defaultPackageName))
+            type == TAG_NAVIGATION -> nested.add(parseDestination(parser, rFilePackage,
+                    applicationId))
         }
     }
 
-    return Destination(parseNullableId(idValue, defaultPackageName), type, name, args, actions,
-            nested)
+    val id = parseNullableId(idValue, rFilePackage)
+    val className = Destination.createName(id, name, applicationId)
+    if (className == null && (actions.isNotEmpty() || args.isNotEmpty())) {
+        throw IllegalArgumentException("Destination with arguments or action mush have " +
+                "either name either id attributes")
+    }
+    return Destination(id, className, type, args, actions, nested)
 }
 
 private fun parseArgument(parser: XmlPullParser): Argument {
@@ -66,7 +73,7 @@ private fun parseArgument(parser: XmlPullParser): Argument {
     return Argument(name, type, defaultValue)
 }
 
-private fun parseAction(parser: XmlPullParser, defaultPackageName: String): Action {
+private fun parseAction(parser: XmlPullParser, rFilePackage: String): Action {
     val idValue = parser.attrValueOrThrow(NAMESPACE_ANDROID, ATTRIBUTE_ID)
     val destValue = parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_DESTINATION)
     val args = mutableListOf<Argument>()
@@ -75,23 +82,24 @@ private fun parseAction(parser: XmlPullParser, defaultPackageName: String): Acti
             args.add(parseArgument(parser))
         }
     }
-    return Action(parseId(idValue, defaultPackageName),
-            parseNullableId(destValue, defaultPackageName), args)
+    return Action(parseId(idValue, rFilePackage),
+            parseNullableId(destValue, rFilePackage), args)
 }
 
-fun parseNavigationFile(navigationXml: File, packageName: String): Destination {
+fun parseNavigationFile(navigationXml: File, rFilePackage: String,
+                        applicationId: String): Destination {
     FileReader(navigationXml).use { reader ->
         val parser = XmlPullParserFactory.newInstance().newPullParser().apply {
             setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true)
             setInput(reader)
         }
         parser.traverseStartTags { true }
-        return parseDestination(parser, packageName)
+        return parseDestination(parser, rFilePackage, applicationId)
     }
 }
 
 // @[+][package:]id/resource_name -> package.R.id.resource_name
-internal fun parseId(xmlId: String, defaultPackageName: String): Id {
+internal fun parseId(xmlId: String, rFilePackage: String): Id {
     val split = xmlId.split("/")
     if (split.size != 2) {
         throw IllegalArgumentException("id should be in format: " +
@@ -102,9 +110,9 @@ internal fun parseId(xmlId: String, defaultPackageName: String): Id {
     val packageName = split[0].removePrefix("@").removePrefix("+")
             .removeSuffix("id").removeSuffix(":")
 
-    return Id(if (packageName.isNotEmpty()) packageName else defaultPackageName, resourceName)
+    return Id(if (packageName.isNotEmpty()) packageName else rFilePackage, resourceName)
 }
 
-internal fun parseNullableId(xmlId: String?, defaultPackageName: String): Id? = xmlId?.let {
-    parseId(it, defaultPackageName)
+internal fun parseNullableId(xmlId: String?, rFilePackage: String): Id? = xmlId?.let {
+    parseId(it, rFilePackage)
 }

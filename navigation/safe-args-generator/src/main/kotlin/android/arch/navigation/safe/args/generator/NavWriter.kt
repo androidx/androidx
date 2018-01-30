@@ -143,26 +143,67 @@ fun generateDirectionsTypeSpec(action: Action): TypeSpec {
             .build()
 }
 
-fun idAccessor(id: Id?) = id?.let { "${id.packageName}.R.id.${id.name}" } ?: "0"
-
-fun generateDirectionsJavaFile(applicationId: String, destination: Destination): JavaFile {
-    val className = when {
-        destination.name.isNotEmpty() -> {
-            val simpleName = destination.name.substringAfterLast('.')
-            val specifiedPackage = destination.name.substringBeforeLast('.', "")
-            val classPackage = when {
-                specifiedPackage.isNotEmpty() -> specifiedPackage
-                destination.name.startsWith(".") -> applicationId
-                else -> ""
-            }
-            ClassName.get(classPackage, "${simpleName}Directions")
+internal fun generateArgsJavaFile(destination: Destination): JavaFile {
+    val destName = destination.name
+            ?: throw IllegalStateException("Destination with arguments must have name")
+    val className = ClassName.get(destName.packageName(), "${destName.simpleName()}Args")
+    val fromBundleMethod = MethodSpec.methodBuilder("fromBundle").apply {
+        addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+        val bundle = "bundle"
+        addParameter(BUNDLE_CLASSNAME, bundle)
+        returns(className)
+        val result = "result"
+        addStatement("$T $N = new $T()", className, result, className)
+        destination.args.forEach { arg ->
+            beginControlFlow("if ($N.containsKey($S))", bundle, arg.name).apply {
+                addStatement("$N.$N = $N.$N($S)", result, arg.name, bundle,
+                        arg.type.bundleGetMethod(), arg.name)
+            }.nextControlFlow("else").apply {
+                if (arg.isOptional()) {
+                    addCode("$N.$N = ", result, arg.name)
+                    addCode(arg.type.write(arg.defaultValue!!))
+                    addStatement("")
+                } else {
+                    addStatement("throw new $T($S)", IllegalArgumentException::class.java,
+                            "Required argument \"${arg.name}\" is missing and does " +
+                                    "not have an android:defaultValue")
+                }
+            }.endControlFlow()
         }
-        destination.id != null -> ClassName.get(destination.id.packageName,
-                "${destination.id.name.capitalize()}Directions")
-        else -> throw IllegalArgumentException(
-                "Destination with actions should have either name or id")
+        addStatement("return $N", result)
+    }.build()
+
+    val fields = destination.args.map { arg ->
+        FieldSpec.builder(arg.type.typeName(), arg.name, Modifier.PRIVATE).build()
     }
 
+    val getters = destination.args.map { arg ->
+        MethodSpec.methodBuilder("get${arg.name.capitalize()}")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return $N", arg.name)
+                .returns(arg.type.typeName())
+                .build()
+    }
+
+    val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build()
+
+    val typeSpec = TypeSpec.classBuilder(className)
+            .addModifiers(Modifier.PUBLIC)
+            .addFields(fields)
+            .addMethod(constructor)
+            .addMethod(fromBundleMethod)
+            .addMethods(getters)
+            .build()
+
+    return JavaFile.builder(className.packageName(), typeSpec).build()
+}
+
+fun idAccessor(id: Id?) = id?.let { "${id.packageName}.R.id.${id.name}" } ?: "0"
+
+fun generateDirectionsJavaFile(destination: Destination): JavaFile {
+    val destName = destination.name
+            ?: throw IllegalStateException("Destination with actions must have name")
+    val className = ClassName.get(destName.packageName(), "${destName.simpleName()}Directions")
     val typeSpec = generateDestinationDirectionsTypeSpec(className, destination)
     return JavaFile.builder(className.packageName(), typeSpec).build()
 }
