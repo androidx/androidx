@@ -16,6 +16,7 @@
 
 package androidx.app.slice;
 
+import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
@@ -28,6 +29,8 @@ import android.support.annotation.RestrictTo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import androidx.app.slice.core.SliceQuery;
 
 /**
  * Utilities for dealing with slices.
@@ -153,6 +156,51 @@ public class SliceUtils {
         public SerializeOptions setImageMode(@FormatMode int mode) {
             mImageMode = mode;
             return this;
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+            LOADING_ALL, LOADING_PARTIAL, LOADING_COMPLETE
+    })
+    public @interface SliceLoadingState{}
+
+    /**
+     * Indicates this slice is empty and waiting for content to be loaded.
+     */
+    public static final int LOADING_ALL = 0;
+    /**
+     * Indicates this slice has some content but is waiting for other content to be loaded.
+     */
+    public static final int LOADING_PARTIAL = 1;
+    /**
+     * Indicates this slice has fully loaded and is not waiting for other content.
+     */
+    public static final int LOADING_COMPLETE = 2;
+
+    /**
+     * @return the current loading state of the provided {@link Slice}.
+     *
+     * @see #LOADING_ALL
+     * @see #LOADING_PARTIAL
+     * @see #LOADING_COMPLETE
+     */
+    public static int getLoadingState(Slice slice) {
+        // Check loading state
+        boolean hasHintPartial =
+                SliceQuery.find(slice, null, HINT_PARTIAL, null) != null;
+        if (hasHintPartial && slice.getItems().size() == 0) {
+            // Empty slice
+            return LOADING_ALL;
+        } else if (hasHintPartial) {
+            // Slice with specific content to load
+            return LOADING_PARTIAL;
+        } else {
+            // Full slice
+            return LOADING_COMPLETE;
         }
     }
 }

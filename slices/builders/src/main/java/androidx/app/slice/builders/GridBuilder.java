@@ -24,6 +24,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
@@ -162,7 +163,22 @@ public class GridBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public CellBuilder addText(@NonNull CharSequence text) {
-            mImpl.addText(text);
+            return addText(text, false /* isLoading */);
+        }
+
+        /**
+         * Adds text to the cell. There can be at most two text items, the first two added
+         * will be used, others will be ignored.
+         * <p>
+         * Use this method to specify content that will appear in the template once it's been
+         * loaded.
+         * </p>
+         * @param isLoading indicates whether the app is doing work to load the added content in the
+         *                  background or not.
+         */
+        @NonNull
+        public CellBuilder addText(@Nullable CharSequence text, boolean isLoading) {
+            mImpl.addText(text, isLoading);
             return this;
         }
 
@@ -173,7 +189,23 @@ public class GridBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public CellBuilder addTitleText(@NonNull CharSequence text) {
-            mImpl.addTitleText(text);
+            return addTitleText(text, false /* isLoading */);
+        }
+
+        /**
+         * Adds text to the cell. Text added with this method will be styled as a title.
+         * There can be at most two text items, the first two added will be used, others
+         * will be ignored.
+         * <p>
+         * Use this method to specify content that will appear in the template once it's been
+         * loaded.
+         * </p>
+         * @param isLoading indicates whether the app is doing work to load the added content in the
+         *                  background or not.
+         */
+        @NonNull
+        public CellBuilder addTitleText(@Nullable CharSequence text, boolean isLoading) {
+            mImpl.addTitleText(text, isLoading);
             return this;
         }
 
@@ -185,7 +217,22 @@ public class GridBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public CellBuilder addLargeImage(@NonNull Icon image) {
-            mImpl.addLargeImage(image);
+            return addLargeImage(image, false /* isLoading */);
+        }
+
+        /**
+         * Adds an image to the cell that should be displayed as large as the cell allows.
+         * There can be at most one image, the first one added will be used, others will be ignored.
+         * <p>
+         * Use this method to specify content that will appear in the template once it's been
+         * loaded.
+         * </p>
+         * @param isLoading indicates whether the app is doing work to load the added content in the
+         *                  background or not.
+         */
+        @NonNull
+        public CellBuilder addLargeImage(@Nullable Icon image, boolean isLoading) {
+            mImpl.addLargeImage(image, isLoading);
             return this;
         }
 
@@ -197,7 +244,22 @@ public class GridBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public CellBuilder addImage(@NonNull Icon image) {
-            mImpl.addImage(image);
+            return addImage(image, false /* isLoading */);
+        }
+
+        /**
+         * Adds an image to the cell. There can be at most one image, the first one added
+         * will be used, others will be ignored.
+         * <p>
+         * Use this method to specify content that will appear in the template once it's been
+         * loaded.
+         * </p>
+         * @param isLoading indicates whether the app is doing work to load the added content in the
+         *                  background or not.
+         */
+        @NonNull
+        public CellBuilder addImage(@Nullable Icon image, boolean isLoading) {
+            mImpl.addImage(image, isLoading);
             return this;
         }
 

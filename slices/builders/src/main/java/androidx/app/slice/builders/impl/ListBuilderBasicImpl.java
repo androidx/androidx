@@ -153,6 +153,13 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         /**
          */
         @Override
+        public void addEndItem(Icon icon, boolean isLoading) {
+
+        }
+
+        /**
+         */
+        @Override
         public void addEndItem(Icon icon, PendingIntent action) {
 
         }
@@ -160,7 +167,22 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         /**
          */
         @Override
+        public void addEndItem(Icon icon, PendingIntent action, boolean isLoading) {
+
+        }
+
+        /**
+         */
+        @Override
         public void addToggle(PendingIntent action, boolean isChecked, Icon icon) {
+
+        }
+
+        /**
+         */
+        @Override
+        public void addToggle(PendingIntent action, boolean isChecked, Icon icon,
+                boolean isLoading) {
 
         }
 
@@ -181,8 +203,22 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         /**
          */
         @Override
+        public void setTitleItem(Icon icon, boolean isLoading) {
+
+        }
+
+        /**
+         */
+        @Override
         public void setTitleItem(Icon icon, PendingIntent action) {
             mIcon = icon;
+        }
+
+        /**
+         */
+        @Override
+        public void setTitleItem(Icon icon, PendingIntent action, boolean isLoading) {
+
         }
 
         /**
@@ -202,8 +238,22 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         /**
          */
         @Override
+        public void setTitle(CharSequence title, boolean isLoading) {
+
+        }
+
+        /**
+         */
+        @Override
         public void setSubtitle(CharSequence subtitle) {
             mSubtitle = subtitle;
+        }
+
+        /**
+         */
+        @Override
+        public void setSubtitle(CharSequence subtitle, boolean isLoading) {
+
         }
 
         /**

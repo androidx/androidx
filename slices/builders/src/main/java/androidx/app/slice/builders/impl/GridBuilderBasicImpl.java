@@ -22,6 +22,7 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import androidx.app.slice.Slice;
@@ -102,9 +103,22 @@ public class GridBuilderBasicImpl extends TemplateBuilderImpl implements GridBui
 
         /**
          */
+        @Override
+        public void addText(@Nullable CharSequence text, boolean isLoading) {
+        }
+
+        /**
+         */
         @NonNull
         @Override
         public void addTitleText(@NonNull CharSequence text) {
+        }
+
+        /**
+         */
+        @NonNull
+        @Override
+        public void addTitleText(@Nullable CharSequence text, boolean isLoading) {
         }
 
         /**
@@ -118,7 +132,21 @@ public class GridBuilderBasicImpl extends TemplateBuilderImpl implements GridBui
          */
         @NonNull
         @Override
+        public void addLargeImage(@Nullable Icon image, boolean isLoading) {
+        }
+
+        /**
+         */
+        @NonNull
+        @Override
         public void addImage(@NonNull Icon image) {
+        }
+
+        /**
+         */
+        @NonNull
+        @Override
+        public void addImage(@Nullable Icon image, boolean isLoading) {
         }
 
         /**

@@ -19,12 +19,14 @@ package androidx.app.slice.builders.impl;
 import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
+import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import androidx.app.slice.Slice;
@@ -103,7 +105,17 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
         @NonNull
         @Override
         public void addText(@NonNull CharSequence text) {
-            getBuilder().addText(text, null);
+            addText(text, false /* isLoading */);
+        }
+
+        /**
+         */
+        @Override
+        public void addText(@Nullable CharSequence text, boolean isLoading) {
+            @Slice.SliceHint String[] hints = isLoading
+                    ? new String[] {HINT_PARTIAL}
+                    : new String[0];
+            getBuilder().addText(text, null, hints);
         }
 
         /**
@@ -111,7 +123,18 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
         @NonNull
         @Override
         public void addTitleText(@NonNull CharSequence text) {
-            getBuilder().addText(text, null, HINT_LARGE);
+            addTitleText(text, false /* isLoading */);
+        }
+
+        /**
+         */
+        @NonNull
+        @Override
+        public void addTitleText(@Nullable CharSequence text, boolean isLoading) {
+            @Slice.SliceHint String[] hints = isLoading
+                    ? new String[] {HINT_PARTIAL, HINT_LARGE}
+                    : new String[] {HINT_LARGE};
+            getBuilder().addText(text, null, hints);
         }
 
         /**
@@ -119,7 +142,18 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
         @NonNull
         @Override
         public void addLargeImage(@NonNull Icon image) {
-            getBuilder().addIcon(image, null, HINT_LARGE);
+            addLargeImage(image, false /* isLoading */);
+        }
+
+        /**
+         */
+        @NonNull
+        @Override
+        public void addLargeImage(@Nullable Icon image, boolean isLoading) {
+            @Slice.SliceHint String[] hints = isLoading
+                    ? new String[] {HINT_PARTIAL, HINT_LARGE}
+                    : new String[] {HINT_LARGE};
+            getBuilder().addIcon(image, null, hints);
         }
 
         /**
@@ -127,7 +161,18 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
         @NonNull
         @Override
         public void addImage(@NonNull Icon image) {
-            getBuilder().addIcon(image, null);
+            addImage(image, false /* isLoading */);
+        }
+
+        /**
+         */
+        @NonNull
+        @Override
+        public void addImage(@Nullable Icon image, boolean isLoading) {
+            @Slice.SliceHint String[] hints = isLoading
+                    ? new String[] {HINT_PARTIAL}
+                    : new String[0];
+            getBuilder().addIcon(image, null, hints);
         }
 
         /**
