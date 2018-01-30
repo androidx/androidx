@@ -101,8 +101,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private final Context mContext;
 
     private final List<ViewBinder<ViewHolder>> mBinders = new ArrayList<>();
-    // Store custom binders separately so they will bind after binders created by setters.
-    private final List<ViewBinder<ViewHolder>> mCustomBinders = new ArrayList<>();
 
     private View.OnClickListener mOnClickListener;
 
@@ -151,34 +149,32 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     }
 
     /**
-     * Applies all {@link ViewBinder} to {@code ViewHolder}.
+     * Calculates the layout params for views in {@link ViewHolder}.
      */
     @Override
-    public void bind(ViewHolder viewHolder) {
-        if (isDirty()) {
-            mBinders.clear();
+    protected void resolveDirtyState() {
+        mBinders.clear();
 
-            // Create binders that adjust layout params of each view.
-            setItemLayoutHeight();
-            setPrimaryAction();
-            setText();
-            setSupplementalActions();
-            setOnClickListener();
+        // Create binders that adjust layout params of each view.
+        setItemLayoutHeight();
+        setPrimaryAction();
+        setText();
+        setSupplementalActions();
+        setOnClickListener();
+    }
 
-            // Custom view binders are always applied after the one created by this class.
-            mBinders.addAll(mCustomBinders);
-
-            markClean();
-        }
-
-        // Hide all subviews then apply view binders to adjust subviews.
-        setAllSubViewsGone(viewHolder);
+    /**
+     * Hides all views in {@link ViewHolder} then applies ViewBinders to adjust view layout params.
+     */
+    @Override
+    public void onBind(ViewHolder viewHolder) {
+        hideSubViews(viewHolder);
         for (ViewBinder binder : mBinders) {
             binder.bind(viewHolder);
         }
     }
 
-    void setAllSubViewsGone(ViewHolder vh) {
+    private void hideSubViews(ViewHolder vh) {
         View[] subviews = new View[] {
                 vh.getPrimaryIcon(),
                 vh.getTitle(), vh.getBody(),
@@ -709,31 +705,9 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     }
 
     /**
-     * Adds {@link ViewBinder} to interact with sub-views in {@link ViewHolder}. These ViewBinders
-     * will always bind after other {@code setFoobar} methods have bound.
-     *
-     * <p>Make sure to call setFoobar() method on the intended sub-view first.
-     *
-     * <p>Example:
-     * <pre>
-     * {@code
-     * TextListItem item = new TextListItem(context);
-     * item.setTitle("title");
-     * item.addViewBinder((viewHolder) -> {
-     *     viewHolder.getTitle().doMoreStuff();
-     * });
-     * }
-     * </pre>
-     */
-    public void addViewBinder(ViewBinder<ViewHolder> binder) {
-        mCustomBinders.add(binder);
-        markDirty();
-    }
-
-    /**
      * Holds views of TextListItem.
      */
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends ListItem.ViewHolder {
 
         private RelativeLayout mContainerLayout;
 
