@@ -94,7 +94,10 @@ public class SystemJobService extends JobService implements ExecutionListener {
     }
 
     @Override
-    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
+    public void onExecuted(
+            @NonNull String workSpecId,
+            boolean isSuccessful,
+            boolean needsReschedule) {
         Logger.debug(TAG, "%s executed on JobScheduler", workSpecId);
         JobParameters parameters = mJobParameters.get(workSpecId);
         jobFinished(parameters, needsReschedule);

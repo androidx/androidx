@@ -158,7 +158,7 @@ class SystemAlarmServiceImpl {
         }
     }
 
-    void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
+    void onExecuted(@NonNull String workSpecId, boolean isSuccessful, boolean needsReschedule) {
         // TODO(janclarin): Handle rescheduling if needed or if periodic.
 
         synchronized (mLock) {

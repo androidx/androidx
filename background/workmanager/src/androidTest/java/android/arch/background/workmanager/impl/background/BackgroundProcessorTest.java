@@ -64,6 +64,6 @@ public class BackgroundProcessorTest extends DatabaseTest {
         insertWork(work);
         mProcessor.process(workSpecId);
 
-        verify(mMockListener).onExecuted(workSpecId, false);
+        verify(mMockListener).onExecuted(workSpecId, true, false);
     }
 }
