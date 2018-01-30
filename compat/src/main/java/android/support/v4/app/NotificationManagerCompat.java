@@ -317,7 +317,7 @@ public final class NotificationManagerCompat {
                 new HashMap<ComponentName, ListenerRecord>();
         private Set<String> mCachedEnabledPackages = new HashSet<String>();
 
-        public SideChannelManager(Context context) {
+        SideChannelManager(Context context) {
             mContext = context;
             mHandlerThread = new HandlerThread("NotificationManagerCompat");
             mHandlerThread.start();
@@ -554,17 +554,17 @@ public final class NotificationManagerCompat {
 
         /** A per-side-channel-service listener state record */
         private static class ListenerRecord {
-            public final ComponentName componentName;
+            final ComponentName componentName;
             /** Whether the service is currently bound to. */
-            public boolean bound = false;
+            boolean bound = false;
             /** The service stub provided by onServiceConnected */
-            public INotificationSideChannel service;
+            INotificationSideChannel service;
             /** Queue of pending tasks to send to this listener service */
-            public ArrayDeque<Task> taskQueue = new ArrayDeque<>();
+            ArrayDeque<Task> taskQueue = new ArrayDeque<>();
             /** Number of retries attempted while connecting to this listener service */
-            public int retryCount = 0;
+            int retryCount = 0;
 
-            public ListenerRecord(ComponentName componentName) {
+            ListenerRecord(ComponentName componentName) {
                 this.componentName = componentName;
             }
         }

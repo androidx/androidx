@@ -575,7 +575,7 @@ public class ActivityCompat extends ContextCompat {
 
         protected SharedElementCallback mCallback;
 
-        public SharedElementCallback21Impl(SharedElementCallback callback) {
+        SharedElementCallback21Impl(SharedElementCallback callback) {
             mCallback = callback;
         }
 
@@ -618,7 +618,7 @@ public class ActivityCompat extends ContextCompat {
 
     @RequiresApi(23)
     private static class SharedElementCallback23Impl extends SharedElementCallback21Impl {
-        public SharedElementCallback23Impl(SharedElementCallback callback) {
+        SharedElementCallback23Impl(SharedElementCallback callback) {
             super(callback);
         }
 
