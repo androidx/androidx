@@ -689,13 +689,13 @@ package android.support.v4.content {
     method public static int checkSelfPermission(android.content.Context, java.lang.String);
     method public static android.content.Context createDeviceProtectedStorageContext(android.content.Context);
     method public static java.io.File getCodeCacheDir(android.content.Context);
-    method public static final int getColor(android.content.Context, int);
-    method public static final android.content.res.ColorStateList getColorStateList(android.content.Context, int);
+    method public static int getColor(android.content.Context, int);
+    method public static android.content.res.ColorStateList getColorStateList(android.content.Context, int);
     method public static java.io.File getDataDir(android.content.Context);
-    method public static final android.graphics.drawable.Drawable getDrawable(android.content.Context, int);
+    method public static android.graphics.drawable.Drawable getDrawable(android.content.Context, int);
     method public static java.io.File[] getExternalCacheDirs(android.content.Context);
     method public static java.io.File[] getExternalFilesDirs(android.content.Context, java.lang.String);
-    method public static final java.io.File getNoBackupFilesDir(android.content.Context);
+    method public static java.io.File getNoBackupFilesDir(android.content.Context);
     method public static java.io.File[] getObbDirs(android.content.Context);
     method public static boolean isDeviceProtectedStorage(android.content.Context);
     method public static boolean startActivities(android.content.Context, android.content.Intent[]);
@@ -1103,14 +1103,14 @@ package android.support.v4.text {
 package android.support.v4.text.util {
 
   public final class LinkifyCompat {
-    method public static final boolean addLinks(android.text.Spannable, int);
-    method public static final boolean addLinks(android.widget.TextView, int);
-    method public static final void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String);
-    method public static final void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String, android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
-    method public static final void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String, java.lang.String[], android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
-    method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String);
-    method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
-    method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, java.lang.String[], android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+    method public static boolean addLinks(android.text.Spannable, int);
+    method public static boolean addLinks(android.widget.TextView, int);
+    method public static void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String);
+    method public static void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String, android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+    method public static void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String, java.lang.String[], android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+    method public static boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String);
+    method public static boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+    method public static boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, java.lang.String[], android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
   }
 
 }
