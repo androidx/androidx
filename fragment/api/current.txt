@@ -178,7 +178,7 @@ package android.support.v4.app {
 
   public class FragmentController {
     method public void attachHost(android.support.v4.app.Fragment);
-    method public static final android.support.v4.app.FragmentController createController(android.support.v4.app.FragmentHostCallback<?>);
+    method public static android.support.v4.app.FragmentController createController(android.support.v4.app.FragmentHostCallback<?>);
     method public void dispatchActivityCreated();
     method public void dispatchConfigurationChanged(android.content.res.Configuration);
     method public boolean dispatchContextItemSelected(android.view.MenuItem);
