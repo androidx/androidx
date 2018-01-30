@@ -78,7 +78,7 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
         private int mWidth;
         private int mHeight;
 
-        public TestDrawable(@ColorInt int color, int width, int height) {
+        TestDrawable(@ColorInt int color, int width, int height) {
             super(color);
             mWidth = width;
             mHeight = height;
