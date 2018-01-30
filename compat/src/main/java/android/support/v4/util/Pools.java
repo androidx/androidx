@@ -51,13 +51,13 @@ public final class Pools {
      *
      * @param <T> The pooled type.
      */
-    public static interface Pool<T> {
+    public interface Pool<T> {
 
         /**
          * @return An instance from the pool if such, null otherwise.
          */
         @Nullable
-        public T acquire();
+        T acquire();
 
         /**
          * Release an instance to the pool.
@@ -67,7 +67,7 @@ public final class Pools {
          *
          * @throws IllegalStateException If the instance is already in the pool.
          */
-        public boolean release(@NonNull T instance);
+        boolean release(@NonNull T instance);
     }
 
     private Pools() {

@@ -115,7 +115,7 @@ public class ExploreByTouchHelperTest extends BaseInstrumentationTestCase<Explor
     private static class ParentBoundsHelper extends ExploreByTouchHelper {
         private final View mHost;
 
-        public ParentBoundsHelper(View host) {
+        ParentBoundsHelper(View host) {
             super(host);
 
             mHost = host;

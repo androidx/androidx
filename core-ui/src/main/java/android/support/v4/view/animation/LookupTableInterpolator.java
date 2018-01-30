@@ -27,7 +27,7 @@ abstract class LookupTableInterpolator implements Interpolator {
     private final float[] mValues;
     private final float mStepSize;
 
-    public LookupTableInterpolator(float[] values) {
+    protected LookupTableInterpolator(float[] values) {
         mValues = values;
         mStepSize = 1f / (mValues.length - 1);
     }
