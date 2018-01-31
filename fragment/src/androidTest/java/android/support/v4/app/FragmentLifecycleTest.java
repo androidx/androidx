@@ -374,9 +374,7 @@ public class FragmentLifecycleTest {
         fc1.dispatchActivityCreated();
         fc1.noteStateNotSaved();
         fc1.execPendingActions();
-        fc1.doLoaderStart();
         fc1.dispatchStart();
-        fc1.reportLoaderStart();
         fc1.dispatchResume();
         fc1.execPendingActions();
 
@@ -435,9 +433,7 @@ public class FragmentLifecycleTest {
         fc2.dispatchActivityCreated();
         fc2.noteStateNotSaved();
         fc2.execPendingActions();
-        fc2.doLoaderStart();
         fc2.dispatchStart();
-        fc2.reportLoaderStart();
         fc2.dispatchResume();
         fc2.execPendingActions();
 
@@ -719,9 +715,7 @@ public class FragmentLifecycleTest {
         fc.dispatchActivityCreated();
         fc.noteStateNotSaved();
         fc.execPendingActions();
-        fc.doLoaderStart();
         fc.dispatchStart();
-        fc.reportLoaderStart();
         fc.dispatchResume();
         fc.restoreAllState(savedState, (FragmentManagerNonConfig) null);
         fc.dispatchResume();
@@ -834,9 +828,7 @@ public class FragmentLifecycleTest {
         fc1.dispatchActivityCreated();
         fc1.noteStateNotSaved();
         fc1.execPendingActions();
-        fc1.doLoaderStart();
         fc1.dispatchStart();
-        fc1.reportLoaderStart();
         fc1.dispatchResume();
         fc1.execPendingActions();
 
@@ -859,9 +851,7 @@ public class FragmentLifecycleTest {
         fc2.dispatchActivityCreated();
         fc2.noteStateNotSaved();
         fc2.execPendingActions();
-        fc2.doLoaderStart();
         fc2.dispatchStart();
-        fc2.reportLoaderStart();
         fc2.dispatchResume();
         fc2.execPendingActions();
 
@@ -900,9 +890,7 @@ public class FragmentLifecycleTest {
         fc1.dispatchActivityCreated();
         fc1.noteStateNotSaved();
         fc1.execPendingActions();
-        fc1.doLoaderStart();
         fc1.dispatchStart();
-        fc1.reportLoaderStart();
         fc1.dispatchResume();
         fc1.execPendingActions();
 
@@ -925,9 +913,7 @@ public class FragmentLifecycleTest {
         fc2.dispatchActivityCreated();
         fc2.noteStateNotSaved();
         fc2.execPendingActions();
-        fc2.doLoaderStart();
         fc2.dispatchStart();
-        fc2.reportLoaderStart();
         fc2.dispatchResume();
         fc2.execPendingActions();
 
@@ -1298,9 +1284,7 @@ public class FragmentLifecycleTest {
         fc.dispatchActivityCreated();
         fc.noteStateNotSaved();
         fc.execPendingActions();
-        fc.doLoaderStart();
         fc.dispatchStart();
-        fc.reportLoaderStart();
         fc.dispatchResume();
         fc.execPendingActions();
         return fc;
