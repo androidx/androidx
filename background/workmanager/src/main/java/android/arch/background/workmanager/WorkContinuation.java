@@ -50,33 +50,6 @@ public abstract class WorkContinuation {
     public abstract WorkContinuation then(@NonNull List<Work> work);
 
     /**
-     * Adds new {@link Work} items, created with the {@link Worker} classes, that depend on the
-     * successful completion of all previously added {@link Work}.
-     *
-     * Each {@link Work} is created with no {@link Arguments} or {@link Constraints}.
-     *
-     * @param workerClasses One or more {@link Worker}s to add to the {@link WorkContinuation}
-     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
-     */
-    @SafeVarargs
-    public final WorkContinuation thenWithDefaults(
-            @NonNull Class<? extends Worker>... workerClasses) {
-        return thenWithDefaults(Arrays.asList(workerClasses));
-    }
-
-    /**
-     * Adds new {@link Work} items, created with the {@link Worker} classes, that depend on the
-     * successful completion of all previously added {@link Work}.
-     *
-     * Each {@link Work} is created with no {@link Arguments} or {@link Constraints}.
-     *
-     * @param workerClasses One or more {@link Worker}s to add to the {@link WorkContinuation}
-     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
-     */
-    public abstract WorkContinuation thenWithDefaults(
-            @NonNull List<Class<? extends Worker>> workerClasses);
-
-    /**
      * Returns a {@link LiveData} mapping of work identifiers to their statuses for all work in this
      * chain.  Whenever the status of one of the work enqueued in this chain changes, any attached
      * {@link android.arch.lifecycle.Observer}s will trigger.

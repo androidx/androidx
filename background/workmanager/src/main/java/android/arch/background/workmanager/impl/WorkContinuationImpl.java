@@ -20,9 +20,7 @@ import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManager;
-import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.logger.Logger;
-import android.arch.background.workmanager.impl.utils.BaseWorkHelper;
 import android.arch.background.workmanager.impl.utils.EnqueueRunnable;
 import android.arch.background.workmanager.impl.workers.JoinWorker;
 import android.arch.lifecycle.LiveData;
@@ -148,15 +146,6 @@ public class WorkContinuationImpl extends WorkContinuation {
                 mUniqueTag,
                 WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK,
                 work,
-                Collections.singletonList(this));
-    }
-
-    @Override
-    public WorkContinuation thenWithDefaults(List<Class<? extends Worker>> workerClasses) {
-        return new WorkContinuationImpl(mWorkManagerImpl,
-                mUniqueTag,
-                WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK,
-                BaseWorkHelper.convertWorkerClassListToWorkList(workerClasses),
                 Collections.singletonList(this));
     }
 

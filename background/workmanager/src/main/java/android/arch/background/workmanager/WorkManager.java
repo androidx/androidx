@@ -41,53 +41,18 @@ public abstract class WorkManager {
     /**
      * Enqueues one or more items for background processing.
      *
-     * @param work One or more {@link Work} to enqueue
+     * @param baseWork One or more {@link BaseWork} to enqueue
      */
-    public final void enqueue(@NonNull Work... work) {
-        enqueue(Arrays.asList(work));
+    public final void enqueue(@NonNull BaseWork... baseWork) {
+        enqueue(Arrays.asList(baseWork));
     }
 
     /**
      * Enqueues one or more items for background processing.
      *
-     * @param work One or more {@link Work} to enqueue
+     * @param baseWork One or more {@link BaseWork} to enqueue
      */
-    public abstract void enqueue(@NonNull List<Work> work);
-
-    /**
-     * Enqueues one or more items for background processing.
-     *
-     * @param workerClasses One or more {@link Worker}s to enqueue; this is a convenience method
-     *                      that makes a {@link Work} object with default Builder parameters
-     */
-    @SafeVarargs
-    public final void enqueueWithDefaults(@NonNull Class<? extends Worker>... workerClasses) {
-        enqueueWithDefaults(Arrays.asList(workerClasses));
-    }
-
-    /**
-     * Enqueues one or more items for background processing.
-     *
-     * @param workerClasses One or more {@link Worker}s to enqueue; this is a convenience method
-     *                      that makes a {@link Work} object with default Builder parameters
-     */
-    public abstract void enqueueWithDefaults(@NonNull List<Class<? extends Worker>> workerClasses);
-
-    /**
-     * Enqueues one or more periodic work items for background processing.
-     *
-     * @param periodicWork One or more {@link PeriodicWork} to enqueue
-     */
-    public final void enqueuePeriodic(@NonNull PeriodicWork... periodicWork) {
-        enqueuePeriodic(Arrays.asList(periodicWork));
-    }
-
-    /**
-     * Enqueues one or more periodic work items for background processing.
-     *
-     * @param periodicWork One or more {@link PeriodicWork} to enqueue
-     */
-    public abstract void enqueuePeriodic(@NonNull List<PeriodicWork> periodicWork);
+    public abstract void enqueue(@NonNull List<BaseWork> baseWork);
 
     /**
      * Begins a chain of {@link Work}, which can be enqueued together in the future using
@@ -108,33 +73,6 @@ public abstract class WorkManager {
      * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
      */
     public abstract WorkContinuation beginWith(@NonNull List<Work> work);
-
-    /**
-     * Begins a chain of {@link Work} from the {@link Worker} classes, which can be enqueued
-     * together in the future using {@link WorkContinuation#enqueue()}.
-     *
-     * Each {@link Work} is created with no {@link Arguments} or {@link Constraints}.
-     *
-     * @param workerClasses One or more {@link Worker}s to start a chain of work
-     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
-     */
-    @SafeVarargs
-    public final WorkContinuation beginWithDefaults(
-            @NonNull Class<? extends Worker>...workerClasses) {
-        return beginWithDefaults(Arrays.asList(workerClasses));
-    }
-
-    /**
-     * Begins a chain of {@link Work} from the {@link Worker} classes, which can be enqueued
-     * together in the future using {@link WorkContinuation#enqueue()}.
-     *
-     * Each {@link Work} is created with no {@link Arguments} or {@link Constraints}.
-     *
-     * @param workerClasses One or more {@link Worker}s to start a chain of work
-     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
-     */
-    public abstract WorkContinuation beginWithDefaults(
-            @NonNull List<Class<? extends Worker>> workerClasses);
 
     /**
      * This method allows you to begin unique chains of work for situations where you only want one

@@ -79,7 +79,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
         findViewById(R.id.clear_all).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WorkManager.getInstance().enqueueWithDefaults(ImageCleanupWorker.class);
+                WorkManager.getInstance().enqueue(Work.from(ImageCleanupWorker.class));
             }
         });
     }

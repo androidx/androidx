@@ -18,15 +18,12 @@ package android.arch.background.workmanager.impl;
 
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.BaseWork;
-import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManager;
-import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkSpecDao;
-import android.arch.background.workmanager.impl.utils.BaseWorkHelper;
 import android.arch.background.workmanager.impl.utils.CancelWorkRunnable;
 import android.arch.background.workmanager.impl.utils.LiveDataUtils;
 import android.arch.background.workmanager.impl.utils.PruneDatabaseRunnable;
@@ -145,26 +142,8 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public void enqueue(@NonNull List<Work> work) {
-        beginWith(work).enqueue();
-    }
-
-    @Override
-    public void enqueueWithDefaults(@NonNull List<Class<? extends Worker>> workerClasses) {
-        beginWith(BaseWorkHelper.convertWorkerClassListToWorkList(workerClasses)).enqueue();
-    }
-
-    @Override
-    public void enqueuePeriodic(@NonNull List<PeriodicWork> periodicWork) {
-        new WorkContinuationImpl(this, periodicWork).enqueue();
-    }
-
-    @Override
-    public WorkContinuation beginWithDefaults(
-            @NonNull List<Class<? extends Worker>> workerClasses) {
-        return new WorkContinuationImpl(
-                this,
-                BaseWorkHelper.convertWorkerClassListToWorkList(workerClasses));
+    public void enqueue(@NonNull List<BaseWork> baseWork) {
+        new WorkContinuationImpl(this, baseWork).enqueue();
     }
 
     @Override

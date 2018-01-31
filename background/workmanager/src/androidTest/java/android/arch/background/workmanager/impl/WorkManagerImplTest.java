@@ -327,7 +327,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 TestWorker.class,
                 PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
                 .build();
-        mWorkManagerImpl.enqueuePeriodic(periodicWork);
+        mWorkManagerImpl.enqueue(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.isPeriodic(), is(true));
@@ -360,7 +360,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
-        mWorkManagerImpl.enqueuePeriodic(periodicWork);
+        mWorkManagerImpl.enqueue(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.getPeriodStartTime(), is(greaterThan(beforeEnqueueTime)));
