@@ -18,7 +18,6 @@ package android.support.v4.app;
 
 import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
 import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
