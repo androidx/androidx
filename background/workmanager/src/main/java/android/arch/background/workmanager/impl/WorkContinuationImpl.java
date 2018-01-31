@@ -24,9 +24,11 @@ import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.utils.EnqueueRunnable;
 import android.arch.background.workmanager.impl.workers.JoinWorker;
 import android.arch.lifecycle.LiveData;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -162,6 +164,22 @@ public class WorkContinuationImpl extends WorkContinuation {
             // and marks them enqueued using the markEnqueued() method, parent first.
             mWorkManagerImpl.getTaskExecutor()
                     .executeOnBackgroundThread(new EnqueueRunnable(this));
+        } else {
+            Logger.warn(TAG, "Already enqueued work ids (%s)", TextUtils.join(", ", mIds));
+        }
+    }
+
+    @Override
+    @WorkerThread
+    public void enqueueSync() {
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+            throw new IllegalStateException("Cannot enqueueSync on main thread!");
+        }
+
+        if (!mEnqueued) {
+            // The runnable walks the hierarchy of the continuations
+            // and marks them enqueued using the markEnqueued() method, parent first.
+            new EnqueueRunnable(this).run();
         } else {
             Logger.warn(TAG, "Already enqueued work ids (%s)", TextUtils.join(", ", mIds));
         }
