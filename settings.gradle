@@ -1,131 +1,81 @@
 /////////////////////////////
 //
+// Buildscript utils
+//
+/////////////////////////////
+
+
+// Calling includeProject(name, filePath) is shorthand for:
+//
+//   include(name)
+//   project(name).projectDir = new File(filePath)
+//
+// Note that <name> directly controls the Gradle project name, and also indirectly sets:
+//   the project name in the IDE
+//   the Maven artifactId
+//
+def includeProject(name, filePath) {
+  settings.include(name)
+
+  def file
+  if (filePath instanceof String) {
+    file = new File(filePath)
+  } else {
+    file = filePath
+  }
+  project(name).projectDir = file
+}
+
+
+
+
+/////////////////////////////
+//
 // Libraries
 //
 /////////////////////////////
 
-include ':support-annotations'
-project(':support-annotations').projectDir = new File(rootDir, 'annotations')
-
-include ':support-compat'
-project(':support-compat').projectDir = new File(rootDir, 'compat')
-
-include ':support-media-compat'
-project(':support-media-compat').projectDir = new File(rootDir, 'media-compat')
-
-include ':support-core-ui'
-project(':support-core-ui').projectDir = new File(rootDir, 'core-ui')
-
-include ':support-fragment'
-project(':support-fragment').projectDir = new File(rootDir, 'fragment')
-
-include ':support-core-utils'
-project(':support-core-utils').projectDir = new File(rootDir, 'core-utils')
-
-include ':support-v4'
-project(':support-v4').projectDir = new File(rootDir, 'v4')
-
-include ':appcompat-v7'
-project(':appcompat-v7').projectDir = new File(rootDir, 'v7/appcompat')
-
-include ':gridlayout-v7'
-project(':gridlayout-v7').projectDir = new File(rootDir, 'v7/gridlayout')
-
-include ':mediarouter-v7'
-project(':mediarouter-v7').projectDir = new File(rootDir, 'v7/mediarouter')
-
-include ':palette-v7'
-project(':palette-v7').projectDir = new File(rootDir, 'v7/palette')
-
-include ':recyclerview-v7'
-project(':recyclerview-v7').projectDir = new File(rootDir, 'v7/recyclerview')
-
-include ':recyclerview-selection'
-project(':recyclerview-selection').projectDir = new File(rootDir, 'recyclerview-selection')
-
-include ':cardview-v7'
-project(':cardview-v7').projectDir = new File(rootDir, 'v7/cardview')
-
-include ':preference-v7'
-project(':preference-v7').projectDir = new File(rootDir, 'v7/preference')
-
-include ':preference-v14'
-project(':preference-v14').projectDir = new File(rootDir, 'v14/preference')
-
-include ':preference-leanback-v17'
-project(':preference-leanback-v17').projectDir = new File(rootDir, 'preference-leanback')
-
-include ':support-v13'
-project(':support-v13').projectDir = new File(rootDir, 'v13')
-
-include ':leanback-v17'
-project(':leanback-v17').projectDir = new File(rootDir, 'leanback')
-
-include ':percent'
-project(':percent').projectDir = new File(rootDir, 'percent')
-
-include ':customtabs'
-project(':customtabs').projectDir = new File(rootDir, 'customtabs')
-
-include ':recommendation'
-project(':recommendation').projectDir = new File(rootDir, 'recommendation')
-
-include ':support-vector-drawable'
-project(':support-vector-drawable').projectDir = new File(rootDir, 'graphics/drawable/static')
-
-include ':animated-vector-drawable'
-project(':animated-vector-drawable').projectDir = new File(rootDir, 'graphics/drawable/animated')
-
-include ':transition'
-project(':transition').projectDir = new File(rootDir, 'transition')
-
-include ':support-dynamic-animation'
-project(':support-dynamic-animation').projectDir = new File(rootDir, 'dynamic-animation')
-
-include ':viewpager2'
-project(':viewpager2').projectDir = new File(rootDir, 'viewpager2')
-
-include ':exifinterface'
-project(':exifinterface').projectDir = new File(rootDir, 'exifinterface')
-
-include ':wear'
-project(':wear').projectDir = new File(rootDir, 'wear')
-
-include ':support-tv-provider'
-project(':support-tv-provider').projectDir = new File(rootDir, 'tv-provider')
-
-include ':support-emoji'
-project(':support-emoji').projectDir = new File(rootDir, 'emoji/core')
-
-include ':support-emoji-bundled'
-project(':support-emoji-bundled').projectDir = new File(rootDir, 'emoji/bundled')
-
-include ':support-emoji-appcompat'
-project(':support-emoji-appcompat').projectDir = new File(rootDir, 'emoji/appcompat')
-
-include ':support-content'
-project(':support-content').projectDir = new File(rootDir, 'content')
-
-include ':car'
-project(':car').projectDir = new File(rootDir, 'car')
-
-include ':webkit'
-project(':webkit').projectDir = new File(rootDir, 'webkit')
-
-include ':slices-core'
-project(':slices-core').projectDir = new File(rootDir, 'slices/core')
-
-include ':slices-view'
-project(':slices-view').projectDir = new File(rootDir, 'slices/view')
-
-include ':slices-builders'
-project(':slices-builders').projectDir = new File(rootDir, 'slices/builders')
-
-include ':textclassifier'
-project(':textclassifier').projectDir = new File(rootDir, 'textclassifier')
-
-include ':webkit-codegen'
-project(':webkit-codegen').projectDir = new File(rootDir, 'webkit-codegen')
+includeProject(":support-annotations", "annotations")
+includeProject(":support-compat", "compat")
+includeProject(":support-media-compat", "media-compat")
+includeProject(":support-core-ui", "core-ui")
+includeProject(":support-fragment", "fragment")
+includeProject(":support-core-utils", "core-utils")
+includeProject(":support-v4", "v4")
+includeProject(":appcompat-v7", "v7/appcompat")
+includeProject(":gridlayout-v7", "v7/gridlayout")
+includeProject(":mediarouter-v7", "v7/mediarouter")
+includeProject(":palette-v7", "v7/palette")
+includeProject(":recyclerview-v7", "v7/recyclerview")
+includeProject(":recyclerview-selection", "recyclerview-selection")
+includeProject(":cardview-v7", "v7/cardview")
+includeProject(":preference-v7", "v7/preference")
+includeProject(":preference-v14", "v14/preference")
+includeProject(":preference-leanback-v17", "preference-leanback")
+includeProject(":support-v13", "v13")
+includeProject(":leanback-v17", "leanback")
+includeProject(":percent", "percent")
+includeProject(":customtabs", "customtabs")
+includeProject(":recommendation", "recommendation")
+includeProject(":support-vector-drawable", "graphics/drawable/static")
+includeProject(":animated-vector-drawable", "graphics/drawable/animated")
+includeProject(":transition", "transition")
+includeProject(":support-dynamic-animation", "dynamic-animation")
+includeProject(":viewpager2", "viewpager2")
+includeProject(":exifinterface", "exifinterface")
+includeProject(":wear", "wear")
+includeProject(":support-tv-provider", "tv-provider")
+includeProject(":support-emoji", "emoji/core")
+includeProject(":support-emoji-bundled", "emoji/bundled")
+includeProject(":support-emoji-appcompat", "emoji/appcompat")
+includeProject(":support-content", "content")
+includeProject(":car", "car")
+includeProject(":webkit", "webkit")
+includeProject(":slices-core", "slices/core")
+includeProject(":slices-view", "slices/view")
+includeProject(":slices-builders", "slices/builders")
+includeProject(":textclassifier", "textclassifier")
+includeProject(":webkit-codegen", "webkit-codegen")
 
 /////////////////////////////
 //
@@ -133,61 +83,26 @@ project(':webkit-codegen').projectDir = new File(rootDir, 'webkit-codegen')
 //
 /////////////////////////////
 
-File samplesRoot = new File(rootDir, 'samples')
+File samplesRoot = new File(rootDir, "samples")
 
-include ':support-content-demos'
-project(':support-content-demos').projectDir = new File(samplesRoot, 'SupportContentDemos')
-
-include ':support-design-demos'
-project(':support-design-demos').projectDir = new File(samplesRoot, 'SupportDesignDemos')
-
-include ':support-leanback-demos'
-project(':support-leanback-demos').projectDir = new File(samplesRoot, 'SupportLeanbackDemos')
-
-include ':support-leanback-jank'
-project(':support-leanback-jank').projectDir = new File(samplesRoot, 'SupportLeanbackJank')
-
-include ':support-percent-demos'
-project(':support-percent-demos').projectDir = new File(samplesRoot, 'SupportPercentDemos')
-
-include ':support-preference-demos'
-project(':support-preference-demos').projectDir = new File(samplesRoot, 'SupportPreferenceDemos')
-
-include ':support-transition-demos'
-project(':support-transition-demos').projectDir = new File(samplesRoot, 'SupportTransitionDemos')
-
-include ':support-v4-demos'
-project(':support-v4-demos').projectDir = new File(samplesRoot, 'Support4Demos')
-
-include ':support-v7-demos'
-project(':support-v7-demos').projectDir = new File(samplesRoot, 'Support7Demos')
-
-include ':support-v13-demos'
-project(':support-v13-demos').projectDir = new File(samplesRoot, 'Support13Demos')
-
-include ':support-vector-drawable-demos'
-project(':support-vector-drawable-demos').projectDir = new File(samplesRoot, 'SupportVectorDrawableDemos')
-
-include ':support-animation-demos'
-project(':support-animation-demos').projectDir = new File(samplesRoot, 'SupportAnimationDemos')
-
-include ':viewpager2-demos'
-project(':viewpager2-demos').projectDir = new File(samplesRoot, 'ViewPager2Demos')
-
-include ':support-wear-demos'
-project(':support-wear-demos').projectDir = new File(samplesRoot, 'SupportWearDemos')
-
-include ':support-app-navigation'
-project(':support-app-navigation').projectDir = new File(samplesRoot, 'SupportAppNavigation')
-
-include ':support-emoji-demos'
-project(':support-emoji-demos').projectDir = new File(samplesRoot, 'SupportEmojiDemos')
-
-include ':support-car-demos'
-project(':support-car-demos').projectDir = new File(samplesRoot, 'SupportCarDemos')
-
-include ':support-slices-demos'
-project(':support-slices-demos').projectDir = new File(samplesRoot, 'SupportSliceDemos')
+includeProject(":support-content-demos", new File(samplesRoot, "SupportContentDemos"))
+includeProject(":support-design-demos", new File(samplesRoot, "SupportDesignDemos"))
+includeProject(":support-leanback-demos", new File(samplesRoot, "SupportLeanbackDemos"))
+includeProject(":support-leanback-jank", new File(samplesRoot, "SupportLeanbackJank"))
+includeProject(":support-percent-demos", new File(samplesRoot, "SupportPercentDemos"))
+includeProject(":support-preference-demos", new File(samplesRoot, "SupportPreferenceDemos"))
+includeProject(":support-transition-demos", new File(samplesRoot, "SupportTransitionDemos"))
+includeProject(":support-v4-demos", new File(samplesRoot, "Support4Demos"))
+includeProject(":support-v7-demos", new File(samplesRoot, "Support7Demos"))
+includeProject(":support-v13-demos", new File(samplesRoot, "Support13Demos"))
+includeProject(":support-vector-drawable-demos", new File(samplesRoot, "SupportVectorDrawableDemos"))
+includeProject(":support-animation-demos", new File(samplesRoot, "SupportAnimationDemos"))
+includeProject(":viewpager2-demos", new File(samplesRoot, "ViewPager2Demos"))
+includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"))
+includeProject(":support-app-navigation", new File(samplesRoot, "SupportAppNavigation"))
+includeProject(":support-emoji-demos", new File(samplesRoot, "SupportEmojiDemos"))
+includeProject(":support-car-demos", new File(samplesRoot, "SupportCarDemos"))
+includeProject(":support-slices-demos", new File(samplesRoot, "SupportSliceDemos"))
 
 /////////////////////////////
 //
@@ -195,8 +110,7 @@ project(':support-slices-demos').projectDir = new File(samplesRoot, 'SupportSlic
 //
 /////////////////////////////
 
-include ':support-testutils'
-project(':support-testutils').projectDir = new File(rootDir, 'testutils')
+includeProject(":support-testutils", "testutils")
 
 /////////////////////////////
 //
@@ -204,20 +118,11 @@ project(':support-testutils').projectDir = new File(rootDir, 'testutils')
 //
 /////////////////////////////
 
-include ':support-media-compat-test-client'
-project(':support-media-compat-test-client').projectDir = new File(rootDir, 'media-compat/version-compat-tests/current/client')
-
-include ':support-media-compat-test-client-previous'
-project(':support-media-compat-test-client-previous').projectDir = new File(rootDir, 'media-compat/version-compat-tests/previous/client')
-
-include ':support-media-compat-test-service'
-project(':support-media-compat-test-service').projectDir = new File(rootDir, 'media-compat/version-compat-tests/current/service')
-
-include ':support-media-compat-test-service-previous'
-project(':support-media-compat-test-service-previous').projectDir = new File(rootDir, 'media-compat/version-compat-tests/previous/service')
-
-include ':support-media-compat-test-lib'
-project(':support-media-compat-test-lib').projectDir = new File(rootDir, 'media-compat/version-compat-tests/lib')
+includeProject(":support-media-compat-test-client", "media-compat/version-compat-tests/current/client")
+includeProject(":support-media-compat-test-client-previous", "media-compat/version-compat-tests/previous/client")
+includeProject(":support-media-compat-test-service", "media-compat/version-compat-tests/current/service")
+includeProject(":support-media-compat-test-service-previous", "media-compat/version-compat-tests/previous/service")
+includeProject(":support-media-compat-test-lib", "media-compat/version-compat-tests/lib")
 
 /////////////////////////////
 //
@@ -225,11 +130,10 @@ project(':support-media-compat-test-lib').projectDir = new File(rootDir, 'media-
 //
 /////////////////////////////
 
-apply(from: 'include-composite-deps.gradle')
-File externalRoot = new File(rootDir, '../../external')
+apply(from: "include-composite-deps.gradle")
+File externalRoot = new File(rootDir, "../../external")
 
-include ':noto-emoji-compat'
-project(':noto-emoji-compat').projectDir = new File(externalRoot, 'noto-fonts/emoji-compat')
+includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"))
 
 ///// FLATFOOT START
 
