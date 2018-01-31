@@ -16,6 +16,7 @@
 
 package android.support.v4.app;
 
+import android.arch.lifecycle.ViewModelStore;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -66,7 +67,8 @@ final class FragmentState implements Parcelable {
     }
 
     public Fragment instantiate(FragmentHostCallback host, FragmentContainer container,
-            Fragment parent, FragmentManagerNonConfig childNonConfig) {
+            Fragment parent, FragmentManagerNonConfig childNonConfig,
+            ViewModelStore viewModelStore) {
         if (mInstance == null) {
             final Context context = host.getContext();
             if (mArguments != null) {
@@ -99,6 +101,7 @@ final class FragmentState implements Parcelable {
             }
         }
         mInstance.mChildNonConfig = childNonConfig;
+        mInstance.mViewModelStore = viewModelStore;
         return mInstance;
     }
 

@@ -11,6 +11,8 @@ dependencies {
     api(project(":support-core-ui"))
     api(project(":support-core-utils"))
     api(project(":support-annotations"))
+    api(ARCH_LIFECYCLE_LIVEDATA_CORE, libs.exclude_annotations_transitive)
+    api(ARCH_LIFECYCLE_VIEWMODEL, libs.exclude_annotations_transitive)
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
