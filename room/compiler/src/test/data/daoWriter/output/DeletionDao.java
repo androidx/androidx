@@ -8,10 +8,12 @@ import android.arch.persistence.room.util.StringUtil;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
+import java.lang.SuppressWarnings;
 import java.util.List;
 import javax.annotation.Generated;
 
 @Generated("android.arch.persistence.room.RoomProcessor")
+@SuppressWarnings("unchecked")
 public class DeletionDao_Impl implements DeletionDao {
   private final RoomDatabase __db;
 

@@ -18,6 +18,7 @@ package android.arch.persistence.room.writer
 
 import android.arch.persistence.room.RoomProcessor
 import android.arch.persistence.room.ext.S
+import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.solver.CodeGenScope.Companion.CLASS_PROPERTY_PREFIX
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
@@ -31,10 +32,7 @@ import javax.annotation.processing.ProcessingEnvironment
 /**
  * Base class for all writers that can produce a class.
  */
-abstract class ClassWriter(val className: ClassName) {
-    private val GENERATED_PACKAGE = "javax.annotation"
-    private val GENERATED_NAME = "Generated"
-
+abstract class ClassWriter(private val className: ClassName) {
     private val sharedFieldSpecs = mutableMapOf<String, FieldSpec>()
     private val sharedMethodSpecs = mutableMapOf<String, MethodSpec>()
     private val sharedFieldNames = mutableSetOf<String>()
@@ -47,9 +45,19 @@ abstract class ClassWriter(val className: ClassName) {
         sharedFieldSpecs.values.forEach { builder.addField(it) }
         sharedMethodSpecs.values.forEach { builder.addMethod(it) }
         addGeneratedAnnotationIfAvailable(builder, processingEnv)
+        addSuppressUnchecked(builder)
         JavaFile.builder(className.packageName(), builder.build())
                 .build()
                 .writeTo(processingEnv.filer)
+    }
+
+    private fun addSuppressUnchecked(builder: TypeSpec.Builder) {
+        val suppressSpec = AnnotationSpec.builder(SuppressWarnings::class.typeName()).addMember(
+                "value",
+                S,
+                "unchecked"
+        ).build()
+        builder.addAnnotation(suppressSpec)
     }
 
     private fun addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder: TypeSpec.Builder,
@@ -119,5 +127,10 @@ abstract class ClassWriter(val className: ClassName) {
             prepare(name, writer, builder)
             return builder.build()
         }
+    }
+
+    companion object {
+        private const val GENERATED_PACKAGE = "javax.annotation"
+        private const val GENERATED_NAME = "Generated"
     }
 }
