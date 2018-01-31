@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.textclassifier;
+package androidx.view.textclassifier;
 
 import android.os.Parcel;
 import android.os.Parcelable;

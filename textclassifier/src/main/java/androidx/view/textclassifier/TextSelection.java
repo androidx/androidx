@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.textclassifier;
+package androidx.view.textclassifier;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import androidx.textclassifier.TextClassifier.EntityType;
+import androidx.view.textclassifier.TextClassifier.EntityType;
 
 /**
  * Information about where text selection should be.

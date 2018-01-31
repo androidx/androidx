@@ -14,6 +14,6 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.textclassifier">
+          package="androidx.view.textclassifier">
     <uses-sdk android:minSdkVersion="14" />
 </manifest>
