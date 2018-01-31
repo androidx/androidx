@@ -17,6 +17,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.arch.lifecycle.reactivestreams.test">
+    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
         <activity android:name="android.arch.lifecycle.viewmodeltest.ViewModelActivity"
