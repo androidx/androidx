@@ -181,6 +181,11 @@ public class MenuBuilder implements SupportMenu {
     private MenuItemImpl mExpandedItem;
 
     /**
+     * Whether group dividers are enabled.
+     */
+    private boolean mGroupDividerEnabled = false;
+
+    /**
      * Whether to override the result of {@link #hasVisibleItems()} and always return true
      */
     private boolean mOverrideVisibleItems;
@@ -502,6 +507,15 @@ public class MenuBuilder implements SupportMenu {
     @Override
     public SubMenu addSubMenu(int group, int id, int categoryOrder, int title) {
         return addSubMenu(group, id, categoryOrder, mResources.getString(title));
+    }
+
+    @Override
+    public void setGroupDividerEnabled(boolean enabled) {
+        mGroupDividerEnabled = enabled;
+    }
+
+    public boolean isGroupDividerEnabled() {
+        return mGroupDividerEnabled;
     }
 
     @Override

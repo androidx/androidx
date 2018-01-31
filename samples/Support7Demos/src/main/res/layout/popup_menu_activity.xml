@@ -37,6 +37,16 @@
         android:checked="true"
         android:text="@string/popup_default_elevation" />
 
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/dividers_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/elevation_toggle"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:checked="true"
+        android:text="@string/popup_group_dividers" />
+
     <TextView
         android:id="@+id/log"
         android:layout_width="match_parent"

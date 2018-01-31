@@ -16,6 +16,10 @@
 
 package android.support.v4.view;
 
+import android.annotation.SuppressLint;
+import android.support.v4.internal.view.SupportMenu;
+import android.support.v4.os.BuildCompat;
+import android.view.Menu;
 import android.view.MenuItem;
 
 /**
@@ -30,6 +34,21 @@ public final class MenuCompat {
     @Deprecated
     public static void setShowAsAction(MenuItem item, int actionEnum) {
         item.setShowAsAction(actionEnum);
+    }
+
+    /**
+     * Enable or disable the group dividers.
+     *
+     * @param menu Menu to enable/disable dividers on.
+     * @param enabled True if enabled
+     */
+    @SuppressLint("NewApi")
+    public static void setGroupDividerEnabled(Menu menu, boolean enabled) {
+        if (menu instanceof SupportMenu) {
+            ((SupportMenu) menu).setGroupDividerEnabled(enabled);
+        } else if (BuildCompat.isAtLeastP()) {
+            menu.setGroupDividerEnabled(enabled);
+        }
     }
 
     private MenuCompat() {}
