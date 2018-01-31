@@ -89,7 +89,7 @@ import java.util.Map;
  * <h4>Space</h4>
  *
  * Space between children may be specified either by using instances of the
- * dedicated {@link android.support.v4.widget.Space} view or by setting the
+ * dedicated {@link android.widget.Space} view or by setting the
  *
  * {@link ViewGroup.MarginLayoutParams#leftMargin leftMargin},
  * {@link ViewGroup.MarginLayoutParams#topMargin topMargin},
@@ -641,7 +641,8 @@ public class GridLayout extends ViewGroup {
 
     /** @noinspection UnusedParameters*/
     private int getDefaultMargin(View c, boolean horizontal, boolean leading) {
-        if (c.getClass() == android.support.v4.widget.Space.class) {
+        if (c.getClass() == android.support.v4.widget.Space.class
+                || c.getClass() == android.widget.Space.class) {
             return 0;
         }
         return mDefaultGap / 2;
