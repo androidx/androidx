@@ -32,6 +32,8 @@ package android.support.text.emoji {
     method public android.support.text.emoji.EmojiCompat.Config setEmojiSpanIndicatorColor(int);
     method public android.support.text.emoji.EmojiCompat.Config setEmojiSpanIndicatorEnabled(boolean);
     method public android.support.text.emoji.EmojiCompat.Config setReplaceAll(boolean);
+    method public android.support.text.emoji.EmojiCompat.Config setUseEmojiAsDefaultStyle(boolean);
+    method public android.support.text.emoji.EmojiCompat.Config setUseEmojiAsDefaultStyle(boolean, java.util.List<java.lang.Integer>);
     method public android.support.text.emoji.EmojiCompat.Config unregisterInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
   }
 

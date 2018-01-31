@@ -35,8 +35,6 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -121,7 +119,7 @@ public class ListViewCompatTest extends BaseInstrumentationTestCase<ListViewTest
         });
 
         try {
-            Assert.assertTrue("Expected layout pass within 5 seconds",
+            assertTrue("Expected layout pass within 5 seconds",
                     latch.await(5, TimeUnit.SECONDS));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

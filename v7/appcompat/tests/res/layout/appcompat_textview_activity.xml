@@ -77,6 +77,13 @@
             android:background="@drawable/test_background_green" />
 
         <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/view_untinted_deferred"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            android:background="@drawable/black_rect" />
+
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/view_text_color_hex"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

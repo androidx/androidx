@@ -44,7 +44,6 @@ import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewGroupCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import android.util.AttributeSet;
@@ -331,7 +330,7 @@ public class DrawerLayout extends ViewGroup {
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
 
         ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegate());
-        ViewGroupCompat.setMotionEventSplittingEnabled(this, false);
+        setMotionEventSplittingEnabled(false);
         if (ViewCompat.getFitsSystemWindows(this)) {
             if (Build.VERSION.SDK_INT >= 21) {
                 setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {

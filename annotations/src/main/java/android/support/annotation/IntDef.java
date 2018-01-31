@@ -46,12 +46,14 @@ import java.lang.annotation.Target;
  *      flag = true,
  *      value = {NAVIGATION_MODE_STANDARD, NAVIGATION_MODE_LIST, NAVIGATION_MODE_TABS})
  * </code></pre>
+ *
+ * @see LongDef
  */
 @Retention(SOURCE)
 @Target({ANNOTATION_TYPE})
 public @interface IntDef {
     /** Defines the allowed constants for this element */
-    long[] value() default {};
+    int[] value() default {};
 
     /** Defines whether the constants can be used as a flag, or just as an enum (the default) */
     boolean flag() default false;

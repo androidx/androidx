@@ -27,7 +27,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
@@ -107,7 +106,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
 
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void processAllViewHolders() {
         RecyclerView rv = new RecyclerView(getActivity());

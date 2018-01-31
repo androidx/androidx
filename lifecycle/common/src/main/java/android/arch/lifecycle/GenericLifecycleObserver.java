@@ -16,10 +16,13 @@
 
 package android.arch.lifecycle;
 
+import android.support.annotation.RestrictTo;
+
 /**
  * Internal class that can receive any lifecycle change and dispatch it to the receiver.
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings({"WeakerAccess", "unused"})
 public interface GenericLifecycleObserver extends LifecycleObserver {
     /**

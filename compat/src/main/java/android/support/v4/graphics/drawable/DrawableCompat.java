@@ -229,8 +229,8 @@ public final class DrawableCompat {
             // children manually
             if (drawable instanceof InsetDrawable) {
                 clearColorFilter(((InsetDrawable) drawable).getDrawable());
-            } else if (drawable instanceof DrawableWrapper) {
-                clearColorFilter(((DrawableWrapper) drawable).getWrappedDrawable());
+            } else if (drawable instanceof WrappedDrawable) {
+                clearColorFilter(((WrappedDrawable) drawable).getWrappedDrawable());
             } else if (drawable instanceof DrawableContainer) {
                 final DrawableContainer container = (DrawableContainer) drawable;
                 final DrawableContainer.DrawableContainerState state =
@@ -307,17 +307,17 @@ public final class DrawableCompat {
             return drawable;
         } else if (Build.VERSION.SDK_INT >= 21) {
             if (!(drawable instanceof TintAwareDrawable)) {
-                return new DrawableWrapperApi21(drawable);
+                return new WrappedDrawableApi21(drawable);
             }
             return drawable;
         } else if (Build.VERSION.SDK_INT >= 19) {
             if (!(drawable instanceof TintAwareDrawable)) {
-                return new DrawableWrapperApi19(drawable);
+                return new WrappedDrawableApi19(drawable);
             }
             return drawable;
         } else {
             if (!(drawable instanceof TintAwareDrawable)) {
-                return new DrawableWrapperApi14(drawable);
+                return new WrappedDrawableApi14(drawable);
             }
             return drawable;
         }
@@ -335,8 +335,8 @@ public final class DrawableCompat {
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
     public static <T extends Drawable> T unwrap(@NonNull Drawable drawable) {
-        if (drawable instanceof DrawableWrapper) {
-            return (T) ((DrawableWrapper) drawable).getWrappedDrawable();
+        if (drawable instanceof WrappedDrawable) {
+            return (T) ((WrappedDrawable) drawable).getWrappedDrawable();
         }
         return (T) drawable;
     }

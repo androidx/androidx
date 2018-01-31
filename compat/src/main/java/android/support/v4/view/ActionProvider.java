@@ -318,7 +318,7 @@ public abstract class ActionProvider {
     @RestrictTo(LIBRARY_GROUP)
     public interface SubUiVisibilityListener {
 
-        public void onSubUiVisibilityChanged(boolean isVisible);
+        void onSubUiVisibilityChanged(boolean isVisible);
     }
 
     /**
@@ -328,6 +328,6 @@ public abstract class ActionProvider {
      * @see ActionProvider#isVisible()
      */
     public interface VisibilityListener {
-        public void onActionProviderVisibilityChanged(boolean isVisible);
+        void onActionProviderVisibilityChanged(boolean isVisible);
     }
 }

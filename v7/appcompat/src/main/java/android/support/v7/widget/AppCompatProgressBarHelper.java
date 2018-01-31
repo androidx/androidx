@@ -27,7 +27,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.graphics.drawable.shapes.Shape;
-import android.support.v4.graphics.drawable.DrawableWrapper;
+import android.support.v4.graphics.drawable.WrappedDrawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.ProgressBar;
@@ -69,11 +69,11 @@ class AppCompatProgressBarHelper {
      * traverse layer and state list drawables.
      */
     private Drawable tileify(Drawable drawable, boolean clip) {
-        if (drawable instanceof DrawableWrapper) {
-            Drawable inner = ((DrawableWrapper) drawable).getWrappedDrawable();
+        if (drawable instanceof WrappedDrawable) {
+            Drawable inner = ((WrappedDrawable) drawable).getWrappedDrawable();
             if (inner != null) {
                 inner = tileify(inner, clip);
-                ((DrawableWrapper) drawable).setWrappedDrawable(inner);
+                ((WrappedDrawable) drawable).setWrappedDrawable(inner);
             }
         } else if (drawable instanceof LayerDrawable) {
             LayerDrawable background = (LayerDrawable) drawable;

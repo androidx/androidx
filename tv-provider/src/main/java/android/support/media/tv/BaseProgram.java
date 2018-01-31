@@ -15,6 +15,7 @@
  */
 package android.support.media.tv;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.ContentValues;
@@ -22,18 +23,22 @@ import android.database.Cursor;
 import android.media.tv.TvContentRating;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.IntDef;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.BaseTvColumns;
 import android.support.media.tv.TvContractCompat.ProgramColumns;
-import android.support.media.tv.TvContractCompat.ProgramColumns.ReviewRatingStyle;
 import android.support.media.tv.TvContractCompat.Programs;
 import android.support.media.tv.TvContractCompat.Programs.Genres.Genre;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Base class for derived classes that want to have common fields for programs defined in
  * {@link TvContractCompat}.
  * @hide
  */
+@RestrictTo(LIBRARY)
 public abstract class BaseProgram {
     /**
      * @hide
@@ -44,6 +49,22 @@ public abstract class BaseProgram {
     private static final long INVALID_LONG_VALUE = -1;
     private static final int INVALID_INT_VALUE = -1;
     private static final int IS_SEARCHABLE = 1;
+
+    /** @hide */
+    @IntDef({
+            REVIEW_RATING_STYLE_UNKNOWN,
+            ProgramColumns.REVIEW_RATING_STYLE_STARS,
+            ProgramColumns.REVIEW_RATING_STYLE_THUMBS_UP_DOWN,
+            ProgramColumns.REVIEW_RATING_STYLE_PERCENTAGE,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    @interface ReviewRatingStyle {}
+
+    /**
+     * The unknown review rating style.
+     */
+    private static final int REVIEW_RATING_STYLE_UNKNOWN = -1;
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
@@ -254,7 +275,7 @@ public abstract class BaseProgram {
      */
     public @ReviewRatingStyle int getReviewRatingStyle() {
         Integer i = mValues.getAsInteger(Programs.COLUMN_REVIEW_RATING_STYLE);
-        return i == null ? INVALID_INT_VALUE : i;
+        return i == null ? REVIEW_RATING_STYLE_UNKNOWN : i;
     }
 
     /**

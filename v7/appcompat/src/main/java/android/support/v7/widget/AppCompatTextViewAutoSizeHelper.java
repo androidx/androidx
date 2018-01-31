@@ -18,7 +18,6 @@ package android.support.v7.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -26,6 +25,7 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
@@ -45,8 +45,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class which encapsulates the logic for the TextView auto-size text feature added to
@@ -66,7 +66,8 @@ class AppCompatTextViewAutoSizeHelper {
     private static final int DEFAULT_AUTO_SIZE_GRANULARITY_IN_PX = 1;
     // Cache of TextView methods used via reflection; the key is the method name and the value is
     // the method itself or null if it can not be found.
-    private static Hashtable<String, Method> sTextViewMethodByNameCache = new Hashtable<>();
+    private static ConcurrentHashMap<String, Method> sTextViewMethodByNameCache =
+            new ConcurrentHashMap<>();
     // Use this to specify that any of the auto-size configuration int values have not been set.
     static final float UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1f;
     // Ported from TextView#VERY_WIDE. Represents a maximum width in pixels the TextView takes when
@@ -701,7 +702,7 @@ class AppCompatTextViewAutoSizeHelper {
         return true;
     }
 
-    @TargetApi(23)
+    @RequiresApi(23)
     private StaticLayout createStaticLayoutForMeasuring(CharSequence text,
             Layout.Alignment alignment, int availableWidth, int maxLines) {
         // Can use the StaticLayout.Builder (along with TextView params added in or after
@@ -725,7 +726,6 @@ class AppCompatTextViewAutoSizeHelper {
                 .build();
     }
 
-    @TargetApi(14)
     private StaticLayout createStaticLayoutForMeasuringPre23(CharSequence text,
             Layout.Alignment alignment, int availableWidth) {
         // Setup defaults.

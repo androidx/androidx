@@ -11,11 +11,16 @@ dependencies {
     api(project(":support-core-ui"))
     api(project(":support-core-utils"))
     api(project(":support-annotations"))
+    api(ARCH_LIFECYCLE_LIVEDATA_CORE, libs.exclude_annotations_transitive)
+    api(ARCH_LIFECYCLE_VIEWMODEL, libs.exclude_annotations_transitive)
 
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation project(':support-testutils'), {
+        exclude group: 'com.android.support', module: 'support-fragment'
+    }
 }
 
 supportLibrary {
@@ -25,5 +30,4 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
-    legacySourceLocation = true
 }

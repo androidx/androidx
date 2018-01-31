@@ -24,6 +24,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
+import android.arch.lifecycle.ViewModelStore;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources.NotFoundException;
@@ -61,6 +62,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.ScaleAnimation;
+import android.view.animation.Transformation;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -1504,8 +1506,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         dispatchOnFragmentViewDestroyed(f, false);
                         if (f.mView != null && f.mContainer != null) {
                             // Stop any current animations:
-                            f.mView.clearAnimation();
                             f.mContainer.endViewTransition(f.mView);
+                            f.mView.clearAnimation();
                             AnimationOrAnimator anim = null;
                             if (mCurState > Fragment.INITIALIZING && !mDestroyed
                                     && f.mView.getVisibility() == View.VISIBLE
@@ -1598,21 +1600,21 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         container.startViewTransition(viewToAnimate);
         fragment.setStateAfterAnimating(newState);
         if (anim.animation != null) {
-            Animation animation = anim.animation;
+            Animation animation =
+                    new EndViewTransitionAnimator(anim.animation, container, viewToAnimate);
             fragment.setAnimatingAway(fragment.mView);
             AnimationListener listener = getAnimationListener(animation);
             animation.setAnimationListener(new AnimationListenerWrapper(listener) {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     super.onAnimationEnd(animation);
+
                     // onAnimationEnd() comes during draw(), so there can still be some
                     // draw events happening after this call. We don't want to detach
                     // the view until after the onAnimationEnd()
                     container.post(new Runnable() {
                         @Override
                         public void run() {
-                            container.endViewTransition(viewToAnimate);
-
                             if (fragment.getAnimatingAway() != null) {
                                 fragment.setAnimatingAway(null);
                                 moveToState(fragment, fragment.getStateAfterAnimating(), 0, 0,
@@ -1880,7 +1882,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         // concurrent modification while iterating over mActive
         mActive.put(f.mIndex, null);
 
-        mHost.inactivateFragment(f.mWho);
         f.initState();
     }
 
@@ -2805,6 +2806,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     void saveNonConfig() {
         ArrayList<Fragment> fragments = null;
         ArrayList<FragmentManagerNonConfig> childFragments = null;
+        ArrayList<ViewModelStore> viewModelStores = null;
         if (mActive != null) {
             for (int i=0; i<mActive.size(); i++) {
                 Fragment f = mActive.valueAt(i);
@@ -2837,13 +2839,24 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     if (childFragments != null) {
                         childFragments.add(child);
                     }
+                    if (viewModelStores == null && f.mViewModelStore != null) {
+                        viewModelStores = new ArrayList<>(mActive.size());
+                        for (int j = 0; j < i; j++) {
+                            viewModelStores.add(null);
+                        }
+                    }
+
+                    if (viewModelStores != null) {
+                        viewModelStores.add(f.mViewModelStore);
+                    }
                 }
             }
         }
-        if (fragments == null && childFragments == null) {
+        if (fragments == null && childFragments == null && viewModelStores == null) {
             mSavedNonConfig = null;
         } else {
-            mSavedNonConfig = new FragmentManagerNonConfig(fragments, childFragments);
+            mSavedNonConfig = new FragmentManagerNonConfig(fragments, childFragments,
+                    viewModelStores);
         }
     }
 
@@ -3018,12 +3031,14 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (fms.mActive == null) return;
 
         List<FragmentManagerNonConfig> childNonConfigs = null;
+        List<ViewModelStore> viewModelStores = null;
 
         // First re-attach any non-config instances we are retaining back
         // to their saved state, so we don't try to instantiate them again.
         if (nonConfig != null) {
             List<Fragment> nonConfigFragments = nonConfig.getFragments();
             childNonConfigs = nonConfig.getChildNonConfigs();
+            viewModelStores = nonConfig.getViewModelStores();
             final int count = nonConfigFragments != null ? nonConfigFragments.size() : 0;
             for (int i = 0; i < count; i++) {
                 Fragment f = nonConfigFragments.get(i);
@@ -3062,7 +3077,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 if (childNonConfigs != null && i < childNonConfigs.size()) {
                     childNonConfig = childNonConfigs.get(i);
                 }
-                Fragment f = fs.instantiate(mHost, mContainer, mParent, childNonConfig);
+                ViewModelStore viewModelStore = null;
+                if (viewModelStores != null && i < viewModelStores.size()) {
+                    viewModelStore = viewModelStores.get(i);
+                }
+                Fragment f = fs.instantiate(mHost, mContainer, mParent, childNonConfig,
+                        viewModelStore);
                 if (DEBUG) Log.v(TAG, "restoreAllState: active #" + i + ": " + f);
                 mActive.put(f.mIndex, f);
                 // Now that the fragment is instantiated (or came from being
@@ -4001,6 +4021,60 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         public void onAnimationEnd(Animator animation) {
             mView.setLayerType(View.LAYER_TYPE_NONE, null);
             animation.removeListener(this);
+        }
+    }
+
+    /**
+     * We must call endViewTransition() before the animation ends or else the parent doesn't
+     * get nulled out. We use both startViewTransition() and startAnimation() to solve a problem
+     * with Views remaining in the hierarchy as disappearing children after the view has been
+     * removed in some edge cases.
+     */
+    private static class EndViewTransitionAnimator extends AnimationSet implements Runnable {
+        private final ViewGroup mParent;
+        private final View mChild;
+        private boolean mEnded;
+        private boolean mTransitionEnded;
+
+        EndViewTransitionAnimator(@NonNull Animation animation,
+                @NonNull ViewGroup parent, @NonNull View child) {
+            super(false);
+            mParent = parent;
+            mChild = child;
+            addAnimation(animation);
+        }
+
+        @Override
+        public boolean getTransformation(long currentTime, Transformation t) {
+            if (mEnded) {
+                return !mTransitionEnded;
+            }
+            boolean more = super.getTransformation(currentTime, t);
+            if (!more) {
+                mEnded = true;
+                mParent.post(this);
+            }
+            return true;
+        }
+
+        @Override
+        public boolean getTransformation(long currentTime, Transformation outTransformation,
+                float scale) {
+            if (mEnded) {
+                return !mTransitionEnded;
+            }
+            boolean more = super.getTransformation(currentTime, outTransformation, scale);
+            if (!more) {
+                mEnded = true;
+                mParent.post(this);
+            }
+            return true;
+        }
+
+        @Override
+        public void run() {
+            mParent.endViewTransition(mChild);
+            mTransitionEnded = true;
         }
     }
 }

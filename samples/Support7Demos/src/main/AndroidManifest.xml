@@ -563,7 +563,26 @@
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
-    </application>
 
+        <!-- Selection helper demo activity -->
+        <activity android:name=".widget.selection.simple.SimpleSelectionDemoActivity"
+                  android:label="@string/simple_selection_demo_activity"
+                  android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Selection helper demo activity -->
+        <activity android:name=".widget.selection.fancy.FancySelectionDemoActivity"
+                  android:label="@string/fancy_selection_demo_activity"
+                  android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+    </application>
 
 </manifest>

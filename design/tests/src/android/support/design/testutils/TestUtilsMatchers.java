@@ -268,6 +268,36 @@ public class TestUtilsMatchers {
     }
 
     /**
+     * Returns a matcher that matches FloatingActionButtons with the specified custom size.
+     */
+    public static Matcher withFabCustomSize(final int customSize) {
+        return new BoundedMatcher<View, View>(View.class) {
+            private String mFailedCheckDescription;
+
+            @Override
+            public void describeTo(final Description description) {
+                description.appendText(mFailedCheckDescription);
+            }
+
+            @Override
+            public boolean matchesSafely(final View view) {
+                if (!(view instanceof FloatingActionButton)) {
+                    return false;
+                }
+
+                final FloatingActionButton fab = (FloatingActionButton) view;
+                if (Math.abs(fab.getCustomSize() - customSize) > 1.0f) {
+                    mFailedCheckDescription =
+                            "Custom size " + fab.getCustomSize() + " is different than expected "
+                                    + customSize;
+                    return false;
+                }
+                return true;
+            }
+        };
+    }
+
+    /**
      * Returns a matcher that matches FloatingActionButtons with the specified background
      * fill color.
      */

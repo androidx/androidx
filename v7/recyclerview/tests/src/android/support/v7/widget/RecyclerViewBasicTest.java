@@ -31,11 +31,14 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.recyclerview.test.R;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,7 +69,7 @@ public class RecyclerViewBasicTest {
     }
 
     private Context getContext() {
-        return InstrumentationRegistry.getContext();
+        return InstrumentationRegistry.getTargetContext();
     }
 
     @Test
@@ -367,6 +370,40 @@ public class RecyclerViewBasicTest {
     }
 
     @Test
+    public void createAttachedException() {
+        mRecyclerView.setAdapter(new RecyclerView.Adapter() {
+            @NonNull
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                    int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_view, parent, true)
+                        .findViewById(R.id.item_view); // find child, since parent is returned
+                return new RecyclerView.ViewHolder(view) {};
+            }
+
+            @Override
+            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+                fail("shouldn't get here, should throw during create");
+            }
+
+            @Override
+            public int getItemCount() {
+                return 1;
+            }
+        });
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        try {
+            measure();
+            //layout();
+            fail("IllegalStateException expected");
+        } catch (IllegalStateException e) {
+            // expected
+        }
+    }
+
+    @Test
     public void prefetchChangesCacheSize() {
         mRecyclerView.setAdapter(new MockAdapter(20));
         MockLayoutManager mlm = new MockLayoutManager() {
@@ -477,7 +514,6 @@ public class RecyclerViewBasicTest {
             assertTrue("must contain Adapter class", m.contains(MockAdapter.class.getName()));
             assertTrue("must contain LM class", m.contains(LinearLayoutManager.class.getName()));
             assertTrue("must contain ctx class", m.contains(getContext().getClass().getName()));
-
         }
     }
 
@@ -488,13 +524,63 @@ public class RecyclerViewBasicTest {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         measure();
         layout();
-        assertSame(focusAdapter.mBottomLeft,
-                focusAdapter.mTopRight.focusSearch(View.FOCUS_FORWARD));
-        assertSame(focusAdapter.mBottomRight,
-                focusAdapter.mBottomLeft.focusSearch(View.FOCUS_FORWARD));
+
+        boolean isIcsOrLower = Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1;
+
+        // On API 15 and lower, focus forward get's translated to focus down.
+        View expected = isIcsOrLower ? focusAdapter.mBottomRight : focusAdapter.mBottomLeft;
+        assertEquals(expected, focusAdapter.mTopRight.focusSearch(View.FOCUS_FORWARD));
+
+        // On API 15 and lower, focus forward get's translated to focus down, which in this case
+        // runs out of the RecyclerView, thus returning null.
+        expected = isIcsOrLower ? null : focusAdapter.mBottomRight;
+        assertSame(expected, focusAdapter.mBottomLeft.focusSearch(View.FOCUS_FORWARD));
+
         // we don't want looping within RecyclerView
         assertNull(focusAdapter.mBottomRight.focusSearch(View.FOCUS_FORWARD));
         assertNull(focusAdapter.mTopLeft.focusSearch(View.FOCUS_BACKWARD));
+    }
+
+    @Test
+    public void setAdapter_callsCorrectLmMethods() throws Throwable {
+        MockLayoutManager mockLayoutManager = new MockLayoutManager();
+        MockAdapter mockAdapter = new MockAdapter(1);
+        mRecyclerView.setLayoutManager(mockLayoutManager);
+
+        mRecyclerView.setAdapter(mockAdapter);
+        layout();
+
+        assertEquals(1, mockLayoutManager.mAdapterChangedCount);
+        assertEquals(0, mockLayoutManager.mItemsChangedCount);
+    }
+
+    @Test
+    public void swapAdapter_callsCorrectLmMethods() throws Throwable {
+        MockLayoutManager mockLayoutManager = new MockLayoutManager();
+        MockAdapter mockAdapter = new MockAdapter(1);
+        mRecyclerView.setLayoutManager(mockLayoutManager);
+
+        mRecyclerView.swapAdapter(mockAdapter, true);
+        layout();
+
+        assertEquals(1, mockLayoutManager.mAdapterChangedCount);
+        assertEquals(1, mockLayoutManager.mItemsChangedCount);
+    }
+
+    @Test
+    public void notifyDataSetChanged_callsCorrectLmMethods() throws Throwable {
+        MockLayoutManager mockLayoutManager = new MockLayoutManager();
+        MockAdapter mockAdapter = new MockAdapter(1);
+        mRecyclerView.setLayoutManager(mockLayoutManager);
+        mRecyclerView.setAdapter(mockAdapter);
+        mockLayoutManager.mAdapterChangedCount = 0;
+        mockLayoutManager.mItemsChangedCount = 0;
+
+        mockAdapter.notifyDataSetChanged();
+        layout();
+
+        assertEquals(0, mockLayoutManager.mAdapterChangedCount);
+        assertEquals(1, mockLayoutManager.mItemsChangedCount);
     }
 
     static class MockLayoutManager extends RecyclerView.LayoutManager {
@@ -502,6 +588,7 @@ public class RecyclerViewBasicTest {
         int mLayoutCount = 0;
 
         int mAdapterChangedCount = 0;
+        int mItemsChangedCount = 0;
 
         RecyclerView.Adapter mPrevAdapter;
 
@@ -516,6 +603,11 @@ public class RecyclerViewBasicTest {
             mPrevAdapter = oldAdapter;
             mNextAdapter = newAdapter;
             mAdapterChangedCount++;
+        }
+
+        @Override
+        public void onItemsChanged(RecyclerView recyclerView) {
+            mItemsChangedCount++;
         }
 
         @Override

@@ -16,9 +16,7 @@
 
 package com.example.android.supportv7.widget.touch;
 
-import android.annotation.TargetApi;
 import android.graphics.Canvas;
-import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -73,24 +71,20 @@ public class SwipeToDismissActivity extends ItemTouchHelperActivity {
                     }
                 }
         };
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ConfigToggle[] copy = new ConfigToggle[configToggles.length + 1];
-            System.arraycopy(configToggles, 0, copy, 0, configToggles.length);
-            copy[copy.length - 1] = new ConfigToggle(this, R.string.custom_swipe_enabled) {
-                @Override
-                public boolean isChecked() {
-                    return mCustomSwipeEnabled;
-                }
+        ConfigToggle[] copy = new ConfigToggle[configToggles.length + 1];
+        System.arraycopy(configToggles, 0, copy, 0, configToggles.length);
+        copy[copy.length - 1] = new ConfigToggle(this, R.string.custom_swipe_enabled) {
+            @Override
+            public boolean isChecked() {
+                return mCustomSwipeEnabled;
+            }
 
-                @Override
-                public void onChange(boolean newValue) {
-                    mCustomSwipeEnabled = newValue;
-                }
-            };
-            return copy;
-        } else {
-            return configToggles;
-        }
+            @Override
+            public void onChange(boolean newValue) {
+                mCustomSwipeEnabled = newValue;
+            }
+        };
+        return copy;
     }
 
     @Override
@@ -109,7 +103,6 @@ public class SwipeToDismissActivity extends ItemTouchHelperActivity {
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
         ItemTouchViewHolder touchVH = (ItemTouchViewHolder) viewHolder;
         if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
@@ -125,7 +118,6 @@ public class SwipeToDismissActivity extends ItemTouchHelperActivity {
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public boolean onChildDraw(Canvas c, RecyclerView recyclerView,
             RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState,
             boolean isCurrentlyActive) {

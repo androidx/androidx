@@ -65,8 +65,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcelable;
 import android.support.design.test.R;
-import android.support.design.testutils.ActivityUtils;
-import android.support.design.testutils.RecreatedAppCompatActivity;
 import android.support.design.testutils.TestUtils;
 import android.support.design.testutils.ViewStructureImpl;
 import android.support.test.annotation.UiThreadTest;
@@ -75,6 +73,8 @@ import android.support.test.espresso.ViewAssertion;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
+import android.support.testutils.AppCompatActivityUtils;
+import android.support.testutils.RecreatedAppCompatActivity;
 import android.support.v4.widget.TextViewCompat;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.TransformationMethod;
@@ -524,8 +524,8 @@ public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLa
         onView(withId(R.id.textinput_password)).check(isPasswordToggledVisible(true));
 
         RecreatedAppCompatActivity activity = mActivityTestRule.getActivity();
-        activity = ActivityUtils.recreateActivity(mActivityTestRule, activity);
-        ActivityUtils.waitForExecution(mActivityTestRule);
+        AppCompatActivityUtils.recreateActivity(mActivityTestRule, activity);
+        AppCompatActivityUtils.waitForExecution(mActivityTestRule);
 
         // Check that the password is still toggled to be shown as plain text
         onView(withId(R.id.textinput_password)).check(isPasswordToggledVisible(true));

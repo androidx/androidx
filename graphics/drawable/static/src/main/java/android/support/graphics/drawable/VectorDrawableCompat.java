@@ -56,8 +56,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Stack;
 
 /**
  * For API 24 and above, this class is delegating to the framework's {@link VectorDrawable}.
@@ -173,6 +173,10 @@ import java.util.Stack;
  * <dd>Sets the lineJoin for a stroked path: miter,round,bevel. Default is miter.</dd>
  * <dt><code>android:strokeMiterLimit</code></dt>
  * <dd>Sets the Miter limit for a stroked path. Default is 4.</dd>
+ * <dt><code>android:fillType</code></dt>
+ * <dd>Sets the fillType for a path. The types can be either "evenOdd" or "nonZero". They behave the
+ * same as SVG's "fill-rule" properties. Default is nonZero. For more details, see
+ * <a href="https://www.w3.org/TR/SVG/painting.html#FillRuleProperty">FillRuleProperty</a></dd>
  * </dl></dd>
  * </dl>
  *
@@ -647,11 +651,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             case 15:
                 return Mode.SCREEN;
             case 16:
-                if (Build.VERSION.SDK_INT >= 11) {
-                    return Mode.ADD;
-                } else {
-                    return defaultMode;
-                }
+                return Mode.ADD;
             default:
                 return defaultMode;
         }
@@ -726,7 +726,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
         // Use a stack to help to build the group tree.
         // The top of the stack is always the current group.
-        final Stack<VGroup> groupStack = new Stack<VGroup>();
+        final ArrayDeque<VGroup> groupStack = new ArrayDeque<>();
         groupStack.push(pathRenderer.mRootGroup);
 
         int eventType = parser.getEventType();
@@ -781,14 +781,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         if (noPathTag) {
-            final StringBuffer tag = new StringBuffer();
-
-            if (tag.length() > 0) {
-                tag.append(" or ");
-            }
-            tag.append(SHAPE_PATH);
-
-            throw new XmlPullParserException("no " + tag + " defined");
+            throw new XmlPullParserException("no " + SHAPE_PATH + " defined");
         }
     }
 

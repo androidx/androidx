@@ -16,12 +16,10 @@
 
 package android.support.wear.widget.drawer;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -76,7 +74,6 @@ import java.util.Objects;
  * <p>For {@link MenuItem}, setting and getting the title and icon, {@link MenuItem#getItemId}, and
  * {@link MenuItem#setOnMenuItemClickListener} are implemented.
  */
-@TargetApi(Build.VERSION_CODES.M)
 public class WearableActionDrawerView extends WearableDrawerView {
 
     private static final String TAG = "WearableActionDrawer";
@@ -141,12 +138,8 @@ public class WearableActionDrawerView extends WearableDrawerView {
             View peekView = layoutInflater.inflate(R.layout.ws_action_drawer_peek_view,
                     getPeekContainer(), false /* attachToRoot */);
             setPeekContent(peekView);
-            mPeekActionIcon =
-                    (ImageView) peekView
-                            .findViewById(R.id.ws_action_drawer_peek_action_icon);
-            mPeekExpandIcon =
-                    (ImageView) peekView
-                            .findViewById(R.id.ws_action_drawer_expand_icon);
+            mPeekActionIcon = peekView.findViewById(R.id.ws_action_drawer_peek_action_icon);
+            mPeekExpandIcon = peekView.findViewById(R.id.ws_action_drawer_expand_icon);
         } else {
             mPeekActionIcon = null;
             mPeekExpandIcon = null;

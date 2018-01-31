@@ -16,7 +16,6 @@
 package android.support.wear.ambient;
 
 import android.os.Build;
-import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
 import com.google.android.wearable.WearableSharedLib;
@@ -24,10 +23,7 @@ import com.google.android.wearable.WearableSharedLib;
 /**
  * Internal class which can be used to determine the version of the wearable shared library that is
  * available on the current device.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 final class SharedLibraryVersion {
 
     private SharedLibraryVersion() {

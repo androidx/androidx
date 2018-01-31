@@ -23,6 +23,7 @@ import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_
 import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.StaggeredGridLayoutManager.LayoutParams;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -58,6 +59,81 @@ import java.util.UUID;
 
 @LargeTest
 public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManagerTest {
+
+    @Test
+    public void layout_rvHasPaddingChildIsMatchParentVertical_childrenAreInsideParent()
+            throws Throwable {
+        layout_rvHasPaddingChildIsMatchParent_childrenAreInsideParent(VERTICAL, false);
+    }
+
+    @Test
+    public void layout_rvHasPaddingChildIsMatchParentHorizontal_childrenAreInsideParent()
+            throws Throwable {
+        layout_rvHasPaddingChildIsMatchParent_childrenAreInsideParent(HORIZONTAL, false);
+    }
+
+    @Test
+    public void layout_rvHasPaddingChildIsMatchParentVerticalFullSpan_childrenAreInsideParent()
+            throws Throwable {
+        layout_rvHasPaddingChildIsMatchParent_childrenAreInsideParent(VERTICAL, true);
+    }
+
+    @Test
+    public void layout_rvHasPaddingChildIsMatchParentHorizontalFullSpan_childrenAreInsideParent()
+            throws Throwable {
+        layout_rvHasPaddingChildIsMatchParent_childrenAreInsideParent(HORIZONTAL, true);
+    }
+
+    private void layout_rvHasPaddingChildIsMatchParent_childrenAreInsideParent(
+            final int orientation, final boolean fullSpan)
+            throws Throwable {
+
+        setupByConfig(new Config(orientation, false, 1, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS),
+                new GridTestAdapter(10, orientation) {
+
+                    @Override
+                    public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                        View view = new View(parent.getContext());
+                        StaggeredGridLayoutManager.LayoutParams layoutParams =
+                                new StaggeredGridLayoutManager.LayoutParams(
+                                        ViewGroup.LayoutParams.MATCH_PARENT,
+                                        ViewGroup.LayoutParams.MATCH_PARENT);
+                        layoutParams.setFullSpan(fullSpan);
+                        view.setLayoutParams(layoutParams);
+                        return new TestViewHolder(view);
+                    }
+
+                    @Override
+                    public void onBindViewHolder(TestViewHolder holder, int position) {
+                        // No actual binding needed, but we need to override this to prevent default
+                        // behavior of GridTestAdapter.
+                    }
+                });
+        mRecyclerView.setPadding(1, 2, 3, 4);
+
+        waitFirstLayout();
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int childDimension;
+                int recyclerViewDimensionMinusPadding;
+                if (orientation == VERTICAL) {
+                    childDimension = mRecyclerView.getChildAt(0).getHeight();
+                    recyclerViewDimensionMinusPadding = mRecyclerView.getHeight()
+                            - mRecyclerView.getPaddingTop()
+                            - mRecyclerView.getPaddingBottom();
+                } else {
+                    childDimension = mRecyclerView.getChildAt(0).getWidth();
+                    recyclerViewDimensionMinusPadding = mRecyclerView.getWidth()
+                            - mRecyclerView.getPaddingLeft()
+                            - mRecyclerView.getPaddingRight();
+                }
+                assertThat(childDimension, equalTo(recyclerViewDimensionMinusPadding));
+            }
+        });
+    }
+
     @Test
     public void forceLayoutOnDetach() throws Throwable {
         setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS));

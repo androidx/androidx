@@ -16,13 +16,14 @@ package android.support.v4.app {
     method public void setStyle(int, int);
     method public void show(android.support.v4.app.FragmentManager, java.lang.String);
     method public int show(android.support.v4.app.FragmentTransaction, java.lang.String);
+    method public void showNow(android.support.v4.app.FragmentManager, java.lang.String);
     field public static final int STYLE_NORMAL = 0; // 0x0
     field public static final int STYLE_NO_FRAME = 2; // 0x2
     field public static final int STYLE_NO_INPUT = 3; // 0x3
     field public static final int STYLE_NO_TITLE = 1; // 0x1
   }
 
-  public class Fragment implements android.content.ComponentCallbacks android.view.View.OnCreateContextMenuListener {
+  public class Fragment implements android.content.ComponentCallbacks android.arch.lifecycle.LifecycleOwner android.view.View.OnCreateContextMenuListener android.arch.lifecycle.ViewModelStoreOwner {
     ctor public Fragment();
     method public void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public final boolean equals(java.lang.Object);
@@ -55,6 +56,7 @@ package android.support.v4.app {
     method public final java.lang.CharSequence getText(int);
     method public boolean getUserVisibleHint();
     method public android.view.View getView();
+    method public android.arch.lifecycle.ViewModelStore getViewModelStore();
     method public final int hashCode();
     method public static android.support.v4.app.Fragment instantiate(android.content.Context, java.lang.String);
     method public static android.support.v4.app.Fragment instantiate(android.content.Context, java.lang.String, android.os.Bundle);
@@ -104,6 +106,10 @@ package android.support.v4.app {
     method public void postponeEnterTransition();
     method public void registerForContextMenu(android.view.View);
     method public final void requestPermissions(java.lang.String[], int);
+    method public final android.support.v4.app.FragmentActivity requireActivity();
+    method public final android.content.Context requireContext();
+    method public final android.support.v4.app.FragmentManager requireFragmentManager();
+    method public final java.lang.Object requireHost();
     method public void setAllowEnterTransitionOverlap(boolean);
     method public void setAllowReturnTransitionOverlap(boolean);
     method public void setArguments(android.os.Bundle);
@@ -141,11 +147,12 @@ package android.support.v4.app {
     field public static final android.os.Parcelable.Creator<android.support.v4.app.Fragment.SavedState> CREATOR;
   }
 
-  public class FragmentActivity extends android.support.v4.app.SupportActivity {
+  public class FragmentActivity extends android.support.v4.app.SupportActivity implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback android.support.v4.app.ActivityCompat.RequestPermissionsRequestCodeValidator android.arch.lifecycle.ViewModelStoreOwner {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
     method public android.support.v4.app.LoaderManager getSupportLoaderManager();
+    method public android.arch.lifecycle.ViewModelStore getViewModelStore();
     method public void onAttachFragment(android.support.v4.app.Fragment);
     method public void onMultiWindowModeChanged(boolean);
     method public void onPictureInPictureModeChanged(boolean);
@@ -173,7 +180,7 @@ package android.support.v4.app {
 
   public class FragmentController {
     method public void attachHost(android.support.v4.app.Fragment);
-    method public static final android.support.v4.app.FragmentController createController(android.support.v4.app.FragmentHostCallback<?>);
+    method public static android.support.v4.app.FragmentController createController(android.support.v4.app.FragmentHostCallback<?>);
     method public void dispatchActivityCreated();
     method public void dispatchConfigurationChanged(android.content.res.Configuration);
     method public boolean dispatchContextItemSelected(android.view.MenuItem);
@@ -192,24 +199,24 @@ package android.support.v4.app {
     method public void dispatchResume();
     method public void dispatchStart();
     method public void dispatchStop();
-    method public void doLoaderDestroy();
-    method public void doLoaderRetain();
-    method public void doLoaderStart();
-    method public void doLoaderStop(boolean);
-    method public void dumpLoaders(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
+    method public deprecated void doLoaderDestroy();
+    method public deprecated void doLoaderRetain();
+    method public deprecated void doLoaderStart();
+    method public deprecated void doLoaderStop(boolean);
+    method public deprecated void dumpLoaders(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public boolean execPendingActions();
     method public android.support.v4.app.Fragment findFragmentByWho(java.lang.String);
     method public java.util.List<android.support.v4.app.Fragment> getActiveFragments(java.util.List<android.support.v4.app.Fragment>);
     method public int getActiveFragmentsCount();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
-    method public android.support.v4.app.LoaderManager getSupportLoaderManager();
+    method public deprecated android.support.v4.app.LoaderManager getSupportLoaderManager();
     method public void noteStateNotSaved();
     method public android.view.View onCreateView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
-    method public void reportLoaderStart();
+    method public deprecated void reportLoaderStart();
     method public deprecated void restoreAllState(android.os.Parcelable, java.util.List<android.support.v4.app.Fragment>);
     method public void restoreAllState(android.os.Parcelable, android.support.v4.app.FragmentManagerNonConfig);
-    method public void restoreLoaderNonConfig(android.support.v4.util.SimpleArrayMap<java.lang.String, android.support.v4.app.LoaderManager>);
-    method public android.support.v4.util.SimpleArrayMap<java.lang.String, android.support.v4.app.LoaderManager> retainLoaderNonConfig();
+    method public deprecated void restoreLoaderNonConfig(android.support.v4.util.SimpleArrayMap<java.lang.String, android.support.v4.app.LoaderManager>);
+    method public deprecated android.support.v4.util.SimpleArrayMap<java.lang.String, android.support.v4.app.LoaderManager> retainLoaderNonConfig();
     method public android.support.v4.app.FragmentManagerNonConfig retainNestedNonConfig();
     method public deprecated java.util.List<android.support.v4.app.Fragment> retainNonConfig();
     method public android.os.Parcelable saveAllState();

@@ -43,55 +43,55 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
         CursorFilter.CursorFilterClient {
     /**
      * This field should be made private, so it is hidden from the SDK.
-     * {@hide}
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     protected boolean mDataValid;
     /**
      * This field should be made private, so it is hidden from the SDK.
-     * {@hide}
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     protected boolean mAutoRequery;
     /**
      * This field should be made private, so it is hidden from the SDK.
-     * {@hide}
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     protected Cursor mCursor;
     /**
      * This field should be made private, so it is hidden from the SDK.
-     * {@hide}
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     protected Context mContext;
     /**
      * This field should be made private, so it is hidden from the SDK.
-     * {@hide}
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     protected int mRowIDColumn;
     /**
      * This field should be made private, so it is hidden from the SDK.
-     * {@hide}
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     protected ChangeObserver mChangeObserver;
     /**
      * This field should be made private, so it is hidden from the SDK.
-     * {@hide}
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     protected DataSetObserver mDataSetObserver;
     /**
      * This field should be made private, so it is hidden from the SDK.
-     * {@hide}
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     protected CursorFilter mCursorFilter;
     /**
      * This field should be made private, so it is hidden from the SDK.
-     * {@hide}
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     protected FilterQueryProvider mFilterQueryProvider;

@@ -22,6 +22,7 @@ import android.support.annotation.AnyThread;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.widget.SpannableBuilder;
@@ -40,6 +41,8 @@ import android.view.inputmethod.InputConnection;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Processes the CharSequence and adds the emojis.
@@ -90,14 +93,29 @@ final class EmojiProcessor {
      */
     private GlyphChecker mGlyphChecker = new GlyphChecker();
 
+    /**
+     * @see EmojiCompat.Config#setUseEmojiAsDefaultStyle(boolean)
+     */
+    private final boolean mUseEmojiAsDefaultStyle;
+
+    /**
+     * @see EmojiCompat.Config#setUseEmojiAsDefaultStyle(boolean, List)
+     */
+    private final int[] mEmojiAsDefaultStyleExceptions;
+
     EmojiProcessor(@NonNull final MetadataRepo metadataRepo,
-            @NonNull final EmojiCompat.SpanFactory spanFactory) {
+            @NonNull final EmojiCompat.SpanFactory spanFactory,
+            final boolean useEmojiAsDefaultStyle,
+            @Nullable final int[] emojiAsDefaultStyleExceptions) {
         mSpanFactory = spanFactory;
         mMetadataRepo = metadataRepo;
+        mUseEmojiAsDefaultStyle = useEmojiAsDefaultStyle;
+        mEmojiAsDefaultStyleExceptions = emojiAsDefaultStyleExceptions;
     }
 
     EmojiMetadata getEmojiMetadata(@NonNull final CharSequence charSequence) {
-        final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode());
+        final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode(),
+                mUseEmojiAsDefaultStyle, mEmojiAsDefaultStyleExceptions);
         final int end = charSequence.length();
         int currentOffset = 0;
 
@@ -189,7 +207,8 @@ final class EmojiProcessor {
             }
             // add new ones
             int addedCount = 0;
-            final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode());
+            final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode(),
+                    mUseEmojiAsDefaultStyle, mEmojiAsDefaultStyleExceptions);
 
             int currentOffset = start;
             int codePoint = Character.codePointAt(charSequence, currentOffset);
@@ -483,9 +502,22 @@ final class EmojiProcessor {
          */
         private int mCurrentDepth;
 
-        ProcessorSm(MetadataRepo.Node rootNode) {
+        /**
+         * @see EmojiCompat.Config#setUseEmojiAsDefaultStyle(boolean)
+         */
+        private final boolean mUseEmojiAsDefaultStyle;
+
+        /**
+         * @see EmojiCompat.Config#setUseEmojiAsDefaultStyle(boolean, List)
+         */
+        private final int[] mEmojiAsDefaultStyleExceptions;
+
+        ProcessorSm(MetadataRepo.Node rootNode, boolean useEmojiAsDefaultStyle,
+                int[] emojiAsDefaultStyleExceptions) {
             mRootNode = rootNode;
             mCurrentNode = rootNode;
+            mUseEmojiAsDefaultStyle = useEmojiAsDefaultStyle;
+            mEmojiAsDefaultStyleExceptions = emojiAsDefaultStyleExceptions;
         }
 
         @Action
@@ -505,8 +537,7 @@ final class EmojiProcessor {
                             action = ACTION_ADVANCE_END;
                         } else if (mCurrentNode.getData() != null) {
                             if (mCurrentDepth == 1) {
-                                if (mCurrentNode.getData().isDefaultEmoji()
-                                        || isEmojiStyle(mLastCodepoint)) {
+                                if (shouldUseEmojiPresentationStyleForSingleCodepoint()) {
                                     mFlushNode = mCurrentNode;
                                     action = ACTION_FLUSH;
                                     reset();
@@ -571,9 +602,32 @@ final class EmojiProcessor {
          */
         boolean isInFlushableState() {
             return mState == STATE_WALKING && mCurrentNode.getData() != null
-                    && (mCurrentNode.getData().isDefaultEmoji()
-                    || isEmojiStyle(mLastCodepoint)
-                    || mCurrentDepth > 1);
+                    && (mCurrentDepth > 1 || shouldUseEmojiPresentationStyleForSingleCodepoint());
+        }
+
+        private boolean shouldUseEmojiPresentationStyleForSingleCodepoint() {
+            if (mCurrentNode.getData().isDefaultEmoji()) {
+                // The codepoint is emoji style by default.
+                return true;
+            }
+            if (isEmojiStyle(mLastCodepoint)) {
+                // The codepoint was followed by the emoji style variation selector.
+                return true;
+            }
+            if (mUseEmojiAsDefaultStyle) {
+                // Emoji presentation style for text style default emojis is enabled. We have
+                // to check that the current codepoint is not an exception.
+                if (mEmojiAsDefaultStyleExceptions == null) {
+                    return true;
+                }
+                final int codepoint = mCurrentNode.getData().getCodepointAt(0);
+                final int index = Arrays.binarySearch(mEmojiAsDefaultStyleExceptions, codepoint);
+                if (index < 0) {
+                    // Index is negative, so the codepoint was not found in the array of exceptions.
+                    return true;
+                }
+            }
+            return false;
         }
 
         /**

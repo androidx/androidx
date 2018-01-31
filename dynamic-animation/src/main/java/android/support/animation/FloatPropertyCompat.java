@@ -16,7 +16,7 @@
 
 package android.support.animation;
 
-import android.annotation.TargetApi;
+import android.support.annotation.RequiresApi;
 import android.util.FloatProperty;
 
 /**
@@ -51,7 +51,7 @@ public abstract class FloatPropertyCompat<T> {
      * @param <T> the class on which the Property is declared
      * @return a new {@link FloatPropertyCompat} wrapper for the given {@link FloatProperty} object
      */
-    @TargetApi(24)
+    @RequiresApi(24)
     public static <T> FloatPropertyCompat<T> createFloatPropertyCompat(
             final FloatProperty<T> property) {
         return new FloatPropertyCompat<T>(property.getName()) {

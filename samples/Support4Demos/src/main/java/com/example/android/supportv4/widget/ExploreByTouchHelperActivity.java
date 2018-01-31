@@ -16,7 +16,6 @@
 
 package com.example.android.supportv4.widget;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -26,7 +25,6 @@ import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
@@ -115,7 +113,6 @@ public class ExploreByTouchHelperActivity extends Activity {
             ViewCompat.setAccessibilityDelegate(this, mTouchHelper);
         }
 
-        @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
         @Override
         public boolean dispatchHoverEvent(MotionEvent event) {
             // Always attempt to dispatch hover events to accessibility first.

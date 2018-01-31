@@ -16,6 +16,8 @@
 
 package android.support.v4.view;
 
+import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.Window;
 
@@ -59,4 +61,29 @@ public final class WindowCompat {
     public static final int FEATURE_ACTION_MODE_OVERLAY = 10;
 
     private WindowCompat() {}
+
+    /**
+     * Finds a view that was identified by the {@code android:id} XML attribute
+     * that was processed in {@link android.app.Activity#onCreate}, or throws an
+     * IllegalArgumentException if the ID is invalid, or there is no matching view in the hierarchy.
+     * <p>
+     * <strong>Note:</strong> In most cases -- depending on compiler support --
+     * the resulting view is automatically cast to the target class type. If
+     * the target class type is unconstrained, an explicit cast may be
+     * necessary.
+     *
+     * @param id the ID to search for
+     * @return a view with given ID
+     * @see ViewCompat#requireViewById(View, int)
+     * @see Window#findViewById(int)
+     */
+    @NonNull
+    public static <T extends View> T requireViewById(@NonNull Window window, @IdRes int id) {
+        // TODO: use and link to Window#requireViewById() directly, once available
+        T view = window.findViewById(id);
+        if (view == null) {
+            throw new IllegalArgumentException("ID does not reference a View inside this Window");
+        }
+        return view;
+    }
 }

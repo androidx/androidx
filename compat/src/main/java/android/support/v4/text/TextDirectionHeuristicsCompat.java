@@ -111,7 +111,7 @@ public final class TextDirectionHeuristicsCompat {
     private static abstract class TextDirectionHeuristicImpl implements TextDirectionHeuristicCompat {
         private final TextDirectionAlgorithm mAlgorithm;
 
-        public TextDirectionHeuristicImpl(TextDirectionAlgorithm algorithm) {
+        TextDirectionHeuristicImpl(TextDirectionAlgorithm algorithm) {
             mAlgorithm = algorithm;
         }
 
@@ -166,7 +166,7 @@ public final class TextDirectionHeuristicsCompat {
     /**
      * Interface for an algorithm to guess the direction of a paragraph of text.
      */
-    private static interface TextDirectionAlgorithm {
+    private interface TextDirectionAlgorithm {
         /**
          * Returns whether the range of text is RTL according to the algorithm.
          */
@@ -190,7 +190,7 @@ public final class TextDirectionHeuristicsCompat {
         private FirstStrong() {
         }
 
-        public static final FirstStrong INSTANCE = new FirstStrong();
+        static final FirstStrong INSTANCE = new FirstStrong();
     }
 
     /**
@@ -232,8 +232,8 @@ public final class TextDirectionHeuristicsCompat {
             this.mLookForRtl = lookForRtl;
         }
 
-        public static final AnyStrong INSTANCE_RTL = new AnyStrong(true);
-        public static final AnyStrong INSTANCE_LTR = new AnyStrong(false);
+        static final AnyStrong INSTANCE_RTL = new AnyStrong(true);
+        static final AnyStrong INSTANCE_LTR = new AnyStrong(false);
     }
 
     /**
@@ -241,7 +241,7 @@ public final class TextDirectionHeuristicsCompat {
      */
     private static class TextDirectionHeuristicLocale extends TextDirectionHeuristicImpl {
 
-        public TextDirectionHeuristicLocale() {
+        TextDirectionHeuristicLocale() {
             super(null);
         }
 
@@ -251,7 +251,7 @@ public final class TextDirectionHeuristicsCompat {
             return (dir == ViewCompat.LAYOUT_DIRECTION_RTL);
         }
 
-        public static final TextDirectionHeuristicLocale INSTANCE =
+        static final TextDirectionHeuristicLocale INSTANCE =
                 new TextDirectionHeuristicLocale();
     }
 

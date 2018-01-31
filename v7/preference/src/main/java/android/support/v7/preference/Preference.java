@@ -16,6 +16,7 @@
 
 package android.support.v7.preference;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
@@ -1297,6 +1298,7 @@ public class Preference implements Comparable<Preference> {
      * preference was removed, modified, and re-added to a {@link PreferenceGroup}
      * @hide
      */
+    @RestrictTo(LIBRARY)
     public final boolean wasDetached() {
         return mWasDetached;
     }
@@ -1305,6 +1307,7 @@ public class Preference implements Comparable<Preference> {
      * Clears the {@link #wasDetached()} status
      * @hide
      */
+    @RestrictTo(LIBRARY)
     public final void clearWasDetached() {
         mWasDetached = false;
     }

@@ -17,16 +17,14 @@
 package android.support.v4.os;
 
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertSame;
-import static junit.framework.TestCase.fail;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -262,7 +260,6 @@ public class LocaleListCompatTest {
     }
 
     @SdkSuppress(minSdkVersion = 24)
-    @TargetApi(24)
     @Test
     public void testGetFirstMatch_oneChineseAsset() {
         String[] oneChineseAsset = {"zh-CN"};  // Assumed to mean zh-Hans-CN
@@ -300,7 +297,6 @@ public class LocaleListCompatTest {
     }
 
     @SdkSuppress(minSdkVersion = 24)
-    @TargetApi(24)
     @Test
     public void testGetFirstMatch_serbianCyrillic() {
         String[] oneSerbianAsset = {"sr"};  // Assumed to mean sr-Cyrl-RS

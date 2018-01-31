@@ -16,8 +16,9 @@
 
 package android.support.v4.util;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -48,4 +49,12 @@ public class ObjectsCompatTest {
         assertTrue(ObjectsCompat.equals(a, c));
     }
 
+    @Test
+    public void testHashCode() {
+        String a = "aaa";
+        String n = null;
+
+        assertEquals(ObjectsCompat.hashCode(a), a.hashCode());
+        assertEquals(ObjectsCompat.hashCode(n), 0);
+    }
 }

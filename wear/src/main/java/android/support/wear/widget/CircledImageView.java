@@ -19,7 +19,6 @@ package android.support.wear.widget;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -32,7 +31,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.Px;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.RestrictTo.Scope;
@@ -47,8 +45,7 @@ import java.util.Objects;
  *
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.M)
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 public class CircledImageView extends View {
 
     private static final ArgbEvaluator ARGB_EVALUATOR = new ArgbEvaluator();
@@ -133,13 +130,9 @@ public class CircledImageView extends View {
         if (mDrawable != null && mDrawable.getConstantState() != null) {
             // The provided Drawable may be used elsewhere, so make a mutable clone before setTint()
             // or setAlpha() is called on it.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mDrawable =
-                        mDrawable.getConstantState()
-                                .newDrawable(context.getResources(), context.getTheme());
-            } else {
-                mDrawable = mDrawable.getConstantState().newDrawable(context.getResources());
-            }
+            mDrawable =
+                    mDrawable.getConstantState()
+                            .newDrawable(context.getResources(), context.getTheme());
             mDrawable = mDrawable.mutate();
         }
 

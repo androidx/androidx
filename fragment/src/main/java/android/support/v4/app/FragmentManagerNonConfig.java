@@ -17,6 +17,7 @@
 
 package android.support.v4.app;
 
+import android.arch.lifecycle.ViewModelStore;
 import android.os.Parcelable;
 
 import java.util.List;
@@ -33,11 +34,14 @@ import java.util.List;
 public class FragmentManagerNonConfig {
     private final List<Fragment> mFragments;
     private final List<FragmentManagerNonConfig> mChildNonConfigs;
+    private final List<ViewModelStore> mViewModelStores;
 
     FragmentManagerNonConfig(List<Fragment> fragments,
-            List<FragmentManagerNonConfig> childNonConfigs) {
+            List<FragmentManagerNonConfig> childNonConfigs,
+            List<ViewModelStore> viewModelStores) {
         mFragments = fragments;
         mChildNonConfigs = childNonConfigs;
+        mViewModelStores = viewModelStores;
     }
 
     /**
@@ -52,5 +56,12 @@ public class FragmentManagerNonConfig {
      */
     List<FragmentManagerNonConfig> getChildNonConfigs() {
         return mChildNonConfigs;
+    }
+
+    /**
+     * @return the ViewModelStores for all fragments associated with the FragmentManager
+     */
+    List<ViewModelStore> getViewModelStores() {
+        return mViewModelStores;
     }
 }

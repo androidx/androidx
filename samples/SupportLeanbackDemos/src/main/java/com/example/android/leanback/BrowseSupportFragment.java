@@ -147,7 +147,6 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         ListRowPresenter listRowPresenter = new ListRowPresenter();
         listRowPresenter.setNumRows(1);
         mRowsAdapter = new ArrayObjectAdapter(listRowPresenter);
-        setAdapter(mRowsAdapter);
     }
 
     private void loadData() {
@@ -167,6 +166,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         mRowsAdapter.add(new PageRow(new HeaderItem(HEADER_ID2, "Page Row 1")));
 
         mRowsAdapter.add(new PageRow(new HeaderItem(HEADER_ID3, "Page Row 2")));
+        setAdapter(mRowsAdapter);
     }
 
     private ArrayObjectAdapter createListRowAdapter(int i) {
@@ -276,7 +276,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         final CardPresenter mCardPresenter2 = new CardPresenter(R.style.MyImageCardViewTheme);
 
         void loadFragmentData() {
-            ArrayObjectAdapter adapter = (ArrayObjectAdapter) getAdapter();
+            ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ListRowPresenter());
             for (int i = 0; i < 4; i++) {
                 ListRow row = new ListRow(new HeaderItem("Row " + i), createListRowAdapter(i));
                 adapter.add(row);
@@ -285,11 +285,10 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
                 getMainFragmentAdapter().getFragmentHost()
                         .notifyDataReady(getMainFragmentAdapter());
             }
+            setAdapter(adapter);
         }
 
         public SampleRowsSupportFragment() {
-            ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ListRowPresenter());
-            setAdapter(adapter);
             // simulates late data loading:
             new Handler().postDelayed(new Runnable() {
                 @Override

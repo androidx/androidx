@@ -20,6 +20,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Contacts.People;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
@@ -146,6 +147,7 @@ public class LoaderCursorSupport extends FragmentActivity {
             People.DISPLAY_NAME,
         };
 
+        @NonNull
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             // This is called when a new Loader needs to be created.  This
             // sample only has one Loader, so we don't care about the ID.
@@ -167,7 +169,7 @@ public class LoaderCursorSupport extends FragmentActivity {
                     People.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
         }
 
-        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
             // Swap the new cursor in.  (The framework will take care of closing the
             // old cursor once we return.)
             mAdapter.swapCursor(data);
@@ -180,7 +182,7 @@ public class LoaderCursorSupport extends FragmentActivity {
             }
         }
 
-        public void onLoaderReset(Loader<Cursor> loader) {
+        public void onLoaderReset(@NonNull Loader<Cursor> loader) {
             // This is called when the last Cursor provided to onLoadFinished()
             // above is about to be closed.  We need to make sure we are no
             // longer using it.

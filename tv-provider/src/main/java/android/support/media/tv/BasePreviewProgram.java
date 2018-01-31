@@ -15,22 +15,21 @@
  */
 package android.support.media.tv;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.IntDef;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.PreviewProgramColumns;
-import android.support.media.tv.TvContractCompat.PreviewProgramColumns.AspectRatio;
-import android.support.media.tv.TvContractCompat.PreviewProgramColumns.Availability;
-import android.support.media.tv.TvContractCompat.PreviewProgramColumns.InteractionType;
-import android.support.media.tv.TvContractCompat.PreviewProgramColumns.Type;
 import android.support.media.tv.TvContractCompat.PreviewPrograms;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,7 +40,7 @@ import java.util.TimeZone;
  *
  * @hide
  */
-@TargetApi(26)
+@RestrictTo(LIBRARY)
 public abstract class BasePreviewProgram extends BaseProgram {
     /**
      * @hide
@@ -54,6 +53,89 @@ public abstract class BasePreviewProgram extends BaseProgram {
     private static final int IS_TRANSIENT = 1;
     private static final int IS_LIVE = 1;
     private static final int IS_BROWSABLE = 1;
+
+    /** @hide */
+    @IntDef({
+            TYPE_UNKNOWN,
+            PreviewProgramColumns.TYPE_MOVIE,
+            PreviewProgramColumns.TYPE_TV_SERIES,
+            PreviewProgramColumns.TYPE_TV_SEASON,
+            PreviewProgramColumns.TYPE_TV_EPISODE,
+            PreviewProgramColumns.TYPE_CLIP,
+            PreviewProgramColumns.TYPE_EVENT,
+            PreviewProgramColumns.TYPE_CHANNEL,
+            PreviewProgramColumns.TYPE_TRACK,
+            PreviewProgramColumns.TYPE_ALBUM,
+            PreviewProgramColumns.TYPE_ARTIST,
+            PreviewProgramColumns.TYPE_PLAYLIST,
+            PreviewProgramColumns.TYPE_STATION,
+            PreviewProgramColumns.TYPE_GAME
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    public @interface Type {}
+
+    /**
+     * The unknown program type.
+     */
+    private static final int TYPE_UNKNOWN = -1;
+
+    /** @hide */
+    @IntDef({
+            ASPECT_RATIO_UNKNOWN,
+            PreviewProgramColumns.ASPECT_RATIO_16_9,
+            PreviewProgramColumns.ASPECT_RATIO_3_2,
+            PreviewProgramColumns.ASPECT_RATIO_4_3,
+            PreviewProgramColumns.ASPECT_RATIO_1_1,
+            PreviewProgramColumns.ASPECT_RATIO_2_3,
+            PreviewProgramColumns.ASPECT_RATIO_MOVIE_POSTER
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    public @interface AspectRatio {}
+
+    /**
+     * The aspect ratio for unknown aspect ratios.
+     */
+    private static final int ASPECT_RATIO_UNKNOWN = -1;
+
+    /** @hide */
+    @IntDef({
+            AVAILABILITY_UNKNOWN,
+            PreviewProgramColumns.AVAILABILITY_AVAILABLE,
+            PreviewProgramColumns.AVAILABILITY_FREE_WITH_SUBSCRIPTION,
+            PreviewProgramColumns.AVAILABILITY_PAID_CONTENT,
+            PreviewProgramColumns.AVAILABILITY_PURCHASED,
+            PreviewProgramColumns.AVAILABILITY_FREE
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    public @interface Availability {}
+
+    /**
+     * The unknown availability.
+     */
+    private static final int AVAILABILITY_UNKNOWN = -1;
+
+    /** @hide */
+    @IntDef({
+            INTERACTION_TYPE_UNKNOWN,
+            PreviewProgramColumns.INTERACTION_TYPE_VIEWS,
+            PreviewProgramColumns.INTERACTION_TYPE_LISTENS,
+            PreviewProgramColumns.INTERACTION_TYPE_FOLLOWERS,
+            PreviewProgramColumns.INTERACTION_TYPE_FANS,
+            PreviewProgramColumns.INTERACTION_TYPE_LIKES,
+            PreviewProgramColumns.INTERACTION_TYPE_THUMBS,
+            PreviewProgramColumns.INTERACTION_TYPE_VIEWERS,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    public @interface InteractionType {}
+
+    /**
+     * The unknown interaction type.
+     */
+    private static final int INTERACTION_TYPE_UNKNOWN = -1;
 
     BasePreviewProgram(Builder builder) {
         super(builder);
@@ -127,7 +209,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
      */
     public @Type int getType() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_TYPE);
-        return i == null ? INVALID_INT_VALUE : i;
+        return i == null ? TYPE_UNKNOWN : i;
     }
 
     /**
@@ -137,7 +219,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
      */
     public @AspectRatio int getPosterArtAspectRatio() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_POSTER_ART_ASPECT_RATIO);
-        return i == null ? INVALID_INT_VALUE : i;
+        return i == null ? ASPECT_RATIO_UNKNOWN : i;
     }
 
     /**
@@ -147,7 +229,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
      */
     public @AspectRatio int getThumbnailAspectRatio() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_THUMBNAIL_ASPECT_RATIO);
-        return i == null ? INVALID_INT_VALUE : i;
+        return i == null ? ASPECT_RATIO_UNKNOWN : i;
     }
 
     /**
@@ -165,7 +247,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
      */
     public @Availability int getAvailability() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_AVAILABILITY);
-        return i == null ? INVALID_INT_VALUE : i;
+        return i == null ? AVAILABILITY_UNKNOWN : i;
     }
 
     /**
@@ -216,7 +298,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
      */
     public @InteractionType int getInteractionType() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_INTERACTION_TYPE);
-        return i == null ? INVALID_INT_VALUE : i;
+        return i == null ? INTERACTION_TYPE_UNKNOWN : i;
     }
 
     /**

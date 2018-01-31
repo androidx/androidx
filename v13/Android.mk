@@ -27,15 +27,17 @@ LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v13
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := \
-        $(call all-java-files-under, java)
+        $(call all-java-files-under, src/main/java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_MANIFEST_FILE := src/main/AndroidManifest.xml
 # Some projects expect to inherit android-support-v4 from
 # android-support-v13, so we need to keep it static until they can be fixed.
 LOCAL_STATIC_ANDROID_LIBRARIES := \
         android-support-v4
+LOCAL_JAVA_LIBRARIES := \
+    android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
-        android-support-v4 \
-        android-support-annotations
+        android-support-v4
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly
 LOCAL_JAR_EXCLUDE_FILES := none

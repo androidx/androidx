@@ -2560,12 +2560,16 @@ public final class MediaRouter {
             // TODO: Remove the following logging when no longer needed.
             if (sGlobal == null || (mBluetoothRoute != null && route.isDefault())) {
                 final StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 // callStack[3] is the caller of this method.
                 for (int i = 3; i < callStack.length; i++) {
                     StackTraceElement caller = callStack[i];
-                    sb.append(caller.getClassName() + "." + caller.getMethodName()
-                            + ":" + caller.getLineNumber()).append("  ");
+                    sb.append(caller.getClassName())
+                            .append(".")
+                            .append(caller.getMethodName())
+                            .append(":")
+                            .append(caller.getLineNumber())
+                            .append("  ");
                 }
                 if (sGlobal == null) {
                     Log.w(TAG, "setSelectedRouteInternal is called while sGlobal is null: pkgName="

@@ -30,6 +30,7 @@ import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -185,6 +186,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
         try {
             observer.onStateChanged(mOwner, ON_START);
+            fail();
         } catch (Exception e) {
             assertThat("exception cause is wrong",
                     e.getCause() instanceof UnprecedentedError);
@@ -247,13 +249,14 @@ public class ReflectiveGenericLifecycleObserverTest {
         new ReflectiveGenericLifecycleObserver(observer);
     }
 
-    class BaseClass1 implements LifecycleObserver {
+    static class BaseClass1 implements LifecycleObserver {
         @OnLifecycleEvent(ON_START)
         void foo(LifecycleOwner owner) {
         }
     }
 
-    class DerivedClass1 extends BaseClass1 {
+    static class DerivedClass1 extends BaseClass1 {
+        @Override
         @OnLifecycleEvent(ON_STOP)
         void foo(LifecycleOwner owner) {
         }
@@ -264,13 +267,13 @@ public class ReflectiveGenericLifecycleObserverTest {
         new ReflectiveGenericLifecycleObserver(new DerivedClass1());
     }
 
-    class BaseClass2 implements LifecycleObserver {
+    static class BaseClass2 implements LifecycleObserver {
         @OnLifecycleEvent(ON_START)
         void foo(LifecycleOwner owner) {
         }
     }
 
-    class DerivedClass2 extends BaseClass1 {
+    static class DerivedClass2 extends BaseClass1 {
         @OnLifecycleEvent(ON_STOP)
         void foo() {
         }
@@ -289,7 +292,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         verify(obj, never()).foo(Matchers.<LifecycleOwner>any());
     }
 
-    class BaseClass3 implements LifecycleObserver {
+    static class BaseClass3 implements LifecycleObserver {
         @OnLifecycleEvent(ON_START)
         void foo(LifecycleOwner owner) {
         }
@@ -300,7 +303,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         void foo(LifecycleOwner owner);
     }
 
-    class DerivedClass3 extends BaseClass3 implements Interface3 {
+    static class DerivedClass3 extends BaseClass3 implements Interface3 {
         @Override
         public void foo(LifecycleOwner owner) {
         }
@@ -311,7 +314,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         new ReflectiveGenericLifecycleObserver(new DerivedClass3());
     }
 
-    class BaseClass4 implements LifecycleObserver {
+    static class BaseClass4 implements LifecycleObserver {
         @OnLifecycleEvent(ON_START)
         void foo(LifecycleOwner owner) {
         }
@@ -322,7 +325,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         void foo(LifecycleOwner owner);
     }
 
-    class DerivedClass4 extends BaseClass4 implements Interface4 {
+    static class DerivedClass4 extends BaseClass4 implements Interface4 {
         @Override
         @OnLifecycleEvent(ON_START)
         public void foo(LifecycleOwner owner) {
@@ -352,7 +355,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         void foo(LifecycleOwner owner);
     }
 
-    class DerivedClass5 implements InterfaceStart, InterfaceStop {
+    static class DerivedClass5 implements InterfaceStart, InterfaceStop {
         @Override
         public void foo(LifecycleOwner owner) {
         }

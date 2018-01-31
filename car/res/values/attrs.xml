@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+    <!-- The configurable attributes for a ColumnCardView. -->
+    <declare-styleable name="ColumnCardView">
+        <!-- The number of columns that this ColumnCardView should span across. This value will
+             determine the width of the card. -->
+        <attr name="columnSpan" format="integer" />
+    </declare-styleable>
+
+    <!-- The configurable attributes in PagedListView. -->
+    <declare-styleable name="PagedListView">
+        <!-- Whether or not to offset the list view by the width of scroll bar. Setting this to
+             true will ensure that any views within the list will not overlap the scroll bar.
+             Deprecated: use gutter instead. If gutter is specified, this value is ignored.-->
+        <attr name="offsetScrollBar" format="boolean" />
+        <!-- Whether to include a gutter to the start, end or both sides of the list view items.
+             The gutter width will be the width of the scrollbar, and by default will be set to
+             both. -->
+        <attr name="gutter" format="enum">
+            <!-- No gutter on either side, the list view items will extend the full width of the
+                 PagedListView. -->
+            <enum name="none" value="0" />
+            <!-- Include a gutter on the start side only (i.e. the side with the scrollbar). -->
+            <enum name="start" value="1" />
+            <!-- Include a gutter on the end side only (i.e. the opposite side to the
+                 scrollbar). -->
+            <enum name="end" value="2" />
+            <!-- Include a gutter on both sides of the list view items. -->
+            <enum name="both" value="3" />
+        </attr>
+        <!-- The size of the gutter that is either at the start, end or both sides of the
+             items in the PagedListView. There is a default value that changes per screen size if
+             a gutter size is not explicitly set.-->
+        <attr name="gutterSize" format="dimension" />
+        <!-- Whether to display the scrollbar or not. Defaults to true. -->
+        <attr name="scrollBarEnabled" format="boolean" />
+        <!-- The top margin before the scroll bar is drawn. -->
+        <attr name="scrollBarTopMargin" format="dimension" />
+        <!-- The width of the container that will hold the scrollbar. The scrollbar is centered
+             within this value. If this value is not explicitly set, the scrollbar centers itself
+             within the car_margin value. -->
+        <attr name="scrollBarContainerWidth" format="dimension" />
+        <!-- Whether or not to show a diving line between each item of the list. -->
+        <attr name="showPagedListViewDivider" format="boolean" />
+        <!-- An optional id that specifies a child View whose starting edge will be used to
+             determine the start position of the dividing line. -->
+        <attr name="alignDividerStartTo" format="reference" />
+        <!-- An optional id that specifies a child View whose ending edge will be used to
+             determine the end position of the dividing line. -->
+        <attr name="alignDividerEndTo" format="reference" />
+        <!-- A starting margin before the drawing of the dividing line. This margin will be an
+             offset from the view specified by "alignDividerStartTo" if given. -->
+        <attr name="dividerStartMargin" format="dimension" />
+        <!-- The width of the margin on the right side of the list.
+             Deprecated: use gutter instead. If gutter is specified, this value is ignored.-->
+        <attr name="listEndMargin" format="dimension" />
+        <!-- An optional spacing between items in the list -->
+        <attr name="itemSpacing" format="dimension" />
+        <!-- The icon to be used for the up button of the scroll bar. -->
+        <attr name="upButtonIcon" format="reference" />
+        <!-- The icon to be used for the down button of the scroll bar.  -->
+        <attr name="downButtonIcon" format="reference" />
+        <!-- The amount of space before the first item in the list view. This space is
+             scrollable with the contents of the list. -->
+        <attr name="listContentTopOffset" format="reference" />
+    </declare-styleable>
+
+    <!-- The attributes for customizing the appearance of the hamburger and back arrow in the
+       drawer. -->
+    <declare-styleable name="DrawerArrowDrawable">
+        <!-- The color of the arrow. -->
+        <attr name="carArrowColor" format="color"/>
+        <!-- Whether the arrow will animate when switches directions. -->
+        <attr name="carArrowAnimate" format="boolean"/>
+        <!-- The size of the arrow's bounding box. -->
+        <attr name="carArrowSize" format="dimension"/>
+        <!-- The length of the top and bottom bars that merge to form the point of the arrow. -->
+        <attr name="carArrowHeadLength" format="dimension"/>
+        <!-- The length of arrow shaft. -->
+        <attr name="carArrowShaftLength" format="dimension"/>
+        <!-- The thickness of each of the bars that form the arrow. -->
+        <attr name="carArrowThickness" format="dimension"/>
+        <!-- The spacing between the menu bars (i.e. the "hamburger" icon). -->
+        <attr name="carMenuBarSpacing" format="dimension"/>
+        <!-- The size of the menu bars (i.e. the "hamburger" icon). -->
+        <attr name="carMenuBarThickness" format="dimension"/>
+    </declare-styleable>
+
+    <!-- Attributes for the ClickThroughToolbar. -->
+    <declare-styleable name="ClickThroughToolbar">
+        <!-- Whether or not clicks on this toolbar will pass through to an underlying view. This
+             value is false by default. -->
+        <attr name="clickThrough" format="boolean"/>
+    </declare-styleable>
+</resources>

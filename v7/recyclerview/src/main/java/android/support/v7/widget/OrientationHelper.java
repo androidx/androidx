@@ -48,6 +48,14 @@ public abstract class OrientationHelper {
     }
 
     /**
+     * Returns the {@link android.support.v7.widget.RecyclerView.LayoutManager LayoutManager} that
+     * is associated with this OrientationHelper.
+     */
+    public RecyclerView.LayoutManager getLayoutManager() {
+        return mLayoutManager;
+    }
+
+    /**
      * Call this method after onLayout method is complete if state is NOT pre-layout.
      * This method records information like layout bounds that might be useful in the next layout
      * calculations.

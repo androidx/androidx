@@ -240,6 +240,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
             final ContentResolver resolver = context.getContentResolver();
             try (ParcelFileDescriptor pfd =
                     resolver.openFileDescriptor(bestFont.getUri(), "r", cancellationSignal)) {
+                if (pfd == null) {
+                    return null;
+                }
                 return new Typeface.Builder(pfd.getFileDescriptor())
                         .setWeight(bestFont.getWeight())
                         .setItalic(bestFont.isItalic())

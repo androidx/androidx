@@ -16,9 +16,8 @@
 
 package android.support.v4.widget;
 
-import static junit.framework.Assert.assertFalse;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
@@ -116,7 +115,7 @@ public class ExploreByTouchHelperTest extends BaseInstrumentationTestCase<Explor
     private static class ParentBoundsHelper extends ExploreByTouchHelper {
         private final View mHost;
 
-        public ParentBoundsHelper(View host) {
+        ParentBoundsHelper(View host) {
             super(host);
 
             mHost = host;

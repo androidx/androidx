@@ -854,6 +854,7 @@ class FragmentTransition {
 
         if (names != null) {
             inSharedElements.retainAll(names);
+            inSharedElements.retainAll(nameOverrides.values());
         }
         if (sharedElementCallback != null) {
             sharedElementCallback.onMapSharedElements(names, inSharedElements);

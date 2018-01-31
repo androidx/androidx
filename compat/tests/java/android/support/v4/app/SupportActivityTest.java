@@ -15,8 +15,7 @@
  */
 package android.support.v4.app;
 
-import static junit.framework.Assert.assertEquals;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import android.support.test.filters.SmallTest;

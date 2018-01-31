@@ -16,6 +16,7 @@
 
 package android.arch.persistence.room.integration.kotlintestapp.test
 
+import android.arch.core.executor.ArchTaskExecutor
 import android.arch.persistence.room.integration.kotlintestapp.vo.Author
 import android.arch.persistence.room.integration.kotlintestapp.vo.Book
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookWithPublisher
@@ -23,6 +24,10 @@ import android.arch.persistence.room.integration.kotlintestapp.vo.Lang
 import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
 import android.database.sqlite.SQLiteConstraintException
 import android.support.test.filters.SmallTest
+import com.google.common.base.Optional
+import io.reactivex.Flowable
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subscribers.TestSubscriber
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
@@ -41,6 +46,52 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1)
 
         assertThat(booksDao.getBook(TestUtil.BOOK_1.bookId), `is`<Book>(TestUtil.BOOK_1))
+    }
+
+    @Test
+    fun bookByIdOptional() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        assertThat(
+                booksDao.getBookOptional(TestUtil.BOOK_1.bookId),
+                `is`<Optional<Book>>(Optional.of(TestUtil.BOOK_1)))
+    }
+
+    @Test
+    fun bookByIdOptionalAbsent() {
+        assertThat(
+                booksDao.getBookOptional(TestUtil.BOOK_1.bookId),
+                `is`<Optional<Book>>(Optional.absent()))
+    }
+
+    @Test
+    fun bookByIdOptionalFlowable() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        val subscriber = TestSubscriber<Optional<Book>>()
+        val flowable: Flowable<Optional<Book>> =
+                booksDao.getBookOptionalFlowable(TestUtil.BOOK_1.bookId)
+        flowable.observeOn(Schedulers.from(ArchTaskExecutor.getMainThreadExecutor()))
+                .subscribeWith(subscriber)
+
+        assertThat(subscriber.values().size, `is`(1))
+        assertThat(subscriber.values()[0], `is`(Optional.of(TestUtil.BOOK_1)))
+    }
+
+    @Test
+    fun bookByIdOptionalFlowableAbsent() {
+        val subscriber = TestSubscriber<Optional<Book>>()
+        val flowable: Flowable<Optional<Book>> =
+                booksDao.getBookOptionalFlowable(TestUtil.BOOK_1.bookId)
+        flowable.observeOn(Schedulers.from(ArchTaskExecutor.getMainThreadExecutor()))
+                .subscribeWith(subscriber)
+
+        assertThat(subscriber.values().size, `is`(1))
+        assertThat(subscriber.values()[0], `is`(Optional.absent()))
     }
 
     @Test

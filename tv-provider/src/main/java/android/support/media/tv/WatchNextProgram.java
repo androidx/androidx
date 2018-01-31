@@ -17,17 +17,19 @@ package android.support.media.tv;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.media.tv.TvContentRating;  // For javadoc gen of super class
 import android.os.Build;
+import android.support.annotation.IntDef;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.PreviewPrograms;  // For javadoc gen of super class
 import android.support.media.tv.TvContractCompat.Programs;  // For javadoc gen of super class
 import android.support.media.tv.TvContractCompat.Programs.Genres;  // For javadoc gen of super class
 import android.support.media.tv.TvContractCompat.WatchNextPrograms;
-import android.support.media.tv.TvContractCompat.WatchNextPrograms.WatchNextType;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A convenience class to access {@link WatchNextPrograms} entries in the system content
@@ -76,7 +78,6 @@ import android.support.media.tv.TvContractCompat.WatchNextPrograms.WatchNextType
  *         null, null);
  * </pre>
  */
-@TargetApi(26)
 public final class WatchNextProgram extends BasePreviewProgram {
     /**
      * @hide
@@ -87,16 +88,34 @@ public final class WatchNextProgram extends BasePreviewProgram {
     private static final long INVALID_LONG_VALUE = -1;
     private static final int INVALID_INT_VALUE = -1;
 
+    /** @hide */
+    @IntDef({
+            WATCH_NEXT_TYPE_UNKNOWN,
+            WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE,
+            WatchNextPrograms.WATCH_NEXT_TYPE_NEXT,
+            WatchNextPrograms.WATCH_NEXT_TYPE_NEW,
+            WatchNextPrograms.WATCH_NEXT_TYPE_WATCHLIST,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    public @interface WatchNextType {}
+
+    /**
+     * The unknown watch next type. Use this type when the actual type is not known.
+     */
+    public static final int WATCH_NEXT_TYPE_UNKNOWN = -1;
+
     private WatchNextProgram(Builder builder) {
         super(builder);
     }
 
     /**
-     * @return The value of {@link WatchNextPrograms#COLUMN_WATCH_NEXT_TYPE} for the program.
+     * @return The value of {@link WatchNextPrograms#COLUMN_WATCH_NEXT_TYPE} for the program,
+     * or {@link #WATCH_NEXT_TYPE_UNKNOWN} if it's unknown.
      */
     public @WatchNextType int getWatchNextType() {
         Integer i = mValues.getAsInteger(WatchNextPrograms.COLUMN_WATCH_NEXT_TYPE);
-        return i == null ? INVALID_INT_VALUE : i;
+        return i == null ? WATCH_NEXT_TYPE_UNKNOWN : i;
     }
 
     /**

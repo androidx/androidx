@@ -19,12 +19,10 @@ package android.support.text.emoji;
 import static android.support.text.emoji.util.Emoji.EMOJI_SINGLE_CODEPOINT;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiCount;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import android.annotation.TargetApi;
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
@@ -47,7 +45,6 @@ import org.junit.runner.RunWith;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 19)
-@TargetApi(19)
 public class EmojiSpanInstrumentationTest {
 
     @Rule

@@ -463,7 +463,6 @@ public class AnimatorInflaterCompat {
         // the previously sampled contours' total length.
         for (int i = 0; i < numPoints; ++i) {
             pathMeasure.getPosTan(currentDistance, position, null);
-            pathMeasure.getPosTan(currentDistance, position, null);
 
             mX[i] = position[0];
             mY[i] = position[1];

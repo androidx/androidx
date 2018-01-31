@@ -15,7 +15,6 @@ package android.support.v7.widget {
     method public boolean getUseDefaultMargins();
     method public boolean isColumnOrderPreserved();
     method public boolean isRowOrderPreserved();
-    method protected void onLayout(boolean, int, int, int, int);
     method public void setAlignmentMode(int);
     method public void setColumnCount(int);
     method public void setColumnOrderPreserved(boolean);

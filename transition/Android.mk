@@ -27,16 +27,12 @@ LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-transition
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := \
-    $(call all-java-files-under,base) \
-    $(call all-java-files-under,api14) \
-    $(call all-java-files-under,api18) \
-    $(call all-java-files-under,api19) \
-    $(call all-java-files-under,api21) \
-    $(call all-java-files-under,api22) \
-    $(call all-java-files-under,src)
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+    $(call all-java-files-under,src/main/java)
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/src/main/res
+LOCAL_MANIFEST_FILE := src/main/AndroidManifest.xml
+LOCAL_JAVA_LIBRARIES := \
+    android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
-    android-support-annotations \
     android-support-v4
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7

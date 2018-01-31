@@ -127,8 +127,8 @@ public class DialogFragment extends Fragment
     /**
      * Display the dialog, adding the fragment to the given FragmentManager.  This
      * is a convenience for explicitly creating a transaction, adding the
-     * fragment to it with the given tag, and committing it.  This does
-     * <em>not</em> add the transaction to the back stack.  When the fragment
+     * fragment to it with the given tag, and {@link FragmentTransaction#commit() committing} it.
+     * This does <em>not</em> add the transaction to the fragment back stack.  When the fragment
      * is dismissed, a new transaction will be executed to remove it from
      * the activity.
      * @param manager The FragmentManager this fragment will be added to.
@@ -145,7 +145,7 @@ public class DialogFragment extends Fragment
 
     /**
      * Display the dialog, adding the fragment using an existing transaction
-     * and then committing the transaction.
+     * and then {@link FragmentTransaction#commit() committing} the transaction.
      * @param transaction An existing transaction in which to add the fragment.
      * @param tag The tag for this fragment, as per
      * {@link FragmentTransaction#add(Fragment, String) FragmentTransaction.add}.
@@ -159,6 +159,25 @@ public class DialogFragment extends Fragment
         mViewDestroyed = false;
         mBackStackId = transaction.commit();
         return mBackStackId;
+    }
+
+    /**
+     * Display the dialog, immediately adding the fragment to the given FragmentManager.  This
+     * is a convenience for explicitly creating a transaction, adding the
+     * fragment to it with the given tag, and calling {@link FragmentTransaction#commitNow()}.
+     * This does <em>not</em> add the transaction to the fragment back stack.  When the fragment
+     * is dismissed, a new transaction will be executed to remove it from
+     * the activity.
+     * @param manager The FragmentManager this fragment will be added to.
+     * @param tag The tag for this fragment, as per
+     * {@link FragmentTransaction#add(Fragment, String) FragmentTransaction.add}.
+     */
+    public void showNow(FragmentManager manager, String tag) {
+        mDismissed = false;
+        mShownByMe = true;
+        FragmentTransaction ft = manager.beginTransaction();
+        ft.add(this, tag);
+        ft.commitNow();
     }
 
     /**
@@ -187,10 +206,6 @@ public class DialogFragment extends Fragment
         }
         mDismissed = true;
         mShownByMe = false;
-        if (mDialog != null) {
-            mDialog.dismiss();
-            mDialog = null;
-        }
         mViewDestroyed = true;
         if (mBackStackId >= 0) {
             getFragmentManager().popBackStack(mBackStackId,

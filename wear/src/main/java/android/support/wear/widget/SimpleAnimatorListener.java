@@ -29,7 +29,7 @@ import android.support.annotation.RestrictTo.Scope;
  * @hide Hidden until this goes through review
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT_WATCH)
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 public class SimpleAnimatorListener implements Animator.AnimatorListener {
 
     private boolean mWasCanceled;

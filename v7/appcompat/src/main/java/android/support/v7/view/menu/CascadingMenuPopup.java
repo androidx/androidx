@@ -54,7 +54,6 @@ import android.widget.TextView;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -85,7 +84,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
     final Handler mSubMenuHoverHandler;
 
     /** List of menus that were added before this popup was shown. */
-    private final List<MenuBuilder> mPendingMenus = new LinkedList<>();
+    private final List<MenuBuilder> mPendingMenus = new ArrayList<>();
 
     /**
      * List of open menus. The first item is the root menu and each
@@ -404,14 +403,14 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
             final boolean showOnRight = nextMenuPosition == HORIZ_POSITION_RIGHT;
             mLastPosition = nextMenuPosition;
 
-            final int parentOffsetLeft;
-            final int parentOffsetTop;
+            final int parentOffsetX;
+            final int parentOffsetY;
             if (Build.VERSION.SDK_INT >= 26) {
                 // Anchor the submenu directly to the parent menu item view. This allows for
                 // accurate submenu positioning when the parent menu is being moved.
                 popupWindow.setAnchorView(parentView);
-                parentOffsetLeft = 0;
-                parentOffsetTop = 0;
+                parentOffsetX = 0;
+                parentOffsetY = 0;
             } else {
                 // Framework does not allow anchoring to a view in another popup window. Use the
                 // same top-level anchor as the parent menu is using, with appropriate offsets.
@@ -428,10 +427,19 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
                 final int[] parentViewScreenLocation = new int[2];
                 parentView.getLocationOnScreen(parentViewScreenLocation);
 
+                // For Gravity.LEFT case, the baseline is just the left border of the view. So we
+                // can use the X of the location directly. But for Gravity.RIGHT case, the baseline
+                // is the right border. So we need add view's width with the location to make the
+                // baseline as the right border correctly.
+                if ((mDropDownGravity & (Gravity.RIGHT | Gravity.LEFT)) == Gravity.RIGHT) {
+                    anchorScreenLocation[0] += mAnchorView.getWidth();
+                    parentViewScreenLocation[0] += parentView.getWidth();
+                }
+
                 // If used as horizontal/vertical offsets, these values would position the submenu
                 // at the exact same position as the parent item.
-                parentOffsetLeft = parentViewScreenLocation[0] - anchorScreenLocation[0];
-                parentOffsetTop = parentViewScreenLocation[1] - anchorScreenLocation[1];
+                parentOffsetX = parentViewScreenLocation[0] - anchorScreenLocation[0];
+                parentOffsetY = parentViewScreenLocation[1] - anchorScreenLocation[1];
             }
 
             // Adjust the horizontal offset to display the submenu to the right or to the left
@@ -441,22 +449,22 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
             final int x;
             if ((mDropDownGravity & Gravity.RIGHT) == Gravity.RIGHT) {
                 if (showOnRight) {
-                    x = parentOffsetLeft + menuWidth;
+                    x = parentOffsetX + menuWidth;
                 } else {
-                    x = parentOffsetLeft - parentView.getWidth();
+                    x = parentOffsetX - parentView.getWidth();
                 }
             } else {
                 if (showOnRight) {
-                    x = parentOffsetLeft + parentView.getWidth();
+                    x = parentOffsetX + parentView.getWidth();
                 } else {
-                    x = parentOffsetLeft - menuWidth;
+                    x = parentOffsetX - menuWidth;
                 }
             }
             popupWindow.setHorizontalOffset(x);
 
             // Vertically align with the parent item.
             popupWindow.setOverlapAnchor(true);
-            popupWindow.setVerticalOffset(parentOffsetTop);
+            popupWindow.setVerticalOffset(parentOffsetY);
         } else {
             if (mHasXOffset) {
                 popupWindow.setHorizontalOffset(mXOffset);

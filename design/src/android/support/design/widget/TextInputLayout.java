@@ -49,6 +49,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.widget.Space;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v4.widget.ViewGroupUtils;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.AppCompatTextView;

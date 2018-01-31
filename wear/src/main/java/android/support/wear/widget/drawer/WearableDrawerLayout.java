@@ -19,11 +19,10 @@ package android.support.wear.widget.drawer;
 import static android.support.wear.widget.drawer.WearableDrawerView.STATE_IDLE;
 import static android.support.wear.widget.drawer.WearableDrawerView.STATE_SETTLING;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.view.NestedScrollingParent;
@@ -98,7 +97,6 @@ import android.widget.FrameLayout;
  *     &lt;/android.support.wear.widget.drawer.WearableDrawerView&gt;
  * &lt;/android.support.wear.widget.drawer.WearableDrawerLayout&gt;</pre>
  */
-@TargetApi(Build.VERSION_CODES.M)
 public class WearableDrawerLayout extends FrameLayout
         implements View.OnLayoutChangeListener, NestedScrollingParent, FlingListener {
 
@@ -654,12 +652,13 @@ public class WearableDrawerLayout extends FrameLayout
     }
 
     @Override // NestedScrollingParent
-    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
+    public boolean onNestedFling(@NonNull View target, float velocityX, float velocityY,
+            boolean consumed) {
         return false;
     }
 
     @Override // NestedScrollingParent
-    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+    public boolean onNestedPreFling(@NonNull View target, float velocityX, float velocityY) {
         maybeUpdateScrollingContentView(target);
         mLastScrollWasFling = true;
 
@@ -674,13 +673,13 @@ public class WearableDrawerLayout extends FrameLayout
     }
 
     @Override // NestedScrollingParent
-    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
         maybeUpdateScrollingContentView(target);
     }
 
     @Override // NestedScrollingParent
-    public void onNestedScroll(
-            View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+    public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
+            int dxUnconsumed, int dyUnconsumed) {
 
         boolean scrolledUp = dyConsumed < 0;
         boolean scrolledDown = dyConsumed > 0;
@@ -873,18 +872,20 @@ public class WearableDrawerLayout extends FrameLayout
     }
 
     @Override // NestedScrollingParent
-    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
+    public void onNestedScrollAccepted(@NonNull View child, @NonNull View target,
+            int nestedScrollAxes) {
         mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
     }
 
     @Override // NestedScrollingParent
-    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
+    public boolean onStartNestedScroll(@NonNull View child, @NonNull View target,
+            int nestedScrollAxes) {
         mCurrentNestedScrollSlopTracker = 0;
         return true;
     }
 
     @Override // NestedScrollingParent
-    public void onStopNestedScroll(View target) {
+    public void onStopNestedScroll(@NonNull View target) {
         mNestedScrollingParentHelper.onStopNestedScroll(target);
     }
 
@@ -961,7 +962,7 @@ public class WearableDrawerLayout extends FrameLayout
         public abstract WearableDrawerView getDrawerView();
 
         @Override
-        public boolean tryCaptureView(View child, int pointerId) {
+        public boolean tryCaptureView(@NonNull View child, int pointerId) {
             WearableDrawerView drawerView = getDrawerView();
             // Returns true if the dragger is dragging the drawer.
             return child == drawerView && !drawerView.isLocked()
@@ -969,13 +970,13 @@ public class WearableDrawerLayout extends FrameLayout
         }
 
         @Override
-        public int getViewVerticalDragRange(View child) {
+        public int getViewVerticalDragRange(@NonNull View child) {
             // Defines the vertical drag range of the drawer.
             return child == getDrawerView() ? child.getHeight() : 0;
         }
 
         @Override
-        public void onViewCaptured(View capturedChild, int activePointerId) {
+        public void onViewCaptured(@NonNull View capturedChild, int activePointerId) {
             showDrawerContentMaybeAnimate((WearableDrawerView) capturedChild);
         }
 
@@ -1036,7 +1037,7 @@ public class WearableDrawerLayout extends FrameLayout
     private class TopDrawerDraggerCallback extends DrawerDraggerCallback {
 
         @Override
-        public int clampViewPositionVertical(View child, int top, int dy) {
+        public int clampViewPositionVertical(@NonNull View child, int top, int dy) {
             if (mTopDrawerView == child) {
                 int peekHeight = mTopDrawerView.getPeekContainer().getHeight();
                 // The top drawer can be dragged vertically from peekHeight - height to 0.
@@ -1063,7 +1064,7 @@ public class WearableDrawerLayout extends FrameLayout
         }
 
         @Override
-        public void onViewReleased(View releasedChild, float xvel, float yvel) {
+        public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
             if (releasedChild == mTopDrawerView) {
                 // Settle to final position. Either swipe open or close.
                 final float openedPercent = mTopDrawerView.getOpenedPercent();
@@ -1085,7 +1086,8 @@ public class WearableDrawerLayout extends FrameLayout
         }
 
         @Override
-        public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
+        public void onViewPositionChanged(@NonNull View changedView, int left, int top, int dx,
+                int dy) {
             if (changedView == mTopDrawerView) {
                 // Compute the offset and invalidate will move the drawer during layout.
                 final int height = changedView.getHeight();
@@ -1106,7 +1108,7 @@ public class WearableDrawerLayout extends FrameLayout
     private class BottomDrawerDraggerCallback extends DrawerDraggerCallback {
 
         @Override
-        public int clampViewPositionVertical(View child, int top, int dy) {
+        public int clampViewPositionVertical(@NonNull View child, int top, int dy) {
             if (mBottomDrawerView == child) {
                 // The bottom drawer can be dragged vertically from (parentHeight - height) to
                 // (parentHeight - peekHeight).
@@ -1131,7 +1133,7 @@ public class WearableDrawerLayout extends FrameLayout
         }
 
         @Override
-        public void onViewReleased(View releasedChild, float xvel, float yvel) {
+        public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
             if (releasedChild == mBottomDrawerView) {
                 // Settle to final position. Either swipe open or close.
                 final int parentHeight = getHeight();
@@ -1151,7 +1153,8 @@ public class WearableDrawerLayout extends FrameLayout
         }
 
         @Override
-        public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
+        public void onViewPositionChanged(@NonNull View changedView, int left, int top, int dx,
+                int dy) {
             if (changedView == mBottomDrawerView) {
                 // Compute the offset and invalidate will move the drawer during layout.
                 final int height = changedView.getHeight();

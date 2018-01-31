@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<androidx.car.moderator.SpeedBumpView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginEnd="@dimen/car_drawer_margin_end"
+    android:background="@color/car_card"
+    android:paddingTop="@dimen/car_app_bar_height" >
+
+  <androidx.car.widget.PagedListView
+      android:id="@+id/drawer_list"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      app:listEndMargin="@dimen/car_drawer_margin_end"
+      app:offsetScrollBar="true" />
+
+  <ProgressBar
+      android:id="@+id/drawer_progress"
+      android:layout_width="@dimen/car_drawer_progress_bar_size"
+      android:layout_height="@dimen/car_drawer_progress_bar_size"
+      android:layout_gravity="center"
+      android:indeterminate="true"
+      android:visibility="gone" />
+</androidx.car.moderator.SpeedBumpView>

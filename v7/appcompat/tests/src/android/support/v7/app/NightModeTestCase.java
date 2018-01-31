@@ -23,13 +23,15 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.v7.app.NightModeActivity.TOP_ACTIVITY;
 import static android.support.v7.testutils.TestUtilsMatchers.isBackground;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.testutils.AppCompatActivityUtils;
+import android.support.testutils.RecreatedAppCompatActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.appcompat.test.R;
 
@@ -37,6 +39,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -100,30 +105,31 @@ public class NightModeTestCase {
         TwilightManager.setInstance(twilightManager);
 
         final NightModeActivity activity = mActivityTestRule.getActivity();
-        final AppCompatDelegateImplV14 delegate = (AppCompatDelegateImplV14) activity.getDelegate();
 
         // Verify that we're currently in day mode
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)));
 
-        // Now set MODE_NIGHT_AUTO so that we will change to night mode automatically
-        setLocalNightModeAndWaitForRecreate(activity, AppCompatDelegate.MODE_NIGHT_AUTO);
+        // Set MODE_NIGHT_AUTO so that we will change to night mode automatically
+        final NightModeActivity newActivity =
+                setLocalNightModeAndWaitForRecreate(activity, AppCompatDelegate.MODE_NIGHT_AUTO);
+        final AppCompatDelegateImplV14 newDelegate =
+                (AppCompatDelegateImplV14) newActivity.getDelegate();
 
-        // Assert that the original Activity has not been destroyed yet
-        assertFalse(activity.isDestroyed());
-
-        // Now update the fake twilight manager to be in night and trigger a fake 'time' change
+        // Update the fake twilight manager to be in night and trigger a fake 'time' change
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 twilightManager.setIsNight(true);
-                delegate.getAutoNightModeManager().dispatchTimeChanged();
+                newDelegate.getAutoNightModeManager().dispatchTimeChanged();
             }
         });
 
-        // Now wait for the recreate
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        RecreatedAppCompatActivity.sResumed = new CountDownLatch(1);
+        assertTrue(RecreatedAppCompatActivity.sResumed.await(1, TimeUnit.SECONDS));
+        // At this point recreate that has been triggered by dispatchTimeChanged call
+        // has completed
 
-        // Now check that the text has changed, signifying that night resources are being used
+        // Check that the text has changed, signifying that night resources are being used
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
     }
 
@@ -133,12 +139,14 @@ public class NightModeTestCase {
         final FakeTwilightManager twilightManager = new FakeTwilightManager();
         TwilightManager.setInstance(twilightManager);
 
-        final NightModeActivity activity = mActivityTestRule.getActivity();
+        NightModeActivity activity = mActivityTestRule.getActivity();
 
         // Set MODE_NIGHT_AUTO so that we will change to night mode automatically
-        setLocalNightModeAndWaitForRecreate(activity, AppCompatDelegate.MODE_NIGHT_AUTO);
+        activity = setLocalNightModeAndWaitForRecreate(activity, AppCompatDelegate.MODE_NIGHT_AUTO);
         // Verify that we're currently in day mode
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)));
+
+        final NightModeActivity toTest = activity;
 
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -146,15 +154,15 @@ public class NightModeTestCase {
                 final Instrumentation instrumentation =
                         InstrumentationRegistry.getInstrumentation();
                 // Now fool the Activity into thinking that it has gone into the background
-                instrumentation.callActivityOnPause(activity);
-                instrumentation.callActivityOnStop(activity);
+                instrumentation.callActivityOnPause(toTest);
+                instrumentation.callActivityOnStop(toTest);
 
                 // Now update the twilight manager while the Activity is in the 'background'
                 twilightManager.setIsNight(true);
 
                 // Now tell the Activity that it has gone into the foreground again
-                instrumentation.callActivityOnStart(activity);
-                instrumentation.callActivityOnResume(activity);
+                instrumentation.callActivityOnStart(toTest);
+                instrumentation.callActivityOnResume(toTest);
             }
         });
 
@@ -179,7 +187,8 @@ public class NightModeTestCase {
         }
     }
 
-    private void setLocalNightModeAndWaitForRecreate(final AppCompatActivity activity,
+    private NightModeActivity setLocalNightModeAndWaitForRecreate(
+            final NightModeActivity activity,
             @AppCompatDelegate.NightMode final int nightMode) throws Throwable {
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -188,6 +197,11 @@ public class NightModeTestCase {
                 activity.getDelegate().setLocalNightMode(nightMode);
             }
         });
+        final NightModeActivity result =
+                AppCompatActivityUtils.recreateActivity(mActivityTestRule, activity);
+        AppCompatActivityUtils.waitForExecution(mActivityTestRule);
+
         instrumentation.waitForIdleSync();
+        return result;
     }
 }

@@ -16,6 +16,7 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_HEAD;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_TAIL;
@@ -59,9 +60,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
 
     static final boolean DEBUG = false;
 
-    public static final int HORIZONTAL = OrientationHelper.HORIZONTAL;
+    public static final int HORIZONTAL = RecyclerView.HORIZONTAL;
 
-    public static final int VERTICAL = OrientationHelper.VERTICAL;
+    public static final int VERTICAL = RecyclerView.VERTICAL;
 
     /**
      * Does not do anything to hide gaps.
@@ -1127,23 +1128,61 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         if (lp.mFullSpan) {
             if (mOrientation == VERTICAL) {
                 measureChildWithDecorationsAndMargin(child, mFullSizeSpec,
-                        getChildMeasureSpec(getHeight(), getHeightMode(), 0, lp.height, true),
+                        getChildMeasureSpec(
+                                getHeight(),
+                                getHeightMode(),
+                                getPaddingTop() + getPaddingBottom(),
+                                lp.height,
+                                true),
                         alreadyMeasured);
             } else {
-                measureChildWithDecorationsAndMargin(child,
-                        getChildMeasureSpec(getWidth(), getWidthMode(), 0, lp.width, true),
-                        mFullSizeSpec, alreadyMeasured);
+                measureChildWithDecorationsAndMargin(
+                        child,
+                        getChildMeasureSpec(
+                                getWidth(),
+                                getWidthMode(),
+                                getPaddingLeft() + getPaddingRight(),
+                                lp.width,
+                                true),
+                        mFullSizeSpec,
+                        alreadyMeasured);
             }
         } else {
             if (mOrientation == VERTICAL) {
-                measureChildWithDecorationsAndMargin(child,
-                        getChildMeasureSpec(mSizePerSpan, getWidthMode(), 0, lp.width, false),
-                        getChildMeasureSpec(getHeight(), getHeightMode(), 0, lp.height, true),
+                // Padding for width measure spec is 0 because left and right padding were already
+                // factored into mSizePerSpan.
+                measureChildWithDecorationsAndMargin(
+                        child,
+                        getChildMeasureSpec(
+                                mSizePerSpan,
+                                getWidthMode(),
+                                0,
+                                lp.width,
+                                false),
+                        getChildMeasureSpec(
+                                getHeight(),
+                                getHeightMode(),
+                                getPaddingTop() + getPaddingBottom(),
+                                lp.height,
+                                true),
                         alreadyMeasured);
             } else {
-                measureChildWithDecorationsAndMargin(child,
-                        getChildMeasureSpec(getWidth(), getWidthMode(), 0, lp.width, true),
-                        getChildMeasureSpec(mSizePerSpan, getHeightMode(), 0, lp.height, false),
+                // Padding for height measure spec is 0 because top and bottom padding were already
+                // factored into mSizePerSpan.
+                measureChildWithDecorationsAndMargin(
+                        child,
+                        getChildMeasureSpec(
+                                getWidth(),
+                                getWidthMode(),
+                                getPaddingLeft() + getPaddingRight(),
+                                lp.width,
+                                true),
+                        getChildMeasureSpec(
+                                mSizePerSpan,
+                                getHeightMode(),
+                                0,
+                                lp.height,
+                                false),
                         alreadyMeasured);
             }
         }
@@ -2069,6 +2108,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
 
     /** @hide */
     @Override
+    @RestrictTo(LIBRARY)
     public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
             LayoutPrefetchRegistry layoutPrefetchRegistry) {
         /* This method uses the simplifying assumption that the next N items (where N = span count)

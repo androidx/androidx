@@ -10,7 +10,8 @@ dependencies {
     api(project(":support-annotations"))
     api(project(":support-compat"))
 
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
 }
 
 supportLibrary {
@@ -20,6 +21,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"
-    legacySourceLocation = true
     minSdkVersion = 21
 }

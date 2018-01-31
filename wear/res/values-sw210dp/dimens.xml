@@ -16,6 +16,7 @@
 <resources>
 
     <dimen name="ws_nav_drawer_text_size">14sp</dimen>
+    <dimen name="ws_nav_drawer_single_page_half_icon_size">16dp</dimen>
     <dimen name="ws_nav_drawer_single_page_icon_size">32dp</dimen>
     <dimen name="ws_nav_drawer_single_page_circle_radius">27dp</dimen>
 

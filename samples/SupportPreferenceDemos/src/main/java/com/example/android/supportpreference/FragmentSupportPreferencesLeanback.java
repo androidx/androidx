@@ -16,10 +16,10 @@
 
 package com.example.android.supportpreference;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v14.preference.PreferenceDialogFragment;
 import android.support.v14.preference.PreferenceFragment;
 import android.support.v17.preference.LeanbackPreferenceFragment;
@@ -27,7 +27,7 @@ import android.support.v17.preference.LeanbackSettingsFragment;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceScreen;
 
-@TargetApi(17)
+@RequiresApi(17)
 public class FragmentSupportPreferencesLeanback extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {

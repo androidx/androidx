@@ -20,11 +20,10 @@ import static android.support.text.emoji.util.Emoji.EMOJI_WITH_ZWJ;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmoji;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiCount;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.TestCase.assertEquals;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 

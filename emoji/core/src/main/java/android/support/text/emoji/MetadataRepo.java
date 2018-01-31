@@ -24,13 +24,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.support.text.emoji.flatbuffer.MetadataList;
 import android.support.v4.util.Preconditions;
 import android.util.SparseArray;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+
+import androidx.text.emoji.flatbuffer.MetadataList;
 
 /**
  * Class to hold the emoji metadata required to process and draw emojis.

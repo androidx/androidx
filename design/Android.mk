@@ -27,6 +27,7 @@ LOCAL_PATH := $(call my-dir)
 # in their makefiles to include the resources and their dependencies in their package.
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
+LOCAL_AAPT2_ONLY := true
 LOCAL_MODULE := android-support-design
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := \
@@ -34,14 +35,20 @@ LOCAL_SRC_FILES := \
     $(call all-java-files-under,lollipop) \
     $(call all-java-files-under,src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_JAVA_LIBRARIES := \
+    android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-transition \
     android-support-v7-appcompat \
     android-support-v7-recyclerview \
-    android-support-v4 \
-    android-support-annotations
+    android-support-compat \
+    android-support-media-compat \
+    android-support-core-utils \
+    android-support-core-ui \
+    android-support-fragment
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := \
     --no-version-vectors \
     --add-javadoc-annotation doconly
+LOCAL_EXPORT_PROGUARD_FLAG_FILES := proguard-rules.pro
 include $(BUILD_STATIC_JAVA_LIBRARY)

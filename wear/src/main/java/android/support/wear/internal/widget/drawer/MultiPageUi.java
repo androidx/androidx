@@ -16,6 +16,7 @@
 
 package android.support.wear.internal.widget.drawer;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.RestrictTo.Scope;
@@ -37,7 +38,7 @@ import android.widget.TextView;
  *
  * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 public class MultiPageUi implements MultiPagePresenter.Ui {
 
     private static final String TAG = "MultiPageUi";
@@ -62,13 +63,8 @@ public class MultiPageUi implements MultiPagePresenter.Ui {
         final View content = inflater.inflate(R.layout.ws_navigation_drawer_view, drawer,
                 false /* attachToRoot */);
 
-        mNavigationPager =
-                (ViewPager) content
-                        .findViewById(R.id.ws_navigation_drawer_view_pager);
-        mPageIndicatorView =
-                (PageIndicatorView)
-                        content.findViewById(
-                                R.id.ws_navigation_drawer_page_indicator);
+        mNavigationPager = content.findViewById(R.id.ws_navigation_drawer_view_pager);
+        mPageIndicatorView = content.findViewById(R.id.ws_navigation_drawer_page_indicator);
 
         drawer.setDrawerContent(content);
     }
@@ -132,8 +128,9 @@ public class MultiPageUi implements MultiPagePresenter.Ui {
             mAdapter = adapter;
         }
 
+        @NonNull
         @Override
-        public Object instantiateItem(ViewGroup container, int position) {
+        public Object instantiateItem(@NonNull ViewGroup container, int position) {
             // Do not attach to root in the inflate method. The view needs to returned at the end
             // of this method. Attaching to root will cause view to point to container instead.
             final View view =
@@ -141,17 +138,17 @@ public class MultiPageUi implements MultiPagePresenter.Ui {
                             .inflate(R.layout.ws_navigation_drawer_item_view, container, false);
             container.addView(view);
             final ImageView iconView =
-                    (ImageView) view
-                            .findViewById(R.id.ws_navigation_drawer_item_icon);
+                    view.findViewById(R.id.ws_navigation_drawer_item_icon);
             final TextView textView =
-                    (TextView) view.findViewById(R.id.ws_navigation_drawer_item_text);
+                    view.findViewById(R.id.ws_navigation_drawer_item_text);
             iconView.setImageDrawable(mAdapter.getItemDrawable(position));
             textView.setText(mAdapter.getItemText(position));
             return view;
         }
 
         @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
+        public void destroyItem(@NonNull ViewGroup container, int position,
+                @NonNull Object object) {
             container.removeView((View) object);
         }
 
@@ -161,12 +158,12 @@ public class MultiPageUi implements MultiPagePresenter.Ui {
         }
 
         @Override
-        public int getItemPosition(Object object) {
+        public int getItemPosition(@NonNull Object object) {
             return POSITION_NONE;
         }
 
         @Override
-        public boolean isViewFromObject(View view, Object object) {
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
             return view == object;
         }
     }

@@ -24,8 +24,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.InputDeviceCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewConfigurationCompat;
+import android.support.v7.util.TouchUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -60,9 +60,8 @@ public class RecyclerViewOnGenericMotionEventTest {
         MockLayoutManager layoutManager = new MockLayoutManager(true, true);
         mRecyclerView.setLayoutManager(layoutManager);
         layout();
-        MotionEvent e = obtainScrollMotionEvent(
-                MotionEventCompat.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER);
-        mRecyclerView.onGenericMotionEvent(e);
+        TouchUtils.scrollView(
+                MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
         assertTotalScroll(0, (int) (-2f * getScaledVerticalScrollFactor()));
     }
 
@@ -73,9 +72,8 @@ public class RecyclerViewOnGenericMotionEventTest {
         MockLayoutManager layoutManager = new MockLayoutManager(true, false);
         mRecyclerView.setLayoutManager(layoutManager);
         layout();
-        MotionEvent e = obtainScrollMotionEvent(
-                MotionEventCompat.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER);
-        mRecyclerView.onGenericMotionEvent(e);
+        TouchUtils.scrollView(
+                MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
         assertTotalScroll((int) (2f * getScaledHorizontalScrollFactor()), 0);
     }
 
@@ -84,9 +82,8 @@ public class RecyclerViewOnGenericMotionEventTest {
         MockLayoutManager layoutManager = new MockLayoutManager(true, true);
         mRecyclerView.setLayoutManager(layoutManager);
         layout();
-        MotionEvent e = obtainScrollMotionEvent(
-                MotionEventCompat.AXIS_VSCROLL, 2, InputDeviceCompat.SOURCE_CLASS_POINTER);
-        mRecyclerView.onGenericMotionEvent(e);
+        TouchUtils.scrollView(
+                MotionEvent.AXIS_VSCROLL, 2, InputDeviceCompat.SOURCE_CLASS_POINTER, mRecyclerView);
         assertTotalScroll(0, (int) (-2f * getScaledVerticalScrollFactor()));
     }
 
@@ -95,9 +92,8 @@ public class RecyclerViewOnGenericMotionEventTest {
         MockLayoutManager layoutManager = new MockLayoutManager(true, true);
         mRecyclerView.setLayoutManager(layoutManager);
         layout();
-        MotionEvent e = obtainScrollMotionEvent(
-                MotionEventCompat.AXIS_HSCROLL, 2, InputDeviceCompat.SOURCE_CLASS_POINTER);
-        mRecyclerView.onGenericMotionEvent(e);
+        TouchUtils.scrollView(
+                MotionEvent.AXIS_HSCROLL, 2, InputDeviceCompat.SOURCE_CLASS_POINTER, mRecyclerView);
         assertTotalScroll((int) (2f * getScaledHorizontalScrollFactor()), 0);
     }
 

@@ -15,7 +15,7 @@ package android.support.design.widget {
     method public deprecated void setTargetElevation(float);
   }
 
-  public static class AppBarLayout.Behavior extends android.support.design.widget.HeaderBehavior {
+  public static class AppBarLayout.Behavior extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public AppBarLayout.Behavior();
     ctor public AppBarLayout.Behavior(android.content.Context, android.util.AttributeSet);
     method public boolean onLayoutChild(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, int);
@@ -63,7 +63,7 @@ package android.support.design.widget {
     method public abstract void onOffsetChanged(android.support.design.widget.AppBarLayout, int);
   }
 
-  public static class AppBarLayout.ScrollingViewBehavior extends android.support.design.widget.HeaderScrollingViewBehavior {
+  public static class AppBarLayout.ScrollingViewBehavior extends android.support.design.widget.CoordinatorLayout.Behavior {
     ctor public AppBarLayout.ScrollingViewBehavior();
     ctor public AppBarLayout.ScrollingViewBehavior(android.content.Context, android.util.AttributeSet);
     method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, android.view.View, android.view.View);
@@ -183,7 +183,6 @@ package android.support.design.widget {
     ctor public CollapsingToolbarLayout(android.content.Context, android.util.AttributeSet);
     ctor public CollapsingToolbarLayout(android.content.Context, android.util.AttributeSet, int);
     method protected android.support.design.widget.CollapsingToolbarLayout.LayoutParams generateDefaultLayoutParams();
-    method public android.widget.FrameLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
     method protected android.widget.FrameLayout.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
     method public int getCollapsedTitleGravity();
     method public android.graphics.Typeface getCollapsedTitleTypeface();
@@ -244,103 +243,14 @@ package android.support.design.widget {
     field public static final int COLLAPSE_MODE_PIN = 1; // 0x1
   }
 
-  public class CoordinatorLayout extends android.view.ViewGroup {
-    ctor public CoordinatorLayout(android.content.Context);
-    ctor public CoordinatorLayout(android.content.Context, android.util.AttributeSet);
-    ctor public CoordinatorLayout(android.content.Context, android.util.AttributeSet, int);
-    method public void dispatchDependentViewsChanged(android.view.View);
-    method public boolean doViewsOverlap(android.view.View, android.view.View);
-    method protected android.support.design.widget.CoordinatorLayout.LayoutParams generateDefaultLayoutParams();
-    method public android.support.design.widget.CoordinatorLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
-    method protected android.support.design.widget.CoordinatorLayout.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
-    method public java.util.List<android.view.View> getDependencies(android.view.View);
-    method public java.util.List<android.view.View> getDependents(android.view.View);
-    method public android.graphics.drawable.Drawable getStatusBarBackground();
-    method public boolean isPointInChildBounds(android.view.View, int, int);
-    method public void onAttachedToWindow();
-    method public void onDetachedFromWindow();
-    method public void onDraw(android.graphics.Canvas);
-    method protected void onLayout(boolean, int, int, int, int);
-    method public void onLayoutChild(android.view.View, int);
-    method public void onMeasureChild(android.view.View, int, int, int, int);
-    method public void onNestedPreScroll(android.view.View, int, int, int[], int);
-    method public void onNestedScroll(android.view.View, int, int, int, int, int);
-    method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
-    method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
-    method public void onStopNestedScroll(android.view.View, int);
-    method public void setStatusBarBackground(android.graphics.drawable.Drawable);
-    method public void setStatusBarBackgroundColor(int);
-    method public void setStatusBarBackgroundResource(int);
-  }
-
-  public static abstract class CoordinatorLayout.Behavior<V extends android.view.View> {
-    ctor public CoordinatorLayout.Behavior();
-    ctor public CoordinatorLayout.Behavior(android.content.Context, android.util.AttributeSet);
-    method public boolean blocksInteractionBelow(android.support.design.widget.CoordinatorLayout, V);
-    method public boolean getInsetDodgeRect(android.support.design.widget.CoordinatorLayout, V, android.graphics.Rect);
-    method public int getScrimColor(android.support.design.widget.CoordinatorLayout, V);
-    method public float getScrimOpacity(android.support.design.widget.CoordinatorLayout, V);
-    method public static java.lang.Object getTag(android.view.View);
-    method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, V, android.view.View);
-    method public android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.support.design.widget.CoordinatorLayout, V, android.support.v4.view.WindowInsetsCompat);
-    method public void onAttachedToLayoutParams(android.support.design.widget.CoordinatorLayout.LayoutParams);
-    method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, V, android.view.View);
-    method public void onDependentViewRemoved(android.support.design.widget.CoordinatorLayout, V, android.view.View);
-    method public void onDetachedFromLayoutParams();
-    method public boolean onInterceptTouchEvent(android.support.design.widget.CoordinatorLayout, V, android.view.MotionEvent);
-    method public boolean onLayoutChild(android.support.design.widget.CoordinatorLayout, V, int);
-    method public boolean onMeasureChild(android.support.design.widget.CoordinatorLayout, V, int, int, int, int);
-    method public boolean onNestedFling(android.support.design.widget.CoordinatorLayout, V, android.view.View, float, float, boolean);
-    method public boolean onNestedPreFling(android.support.design.widget.CoordinatorLayout, V, android.view.View, float, float);
-    method public deprecated void onNestedPreScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int[]);
-    method public void onNestedPreScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int[], int);
-    method public deprecated void onNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int, int);
-    method public void onNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int, int, int);
-    method public deprecated void onNestedScrollAccepted(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
-    method public void onNestedScrollAccepted(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int, int);
-    method public boolean onRequestChildRectangleOnScreen(android.support.design.widget.CoordinatorLayout, V, android.graphics.Rect, boolean);
-    method public void onRestoreInstanceState(android.support.design.widget.CoordinatorLayout, V, android.os.Parcelable);
-    method public android.os.Parcelable onSaveInstanceState(android.support.design.widget.CoordinatorLayout, V);
-    method public deprecated boolean onStartNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
-    method public boolean onStartNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int, int);
-    method public deprecated void onStopNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View);
-    method public void onStopNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int);
-    method public boolean onTouchEvent(android.support.design.widget.CoordinatorLayout, V, android.view.MotionEvent);
-    method public static void setTag(android.view.View, java.lang.Object);
-  }
-
-  public static abstract class CoordinatorLayout.DefaultBehavior implements java.lang.annotation.Annotation {
-  }
-
-  public static class CoordinatorLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
-    ctor public CoordinatorLayout.LayoutParams(int, int);
-    ctor public CoordinatorLayout.LayoutParams(android.support.design.widget.CoordinatorLayout.LayoutParams);
-    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
-    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
-    method public int getAnchorId();
-    method public android.support.design.widget.CoordinatorLayout.Behavior getBehavior();
-    method public void setAnchorId(int);
-    method public void setBehavior(android.support.design.widget.CoordinatorLayout.Behavior);
-    field public int anchorGravity;
-    field public int dodgeInsetEdges;
-    field public int gravity;
-    field public int insetEdge;
-    field public int keyline;
-  }
-
-  protected static class CoordinatorLayout.SavedState extends android.support.v4.view.AbsSavedState {
-    ctor public CoordinatorLayout.SavedState(android.os.Parcel, java.lang.ClassLoader);
-    ctor public CoordinatorLayout.SavedState(android.os.Parcelable);
-    field public static final android.os.Parcelable.Creator<android.support.design.widget.CoordinatorLayout.SavedState> CREATOR;
-  }
-
-  public class FloatingActionButton extends android.support.design.widget.VisibilityAwareImageButton {
+  public class FloatingActionButton extends android.widget.ImageButton {
     ctor public FloatingActionButton(android.content.Context);
     ctor public FloatingActionButton(android.content.Context, android.util.AttributeSet);
     ctor public FloatingActionButton(android.content.Context, android.util.AttributeSet, int);
     method public float getCompatElevation();
     method public android.graphics.drawable.Drawable getContentBackground();
     method public boolean getContentRect(android.graphics.Rect);
+    method public int getCustomSize();
     method public int getRippleColor();
     method public int getSize();
     method public boolean getUseCompatPadding();
@@ -348,11 +258,13 @@ package android.support.design.widget {
     method public void hide(android.support.design.widget.FloatingActionButton.OnVisibilityChangedListener);
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
     method public void setCompatElevation(float);
+    method public void setCustomSize(int);
     method public void setRippleColor(int);
     method public void setSize(int);
     method public void setUseCompatPadding(boolean);
     method public void show();
     method public void show(android.support.design.widget.FloatingActionButton.OnVisibilityChangedListener);
+    field public static final int NO_CUSTOM_SIZE = 0; // 0x0
     field public static final int SIZE_AUTO = -1; // 0xffffffff
     field public static final int SIZE_MINI = 1; // 0x1
     field public static final int SIZE_NORMAL = 0; // 0x0
@@ -372,20 +284,6 @@ package android.support.design.widget {
     ctor public FloatingActionButton.OnVisibilityChangedListener();
     method public void onHidden(android.support.design.widget.FloatingActionButton);
     method public void onShown(android.support.design.widget.FloatingActionButton);
-  }
-
-   abstract class HeaderBehavior<V extends android.view.View> extends android.support.design.widget.ViewOffsetBehavior {
-    ctor public HeaderBehavior();
-    ctor public HeaderBehavior(android.content.Context, android.util.AttributeSet);
-  }
-
-   abstract class HeaderScrollingViewBehavior extends android.support.design.widget.ViewOffsetBehavior {
-    ctor public HeaderScrollingViewBehavior();
-    ctor public HeaderScrollingViewBehavior(android.content.Context, android.util.AttributeSet);
-    method public final int getOverlayTop();
-    method protected void layoutChild(android.support.design.widget.CoordinatorLayout, android.view.View, int);
-    method public boolean onMeasureChild(android.support.design.widget.CoordinatorLayout, android.view.View, int, int, int, int);
-    method public final void setOverlayTop(int);
   }
 
   public class NavigationView extends android.widget.FrameLayout {
@@ -486,7 +384,6 @@ package android.support.design.widget {
     method public void addTab(android.support.design.widget.TabLayout.Tab, boolean);
     method public void addTab(android.support.design.widget.TabLayout.Tab, int, boolean);
     method public void clearOnTabSelectedListeners();
-    method public android.widget.FrameLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
     method public int getSelectedTabPosition();
     method public android.support.design.widget.TabLayout.Tab getTabAt(int);
     method public int getTabCount();
@@ -562,7 +459,7 @@ package android.support.design.widget {
     ctor public TextInputEditText(android.content.Context, android.util.AttributeSet, int);
   }
 
-  public class TextInputLayout extends android.widget.LinearLayout {
+  public class TextInputLayout extends android.widget.LinearLayout implements android.support.v7.widget.WithHint {
     ctor public TextInputLayout(android.content.Context);
     ctor public TextInputLayout(android.content.Context, android.util.AttributeSet);
     ctor public TextInputLayout(android.content.Context, android.util.AttributeSet, int);
@@ -596,22 +493,6 @@ package android.support.design.widget {
     method public void setPasswordVisibilityToggleTintList(android.content.res.ColorStateList);
     method public void setPasswordVisibilityToggleTintMode(android.graphics.PorterDuff.Mode);
     method public void setTypeface(android.graphics.Typeface);
-  }
-
-   class ViewOffsetBehavior<V extends android.view.View> extends android.support.design.widget.CoordinatorLayout.Behavior {
-    ctor public ViewOffsetBehavior();
-    ctor public ViewOffsetBehavior(android.content.Context, android.util.AttributeSet);
-    method public int getLeftAndRightOffset();
-    method public int getTopAndBottomOffset();
-    method protected void layoutChild(android.support.design.widget.CoordinatorLayout, V, int);
-    method public boolean setLeftAndRightOffset(int);
-    method public boolean setTopAndBottomOffset(int);
-  }
-
-   class VisibilityAwareImageButton extends android.widget.ImageButton {
-    ctor public VisibilityAwareImageButton(android.content.Context);
-    ctor public VisibilityAwareImageButton(android.content.Context, android.util.AttributeSet);
-    ctor public VisibilityAwareImageButton(android.content.Context, android.util.AttributeSet, int);
   }
 
 }

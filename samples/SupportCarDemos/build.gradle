@@ -1,0 +1,11 @@
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
+
+dependencies {
+    implementation(project(":car"))
+}
+
+supportTestApp {
+    minSdkVersion = 24
+}

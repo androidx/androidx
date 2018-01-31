@@ -283,7 +283,7 @@ public class ListPopupWindow implements ShowableListMenu {
             mAdapter.unregisterDataSetObserver(mObserver);
         }
         mAdapter = adapter;
-        if (mAdapter != null) {
+        if (adapter != null) {
             adapter.registerDataSetObserver(mObserver);
         }
 

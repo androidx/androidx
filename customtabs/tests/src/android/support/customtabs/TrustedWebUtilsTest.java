@@ -16,8 +16,7 @@
 
 package android.support.customtabs;
 
-import static junit.framework.Assert.assertEquals;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -43,7 +42,7 @@ public class TrustedWebUtilsTest {
     public final ActivityTestRule<TestActivity> mActivityTestRule;
 
     public TrustedWebUtilsTest() {
-        mActivityTestRule = new ActivityTestRule<TestActivity>(TestActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(TestActivity.class);
     }
 
     @Test(expected = IllegalArgumentException.class)

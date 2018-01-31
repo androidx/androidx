@@ -16,9 +16,8 @@
 
 package android.support.dynamicanimation.tests;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.floatThat;
 import static org.mockito.Mockito.mock;
@@ -107,7 +106,7 @@ public class FlingTests {
     @Test
     public void testFloatValueHolder() {
         FloatValueHolder floatValueHolder = new FloatValueHolder();
-        assertEquals(0.0f, floatValueHolder.getValue());
+        assertEquals(0.0f, floatValueHolder.getValue(), 0.01f);
 
         final FlingAnimation anim = new FlingAnimation(floatValueHolder).setStartVelocity(-2500);
 

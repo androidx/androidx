@@ -29,7 +29,7 @@ import android.support.wear.widget.drawer.WearableNavigationDrawerView.WearableN
  *
  * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 public class SinglePagePresenter extends WearableNavigationDrawerPresenter {
 
     private static final long DRAWER_CLOSE_DELAY_MS = 500;

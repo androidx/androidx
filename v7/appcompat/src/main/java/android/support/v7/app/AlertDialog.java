@@ -207,7 +207,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
      * @param msg         The {@link Message} to be sent when clicked.
      */
     public void setButton(int whichButton, CharSequence text, Message msg) {
-        mAlert.setButton(whichButton, text, null, msg);
+        mAlert.setButton(whichButton, text, null, msg, null);
     }
 
     /**
@@ -222,7 +222,25 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
      * @param listener    The {@link DialogInterface.OnClickListener} to use.
      */
     public void setButton(int whichButton, CharSequence text, OnClickListener listener) {
-        mAlert.setButton(whichButton, text, listener, null);
+        mAlert.setButton(whichButton, text, listener, null, null);
+    }
+
+    /**
+     * Sets an icon to be displayed along with the button text and a listener to be invoked when
+     * the positive button of the dialog is pressed. This method has no effect if called after
+     * {@link #show()}.
+     *
+     * @param whichButton Which button to set the listener on, can be one of
+     *                    {@link DialogInterface#BUTTON_POSITIVE},
+     *                    {@link DialogInterface#BUTTON_NEGATIVE}, or
+     *                    {@link DialogInterface#BUTTON_NEUTRAL}
+     * @param text        The text to display in positive button.
+     * @param listener    The {@link DialogInterface.OnClickListener} to use.
+     * @param icon        The {@link Drawable} to be set as an icon for the button.
+     */
+    public void setButton(int whichButton, CharSequence text, Drawable icon,
+            OnClickListener listener) {
+        mAlert.setButton(whichButton, text, listener, null,  icon);
     }
 
     /**
@@ -470,6 +488,16 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
+         * Set an icon to be displayed for the positive button.
+         * @param icon The icon to be displayed
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public Builder setPositiveButtonIcon(Drawable icon) {
+            P.mPositiveButtonIcon = icon;
+            return this;
+        }
+
+        /**
          * Set a listener to be invoked when the negative button of the dialog is pressed.
          * @param textId The resource id of the text to display in the negative button
          * @param listener The {@link DialogInterface.OnClickListener} to use.
@@ -496,6 +524,16 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
+         * Set an icon to be displayed for the negative button.
+         * @param icon The icon to be displayed
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public Builder setNegativeButtonIcon(Drawable icon) {
+            P.mNegativeButtonIcon = icon;
+            return this;
+        }
+
+        /**
          * Set a listener to be invoked when the neutral button of the dialog is pressed.
          * @param textId The resource id of the text to display in the neutral button
          * @param listener The {@link DialogInterface.OnClickListener} to use.
@@ -518,6 +556,16 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         public Builder setNeutralButton(CharSequence text, final OnClickListener listener) {
             P.mNeutralButtonText = text;
             P.mNeutralButtonListener = listener;
+            return this;
+        }
+
+        /**
+         * Set an icon to be displayed for the neutral button.
+         * @param icon The icon to be displayed
+         * @return This Builder object to allow for chaining of calls to set methods
+         */
+        public Builder setNeutralButtonIcon(Drawable icon) {
+            P.mNeutralButtonIcon = icon;
             return this;
         }
 

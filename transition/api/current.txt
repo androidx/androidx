@@ -118,7 +118,7 @@ package android.support.transition {
     method public void setSlideEdge(int);
   }
 
-  public abstract class Transition {
+  public abstract class Transition implements java.lang.Cloneable {
     ctor public Transition();
     ctor public Transition(android.content.Context, android.util.AttributeSet);
     method public android.support.transition.Transition addListener(android.support.transition.Transition.TransitionListener);

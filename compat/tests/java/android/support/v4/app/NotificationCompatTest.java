@@ -31,9 +31,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Context;
+import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -180,7 +182,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @SdkSuppress(minSdkVersion = 24)
-    @TargetApi(24)
     @Test
     public void testFrameworkNotificationActionBuilder_setAllowGeneratedRepliesTrue()
             throws Throwable {
@@ -214,7 +215,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @SdkSuppress(minSdkVersion = 17)
-    @TargetApi(17)
     @Test
     public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesTrue()
             throws Throwable {
@@ -228,7 +228,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @SdkSuppress(minSdkVersion = 17)
-    @TargetApi(17)
     @Test
     public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesFalse()
             throws Throwable {
@@ -422,6 +421,71 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
             assertTrue((n.defaults & DEFAULT_SOUND) != 0);
             assertTrue((n.defaults & DEFAULT_VIBRATE) != 0);
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void testHasAudioAttributesFrom21() throws Throwable {
+        Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setSound(Uri.EMPTY)
+                .build();
+        assertNotNull(n.audioAttributes);
+        assertEquals(-1, n.audioStreamType);
+        assertEquals(Uri.EMPTY, n.sound);
+
+        n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setSound(Uri.EMPTY, AudioManager.STREAM_RING)
+                .build();
+        assertNotNull(n.audioAttributes);
+        assertEquals(AudioAttributes.CONTENT_TYPE_SONIFICATION,
+                n.audioAttributes.getContentType());
+        assertEquals(-1, n.audioStreamType);
+        assertEquals(Uri.EMPTY, n.sound);
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 20)
+    public void testHasStreamTypePre21() throws Throwable {
+        Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setSound(Uri.EMPTY, 34)
+                .build();
+        assertEquals(34, n.audioStreamType);
+        assertEquals(Uri.EMPTY, n.sound);
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    public void testClearAlertingFieldsIfUsingChannels() throws Throwable {
+        long[] vibration = new long[]{100};
+
+        // stripped if using channels
+        Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity(), "test")
+                .setSound(Uri.EMPTY)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setVibrate(vibration)
+                .setLights(Color.BLUE, 100, 100)
+                .build();
+        assertNull(n.sound);
+        assertEquals(0, n.defaults);
+        assertNull(n.vibrate);
+        assertEquals(0, n.ledARGB);
+        assertEquals(0, n.ledOnMS);
+        assertEquals(0, n.ledOffMS);
+
+        // left intact if not using channels
+        n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setSound(Uri.EMPTY)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setVibrate(vibration)
+                .setLights(Color.BLUE, 100, 100)
+                .build();
+        assertEquals(Uri.EMPTY, n.sound);
+        assertNotNull(n.audioAttributes);
+        assertEquals(Notification.DEFAULT_ALL, n.defaults);
+        assertEquals(vibration, n.vibrate);
+        assertEquals(Color.BLUE, n.ledARGB);
+        assertEquals(100, n.ledOnMS);
+        assertEquals(100, n.ledOffMS);
     }
 
     private static RemoteInput newDataOnlyRemoteInput() {
