@@ -21,7 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 /**
- * A class to create a logical unit of non-repeating work.
+ * A class to execute a logical unit of non-repeating work.
  */
 
 public abstract class Work implements BaseWork {

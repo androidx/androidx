@@ -140,7 +140,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         for (int i = 0; i < workCount; ++i) {
             workArray[i] = new Work.Builder(TestWorker.class).build();
         }
-        mWorkManagerImpl.createWith(workArray[0]).then(workArray[1]).then(workArray[2]).enqueue();
+        mWorkManagerImpl.beginWith(workArray[0]).then(workArray[1]).then(workArray[2]).enqueue();
 
         for (int i = 0; i < workCount; ++i) {
             String id = workArray[i].getId();
@@ -176,7 +176,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work work3a = new Work.Builder(TestWorker.class).build();
         Work work3b = new Work.Builder(TestWorker.class).build();
 
-        mWorkManagerImpl.createWith(work1a, work1b).then(work2).then(work3a, work3b).enqueue();
+        mWorkManagerImpl.beginWith(work1a, work1b).then(work2).then(work3a, work3b).enqueue();
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1a.getId()), is(notNullValue()));
@@ -207,7 +207,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work work1 = new Work.Builder(TestWorker.class).build();
 
         mLifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.STARTED);
-        WorkContinuation workContinuation = mWorkManagerImpl.createWith(work1);
+        WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
         workContinuation.enqueue();
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpecStatus(work1.getId()), is(SUCCEEDED));
@@ -237,7 +237,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
                                 .build())
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.createWith(work0).then(work1).enqueue();
+        mWorkManagerImpl.beginWith(work0).then(work1).enqueue();
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -273,7 +273,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 .withInitialDelay(expectedInitialDelay)
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.createWith(work0).then(work1).enqueue();
+        mWorkManagerImpl.beginWith(work0).then(work1).enqueue();
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -289,7 +289,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 .withBackoffCriteria(BaseWork.BackoffPolicy.LINEAR, 50000)
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.createWith(work0).then(work1).enqueue();
+        mWorkManagerImpl.beginWith(work0).then(work1).enqueue();
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -311,7 +311,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work work0 = new Work.Builder(TestWorker.class).addTag(firstTag).addTag(secondTag).build();
         Work work1 = new Work.Builder(TestWorker.class).addTag(firstTag).build();
         Work work2 = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.createWith(work0).then(work1).then(work2).enqueue();
+        mWorkManagerImpl.beginWith(work0).then(work1).then(work2).enqueue();
 
         WorkTagDao workTagDao = mDatabase.workTagDao();
         assertThat(workTagDao.getWorkSpecsWithTag(firstTag),
@@ -327,7 +327,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 TestWorker.class,
                 PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
                 .build();
-        mWorkManagerImpl.enqueue(periodicWork);
+        mWorkManagerImpl.enqueuePeriodic(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.isPeriodic(), is(true));
@@ -360,7 +360,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
-        mWorkManagerImpl.enqueue(periodicWork);
+        mWorkManagerImpl.enqueuePeriodic(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.getPeriodStartTime(), is(greaterThan(beforeEnqueueTime)));
@@ -372,7 +372,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String testTag = "mytag";
 
         Work work = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.createWithUniqueTag(testTag, REPLACE_EXISTING_WORK)
+        mWorkManagerImpl.beginWithUniqueTag(testTag, REPLACE_EXISTING_WORK)
                 .then(work)
                 .enqueue();
 
@@ -391,7 +391,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .createWithUniqueTag(testTag, REPLACE_EXISTING_WORK, replacementWork1)
+                .beginWithUniqueTag(testTag, REPLACE_EXISTING_WORK, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 
@@ -417,7 +417,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .createWithUniqueTag(testTag, KEEP_EXISTING_WORK, replacementWork1)
+                .beginWithUniqueTag(testTag, KEEP_EXISTING_WORK, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 
@@ -444,7 +444,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .createWithUniqueTag(testTag, KEEP_EXISTING_WORK, replacementWork1)
+                .beginWithUniqueTag(testTag, KEEP_EXISTING_WORK, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 

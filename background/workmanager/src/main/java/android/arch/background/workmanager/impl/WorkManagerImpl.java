@@ -145,38 +145,38 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public void enqueue(@NonNull Work... work) {
-        createWith(work).enqueue();
+    public void enqueue(@NonNull List<Work> work) {
+        beginWith(work).enqueue();
     }
 
     @Override
-    protected void enqueue(List<Class<? extends Worker>> workerClasses) {
-        Work[] work = BaseWorkHelper.convertWorkerClassListToWorkArray(workerClasses);
-        createWith(work).enqueue();
+    public void enqueueWithDefaults(@NonNull List<Class<? extends Worker>> workerClasses) {
+        beginWith(BaseWorkHelper.convertWorkerClassListToWorkList(workerClasses)).enqueue();
     }
 
     @Override
-    public void enqueue(@NonNull PeriodicWork... periodicWork) {
+    public void enqueuePeriodic(@NonNull List<PeriodicWork> periodicWork) {
         new WorkContinuationImpl(this, periodicWork).enqueue();
     }
 
     @Override
-    protected WorkContinuation createWith(List<Class<? extends Worker>> workerClasses) {
+    public WorkContinuation beginWithDefaults(
+            @NonNull List<Class<? extends Worker>> workerClasses) {
         return new WorkContinuationImpl(
                 this,
-                BaseWorkHelper.convertWorkerClassListToWorkArray(workerClasses));
+                BaseWorkHelper.convertWorkerClassListToWorkList(workerClasses));
     }
 
     @Override
-    public WorkContinuation createWith(@NonNull Work... work) {
+    public WorkContinuation beginWith(@NonNull List<Work> work) {
         return new WorkContinuationImpl(this, work);
     }
 
     @Override
-    public WorkContinuation createWithUniqueTag(
+    public WorkContinuation beginWithUniqueTag(
             @NonNull String tag,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull Work... work) {
+            @NonNull List<Work> work) {
         return new WorkContinuationImpl(this, tag, existingWorkPolicy, work);
     }
 

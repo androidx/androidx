@@ -45,6 +45,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -105,7 +106,7 @@ public class WorkContinuationImplTest {
     public void testContinuation_noParent() {
         Work testWork = createTestWorker();
         WorkContinuationImpl continuation =
-                new WorkContinuationImpl(mWorkManagerImpl, testWork);
+                new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(testWork));
 
         assertThat(continuation.getParents(), is(nullValue()));
         assertThat(continuation.getIds().size(), is(1));
@@ -118,7 +119,7 @@ public class WorkContinuationImplTest {
         Work testWork = createTestWorker();
         Work dependentWork = createTestWorker();
         WorkContinuationImpl continuation =
-                new WorkContinuationImpl(mWorkManagerImpl, testWork);
+                new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(testWork));
         WorkContinuationImpl dependent = (WorkContinuationImpl) (continuation.then(
                 dependentWork));
 
@@ -133,9 +134,8 @@ public class WorkContinuationImplTest {
 
     @Test
     public void testContinuation_enqueue() {
-        Work testWork = createTestWorker();
         WorkContinuationImpl continuation = new WorkContinuationImpl(mWorkManagerImpl,
-                testWork);
+                createTestWorkerList());
         assertThat(continuation.isEnqueued(), is(false));
         continuation.enqueue();
         verifyEnqueued(continuation);
@@ -143,9 +143,8 @@ public class WorkContinuationImplTest {
 
     @Test
     public void testContinuation_chainEnqueue() {
-        Work testWork = createTestWorker();
         WorkContinuationImpl continuation =
-                new WorkContinuationImpl(mWorkManagerImpl, testWork);
+                new WorkContinuationImpl(mWorkManagerImpl, createTestWorkerList());
         WorkContinuationImpl chain = (WorkContinuationImpl) (
                 continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
         chain.enqueue();
@@ -154,9 +153,8 @@ public class WorkContinuationImplTest {
 
     @Test
     public void testContinuation_chainEnqueueNoOpOnRetry() {
-        Work testWork = createTestWorker();
         WorkContinuationImpl continuation =
-                new WorkContinuationImpl(mWorkManagerImpl, testWork);
+                new WorkContinuationImpl(mWorkManagerImpl, createTestWorkerList());
         WorkContinuationImpl chain = (WorkContinuationImpl) (
                 continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
         chain.enqueue();
@@ -170,9 +168,9 @@ public class WorkContinuationImplTest {
     @Test
     public void testContinuation_join() {
         WorkContinuationImpl first = new WorkContinuationImpl(mWorkManagerImpl,
-                createTestWorker());
+                createTestWorkerList());
         WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
-                createTestWorker());
+                createTestWorkerList());
 
         WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(first,
                 second);
@@ -182,9 +180,9 @@ public class WorkContinuationImplTest {
 
     public void testContinuation_withWorkJoin() {
         WorkContinuationImpl first = new WorkContinuationImpl(mWorkManagerImpl,
-                createTestWorker());
+                createTestWorkerList());
         WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
-                createTestWorker());
+                createTestWorkerList());
 
         Work work = createTestWorker();
 
@@ -199,14 +197,14 @@ public class WorkContinuationImplTest {
     @Test
     public void testContinuation_joinAndEnqueue() {
         WorkContinuationImpl first = new WorkContinuationImpl(mWorkManagerImpl,
-                createTestWorker());
+                createTestWorkerList());
         WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
-                createTestWorker());
+                createTestWorkerList());
 
         WorkContinuationImpl third = new WorkContinuationImpl(mWorkManagerImpl,
-                createTestWorker());
+                createTestWorkerList());
         WorkContinuationImpl fourth = new WorkContinuationImpl(mWorkManagerImpl,
-                createTestWorker());
+                createTestWorkerList());
 
         WorkContinuationImpl firstDependent = (WorkContinuationImpl) WorkContinuation.join(first,
                 second);
@@ -221,11 +219,11 @@ public class WorkContinuationImplTest {
     @Test
     public void testContinuation_joinAndEnqueueWithOverlaps() {
         WorkContinuationImpl first = new WorkContinuationImpl(mWorkManagerImpl,
-                createTestWorker());
+                createTestWorkerList());
         WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
-                createTestWorker());
+                createTestWorkerList());
         WorkContinuationImpl third = new WorkContinuationImpl(mWorkManagerImpl,
-                createTestWorker());
+                createTestWorkerList());
         WorkContinuationImpl firstDependent = (WorkContinuationImpl) WorkContinuation.join(first,
                 second);
         WorkContinuationImpl secondDependent = (WorkContinuationImpl) WorkContinuation.join(first,
@@ -248,5 +246,9 @@ public class WorkContinuationImplTest {
 
     private static Work createTestWorker() {
         return new Work.Builder(TestWorker.class).build();
+    }
+
+    private static List<Work> createTestWorkerList() {
+        return Collections.singletonList(createTestWorker());
     }
 }

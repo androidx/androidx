@@ -36,7 +36,18 @@ public abstract class WorkContinuation {
      * @param work One or more {@link Work} to add to the {@link WorkContinuation}
      * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
      */
-    public abstract WorkContinuation then(Work... work);
+    public final WorkContinuation then(@NonNull Work... work) {
+        return then(Arrays.asList(work));
+    }
+
+    /**
+     * Adds new {@link Work} items that depend on the successful completion of all previously added
+     * {@link Work}.
+     *
+     * @param work One or more {@link Work} to add to the {@link WorkContinuation}
+     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
+     */
+    public abstract WorkContinuation then(@NonNull List<Work> work);
 
     /**
      * Adds new {@link Work} items, created with the {@link Worker} classes, that depend on the
@@ -48,9 +59,22 @@ public abstract class WorkContinuation {
      * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
      */
     @SafeVarargs
-    public final WorkContinuation then(Class<? extends Worker>... workerClasses) {
-        return then(Arrays.asList(workerClasses));
+    public final WorkContinuation thenWithDefaults(
+            @NonNull Class<? extends Worker>... workerClasses) {
+        return thenWithDefaults(Arrays.asList(workerClasses));
     }
+
+    /**
+     * Adds new {@link Work} items, created with the {@link Worker} classes, that depend on the
+     * successful completion of all previously added {@link Work}.
+     *
+     * Each {@link Work} is created with no {@link Arguments} or {@link Constraints}.
+     *
+     * @param workerClasses One or more {@link Worker}s to add to the {@link WorkContinuation}
+     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
+     */
+    public abstract WorkContinuation thenWithDefaults(
+            @NonNull List<Class<? extends Worker>> workerClasses);
 
     /**
      * Returns a {@link LiveData} mapping of work identifiers to their statuses for all work in this
@@ -75,12 +99,23 @@ public abstract class WorkContinuation {
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public static WorkContinuation join(@NonNull WorkContinuation... continuations) {
-        if (continuations.length < 2) {
+        return join(Arrays.asList(continuations));
+    }
+
+    /**
+     * Joins multiple {@link WorkContinuation}s to allow for complex chaining.
+     *
+     * @param continuations Two or more {@link WorkContinuation}s that are prerequisites for the
+     *                      return value
+     * @return A {@link WorkContinuation} that allows further chaining
+     */
+    public static WorkContinuation join(@NonNull List<WorkContinuation> continuations) {
+        if (continuations.size() < 2) {
             throw new IllegalArgumentException(
                     "WorkContinuation.join() needs at least 2 continuations.");
         }
 
-        return continuations[0].joinInternal(null, continuations);
+        return continuations.get(0).joinInternal(null, continuations);
     }
 
     /**
@@ -96,20 +131,24 @@ public abstract class WorkContinuation {
     public static WorkContinuation join(
             @NonNull Work work,
             @NonNull WorkContinuation... continuations) {
-
-        if (continuations.length < 2) {
-            throw new IllegalArgumentException(
-                    "WorkContinuation.join() needs at least 2 continuations.");
-        }
-
-        return continuations[0].joinInternal(work, continuations);
+        return join(work, Arrays.asList(continuations));
     }
 
     /**
-     * @hide
+     * Joins multiple {@link WorkContinuation}s to allow for complex chaining using the
+     * {@link Work} provided.
+     *
+     * @param work The {@link Work} which depends on the successful completion of the
+     *             provided {@link WorkContinuation}s
+     * @param continuations Two or more {@link WorkContinuation}s that are prerequisites for the
+     *                      {@link Work} provided.
+     * @return A {@link WorkContinuation} that allows further chaining
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    protected abstract WorkContinuation then(List<Class<? extends Worker>> workerClasses);
+    public static WorkContinuation join(
+            @NonNull Work work,
+            @NonNull List<WorkContinuation> continuations) {
+        return continuations.get(0).joinInternal(work, continuations);
+    }
 
     /**
      * @hide
@@ -117,5 +156,5 @@ public abstract class WorkContinuation {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected abstract WorkContinuation joinInternal(
             @Nullable Work work,
-            @NonNull WorkContinuation... continuations);
+            @NonNull List<WorkContinuation> continuations);
 }

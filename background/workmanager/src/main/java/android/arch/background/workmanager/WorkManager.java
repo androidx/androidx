@@ -43,17 +43,43 @@ public abstract class WorkManager {
      *
      * @param work One or more {@link Work} to enqueue
      */
-    public abstract void enqueue(@NonNull Work... work);
+    public final void enqueue(@NonNull Work... work) {
+        enqueue(Arrays.asList(work));
+    }
+
+    /**
+     * Enqueues one or more items for background processing.
+     *
+     * @param work One or more {@link Work} to enqueue
+     */
+    public abstract void enqueue(@NonNull List<Work> work);
 
     /**
      * Enqueues one or more items for background processing.
      *
      * @param workerClasses One or more {@link Worker}s to enqueue; this is a convenience method
-     *                      that makes a {@link Work} object with default arguments for each Worker
+     *                      that makes a {@link Work} object with default Builder parameters
      */
     @SafeVarargs
-    public final void enqueue(@NonNull Class<? extends Worker>... workerClasses) {
-        enqueue(Arrays.asList(workerClasses));
+    public final void enqueueWithDefaults(@NonNull Class<? extends Worker>... workerClasses) {
+        enqueueWithDefaults(Arrays.asList(workerClasses));
+    }
+
+    /**
+     * Enqueues one or more items for background processing.
+     *
+     * @param workerClasses One or more {@link Worker}s to enqueue; this is a convenience method
+     *                      that makes a {@link Work} object with default Builder parameters
+     */
+    public abstract void enqueueWithDefaults(@NonNull List<Class<? extends Worker>> workerClasses);
+
+    /**
+     * Enqueues one or more periodic work items for background processing.
+     *
+     * @param periodicWork One or more {@link PeriodicWork} to enqueue
+     */
+    public final void enqueuePeriodic(@NonNull PeriodicWork... periodicWork) {
+        enqueuePeriodic(Arrays.asList(periodicWork));
     }
 
     /**
@@ -61,33 +87,57 @@ public abstract class WorkManager {
      *
      * @param periodicWork One or more {@link PeriodicWork} to enqueue
      */
-    public abstract void enqueue(@NonNull PeriodicWork... periodicWork);
+    public abstract void enqueuePeriodic(@NonNull List<PeriodicWork> periodicWork);
 
     /**
-     * Creates a chain of {@link Work} from the {@link Worker} classes, which can be enqueued
+     * Begins a chain of {@link Work}, which can be enqueued together in the future using
+     * {@link WorkContinuation#enqueue()}.
+     *
+     * @param work One or more {@link Work} to start a chain of work
+     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
+     */
+    public final WorkContinuation beginWith(@NonNull Work...work) {
+        return beginWith(Arrays.asList(work));
+    }
+
+    /**
+     * Begins a chain of {@link Work}, which can be enqueued together in the future using
+     * {@link WorkContinuation#enqueue()}.
+     *
+     * @param work One or more {@link Work} to start a chain of work
+     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
+     */
+    public abstract WorkContinuation beginWith(@NonNull List<Work> work);
+
+    /**
+     * Begins a chain of {@link Work} from the {@link Worker} classes, which can be enqueued
      * together in the future using {@link WorkContinuation#enqueue()}.
      *
      * Each {@link Work} is created with no {@link Arguments} or {@link Constraints}.
      *
-     * @param workerClasses One or more {@link Worker}s to create a {@link WorkContinuation}
+     * @param workerClasses One or more {@link Worker}s to start a chain of work
      * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
      */
     @SafeVarargs
-    public final WorkContinuation createWith(@NonNull Class<? extends Worker>...workerClasses) {
-        return createWith(Arrays.asList(workerClasses));
+    public final WorkContinuation beginWithDefaults(
+            @NonNull Class<? extends Worker>...workerClasses) {
+        return beginWithDefaults(Arrays.asList(workerClasses));
     }
 
     /**
-     * Creates a chain of {@link Work}, which can be enqueued together in the future using
-     * {@link WorkContinuation#enqueue()}.
+     * Begins a chain of {@link Work} from the {@link Worker} classes, which can be enqueued
+     * together in the future using {@link WorkContinuation#enqueue()}.
      *
-     * @param work One or more {@link Work} to create a {@link WorkContinuation}
+     * Each {@link Work} is created with no {@link Arguments} or {@link Constraints}.
+     *
+     * @param workerClasses One or more {@link Worker}s to start a chain of work
      * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
      */
-    public abstract WorkContinuation createWith(@NonNull Work...work);
+    public abstract WorkContinuation beginWithDefaults(
+            @NonNull List<Class<? extends Worker>> workerClasses);
 
     /**
-     * This method allows you to create unique chains of work for situations where you only want one
+     * This method allows you to begin unique chains of work for situations where you only want one
      * chain to be active at a given time.  For example, you may only want one sync operation to be
      * active.  If there is one pending, you can choose to let it run or replace it with your new
      * work.
@@ -101,17 +151,44 @@ public abstract class WorkManager {
      * @param tag A tag which should uniquely label all the work in this chain
      * @param existingWorkPolicy One of {@link ExistingWorkPolicy#REPLACE_EXISTING_WORK} or
      *                           {@link ExistingWorkPolicy#KEEP_EXISTING_WORK}.
-     * @param work One or more {@link Work} to enqueue
-     * @code REPLACE_EXISTING_WORK} ensures that if there is pending work
-     *                           labelled with {@code tag}, it will be cancelled and the new work
-     *                           will run.  {@code KEEP_EXISTING_WORK} will run the new sequence of
-     *                           work only if there is no pending work labelled with {@code tag}.
+     * @param work One or more {@link Work} to enqueue. @code REPLACE_EXISTING_WORK} ensures that if
+     *             there is pending work labelled with {@code tag}, it will be cancelled and the new
+     *             work will run. {@code KEEP_EXISTING_WORK} will run the new sequence of work only
+     *             if there is no pending work labelled with {@code tag}.
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public abstract WorkContinuation createWithUniqueTag(
+    public final WorkContinuation beginWithUniqueTag(
             @NonNull String tag,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull Work... work);
+            @NonNull Work... work) {
+        return beginWithUniqueTag(tag, existingWorkPolicy, Arrays.asList(work));
+    }
+
+    /**
+     * This method allows you to begin unique chains of work for situations where you only want one
+     * chain to be active at a given time.  For example, you may only want one sync operation to be
+     * active.  If there is one pending, you can choose to let it run or replace it with your new
+     * work.
+     *
+     * All work in this chain will be automatically tagged with {@code tag} if it isn't already.
+     *
+     * If this method determines that new work should be enqueued and run, all records of previous
+     * work with {@code tag} will be pruned.  If this method determines that new work should NOT be
+     * run, then the entire chain will be considered a no-op.
+     *
+     * @param tag A tag which should uniquely label all the work in this chain
+     * @param existingWorkPolicy One of {@link ExistingWorkPolicy#REPLACE_EXISTING_WORK} or
+     *                           {@link ExistingWorkPolicy#KEEP_EXISTING_WORK}.
+     * @param work One or more {@link Work} to enqueue. @code REPLACE_EXISTING_WORK} ensures that if
+     *             there is pending work labelled with {@code tag}, it will be cancelled and the new
+     *             work will run. {@code KEEP_EXISTING_WORK} will run the new sequence of work only
+     *             if there is no pending work labelled with {@code tag}.
+     * @return A {@link WorkContinuation} that allows further chaining
+     */
+    public abstract WorkContinuation beginWithUniqueTag(
+            @NonNull String tag,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull List<Work> work);
 
     /**
      * Cancels work with the given id, regardless of the current state of the work.  Note that
@@ -157,7 +234,4 @@ public abstract class WorkManager {
         REPLACE_EXISTING_WORK,
         KEEP_EXISTING_WORK
     }
-
-    protected abstract void enqueue(List<Class<? extends Worker>> workerClasses);
-    protected abstract WorkContinuation createWith(List<Class<? extends Worker>> workerClasses);
 }

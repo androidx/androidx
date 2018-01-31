@@ -49,7 +49,7 @@ public class WorkContinuationImpl extends WorkContinuation {
     private final WorkManagerImpl mWorkManagerImpl;
     private final String mUniqueTag;
     private final WorkManager.ExistingWorkPolicy mExistingWorkPolicy;
-    private final BaseWork[] mWork;
+    private final List<? extends BaseWork> mWork;
     private final List<String> mIds;
     private final List<String> mAllIds;
     private final List<WorkContinuationImpl> mParents;
@@ -70,7 +70,7 @@ public class WorkContinuationImpl extends WorkContinuation {
     }
 
     @NonNull
-    public BaseWork[] getWork() {
+    public List<? extends BaseWork> getWork() {
         return mWork;
     }
 
@@ -100,7 +100,7 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     WorkContinuationImpl(
             @NonNull WorkManagerImpl workManagerImpl,
-            @NonNull BaseWork... work) {
+            @NonNull List<? extends BaseWork> work) {
         this(
                 workManagerImpl,
                 null,
@@ -112,35 +112,36 @@ public class WorkContinuationImpl extends WorkContinuation {
     WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
             String uniqueTag,
             WorkManager.ExistingWorkPolicy existingWorkPolicy,
-            @NonNull BaseWork... work) {
+            @NonNull List<? extends BaseWork> work) {
         this(workManagerImpl, uniqueTag, existingWorkPolicy, work, null);
     }
 
     WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
             String uniqueTag,
             WorkManager.ExistingWorkPolicy existingWorkPolicy,
-            @NonNull BaseWork[] work,
+            @NonNull List<? extends BaseWork> work,
             @Nullable List<WorkContinuationImpl> parents) {
         mWorkManagerImpl = workManagerImpl;
         mUniqueTag = uniqueTag;
         mExistingWorkPolicy = existingWorkPolicy;
         mWork = work;
         mParents = parents;
-        mIds = new ArrayList<>(mWork.length);
+        mIds = new ArrayList<>(mWork.size());
         mAllIds = new ArrayList<>();
         if (parents != null) {
             for (WorkContinuationImpl parent : parents) {
                 mAllIds.addAll(parent.mAllIds);
             }
         }
-        for (int i = 0; i < work.length; i++) {
-            mIds.add(work[i].getId());
-            mAllIds.add(work[i].getId());
+        for (int i = 0; i < work.size(); i++) {
+            String id = work.get(i).getId();
+            mIds.add(id);
+            mAllIds.add(id);
         }
     }
 
     @Override
-    public WorkContinuation then(Work... work) {
+    public WorkContinuation then(List<Work> work) {
         // TODO (rahulrav@) We need to decide if we want to allow chaining of continuations after
         // an initial call to enqueue()
         return new WorkContinuationImpl(mWorkManagerImpl,
@@ -151,11 +152,11 @@ public class WorkContinuationImpl extends WorkContinuation {
     }
 
     @Override
-    public WorkContinuation then(List<Class<? extends Worker>> workerClasses) {
+    public WorkContinuation thenWithDefaults(List<Class<? extends Worker>> workerClasses) {
         return new WorkContinuationImpl(mWorkManagerImpl,
                 mUniqueTag,
                 WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK,
-                BaseWorkHelper.convertWorkerClassListToWorkArray(workerClasses),
+                BaseWorkHelper.convertWorkerClassListToWorkList(workerClasses),
                 Collections.singletonList(this));
     }
 
@@ -180,13 +181,13 @@ public class WorkContinuationImpl extends WorkContinuation {
     @Override
     protected WorkContinuation joinInternal(
             @Nullable Work work,
-            @NonNull WorkContinuation... continuations) {
+            @NonNull List<WorkContinuation> continuations) {
 
         if (work == null) {
             work = new Work.Builder(JoinWorker.class).build();
         }
 
-        List<WorkContinuationImpl> parents = new ArrayList<>(continuations.length);
+        List<WorkContinuationImpl> parents = new ArrayList<>(continuations.size());
         for (WorkContinuation continuation : continuations) {
             parents.add((WorkContinuationImpl) continuation);
         }
@@ -194,7 +195,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         return new WorkContinuationImpl(mWorkManagerImpl,
                 null,
                 WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK,
-                new BaseWork[]{work},
+                Collections.singletonList(work),
                 parents);
     }
 }

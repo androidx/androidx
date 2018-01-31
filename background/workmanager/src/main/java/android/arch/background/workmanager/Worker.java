@@ -70,7 +70,10 @@ public abstract class Worker {
      *
      * For example, if you had this structure:
      *
-     * {@code WorkManager.getInstance().enqueue(WorkerA.class, WorkerB.class).then(WorkerC.class)}
+     * {@code WorkManager.getInstance()
+     *            .enqueueWithDefaults(WorkerA.class, WorkerB.class)
+     *            .then(WorkerC.class)
+     *            .enqueue()}
      *
      * This method would be called for both WorkerA and WorkerB after their successful completion,
      * modifying the input Arguments for WorkerC.

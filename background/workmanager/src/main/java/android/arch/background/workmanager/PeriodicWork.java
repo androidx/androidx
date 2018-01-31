@@ -20,7 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 /**
- * A class to create a logical unit of repeating work.
+ * A class to execute a logical unit of repeating work.
  */
 
 public abstract class PeriodicWork implements BaseWork {

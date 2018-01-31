@@ -38,7 +38,6 @@ import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -145,7 +144,7 @@ public class EnqueueRunnable implements Runnable {
      */
     private static void enqueueWorkWithPrerequisites(
             WorkManagerImpl workManagerImpl,
-            @NonNull BaseWork[] workArray,
+            @NonNull List<? extends BaseWork> workList,
             String[] prerequisiteIds,
             String uniqueTag,
             WorkManager.ExistingWorkPolicy existingWorkPolicy,
@@ -154,9 +153,9 @@ public class EnqueueRunnable implements Runnable {
         long currentTimeMillis = System.currentTimeMillis();
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
 
-        InternalWorkImpl[] workImplArray = new InternalWorkImpl[workArray.length];
-        for (int i = 0; i < workArray.length; ++i) {
-            workImplArray[i] = (InternalWorkImpl) workArray[i];
+        List<InternalWorkImpl> workImplList = new ArrayList<>(workList.size());
+        for (int i = 0; i < workList.size(); ++i) {
+            workImplList.add((InternalWorkImpl) workList.get(i));
         }
 
         boolean hasPrerequisite = (prerequisiteIds != null && prerequisiteIds.length > 0);
@@ -202,7 +201,7 @@ public class EnqueueRunnable implements Runnable {
             }
         }
 
-        for (InternalWorkImpl work : workImplArray) {
+        for (InternalWorkImpl work : workImplList) {
             WorkSpec workSpec = work.getWorkSpec();
 
             if (hasPrerequisite && !hasCompletedAllPrerequisites) {
@@ -236,7 +235,7 @@ public class EnqueueRunnable implements Runnable {
         // that can be scheduled in the background. The actual scheduling is typically
         // done after the transaction has settled.
         if (!hasPrerequisite) {
-            workToBeScheduled.addAll(Arrays.asList(workImplArray));
+            workToBeScheduled.addAll(workImplList);
         }
     }
 }

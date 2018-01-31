@@ -74,7 +74,7 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
 
         Work startupWork = new Work.Builder(TextStartupWorker.class).build();
         workManager
-                .createWith(startupWork)
+                .beginWith(startupWork)
                 .then(TextMappingWorker.create("advs.txt").build(),
                         TextMappingWorker.create("case.txt").build(),
                         TextMappingWorker.create("lstb.txt").build(),
