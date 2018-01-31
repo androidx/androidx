@@ -46,7 +46,7 @@ package android.support.v14.preference {
     field protected static final java.lang.String ARG_KEY = "key";
   }
 
-  public abstract class PreferenceFragment extends android.app.Fragment implements android.support.v7.preference.PreferenceManager.OnDisplayPreferenceDialogListener android.support.v7.preference.PreferenceManager.OnNavigateToScreenListener android.support.v7.preference.PreferenceManager.OnPreferenceTreeClickListener {
+  public abstract class PreferenceFragment extends android.app.Fragment implements android.support.v7.preference.DialogPreference.TargetFragment android.support.v7.preference.PreferenceManager.OnDisplayPreferenceDialogListener android.support.v7.preference.PreferenceManager.OnNavigateToScreenListener android.support.v7.preference.PreferenceManager.OnPreferenceTreeClickListener {
     ctor public PreferenceFragment();
     method public void addPreferencesFromResource(int);
     method public android.support.v7.preference.Preference findPreference(java.lang.CharSequence);

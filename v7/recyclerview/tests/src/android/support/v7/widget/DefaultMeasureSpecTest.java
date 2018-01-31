@@ -24,12 +24,10 @@ import static android.view.View.MeasureSpec.makeMeasureSpec;
 import android.graphics.Rect;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
-import android.test.AndroidTestCase;
 import android.view.View;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +38,7 @@ import java.util.List;
 
 @RunWith(Parameterized.class)
 @SmallTest
-public class DefaultMeasureSpecTest extends AndroidTestCase {
+public class DefaultMeasureSpecTest {
     private final int mWSpec;
     private final int mHSpec;
     private int mExpectedW;
@@ -49,20 +47,11 @@ public class DefaultMeasureSpecTest extends AndroidTestCase {
     RecyclerView mRecyclerView;
 
     @Before
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
-        setContext(InstrumentationRegistry.getContext());
-        mRecyclerView = new RecyclerView(getContext());
+        mRecyclerView = new RecyclerView(InstrumentationRegistry.getContext());
         if (mPadding != null) {
             mRecyclerView.setPadding(mPadding.left, mPadding.top, mPadding.right, mPadding.bottom);
         }
-    }
-
-    @After
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
     }
 
     @Parameterized.Parameters(name = "{0}")
@@ -152,7 +141,6 @@ public class DefaultMeasureSpecTest extends AndroidTestCase {
         runTest();
     }
 
-    @Override
     @Test
     public void runTest() {
         mRecyclerView.defaultOnMeasure(mWSpec, mHSpec);

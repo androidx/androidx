@@ -11,8 +11,8 @@ dependencies {
     api(project(":support-compat"))
     compileOnly project(':support-fragment')
 
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":support-v4"))
@@ -20,22 +20,6 @@ dependencies {
 }
 
 android {
-    sourceSets {
-        main.java.srcDirs = [
-                'base',
-                'api14',
-                'api18',
-                'api19',
-                'api21',
-                'api22',
-                'src'
-        ]
-        main.res.srcDirs = [
-                'res',
-                'res-public'
-        ]
-    }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
@@ -52,5 +36,4 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2016"
     description = "Android Transition Support Library"
-    legacySourceLocation = true
 }

@@ -109,7 +109,7 @@ public class ViewPagerActions {
             }
 
             @Override
-            public final void perform(UiController uiController, View view) {
+            public void perform(UiController uiController, View view) {
                 final ViewPager viewPager = (ViewPager) view;
                 // Add a custom tracker listener
                 final CustomViewPagerListener customListener = new CustomViewPagerListener();

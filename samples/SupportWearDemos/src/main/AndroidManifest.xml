@@ -29,6 +29,8 @@
         <activity android:name=".app.RoundedDrawableDemo" />
         <activity android:name=".app.drawers.WearableDrawersDemo" android:exported="true" />
         <activity android:name=".app.AmbientModeDemo" />
+        <activity android:name=".app.AlertDialogDemo"
+            android:theme="@style/Theme.AppCompat.Light" />
         <activity android:name=".app.MainDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

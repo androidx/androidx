@@ -15,8 +15,7 @@
  */
 package android.support.v7.widget;
 
-import static junit.framework.TestCase.assertEquals;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;

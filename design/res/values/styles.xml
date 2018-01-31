@@ -117,7 +117,7 @@
     <style name="Widget.Design.AppBarLayout" parent="Base.Widget.Design.AppBarLayout">
     </style>
 
-    <style name="Widget.Design.CoordinatorLayout" parent="android:Widget">
+    <style name="Widget.Design.CoordinatorLayout" parent="@style/Widget.Support.CoordinatorLayout">
         <item name="statusBarBackground">?attr/colorPrimaryDark</item>
     </style>
 

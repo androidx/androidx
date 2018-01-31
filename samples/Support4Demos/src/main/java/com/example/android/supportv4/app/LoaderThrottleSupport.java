@@ -33,6 +33,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
@@ -486,6 +487,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
             MainTable.COLUMN_NAME_DATA,
         };
 
+        @NonNull
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             CursorLoader cl = new CursorLoader(getActivity(), MainTable.CONTENT_URI,
@@ -495,7 +497,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
         }
 
         @Override
-        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
             mAdapter.swapCursor(data);
 
             // The list should now be shown.
@@ -507,7 +509,7 @@ public class LoaderThrottleSupport extends FragmentActivity {
         }
 
         @Override
-        public void onLoaderReset(Loader<Cursor> loader) {
+        public void onLoaderReset(@NonNull Loader<Cursor> loader) {
             mAdapter.swapCursor(null);
         }
     }

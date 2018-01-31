@@ -43,7 +43,7 @@ public class FragmentController {
     /**
      * Returns a {@link FragmentController}.
      */
-    public static final FragmentController createController(FragmentHostCallback<?> callbacks) {
+    public static FragmentController createController(FragmentHostCallback<?> callbacks) {
         return new FragmentController(callbacks);
     }
 
@@ -60,9 +60,12 @@ public class FragmentController {
 
     /**
      * Returns a {@link LoaderManager}.
+     *
+     * @deprecated Loaders are managed separately from FragmentController
      */
+    @Deprecated
     public LoaderManager getSupportLoaderManager() {
-        return mHost.getLoaderManagerImpl();
+        return null;
     }
 
     /**
@@ -136,7 +139,7 @@ public class FragmentController {
     @Deprecated
     public void restoreAllState(Parcelable state, List<Fragment> nonConfigList) {
         mHost.mFragmentManager.restoreAllState(state,
-                new FragmentManagerNonConfig(nonConfigList, null));
+                new FragmentManagerNonConfig(nonConfigList, null, null));
     }
 
     /**
@@ -381,9 +384,11 @@ public class FragmentController {
 
     /**
      * Starts the loaders.
+     *
+     * @deprecated Loaders are managed separately from FragmentController
      */
+    @Deprecated
     public void doLoaderStart() {
-        mHost.doLoaderStart();
     }
 
     /**
@@ -392,38 +397,49 @@ public class FragmentController {
      *
      * @param retain When {@code true}, the loaders aren't stopped, but, their instances
      * are retained in a started state
+     *
+     * @deprecated Loaders are managed separately from FragmentController
      */
+    @Deprecated
     public void doLoaderStop(boolean retain) {
-        mHost.doLoaderStop(retain);
     }
 
     /**
      * Retains the state of each of the loaders.
+     *
+     * @deprecated Loaders are managed separately from FragmentController
      */
+    @Deprecated
     public void doLoaderRetain() {
-        mHost.doLoaderRetain();
     }
 
     /**
      * Destroys the loaders and, if their state is not being retained, removes them.
+     *
+     * @deprecated Loaders are managed separately from FragmentController
      */
+    @Deprecated
     public void doLoaderDestroy() {
-        mHost.doLoaderDestroy();
     }
 
     /**
      * Lets the loaders know the host is ready to receive notifications.
+     *
+     * @deprecated Loaders are managed separately from FragmentController
      */
+    @Deprecated
     public void reportLoaderStart() {
-        mHost.reportLoaderStart();
     }
 
     /**
      * Returns a list of LoaderManagers that have opted to retain their instance across
      * configuration changes.
+     *
+     * @deprecated Loaders are managed separately from FragmentController
      */
+    @Deprecated
     public SimpleArrayMap<String, LoaderManager> retainLoaderNonConfig() {
-        return mHost.retainLoaderNonConfig();
+        return null;
     }
 
     /**
@@ -431,15 +447,19 @@ public class FragmentController {
      * LoaderManager instances retained across configuration changes.
      *
      * @see #retainLoaderNonConfig()
+     *
+     * @deprecated Loaders are managed separately from FragmentController
      */
+    @Deprecated
     public void restoreLoaderNonConfig(SimpleArrayMap<String, LoaderManager> loaderManagers) {
-        mHost.restoreLoaderNonConfig(loaderManagers);
     }
 
     /**
      * Dumps the current state of the loaders.
+     *
+     * @deprecated Loaders are managed separately from FragmentController
      */
+    @Deprecated
     public void dumpLoaders(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
-        mHost.dumpLoaders(prefix, fd, writer, args);
     }
 }

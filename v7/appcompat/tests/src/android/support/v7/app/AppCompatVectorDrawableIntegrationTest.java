@@ -24,10 +24,10 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.appcompat.test.R;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.widget.ImageView;
 

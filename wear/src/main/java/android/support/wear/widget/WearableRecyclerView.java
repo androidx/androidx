@@ -16,11 +16,9 @@
 
 package android.support.wear.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Point;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.R;
@@ -35,7 +33,6 @@ import android.view.ViewTreeObserver;
  *
  * @see #setCircularScrollingGestureEnabled(boolean)
  */
-@TargetApi(Build.VERSION_CODES.M)
 public class WearableRecyclerView extends RecyclerView {
     private static final String TAG = "WearableRecyclerView";
 

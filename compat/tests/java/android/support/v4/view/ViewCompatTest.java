@@ -15,9 +15,13 @@
  */
 package android.support.v4.view;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.support.compat.test.R;
@@ -31,6 +35,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.HashSet;
+import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -76,4 +82,43 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         assertEquals("abc", ViewCompat.getTransitionName(view));
     }
 
+    @Test
+    public void testGenerateViewId() {
+        final int requestCount = 100;
+
+        Set<Integer> generatedIds = new HashSet<>();
+        for (int i = 0; i < requestCount; i++) {
+            int generatedId = ViewCompat.generateViewId();
+            assertTrue(isViewIdGenerated(generatedId));
+            generatedIds.add(generatedId);
+        }
+
+        assertThat(generatedIds.size(), equalTo(requestCount));
+    }
+
+    @Test
+    public void testRequireViewByIdFound() {
+        View container = mActivityTestRule.getActivity().findViewById(R.id.container);
+        assertSame(mView, ViewCompat.requireViewById(container, R.id.view));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRequireViewByIdMissing() {
+        View container = mActivityTestRule.getActivity().findViewById(R.id.container);
+
+        // action_bar isn't present inside container
+        ViewCompat.requireViewById(container, R.id.action_bar);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRequireViewByIdInvalid() {
+        View container = mActivityTestRule.getActivity().findViewById(R.id.container);
+
+        // NO_ID is always invalid
+        ViewCompat.requireViewById(container, View.NO_ID);
+    }
+
+    private static boolean isViewIdGenerated(int id) {
+        return (id & 0xFF000000) == 0 && (id & 0x00FFFFFF) != 0;
+    }
 }

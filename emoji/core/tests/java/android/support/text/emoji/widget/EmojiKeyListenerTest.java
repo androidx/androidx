@@ -25,9 +25,8 @@ import static android.support.text.emoji.util.KeyboardUtil.forwardDel;
 import static android.support.text.emoji.util.KeyboardUtil.shiftDel;
 import static android.support.text.emoji.util.KeyboardUtil.zero;
 
-import static junit.framework.Assert.assertFalse;
-
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -39,7 +38,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import android.annotation.TargetApi;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -61,7 +59,6 @@ import org.junit.runner.RunWith;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 19)
-@TargetApi(19)
 public class EmojiKeyListenerTest {
 
     private KeyListener mKeyListener;

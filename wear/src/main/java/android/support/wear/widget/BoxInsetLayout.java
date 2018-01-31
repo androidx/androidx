@@ -20,7 +20,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -47,7 +46,7 @@ import java.lang.annotation.RetentionPolicy;
 @UiThread
 public class BoxInsetLayout extends ViewGroup {
 
-    private static final float FACTOR = 0.146467f; //(1 - sqrt(2)/2)/2
+    private static final float FACTOR = 0.146447f; //(1 - sqrt(2)/2)/2
     private static final int DEFAULT_CHILD_GRAVITY = Gravity.TOP | Gravity.START;
 
     private final int mScreenHeight;
@@ -111,21 +110,6 @@ public class BoxInsetLayout extends ViewGroup {
     }
 
     @Override
-    public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-        insets = super.onApplyWindowInsets(insets);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            final boolean round = insets.isRound();
-            if (round != mIsRound) {
-                mIsRound = round;
-                requestLayout();
-            }
-            mInsets.set(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(),
-                    insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
-        }
-        return insets;
-    }
-
-    @Override
     public void setForeground(Drawable drawable) {
         super.setForeground(drawable);
         mForegroundDrawable = drawable;
@@ -145,14 +129,10 @@ public class BoxInsetLayout extends ViewGroup {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            requestApplyInsets();
-        } else {
-            mIsRound = getResources().getConfiguration().isScreenRound();
-            WindowInsets insets = getRootWindowInsets();
-            mInsets.set(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(),
-                    insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
-        }
+        mIsRound = getResources().getConfiguration().isScreenRound();
+        WindowInsets insets = getRootWindowInsets();
+        mInsets.set(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(),
+                insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
     }
 
     @Override
@@ -413,7 +393,7 @@ public class BoxInsetLayout extends ViewGroup {
     public static class LayoutParams extends FrameLayout.LayoutParams {
 
         /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef({BOX_NONE, BOX_LEFT, BOX_TOP, BOX_RIGHT, BOX_BOTTOM, BOX_ALL})
         @Retention(RetentionPolicy.SOURCE)
         public @interface BoxedEdges {}

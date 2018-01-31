@@ -22,6 +22,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.util.DiffUtil;
@@ -73,7 +74,9 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
 
     private PreferenceLayout mTempPreferenceLayout = new PreferenceLayout();
 
-    private Handler mHandler = new Handler();
+    private Handler mHandler;
+
+    private CollapsiblePreferenceGroupController mPreferenceGroupController;
 
     private Runnable mSyncRunnable = new Runnable() {
         @Override
@@ -117,7 +120,14 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     }
 
     public PreferenceGroupAdapter(PreferenceGroup preferenceGroup) {
+        this(preferenceGroup, new Handler());
+    }
+
+    private PreferenceGroupAdapter(PreferenceGroup preferenceGroup, Handler handler) {
         mPreferenceGroup = preferenceGroup;
+        mHandler = handler;
+        mPreferenceGroupController =
+                new CollapsiblePreferenceGroupController(preferenceGroup, this);
         // If this group gets or loses any children, let us know
         mPreferenceGroup.setOnPreferenceChangeInternalListener(this);
 
@@ -134,6 +144,12 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         syncMyPreferences();
     }
 
+    @VisibleForTesting
+    static PreferenceGroupAdapter createInstanceWithCustomHandler(PreferenceGroup preferenceGroup,
+            Handler handler) {
+        return new PreferenceGroupAdapter(preferenceGroup, handler);
+    }
+
     private void syncMyPreferences() {
         for (final Preference preference : mPreferenceListInternal) {
             // Clear out the listeners in anticipation of some items being removed. This listener
@@ -143,13 +159,8 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         final List<Preference> fullPreferenceList = new ArrayList<>(mPreferenceListInternal.size());
         flattenPreferenceGroup(fullPreferenceList, mPreferenceGroup);
 
-        final List<Preference> visiblePreferenceList = new ArrayList<>(fullPreferenceList.size());
-        // Copy only the visible preferences to the active list
-        for (final Preference preference : fullPreferenceList) {
-            if (preference.isVisible()) {
-                visiblePreferenceList.add(preference);
-            }
-        }
+        final List<Preference> visiblePreferenceList =
+                mPreferenceGroupController.createVisiblePreferencesList(fullPreferenceList);
 
         final List<Preference> oldVisibleList = mPreferenceList;
         mPreferenceList = visiblePreferenceList;
@@ -275,6 +286,9 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     @Override
     public void onPreferenceVisibilityChange(Preference preference) {
         if (!mPreferenceListInternal.contains(preference)) {
+            return;
+        }
+        if (mPreferenceGroupController.onPreferenceVisibilityChange(preference)) {
             return;
         }
         if (preference.isVisible()) {

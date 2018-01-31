@@ -148,7 +148,7 @@ public final class GestureDetectorCompat {
          *
          * @throws NullPointerException if {@code listener} is null.
          */
-        public GestureDetectorCompatImplBase(Context context, OnGestureListener listener,
+        GestureDetectorCompatImplBase(Context context, OnGestureListener listener,
                 Handler handler) {
             if (handler != null) {
                 mHandler = new GestureHandler(handler);
@@ -465,7 +465,7 @@ public final class GestureDetectorCompat {
     static class GestureDetectorCompatImplJellybeanMr2 implements GestureDetectorCompatImpl {
         private final GestureDetector mDetector;
 
-        public GestureDetectorCompatImplJellybeanMr2(Context context, OnGestureListener listener,
+        GestureDetectorCompatImplJellybeanMr2(Context context, OnGestureListener listener,
                 Handler handler) {
             mDetector = new GestureDetector(context, listener, handler);
         }

@@ -33,7 +33,7 @@ import java.util.WeakHashMap;
  *
  * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 class FlingWatcherFactory {
 
     /**

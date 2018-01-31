@@ -28,12 +28,6 @@ dependencies {
     api(project(":preference-v7"))
 }
 
-android {
-    sourceSets {
-        main.res.srcDir 'res'
-    }
-}
-
 supportLibrary {
     name = "Android Support Preference v14"
     publish = true
@@ -41,5 +35,4 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2015"
     description = "Android Support Preference v14"
-    legacySourceLocation = true
 }

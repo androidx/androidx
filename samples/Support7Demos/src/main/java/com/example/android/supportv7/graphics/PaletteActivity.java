@@ -23,6 +23,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -146,6 +147,7 @@ public class PaletteActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
+        @NonNull
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
             return new CursorLoader(
@@ -158,12 +160,12 @@ public class PaletteActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        public void onLoadFinished(@NonNull Loader<Cursor> cursorLoader, Cursor cursor) {
             mAdapter.swapCursor(cursor);
         }
 
         @Override
-        public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        public void onLoaderReset(@NonNull Loader<Cursor> cursorLoader) {
             mAdapter.swapCursor(null);
         }
 

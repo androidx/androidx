@@ -13,56 +13,77 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false">
 
+    <android.support.constraint.Guideline
+        android:id="@+id/ws_nav_drawer_guide_top"
+        app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_5_items_top"
+        style="@style/WsHorizontalGuideStyle" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/ws_nav_drawer_guide_top_row_start"
+        app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_5_items_top_row_start"
+        style="@style/WsVerticalGuideStyle" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/ws_nav_drawer_guide_top_row_end"
+        app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_5_items_top_row_end"
+        style="@style/WsVerticalGuideStyle" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/ws_nav_drawer_guide_middle_row_start"
+        app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_5_items_middle_row_start"
+        style="@style/WsVerticalGuideStyle" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/ws_nav_drawer_guide_middle_row_end"
+        app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_5_items_middle_row_end"
+        style="@style/WsVerticalGuideStyle" />
+
     <android.support.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_0"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        app:layout_marginStartPercent="@fraction/ws_nav_drawer_margin_5_items_horizontal_outer_rows"
-        app:layout_marginTopPercent="@fraction/ws_nav_drawer_margin_5_items_vertical"
+        app:layout_constraintTop_toTopOf="@id/ws_nav_drawer_guide_top"
+        app:layout_constraintStart_toStartOf="@id/ws_nav_drawer_guide_top_row_start"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle"/>
 
     <android.support.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_1"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        app:layout_marginEndPercent="@fraction/ws_nav_drawer_margin_5_items_horizontal_outer_rows"
-        app:layout_marginTopPercent="@fraction/ws_nav_drawer_margin_5_items_vertical"
+        app:layout_constraintTop_toTopOf="@id/ws_nav_drawer_guide_top"
+        app:layout_constraintEnd_toEndOf="@id/ws_nav_drawer_guide_top_row_end"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
     <android.support.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_2"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        app:layout_marginStartPercent="@fraction/ws_nav_drawer_margin_5_items_horizontal_middle_row"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/ws_nav_drawer_guide_middle_row_start"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
     <android.support.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_3"
-        android:layout_centerInParent="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
     <android.support.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_4"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        app:layout_marginEndPercent="@fraction/ws_nav_drawer_margin_5_items_horizontal_middle_row"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/ws_nav_drawer_guide_middle_row_end"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
-    <TextView
-        android:id="@+id/ws_nav_drawer_text"
-        android:layout_below="@id/ws_nav_drawer_icon_4"
-        style="@style/WsSinglePageNavDrawerTextStyle"/>
+    <include layout="@layout/ws_single_page_nav_drawer_text" />
 
-</android.support.percent.PercentRelativeLayout>
+</android.support.constraint.ConstraintLayout>

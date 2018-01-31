@@ -27,10 +27,7 @@ import java.lang.reflect.Method;
 
 /**
  * Helper for accessing features in {@link ViewConfiguration}.
- *
- * @deprecated Use {@link ViewConfiguration} directly.
  */
-@Deprecated
 public final class ViewConfigurationCompat {
     private static final String TAG = "ViewConfigCompat";
 

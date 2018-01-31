@@ -1001,7 +1001,26 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
     public View createView(View parent, final String name, @NonNull Context context,
             @NonNull AttributeSet attrs) {
         if (mAppCompatViewInflater == null) {
-            mAppCompatViewInflater = new AppCompatViewInflater();
+            TypedArray a = mContext.obtainStyledAttributes(R.styleable.AppCompatTheme);
+            String viewInflaterClassName =
+                    a.getString(R.styleable.AppCompatTheme_viewInflaterClass);
+            if ((viewInflaterClassName == null)
+                    || AppCompatViewInflater.class.getName().equals(viewInflaterClassName)) {
+                // Either default class name or set explicitly to null. In both cases
+                // create the base inflater (no reflection)
+                mAppCompatViewInflater = new AppCompatViewInflater();
+            } else {
+                try {
+                    Class viewInflaterClass = Class.forName(viewInflaterClassName);
+                    mAppCompatViewInflater =
+                            (AppCompatViewInflater) viewInflaterClass.getDeclaredConstructor()
+                                    .newInstance();
+                } catch (Throwable t) {
+                    Log.i(TAG, "Failed to instantiate custom view inflater "
+                            + viewInflaterClassName + ". Falling back to default.", t);
+                    mAppCompatViewInflater = new AppCompatViewInflater();
+                }
+            }
         }
 
         boolean inheritContext = false;

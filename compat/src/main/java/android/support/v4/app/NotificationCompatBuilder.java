@@ -28,6 +28,7 @@ import android.app.Notification;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RestrictTo;
+import android.text.TextUtils;
 import android.util.SparseArray;
 import android.widget.RemoteViews;
 
@@ -69,7 +70,6 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 .setSmallIcon(n.icon, n.iconLevel)
                 .setContent(n.contentView)
                 .setTicker(n.tickerText, b.mTickerView)
-                .setSound(n.sound, n.audioStreamType)
                 .setVibrate(n.vibrate)
                 .setLights(n.ledARGB, n.ledOnMS, n.ledOffMS)
                 .setOngoing((n.flags & Notification.FLAG_ONGOING_EVENT) != 0)
@@ -86,6 +86,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 .setLargeIcon(b.mLargeIcon)
                 .setNumber(b.mNumber)
                 .setProgress(b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
+        if (Build.VERSION.SDK_INT < 21) {
+            mBuilder.setSound(n.sound, n.audioStreamType);
+        }
         if (Build.VERSION.SDK_INT >= 16) {
             mBuilder.setSubText(b.mSubText)
                     .setUsesChronometer(b.mUseChronometer)
@@ -141,7 +144,8 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             mBuilder.setCategory(b.mCategory)
                     .setColor(b.mColor)
                     .setVisibility(b.mVisibility)
-                    .setPublicVersion(b.mPublicVersion);
+                    .setPublicVersion(b.mPublicVersion)
+                    .setSound(n.sound, n.audioAttributes);
 
             for (String person: b.mPeople) {
                 mBuilder.addPerson(person);
@@ -168,6 +172,13 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                     .setGroupAlertBehavior(b.mGroupAlertBehavior);
             if (b.mColorizedSet) {
                 mBuilder.setColorized(b.mColorized);
+            }
+
+            if (!TextUtils.isEmpty(b.mChannelId)) {
+                mBuilder.setSound(null)
+                        .setDefaults(0)
+                        .setLights(0, 0, 0)
+                        .setVibrate(null);
             }
         }
     }

@@ -17,9 +17,8 @@ package android.support.text.emoji.widget;
 
 import static android.support.text.emoji.util.EmojiMatcher.hasEmoji;
 
-import static junit.framework.Assert.assertFalse;
-
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doReturn;
@@ -30,7 +29,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
@@ -56,7 +54,6 @@ import org.junit.runner.RunWith;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 19)
-@TargetApi(19)
 public class EmojiInputConnectionTest {
 
     private InputConnection mInputConnection;
@@ -87,7 +84,6 @@ public class EmojiInputConnectionTest {
                 new EditorInfo());
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
     private void setupDeleteSurroundingText() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             when(mInputConnection.deleteSurroundingTextInCodePoints(anyInt(), anyInt())).thenReturn(
@@ -123,7 +119,6 @@ public class EmojiInputConnectionTest {
         verify(mInputConnection, never()).deleteSurroundingText(anyInt(), anyInt());
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     public void testDeleteSurroundingTextInCodePoints_doesNotDelete() {
@@ -132,7 +127,6 @@ public class EmojiInputConnectionTest {
         verify(mInputConnection, times(1)).deleteSurroundingTextInCodePoints(1, 0);
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     public void testDeleteSurroundingTextInCodePoints_deletesEmojiBackward() {
@@ -141,7 +135,6 @@ public class EmojiInputConnectionTest {
         verify(mInputConnection, never()).deleteSurroundingTextInCodePoints(anyInt(), anyInt());
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     public void testDeleteSurroundingTextInCodePoints_deletesEmojiForward() {
@@ -150,7 +143,6 @@ public class EmojiInputConnectionTest {
         verify(mInputConnection, never()).deleteSurroundingTextInCodePoints(anyInt(), anyInt());
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     public void testDeleteSurroundingTextInCodePoints_doesNotDeleteEmojiIfSelectionAtStartIndex() {

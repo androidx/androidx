@@ -15,8 +15,7 @@
  */
 package android.support.text.emoji;
 
-import static junit.framework.Assert.assertEquals;
-
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -25,7 +24,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.annotation.TargetApi;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetricsInt;
@@ -43,7 +41,6 @@ import org.mockito.stubbing.Answer;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 19)
-@TargetApi(19)
 public class EmojiSpanTest {
 
     @Before
@@ -77,7 +74,7 @@ public class EmojiSpanTest {
 
         final int resultSize = span.getSize(paint, "", 0, 0, null);
         assertEquals((int) (dimensionX * expectedRatio), resultSize);
-        assertEquals(expectedRatio, span.getRatio());
+        assertEquals(expectedRatio, span.getRatio(), 0.01f);
         assertEquals((int) (dimensionX * expectedRatio), span.getWidth());
         assertEquals((int) (dimensionY * expectedRatio), span.getHeight());
     }

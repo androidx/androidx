@@ -29,7 +29,7 @@ import android.widget.Button;
 
 import com.example.android.support.wear.app.drawers.WearableDrawersDemo;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -51,7 +51,7 @@ public class MainDemoActivity extends Activity {
     }
 
     private Map<String, Intent> createContentMap() {
-        Map<String, Intent> contentMap = new HashMap<>();
+        Map<String, Intent> contentMap = new LinkedHashMap<>();
         contentMap.put("Wearable Recycler View", new Intent(
                 this, SimpleWearableRecyclerViewDemo.class));
         contentMap.put("Wearable Switch", new Intent(
@@ -64,6 +64,8 @@ public class MainDemoActivity extends Activity {
                 this, RoundedDrawableDemo.class));
         contentMap.put("Ambient Fragment", new Intent(
                 this, AmbientModeDemo.class));
+        contentMap.put("Alert Dialog (v7)", new Intent(
+                this, AlertDialogDemo.class));
 
         return contentMap;
     }

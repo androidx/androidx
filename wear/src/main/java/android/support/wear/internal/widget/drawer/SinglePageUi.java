@@ -38,7 +38,7 @@ import android.widget.Toast;
  *
  * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 public class SinglePageUi implements SinglePagePresenter.Ui {
 
     @IdRes
@@ -111,11 +111,10 @@ public class SinglePageUi implements SinglePagePresenter.Ui {
                         R.layout.ws_single_page_nav_drawer_peek_view, mDrawer,
                         false /* attachToRoot */);
 
-        mTextView = (TextView) content.findViewById(R.id.ws_nav_drawer_text);
+        mTextView = content.findViewById(R.id.ws_nav_drawer_text);
         mSinglePageImageViews = new CircledImageView[count];
         for (int i = 0; i < count; i++) {
-            mSinglePageImageViews[i] = (CircledImageView) content
-                    .findViewById(SINGLE_PAGE_BUTTON_IDS[i]);
+            mSinglePageImageViews[i] = content.findViewById(SINGLE_PAGE_BUTTON_IDS[i]);
             mSinglePageImageViews[i].setOnClickListener(new OnSelectedClickHandler(i, mPresenter));
             mSinglePageImageViews[i].setCircleHidden(true);
         }

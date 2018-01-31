@@ -31,6 +31,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,8 +48,8 @@ class SystemAlarmServiceImpl {
     static final String ACTION_CANCEL_WORK = "CANCEL_WORK";
     static final String ACTION_CONSTRAINT_CHANGED = "CONSTRAINT_CHANGED";
 
-    private final List<WorkSpec> mDelayMetWorkSpecs = new LinkedList<>();
-    private final List<WorkSpec> mDelayNotMetWorkSpecs = new LinkedList<>();
+    private final List<WorkSpec> mDelayMetWorkSpecs = new ArrayList<>();
+    private final List<WorkSpec> mDelayNotMetWorkSpecs = new ArrayList<>();
     private final Object mLock = new Object();
     private final Context mContext;
     private final AllWorkExecutedCallback mCallback;

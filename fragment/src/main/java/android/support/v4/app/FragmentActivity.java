@@ -20,6 +20,8 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.ViewModelStore;
+import android.arch.lifecycle.ViewModelStoreOwner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -33,7 +35,6 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -65,6 +66,7 @@ import java.util.Collection;
  * </ul>
  */
 public class FragmentActivity extends BaseFragmentActivityApi16 implements
+        ViewModelStoreOwner,
         ActivityCompat.OnRequestPermissionsResultCallback,
         ActivityCompat.RequestPermissionsRequestCodeValidator {
     private static final String TAG = "FragmentActivity";
@@ -98,6 +100,9 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
 
     };
     final FragmentController mFragments = FragmentController.createController(new HostCallbacks());
+    LoaderManager mLoaderManager;
+
+    private ViewModelStore mViewModelStore;
 
     boolean mCreated;
     boolean mResumed;
@@ -120,8 +125,8 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
 
     static final class NonConfigurationInstances {
         Object custom;
+        ViewModelStore viewModelStore;
         FragmentManagerNonConfig fragments;
-        SimpleArrayMap<String, LoaderManager> loaders;
     }
 
     // ------------------------------------------------------------------------
@@ -273,7 +278,26 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        mFragments.noteStateNotSaved();
         mFragments.dispatchConfigurationChanged(newConfig);
+    }
+
+    /**
+     * Returns the {@link ViewModelStore} associated with this activity
+     *
+     * @return a {@code ViewModelStore}
+     */
+    @NonNull
+    @Override
+    public ViewModelStore getViewModelStore() {
+        if (getApplication() == null) {
+            throw new IllegalStateException("Your activity is not yet attached to the "
+                    + "Application instance. You can't request ViewModel before onCreate call.");
+        }
+        if (mViewModelStore == null) {
+            mViewModelStore = new ViewModelStore();
+        }
+        return mViewModelStore;
     }
 
     /**
@@ -287,7 +311,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     /**
-     * Perform initialization of all fragments and loaders.
+     * Perform initialization of all fragments.
      */
     @SuppressWarnings("deprecation")
     @Override
@@ -299,7 +323,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         NonConfigurationInstances nc =
                 (NonConfigurationInstances) getLastNonConfigurationInstance();
         if (nc != null) {
-            mFragments.restoreLoaderNonConfig(nc.loaders);
+            mViewModelStore = nc.viewModelStore;
         }
         if (savedInstanceState != null) {
             Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
@@ -351,7 +375,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     /**
-     * Destroy all fragments and loaders.
+     * Destroy all fragments.
      */
     @Override
     protected void onDestroy() {
@@ -359,8 +383,11 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
 
         doReallyStop(false);
 
+        if (mViewModelStore != null && !mRetaining) {
+            mViewModelStore.clear();
+        }
+
         mFragments.dispatchDestroy();
-        mFragments.doLoaderDestroy();
     }
 
     /**
@@ -504,7 +531,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     /**
-     * Retain all appropriate fragment and loader state.  You can NOT
+     * Retain all appropriate fragment state.  You can NOT
      * override this yourself!  Use {@link #onRetainCustomNonConfigurationInstance()}
      * if you want to retain your own state.
      */
@@ -517,16 +544,15 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         Object custom = onRetainCustomNonConfigurationInstance();
 
         FragmentManagerNonConfig fragments = mFragments.retainNestedNonConfig();
-        SimpleArrayMap<String, LoaderManager> loaders = mFragments.retainLoaderNonConfig();
 
-        if (fragments == null && loaders == null && custom == null) {
+        if (fragments == null && mViewModelStore == null && custom == null) {
             return null;
         }
 
         NonConfigurationInstances nci = new NonConfigurationInstances();
         nci.custom = custom;
+        nci.viewModelStore = mViewModelStore;
         nci.fragments = fragments;
-        nci.loaders = loaders;
         return nci;
     }
 
@@ -556,8 +582,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     /**
-     * Dispatch onStart() to all fragments.  Ensure any created loaders are
-     * now started.
+     * Dispatch onStart() to all fragments.
      */
     @Override
     protected void onStart() {
@@ -575,16 +600,13 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         mFragments.noteStateNotSaved();
         mFragments.execPendingActions();
 
-        mFragments.doLoaderStart();
-
         // NOTE: HC onStart goes here.
 
         mFragments.dispatchStart();
-        mFragments.reportLoaderStart();
     }
 
     /**
-     * Dispatch onStop() to all fragments.  Ensure all loaders are stopped.
+     * Dispatch onStop() to all fragments.
      */
     @Override
     protected void onStop() {
@@ -656,7 +678,9 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
                 writer.print(mResumed); writer.print(" mStopped=");
                 writer.print(mStopped); writer.print(" mReallyStopped=");
                 writer.println(mReallyStopped);
-        mFragments.dumpLoaders(innerPrefix, fd, writer, args);
+        if (mLoaderManager != null) {
+            mLoaderManager.dump(innerPrefix, fd, writer, args);
+        }
         mFragments.getSupportFragmentManager().dump(prefix, fd, writer, args);
     }
 
@@ -666,13 +690,6 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
             mRetaining = retaining;
             mHandler.removeMessages(MSG_REALLY_STOPPED);
             onReallyStop();
-        } else if (retaining) {
-            // We're already really stopped, but we've been asked to retain.
-            // Our fragments are taken care of but we need to mark the loaders for retention.
-            // In order to do this correctly we need to restart the loaders first before
-            // handing them off to the next activity.
-            mFragments.doLoaderStart();
-            mFragments.doLoaderStop(true);
         }
     }
 
@@ -684,8 +701,6 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
      * tell us what we need to know.
      */
     void onReallyStop() {
-        mFragments.doLoaderStop(mRetaining);
-
         mFragments.dispatchReallyStop();
     }
 
@@ -713,7 +728,11 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     public LoaderManager getSupportLoaderManager() {
-        return mFragments.getSupportLoaderManager();
+        if (mLoaderManager != null) {
+            return mLoaderManager;
+        }
+        mLoaderManager = new LoaderManagerImpl(this, getViewModelStore());
+        return mLoaderManager;
     }
 
     /**

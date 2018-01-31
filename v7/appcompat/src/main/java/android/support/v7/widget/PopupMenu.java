@@ -16,11 +16,14 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.support.annotation.AttrRes;
 import android.support.annotation.MenuRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.SupportMenuInflater;
@@ -32,6 +35,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.PopupWindow;
 
 /**
@@ -287,5 +291,20 @@ public class PopupMenu {
          * @param menu the popup menu that was dismissed
          */
         void onDismiss(PopupMenu menu);
+    }
+
+    /**
+     * Returns the {@link ListView} representing the list of menu items in the currently showing
+     * menu.
+     *
+     * @return The view representing the list of menu items.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    ListView getMenuListView() {
+        if (!mPopup.isShowing()) {
+            return null;
+        }
+        return mPopup.getListView();
     }
 }

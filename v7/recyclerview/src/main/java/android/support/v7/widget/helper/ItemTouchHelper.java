@@ -457,7 +457,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             destroyCallbacks();
         }
         mRecyclerView = recyclerView;
-        if (mRecyclerView != null) {
+        if (recyclerView != null) {
             final Resources resources = recyclerView.getResources();
             mSwipeEscapeVelocity = resources
                     .getDimension(R.dimen.item_touch_helper_swipe_escape_velocity);

@@ -16,11 +16,9 @@
 
 package android.support.wear.widget.drawer;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
@@ -87,7 +85,6 @@ import java.lang.annotation.RetentionPolicy;
  *     &lt;/LinearLayout&gt;
  * &lt;/android.support.wear.widget.drawer.WearableDrawerView&gt;</pre>
  */
-@TargetApi(Build.VERSION_CODES.M)
 public class WearableDrawerView extends FrameLayout {
     /**
      * Indicates that the drawer is in an idle, settled state. No animation is in progress.
@@ -109,7 +106,7 @@ public class WearableDrawerView extends FrameLayout {
      * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY)
     @IntDef({STATE_IDLE, STATE_DRAGGING, STATE_SETTLING})
     public @interface DrawerState {}
 
@@ -155,8 +152,8 @@ public class WearableDrawerView extends FrameLayout {
         setElevation(context.getResources()
                 .getDimension(R.dimen.ws_wearable_drawer_view_elevation));
 
-        mPeekContainer = (ViewGroup) findViewById(R.id.ws_drawer_view_peek_container);
-        mPeekIcon = (ImageView) findViewById(R.id.ws_drawer_view_peek_icon);
+        mPeekContainer = findViewById(R.id.ws_drawer_view_peek_container);
+        mPeekIcon = findViewById(R.id.ws_drawer_view_peek_icon);
 
         mPeekContainer.setOnClickListener(
                 new OnClickListener() {

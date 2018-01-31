@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+    <!-- The styling for title text. The color of this text changes based on day/night mode. -->
+    <style name="CarTitle">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_title_size</item>
+        <item name="android:textColor">@color/car_title</item>
+    </style>
+
+    <!-- Title text that is permanently a dark color. -->
+    <style name="CarTitle.Dark">
+        <item name="android:textColor">@color/car_title_dark</item>
+    </style>
+
+    <!-- Title text that is permanently a light color. -->
+    <style name="CarTitle.Light">
+        <item name="android:textColor">@color/car_title_light</item>
+    </style>
+
+    <!-- The styling for title2 text. The color of this text changes based on day/night mode. -->
+    <style name="CarTitle2">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_title2_size</item>
+        <item name="android:textColor">@color/car_title2</item>
+    </style>
+
+    <!-- Title2 text that is permanently a dark color. -->
+    <style name="CarTitle2.Dark">
+        <item name="android:textColor">@color/car_title2_dark</item>
+    </style>
+
+    <!-- Title2 text that is permanently a light color. -->
+    <style name="CarTitle2.Light">
+        <item name="android:textColor">@color/car_title2_light</item>
+    </style>
+
+    <!-- The styling for the main headline text. The color of this text changes based on the
+         day/night mode. -->
+    <style name="CarHeadline1">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_headline1_size</item>
+        <item name="android:textColor">@color/car_headline1</item>
+    </style>
+
+    <!-- The styling for a sub-headline text. The color of this text changes based on the
+         day/night mode. -->
+    <style name="CarHeadline2">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_headline2_size</item>
+        <item name="android:textColor">@color/car_headline2</item>
+    </style>
+
+    <!-- The styling for a smaller alternate headline text. The color of this text changes based on
+         the day/night mode. -->
+    <style name="CarHeadline3">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_headline3_size</item>
+        <item name="android:textColor">@color/car_headline3</item>
+    </style>
+
+    <!-- The styling for the smallest headline text. The color of this text changes based on the
+         day/night mode. -->
+    <style name="CarHeadline4">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_headline4_size</item>
+        <item name="android:textColor">@color/car_headline4</item>
+    </style>
+
+    <!-- The styling for body text. The color of this text changes based on the day/night mode. -->
+    <style name="CarBody1">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_body1_size</item>
+        <item name="android:textColor">@color/car_body1</item>
+    </style>
+
+    <!-- An alternate styling for body text that is both a different color and size than
+         CarBody1. -->
+    <style name="CarBody2">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_body2_size</item>
+        <item name="android:textColor">@color/car_body2</item>
+    </style>
+
+    <!-- A smaller styling for body text. The color of this text changes based on the day/night
+         mode. -->
+    <style name="CarBody3">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_body3_size</item>
+        <item name="android:textColor">@color/car_body3</item>
+    </style>
+
+    <!-- The smallest styling for body text. The color of this text changes based on the day/night
+         mode. -->
+    <style name="CarBody4">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_body4_size</item>
+        <item name="android:textColor">@color/car_body4</item>
+    </style>
+
+    <!-- The style for the menu bar (i.e. hamburger) and back arrow in the navigation drawer. -->
+    <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">@color/car_title_light</item>
+        <item name="spinBars">true</item>
+        <item name="barLength">@dimen/car_menu_bar_length</item>
+        <item name="thickness">@dimen/car_arrow_thickness</item>
+        <item name="gapBetweenBars">@dimen/car_menu_bar_spacing</item>
+        <item name="arrowShaftLength">@dimen/car_arrow_shaft_length</item>
+        <item name="arrowHeadLength">@dimen/car_arrow_head_length</item>
+        <item name="drawableSize">@dimen/car_arrow_size</item>
+    </style>
+
+    <!-- The styles for the regular and borderless buttons. -->
+    <style name="Widget.Car.Button" parent="Widget.AppCompat.Button">
+        <item name="android:layout_height">@dimen/car_button_height</item>
+        <item name="android:minWidth">@dimen/car_button_min_width</item>
+        <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
+        <item name="android:textSize">@dimen/car_action1_size</item>
+        <item name="android:background">@drawable/car_button_background</item>
+        <item name="android:textColor">@drawable/car_button_text_color</item>
+    </style>
+
+    <style name="Widget.Car.Button.Borderless.Colored"
+           parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:layout_height">@dimen/car_button_height</item>
+        <item name="android:minWidth">@dimen/car_button_min_width</item>
+        <item name="android:paddingStart">@dimen/car_borderless_button_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/car_borderless_button_horizontal_padding</item>
+        <item name="android:textSize">@dimen/car_action1_size</item>
+        <item name="android:textColor">@drawable/car_borderless_button_text_color</item>
+    </style>
+
+    <!-- Style for the progress bars. -->
+    <style name="Widget.Car.ProgressBar.Horizontal"
+           parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:minHeight">@dimen/car_progress_bar_height</item>
+        <item name="android:maxHeight">@dimen/car_progress_bar_height</item>
+    </style>
+
+    <style name="Widget.Car.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">?attr/editTextColor</item>
+        <item name="android:textAppearance">@style/CarBody1</item>
+    </style>
+
+    <!-- Style for the seek bars. -->
+    <style name="Widget.Car.SeekBar" parent="Widget.AppCompat.SeekBar">
+        <item name="android:progressDrawable">@drawable/car_seekbar_track</item>
+        <item name="android:thumb">@drawable/car_seekbar_thumb</item>
+    </style>
+
+    <!-- Styles for TextInputLayout hints. -->
+    <style name="CarHintTextAppearance" parent="CarBody2">
+    </style>
+
+    <style name="CarListVerticalDivider">
+        <item name="android:layout_width">@dimen/car_vertical_line_divider_width</item>
+        <item name="android:layout_height">@dimen/car_vertical_line_divider_height</item>
+        <item name="android:layout_marginStart">@dimen/car_padding_4</item>
+        <item name="android:background">@color/car_list_divider</item>
+    </style>
+
+</resources>

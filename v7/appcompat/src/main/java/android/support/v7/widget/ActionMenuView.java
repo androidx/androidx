@@ -268,10 +268,10 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
                 // Mark indices of children that can receive an extra cell.
                 if (lp.cellsUsed < minCells) {
                     minCells = lp.cellsUsed;
-                    minCellsAt = 1 << i;
+                    minCellsAt = 1L << i;
                     minCellsItemCount = 1;
                 } else if (lp.cellsUsed == minCells) {
-                    minCellsAt |= 1 << i;
+                    minCellsAt |= 1L << i;
                     minCellsItemCount++;
                 }
             }

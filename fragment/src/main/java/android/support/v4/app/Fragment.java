@@ -23,6 +23,8 @@ import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.ViewModelStore;
+import android.arch.lifecycle.ViewModelStoreOwner;
 import android.content.ComponentCallbacks;
 import android.content.Context;
 import android.content.Intent;
@@ -74,7 +76,8 @@ import java.lang.reflect.InvocationTargetException;
  * </ul>
  *
  */
-public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener, LifecycleOwner {
+public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener, LifecycleOwner,
+        ViewModelStoreOwner {
     private static final SimpleArrayMap<String, Class<?>> sClassMap =
             new SimpleArrayMap<String, Class<?>>();
 
@@ -148,6 +151,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // This state is set by FragmentState.instantiate and cleared in onCreate.
     FragmentManagerNonConfig mChildNonConfig;
 
+    // ViewModelStore for storing ViewModels associated with this Fragment
+    ViewModelStore mViewModelStore;
+
     // If this Fragment is contained in another Fragment, this is that container.
     Fragment mParentFragment;
 
@@ -204,8 +210,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     boolean mUserVisibleHint = true;
 
     LoaderManagerImpl mLoaderManager;
-    boolean mLoadersStarted;
-    boolean mCheckedForLoaderManager;
 
     // The animation and transition information for the fragment. This will be null
     // unless the elements are explicitly accessed and should remain null for Fragments
@@ -239,6 +243,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycleRegistry;
+    }
+
+    @NonNull
+    @Override
+    public ViewModelStore getViewModelStore() {
+        if (getContext() == null) {
+            throw new IllegalStateException("Can't access ViewModels from detached fragment");
+        }
+        if (mViewModelStore == null) {
+            mViewModelStore = new ViewModelStore();
+        }
+        return mViewModelStore;
     }
 
     /**
@@ -574,6 +590,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Return the {@link Context} this fragment is currently associated with.
+     *
+     * @see #requireContext()
      */
     @Nullable
     public Context getContext() {
@@ -581,9 +599,26 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
+     * Return the {@link Context} this fragment is currently associated with.
+     *
+     * @throws IllegalStateException if not currently associated with a context.
+     * @see #getContext()
+     */
+    @NonNull
+    public final Context requireContext() {
+        Context context = getContext();
+        if (context == null) {
+            throw new IllegalStateException("Fragment " + this + " not attached to a context.");
+        }
+        return context;
+    }
+
+    /**
      * Return the {@link FragmentActivity} this fragment is currently associated with.
      * May return {@code null} if the fragment is associated with a {@link Context}
      * instead.
+     *
+     * @see #requireActivity()
      */
     @Nullable
     final public FragmentActivity getActivity() {
@@ -591,8 +626,26 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
+     * Return the {@link FragmentActivity} this fragment is currently associated with.
+     *
+     * @throws IllegalStateException if not currently associated with an activity or if associated
+     * only with a context.
+     * @see #getActivity()
+     */
+    @NonNull
+    public final FragmentActivity requireActivity() {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            throw new IllegalStateException("Fragment " + this + " not attached to an activity.");
+        }
+        return activity;
+    }
+
+    /**
      * Return the host object of this fragment. May return {@code null} if the fragment
      * isn't currently being hosted.
+     *
+     * @see #requireHost()
      */
     @Nullable
     final public Object getHost() {
@@ -600,14 +653,26 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Return <code>getActivity().getResources()</code>.
+     * Return the host object of this fragment.
+     *
+     * @throws IllegalStateException if not currently associated with a host.
+     * @see #getHost()
+     */
+    @NonNull
+    public final Object requireHost() {
+        Object host = getHost();
+        if (host == null) {
+            throw new IllegalStateException("Fragment " + this + " not attached to a host.");
+        }
+        return host;
+    }
+
+    /**
+     * Return <code>requireActivity().getResources()</code>.
      */
     @NonNull
     final public Resources getResources() {
-        if (mHost == null) {
-            throw new IllegalStateException("Fragment " + this + " not attached to Activity");
-        }
-        return mHost.getContext().getResources();
+        return requireContext().getResources();
     }
 
     /**
@@ -654,10 +719,35 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * <p>If this Fragment is a child of another Fragment, the FragmentManager
      * returned here will be the parent's {@link #getChildFragmentManager()}.
+     *
+     * @see #requireFragmentManager()
      */
     @Nullable
     final public FragmentManager getFragmentManager() {
         return mFragmentManager;
+    }
+
+    /**
+     * Return the FragmentManager for interacting with fragments associated
+     * with this fragment's activity.  Note that this will available slightly
+     * before {@link #getActivity()}, during the time from when the fragment is
+     * placed in a {@link FragmentTransaction} until it is committed and
+     * attached to its activity.
+     *
+     * <p>If this Fragment is a child of another Fragment, the FragmentManager
+     * returned here will be the parent's {@link #getChildFragmentManager()}.
+     *
+     * @throws IllegalStateException if not associated with a transaction or host.
+     * @see #getFragmentManager()
+     */
+    @NonNull
+    public final FragmentManager requireFragmentManager() {
+        FragmentManager fragmentManager = getFragmentManager();
+        if (fragmentManager == null) {
+            throw new IllegalStateException(
+                    "Fragment " + this + " not associated with a fragment manager.");
+        }
+        return fragmentManager;
     }
 
     /**
@@ -864,6 +954,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
         mUserVisibleHint = isVisibleToUser;
         mDeferStart = mState < STARTED && !isVisibleToUser;
+        if (mSavedFragmentState != null) {
+            // Ensure that if the user visible hint is set before the Fragment has
+            // restored its state that we don't lose the new value
+            mSavedFragmentState.putBoolean(FragmentManagerImpl.USER_VISIBLE_HINT_TAG,
+                    mUserVisibleHint);
+        }
     }
 
     /**
@@ -881,11 +977,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mLoaderManager != null) {
             return mLoaderManager;
         }
-        if (mHost == null) {
-            throw new IllegalStateException("Fragment " + this + " not attached to Activity");
-        }
-        mCheckedForLoaderManager = true;
-        mLoaderManager = mHost.getLoaderManager(mWho, mLoadersStarted, true);
+        mLoaderManager = new LoaderManagerImpl(this, getViewModelStore());
         return mLoaderManager;
     }
 
@@ -1443,16 +1535,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onStart() {
         mCalled = true;
-
-        if (!mLoadersStarted) {
-            mLoadersStarted = true;
-            if (!mCheckedForLoaderManager) {
-                mCheckedForLoaderManager = true;
-                mLoaderManager = mHost.getLoaderManager(mWho, mLoadersStarted, false);
-            } else if (mLoaderManager != null) {
-                mLoaderManager.doStart();
-            }
-        }
     }
 
     /**
@@ -1560,14 +1642,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onDestroy() {
         mCalled = true;
-        //Log.v("foo", "onDestroy: mCheckedForLoaderManager=" + mCheckedForLoaderManager
-        //        + " mLoaderManager=" + mLoaderManager);
-        if (!mCheckedForLoaderManager) {
-            mCheckedForLoaderManager = true;
-            mLoaderManager = mHost.getLoaderManager(mWho, mLoadersStarted, false);
-        }
-        if (mLoaderManager != null) {
-            mLoaderManager.doDestroy();
+        if (mViewModelStore != null && !mHost.mFragmentManager.isStateSaved()) {
+            mViewModelStore.clear();
         }
     }
 
@@ -1595,9 +1671,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mHidden = false;
         mDetached = false;
         mRetaining = false;
-        mLoaderManager = null;
-        mLoadersStarted = false;
-        mCheckedForLoaderManager = false;
     }
 
     /**
@@ -2301,9 +2374,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mChildFragmentManager != null) {
             mChildFragmentManager.dispatchStart();
         }
-        if (mLoaderManager != null) {
-            mLoaderManager.doReportStart();
-        }
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
     }
 
@@ -2481,20 +2551,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mChildFragmentManager.dispatchReallyStop();
         }
         mState = ACTIVITY_CREATED;
-        if (mLoadersStarted) {
-            mLoadersStarted = false;
-            if (!mCheckedForLoaderManager) {
-                mCheckedForLoaderManager = true;
-                mLoaderManager = mHost.getLoaderManager(mWho, mLoadersStarted, false);
-            }
-            if (mLoaderManager != null) {
-                if (mHost.getRetainLoaders()) {
-                    mLoaderManager.doRetain();
-                } else {
-                    mLoaderManager.doStop();
-                }
-            }
-        }
     }
 
     void performDestroyView() {
@@ -2509,7 +2565,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     + " did not call through to super.onDestroyView()");
         }
         if (mLoaderManager != null) {
-            mLoaderManager.doReportNextStart();
+            // Handles the detach/reattach case where the view hierarchy
+            // is destroyed and recreated and an additional call to
+            // onLoadFinished may be needed to ensure the new view
+            // hierarchy is populated from data from the Loaders
+            mLoaderManager.markForRedelivery();
         }
         mPerformedCreateView = false;
     }

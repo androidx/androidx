@@ -32,6 +32,7 @@ import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -43,6 +44,7 @@ import android.app.Instrumentation;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Root;
@@ -51,12 +53,14 @@ import android.support.test.espresso.ViewAction;
 import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.testutils.PollingCheck;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.test.R;
 import android.text.TextUtils;
+import android.view.InputDevice;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -64,6 +68,7 @@ import android.view.View;
 import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -601,6 +606,62 @@ public class PopupMenuTest {
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME))).check(doesNotExist());
     }
 
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    public void testHoverSelectsMenuItem() throws Throwable {
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+
+        // Make menu long enough to be scrollable.
+        final Builder menuBuilder = new Builder().withExtraItems(100);
+        menuBuilder.wireToActionButton();
+
+        onView(withId(R.id.test_button)).perform(
+                click(InputDevice.SOURCE_MOUSE, MotionEvent.BUTTON_PRIMARY));
+
+        final ListView menuListView = mPopupMenu.getMenuListView();
+        assertEquals(0, menuListView.getFirstVisiblePosition());
+        emulateHoverOverVisibleItems(instrumentation, menuListView);
+
+        // Select the last item to force menu scrolling and emulate hover again.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                menuListView.setSelectionFromTop(mPopupMenu.getMenu().size() - 1, 0);
+            }
+        });
+        instrumentation.waitForIdleSync();
+
+        assertNotEquals("Too few menu items to test for scrolling",
+                0, menuListView.getFirstVisiblePosition());
+        emulateHoverOverVisibleItems(instrumentation, menuListView);
+    }
+
+    private void emulateHoverOverVisibleItems(Instrumentation instrumentation, ListView listView) {
+        final int childCount = listView.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View itemView = listView.getChildAt(i);
+            injectMouseEvent(instrumentation, itemView, MotionEvent.ACTION_HOVER_MOVE);
+
+            // Wait for the system to process all events in the queue.
+            instrumentation.waitForIdleSync();
+
+            // Hovered menu item should be selected.
+            assertEquals(listView.getFirstVisiblePosition() + i,
+                    listView.getSelectedItemPosition());
+        }
+    }
+
+    public static void injectMouseEvent(Instrumentation instrumentation, View view, int action) {
+        final int[] xy = new int[2];
+        view.getLocationOnScreen(xy);
+        long eventTime = SystemClock.uptimeMillis();
+        MotionEvent event = MotionEvent.obtain(eventTime, eventTime, action, xy[0], xy[1], 0);
+        event.setSource(InputDevice.SOURCE_MOUSE);
+        instrumentation.sendPointerSync(event);
+        event.recycle();
+    }
+
     /**
      * Inner helper class to configure an instance of <code>PopupMenu</code> for the
      * specific test. The main reason for its existence is that once a popup menu is shown
@@ -611,6 +672,7 @@ public class PopupMenuTest {
     public class Builder {
         private boolean mHasDismissListener;
         private boolean mHasMenuItemClickListener;
+        private int mExtraItemCount;
 
         private PopupMenu.OnMenuItemClickListener mOnMenuItemClickListener;
         private PopupMenu.OnDismissListener mOnDismissListener;
@@ -622,6 +684,11 @@ public class PopupMenuTest {
 
         public Builder withDismissListener() {
             mHasDismissListener = true;
+            return this;
+        }
+
+        public Builder withExtraItems(int count) {
+            mExtraItemCount = count;
             return this;
         }
 
@@ -641,6 +708,11 @@ public class PopupMenuTest {
                 // Register a mock listener to be notified when our popup menu is dismissed.
                 mOnDismissListener = mock(PopupMenu.OnDismissListener.class);
                 mPopupMenu.setOnDismissListener(mOnDismissListener);
+            }
+
+            // Add extra items.
+            for (int i = 0; i < mExtraItemCount; i++) {
+                mPopupMenu.getMenu().add("Extra item " + i);
             }
 
             // Show the popup menu

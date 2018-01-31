@@ -40,6 +40,9 @@ project(':palette-v7').projectDir = new File(rootDir, 'v7/palette')
 include ':recyclerview-v7'
 project(':recyclerview-v7').projectDir = new File(rootDir, 'v7/recyclerview')
 
+include ':recyclerview-selection'
+project(':recyclerview-selection').projectDir = new File(rootDir, 'recyclerview-selection')
+
 include ':cardview-v7'
 project(':cardview-v7').projectDir = new File(rootDir, 'v7/cardview')
 
@@ -50,13 +53,13 @@ include ':preference-v14'
 project(':preference-v14').projectDir = new File(rootDir, 'v14/preference')
 
 include ':preference-leanback-v17'
-project(':preference-leanback-v17').projectDir = new File(rootDir, 'v17/preference-leanback')
+project(':preference-leanback-v17').projectDir = new File(rootDir, 'preference-leanback')
 
 include ':support-v13'
 project(':support-v13').projectDir = new File(rootDir, 'v13')
 
 include ':leanback-v17'
-project(':leanback-v17').projectDir = new File(rootDir, 'v17/leanback')
+project(':leanback-v17').projectDir = new File(rootDir, 'leanback')
 
 include ':design'
 project(':design').projectDir = new File(rootDir, 'design')
@@ -82,6 +85,9 @@ project(':transition').projectDir = new File(rootDir, 'transition')
 include ':support-dynamic-animation'
 project(':support-dynamic-animation').projectDir = new File(rootDir, 'dynamic-animation')
 
+include ':viewpager2'
+project(':viewpager2').projectDir = new File(rootDir, 'viewpager2')
+
 include ':exifinterface'
 project(':exifinterface').projectDir = new File(rootDir, 'exifinterface')
 
@@ -102,6 +108,15 @@ project(':support-emoji-appcompat').projectDir = new File(rootDir, 'emoji/appcom
 
 include ':support-content'
 project(':support-content').projectDir = new File(rootDir, 'content')
+
+include ':car'
+project(':car').projectDir = new File(rootDir, 'car')
+
+include ':webkit'
+project(':webkit').projectDir = new File(rootDir, 'webkit')
+
+include ':webkit-codegen'
+project(':webkit-codegen').projectDir = new File(rootDir, 'webkit-codegen')
 
 /////////////////////////////
 //
@@ -147,6 +162,9 @@ project(':support-vector-drawable-demos').projectDir = new File(samplesRoot, 'Su
 include ':support-animation-demos'
 project(':support-animation-demos').projectDir = new File(samplesRoot, 'SupportAnimationDemos')
 
+include ':viewpager2-demos'
+project(':viewpager2-demos').projectDir = new File(samplesRoot, 'ViewPager2Demos')
+
 include ':support-wear-demos'
 project(':support-wear-demos').projectDir = new File(samplesRoot, 'SupportWearDemos')
 
@@ -156,6 +174,8 @@ project(':support-app-navigation').projectDir = new File(samplesRoot, 'SupportAp
 include ':support-emoji-demos'
 project(':support-emoji-demos').projectDir = new File(samplesRoot, 'SupportEmojiDemos')
 
+include ':support-car-demos'
+project(':support-car-demos').projectDir = new File(samplesRoot, 'SupportCarDemos')
 /////////////////////////////
 //
 // Testing libraries
@@ -172,13 +192,19 @@ project(':support-testutils').projectDir = new File(rootDir, 'testutils')
 /////////////////////////////
 
 include ':support-media-compat-test-client'
-project(':support-media-compat-test-client').projectDir = new File(rootDir, 'media-compat-test-client')
+project(':support-media-compat-test-client').projectDir = new File(rootDir, 'media-compat/version-compat-tests/current/client')
+
+include ':support-media-compat-test-client-previous'
+project(':support-media-compat-test-client-previous').projectDir = new File(rootDir, 'media-compat/version-compat-tests/previous/client')
 
 include ':support-media-compat-test-service'
-project(':support-media-compat-test-service').projectDir = new File(rootDir, 'media-compat-test-service')
+project(':support-media-compat-test-service').projectDir = new File(rootDir, 'media-compat/version-compat-tests/current/service')
+
+include ':support-media-compat-test-service-previous'
+project(':support-media-compat-test-service-previous').projectDir = new File(rootDir, 'media-compat/version-compat-tests/previous/service')
 
 include ':support-media-compat-test-lib'
-project(':support-media-compat-test-lib').projectDir = new File(rootDir, 'media-compat-test-lib')
+project(':support-media-compat-test-lib').projectDir = new File(rootDir, 'media-compat/version-compat-tests/lib')
 
 /////////////////////////////
 //

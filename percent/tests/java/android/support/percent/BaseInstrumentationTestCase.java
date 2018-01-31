@@ -16,7 +16,7 @@
 
 package android.support.percent;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import android.app.Activity;
 import android.support.test.rule.ActivityTestRule;

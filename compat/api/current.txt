@@ -1,3 +1,58 @@
+package android.support.v13.view {
+
+  public final class DragAndDropPermissionsCompat {
+    method public void release();
+  }
+
+  public class DragStartHelper {
+    ctor public DragStartHelper(android.view.View, android.support.v13.view.DragStartHelper.OnDragStartListener);
+    method public void attach();
+    method public void detach();
+    method public void getTouchPosition(android.graphics.Point);
+    method public boolean onLongClick(android.view.View);
+    method public boolean onTouch(android.view.View, android.view.MotionEvent);
+  }
+
+  public static abstract interface DragStartHelper.OnDragStartListener {
+    method public abstract boolean onDragStart(android.view.View, android.support.v13.view.DragStartHelper);
+  }
+
+}
+
+package android.support.v13.view.inputmethod {
+
+  public final class EditorInfoCompat {
+    ctor public EditorInfoCompat();
+    method public static java.lang.String[] getContentMimeTypes(android.view.inputmethod.EditorInfo);
+    method public static void setContentMimeTypes(android.view.inputmethod.EditorInfo, java.lang.String[]);
+    field public static final int IME_FLAG_FORCE_ASCII = -2147483648; // 0x80000000
+    field public static final int IME_FLAG_NO_PERSONALIZED_LEARNING = 16777216; // 0x1000000
+  }
+
+  public final class InputConnectionCompat {
+    ctor public InputConnectionCompat();
+    method public static boolean commitContent(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, android.support.v13.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle);
+    method public static android.view.inputmethod.InputConnection createWrapper(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, android.support.v13.view.inputmethod.InputConnectionCompat.OnCommitContentListener);
+    field public static int INPUT_CONTENT_GRANT_READ_URI_PERMISSION;
+  }
+
+  public static abstract interface InputConnectionCompat.OnCommitContentListener {
+    method public abstract boolean onCommitContent(android.support.v13.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle);
+  }
+
+  public final class InputContentInfoCompat {
+    ctor public InputContentInfoCompat(android.net.Uri, android.content.ClipDescription, android.net.Uri);
+    method public android.net.Uri getContentUri();
+    method public android.content.ClipDescription getDescription();
+    method public android.net.Uri getLinkUri();
+    method public void releasePermission();
+    method public void requestPermission();
+    method public java.lang.Object unwrap();
+    method public static android.support.v13.view.inputmethod.InputContentInfoCompat wrap(java.lang.Object);
+  }
+
+}
+
 package android.support.v4.accessibilityservice {
 
   public final class AccessibilityServiceInfoCompat {
@@ -30,7 +85,9 @@ package android.support.v4.app {
     method public static android.net.Uri getReferrer(android.app.Activity);
     method public static deprecated boolean invalidateOptionsMenu(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
+    method public static android.support.v13.view.DragAndDropPermissionsCompat requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent);
     method public static void requestPermissions(android.app.Activity, java.lang.String[], int);
+    method public static <T extends android.view.View> T requireViewById(android.app.Activity, int);
     method public static void setEnterSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
     method public static void setExitSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
     method public static void setPermissionCompatDelegate(android.support.v4.app.ActivityCompat.PermissionCompatDelegate);
@@ -495,7 +552,7 @@ package android.support.v4.app {
     field public static final int IMPORTANCE_UNSPECIFIED = -1000; // 0xfffffc18
   }
 
-  public final class RemoteInput extends android.support.v4.app.RemoteInputCompatBase.RemoteInput {
+  public final class RemoteInput {
     method public static void addDataResultToIntent(android.support.v4.app.RemoteInput, android.content.Intent, java.util.Map<java.lang.String, android.net.Uri>);
     method public static void addResultsToIntent(android.support.v4.app.RemoteInput[], android.content.Intent, android.os.Bundle);
     method public boolean getAllowFreeFormInput();
@@ -520,19 +577,6 @@ package android.support.v4.app {
     method public android.support.v4.app.RemoteInput.Builder setAllowFreeFormInput(boolean);
     method public android.support.v4.app.RemoteInput.Builder setChoices(java.lang.CharSequence[]);
     method public android.support.v4.app.RemoteInput.Builder setLabel(java.lang.CharSequence);
-  }
-
-   deprecated class RemoteInputCompatBase {
-  }
-
-  public static abstract deprecated class RemoteInputCompatBase.RemoteInput {
-    ctor public deprecated RemoteInputCompatBase.RemoteInput();
-    method protected abstract deprecated boolean getAllowFreeFormInput();
-    method protected abstract deprecated java.util.Set<java.lang.String> getAllowedDataTypes();
-    method protected abstract deprecated java.lang.CharSequence[] getChoices();
-    method protected abstract deprecated android.os.Bundle getExtras();
-    method protected abstract deprecated java.lang.CharSequence getLabel();
-    method protected abstract deprecated java.lang.String getResultKey();
   }
 
   public final class ServiceCompat {
@@ -625,13 +669,13 @@ package android.support.v4.content {
     method public static int checkSelfPermission(android.content.Context, java.lang.String);
     method public static android.content.Context createDeviceProtectedStorageContext(android.content.Context);
     method public static java.io.File getCodeCacheDir(android.content.Context);
-    method public static final int getColor(android.content.Context, int);
-    method public static final android.content.res.ColorStateList getColorStateList(android.content.Context, int);
+    method public static int getColor(android.content.Context, int);
+    method public static android.content.res.ColorStateList getColorStateList(android.content.Context, int);
     method public static java.io.File getDataDir(android.content.Context);
-    method public static final android.graphics.drawable.Drawable getDrawable(android.content.Context, int);
+    method public static android.graphics.drawable.Drawable getDrawable(android.content.Context, int);
     method public static java.io.File[] getExternalCacheDirs(android.content.Context);
     method public static java.io.File[] getExternalFilesDirs(android.content.Context, java.lang.String);
-    method public static final java.io.File getNoBackupFilesDir(android.content.Context);
+    method public static java.io.File getNoBackupFilesDir(android.content.Context);
     method public static java.io.File[] getObbDirs(android.content.Context);
     method public static boolean isDeviceProtectedStorage(android.content.Context);
     method public static boolean startActivities(android.content.Context, android.content.Intent[]);
@@ -678,6 +722,7 @@ package android.support.v4.content.pm {
     ctor public ShortcutInfoCompat.Builder(android.content.Context, java.lang.String);
     method public android.support.v4.content.pm.ShortcutInfoCompat build();
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setActivity(android.content.ComponentName);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setAlwaysBadged();
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setDisabledMessage(java.lang.CharSequence);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(android.support.v4.graphics.drawable.IconCompat);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
@@ -936,7 +981,7 @@ package android.support.v4.provider {
     method public static void requestFont(android.content.Context, android.support.v4.provider.FontRequest, android.support.v4.provider.FontsContractCompat.FontRequestCallback, android.os.Handler);
   }
 
-  public static final class FontsContractCompat.Columns {
+  public static final class FontsContractCompat.Columns implements android.provider.BaseColumns {
     ctor public FontsContractCompat.Columns();
     field public static final java.lang.String FILE_ID = "file_id";
     field public static final java.lang.String ITALIC = "font_italic";
@@ -1038,14 +1083,14 @@ package android.support.v4.text {
 package android.support.v4.text.util {
 
   public final class LinkifyCompat {
-    method public static final boolean addLinks(android.text.Spannable, int);
-    method public static final boolean addLinks(android.widget.TextView, int);
-    method public static final void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String);
-    method public static final void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String, android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
-    method public static final void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String, java.lang.String[], android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
-    method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String);
-    method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
-    method public static final boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, java.lang.String[], android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+    method public static boolean addLinks(android.text.Spannable, int);
+    method public static boolean addLinks(android.widget.TextView, int);
+    method public static void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String);
+    method public static void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String, android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+    method public static void addLinks(android.widget.TextView, java.util.regex.Pattern, java.lang.String, java.lang.String[], android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+    method public static boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String);
+    method public static boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
+    method public static boolean addLinks(android.text.Spannable, java.util.regex.Pattern, java.lang.String, java.lang.String[], android.text.util.Linkify.MatchFilter, android.text.util.Linkify.TransformFilter);
   }
 
 }
@@ -1069,6 +1114,7 @@ package android.support.v4.util {
     ctor public ArraySet();
     ctor public ArraySet(int);
     ctor public ArraySet(android.support.v4.util.ArraySet<E>);
+    ctor public ArraySet(java.util.Collection<E>);
     method public boolean add(E);
     method public void addAll(android.support.v4.util.ArraySet<? extends E>);
     method public boolean addAll(java.util.Collection<? extends E>);
@@ -1135,7 +1181,7 @@ package android.support.v4.util {
     method public int size();
   }
 
-  public class LongSparseArray<E> {
+  public class LongSparseArray<E> implements java.lang.Cloneable {
     ctor public LongSparseArray();
     ctor public LongSparseArray(int);
     method public void append(long, E);
@@ -1179,6 +1225,8 @@ package android.support.v4.util {
 
   public class ObjectsCompat {
     method public static boolean equals(java.lang.Object, java.lang.Object);
+    method public static int hash(java.lang.Object...);
+    method public static int hashCode(java.lang.Object);
   }
 
   public class Pair<F, S> {
@@ -1234,7 +1282,7 @@ package android.support.v4.util {
     method public V valueAt(int);
   }
 
-  public class SparseArrayCompat<E> {
+  public class SparseArrayCompat<E> implements java.lang.Cloneable {
     ctor public SparseArrayCompat();
     ctor public SparseArrayCompat(int);
     method public void append(int, E);
@@ -1582,6 +1630,7 @@ package android.support.v4.view {
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[]);
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[], int);
     method public static void dispatchStartTemporaryDetach(android.view.View);
+    method public static int generateViewId();
     method public static int getAccessibilityLiveRegion(android.view.View);
     method public static android.support.v4.view.accessibility.AccessibilityNodeProviderCompat getAccessibilityNodeProvider(android.view.View);
     method public static deprecated float getAlpha(android.view.View);
@@ -1655,6 +1704,7 @@ package android.support.v4.view {
     method public static void postOnAnimation(android.view.View, java.lang.Runnable);
     method public static void postOnAnimationDelayed(android.view.View, java.lang.Runnable, long);
     method public static void requestApplyInsets(android.view.View);
+    method public static <T extends android.view.View> T requireViewById(android.view.View, int);
     method public static deprecated int resolveSizeAndState(int, int, int);
     method public static boolean restoreDefaultFocus(android.view.View);
     method public static void setAccessibilityDelegate(android.view.View, android.support.v4.view.AccessibilityDelegateCompat);
@@ -1742,7 +1792,7 @@ package android.support.v4.view {
     field public static final int TYPE_TOUCH = 0; // 0x0
   }
 
-  public final deprecated class ViewConfigurationCompat {
+  public final class ViewConfigurationCompat {
     method public static float getScaledHorizontalScrollFactor(android.view.ViewConfiguration, android.content.Context);
     method public static deprecated int getScaledPagingTouchSlop(android.view.ViewConfiguration);
     method public static float getScaledVerticalScrollFactor(android.view.ViewConfiguration, android.content.Context);
@@ -1836,6 +1886,7 @@ package android.support.v4.view {
   }
 
   public final class WindowCompat {
+    method public static <T extends android.view.View> T requireViewById(android.view.Window, int);
     field public static final int FEATURE_ACTION_BAR = 8; // 0x8
     field public static final int FEATURE_ACTION_BAR_OVERLAY = 9; // 0x9
     field public static final int FEATURE_ACTION_MODE_OVERLAY = 10; // 0xa
@@ -2350,6 +2401,7 @@ package android.support.v4.widget {
     method public static void setCompoundDrawablesRelative(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, int, int, int, int);
+    method public static void setCustomSelectionActionModeCallback(android.widget.TextView, android.view.ActionMode.Callback);
     method public static void setTextAppearance(android.widget.TextView, int);
     field public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0; // 0x0
     field public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1; // 0x1

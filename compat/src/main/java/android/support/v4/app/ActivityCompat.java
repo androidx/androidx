@@ -29,12 +29,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
+import android.support.annotation.IdRes;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+import android.support.v13.view.DragAndDropPermissionsCompat;
 import android.support.v4.content.ContextCompat;
+import android.view.DragEvent;
 import android.view.View;
 
 import java.util.List;
@@ -338,6 +341,31 @@ public class ActivityCompat extends ContextCompat {
     }
 
     /**
+     * Finds a view that was identified by the {@code android:id} XML attribute that was processed
+     * in {@link Activity#onCreate}, or throws an IllegalArgumentException if the ID is invalid, or
+     * there is no matching view in the hierarchy.
+     * <p>
+     * <strong>Note:</strong> In most cases -- depending on compiler support --
+     * the resulting view is automatically cast to the target class type. If
+     * the target class type is unconstrained, an explicit cast may be
+     * necessary.
+     *
+     * @param id the ID to search for
+     * @return a view with given ID
+     * @see Activity#findViewById(int)
+     * @see android.support.v4.view.ViewCompat#requireViewById(View, int)
+     */
+    @NonNull
+    public static <T extends View> T requireViewById(@NonNull Activity activity, @IdRes int id) {
+        // TODO: use and link to Activity#requireViewById() directly, once available
+        T view = activity.findViewById(id);
+        if (view == null) {
+            throw new IllegalArgumentException("ID does not reference a View inside this Activity");
+        }
+        return view;
+    }
+
+    /**
      * When {@link android.app.ActivityOptions#makeSceneTransitionAnimation(Activity,
      * android.view.View, String)} was used to start an Activity, <var>callback</var>
      * will be called to handle shared elements on the <i>launched</i> Activity. This requires
@@ -528,12 +556,26 @@ public class ActivityCompat extends ContextCompat {
         return false;
     }
 
+    /**
+     * Create {@link DragAndDropPermissionsCompat} object bound to this activity and controlling
+     * the access permissions for content URIs associated with the {@link android.view.DragEvent}.
+     * @param dragEvent Drag event to request permission for
+     * @return The {@link DragAndDropPermissionsCompat} object used to control access to the content
+     * URIs. {@code null} if no content URIs are associated with the event or if permissions could
+     * not be granted.
+     */
+    @Nullable
+    public static DragAndDropPermissionsCompat requestDragAndDropPermissions(Activity activity,
+            DragEvent dragEvent) {
+        return DragAndDropPermissionsCompat.request(activity, dragEvent);
+    }
+
     @RequiresApi(21)
     private static class SharedElementCallback21Impl extends android.app.SharedElementCallback {
 
         protected SharedElementCallback mCallback;
 
-        public SharedElementCallback21Impl(SharedElementCallback callback) {
+        SharedElementCallback21Impl(SharedElementCallback callback) {
             mCallback = callback;
         }
 
@@ -576,7 +618,7 @@ public class ActivityCompat extends ContextCompat {
 
     @RequiresApi(23)
     private static class SharedElementCallback23Impl extends SharedElementCallback21Impl {
-        public SharedElementCallback23Impl(SharedElementCallback callback) {
+        SharedElementCallback23Impl(SharedElementCallback callback) {
             super(callback);
         }
 

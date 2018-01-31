@@ -10,7 +10,7 @@ dependencies {
     api(project(":support-annotations"))
     api(project(":support-compat"))
 
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
+    androidTestImplementation(TEST_RUNNER)
 }
 
 android {

@@ -26,7 +26,7 @@ import android.support.annotation.RestrictTo.Scope;
  *
  * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 public final class ResourcesUtil {
 
     /**

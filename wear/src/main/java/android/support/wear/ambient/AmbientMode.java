@@ -21,7 +21,9 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import com.google.android.wearable.compat.WearableActivityController;
 
@@ -38,7 +40,7 @@ import java.io.PrintWriter;
  * It should be called with an {@link Activity} as an argument and that {@link Activity} will then
  * be able to receive ambient lifecycle events through an {@link AmbientCallback}. The
  * {@link Activity} will also receive a {@link AmbientController} object from the attachment which
- * can be used to query the current status of the ambient mode, or toggle simple settings.
+ * can be used to query the current status of the ambient mode.
  * An example of how to attach {@link AmbientMode} to your {@link Activity} and use
  * the {@link AmbientController} can be found below:
  * <p>
@@ -46,8 +48,11 @@ import java.io.PrintWriter;
  *     AmbientMode.AmbientController controller = AmbientMode.attachAmbientSupport(this);
  *     boolean isAmbient =  controller.isAmbient();
  * }</pre>
+ * @deprecated please use {@link AmbientModeSupport} instead.
  */
+@Deprecated
 public final class AmbientMode extends Fragment {
+    private static final String TAG = "AmbientMode";
 
     /**
      * Property in bundle passed to {@code AmbientCallback#onEnterAmbient(Bundle)} to indicate
@@ -104,9 +109,6 @@ public final class AmbientMode extends Fragment {
          * running (after onResume, before onPause). All drawing should complete by the conclusion
          * of this method. Note that {@code invalidate()} calls will be executed before resuming
          * lower-power mode.
-         * <p>
-         * <p><em>Derived classes must call through to the super class's implementation of this
-         * method. If they do not, an exception will be thrown.</em>
          *
          * @param ambientDetails bundle containing information about the display being used.
          *                      It includes information about low-bit color and burn-in protection.
@@ -117,36 +119,40 @@ public final class AmbientMode extends Fragment {
          * Called when the system is updating the display for ambient mode. Activities may use this
          * opportunity to update or invalidate views.
          */
-        public void onUpdateAmbient() {};
+        public void onUpdateAmbient() {}
 
         /**
          * Called when an activity should exit ambient mode. This event is sent while an activity is
          * running (after onResume, before onPause).
-         * <p>
-         * <p><em>Derived classes must call through to the super class's implementation of this
-         * method. If they do not, an exception will be thrown.</em>
          */
-        public void onExitAmbient() {};
+        public void onExitAmbient() {}
     }
 
     private final AmbientDelegate.AmbientCallback mCallback =
             new AmbientDelegate.AmbientCallback() {
                 @Override
                 public void onEnterAmbient(Bundle ambientDetails) {
-                    mSuppliedCallback.onEnterAmbient(ambientDetails);
+                    if (mSuppliedCallback != null) {
+                        mSuppliedCallback.onEnterAmbient(ambientDetails);
+                    }
                 }
 
                 @Override
                 public void onExitAmbient() {
-                    mSuppliedCallback.onExitAmbient();
+                    if (mSuppliedCallback != null) {
+                        mSuppliedCallback.onExitAmbient();
+                    }
                 }
 
                 @Override
                 public void onUpdateAmbient() {
-                    mSuppliedCallback.onUpdateAmbient();
+                    if (mSuppliedCallback != null) {
+                        mSuppliedCallback.onUpdateAmbient();
+                    }
                 }
             };
     private AmbientDelegate mDelegate;
+    @Nullable
     private AmbientCallback mSuppliedCallback;
     private AmbientController mController;
 
@@ -166,8 +172,7 @@ public final class AmbientMode extends Fragment {
         if (context instanceof AmbientCallbackProvider) {
             mSuppliedCallback = ((AmbientCallbackProvider) context).getAmbientCallback();
         } else {
-            throw new IllegalArgumentException(
-                    "fragment should attach to an activity that implements AmbientCallback");
+            Log.w(TAG, "No callback provided - enabling only smart resume");
         }
     }
 
@@ -176,7 +181,9 @@ public final class AmbientMode extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDelegate.onCreate();
-        mDelegate.setAmbientEnabled();
+        if (mSuppliedCallback != null) {
+            mDelegate.setAmbientEnabled();
+        }
     }
 
     @Override
@@ -215,15 +222,19 @@ public final class AmbientMode extends Fragment {
     }
 
     /**
-     * Attach ambient support to the given activity.
+     * Attach ambient support to the given activity. Calling this method with an Activity
+     * implementing the {@link AmbientCallbackProvider} interface will provide you with an
+     * opportunity to react to ambient events such as {@code onEnterAmbient}. Alternatively,
+     * you can call this method with an Activity which does not implement
+     * the {@link AmbientCallbackProvider} interface and that will only enable the auto-resume
+     * functionality. This is equivalent to providing (@code null} from
+     * the {@link AmbientCallbackProvider}.
      *
-     * @param activity the activity to attach ambient support to. This activity has to also
-     *                implement {@link AmbientCallbackProvider}
+     * @param activity the activity to attach ambient support to.
      * @return the associated {@link AmbientController} which can be used to query the state of
-     * ambient mode and toggle simple settings related to it.
+     * ambient mode.
      */
-    public static <T extends Activity & AmbientCallbackProvider> AmbientController
-            attachAmbientSupport(T activity) {
+    public static <T extends Activity> AmbientController attachAmbientSupport(T activity) {
         FragmentManager fragmentManager = activity.getFragmentManager();
         AmbientMode ambientFragment = (AmbientMode) fragmentManager.findFragmentByTag(FRAGMENT_TAG);
         if (ambientFragment == null) {
@@ -251,9 +262,8 @@ public final class AmbientMode extends Fragment {
 
     /**
      * A class for interacting with the ambient mode on a wearable device. This class can be used to
-     * query the current state of ambient mode and to enable or disable certain settings.
-     * An instance of this class is returned to the user when they attach their {@link Activity}
-     * to {@link AmbientMode}.
+     * query the current state of ambient mode. An instance of this class is returned to the user
+     * when they attach their {@link Activity} to {@link AmbientMode}.
      */
     public final class AmbientController {
         private static final String TAG = "AmbientController";

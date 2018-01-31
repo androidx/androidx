@@ -353,7 +353,7 @@ public class ContextCompat {
      * @return Drawable An object that can be used to draw this resource.
      */
     @Nullable
-    public static final Drawable getDrawable(@NonNull Context context, @DrawableRes int id) {
+    public static Drawable getDrawable(@NonNull Context context, @DrawableRes int id) {
         if (Build.VERSION.SDK_INT >= 21) {
             return context.getDrawable(id);
         } else if (Build.VERSION.SDK_INT >= 16) {
@@ -390,7 +390,7 @@ public class ContextCompat {
      *         does not exist.
      */
     @Nullable
-    public static final ColorStateList getColorStateList(@NonNull Context context,
+    public static ColorStateList getColorStateList(@NonNull Context context,
             @ColorRes int id) {
         if (Build.VERSION.SDK_INT >= 23) {
             return context.getColorStateList(id);
@@ -413,7 +413,7 @@ public class ContextCompat {
      *         does not exist.
      */
     @ColorInt
-    public static final int getColor(@NonNull Context context, @ColorRes int id) {
+    public static int getColor(@NonNull Context context, @ColorRes int id) {
         if (Build.VERSION.SDK_INT >= 23) {
             return context.getColor(id);
         } else {
@@ -454,7 +454,7 @@ public class ContextCompat {
      * @see android.content.Context#getFilesDir()
      */
     @Nullable
-    public static final File getNoBackupFilesDir(@NonNull Context context) {
+    public static File getNoBackupFilesDir(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 21) {
             return context.getNoBackupFilesDir();
         } else {

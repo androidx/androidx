@@ -1,4 +1,42 @@
+package android.support.v7.recyclerview.extensions {
+
+  public final class AsyncDifferConfig<T> {
+    method public java.util.concurrent.Executor getBackgroundThreadExecutor();
+    method public android.support.v7.util.DiffUtil.ItemCallback<T> getDiffCallback();
+  }
+
+  public static final class AsyncDifferConfig.Builder<T> {
+    ctor public AsyncDifferConfig.Builder(android.support.v7.util.DiffUtil.ItemCallback<T>);
+    method public android.support.v7.recyclerview.extensions.AsyncDifferConfig<T> build();
+    method public android.support.v7.recyclerview.extensions.AsyncDifferConfig.Builder<T> setBackgroundThreadExecutor(java.util.concurrent.Executor);
+  }
+
+  public class AsyncListDiffer<T> {
+    ctor public AsyncListDiffer(android.support.v7.widget.RecyclerView.Adapter, android.support.v7.util.DiffUtil.ItemCallback<T>);
+    ctor public AsyncListDiffer(android.support.v7.util.ListUpdateCallback, android.support.v7.recyclerview.extensions.AsyncDifferConfig<T>);
+    method public java.util.List<T> getCurrentList();
+    method public void submitList(java.util.List<T>);
+  }
+
+  public abstract class ListAdapter<T, VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends android.support.v7.widget.RecyclerView.Adapter {
+    ctor protected ListAdapter(android.support.v7.util.DiffUtil.ItemCallback<T>);
+    ctor protected ListAdapter(android.support.v7.recyclerview.extensions.AsyncDifferConfig<T>);
+    method protected T getItem(int);
+    method public int getItemCount();
+    method public void submitList(java.util.List<T>);
+  }
+
+}
+
 package android.support.v7.util {
+
+  public final class AdapterListUpdateCallback implements android.support.v7.util.ListUpdateCallback {
+    ctor public AdapterListUpdateCallback(android.support.v7.widget.RecyclerView.Adapter);
+    method public void onChanged(int, int, java.lang.Object);
+    method public void onInserted(int, int);
+    method public void onMoved(int, int);
+    method public void onRemoved(int, int);
+  }
 
   public class AsyncListUtil<T> {
     ctor public AsyncListUtil(java.lang.Class<T>, int, android.support.v7.util.AsyncListUtil.DataCallback<T>, android.support.v7.util.AsyncListUtil.ViewCallback);
@@ -55,6 +93,13 @@ package android.support.v7.util {
     method public void dispatchUpdatesTo(android.support.v7.util.ListUpdateCallback);
   }
 
+  public static abstract class DiffUtil.ItemCallback<T> {
+    ctor public DiffUtil.ItemCallback();
+    method public abstract boolean areContentsTheSame(T, T);
+    method public abstract boolean areItemsTheSame(T, T);
+    method public java.lang.Object getChangePayload(T, T);
+  }
+
   public abstract interface ListUpdateCallback {
     method public abstract void onChanged(int, int, java.lang.Object);
     method public abstract void onInserted(int, int);
@@ -77,6 +122,9 @@ package android.support.v7.util {
     method public void recalculatePositionOfItemAt(int);
     method public boolean remove(T);
     method public T removeItemAt(int);
+    method public void replaceAll(T[], boolean);
+    method public void replaceAll(T...);
+    method public void replaceAll(java.util.Collection<T>);
     method public int size();
     method public void updateItemAt(int, T);
     field public static final int INVALID_POSITION = -1; // 0xffffffff
@@ -99,6 +147,7 @@ package android.support.v7.util {
     method public abstract boolean areContentsTheSame(T2, T2);
     method public abstract boolean areItemsTheSame(T2, T2);
     method public abstract int compare(T2, T2);
+    method public java.lang.Object getChangePayload(T2, T2);
     method public abstract void onChanged(int, int);
     method public void onChanged(int, int, java.lang.Object);
   }
@@ -182,6 +231,7 @@ package android.support.v7.widget {
     method public boolean getStackFromEnd();
     method protected boolean isLayoutRTL();
     method public boolean isSmoothScrollbarEnabled();
+    method public void prepareForDrop(android.view.View, android.view.View, int, int);
     method public void scrollToPositionWithOffset(int, int);
     method public void setInitialPrefetchItemCount(int);
     method public void setOrientation(int);
@@ -246,6 +296,7 @@ package android.support.v7.widget {
     method public abstract int getEnd();
     method public abstract int getEndAfterPadding();
     method public abstract int getEndPadding();
+    method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
     method public abstract int getMode();
     method public abstract int getModeInOther();
     method public abstract int getStartAfterPadding();
@@ -269,7 +320,7 @@ package android.support.v7.widget {
     method public int findTargetSnapPosition(android.support.v7.widget.RecyclerView.LayoutManager, int, int);
   }
 
-  public class RecyclerView extends android.view.ViewGroup {
+  public class RecyclerView extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingChild2 android.support.v4.view.ScrollingView {
     ctor public RecyclerView(android.content.Context);
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet);
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet, int);
@@ -305,6 +356,7 @@ package android.support.v7.widget {
     method public android.support.v7.widget.RecyclerView.ViewHolder getChildViewHolder(android.view.View);
     method public android.support.v7.widget.RecyclerViewAccessibilityDelegate getCompatAccessibilityDelegate();
     method public void getDecoratedBoundsWithMargins(android.view.View, android.graphics.Rect);
+    method public android.support.v7.widget.RecyclerView.EdgeEffectFactory getEdgeEffectFactory();
     method public android.support.v7.widget.RecyclerView.ItemAnimator getItemAnimator();
     method public android.support.v7.widget.RecyclerView.ItemDecoration getItemDecorationAt(int);
     method public int getItemDecorationCount();
@@ -327,7 +379,6 @@ package android.support.v7.widget {
     method public void onChildAttachedToWindow(android.view.View);
     method public void onChildDetachedFromWindow(android.view.View);
     method public void onDraw(android.graphics.Canvas);
-    method protected void onLayout(boolean, int, int, int, int);
     method public void onScrollStateChanged(int);
     method public void onScrolled(int, int);
     method public void removeItemDecoration(android.support.v7.widget.RecyclerView.ItemDecoration);
@@ -339,6 +390,7 @@ package android.support.v7.widget {
     method public void setAccessibilityDelegateCompat(android.support.v7.widget.RecyclerViewAccessibilityDelegate);
     method public void setAdapter(android.support.v7.widget.RecyclerView.Adapter);
     method public void setChildDrawingOrderCallback(android.support.v7.widget.RecyclerView.ChildDrawingOrderCallback);
+    method public void setEdgeEffectFactory(android.support.v7.widget.RecyclerView.EdgeEffectFactory);
     method public void setHasFixedSize(boolean);
     method public void setItemAnimator(android.support.v7.widget.RecyclerView.ItemAnimator);
     method public void setItemViewCacheSize(int);
@@ -415,6 +467,18 @@ package android.support.v7.widget {
 
   public static abstract interface RecyclerView.ChildDrawingOrderCallback {
     method public abstract int onGetChildDrawingOrder(int, int);
+  }
+
+  public static class RecyclerView.EdgeEffectFactory {
+    ctor public RecyclerView.EdgeEffectFactory();
+    method protected android.widget.EdgeEffect createEdgeEffect(android.support.v7.widget.RecyclerView, int);
+    field public static final int DIRECTION_BOTTOM = 3; // 0x3
+    field public static final int DIRECTION_LEFT = 0; // 0x0
+    field public static final int DIRECTION_RIGHT = 2; // 0x2
+    field public static final int DIRECTION_TOP = 1; // 0x1
+  }
+
+  public static abstract class RecyclerView.EdgeEffectFactory.EdgeDirection implements java.lang.annotation.Annotation {
   }
 
   public static abstract class RecyclerView.ItemAnimator {

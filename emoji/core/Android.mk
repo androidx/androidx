@@ -31,8 +31,9 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src/main/java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/src/main/res
 LOCAL_STATIC_JAVA_LIBRARIES := \
     noto-emoji-compat-java
+LOCAL_JAVA_LIBRARIES := \
+    android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
-    android-support-annotations \
     android-support-compat
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7

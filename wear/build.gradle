@@ -10,15 +10,15 @@ dependencies {
     api(project(":support-annotations"))
     api(project(":support-core-ui"))
     api(project(":support-fragment"))
-    api(project(":percent"))
     api(project(":recyclerview-v7"))
+    api(CONSTRAINT_LAYOUT)
 
-    androidTestImplementation(TEST_RUNNER, libs.exclude_annotations)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_annotations)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 
-    provided fileTree(dir: 'wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
+    compileOnly fileTree(dir: 'wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
 }
 
 android {
@@ -41,6 +41,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2016"
     description = "Android Wear Support UI"
-    legacySourceLocation = true
     minSdkVersion = 23
 }

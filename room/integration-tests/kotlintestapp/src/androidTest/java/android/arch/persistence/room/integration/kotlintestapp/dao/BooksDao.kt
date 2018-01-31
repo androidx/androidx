@@ -29,6 +29,7 @@ import android.arch.persistence.room.integration.kotlintestapp.vo.Lang
 import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
 import android.arch.persistence.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import android.arch.persistence.room.integration.kotlintestapp.vo.PublisherWithBooks
+import com.google.common.base.Optional
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -64,6 +65,12 @@ interface BooksDao {
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookFlowable(bookId: String): Flowable<Book>
+
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
+    fun getBookOptional(bookId: String): Optional<Book>
+
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
+    fun getBookOptionalFlowable(bookId: String): Flowable<Optional<Book>>
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookSingle(bookId: String): Single<Book>

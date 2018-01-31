@@ -19,6 +19,7 @@ package android.support.v4.content;
 import static android.provider.OpenableColumns.DISPLAY_NAME;
 import static android.provider.OpenableColumns.SIZE;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -26,12 +27,12 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.content.FileProvider.SimplePathStrategy;
-import android.test.MoreAsserts;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -353,12 +354,19 @@ public class FileProviderTest {
         actual = FileProvider.getUriForFile(mContext, TEST_AUTHORITY,
             buildPath(externalCacheDirs[0], "foo", "bar"));
         assertEquals("content://moocow/test_external_cache/foo/bar", actual.toString());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            File[] externalMediaDirs = mContext.getExternalMediaDirs();
+            actual = FileProvider.getUriForFile(mContext, TEST_AUTHORITY,
+                    buildPath(externalMediaDirs[0], "foo", "bar"));
+            assertEquals("content://moocow/test_external_media/foo/bar", actual.toString());
+        }
     }
 
     private void assertContentsEquals(byte[] expected, Uri actual) throws Exception {
         final InputStream in = mResolver.openInputStream(actual);
         try {
-            MoreAsserts.assertEquals(expected, readFully(in));
+            assertArrayEquals(expected, readFully(in));
         } finally {
             closeQuietly(in);
         }

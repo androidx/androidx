@@ -16,6 +16,8 @@
 
 package android.support.v4.testutils;
 
+import static org.junit.Assert.fail;
+
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.test.espresso.matcher.BoundedMatcher;
@@ -23,8 +25,6 @@ import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-
-import junit.framework.Assert;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -79,7 +79,7 @@ public class TestUtilsMatchers {
      */
     public static Matcher<View> isOfClass(final Class<? extends View> clazz) {
         if (clazz == null) {
-            Assert.fail("Passed null Class instance");
+            fail("Passed null Class instance");
         }
         return new TypeSafeMatcher<View>() {
             @Override

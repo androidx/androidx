@@ -18,6 +18,11 @@ package android.support.v4.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
@@ -28,14 +33,22 @@ import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
 import android.support.v4.os.BuildCompat;
+import android.text.Editable;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper for accessing features in {@link TextView}.
@@ -219,6 +232,11 @@ public final class TextViewCompat {
             }
             return new int[0];
         }
+
+        public void setCustomSelectionActionModeCallback(TextView textView,
+                ActionMode.Callback callback) {
+            textView.setCustomSelectionActionModeCallback(callback);
+        }
     }
 
     @RequiresApi(16)
@@ -314,8 +332,160 @@ public final class TextViewCompat {
         }
     }
 
+    @RequiresApi(26)
+    static class TextViewCompatApi26Impl extends TextViewCompatApi23Impl {
+        @Override
+        public void setCustomSelectionActionModeCallback(final TextView textView,
+                final ActionMode.Callback callback) {
+            if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O
+                    && Build.VERSION.SDK_INT != Build.VERSION_CODES.O_MR1) {
+                super.setCustomSelectionActionModeCallback(textView, callback);
+                return;
+            }
+
+
+            // A bug in O and O_MR1 causes a number of options for handling the ACTION_PROCESS_TEXT
+            // intent after selection to not be displayed in the menu, although they should be.
+            // Here we fix this, by removing the menu items created by the framework code, and
+            // adding them (and the missing ones) back correctly.
+            textView.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                // This constant should be correlated with its definition in the
+                // android.widget.Editor class.
+                private static final int MENU_ITEM_ORDER_PROCESS_TEXT_INTENT_ACTIONS_START = 100;
+
+                // References to the MenuBuilder class and its removeItemAt(int) method.
+                // Since in most cases the menu instance processed by this callback is going
+                // to be a MenuBuilder, we keep these references to avoid querying for them
+                // frequently by reflection in recomputeProcessTextMenuItems.
+                private Class mMenuBuilderClass;
+                private Method mMenuBuilderRemoveItemAtMethod;
+                private boolean mCanUseMenuBuilderReferences;
+                private boolean mInitializedMenuBuilderReferences = false;
+
+                @Override
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    return callback.onCreateActionMode(mode, menu);
+                }
+
+                @Override
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    recomputeProcessTextMenuItems(menu);
+                    return callback.onPrepareActionMode(mode, menu);
+                }
+
+                @Override
+                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                    return callback.onActionItemClicked(mode, item);
+                }
+
+                @Override
+                public void onDestroyActionMode(ActionMode mode) {
+                    callback.onDestroyActionMode(mode);
+                }
+
+                private void recomputeProcessTextMenuItems(final Menu menu) {
+                    final Context context = textView.getContext();
+                    final PackageManager packageManager = context.getPackageManager();
+
+                    if (!mInitializedMenuBuilderReferences) {
+                        mInitializedMenuBuilderReferences = true;
+                        try {
+                            mMenuBuilderClass =
+                                    Class.forName("com.android.internal.view.menu.MenuBuilder");
+                            mMenuBuilderRemoveItemAtMethod = mMenuBuilderClass
+                                    .getDeclaredMethod("removeItemAt", Integer.TYPE);
+                            mCanUseMenuBuilderReferences = true;
+                        } catch (ClassNotFoundException | NoSuchMethodException e) {
+                            mMenuBuilderClass = null;
+                            mMenuBuilderRemoveItemAtMethod = null;
+                            mCanUseMenuBuilderReferences = false;
+                        }
+                    }
+                    // Remove the menu items created for ACTION_PROCESS_TEXT handlers.
+                    try {
+                        final Method removeItemAtMethod =
+                                (mCanUseMenuBuilderReferences && mMenuBuilderClass.isInstance(menu))
+                                        ? mMenuBuilderRemoveItemAtMethod
+                                        : menu.getClass()
+                                                .getDeclaredMethod("removeItemAt", Integer.TYPE);
+                        for (int i = menu.size() - 1; i >= 0; --i) {
+                            final MenuItem item = menu.getItem(i);
+                            if (item.getIntent() != null && Intent.ACTION_PROCESS_TEXT
+                                    .equals(item.getIntent().getAction())) {
+                                removeItemAtMethod.invoke(menu, i);
+                            }
+                        }
+                    } catch (NoSuchMethodException | IllegalAccessException
+                            | InvocationTargetException e) {
+                        // There is a menu custom implementation used which is not providing
+                        // a removeItemAt(int) menu. There is nothing we can do in this case.
+                        return;
+                    }
+
+                    // Populate the menu again with the ACTION_PROCESS_TEXT handlers.
+                    final List<ResolveInfo> supportedActivities =
+                            getSupportedActivities(context, packageManager);
+                    for (int i = 0; i < supportedActivities.size(); ++i) {
+                        final ResolveInfo info = supportedActivities.get(i);
+                        menu.add(Menu.NONE, Menu.NONE,
+                                MENU_ITEM_ORDER_PROCESS_TEXT_INTENT_ACTIONS_START + i,
+                                info.loadLabel(packageManager))
+                                .setIntent(createProcessTextIntentForResolveInfo(info, textView))
+                                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                    }
+                }
+
+                private List<ResolveInfo> getSupportedActivities(final Context context,
+                        final PackageManager packageManager) {
+                    final List<ResolveInfo> supportedActivities = new ArrayList<>();
+                    boolean canStartActivityForResult = context instanceof Activity;
+                    if (!canStartActivityForResult) {
+                        return supportedActivities;
+                    }
+                    final List<ResolveInfo> unfiltered =
+                            packageManager.queryIntentActivities(createProcessTextIntent(), 0);
+                    for (ResolveInfo info : unfiltered) {
+                        if (isSupportedActivity(info, context)) {
+                            supportedActivities.add(info);
+                        }
+                    }
+                    return supportedActivities;
+                }
+
+                private boolean isSupportedActivity(final ResolveInfo info, final Context context) {
+                    if (context.getPackageName().equals(info.activityInfo.packageName)) {
+                        return true;
+                    }
+                    if (!info.activityInfo.exported) {
+                        return false;
+                    }
+                    return info.activityInfo.permission == null
+                            || context.checkSelfPermission(info.activityInfo.permission)
+                                == PackageManager.PERMISSION_GRANTED;
+                }
+
+                private Intent createProcessTextIntentForResolveInfo(final ResolveInfo info,
+                        final TextView textView) {
+                    return createProcessTextIntent()
+                            .putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, !isEditable(textView))
+                            .setClassName(info.activityInfo.packageName, info.activityInfo.name);
+                }
+
+                private boolean isEditable(final TextView textView) {
+                    return textView instanceof Editable
+                            && textView.onCheckIsTextEditor()
+                            && textView.isEnabled();
+                }
+
+                private Intent createProcessTextIntent() {
+                    return new Intent().setAction(Intent.ACTION_PROCESS_TEXT).setType("text/plain");
+                }
+            });
+        }
+    }
+
     @RequiresApi(27)
-    static class TextViewCompatApi27Impl extends TextViewCompatApi23Impl {
+    static class TextViewCompatApi27Impl extends TextViewCompatApi26Impl {
         @Override
         public void setAutoSizeTextTypeWithDefaults(TextView textView, int autoSizeTextType) {
             textView.setAutoSizeTextTypeWithDefaults(autoSizeTextType);
@@ -369,6 +539,8 @@ public final class TextViewCompat {
     static {
         if (BuildCompat.isAtLeastOMR1()) {
             IMPL = new TextViewCompatApi27Impl();
+        } else if (Build.VERSION.SDK_INT >= 26) {
+            IMPL = new TextViewCompatApi26Impl();
         } else if (Build.VERSION.SDK_INT >= 23) {
             IMPL = new TextViewCompatApi23Impl();
         } else if (Build.VERSION.SDK_INT >= 18) {
@@ -599,5 +771,32 @@ public final class TextViewCompat {
     @NonNull
     public static int[] getAutoSizeTextAvailableSizes(@NonNull TextView textView) {
         return IMPL.getAutoSizeTextAvailableSizes(textView);
+    }
+
+    /**
+     * Sets a selection action mode callback on a TextView.
+     *
+     * Also this method can be used to fix a bug in framework SDK 26. On these affected devices,
+     * the bug causes the menu containing the options for handling ACTION_PROCESS_TEXT after text
+     * selection to miss a number of items. This method can be used to fix this wrong behaviour for
+     * a text view, by passing any custom callback implementation. If no custom callback is desired,
+     * a no-op implementation should be provided.
+     *
+     * Note that, by default, the bug will only be fixed when the default floating toolbar menu
+     * implementation is used. If a custom implementation of {@link Menu} is provided, this should
+     * provide the method Menu#removeItemAt(int) which removes a menu item by its position,
+     * as given by Menu#getItem(int). Also, the following post condition should hold: a call
+     * to removeItemAt(i), should not modify the results of getItem(j) for any j < i. Intuitively,
+     * removing an element from the menu should behave as removing an element from a list.
+     * Note that this method does not exist in the {@link Menu} interface. However, it is required,
+     * and going to be called by reflection, in order to display the correct process text items in
+     * the menu.
+     *
+     * @param textView The TextView to set the action selection mode callback on.
+     * @param callback The action selection mode callback to set on textView.
+     */
+    public static void setCustomSelectionActionModeCallback(@NonNull TextView textView,
+                @NonNull ActionMode.Callback callback) {
+        IMPL.setCustomSelectionActionModeCallback(textView, callback);
     }
 }

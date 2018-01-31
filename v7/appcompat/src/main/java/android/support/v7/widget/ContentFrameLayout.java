@@ -16,6 +16,7 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.view.View.MeasureSpec.AT_MOST;
 import static android.view.View.MeasureSpec.EXACTLY;
@@ -33,6 +34,7 @@ import android.widget.FrameLayout;
 /**
  * @hide
  */
+@RestrictTo(LIBRARY)
 public class ContentFrameLayout extends FrameLayout {
 
     public interface OnAttachListener {

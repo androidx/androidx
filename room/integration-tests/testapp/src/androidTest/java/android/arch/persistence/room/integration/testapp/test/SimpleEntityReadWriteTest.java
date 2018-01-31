@@ -49,8 +49,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import junit.framework.AssertionFailedError;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -162,7 +160,7 @@ public class SimpleEntityReadWriteTest {
         User user2 = TestUtil.createUser(3);
         try {
             mUserDao.insert(user2);
-            throw new AssertionFailedError("didn't throw in conflicting insertion");
+            throw new AssertionError("didn't throw in conflicting insertion");
         } catch (SQLiteException ignored) {
         }
     }

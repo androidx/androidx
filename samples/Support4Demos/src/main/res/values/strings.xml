@@ -241,4 +241,6 @@
     <string name="drawable_compat_no_tint">Not tint</string>
     <string name="drawable_compat_color_tint">Color tint</string>
     <string name="drawable_compat_color_list_tint">Color state list</string>
+
+    <string name="commit_content_support">View/Input Method/Commit Content</string>
 </resources>

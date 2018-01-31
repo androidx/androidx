@@ -19,12 +19,11 @@ package android.support.v7.widget;
 import static android.support.v7.widget.RecyclerView.ViewHolder;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 
 import android.support.test.filters.SmallTest;
 import android.view.View;
-
-import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -142,7 +141,7 @@ public class AdapterHelperTest {
                 for (ViewHolder viewHolder : mViewHolders) {
                     for (int i = 0; i < updateOp.itemCount; i++) {
                         // events are dispatched before view holders are updated for consistency
-                        Assert.assertFalse("update op should not match any existing view holders",
+                        assertFalse("update op should not match any existing view holders",
                                 viewHolder.getLayoutPosition() == updateOp.positionStart + i);
                     }
                 }

@@ -18,6 +18,7 @@ package android.support.v4.util;
 import android.os.Build;
 import android.support.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -49,6 +50,48 @@ public class ObjectsCompat {
             return Objects.equals(a, b);
         } else {
             return (a == b) || (a != null && a.equals(b));
+        }
+    }
+
+    /**
+     * Returns the hash code of a non-{@code null} argument and 0 for a {@code null} argument.
+     *
+     * @param o an object
+     * @return the hash code of a non-{@code null} argument and 0 for a {@code null} argument
+     * @see Object#hashCode
+     */
+    public static int hashCode(@Nullable Object o) {
+        return o != null ? o.hashCode() : 0;
+    }
+
+    /**
+     * Generates a hash code for a sequence of input values. The hash code is generated as if all
+     * the input values were placed into an array, and that array were hashed by calling
+     * {@link Arrays#hashCode(Object[])}.
+     *
+     * <p>This method is useful for implementing {@link Object#hashCode()} on objects containing
+     * multiple fields. For example, if an object that has three fields, {@code x}, {@code y}, and
+     * {@code z}, one could write:
+     *
+     * <blockquote><pre>
+     * &#064;Override public int hashCode() {
+     *     return ObjectsCompat.hash(x, y, z);
+     * }
+     * </pre></blockquote>
+     *
+     * <b>Warning: When a single object reference is supplied, the returned value does not equal the
+     * hash code of that object reference.</b> This value can be computed by calling
+     * {@link #hashCode(Object)}.
+     *
+     * @param values the values to be hashed
+     * @return a hash value of the sequence of input values
+     * @see Arrays#hashCode(Object[])
+     */
+    public static int hash(@Nullable Object... values) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            return Objects.hash(values);
+        } else {
+            return Arrays.hashCode(values);
         }
     }
 }

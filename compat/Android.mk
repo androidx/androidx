@@ -30,7 +30,7 @@ LOCAL_SRC_FILES := \
     $(call all-java-files-under,src/main/java) \
     $(call all-Iaidl-files-under,src/main/java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_SHARED_ANDROID_LIBRARIES := \
+LOCAL_JAVA_LIBRARIES := \
     android-support-annotations
 LOCAL_STATIC_JAVA_LIBRARIES := \
     apptoolkit-arch-core-common \

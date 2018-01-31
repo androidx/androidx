@@ -55,6 +55,7 @@ public class GuidedStepActivity extends Activity {
     private static final int PAYMENT = 6;
     private static final int NEW_PAYMENT = 7;
     private static final int PAYMENT_EXPIRE = 8;
+    private static final int REFRESH = 9;
 
     private static final long RADIO_ID_BASE = 0;
     private static final long CHECKBOX_ID_BASE = 100;
@@ -222,6 +223,10 @@ public class GuidedStepActivity extends Activity {
                     .description("Let's do it")
                     .build());
             actions.add(new GuidedAction.Builder(context)
+                    .id(REFRESH)
+                    .title("Refresh")
+                    .build());
+            actions.add(new GuidedAction.Builder(context)
                     .clickAction(GuidedAction.ACTION_ID_CANCEL)
                     .description("Never mind")
                     .build());
@@ -232,6 +237,24 @@ public class GuidedStepActivity extends Activity {
             FragmentManager fm = getFragmentManager();
             if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 GuidedStepFragment.add(fm, new SecondStepFragment(), R.id.lb_guidedstep_host);
+            } else if (action.getId() == REFRESH) {
+                // swap actions position and change content:
+                Context context = getActivity();
+                ArrayList<GuidedAction> newActions = new ArrayList();
+                newActions.add(new GuidedAction.Builder(context)
+                        .id(REFRESH)
+                        .title("Refresh done")
+                        .build());
+                newActions.add(new GuidedAction.Builder(context)
+                        .clickAction(GuidedAction.ACTION_ID_CONTINUE)
+                        .description("Let's do it")
+                        .build());
+                newActions.add(new GuidedAction.Builder(context)
+                        .clickAction(GuidedAction.ACTION_ID_CANCEL)
+                        .description("Never mind")
+                        .build());
+                //setActionsDiffCallback(null);
+                setActions(newActions);
             } else if (action.getId() == GuidedAction.ACTION_ID_CANCEL){
                 finishGuidedStepFragments();
             }

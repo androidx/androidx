@@ -16,11 +16,8 @@
 
 package android.support.wear.widget;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.RestrictTo.Scope;
 import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -30,8 +27,7 @@ import android.view.VelocityTracker;
  *
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.M)
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY)
 class ScrollManager {
     // One second in milliseconds.
     private static final int ONE_SEC_IN_MS = 1000;

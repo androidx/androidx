@@ -27,11 +27,14 @@ LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-core-utils
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := \
-    $(call all-java-files-under,src/main/java)
+    $(call all-java-files-under,kitkat) \
+    $(call all-java-files-under,api21) \
+    $(call all-java-files-under,java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_SHARED_ANDROID_LIBRARIES := \
-    android-support-compat \
+LOCAL_JAVA_LIBRARIES := \
     android-support-annotations
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-compat
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly

@@ -16,12 +16,10 @@
 
 package android.support.wear.widget.drawer;
 
-import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.view.ActionProvider;
 import android.view.ContextMenu;
@@ -34,7 +32,6 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-@TargetApi(Build.VERSION_CODES.M)
 /* package */ class WearableActionDrawerMenu implements Menu {
 
     private final Context mContext;

@@ -18,11 +18,9 @@ package android.support.text.emoji;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiAt;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiCount;
 
-import static junit.framework.TestCase.assertTrue;
-
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Paint;
 import android.support.test.InstrumentationRegistry;
@@ -51,7 +49,6 @@ import java.util.Collection;
 @SmallTest
 @RunWith(Parameterized.class)
 @SdkSuppress(minSdkVersion = 19)
-@TargetApi(19)
 public class AllEmojisTest {
 
     /**
