@@ -17,7 +17,9 @@
 package android.arch.persistence.room.solver
 
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.ext.GuavaBaseTypeNames
 import android.arch.persistence.room.ext.hasAnnotation
+import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.parser.ParsedQuery
 import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.processor.Context
@@ -38,6 +40,7 @@ import android.arch.persistence.room.solver.query.parameter.CollectionQueryParam
 import android.arch.persistence.room.solver.query.parameter.QueryParameterAdapter
 import android.arch.persistence.room.solver.query.result.ArrayQueryResultAdapter
 import android.arch.persistence.room.solver.query.result.EntityRowAdapter
+import android.arch.persistence.room.solver.query.result.GuavaOptionalQueryResultAdapter
 import android.arch.persistence.room.solver.query.result.InstantQueryResultBinder
 import android.arch.persistence.room.solver.query.result.ListQueryResultAdapter
 import android.arch.persistence.room.solver.query.result.PojoRowAdapter
@@ -270,11 +273,19 @@ class TypeAdapterStore private constructor(
         }
         if (typeMirror.kind == TypeKind.DECLARED) {
             val declared = MoreTypes.asDeclared(typeMirror)
+
             if (declared.typeArguments.isEmpty()) {
                 val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
                 return SingleEntityQueryResultAdapter(rowAdapter)
-            }
-            if (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)) {
+            } else if (
+                    context.processingEnv.typeUtils.erasure(typeMirror).typeName() ==
+                    GuavaBaseTypeNames.OPTIONAL) {
+                // Handle Guava Optional by unpacking its generic type argument and adapting that.
+                // The Optional adapter will reappend the Optional type.
+                val typeArg = declared.typeArguments.first()
+                val rowAdapter = findRowAdapter(typeArg, query) ?: return null
+                return GuavaOptionalQueryResultAdapter(rowAdapter)
+            } else if (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)) {
                 val typeArg = declared.typeArguments.first()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
                 return ListQueryResultAdapter(rowAdapter)

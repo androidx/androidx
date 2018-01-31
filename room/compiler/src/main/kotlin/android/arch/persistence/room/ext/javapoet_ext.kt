@@ -118,6 +118,10 @@ object CommonTypeNames {
     val INTEGER = ClassName.get("java.lang", "Integer")
 }
 
+object GuavaBaseTypeNames {
+    val OPTIONAL = ClassName.get("com.google.common.base", "Optional")
+}
+
 object RxJava2TypeNames {
     val FLOWABLE = ClassName.get("io.reactivex", "Flowable")
     val MAYBE = ClassName.get("io.reactivex", "Maybe")
