@@ -87,12 +87,14 @@ public abstract class WorkManager {
      * run, then the entire chain will be considered a no-op.
      *
      * @param tag A tag which should uniquely label all the work in this chain
-     * @param existingWorkPolicy One of {@link ExistingWorkPolicy#REPLACE_EXISTING_WORK} or
-     *                           {@link ExistingWorkPolicy#KEEP_EXISTING_WORK}.
-     * @param work One or more {@link Work} to enqueue. @code REPLACE_EXISTING_WORK} ensures that if
-     *             there is pending work labelled with {@code tag}, it will be cancelled and the new
-     *             work will run. {@code KEEP_EXISTING_WORK} will run the new sequence of work only
-     *             if there is no pending work labelled with {@code tag}.
+     * @param existingWorkPolicy An {@link WorkManager.ExistingWorkPolicy}.
+     * @param work One or more {@link Work} to enqueue. {@code REPLACE_EXISTING_WORK} ensures that
+     *             if there is pending work labelled with {@code tag}, it will be cancelled and the
+     *             new work will run. {@code KEEP_EXISTING_WORK} will run the new sequence of work
+     *             only if there is no pending work labelled with {@code tag}.
+     *             {@code APPEND_TO_EXISTING_WORK} will create a new sequence of work if there is no
+     *             existing work with {@code tag}; otherwise, {@code work} will be added as a child
+     *             of all leaf nodes labelled with {@code tag}.
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public final WorkContinuation beginWithUniqueTag(
@@ -115,12 +117,14 @@ public abstract class WorkManager {
      * run, then the entire chain will be considered a no-op.
      *
      * @param tag A tag which should uniquely label all the work in this chain
-     * @param existingWorkPolicy One of {@link ExistingWorkPolicy#REPLACE_EXISTING_WORK} or
-     *                           {@link ExistingWorkPolicy#KEEP_EXISTING_WORK}.
-     * @param work One or more {@link Work} to enqueue. @code REPLACE_EXISTING_WORK} ensures that if
-     *             there is pending work labelled with {@code tag}, it will be cancelled and the new
-     *             work will run. {@code KEEP_EXISTING_WORK} will run the new sequence of work only
-     *             if there is no pending work labelled with {@code tag}.
+     * @param existingWorkPolicy An {@link WorkManager.ExistingWorkPolicy}.
+     * @param work One or more {@link Work} to enqueue. {@code REPLACE_EXISTING_WORK} ensures that
+     *             if there is pending work labelled with {@code tag}, it will be cancelled and the
+     *             new work will run. {@code KEEP_EXISTING_WORK} will run the new sequence of work
+     *             only if there is no pending work labelled with {@code tag}.
+     *             {@code APPEND_TO_EXISTING_WORK} will create a new sequence of work if there is no
+     *             existing work with {@code tag}; otherwise, {@code work} will be added as a child
+     *             of all leaf nodes labelled with {@code tag}.
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public abstract WorkContinuation beginWithUniqueTag(
@@ -170,6 +174,7 @@ public abstract class WorkManager {
 
     public enum ExistingWorkPolicy {
         REPLACE_EXISTING_WORK,
-        KEEP_EXISTING_WORK
+        KEEP_EXISTING_WORK,
+        APPEND_TO_EXISTING_WORK
     }
 }

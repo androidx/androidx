@@ -16,12 +16,16 @@
 
 package android.arch.background.workmanager.impl;
 
+import static android.arch.background.workmanager.BaseWork.WorkStatus.BLOCKED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.CANCELLED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
+import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy
+        .APPEND_TO_EXISTING_WORK;
 import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK;
 import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.REPLACE_EXISTING_WORK;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -456,6 +460,105 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(workSpecDao.getWorkSpec(originalWork.getId()), is(nullValue()));
         assertThat(workSpecDao.getWorkSpec(replacementWork1.getId()), is(not(nullValue())));
         assertThat(workSpecDao.getWorkSpec(replacementWork2.getId()), is(not(nullValue())));
+    }
+
+    @Test
+    @SmallTest
+    public void testUniqueTagSequence_appendsExistingWorkOnAppend() {
+        final String testTag = "mytag";
+
+        Work originalWork = new Work.Builder(TestWorker.class).addTag(testTag).build();
+        insertWorkSpecAndTags(originalWork);
+
+        Work appendWork1 = new Work.Builder(TestWorker.class).build();
+        Work appendWork2 = new Work.Builder(TestWorker.class).build();
+        mWorkManagerImpl
+                .beginWithUniqueTag(testTag, APPEND_TO_EXISTING_WORK, appendWork1)
+                .then(appendWork2)
+                .enqueue();
+
+        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        assertThat(workSpecIds,
+                containsInAnyOrder(originalWork.getId(), appendWork1.getId(), appendWork2.getId()));
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(originalWork.getId()), is(not(nullValue())));
+        assertThat(workSpecDao.getWorkSpecStatus(appendWork1.getId()), is(BLOCKED));
+        assertThat(workSpecDao.getWorkSpecStatus(appendWork2.getId()), is(BLOCKED));
+
+        assertThat(mDatabase.dependencyDao().getDependentWorkIds(originalWork.getId()),
+                containsInAnyOrder(appendWork1.getId()));
+    }
+
+    @Test
+    @SmallTest
+    public void testUniqueTagSequence_appendsExistingWorkToOnlyLeavesOnAppend() {
+        final String testTag = "mytag";
+
+        Work originalWork1 = new Work.Builder(TestWorker.class).addTag(testTag).build();
+        Work originalWork2 = new Work.Builder(TestWorker.class).addTag(testTag).build();
+        Work originalWork3 = new Work.Builder(TestWorker.class).addTag(testTag).build();
+        Work originalWork4 = new Work.Builder(TestWorker.class).addTag(testTag).build();
+        insertWorkSpecAndTags(originalWork1);
+        insertWorkSpecAndTags(originalWork2);
+        insertWorkSpecAndTags(originalWork3);
+        insertWorkSpecAndTags(originalWork4);
+
+        Dependency dependency21 = new Dependency(originalWork2.getId(), originalWork1.getId());
+        Dependency dependency32 = new Dependency(originalWork3.getId(), originalWork2.getId());
+        Dependency dependency42 = new Dependency(originalWork4.getId(), originalWork2.getId());
+
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
+        dependencyDao.insertDependency(dependency21);
+        dependencyDao.insertDependency(dependency32);
+        dependencyDao.insertDependency(dependency42);
+
+        Work appendWork1 = new Work.Builder(TestWorker.class).build();
+        Work appendWork2 = new Work.Builder(TestWorker.class).build();
+        mWorkManagerImpl
+                .beginWithUniqueTag(testTag, APPEND_TO_EXISTING_WORK, appendWork1)
+                .then(appendWork2)
+                .enqueue();
+
+        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        assertThat(workSpecIds,
+                containsInAnyOrder(
+                        originalWork1.getId(),
+                        originalWork2.getId(),
+                        originalWork3.getId(),
+                        originalWork4.getId(),
+                        appendWork1.getId(),
+                        appendWork2.getId()));
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(originalWork1.getId()), is(not(nullValue())));
+        assertThat(workSpecDao.getWorkSpec(originalWork2.getId()), is(not(nullValue())));
+        assertThat(workSpecDao.getWorkSpec(originalWork3.getId()), is(not(nullValue())));
+        assertThat(workSpecDao.getWorkSpec(originalWork4.getId()), is(not(nullValue())));
+        assertThat(workSpecDao.getWorkSpecStatus(appendWork1.getId()), is(BLOCKED));
+        assertThat(workSpecDao.getWorkSpecStatus(appendWork2.getId()), is(BLOCKED));
+
+        assertThat(dependencyDao.getPrerequisites(appendWork1.getId()),
+                containsInAnyOrder(originalWork3.getId(), originalWork4.getId()));
+        assertThat(dependencyDao.getPrerequisites(appendWork2.getId()),
+                containsInAnyOrder(appendWork1.getId()));
+    }
+
+    @Test
+    @SmallTest
+    public void testUniqueTagSequence_insertsExistingWorkWhenNothingToAppendTo() {
+        final String testTag = "mytag";
+
+        Work appendWork1 = new Work.Builder(TestWorker.class).build();
+        Work appendWork2 = new Work.Builder(TestWorker.class).build();
+        mWorkManagerImpl
+                .beginWithUniqueTag(testTag, APPEND_TO_EXISTING_WORK, appendWork1)
+                .then(appendWork2)
+                .enqueue();
+
+        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        assertThat(workSpecIds,
+                containsInAnyOrder(appendWork1.getId(), appendWork2.getId()));
     }
 
     @Test
