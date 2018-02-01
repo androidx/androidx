@@ -39,17 +39,13 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
-import android.support.v17.leanback.widget.VerticalGridView;
-import android.support.v17.leanback.widget.ViewHolderTask;
 import android.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -243,105 +239,6 @@ public class BrowseFragmentTest {
         });
     }
 
-    // copy of RowsFragment.setSelectedPosition() for debugging purpose
-    static void setSelectedPosition(RowsFragment fragment,
-            int rowPosition, boolean smooth,
-            final Presenter.ViewHolderTask rowHolderTask) {
-        VerticalGridView verticalView = fragment.getVerticalGridView();
-        if (verticalView == null) {
-            return;
-        }
-        ViewHolderTask task = null;
-        if (rowHolderTask != null) {
-            // This task will execute once the scroll completes. Once the scrolling finishes,
-            // we will get a success callback to update selected row position. Since the
-            // update to selected row position happens in a post, we want to ensure that this
-            // gets called after that.
-            task = new ViewHolderTask() {
-                @Override
-                public void run(final RecyclerView.ViewHolder rvh) {
-                    Log.d(TAG, "posting rowHolderTask for " + rvh, new Exception());
-                    rvh.itemView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            rowHolderTask.run(RowsFragment
-                                    .getRowViewHolder((ItemBridgeAdapter.ViewHolder) rvh));
-                        }
-                    });
-                }
-            };
-        }
-
-        if (smooth) {
-            verticalView.setSelectedPositionSmooth(rowPosition, task);
-        } else {
-            verticalView.setSelectedPosition(rowPosition, task);
-        }
-    }
-
-    // copy of ListRowPresenter.SelectItemViewHolderTask for debugging purpose
-    static class SelectItemViewHolderTask extends Presenter.ViewHolderTask {
-
-        private int mItemPosition;
-        private boolean mSmoothScroll = true;
-        Presenter.ViewHolderTask mItemTask;
-
-        SelectItemViewHolderTask(int itemPosition) {
-            setItemPosition(itemPosition);
-        }
-
-        public void setItemPosition(int itemPosition) {
-            mItemPosition = itemPosition;
-        }
-
-        public int getItemPosition() {
-            return mItemPosition;
-        }
-
-        public void setSmoothScroll(boolean smoothScroll) {
-            mSmoothScroll = smoothScroll;
-        }
-
-        public boolean isSmoothScroll() {
-            return mSmoothScroll;
-        }
-
-        public Presenter.ViewHolderTask getItemTask() {
-            return mItemTask;
-        }
-
-        public void setItemTask(Presenter.ViewHolderTask itemTask) {
-            mItemTask = itemTask;
-        }
-
-        @Override
-        public void run(Presenter.ViewHolder holder) {
-            Log.d(TAG, "run on rowViewHolder: " + holder, new Exception());
-            if (holder instanceof ListRowPresenter.ViewHolder) {
-                Log.d(TAG, "run on row: " + ((ListRowPresenter.ViewHolder) holder).getRow());
-                HorizontalGridView gridView = ((ListRowPresenter.ViewHolder) holder).getGridView();
-                android.support.v17.leanback.widget.ViewHolderTask task = null;
-                if (mItemTask != null) {
-                    task = new android.support.v17.leanback.widget.ViewHolderTask() {
-                        final Presenter.ViewHolderTask mSavedItemTask = mItemTask;
-                        @Override
-                        public void run(RecyclerView.ViewHolder rvh) {
-                            Log.d(TAG, "run on " + mSavedItemTask, new Exception());
-                            ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) rvh;
-                            mSavedItemTask.run(ibvh.getViewHolder());
-                        }
-                    };
-                }
-                Log.d(TAG, "searching item " + mItemPosition + " " + mItemTask);
-                if (isSmoothScroll()) {
-                    gridView.setSelectedPositionSmooth(mItemPosition, task);
-                } else {
-                    gridView.setSelectedPosition(mItemPosition, task);
-                }
-            }
-        }
-    }
-
     @Test
     public void testSelectCardOnARow() throws Throwable {
         final int selectRow = 10;
@@ -357,16 +254,14 @@ public class BrowseFragmentTest {
         Presenter.ViewHolderTask itemTask = Mockito.spy(
                 new ItemSelectionTask(mActivity, selectRow));
 
-        final SelectItemViewHolderTask task =
-                new SelectItemViewHolderTask(selectItem);
+        final ListRowPresenter.SelectItemViewHolderTask task =
+                new ListRowPresenter.SelectItemViewHolderTask(selectItem);
         task.setItemTask(itemTask);
 
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mActivity.getBrowseTestFragment().startHeadersTransition(false);
-                setSelectedPosition(mActivity.getBrowseTestFragment()
-                                .getRowsFragment(), selectRow, true, task);
+                mActivity.getBrowseTestFragment().setSelectedPosition(selectRow, true, task);
             }
         });
 
