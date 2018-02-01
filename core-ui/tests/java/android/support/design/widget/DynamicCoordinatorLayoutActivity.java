@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package foo.bar;
-import android.arch.persistence.room.*;
-import java.lang.SuppressWarnings;
-import java.util.List;
+package android.support.design.widget;
 
-@Database(entities = {User.class}, version = 1923)
-abstract class ComplexDatabase extends RoomDatabase {
-    abstract ComplexDao getComplexDao();
+import android.support.coreui.test.R;
+
+/**
+ * Test activity for testing various aspects of {@link CoordinatorLayout}.
+ */
+public class DynamicCoordinatorLayoutActivity extends BaseTestActivity {
+    @Override
+    protected int getContentViewLayoutResId() {
+        return R.layout.dynamic_coordinator_layout;
+    }
 }

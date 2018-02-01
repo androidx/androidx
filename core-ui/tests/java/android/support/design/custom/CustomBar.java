@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.support.design.custom;
 
 import android.content.Context;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
+import android.view.View;
 
-@CoordinatorLayout.DefaultBehavior(TestFloatingBehavior.class)
-public class CustomTextView extends AppCompatTextView {
-    public CustomTextView(Context context) {
+public class CustomBar extends View {
+    public CustomBar(Context context) {
         super(context);
     }
 
-    public CustomTextView(Context context, AttributeSet attrs) {
+    public CustomBar(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public CustomTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CustomBar(Context context, AttributeSet attrs,
+            int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 }

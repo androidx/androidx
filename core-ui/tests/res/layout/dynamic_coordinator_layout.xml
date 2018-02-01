@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<!-- Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,7 +14,11 @@
      limitations under the License.
 -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_accelerated="false" android:color="@color/background_material_light" />
-    <item android:color="@android:color/transparent" />
-</selector>
+<!-- ViewStub that will be inflated to a CoordinatorLayout at test runtime. -->
+<ViewStub
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/coordinator_stub"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:inflatedId="@+id/coordinator_layout"
+    android:fitsSystemWindows="true" />

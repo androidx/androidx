@@ -15,4 +15,5 @@
 -->
 <resources>
     <string name="hello">Hello World</string>
+    <string name="button">Button</string>
 </resources>

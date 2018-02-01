@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package android.support.design.custom;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
@@ -35,7 +34,7 @@ public class TestFloatingBehavior extends CoordinatorLayout.Behavior<TextView> {
 
     @Override
     public boolean layoutDependsOn(CoordinatorLayout parent, TextView child, View dependency) {
-        return dependency instanceof Snackbar.SnackbarLayout;
+        return dependency instanceof CustomBar;
     }
 
     @Override
