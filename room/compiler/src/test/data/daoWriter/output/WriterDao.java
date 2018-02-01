@@ -22,10 +22,12 @@ import android.arch.persistence.room.RoomDatabase;
 
 import java.lang.Override;
 import java.lang.String;
+import java.lang.SuppressWarnings;
 import java.util.List;
 import javax.annotation.Generated;
 
 @Generated("android.arch.persistence.room.RoomProcessor")
+@SuppressWarnings("unchecked")
 public class WriterDao_Impl implements WriterDao {
     private final RoomDatabase __db;
 
