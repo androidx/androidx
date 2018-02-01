@@ -28,6 +28,10 @@ package android.support.design.widget {
     method public void setStatusBarBackgroundResource(int);
   }
 
+  public static abstract interface CoordinatorLayout.AttachedBehavior {
+    method public abstract android.support.design.widget.CoordinatorLayout.Behavior getBehavior();
+  }
+
   public static abstract class CoordinatorLayout.Behavior<V extends android.view.View> {
     ctor public CoordinatorLayout.Behavior();
     ctor public CoordinatorLayout.Behavior(android.content.Context, android.util.AttributeSet);
@@ -64,7 +68,7 @@ package android.support.design.widget {
     method public static void setTag(android.view.View, java.lang.Object);
   }
 
-  public static abstract class CoordinatorLayout.DefaultBehavior implements java.lang.annotation.Annotation {
+  public static abstract deprecated class CoordinatorLayout.DefaultBehavior implements java.lang.annotation.Annotation {
   }
 
   public static class CoordinatorLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
