@@ -42,6 +42,8 @@
 
         <activity android:name="android.support.design.widget.CoordinatorLayoutActivity"/>
 
+        <activity android:name="android.support.design.widget.DynamicCoordinatorLayoutActivity"/>
+
     </application>
 
 </manifest>
