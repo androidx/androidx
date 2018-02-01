@@ -20,7 +20,7 @@
 
     <bool name="abc_config_showMenuShortcutsWhenKeyboardPresent">false</bool>
 
-    <!-- Whether to allow vertically stacked button bars. This is enabled for
-         all < v13 devices. -->
-    <bool name="abc_allow_stacked_button_bar">true</bool>
+    <!-- Whether to allow vertically stacked button bars. This is disabled for
+         configurations with a small (e.g. less than 320dp) screen height. -->
+    <bool name="abc_allow_stacked_button_bar">false</bool>
 </resources>

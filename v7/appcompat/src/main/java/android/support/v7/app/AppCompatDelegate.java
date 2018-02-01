@@ -198,12 +198,8 @@ public abstract class AppCompatDelegate {
             return new AppCompatDelegateImplN(context, window, callback);
         } else if (Build.VERSION.SDK_INT >= 23) {
             return new AppCompatDelegateImplV23(context, window, callback);
-        } else if (Build.VERSION.SDK_INT >= 14) {
-            return new AppCompatDelegateImplV14(context, window, callback);
-        } else if (Build.VERSION.SDK_INT >= 11) {
-            return new AppCompatDelegateImplV11(context, window, callback);
         } else {
-            return new AppCompatDelegateImplV9(context, window, callback);
+            return new AppCompatDelegateImplV14(context, window, callback);
         }
     }
 

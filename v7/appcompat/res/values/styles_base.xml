@@ -166,19 +166,17 @@
         <item name="android:textColor">?android:attr/textColorSecondaryInverse</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.ProgressBar.Horizontal" parent="android:Widget.ProgressBar.Horizontal">
+    <style name="Base.Widget.AppCompat.ProgressBar.Horizontal"
+           parent="android:Widget.Holo.ProgressBar.Horizontal">
     </style>
 
-    <style name="Base.Widget.AppCompat.ProgressBar" parent="android:Widget.ProgressBar">
-        <item name="android:minWidth">@dimen/abc_action_bar_progress_bar_size</item>
-        <item name="android:maxWidth">@dimen/abc_action_bar_progress_bar_size</item>
-        <item name="android:minHeight">@dimen/abc_action_bar_progress_bar_size</item>
-        <item name="android:maxHeight">@dimen/abc_action_bar_progress_bar_size</item>
+    <style name="Base.Widget.AppCompat.ProgressBar"
+           parent="android:Widget.Holo.ProgressBar">
     </style>
 
     <!-- Spinner Widgets -->
 
-    <style name="Platform.Widget.AppCompat.Spinner" parent="android:Widget.Spinner" />
+    <style name="Platform.Widget.AppCompat.Spinner" parent="android:Widget.Holo.Spinner" />
 
     <style name="Base.Widget.AppCompat.Spinner" parent="Platform.Widget.AppCompat.Spinner">
         <item name="android:background">@drawable/abc_spinner_mtrl_am_alpha</item>
@@ -286,6 +284,7 @@
         <item name="android:background">?attr/editTextBackground</item>
         <item name="android:textColor">?attr/editTextColor</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
+        <item name="android:textCursorDrawable">@drawable/abc_text_cursor_material</item>
     </style>
 
     <style name="Base.Widget.AppCompat.ActivityChooserView" parent="">
@@ -356,6 +355,7 @@
         <item name="android:background">?attr/editTextBackground</item>
         <item name="android:textColor">?attr/editTextColor</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
+        <item name="android:textCursorDrawable">@drawable/abc_text_cursor_material</item>
     </style>
 
     <!-- contains values used in all dpis -->
