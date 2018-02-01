@@ -202,6 +202,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         @Override
         protected void onStop() {
+            mFlag |= PF_IN_ONSTOP_SMOOTHSCROLLER;
+            try {
+                onStopInternal();
+            } finally {
+                mFlag &= ~PF_IN_ONSTOP_SMOOTHSCROLLER;
+            }
+        }
+
+        protected void onStopInternal() {
             // onTargetFound() may not be called if we hit the "wall" first or get cancelled.
             View targetView = findViewByPosition(getTargetPosition());
             if (targetView == null) {
@@ -367,8 +376,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         @Override
-        protected void onStop() {
-            super.onStop();
+        protected void onStopInternal() {
+            super.onStopInternal();
             // if we hit wall,  need clear the remaining pending moves.
             mPendingMoves = 0;
             mPendingMoveSmoothScroller = null;
@@ -533,6 +542,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     static final int PF_REVERSE_FLOW_SECONDARY = 1 << 19;
 
     static final int PF_REVERSE_FLOW_MASK = PF_REVERSE_FLOW_PRIMARY | PF_REVERSE_FLOW_SECONDARY;
+
+    /**
+     * flag to prevent calling stop() in onStop() which will lead to stack overflow crash
+     * TODO: fix RecyclerView.SmoothScroller#stop() instead
+     */
+    static final int PF_IN_ONSTOP_SMOOTHSCROLLER = 1 << 20;
 
     int mFlag = PF_LAYOUT_ENABLED
             | PF_FOCUS_OUT_SIDE_START | PF_FOCUS_OUT_SIDE_END
@@ -2643,22 +2658,30 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             boolean smooth, int primaryScrollExtra) {
         if (TRACE) TraceCompat.beginSection("scrollToSelection");
         mPrimaryScrollExtra = primaryScrollExtra;
+
         View view = findViewByPosition(position);
         // scrollToView() is based on Adapter position. Only call scrollToView() when item
         // is still valid and no layout is requested, otherwise defer to next layout pass.
-        if (!mBaseGridView.isLayoutRequested()
+        // If it is still in smoothScrolling, we should either update smoothScroller or initiate
+        // a layout.
+        final boolean notSmoothScrolling = !isSmoothScrolling()
+                || (mFlag & PF_IN_ONSTOP_SMOOTHSCROLLER) != 0;
+        if (notSmoothScrolling && !mBaseGridView.isLayoutRequested()
                 && view != null && getAdapterPositionByView(view) == position) {
             mFlag |= PF_IN_SELECTION;
             scrollToView(view, smooth);
             mFlag &= ~PF_IN_SELECTION;
         } else {
-            mFocusPosition = position;
-            mSubFocusPosition = subposition;
-            mFocusPositionOffset = Integer.MIN_VALUE;
             if ((mFlag & PF_LAYOUT_ENABLED) == 0 || (mFlag & PF_SLIDING) != 0) {
+                mFocusPosition = position;
+                mSubFocusPosition = subposition;
+                mFocusPositionOffset = Integer.MIN_VALUE;
                 return;
             }
             if (smooth) {
+                mFocusPosition = position;
+                mSubFocusPosition = subposition;
+                mFocusPositionOffset = Integer.MIN_VALUE;
                 if (!hasDoneFirstLayout()) {
                     Log.w(getTag(), "setSelectionSmooth should "
                             + "not be called before first layout pass");
@@ -2671,6 +2694,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     mSubFocusPosition = 0;
                 }
             } else {
+                // stopScroll might change mFocusPosition, so call it before assign value to
+                // mFocusPosition
+                if (!notSmoothScrolling) {
+                    mBaseGridView.stopScroll();
+                }
+                mFocusPosition = position;
+                mSubFocusPosition = subposition;
+                mFocusPositionOffset = Integer.MIN_VALUE;
                 mFlag |= PF_FORCE_FULL_LAYOUT;
                 requestLayout();
             }
