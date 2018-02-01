@@ -206,6 +206,9 @@ public class DialogFragment extends Fragment
         }
         mDismissed = true;
         mShownByMe = false;
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
         mViewDestroyed = true;
         if (mBackStackId >= 0) {
             getFragmentManager().popBackStack(mBackStackId,
