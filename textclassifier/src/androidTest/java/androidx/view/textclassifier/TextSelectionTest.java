@@ -21,12 +21,10 @@ import static org.junit.Assert.assertEquals;
 import android.os.Parcel;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.os.LocaleListCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Arrays;
-import java.util.Locale;
 
 /** Instrumentation unit tests for {@link TextSelection}. */
 @SmallTest
@@ -65,7 +63,7 @@ public final class TextSelectionTest {
     @Test
     public void testParcelOptions() {
         TextSelection.Options reference = new TextSelection.Options();
-        reference.setDefaultLocales(Arrays.asList(Locale.US, Locale.GERMANY));
+        reference.setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"));
 
         // Parcel and unparcel.
         final Parcel parcel = Parcel.obtain();
@@ -74,8 +72,6 @@ public final class TextSelectionTest {
         TextSelection.Options result = TextSelection.Options.CREATOR.createFromParcel(
                 parcel);
 
-        assertEquals(2, result.getDefaultLocales().size());
-        assertEquals(Locale.US, result.getDefaultLocales().get(0));
-        assertEquals(Locale.GERMANY, result.getDefaultLocales().get(1));
+        assertEquals("en-US,de-DE", result.getDefaultLocales().toLanguageTags());
     }
 }

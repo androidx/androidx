@@ -23,6 +23,7 @@ import android.os.Parcel;
 import android.support.annotation.Nullable;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.os.LocaleListCompat;
 import android.support.v4.util.ArrayMap;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -36,7 +37,6 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /** Instrumentation unit tests for {@link TextLinks}. */
@@ -130,7 +130,7 @@ public final class TextLinksTest {
         entityConfig.includeEntities("a", "b", "c");
         entityConfig.excludeEntities("b");
         TextLinks.Options reference = new TextLinks.Options();
-        reference.setDefaultLocales(Arrays.asList(Locale.US, Locale.GERMANY));
+        reference.setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"));
         reference.setEntityConfig(entityConfig);
         reference.setApplyStrategy(TextLinks.APPLY_STRATEGY_REPLACE);
         reference.setSpanFactory(new CustomSpanFactory());
@@ -140,9 +140,7 @@ public final class TextLinksTest {
         parcel.setDataPosition(0);
         TextLinks.Options result = TextLinks.Options.CREATOR.createFromParcel(parcel);
 
-        assertEquals(2, result.getDefaultLocales().size());
-        assertEquals(Locale.US, result.getDefaultLocales().get(0));
-        assertEquals(Locale.GERMANY, result.getDefaultLocales().get(1));
+        assertEquals("en-US,de-DE", result.getDefaultLocales().toLanguageTags());
         assertEquals(Arrays.asList("a", "c"), result.getEntityConfig().getEntities(mClassifier));
         assertEquals(TextLinks.APPLY_STRATEGY_REPLACE, result.getApplyStrategy());
         assertEquals(null, result.getSpanFactory());

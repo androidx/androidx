@@ -26,12 +26,14 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Parcel;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.os.LocaleListCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /** Instrumentation unit tests for {@link TextClassification}. */
 @SmallTest
@@ -138,8 +140,11 @@ public final class TextClassificationTest {
 
     @Test
     public void testParcelOptions() {
+        Calendar referenceTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.US);
+        referenceTime.setTimeInMillis(946684800000L);  // 2000-01-01 00:00:00
         TextClassification.Options reference = new TextClassification.Options();
-        reference.setDefaultLocales(Arrays.asList(Locale.US, Locale.GERMANY));
+        reference.setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"));
+        reference.setReferenceTime(referenceTime);
 
         // Parcel and unparcel.
         final Parcel parcel = Parcel.obtain();
@@ -148,8 +153,7 @@ public final class TextClassificationTest {
         TextClassification.Options result =
                 TextClassification.Options.CREATOR.createFromParcel(parcel);
 
-        assertEquals(2, result.getDefaultLocales().size());
-        assertEquals(Locale.US, result.getDefaultLocales().get(0));
-        assertEquals(Locale.GERMANY, result.getDefaultLocales().get(1));
+        assertEquals("en-US,de-DE", result.getDefaultLocales().toLanguageTags());
+        assertEquals(referenceTime, result.getReferenceTime());
     }
 }

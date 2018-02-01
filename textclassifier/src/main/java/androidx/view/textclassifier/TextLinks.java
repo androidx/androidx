@@ -23,6 +23,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.v4.os.LocaleListCompat;
 import android.support.v4.util.Preconditions;
 import android.text.Spannable;
 import android.text.style.ClickableSpan;
@@ -34,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import androidx.view.textclassifier.TextClassifier.EntityType;
@@ -281,7 +281,7 @@ public final class TextLinks implements Parcelable {
      */
     public static final class Options implements Parcelable {
 
-        private @Nullable ArrayList<Locale> mDefaultLocales;
+        private @Nullable LocaleListCompat mDefaultLocales;
         private TextClassifier.EntityConfig mEntityConfig;
         private @ApplyStrategy int mApplyStrategy;
         private @Nullable SpanFactory mSpanFactory;
@@ -293,8 +293,8 @@ public final class TextLinks implements Parcelable {
          *                       disambiguate the provided text. If no locale preferences exist,
          *                       set this to null or an empty locale list.
          */
-        public Options setDefaultLocales(@Nullable Collection<Locale> defaultLocales) {
-            mDefaultLocales = defaultLocales == null ? null : new ArrayList<>(defaultLocales);
+        public Options setDefaultLocales(@Nullable LocaleListCompat defaultLocales) {
+            mDefaultLocales = defaultLocales;
             return this;
         }
 
@@ -338,7 +338,7 @@ public final class TextLinks implements Parcelable {
          *      the provided text.
          */
         @Nullable
-        public List<Locale> getDefaultLocales() {
+        public LocaleListCompat getDefaultLocales() {
             return mDefaultLocales;
         }
 
@@ -355,8 +355,8 @@ public final class TextLinks implements Parcelable {
          * Returns the strategy for resolving conflicts when applying generated links to text that
          * already have links.
          *
-         * @see APPLY_STRATEGY_IGNORE
-         * @see APPLY_STRATEGY_REPLACE
+         * @see #APPLY_STRATEGY_IGNORE
+         * @see #APPLY_STRATEGY_REPLACE
          */
         @ApplyStrategy
         public int getApplyStrategy() {
@@ -381,11 +381,9 @@ public final class TextLinks implements Parcelable {
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(mDefaultLocales != null ? mDefaultLocales.size() : 0);
+            dest.writeInt(mDefaultLocales != null ? 1 : 0);
             if (mDefaultLocales != null) {
-                for (Locale locale : mDefaultLocales) {
-                    dest.writeSerializable(locale);
-                }
+                dest.writeString(mDefaultLocales.toLanguageTags());
             }
             dest.writeInt(mEntityConfig != null ? 1 : 0);
             if (mEntityConfig != null) {
@@ -409,13 +407,8 @@ public final class TextLinks implements Parcelable {
                 };
 
         private Options(Parcel in) {
-            final int numLocales = in.readInt();
-            if (numLocales > 0) {
-                mDefaultLocales = new ArrayList<>();
-                mDefaultLocales.ensureCapacity(numLocales);
-                for (int i = 0; i < numLocales; ++i) {
-                    mDefaultLocales.add((Locale) in.readSerializable());
-                }
+            if (in.readInt() > 0) {
+                mDefaultLocales = LocaleListCompat.forLanguageTags(in.readString());
             }
             if (in.readInt() > 0) {
                 mEntityConfig = TextClassifier.EntityConfig.CREATOR.createFromParcel(in);

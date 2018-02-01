@@ -35,8 +35,10 @@ package androidx.view.textclassifier {
   public static final class TextClassification.Options implements android.os.Parcelable {
     ctor public TextClassification.Options();
     method public int describeContents();
-    method public java.util.List<java.util.Locale> getDefaultLocales();
-    method public androidx.view.textclassifier.TextClassification.Options setDefaultLocales(java.util.Collection<java.util.Locale>);
+    method public android.support.v4.os.LocaleListCompat getDefaultLocales();
+    method public java.util.Calendar getReferenceTime();
+    method public androidx.view.textclassifier.TextClassification.Options setDefaultLocales(android.support.v4.os.LocaleListCompat);
+    method public androidx.view.textclassifier.TextClassification.Options setReferenceTime(java.util.Calendar);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.view.textclassifier.TextClassification.Options> CREATOR;
   }
@@ -76,11 +78,11 @@ package androidx.view.textclassifier {
     ctor public TextLinks.Options();
     method public int describeContents();
     method public int getApplyStrategy();
-    method public java.util.List<java.util.Locale> getDefaultLocales();
+    method public android.support.v4.os.LocaleListCompat getDefaultLocales();
     method public androidx.view.textclassifier.TextClassifier.EntityConfig getEntityConfig();
     method public androidx.view.textclassifier.TextLinks.SpanFactory getSpanFactory();
     method public androidx.view.textclassifier.TextLinks.Options setApplyStrategy(int);
-    method public androidx.view.textclassifier.TextLinks.Options setDefaultLocales(java.util.Collection<java.util.Locale>);
+    method public androidx.view.textclassifier.TextLinks.Options setDefaultLocales(android.support.v4.os.LocaleListCompat);
     method public androidx.view.textclassifier.TextLinks.Options setEntityConfig(androidx.view.textclassifier.TextClassifier.EntityConfig);
     method public androidx.view.textclassifier.TextLinks.Options setSpanFactory(androidx.view.textclassifier.TextLinks.SpanFactory);
     method public void writeToParcel(android.os.Parcel, int);
@@ -126,8 +128,8 @@ package androidx.view.textclassifier {
   public static final class TextSelection.Options implements android.os.Parcelable {
     ctor public TextSelection.Options();
     method public int describeContents();
-    method public java.util.List<java.util.Locale> getDefaultLocales();
-    method public androidx.view.textclassifier.TextSelection.Options setDefaultLocales(java.util.Collection<java.util.Locale>);
+    method public android.support.v4.os.LocaleListCompat getDefaultLocales();
+    method public androidx.view.textclassifier.TextSelection.Options setDefaultLocales(android.support.v4.os.LocaleListCompat);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.view.textclassifier.TextSelection.Options> CREATOR;
   }
