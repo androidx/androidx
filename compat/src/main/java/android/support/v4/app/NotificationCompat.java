@@ -17,7 +17,6 @@
 package android.support.v4.app;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.app.Activity;
@@ -656,6 +655,11 @@ public class NotificationCompat {
         /** @hide */
         @RestrictTo(LIBRARY_GROUP)
         public ArrayList<Action> mActions = new ArrayList<>();
+
+        // Invisible actions are stored in the CarExtender bundle without actually being owned by
+        // CarExtender. This is to comply with an optimization of the Android OS which removes
+        // Actions from the Notification if there are no listeners for those Actions.
+        ArrayList<Action> mInvisibleActions = new ArrayList<>();
 
         CharSequence mContentTitle;
         CharSequence mContentText;
@@ -1327,6 +1331,35 @@ public class NotificationCompat {
          */
         public Builder addAction(Action action) {
             mActions.add(action);
+            return this;
+        }
+
+        /**
+         * Add an invisible action to this notification. Invisible actions are never displayed by
+         * the system, but can be retrieved and used by other application listening to
+         * system notifications. Invisible actions are supported from Android 4.4.4 (API 20) and can
+         * be retrieved using {@link NotificationCompat#getInvisibleActions(Notification)}.
+         *
+         * @param icon Resource ID of a drawable that represents the action.
+         * @param title Text describing the action.
+         * @param intent {@link android.app.PendingIntent} to be fired when the action is invoked.
+         */
+        @RequiresApi(21)
+        public Builder addInvisibleAction(int icon, CharSequence title, PendingIntent intent) {
+            return addInvisibleAction(new Action(icon, title, intent));
+        }
+
+        /**
+         * Add an invisible action to this notification. Invisible actions are never displayed by
+         * the system, but can be retrieved and used by other application listening to
+         * system notifications. Invisible actions are supported from Android 4.4.4 (API 20) and can
+         * be retrieved using {@link NotificationCompat#getInvisibleActions(Notification)}.
+         *
+         * @param action The action to add.
+         */
+        @RequiresApi(21)
+        public Builder addInvisibleAction(Action action) {
+            mInvisibleActions.add(action);
             return this;
         }
 
@@ -4326,10 +4359,15 @@ public class NotificationCompat {
      * to access values.
      */
     public static final class CarExtender implements Extender {
-        private static final String EXTRA_CAR_EXTENDER = "android.car.EXTENSIONS";
+        /** @hide **/
+        @RestrictTo(LIBRARY_GROUP)
+        static final String EXTRA_CAR_EXTENDER = "android.car.EXTENSIONS";
         private static final String EXTRA_LARGE_ICON = "large_icon";
         private static final String EXTRA_CONVERSATION = "car_conversation";
         private static final String EXTRA_COLOR = "app_color";
+        /** @hide **/
+        @RestrictTo(LIBRARY_GROUP)
+        static final String EXTRA_INVISIBLE_ACTIONS = "invisible_actions";
 
         private static final String KEY_AUTHOR = "author";
         private static final String KEY_TEXT = "text";
@@ -4832,6 +4870,26 @@ public class NotificationCompat {
         return new Action(action.icon, action.title, action.actionIntent,
                 action.getExtras(), remoteInputs, null, allowGeneratedReplies,
                 semanticAction, showsUserInterface);
+    }
+
+    /** Returns the invisible actions contained within the given notification. */
+    @RequiresApi(21)
+    public static List<Action> getInvisibleActions(Notification notification) {
+        ArrayList<Action> result = new ArrayList<>();
+
+        Bundle carExtenderBundle = notification.extras.getBundle(CarExtender.EXTRA_CAR_EXTENDER);
+        if (carExtenderBundle == null) {
+            return result;
+        }
+
+        Bundle listBundle = carExtenderBundle.getBundle(CarExtender.EXTRA_INVISIBLE_ACTIONS);
+        if (listBundle != null) {
+            for (int i = 0; i < listBundle.size(); i++) {
+                result.add(NotificationCompatJellybean.getActionFromBundle(
+                        listBundle.getBundle(Integer.toString(i))));
+            }
+        }
+        return result;
     }
 
     /**
