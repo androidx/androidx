@@ -15,11 +15,13 @@ import android.arch.persistence.room.util.TableInfo.Index;
 import java.lang.IllegalStateException;
 import java.lang.Override;
 import java.lang.String;
+import java.lang.SuppressWarnings;
 import java.util.HashMap;
 import java.util.HashSet;
 import javax.annotation.Generated;
 
 @Generated("android.arch.persistence.room.RoomProcessor")
+@SuppressWarnings("unchecked")
 public class ComplexDatabase_Impl extends ComplexDatabase {
     private volatile ComplexDao _complexDao;
 
