@@ -3715,9 +3715,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         switch (translatedAction) {
             case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
+                processPendingMovement(false);
                 processSelectionMoves(false, -1);
                 break;
             case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
+                processPendingMovement(true);
                 processSelectionMoves(false, 1);
                 break;
         }
