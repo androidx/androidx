@@ -23,10 +23,14 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A LiveData class that can be invalidated & computed on demand.
+ * A LiveData class that can be invalidated & computed when there are active observers.
+ * <p>
+ * It can be invalidated via {@link #invalidate()}, which will result in a call to
+ * {@link #compute()} if there are active observers (or when they start observing)
  * <p>
  * This is an internal class for now, might be public if we see the necessity.
  *
@@ -36,24 +40,33 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class ComputableLiveData<T> {
 
+    private final Executor mExecutor;
     private final LiveData<T> mLiveData;
 
     private AtomicBoolean mInvalid = new AtomicBoolean(true);
     private AtomicBoolean mComputing = new AtomicBoolean(false);
 
     /**
-     * Creates a computable live data which is computed when there are active observers.
-     * <p>
-     * It can also be invalidated via {@link #invalidate()} which will result in a call to
-     * {@link #compute()} if there are active observers (or when they start observing)
+     * Creates a computable live data that computes values on the arch IO thread executor.
      */
     @SuppressWarnings("WeakerAccess")
     public ComputableLiveData() {
+        this(ArchTaskExecutor.getIOThreadExecutor());
+    }
+
+    /**
+     *
+     * Creates a computable live data that computes values on the specified executor.
+     *
+     * @param executor Executor that is used to compute new LiveData values.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public ComputableLiveData(@NonNull Executor executor) {
+        mExecutor = executor;
         mLiveData = new LiveData<T>() {
             @Override
             protected void onActive() {
-                // TODO if we make this class public, we should accept an executor
-                ArchTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
+                mExecutor.execute(mRefreshRunnable);
             }
         };
     }
@@ -114,8 +127,7 @@ public abstract class ComputableLiveData<T> {
             boolean isActive = mLiveData.hasActiveObservers();
             if (mInvalid.compareAndSet(false, true)) {
                 if (isActive) {
-                    // TODO if we make this class public, we should accept an executor.
-                    ArchTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
+                    mExecutor.execute(mRefreshRunnable);
                 }
             }
         }

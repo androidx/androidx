@@ -31,6 +31,7 @@ import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
 import android.arch.core.executor.TaskExecutorWithFakeMainThread;
 import android.arch.lifecycle.util.InstantTaskExecutor;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import org.junit.After;
@@ -41,6 +42,7 @@ import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -145,6 +147,26 @@ public class ComputableLiveDataTest {
     }
 
     @Test
+    public void customExecutor() {
+        Executor customExecutor = mock(Executor.class);
+        TestComputable computable = new TestComputable(customExecutor, 1);
+        mLifecycleOwner.handleEvent(Lifecycle.Event.ON_CREATE);
+        computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer integer) {
+                // ignored
+            }
+        });
+        verify(mTaskExecutor, never()).executeOnDiskIO(any(Runnable.class));
+        verify(customExecutor, never()).execute(any(Runnable.class));
+
+        mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
+
+        verify(mTaskExecutor, never()).executeOnDiskIO(computable.mRefreshRunnable);
+        verify(customExecutor).execute(computable.mRefreshRunnable);
+    }
+
+    @Test
     public void invalidationShouldNotReTriggerComputationIfObserverIsInActive() {
         TestComputable computable = new TestComputable(1, 2);
         mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
@@ -183,10 +205,14 @@ public class ComputableLiveDataTest {
 
     static class TestComputable extends ComputableLiveData<Integer> {
         final int[] mValues;
-        AtomicInteger mValueCounter;
+        AtomicInteger mValueCounter = new AtomicInteger();
+
+        TestComputable(@NonNull Executor executor, int... values) {
+            super(executor);
+            mValues = values;
+        }
 
         TestComputable(int... values) {
-            mValueCounter = new AtomicInteger();
             mValues = values;
         }
 
