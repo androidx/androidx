@@ -48,3 +48,20 @@ FRAMEWORKS_SUPPORT_JAVA_LIBRARIES := \
     android-support-vectordrawable \
     android-support-wear
 
+# List of all Design transitive dependencies. Use this instead of android-support-design.
+ANDROID_SUPPORT_DESIGN_TARGETS := \
+    android-support-design \
+    android-support-compat \
+    android-support-core-ui \
+    android-support-core-utils \
+    android-support-fragment \
+    android-support-transition \
+    android-support-v7-appcompat \
+    android-support-v7-recyclerview \
+
+# List of all Car transitive dependencies. Use this instead of android-support-car.
+ANDROID_SUPPORT_CAR_TARGETS := \
+    android-support-car \
+    $(ANDROID_SUPPORT_DESIGN_TARGETS) \
+    android-support-media-compat \
+    android-support-v7-cardview
