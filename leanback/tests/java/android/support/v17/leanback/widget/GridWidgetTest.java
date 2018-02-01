@@ -1498,6 +1498,101 @@ public class GridWidgetTest {
         assertEquals(leftEdge, mGridView.getLayoutManager().findViewByPosition(151).getLeft());
     }
 
+    void testScrollInSmoothScrolling(final boolean smooth, final boolean scrollToInvisible,
+            final boolean useRecyclerViewMethod) throws Throwable {
+        final int numItems = 100;
+        final int[] itemsLength = new int[numItems];
+        for (int i = 0; i < numItems; i++) {
+            itemsLength[i] = 288;
+        }
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_ITEMS, itemsLength);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        // start a smoothScroller
+        final int selectedPosition = 99;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.smoothScrollToPosition(selectedPosition);
+            }
+        });
+        Thread.sleep(50);
+        // while smoothScroller is still running, scroll to a different position
+        final int[] existing_position = new int[1];
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                existing_position[0] = mGridView.getChildAdapterPosition(
+                        mGridView.getChildAt(mGridView.getChildCount() - 1));
+                if (scrollToInvisible) {
+                    existing_position[0] = existing_position[0] + 3;
+                }
+                if (useRecyclerViewMethod) {
+                    if (smooth) {
+                        mGridView.smoothScrollToPosition(existing_position[0]);
+                    } else {
+                        mGridView.scrollToPosition(existing_position[0]);
+                    }
+                } else {
+                    if (smooth) {
+                        mGridView.setSelectedPositionSmooth(existing_position[0]);
+                    } else {
+                        mGridView.setSelectedPosition(existing_position[0]);
+                    }
+                }
+            }
+        });
+        waitForScrollIdle();
+        assertEquals(existing_position[0], mGridView.getSelectedPosition());
+        assertTrue(mGridView.findViewHolderForAdapterPosition(existing_position[0])
+                .itemView.hasFocus());
+    }
+
+    @Test
+    public void testScrollInSmoothScrolling1() throws Throwable {
+        testScrollInSmoothScrolling(false, false, false);
+    }
+
+    @Test
+    public void testScrollInSmoothScrolling2() throws Throwable {
+        testScrollInSmoothScrolling(false, false, true);
+    }
+
+    @Test
+    public void testScrollInSmoothScrolling3() throws Throwable {
+        testScrollInSmoothScrolling(false, true, false);
+    }
+
+    @Test
+    public void testScrollInSmoothScrolling4() throws Throwable {
+        testScrollInSmoothScrolling(false, true, true);
+    }
+
+    @Test
+    public void testScrollInSmoothScrolling5() throws Throwable {
+        testScrollInSmoothScrolling(true, false, false);
+    }
+
+    @Test
+    public void testScrollInSmoothScrolling6() throws Throwable {
+        testScrollInSmoothScrolling(true, false, true);
+    }
+
+    @Test
+    public void testScrollInSmoothScrolling7() throws Throwable {
+        testScrollInSmoothScrolling(true, true, false);
+    }
+
+    @Test
+    public void testScrollInSmoothScrolling8() throws Throwable {
+        testScrollInSmoothScrolling(true, true, true);
+    }
+
     @Test
     public void testScrollAfterRequestLayout() throws Throwable {
         Intent intent = new Intent();
