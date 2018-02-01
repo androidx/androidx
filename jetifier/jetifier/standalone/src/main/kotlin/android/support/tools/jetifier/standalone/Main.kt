@@ -39,8 +39,8 @@ class Main {
         val OPTION_INPUT = createOption("i", "Input libraries paths", multiple = true)
         val OPTION_OUTPUT = createOption("o", "Output directory path")
         val OPTION_CONFIG = createOption("c", "Input config path", isRequired = false)
-        val OPTION_LOG_LEVEL = createOption("l", "Logging level. debug, verbose, default",
-            isRequired = false)
+        val OPTION_LOG_LEVEL = createOption("l", "Logging level. debug, verbose, error, info " +
+            "(default)", isRequired = false)
         val OPTION_REVERSED = createOption("r", "Run reversed process", hasArgs = false,
             isRequired = false)
         val OPTION_REWRITE_SUPPORT_LIB = createOption("s", "If set, all libraries being rewritten" +

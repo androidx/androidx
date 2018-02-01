@@ -46,7 +46,7 @@ class Processor private constructor (private val context: TransformationContext)
         /**
          * Value of "restrictToPackagePrefixes" config for reversed jetification.
          */
-        private const val REVERSE_RESTRICT_TO_PACKAGE = "androidx/support"
+        private const val REVERSE_RESTRICT_TO_PACKAGE = "androidx"
 
         /**
          * Creates a new instance of the [Processor].
@@ -64,10 +64,12 @@ class Processor private constructor (private val context: TransformationContext)
             if (reversedMode) {
                 newConfig = Config(
                     restrictToPackagePrefixes = listOf(REVERSE_RESTRICT_TO_PACKAGE),
-                    rewriteRules = emptyList(), // We don't need those
+                    rewriteRules = config.rewriteRules,
+                    slRules = config.slRules,
                     pomRewriteRules = emptyList(), // TODO: This will need a new set of rules
                     typesMap = config.typesMap.reverseMapOrDie(),
-                    proGuardMap = config.proGuardMap.reverseMapOrDie()
+                    proGuardMap = config.proGuardMap.reverseMapOrDie(),
+                    packageMap = config.packageMap.reverse()
                 )
             }
 
@@ -77,10 +79,10 @@ class Processor private constructor (private val context: TransformationContext)
     }
 
     private val transformers = listOf(
-            // Register your transformers here
-            ByteCodeTransformer(context),
-            XmlResourcesTransformer(context),
-            ProGuardTransformer(context)
+        // Register your transformers here
+        ByteCodeTransformer(context),
+        XmlResourcesTransformer(context),
+        ProGuardTransformer(context)
     )
 
     /**
@@ -102,8 +104,8 @@ class Processor private constructor (private val context: TransformationContext)
         // 3) Transform all the libraries
         libraries.forEach { transformLibrary(it) }
 
-        if (context.wasErrorFound()) {
-            throw IllegalArgumentException("There were ${context.mappingNotFoundFailuresCount}" +
+        if (context.errorsTotal() > 0) {
+            throw IllegalArgumentException("There were ${context.errorsTotal()}" +
                 " errors found during the remapping. Check the logs for more details.")
         }
 
@@ -157,6 +159,7 @@ class Processor private constructor (private val context: TransformationContext)
         Log.i(TAG, "Started new transformation")
         Log.i(TAG, "- Input file: %s", archive.relativePath)
 
+        context.libraryName = archive.fileName
         archive.accept(this)
     }
 

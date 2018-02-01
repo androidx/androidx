@@ -27,7 +27,7 @@ class ReplacersRunner(val replacers: List<GroupsReplacer>) {
      * The replacers have to be distinct as this method can't guarantee that output of one replacer
      * won't be matched by another replacer.
      */
-    fun applyReplacers(input : String) : String {
+    fun applyReplacers(input: String): String {
         val sb = StringBuilder()
         var lastSeenChar = 0
         var processedInput = input
@@ -37,7 +37,7 @@ class ReplacersRunner(val replacers: List<GroupsReplacer>) {
 
             while (matcher.find()) {
                 if (lastSeenChar < matcher.start()) {
-                    sb.append(input, lastSeenChar, matcher.start())
+                    sb.append(processedInput, lastSeenChar, matcher.start())
                 }
 
                 val result = replacer.runReplacements(matcher)
@@ -57,8 +57,6 @@ class ReplacersRunner(val replacers: List<GroupsReplacer>) {
             processedInput = sb.toString()
             sb.setLength(0)
         }
-
         return processedInput
     }
-
 }

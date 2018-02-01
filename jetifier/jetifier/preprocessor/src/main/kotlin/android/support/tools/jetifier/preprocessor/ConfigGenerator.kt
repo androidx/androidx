@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License
+ */
+
 package android.support.tools.jetifier.preprocessor
 
 import android.support.tools.jetifier.core.archive.Archive
@@ -11,7 +27,7 @@ class ConfigGenerator {
 
     companion object {
         private const val LEGAL_NOTICE =
-            "# Copyright (C) 2017 The Android Open Source Project\n" +
+            "# Copyright (C) 2018 The Android Open Source Project\n" +
             "#\n" +
             "# Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
             "# you may not use this file except in compliance with the License.\n" +
@@ -49,13 +65,14 @@ class ConfigGenerator {
             }
         }
 
-        val map = mapper.generateMap()
+        val map = mapper.generateMap().mergetWith(config.typesMap)
+        map.reverseMapOrDie() // Check that map can be reversed
         val newConfig = config.setNewMap(map)
 
         saveConfigToFile(newConfig, outputConfigPath.toFile())
     }
 
-    private fun saveConfigToFile(configToSave: Config, outputFile : File) {
+    private fun saveConfigToFile(configToSave: Config, outputFile: File) {
         val sb = StringBuilder()
         sb.append(LEGAL_NOTICE)
         sb.append("\n")
