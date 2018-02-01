@@ -76,6 +76,10 @@ includeProject(":slices-view", "slices/view")
 includeProject(":slices-builders", "slices/builders")
 includeProject(":textclassifier", "textclassifier")
 includeProject(":webkit-codegen", "webkit-codegen")
+includeProject(":jetifier-core", "jetifier/jetifier/core")
+includeProject(":jetifier-gradle-plugin", "jetifier/jetifier/gradle-plugin")
+includeProject(":jetifier-standalone", "jetifier/jetifier/standalone")
+includeProject(":jetifier-preprocessor", "jetifier/jetifier/preprocessor")
 
 /////////////////////////////
 //
