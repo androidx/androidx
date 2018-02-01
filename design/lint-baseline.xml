@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 14"
+        errorLine1="                if (Build.VERSION.SDK_INT >= 11 &amp;&amp; (forceJump"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/android/support/design/widget/AppBarLayout.java"
+            line="1233"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 14"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 12) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/android/support/design/widget/BaseTransientBottomBar.java"
+            line="497"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 14"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 12) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/android/support/design/widget/BaseTransientBottomBar.java"
+            line="559"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 14"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; 11) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/android/support/design/widget/BaseTransientBottomBar.java"
+            line="644"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 14"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; 11) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/android/support/design/widget/BottomSheetDialog.java"
+            line="187"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 14"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 11) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/android/support/design/internal/NavigationMenuPresenter.java"
+            line="164"
+            column="13"/>
+    </issue>
+
+</issues>
