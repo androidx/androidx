@@ -27,6 +27,7 @@ import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 import org.apache.commons.cli.ParseException
 import java.io.File
+import java.nio.file.Path
 import java.nio.file.Paths
 
 class Main {
@@ -37,7 +38,9 @@ class Main {
 
         val OPTIONS = Options()
         val OPTION_INPUT = createOption("i", "Input libraries paths", multiple = true)
-        val OPTION_OUTPUT = createOption("o", "Output directory path")
+        val OPTION_OUTPUT_DIR = createOption("outputdir", "Output directory path",
+                isRequired = false)
+        val OPTION_OUTPUT_FILE = createOption("outputfile", "Output file", isRequired = false)
         val OPTION_CONFIG = createOption("c", "Input config path", isRequired = false)
         val OPTION_LOG_LEVEL = createOption("l", "Logging level. debug, verbose, error, info " +
             "(default)", isRequired = false)
@@ -75,7 +78,29 @@ class Main {
         Log.setLevel(cmd.getOptionValue(OPTION_LOG_LEVEL.opt))
 
         val inputLibraries = cmd.getOptionValues(OPTION_INPUT.opt).map { File(it) }.toSet()
-        val outputPath = Paths.get(cmd.getOptionValue(OPTION_OUTPUT.opt))
+        val outputDir = cmd.getOptionValue(OPTION_OUTPUT_DIR.opt)
+        val outputFile = cmd.getOptionValue(OPTION_OUTPUT_FILE.opt)
+        if (outputDir == null && outputFile == null) {
+            throw IllegalArgumentException("Must specify -outputdir or -outputfile")
+        }
+        if (outputDir != null && outputFile != null) {
+            throw IllegalArgumentException("Cannot specify both -outputdir and -outputfile")
+        }
+        if (inputLibraries.size > 1 && outputFile != null) {
+            throw IllegalArgumentException(
+                    "Cannot specify -outputfile when multiple input libraries are given")
+        }
+
+        var outputIsDir = false
+        fun chooseOutputPath(): Path {
+            if (outputFile == null) {
+                outputIsDir = true
+                return Paths.get(outputDir)
+            } else {
+                return Paths.get(outputFile)
+            }
+        }
+        val outputPath = chooseOutputPath()
 
         val config: Config?
         if (cmd.hasOption(OPTION_CONFIG.opt)) {
@@ -97,7 +122,7 @@ class Main {
             config = config,
             reversedMode = isReversed,
             rewritingSupportLib = rewriteSupportLib)
-        processor.transform(inputLibraries, outputPath)
+        processor.transform(inputLibraries, outputPath, outputIsDir)
     }
 
     private fun parseCmdLine(args: Array<String>): CommandLine? {
