@@ -16,6 +16,7 @@
 
 package android.support.v4.app;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -93,6 +94,8 @@ public class DialogFragmentTest {
     }
 
     public static class TestDialogFragment extends DialogFragment {
+        private boolean mManualDismiss;
+
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -104,9 +107,22 @@ public class DialogFragmentTest {
         }
 
         @Override
+        public void dismiss() {
+            super.dismiss();
+            mManualDismiss = true;
+        }
+
+        @Override
         public void onStop() {
             super.onStop();
             assertNotNull(getDialog());
+            if (mManualDismiss) {
+                assertFalse("Dialog should not be showing in onStop() "
+                        + "when manually dismissed", getDialog().isShowing());
+            } else {
+                assertTrue("Dialog should still be showing in onStop() "
+                        + "during the normal lifecycle", getDialog().isShowing());
+            }
         }
     }
 }
