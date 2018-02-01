@@ -30,6 +30,7 @@ import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
 import android.arch.persistence.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import android.arch.persistence.room.integration.kotlintestapp.vo.PublisherWithBooks
 import com.google.common.base.Optional
+import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -70,10 +71,16 @@ interface BooksDao {
     fun getBookJavaOptional(bookId: String): java.util.Optional<Book>
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
+    fun getBookListenableFuture(bookId: String): ListenableFuture<Book>
+
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookOptional(bookId: String): Optional<Book>
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookOptionalFlowable(bookId: String): Flowable<Optional<Book>>
+
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
+    fun getBookOptionalListenableFuture(bookId: String): ListenableFuture<Optional<Book>>
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookSingle(bookId: String): Single<Book>
@@ -92,6 +99,10 @@ interface BooksDao {
     @Query("SELECT * FROM book INNER JOIN publisher " +
             "ON book.bookPublisherId = publisher.publisherId ")
     fun getBooksWithPublisherFlowable(): Flowable<List<BookWithPublisher>>
+
+    @Query("SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId ")
+    fun getBooksWithPublisherListenableFuture(): ListenableFuture<List<BookWithPublisher>>
 
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooks(publisherId: String): PublisherWithBooks
