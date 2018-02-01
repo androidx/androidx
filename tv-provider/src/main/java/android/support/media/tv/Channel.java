@@ -325,6 +325,13 @@ public final class Channel {
     }
 
     /**
+     * @return The value of {@link Channels#COLUMN_SYSTEM_CHANNEL_KEY} for the channel.
+     */
+    public String getSystemChannelKey() {
+        return mValues.getAsString(Channels.COLUMN_SYSTEM_CHANNEL_KEY);
+    }
+
+    /**
      * @return The value of {@link Channels#COLUMN_LOCKED} for the channel.
      */
     public boolean isLocked() {
@@ -382,6 +389,7 @@ public final class Channel {
             values.remove(Channels.COLUMN_INTERNAL_PROVIDER_ID);
             values.remove(Channels.COLUMN_TRANSIENT);
             values.remove(Channels.COLUMN_CONFIGURATION_DISPLAY_ORDER);
+            values.remove(Channels.COLUMN_SYSTEM_CHANNEL_KEY);
         }
 
         if (!includeProtectedFields) {
@@ -525,6 +533,10 @@ public final class Channel {
                     && !cursor.isNull(index)) {
                 builder.setConfigurationDisplayOrder(cursor.getInt(index));
             }
+            if ((index = cursor.getColumnIndex(Channels.COLUMN_SYSTEM_CHANNEL_KEY)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setSystemChannelKey(cursor.getString(index));
+            }
         }
         return builder.build();
     }
@@ -565,6 +577,7 @@ public final class Channel {
                 Channels.COLUMN_TRANSIENT,
                 Channels.COLUMN_SYSTEM_APPROVED,
                 Channels.COLUMN_CONFIGURATION_DISPLAY_ORDER,
+                Channels.COLUMN_SYSTEM_CHANNEL_KEY
         };
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return CollectionUtils.concatAll(baseColumns, marshmallowColumns, oReleaseColumns);
@@ -951,6 +964,20 @@ public final class Channel {
          */
         public Builder setConfigurationDisplayOrder(int value) {
             mValues.put(Channels.COLUMN_CONFIGURATION_DISPLAY_ORDER, value);
+            return this;
+        }
+
+        /**
+         * Sets the system channel key for this channel. This identifier helps OEM differentiate
+         * among the app's channels. This identifier should be unique per channel for each app, and
+         * should be agreed between the app and the OEM. It is up to the OEM on how they use this
+         * identifier for customization purposes.
+         *
+         * @param value The value of {@link Channels#COLUMN_SYSTEM_CHANNEL_KEY} for the channel.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setSystemChannelKey(String value) {
+            mValues.put(Channels.COLUMN_SYSTEM_CHANNEL_KEY, value);
             return this;
         }
 
