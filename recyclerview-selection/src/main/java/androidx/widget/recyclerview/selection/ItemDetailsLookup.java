@@ -22,9 +22,36 @@ import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 
 /**
- * Provides selection library and event handlers access to details about view items
- * presented by a {@link RecyclerView} instance. Implementations of this class provide
- * supplementary information about view holders used to make selection policy decisions.
+ * The Selection library calls {@link #getItemDetails(MotionEvent)} when it needs
+ * access to information about the area and/or {@link ItemDetails} under a {@link MotionEvent}.
+ * Your implementation must negotiate
+ * {@link android.support.v7.widget.RecyclerView.ViewHolder ViewHolder} lookup with the
+ * corresponding RecyclerView instance, and the subsequent conversion of the ViewHolder
+ * instance to an {@link ItemDetails} instance.
+ *
+ * <p>
+ * <b>Example</b>
+ * <pre>
+ * final class MyDetailsLookup extends ItemDetailsLookup<Uri> {
+ *
+ *   private final RecyclerView mRecyclerView;
+ *
+ *   MyDetailsLookup(RecyclerView recyclerView) {
+ *       mRecyclerView = recyclerView;
+ *   }
+ *
+ *   public ItemDetails<Uri> getItemDetails(MotionEvent e) {
+ *       View view = mRecView.findChildViewUnder(e.getX(), e.getY());
+ *       if (view != null) {
+ *           ViewHolder holder = mRecView.getChildViewHolder(view);
+ *           if (holder instanceof MyHolder) {
+ *               return ((MyHolder) holder).getItemDetails();
+ *           }
+ *       }
+ *       return null;
+ *   }
+ *}
+ * </pre>
  *
  * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
  */
@@ -33,14 +60,14 @@ public abstract class ItemDetailsLookup<K> {
     /**
      * @return true if there is an item at the event coordinates.
      */
-    public boolean overItem(@NonNull MotionEvent e) {
+    final boolean overItem(@NonNull MotionEvent e) {
         return getItemPosition(e) != RecyclerView.NO_POSITION;
     }
 
     /**
      * @return true if there is an item w/ a stable ID at the event coordinates.
      */
-    public boolean overItemWithSelectionKey(@NonNull MotionEvent e) {
+    final boolean overItemWithSelectionKey(@NonNull MotionEvent e) {
         return overItem(e) && hasSelectionKey(getItemDetails(e));
     }
 
@@ -50,7 +77,7 @@ public abstract class ItemDetailsLookup<K> {
      * area that is not draggable allowing band selection to be initiated
      * in that area.
      */
-    public boolean inItemDragRegion(@NonNull MotionEvent e) {
+    final boolean inItemDragRegion(@NonNull MotionEvent e) {
         return overItem(e) && getItemDetails(e).inDragRegion(e);
     }
 
@@ -59,14 +86,14 @@ public abstract class ItemDetailsLookup<K> {
      * region of an item. Contact in these regions result in immediate
      * selection, even when there is no existing selection.
      */
-    public boolean inItemSelectRegion(@NonNull MotionEvent e) {
+    final boolean inItemSelectRegion(@NonNull MotionEvent e) {
         return overItem(e) && getItemDetails(e).inSelectionHotspot(e);
     }
 
     /**
      * @return the adapter position of the item at the event coordinates.
      */
-    public int getItemPosition(@NonNull MotionEvent e) {
+    final int getItemPosition(@NonNull MotionEvent e) {
         @Nullable ItemDetails<?> item = getItemDetails(e);
         return item != null
                 ? item.getPosition()
@@ -87,26 +114,87 @@ public abstract class ItemDetailsLookup<K> {
     public abstract @Nullable ItemDetails<K> getItemDetails(@NonNull MotionEvent e);
 
     /**
-     * Class providing access to information about a RecyclerView item.
-     * Information provided by this class is used by the selection library to
-     * implement various aspects of selection policy.
+     * An ItemDetails implementation provides the selection library with access to information
+     * about a specific RecyclerView item. This class is a key component in controling
+     * the behaviors of the selection library in the context of a specific activity.
+     *
+     * <p>
+     * <b>Selection Hotspot</b>
+     *
+     * <p>
+     * This is an optional feature identifying an area within a view that
+     * is single-tap to select. Ordinarily a single tap on an item when there is no
+     * existing selection will result in that item being activated. If the tap
+     * occurs within the "selection hotspot" the item will instead be selected.
+     *
+     * <p>
+     * See {@link OnItemActivatedListener} for details on handling item activation.
+     *
+     * <p>
+     * <b>Drag Region</b>
+     *
+     * <p>
+     * The selection library provides support for mouse driven band selection. The "lasso"
+     * typically associated with mouse selection can be started only in an empty
+     * area of the RecyclerView (an area where the item position == RecyclerView#NO_POSITION,
+     * or where RecyclerView#findChildViewUnder returns null). But in many instances
+     * the item views presented by RecyclerView will contain areas that may be perceived
+     * by the user as being empty. The user may expect to be able to initiate band
+     * selection in these empty areas.
+     *
+     * <p>
+     * The "drag region" concept exists in large part to accommodate this user expectation.
+     * Drag region is the content in an item view that the user doesn't otherwise
+     * perceive to be empty or part of the background of recycler view.
+     *
+     * Take for example a traditional single column layout where
+     * the view layout width is "match_parent":
+     * <pre>
+     * -------------------------------------------------------
+     * | [icon]  A string label.   ...empty space...         |
+     * -------------------------------------------------------
+     *   < ---  drag region  --> < --treated as background-->
+     *</pre>
+     *
+     * <p>
+     * Further more, within a drag region, a mouse click and drag will immediately
+     * initiate drag and drop (if supported by your configuration).
+     *
+     * <p>
+     * As user expectations around touch and mouse input differ substantially,
+     * "drag region" has no effect on handling of touch input.
      *
      * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
      */
     public abstract static class ItemDetails<K> {
 
-        /** @return the position of an item. */
+        /**
+         * Returns the adapter position of the item. See
+         * {@link RecyclerView.ViewHolder#getAdapterPosition() ViewHolder.getAdapterPosition}
+         *
+         * @return the position of an item.
+         */
         public abstract int getPosition();
 
-        /** @return true if the item has a stable id. */
+        /**
+         * @return true if the item has a selection key.
+         */
         public boolean hasSelectionKey() {
             return getSelectionKey() != null;
         }
 
-        /** @return the stable id of an item. */
+        /**
+         * @return the selection key of an item.
+         */
         public abstract @Nullable K getSelectionKey();
 
         /**
+         * Areas are often included in a view that behave similar to checkboxes, such
+         * as the icon to the left of an email message. "selection
+         * hotspot" provides a mechanism to identify such regions, and for the
+         * library to directly translate taps in these regions into a change
+         * in selection state.
+         *
          * @return true if the event is in an area of the item that should be
          * directly interpreted as a user wishing to select the item. This
          * is useful for checkboxes and other UI affordances focused on enabling
@@ -117,9 +205,28 @@ public abstract class ItemDetailsLookup<K> {
         }
 
         /**
-         * Events in the drag region will dealt with differently that events outside
-         * of the drag region. This allows the client to implement custom handling
-         * for events related to drag and drop.
+         * "Item Drag Region" identifies areas of an item that are not considered when the library
+         * evaluates whether or not to initiate band-selection for mouse input. The drag region
+         * will usually correspond to an area of an item that represents user visible content.
+         * Mouse driven band selection operations are only ever initiated in non-drag-regions.
+         * This is a consideration as many layouts may not include empty space between
+         * RecyclerView items where band selection can be initiated.
+         *
+         * <p>
+         * For example. You may present a single column list of contact names in a
+         * RecyclerView instance in which the individual view items expand to fill all
+         * available space.
+         * But within the expanded view item after the contact name there may be empty space that a
+         * user would reasonably expect to initiate band selection. When a MotionEvent occurs
+         * in such an area, you should return identify this as NOT in a drag region.
+         *
+         * <p>
+         * Further more, within a drag region, a mouse click and drag will immediately
+         * initiate drag and drop (if supported by your configuration).
+         *
+         * @return true if the item is in an area of the item that can result in dragging
+         * the item. List items frequently have a white area that is not draggable allowing
+         * mouse driven band selection to be initiated in that area.
          */
         public boolean inDragRegion(@NonNull MotionEvent e) {
             return false;

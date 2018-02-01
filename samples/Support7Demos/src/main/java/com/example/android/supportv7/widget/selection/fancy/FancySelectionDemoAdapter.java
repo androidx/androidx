@@ -34,7 +34,7 @@ import androidx.widget.recyclerview.selection.SelectionTracker;
 
 final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> {
 
-    private final ItemKeyProvider<Uri> mKeyProvider;
+    private final ContentUriKeyProvider mKeyProvider;
     private final Context mContext;
 
     // This should be replaced at "bind" time with a real test that
