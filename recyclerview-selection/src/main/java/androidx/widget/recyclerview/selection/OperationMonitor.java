@@ -18,7 +18,6 @@ package androidx.widget.recyclerview.selection;
 
 import static android.support.v4.util.Preconditions.checkArgument;
 import static android.support.v4.util.Preconditions.checkState;
-
 import static androidx.widget.recyclerview.selection.Shared.DEBUG;
 
 import android.support.annotation.MainThread;
@@ -30,8 +29,8 @@ import java.util.List;
 
 /**
  * OperationMonitor provides a mechanism to coordinate application
- * logic with active user operations relating to selection (like band selection,
- * or gesture selection).
+ * logic with ongoing user selection activities (such as active band selection
+ * and active gesture selection).
  *
  * <p>
  * The host {@link android.app.Activity} or {@link android.app.Fragment} should avoid changing

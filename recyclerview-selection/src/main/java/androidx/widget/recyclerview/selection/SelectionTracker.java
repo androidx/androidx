@@ -36,8 +36,8 @@ import java.util.Set;
  *
  * <p>
  * This class provides support for managing a "primary" set of selected items,
- * in addition to a "provisional" set of selected items using traditional collection
- * like methods as well as more "range" operations.
+ * in addition to a "provisional" set of selected items using conventional
+ * {@link java.util.Collections}-like methods.
  *
  * <p>
  * Create an instance of SelectionTracker using {@link Builder SelectionTracker.Builder}.
@@ -50,11 +50,10 @@ import java.util.Set;
  *
  * <p>
  * A live view of the current selection can be obtained using {@link #getSelection}. Changes made
- * to the selection using SelectionTracker will be immediately reflected in this Selection.
+ * to the selection using SelectionTracker will be immediately reflected in this instance.
  *
  * <p>
- * To obtain a stable snapshot of the selection use {@link #copySelection(Selection)}. See
- * also {@link MutableSelection}.
+ * To obtain a stable snapshot of the selection use {@link #copySelection(MutableSelection)}.
  *
  * <p>
  * Selection state for an individual item can be obtained using {@link #isSelected(Object)}.
@@ -63,27 +62,16 @@ import java.util.Set;
  * <b>Provisional Selection</b>
  *
  * <p>
- * Provisional selection exists to address issues where a transitory selection (like
- * the selection use for an active band selection) might momentarily intersect
- * with a previously established selection resulting in a some or all of the
- * established selection being erased. These situations arise, for example, when band
- * selection is being performed in "additive" mode (e.g. SHIFT or CTRL is pressed on
- * the keyboard prior to mouse down), or when there's an active gesture selection
- * (which can be initiated by long pressing an item while there is an existing selection).
+ * Provisional selection exists to address issues where a transitory selection might
+ * momentarily intersect with a previously established selection resulting in a some
+ * or all of the established selection being erased. Such situations may arise
+ * when band selection is being performed in "additive" mode (e.g. SHIFT or CTRL is pressed
+ * on the keyboard prior to mouse down), or when there's an active gesture selection
+ * (which can be initiated by long pressing an unselected item while there is an
+ * existing selection).
  *
  * <p>
  * A provisional selection can be abandoned, or merged into the primary selection.
- *
- * <p>
- * <b>Ranges</b>
- *
- * <p>
- * Ranges provide a mechanism for defining selection blocks based on starting and
- * ending item positions. Traditional uses for this type of functionality would
- * be selecting items from an established "anchor" point to another item tapped
- * or clicked by a user. Think SHIFT+CLICK on devices with an attached mouse. Support
- * for common range selection interactions (including touch driven gesture selection)
- * is included by default when using {@link Builder}.
  *
  * <p>
  * <b>Enforcing selection policies</b>
@@ -126,7 +114,7 @@ public abstract class SelectionTracker<K> {
      * Returns a Selection object that provides a live view on the current selection.
      *
      * @return The current selection.
-     * @see #copySelection(Selection) on how to get a snapshot
+     * @see #copySelection(MutableSelection) on how to get a snapshot
      * of the selection that will not reflect future changes
      * to selection.
      */
@@ -135,7 +123,7 @@ public abstract class SelectionTracker<K> {
     /**
      * Updates {@code dest} to reflect the current selection.
      */
-    public abstract void copySelection(@NonNull Selection<K> dest);
+    public abstract void copySelection(@NonNull MutableSelection<K> dest);
 
     /**
      * @return true if the item specified by its id is selected. Shorthand for
@@ -155,7 +143,7 @@ public abstract class SelectionTracker<K> {
      *
      * @param selection selection being restored.
      */
-    public abstract void restoreSelection(@NonNull Selection<K> selection);
+    protected abstract void restoreSelection(@NonNull Selection<K> selection);
 
     /**
      * Clears both primary and provisional selections.
@@ -364,23 +352,12 @@ public abstract class SelectionTracker<K> {
      *
      * <p>
      * Example usage:
-     * <pre>SelectionTracker tracker = new SelectionTracker.Builder<>(
-     *        "my-selection-id",
-     *        mRecyclerView,
-     *        new DemoStableIdProvider(mAdapter),
-     *        detailsLookup,
-     *        StorageStrategy.createStringStorage())
-     *        .build();
-     *
-     * // By default multi-select is supported.
-     * // This configuration supports single selection for any single element.
-     * <pre>SelectionTracker tracker = new SelectionTracker.Builder<>(
-     *        "my-selection-id",
-     *        mRecyclerView,
-     *        new DemoStableIdProvider(mAdapter),
-     *        detailsLookup,
-     *        StorageStrategy.createStringStorage())
-     *        .withSelectionPredicate(SelectionPredicates.createSelectAnything())
+     * <pre>SelectionTracker<Uri> tracker = new SelectionTracker.Builder<>(
+     *        "my-uri-selection",
+     *        recyclerView,
+     *        new DemoStableIdProvider(recyclerView.getAdapter()),
+     *        new MyDetailsLookup(recyclerView),
+     *        StorageStrategy.createParcelableStorage(Uri.class))
      *        .build();
      *</pre>
      *
@@ -393,6 +370,18 @@ public abstract class SelectionTracker<K> {
      * code to be placed into "single select" mode, which as the name indicates, constrains
      * the selection size to a single item.
      *
+     * <p>Configuring the tracker for single single selection support can be done
+     * by supplying {@link SelectionPredicates#createSelectSingleAnything()}.
+     *
+     * SelectionTracker<String> tracker = new SelectionTracker.Builder<>(
+     *        "my-string-selection",
+     *        recyclerView,
+     *        new DemoStableIdProvider(recyclerView.getAdapter()),
+     *        new MyDetailsLookup(recyclerView),
+     *        StorageStrategy.createStringStorage())
+     *        .withSelectionPredicate(SelectionPredicates#createSelectSingleAnything())
+     *        .build();
+     *</pre>
      * <p>
      * <b>Retaining state across Android lifecycle events</b>
      *
@@ -407,15 +396,15 @@ public abstract class SelectionTracker<K> {
      * <b>Key Type</b>
      *
      * <p>
-     * Developers must decide on the key type used to identify selected items. These are the
-     * values your application will use to identify selected items. Support
-     * is provided for three types: Parcelable, String, and Long.
+     * Developers must decide on the key type used to identify selected items. Support
+     * is provided for three types: {@link Parcelable}, {@link String}, and {@link Long}.
      *
      * <p>
      * {@link Parcelable}: Any Parcelable type can be used as the selection key. This is especially
-     * useful for use with {@link android.net.Uri} as the Android URI implementation is both
-     * parcelable and makes for a natural stable selection key. If items in your view are
-     * associated with stable {@code content://} uris, you should use Uri.
+     * useful in conjunction with {@link android.net.Uri} as the Android URI implementation is both
+     * parcelable and makes for a natural stable selection key for values represented by
+     * the Android Content Provider framework. If items in your view are associated with
+     * stable {@code content://} uris, you should use Uri for your key type.
      *
      * <p>
      * {@link String}: Use String when a string based stable identifier is available.
@@ -424,7 +413,7 @@ public abstract class SelectionTracker<K> {
      * {@link Long}: Use Long when RecyclerView's long stable ids are
      * already in use. It comes with some limitations, however, as access to stable ids
      * at runtime is limited. Band selection support is not available when using the default
-     * long key storage implementation. See @link {@link ItemKeyProvider} for details.
+     * long key storage implementation. See {@link StableIdKeyProvider} for details.
      *
      * <p>
      * Usage:

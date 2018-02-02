@@ -45,7 +45,7 @@ android {
 
 supportLibrary {
     name 'Android RecyclerView Selection'
-    publish true
+    publish false
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear '2017'
