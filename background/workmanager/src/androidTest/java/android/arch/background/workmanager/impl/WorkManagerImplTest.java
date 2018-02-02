@@ -19,6 +19,7 @@ package android.arch.background.workmanager.impl;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.BLOCKED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.CANCELLED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
+import static android.arch.background.workmanager.BaseWork.WorkStatus.FAILED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
 import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy
@@ -749,13 +750,71 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work work = new Work.Builder(TestWorker.class).withInitialStatus(RUNNING).build();
         workSpecDao.insertWorkSpec(getWorkSpec(work));
 
-        assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(RUNNING));
+        assertThat(workSpecDao.getWorkSpecStatus(work.getId()), is(RUNNING));
 
         SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
         SupportSQLiteDatabase db = openHelper.getWritableDatabase();
         WorkDatabase.generateCleanupCallback().onOpen(db);
 
-        assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(ENQUEUED));
+        assertThat(workSpecDao.getWorkSpecStatus(work.getId()), is(ENQUEUED));
+    }
+
+    @Test
+    @SmallTest
+    public void testGenerateCleanupCallback_deletesOldFinishedWork() {
+        Work work1 = new Work.Builder(TestWorker.class)
+                .withInitialStatus(SUCCEEDED)
+                .withPeriodStartTime(0L)
+                .build();
+        Work work2 = new Work.Builder(TestWorker.class).withPeriodStartTime(Long.MAX_VALUE).build();
+
+        insertWorkSpecAndTags(work1);
+        insertWorkSpecAndTags(work2);
+
+        SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
+        SupportSQLiteDatabase db = openHelper.getWritableDatabase();
+        WorkDatabase.generateCleanupCallback().onOpen(db);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(work1.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(work2.getId()), is(not(nullValue())));
+    }
+
+    @Test
+    @SmallTest
+    public void testGenerateCleanupCallback_deletesDanglingBlockedDependencies() {
+        Work work1 = new Work.Builder(TestWorker.class)
+                .withInitialStatus(FAILED)
+                .withPeriodStartTime(0L)
+                .build();
+        Work work2 = new Work.Builder(TestWorker.class)
+                .withInitialStatus(BLOCKED)
+                .withPeriodStartTime(Long.MAX_VALUE)
+                .build();
+        Work work3 = new Work.Builder(TestWorker.class)
+                .withInitialStatus(BLOCKED)
+                .withPeriodStartTime(Long.MAX_VALUE)
+                .build();
+
+        insertWorkSpecAndTags(work1);
+        insertWorkSpecAndTags(work2);
+        insertWorkSpecAndTags(work3);
+
+        Dependency dependency21 = new Dependency(work2.getId(), work1.getId());
+        Dependency dependency32 = new Dependency(work3.getId(), work2.getId());
+
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
+        dependencyDao.insertDependency(dependency21);
+        dependencyDao.insertDependency(dependency32);
+
+        SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
+        SupportSQLiteDatabase db = openHelper.getWritableDatabase();
+        WorkDatabase.generateCleanupCallback().onOpen(db);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(work1.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(work2.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(work3.getId()), is(nullValue()));
     }
 
     private void insertWorkSpecAndTags(Work work) {
