@@ -151,6 +151,26 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 mBuilder.addPerson(person);
             }
             mHeadsUpContentView = b.mHeadsUpContentView;
+
+            // Invisible actions should be stored in the extender so we need to check if one exists
+            // already.
+            Bundle carExtenderBundle =
+                    b.getExtras().getBundle(NotificationCompat.CarExtender.EXTRA_CAR_EXTENDER);
+            if (carExtenderBundle == null) {
+                carExtenderBundle = new Bundle();
+            }
+            Bundle listBundle = new Bundle();
+            for (int i = 0; i < b.mInvisibleActions.size(); i++) {
+                listBundle.putBundle(
+                        Integer.toString(i),
+                        NotificationCompatJellybean.getBundleForAction(b.mInvisibleActions.get(i)));
+            }
+            carExtenderBundle.putBundle(
+                    NotificationCompat.CarExtender.EXTRA_INVISIBLE_ACTIONS, listBundle);
+            b.getExtras().putBundle(
+                    NotificationCompat.CarExtender.EXTRA_CAR_EXTENDER, carExtenderBundle);
+            mExtras.putBundle(
+                    NotificationCompat.CarExtender.EXTRA_CAR_EXTENDER, carExtenderBundle);
         }
         if (Build.VERSION.SDK_INT >= 24) {
             mBuilder.setExtras(b.mExtras)

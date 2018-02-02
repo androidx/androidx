@@ -171,6 +171,7 @@ package android.support.v4.app {
     method public static android.os.Bundle getExtras(android.app.Notification);
     method public static java.lang.String getGroup(android.app.Notification);
     method public static int getGroupAlertBehavior(android.app.Notification);
+    method public static java.util.List<android.support.v4.app.NotificationCompat.Action> getInvisibleActions(android.app.Notification);
     method public static boolean getLocalOnly(android.app.Notification);
     method public static java.lang.String getShortcutId(android.app.Notification);
     method public static java.lang.String getSortKey(android.app.Notification);
@@ -339,6 +340,8 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Builder addAction(int, java.lang.CharSequence, android.app.PendingIntent);
     method public android.support.v4.app.NotificationCompat.Builder addAction(android.support.v4.app.NotificationCompat.Action);
     method public android.support.v4.app.NotificationCompat.Builder addExtras(android.os.Bundle);
+    method public android.support.v4.app.NotificationCompat.Builder addInvisibleAction(int, java.lang.CharSequence, android.app.PendingIntent);
+    method public android.support.v4.app.NotificationCompat.Builder addInvisibleAction(android.support.v4.app.NotificationCompat.Action);
     method public android.support.v4.app.NotificationCompat.Builder addPerson(java.lang.String);
     method public android.app.Notification build();
     method public android.support.v4.app.NotificationCompat.Builder extend(android.support.v4.app.NotificationCompat.Extender);

@@ -23,7 +23,6 @@ import static android.support.v4.app.NotificationCompat.DEFAULT_VIBRATE;
 import static android.support.v4.app.NotificationCompat.GROUP_ALERT_ALL;
 import static android.support.v4.app.NotificationCompat.GROUP_ALERT_CHILDREN;
 import static android.support.v4.app.NotificationCompat.GROUP_ALERT_SUMMARY;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -49,6 +48,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -632,6 +632,37 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         NotificationCompat.Action result = NotificationCompat.getAction(notification, 0);
 
         assertEquals(NotificationCompat.Action.SEMANTIC_ACTION_REPLY, result.getSemanticAction());
+    }
+
+    private static final NotificationCompat.Action TEST_INVISIBLE_ACTION =
+            new NotificationCompat.Action.Builder(0, "Test Title", null).build();
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void getInvisibleActions() {
+        Notification notification =
+                newNotificationBuilder().addInvisibleAction(TEST_INVISIBLE_ACTION).build();
+        verifyInvisibleActionExists(notification);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void getInvisibleActions_withCarExtender() {
+        NotificationCompat.CarExtender carExtender = new NotificationCompat.CarExtender();
+        Notification notification = newNotificationBuilder()
+                .addInvisibleAction(TEST_INVISIBLE_ACTION)
+                .extend(carExtender)
+                .build();
+        verifyInvisibleActionExists(notification);
+    }
+
+    private static void verifyInvisibleActionExists(Notification notification) {
+        List<NotificationCompat.Action> result =
+                NotificationCompat.getInvisibleActions(notification);
+        assertTrue("Expecting 1 result, got " + result.size(), result.size() == 1);
+        NotificationCompat.Action resultAction = result.get(0);
+        assertEquals(resultAction.getIcon(), TEST_INVISIBLE_ACTION.getIcon());
+        assertEquals(resultAction.getTitle(), TEST_INVISIBLE_ACTION.getTitle());
     }
 
     private static RemoteInput newDataOnlyRemoteInput() {
