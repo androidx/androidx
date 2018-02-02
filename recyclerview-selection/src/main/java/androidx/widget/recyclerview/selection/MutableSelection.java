@@ -22,7 +22,33 @@ import android.support.annotation.NonNull;
  * Subclass of {@link Selection} exposing public support for mutating the underlying
  * selection data. This is useful for clients of {@link SelectionTracker} that wish to
  * manipulate a copy of selection data obtained via
- * {@link SelectionTracker#copySelection(Selection)}.
+ * {@link SelectionTracker#copySelection(MutableSelection)}.
+ *
+ * <p>
+ * While the {@link Selection} class is not intrinsically immutable, it is not mutable
+ * by non-library code. Furthermore the value returned from {@link SelectionTracker#getSelection()}
+ * is a live view of the underlying selection, mutable by the library itself.
+ *
+ * <p>
+ * {@link MutableSelection} allows clients to obtain a mutable copy of the Selection
+ * state held by the selection library. This is useful in situations where a stable
+ * snapshot of the selection is required.
+ *
+ *
+ * <p><b>Example</b>
+ *
+ * <p>
+ * <pre>
+ * MutableSelection snapshot = new MutableSelection();
+ * selectionTracker.copySelection(snapshot);
+ *
+ * // Clear the user visible selection.
+ * selectionTracker.clearSelection();
+ * // tracker.getSelection().isEmpty() will be true.
+ * // shapshot has a copy of the previous selection.
+ * </pre>
+ *
+ * @see android.text.Selection
  *
  * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
  */
