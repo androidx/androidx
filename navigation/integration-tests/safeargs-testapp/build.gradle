@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryVersions
 import android.support.LibraryGroups
 
@@ -41,3 +42,29 @@ plugins {
 }
 
 apply plugin: 'android.arch.navigation.safeargs'
+apply from: "${supportRootFolder}/buildSrc/repos.gradle"
+repos.addMavenRepositories(repositories)
+repositories {
+    maven {
+        url "$buildDir/localMaven/"
+    }
+}
+
+android {
+    flavorDimensions "mode"
+    productFlavors {
+        foo {
+            dimension "mode"
+            applicationIdSuffix ".foo"
+        }
+        notfoo {
+            dimension "mode"
+        }
+    }
+}
+
+dependencies {
+    implementation "${LibraryGroups.NAVIGATION}:runtime:${LibraryVersions.NAVIGATION}"
+    testCompile(JUNIT)
+    testCompile(MOCKITO_CORE)
+}

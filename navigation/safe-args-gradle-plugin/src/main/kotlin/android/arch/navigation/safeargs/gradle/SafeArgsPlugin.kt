@@ -18,6 +18,7 @@ package android.arch.navigation.safeargs.gradle
 
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.api.BaseVariant
+import groovy.util.XmlSlurper
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -34,6 +35,7 @@ class SafeArgsPlugin : Plugin<Project> {
         appExtension.applicationVariants.all { variant ->
             val task = project.tasks.create("generateSafeArgs${variant.name.capitalize()}",
                     ArgumentsGenerationTask::class.java) { task ->
+                task.rFilePackage = variant.rFilePackage()
                 task.applicationId = variant.applicationId
                 task.navigationFiles = navigationFiles(variant)
                 task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
@@ -52,4 +54,12 @@ class SafeArgsPlugin : Plugin<Project> {
             .flatMap { navFolder -> navFolder.listFiles().asIterable() }
             .groupBy { file -> file.name }
             .map { entry -> entry.value.last() }
+}
+
+private fun BaseVariant.rFilePackage(): String {
+    val mainSourceSet = sourceSets.find { it.name == "main" }
+    val sourceSet = mainSourceSet ?: sourceSets[0]
+    val manifest = sourceSet.manifestFile
+    val parsed = XmlSlurper(false, false).parse(manifest)
+    return parsed.getProperty("@package").toString()
 }

@@ -143,14 +143,14 @@ fun generateDirectionsTypeSpec(action: Action): TypeSpec {
 
 fun idAccessor(id: Id?) = id?.let { "${id.packageName}.R.id.${id.name}" } ?: "0"
 
-fun generateDirectionsJavaFile(packageName: String, destination: Destination): JavaFile {
+fun generateDirectionsJavaFile(applicationId: String, destination: Destination): JavaFile {
     val className = when {
         destination.name.isNotEmpty() -> {
             val simpleName = destination.name.substringAfterLast('.')
             val specifiedPackage = destination.name.substringBeforeLast('.', "")
             val classPackage = when {
                 specifiedPackage.isNotEmpty() -> specifiedPackage
-                destination.name.startsWith(".") -> packageName
+                destination.name.startsWith(".") -> applicationId
                 else -> ""
             }
             ClassName.get(classPackage, "${simpleName}Directions")
