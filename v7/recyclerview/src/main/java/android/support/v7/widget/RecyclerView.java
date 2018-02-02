@@ -5261,7 +5261,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * and use {@link RecyclerView#setRecycledViewPool(RecycledViewPool)}.
      * <p>
      * RecyclerView automatically creates a pool for itself if you don't provide one.
-     *
      */
     public static class RecycledViewPool {
         private static final int DEFAULT_MAX_SCRAP = 5;
@@ -5281,7 +5280,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * constructed by {@link GapWorker} prefetch from being bound to a lower priority prefetch.
          */
         static class ScrapData {
-            ArrayList<ViewHolder> mScrapHeap = new ArrayList<>();
+            final ArrayList<ViewHolder> mScrapHeap = new ArrayList<>();
             int mMaxScrap = DEFAULT_MAX_SCRAP;
             long mCreateRunningAverageNs = 0;
             long mBindRunningAverageNs = 0;
@@ -5290,6 +5289,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         private int mAttachCount = 0;
 
+        /**
+         * Discard all ViewHolders.
+         */
         public void clear() {
             for (int i = 0; i < mScrap.size(); i++) {
                 ScrapData data = mScrap.valueAt(i);
@@ -5297,14 +5299,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
         }
 
+        /**
+         * Sets the maximum number of ViewHolders to hold in the pool before discarding.
+         *
+         * @param viewType ViewHolder Type
+         * @param max Maximum number
+         */
         public void setMaxRecycledViews(int viewType, int max) {
             ScrapData scrapData = getScrapDataForType(viewType);
             scrapData.mMaxScrap = max;
             final ArrayList<ViewHolder> scrapHeap = scrapData.mScrapHeap;
-            if (scrapHeap != null) {
-                while (scrapHeap.size() > max) {
-                    scrapHeap.remove(scrapHeap.size() - 1);
-                }
+            while (scrapHeap.size() > max) {
+                scrapHeap.remove(scrapHeap.size() - 1);
             }
         }
 
@@ -5315,6 +5321,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return getScrapDataForType(viewType).mScrapHeap.size();
         }
 
+        /**
+         * Acquire a ViewHolder of the specified type from the pool, or {@code null} if none are
+         * present.
+         *
+         * @param viewType ViewHolder type.
+         * @return ViewHolder of the specified type acquired from the pool, or {@code null} if none
+         * are present.
+         */
+        @Nullable
         public ViewHolder getRecycledView(int viewType) {
             final ScrapData scrapData = mScrap.get(viewType);
             if (scrapData != null && !scrapData.mScrapHeap.isEmpty()) {
@@ -5324,6 +5339,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return null;
         }
 
+        /**
+         * Total number of ViewHolders held by the pool.
+         *
+         * @return Number of ViewHolders held by the pool.
+         */
         int size() {
             int count = 0;
             for (int i = 0; i < mScrap.size(); i++) {
@@ -5335,6 +5355,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return count;
         }
 
+        /**
+         * Add a scrap ViewHolder to the pool.
+         * <p>
+         * If the pool is already full for that ViewHolder's type, it will be immediately discarded.
+         *
+         * @param scrap ViewHolder to be added to the pool.
+         */
         public void putRecycledView(ViewHolder scrap) {
             final int viewType = scrap.getItemViewType();
             final ArrayList<ViewHolder> scrapHeap = getScrapDataForType(viewType).mScrapHeap;
