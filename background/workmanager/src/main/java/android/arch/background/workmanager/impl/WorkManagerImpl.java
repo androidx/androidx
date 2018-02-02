@@ -142,7 +142,7 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public void enqueue(@NonNull List<BaseWork> baseWork) {
+    public void enqueue(@NonNull List<? extends BaseWork> baseWork) {
         new WorkContinuationImpl(this, baseWork).enqueue();
     }
 

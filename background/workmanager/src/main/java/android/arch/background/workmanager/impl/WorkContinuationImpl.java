@@ -104,7 +104,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         this(
                 workManagerImpl,
                 null,
-                WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK,
+                WorkManager.ExistingWorkPolicy.KEEP,
                 work,
                 null);
     }
@@ -146,7 +146,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         // an initial call to enqueue()
         return new WorkContinuationImpl(mWorkManagerImpl,
                 mUniqueTag,
-                WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK,
+                WorkManager.ExistingWorkPolicy.KEEP,
                 work,
                 Collections.singletonList(this));
     }
@@ -201,7 +201,7 @@ public class WorkContinuationImpl extends WorkContinuation {
 
         return new WorkContinuationImpl(mWorkManagerImpl,
                 null,
-                WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK,
+                WorkManager.ExistingWorkPolicy.KEEP,
                 Collections.singletonList(work),
                 parents);
     }

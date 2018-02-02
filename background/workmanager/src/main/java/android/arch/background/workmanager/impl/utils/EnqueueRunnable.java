@@ -21,8 +21,8 @@ import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
 import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy
-        .APPEND_TO_EXISTING_WORK;
-import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK;
+        .APPEND;
+import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.KEEP;
 
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.WorkManager;
@@ -192,7 +192,7 @@ public class EnqueueRunnable implements Runnable {
 
             if (!existingWorkSpecIdAndStatuses.isEmpty()) {
                 // If appending, these are the new prerequisites.
-                if (existingWorkPolicy == APPEND_TO_EXISTING_WORK) {
+                if (existingWorkPolicy == APPEND) {
                     DependencyDao dependencyDao = workDatabase.dependencyDao();
                     List<String> newPrerequisiteIds = new ArrayList<>();
                     for (WorkSpec.IdAndStatus idAndStatus : existingWorkSpecIdAndStatuses) {
@@ -206,7 +206,7 @@ public class EnqueueRunnable implements Runnable {
                 } else {
                     // If we're keeping existing work, make sure to do so only if something is
                     // enqueued or running.
-                    if (existingWorkPolicy == KEEP_EXISTING_WORK) {
+                    if (existingWorkPolicy == KEEP) {
                         for (WorkSpec.IdAndStatus idAndStatus : existingWorkSpecIdAndStatuses) {
                             if (idAndStatus.status == ENQUEUED || idAndStatus.status == RUNNING) {
                                 return;

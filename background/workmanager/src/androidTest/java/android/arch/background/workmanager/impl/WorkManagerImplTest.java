@@ -23,9 +23,9 @@ import static android.arch.background.workmanager.BaseWork.WorkStatus.FAILED;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
 import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
 import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy
-        .APPEND_TO_EXISTING_WORK;
-import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.KEEP_EXISTING_WORK;
-import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.REPLACE_EXISTING_WORK;
+        .APPEND;
+import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.KEEP;
+import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.REPLACE;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -377,7 +377,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String testTag = "mytag";
 
         Work work = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.beginWithUniqueTag(testTag, REPLACE_EXISTING_WORK)
+        mWorkManagerImpl.beginWithUniqueTag(testTag, REPLACE)
                 .then(work)
                 .enqueue();
 
@@ -396,7 +396,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, REPLACE_EXISTING_WORK, replacementWork1)
+                .beginWithUniqueTag(testTag, REPLACE, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 
@@ -422,7 +422,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, KEEP_EXISTING_WORK, replacementWork1)
+                .beginWithUniqueTag(testTag, KEEP, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 
@@ -449,7 +449,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, KEEP_EXISTING_WORK, replacementWork1)
+                .beginWithUniqueTag(testTag, KEEP, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 
@@ -474,7 +474,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work appendWork1 = new Work.Builder(TestWorker.class).build();
         Work appendWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, APPEND_TO_EXISTING_WORK, appendWork1)
+                .beginWithUniqueTag(testTag, APPEND, appendWork1)
                 .then(appendWork2)
                 .enqueue();
 
@@ -517,7 +517,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work appendWork1 = new Work.Builder(TestWorker.class).build();
         Work appendWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, APPEND_TO_EXISTING_WORK, appendWork1)
+                .beginWithUniqueTag(testTag, APPEND, appendWork1)
                 .then(appendWork2)
                 .enqueue();
 
@@ -553,7 +553,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work appendWork1 = new Work.Builder(TestWorker.class).build();
         Work appendWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, APPEND_TO_EXISTING_WORK, appendWork1)
+                .beginWithUniqueTag(testTag, APPEND, appendWork1)
                 .then(appendWork2)
                 .enqueue();
 

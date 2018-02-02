@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,23 +34,21 @@ public abstract class Work implements BaseWork {
      * Creates an array of {@link Work} with defaults from an array of {@link Worker} class names.
      *
      * @param workerClasses An array of {@link Worker} class names
-     * @return An array of {@link Work} constructed by using defaults in the {@link Builder}
+     * @return A list of {@link Work} constructed by using defaults in the {@link Builder}
      */
-    public static Work[] from(@NonNull Class<? extends Worker>... workerClasses) {
-        Work[] workArray = new Work[workerClasses.length];
-        for (int i = 0; i < workerClasses.length; ++i) {
-            workArray[i] = new Work.Builder(workerClasses[i]).build();
-        }
-        return workArray;
+    public static @NonNull List<? extends BaseWork> from(
+            @NonNull Class<? extends Worker>... workerClasses) {
+        return from(Arrays.asList(workerClasses));
     }
 
     /**
      * Creates a list of {@link Work} with defaults from an array of {@link Worker} class names.
      *
-     * @param workerClasses An array of {@link Worker} class names
-     * @return A listof {@link Work} constructed by using defaults in the {@link Builder}
+     * @param workerClasses A list of {@link Worker} class names
+     * @return A list of {@link Work} constructed by using defaults in the {@link Builder}
      */
-    public static List<Work> from(@NonNull List<Class<? extends Worker>> workerClasses) {
+    public static @NonNull List<? extends Work> from(
+            @NonNull List<Class<? extends Worker>> workerClasses) {
         List<Work> workList = new ArrayList<>(workerClasses.size());
         for (Class<? extends Worker> workerClass : workerClasses) {
             workList.add(new Work.Builder(workerClass).build());
