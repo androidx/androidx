@@ -4,7 +4,7 @@ package android.support.v17.leanback.app {
     method public void attach(android.view.Window);
     method public void attachToView(android.view.View);
     method public void clearDrawable();
-    method public final int getColor();
+    method public int getColor();
     method public deprecated android.graphics.drawable.Drawable getDefaultDimLayer();
     method public deprecated android.graphics.drawable.Drawable getDimLayer();
     method public android.graphics.drawable.Drawable getDrawable();
@@ -2169,10 +2169,10 @@ package android.support.v17.leanback.widget {
     ctor public ListRowHoverCardView(android.content.Context);
     ctor public ListRowHoverCardView(android.content.Context, android.util.AttributeSet);
     ctor public ListRowHoverCardView(android.content.Context, android.util.AttributeSet, int);
-    method public final java.lang.CharSequence getDescription();
-    method public final java.lang.CharSequence getTitle();
-    method public final void setDescription(java.lang.CharSequence);
-    method public final void setTitle(java.lang.CharSequence);
+    method public java.lang.CharSequence getDescription();
+    method public java.lang.CharSequence getTitle();
+    method public void setDescription(java.lang.CharSequence);
+    method public void setTitle(java.lang.CharSequence);
   }
 
   public class ListRowPresenter extends android.support.v17.leanback.widget.RowPresenter {
@@ -2903,9 +2903,9 @@ package android.support.v17.leanback.widget {
   public static final class ShadowOverlayHelper.Options {
     ctor public ShadowOverlayHelper.Options();
     method public android.support.v17.leanback.widget.ShadowOverlayHelper.Options dynamicShadowZ(float, float);
-    method public final float getDynamicShadowFocusedZ();
-    method public final float getDynamicShadowUnfocusedZ();
-    method public final int getRoundedCornerRadius();
+    method public float getDynamicShadowFocusedZ();
+    method public float getDynamicShadowUnfocusedZ();
+    method public int getRoundedCornerRadius();
     method public android.support.v17.leanback.widget.ShadowOverlayHelper.Options roundedCornerRadius(int);
     field public static final android.support.v17.leanback.widget.ShadowOverlayHelper.Options DEFAULT;
   }
