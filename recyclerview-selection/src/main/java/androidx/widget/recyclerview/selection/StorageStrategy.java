@@ -28,12 +28,14 @@ import java.util.ArrayList;
 
 /**
  * Strategy for storing keys in saved state. Extend this class when using custom
- * key types that aren't parcelable. Prefer use of builtin storage strategies:
+ * key types that aren't supported by default. Prefer use of builtin storage strategies:
  * {@link #createStringStorage()}, {@link #createLongStorage()},
  * {@link #createParcelableStorage(Class)}.
  *
- * @see androidx.widget.recyclerview.selection.SelectionTracker.Builder for more detailed
- *         advice on which key type to use for your selection keys.
+ * <p>
+ * See
+ * {@link androidx.widget.recyclerview.selection.SelectionTracker.Builder SelectionTracker.Builder}
+ * for more detailed advice on which key type to use for your selection keys.
  *
  * @param <K> Selection key type. Built in support is provided for String, Long, and Parcelable
  *           types. Use the respective factory method to create a StorageStrategy instance

@@ -35,20 +35,24 @@ import java.util.Set;
  * <b>Primary Selection</b>
  *
  * <p>
- * Primary selection (or just selection) consists of items selected by a user or
- * lassoed by a completed band select operation.
+ * Primary selection consists of items selected by a user. This represents the selection
+ * "at rest", as the selection does not contains items that are in a "provisional" selected
+ * state created by way of an ongoing gesture or band operation.
  *
  * <p>
  * <b>Provisional Selection</b>
  *
  * <p>
- * Provisional selections are selections which have been temporarily created
- * by an in-progress operation such as band select or gesture selection. Once completed
- * such operations convert provisional selection into primary selection, or if the
- * operation is canceled cleared. Provisional selection exists to permit such operational
- * selections to intersect with the primary selection without subsequently erasing the
- * selection if the provisional selection is revised to not intersect with the primary
- * selection.
+ * Provisional selections are selections which are interim in nature.
+ *
+ * <p>
+ * Provisional selection exists to address issues where a transitory selection might
+ * momentarily intersect with a previously established selection resulting in a some
+ * or all of the established selection being erased. Such situations may arise
+ * when band selection is being performed in "additive" mode (e.g. SHIFT or CTRL is pressed
+ * on the keyboard prior to mouse down), or when there's an active gesture selection
+ * (which can be initiated by long pressing an unselected item while there is an
+ * existing selection).
  *
  * @see MutableSelection
  *

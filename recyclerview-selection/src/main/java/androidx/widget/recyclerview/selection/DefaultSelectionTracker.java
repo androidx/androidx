@@ -19,7 +19,6 @@ package androidx.widget.recyclerview.selection;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v4.util.Preconditions.checkArgument;
 import static android.support.v4.util.Preconditions.checkState;
-
 import static androidx.widget.recyclerview.selection.Shared.DEBUG;
 
 import android.os.Bundle;
@@ -114,7 +113,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     }
 
     @Override
-    public void copySelection(@NonNull Selection dest) {
+    public void copySelection(@NonNull MutableSelection dest) {
         dest.copyFrom(mSelection);
     }
 
@@ -124,7 +123,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     }
 
     @Override
-    public void restoreSelection(@NonNull Selection other) {
+    protected void restoreSelection(@NonNull Selection other) {
         checkArgument(other != null);
         setItemsSelectedQuietly(other.mSelection, true);
         // NOTE: We intentionally don't restore provisional selection. It's provisional.
@@ -181,7 +180,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     private Selection clearSelectionQuietly() {
         mRange = null;
 
-        Selection prevSelection = new Selection();
+        MutableSelection prevSelection = new MutableSelection();
         if (hasSelection()) {
             copySelection(prevSelection);
             mSelection.clear();
