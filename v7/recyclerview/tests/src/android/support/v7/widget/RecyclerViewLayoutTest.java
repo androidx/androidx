@@ -22,6 +22,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -3039,6 +3040,170 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     rv.findViewHolderForLayoutPosition(targetPosition));
         }
         checkForMainThreadException();
+    }
+
+    @Test
+    public void smoothScrollToPosition_targetNotFoundSeekInXAndY_scrollsLayoutManagerBy1InXAndY()
+            throws Throwable {
+        smoothScrollToPosition_initialScroll(
+                15,
+                10,
+                9432,
+                1239,
+                1,
+                1,
+                2);
+    }
+
+    @Test
+    public void smoothScrollToPosition_targetNotFoundSeekNegative_scrollsLayoutManagerByMinus1()
+            throws Throwable {
+        smoothScrollToPosition_initialScroll(
+                15,
+                10,
+                -9432,
+                -1239,
+                -1,
+                -1,
+                2);
+    }
+
+    @Test
+    public void smoothScrollToPosition_targetNotFoundSeekInX_scrollsLayoutManagerBy1InX()
+            throws Throwable {
+        smoothScrollToPosition_initialScroll(
+                15,
+                10,
+                0,
+                1239,
+                0,
+                1,
+                1);
+    }
+
+    @Test
+    public void smoothScrollToPosition_targetNotFoundSeekInY_scrollsLayoutManagerBy1InY()
+            throws Throwable {
+        smoothScrollToPosition_initialScroll(
+                15,
+                10,
+                0,
+                1239,
+                0,
+                1,
+                1);
+    }
+
+    @Test
+    public void smoothScrollToPosition_targetFound_doesNotScrollLayoutManager()
+            throws Throwable {
+        smoothScrollToPosition_initialScroll(
+                5,
+                10,
+                9432,
+                1239,
+                0,
+                0,
+                1);
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void smoothScrollToPosition_initialScroll(
+            final int targetItemPosition,
+            final int itemLayoutCount,
+            final int dxIncrement,
+            final int dyIncrement,
+            final int expectedInitialScrollDx,
+            final int expectedInitialScrollDy,
+            final int eventCount)
+            throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        rv.setLayoutParams(
+                new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+
+        TestAdapter testAdapter = new TestAdapter(itemLayoutCount * 2);
+        rv.setAdapter(testAdapter);
+
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final AtomicInteger actualInitialScrollDx = new AtomicInteger(0);
+        final AtomicInteger actualInitialScrollDy = new AtomicInteger(0);
+
+        TestLayoutManager testLayoutManager = new TestLayoutManager() {
+            @Override
+            public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,
+                    int position) {
+                RecyclerView.SmoothScroller scroller = new RecyclerView.SmoothScroller() {
+                    @Override
+                    protected void onStart() {
+
+                    }
+
+                    @Override
+                    protected void onStop() {
+
+                    }
+
+                    @Override
+                    protected void onSeekTargetStep(int dx, int dy, RecyclerView.State state,
+                            Action action) {
+                    }
+
+                    @Override
+                    protected void onTargetFound(View targetView, RecyclerView.State state,
+                            Action action) {
+                        countDownLatch.countDown();
+                    }
+
+                    @Nullable
+                    @Override
+                    public PointF computeScrollVectorForPosition(int targetPosition) {
+                        return new PointF(dxIncrement, dyIncrement);
+                    }
+                };
+                scroller.setTargetPosition(position);
+                startSmoothScroll(scroller);
+            }
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, itemLayoutCount);
+            }
+
+            @Override
+            public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                actualInitialScrollDx.set(dx);
+                countDownLatch.countDown();
+                return 0;
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                actualInitialScrollDy.set(dy);
+                countDownLatch.countDown();
+                return 0;
+            }
+        };
+
+        rv.setLayoutManager(testLayoutManager);
+
+        getActivity().getContainer().expectLayouts(1);
+        setRecyclerView(rv);
+        getActivity().getContainer().waitForLayout(2);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                rv.smoothScrollToPosition(targetItemPosition);
+            }
+        });
+        assertTrue(countDownLatch.await(2, TimeUnit.SECONDS));
+
+        assertThat(actualInitialScrollDx.get(), equalTo(expectedInitialScrollDx));
+        assertThat(actualInitialScrollDy.get(), equalTo(expectedInitialScrollDy));
     }
 
     @Test
