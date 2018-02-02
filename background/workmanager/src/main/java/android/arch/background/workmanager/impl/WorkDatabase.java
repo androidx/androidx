@@ -16,6 +16,13 @@
 
 package android.arch.background.workmanager.impl;
 
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.BLOCKED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.CANCELLED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.ENQUEUED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.FAILED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.RUNNING;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.SUCCEEDED;
+
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.impl.model.Dependency;
@@ -34,6 +41,8 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * A Room database for keeping track of work statuses.
  *
@@ -46,9 +55,15 @@ import android.support.annotation.RestrictTo;
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "android.arch.background.workmanager.work";
-    private static final String CLEANUP_SQL = "UPDATE workspec SET status="
-            + EnumTypeConverters.StatusIds.ENQUEUED + " WHERE status="
-            + EnumTypeConverters.StatusIds.RUNNING;
+    private static final String CLEANUP_SQL = "UPDATE workspec SET status=" + ENQUEUED
+            + " WHERE status=" + RUNNING;
+    private static final String PRUNE_SQL_PREFIX = "DELETE FROM workspec WHERE status IN ("
+            + SUCCEEDED + ", " + FAILED + ", " + CANCELLED + ") AND period_start_time < ";
+    private static final String BLOCKED_WITHOUT_PREREQUISITES_WHERE_CLAUSE =
+            "status=" + BLOCKED + " AND id NOT IN "
+            + "(SELECT DISTINCT work_spec_id FROM dependency)";
+
+    private static final long PRUNE_THRESHOLD_MILLIS = TimeUnit.DAYS.toMillis(7);
 
     /**
      * Creates an instance of the WorkDatabase.
@@ -76,10 +91,26 @@ public abstract class WorkDatabase extends RoomDatabase {
                 super.onOpen(db);
                 db.beginTransaction();
                 db.execSQL(CLEANUP_SQL);
+
+                // Delete everything that's finished and older than PRUNE_THRESHOLD_MILLIS.
+                db.execSQL(PRUNE_SQL_PREFIX + getPruneDate(), new Object[0]);
+                // Keep deleting everything that's blocked but has no prerequisites (it had a failed
+                // or cancelled prerequisite that got deleted in the above step).
+                int deletedCount;
+                do {
+                    deletedCount = db.delete("workspec",
+                            BLOCKED_WITHOUT_PREREQUISITES_WHERE_CLAUSE,
+                            null);
+                } while (deletedCount > 0);
+
                 db.setTransactionSuccessful();
                 db.endTransaction();
             }
         };
+    }
+
+    static long getPruneDate() {
+        return System.currentTimeMillis() - PRUNE_THRESHOLD_MILLIS;
     }
 
     /**
