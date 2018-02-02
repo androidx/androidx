@@ -260,7 +260,6 @@ package android.support.v7.widget {
     method protected float calculateSpeedPerPixel(android.util.DisplayMetrics);
     method protected int calculateTimeForDeceleration(int);
     method protected int calculateTimeForScrolling(int);
-    method public android.graphics.PointF computeScrollVectorForPosition(int);
     method protected int getHorizontalSnapPreference();
     method protected int getVerticalSnapPreference();
     method protected void onSeekTargetStep(int, int, android.support.v7.widget.RecyclerView.State, android.support.v7.widget.RecyclerView.SmoothScroller.Action);
@@ -772,6 +771,7 @@ package android.support.v7.widget {
 
   public static abstract class RecyclerView.SmoothScroller {
     ctor public RecyclerView.SmoothScroller();
+    method public android.graphics.PointF computeScrollVectorForPosition(int);
     method public android.view.View findViewByPosition(int);
     method public int getChildCount();
     method public int getChildPosition(android.view.View);

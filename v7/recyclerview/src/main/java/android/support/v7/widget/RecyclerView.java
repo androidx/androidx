@@ -4897,7 +4897,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         private OverScroller mScroller;
         Interpolator mInterpolator = sQuinticInterpolator;
 
-
         // When set to true, postOnAnimation callbacks are delayed until the run method completes
         private boolean mEatRunOnAnimationRequest = false;
 
@@ -8038,7 +8037,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * @return true if RecycylerView is currently in the state of smooth scrolling.
+         * @return true if RecyclerView is currently in the state of smooth scrolling.
          */
         public boolean isSmoothScrolling() {
             return mSmoothScroller != null && mSmoothScroller.isRunning();
@@ -11317,6 +11316,28 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
+         * Compute the scroll vector for a given target position.
+         * <p>
+         * This method can return null if the layout manager cannot calculate a scroll vector
+         * for the given position (e.g. it has no current scroll position).
+         *
+         * @param targetPosition the position to which the scroller is scrolling
+         *
+         * @return the scroll vector for a given target position
+         */
+        @Nullable
+        public PointF computeScrollVectorForPosition(int targetPosition) {
+            LayoutManager layoutManager = getLayoutManager();
+            if (layoutManager instanceof ScrollVectorProvider) {
+                return ((ScrollVectorProvider) layoutManager)
+                        .computeScrollVectorForPosition(targetPosition);
+            }
+            Log.w(TAG, "You should override computeScrollVectorForPosition when the LayoutManager"
+                    + " does not implement " + ScrollVectorProvider.class.getCanonicalName());
+            return null;
+        }
+
+        /**
          * @return The LayoutManager to which this SmoothScroller is attached. Will return
          * <code>null</code> after the SmoothScroller is stopped.
          */
@@ -11379,10 +11400,41 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         private void onAnimation(int dx, int dy) {
             final RecyclerView recyclerView = mRecyclerView;
+
+            // TODO(b/72745539): If mRunning is false, we call stop, which is a no op if mRunning
+            // is false. Also, if recyclerView is null, we call stop, and stop assumes recyclerView
+            // is not null (as does the code following this block).  This should be cleaned up.
             if (!mRunning || mTargetPosition == RecyclerView.NO_POSITION || recyclerView == null) {
                 stop();
             }
+
+            // The following if block exists to have the LayoutManager scroll 1 pixel in the correct
+            // direction in order to cause the LayoutManager to draw two pages worth of views so
+            // that the target view may be found before scrolling any further.  This is done to
+            // prevent an initial scroll distance from scrolling past the view, which causes a
+            // jittery looking animation. (This block also necessarily sets mPendingInitialRun to
+            // false if it was true).
+            if (mPendingInitialRun) {
+                if (mTargetView == null && mLayoutManager != null) {
+                    PointF pointF = computeScrollVectorForPosition(mTargetPosition);
+                    if (pointF != null) {
+                        if (pointF.x != 0) {
+                            mLayoutManager.scrollHorizontallyBy(
+                                    (int) Math.signum(pointF.x),
+                                    recyclerView.mRecycler,
+                                    recyclerView.mState);
+                        }
+                        if (pointF.y != 0) {
+                            mLayoutManager.scrollVerticallyBy(
+                                    (int) Math.signum(pointF.y),
+                                    recyclerView.mRecycler,
+                                    recyclerView.mState);
+                        }
+                    }
+                }
+            }
             mPendingInitialRun = false;
+
             if (mTargetView != null) {
                 // verify target position
                 if (getChildPosition(mTargetView) == mTargetPosition) {
@@ -11404,6 +11456,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         mPendingInitialRun = true;
                         recyclerView.mViewFlinger.postOnAnimation();
                     } else {
+                        // TODO(b/72745539): stop() is a no-op if mRunning is false, so this can be
+                        // removed.
                         stop(); // done
                     }
                 }
