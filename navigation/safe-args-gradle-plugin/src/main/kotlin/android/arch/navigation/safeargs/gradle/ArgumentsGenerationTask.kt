@@ -28,6 +28,9 @@ import java.io.File
 open class ArgumentsGenerationTask : DefaultTask() {
 
     @get:Input
+    var rFilePackage: String = ""
+
+    @get:Input
     var applicationId: String = ""
 
     @get:OutputDirectory
@@ -40,7 +43,7 @@ open class ArgumentsGenerationTask : DefaultTask() {
     fun perform() {
         val out = outputDir ?: throw GradleException("ArgumentsGenerationTask must have outputDir")
         navigationFiles.forEach { file ->
-            generateSafeArgs(applicationId, file, out)
+            generateSafeArgs(rFilePackage, applicationId, file, out)
         }
     }
 }

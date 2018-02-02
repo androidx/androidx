@@ -19,13 +19,14 @@ package android.arch.navigation.safe.args.generator
 import android.arch.navigation.safe.args.generator.models.Destination
 import java.io.File
 
-fun generateSafeArgs(packageName: String, navigationXml: File, outputDir: File) {
-    val rawDestination = parseNavigationFile(navigationXml, packageName)
+fun generateSafeArgs(rFilePackage: String, applicationId: String,
+        navigationXml: File, outputDir: File) {
+    val rawDestination = parseNavigationFile(navigationXml, rFilePackage)
     val resolvedDestination = resolveArguments(rawDestination)
 
     fun writeJavaFile(destination: Destination) {
         if (destination.actions.isNotEmpty()) {
-            generateDirectionsJavaFile(packageName, destination).writeTo(outputDir)
+            generateDirectionsJavaFile(applicationId, destination).writeTo(outputDir)
         }
         destination.nested.forEach(::writeJavaFile)
     }
