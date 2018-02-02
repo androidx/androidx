@@ -18,9 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.PointF;
-import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
@@ -123,6 +121,9 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      */
     @Override
     protected void onSeekTargetStep(int dx, int dy, RecyclerView.State state, Action action) {
+        // TODO(b/72745539): Is there ever a time when onSeekTargetStep should be called when
+        // getChildCount returns 0?  Should this logic be extracted out of this method such that
+        // this method is not called if getChildCount() returns 0?
         if (getChildCount() == 0) {
             stop();
             return;
@@ -335,27 +336,5 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
         final int start = layoutManager.getPaddingLeft();
         final int end = layoutManager.getWidth() - layoutManager.getPaddingRight();
         return calculateDtToFit(left, right, start, end, snapPreference);
-    }
-
-    /**
-     * Compute the scroll vector for a given target position.
-     * <p>
-     * This method can return null if the layout manager cannot calculate a scroll vector
-     * for the given position (e.g. it has no current scroll position).
-     *
-     * @param targetPosition the position to which the scroller is scrolling
-     *
-     * @return the scroll vector for a given target position
-     */
-    @Nullable
-    public PointF computeScrollVectorForPosition(int targetPosition) {
-        RecyclerView.LayoutManager layoutManager = getLayoutManager();
-        if (layoutManager instanceof ScrollVectorProvider) {
-            return ((ScrollVectorProvider) layoutManager)
-                    .computeScrollVectorForPosition(targetPosition);
-        }
-        Log.w(TAG, "You should override computeScrollVectorForPosition when the LayoutManager"
-                + " does not implement " + ScrollVectorProvider.class.getCanonicalName());
-        return null;
     }
 }
