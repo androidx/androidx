@@ -16,8 +16,6 @@
 
 package android.support.v7.widget;
 
-import static junit.framework.Assert.assertTrue;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
@@ -35,26 +33,9 @@ public class TestedFrameLayout extends FrameLayout implements NestedScrollingPar
 
     private NestedScrollingParent2 mNestedScrollingDelegate;
     private CountDownLatch mDrawLatch;
-    private CountDownLatch mLayoutLatch;
 
     public TestedFrameLayout(Context context) {
         super(context);
-    }
-
-    public void expectDraws(int count) {
-        mDrawLatch = new CountDownLatch(count);
-    }
-
-    public void waitForDraw(int seconds) throws InterruptedException {
-        assertTrue(mDrawLatch.await(seconds, TimeUnit.SECONDS));
-    }
-
-    public void expectLayouts(int count) {
-        mLayoutLatch = new CountDownLatch(count);
-    }
-
-    public void waitForLayout(int seconds) throws InterruptedException {
-        assertTrue(mLayoutLatch.await(seconds, TimeUnit.SECONDS));
     }
 
     @Override
@@ -118,12 +99,12 @@ public class TestedFrameLayout extends FrameLayout implements NestedScrollingPar
         }
     }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        if (mLayoutLatch != null) {
-            mLayoutLatch.countDown();
-        }
+    public void expectDraws(int count) {
+        mDrawLatch = new CountDownLatch(count);
+    }
+
+    public void waitForDraw(int seconds) throws InterruptedException {
+        mDrawLatch.await(seconds, TimeUnit.SECONDS);
     }
 
     public static int chooseSize(int spec, int desired, int min) {
