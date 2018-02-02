@@ -2178,6 +2178,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             throw new IllegalStateException("FragmentManager is already executing transactions");
         }
 
+        if (mHost == null) {
+            throw new IllegalStateException("Fragment host has been destroyed");
+        }
+
         if (Looper.myLooper() != mHost.getHandler().getLooper()) {
             throw new IllegalStateException("Must be called from main thread of fragment host");
         }
