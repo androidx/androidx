@@ -22,6 +22,7 @@ import static android.support.test.espresso.contrib.RecyclerViewActions.actionOn
 import static android.support.test.espresso.contrib.RecyclerViewActions.scrollToPosition;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -68,6 +69,7 @@ public class TextListItemTest {
 
     private PagedListViewTestActivity mActivity;
     private PagedListView mPagedListView;
+    private ListItemAdapter mAdapter;
 
     @Before
     public void setUp() {
@@ -79,8 +81,9 @@ public class TextListItemTest {
         ListItemProvider provider = new ListItemProvider.ListProvider(
                 new ArrayList<>(items));
         try {
+            mAdapter = new ListItemAdapter(mActivity, provider);
             mActivityRule.runOnUiThread(() -> {
-                mPagedListView.setAdapter(new ListItemAdapter(mActivity, provider));
+                mPagedListView.setAdapter(mAdapter);
             });
         } catch (Throwable throwable) {
             throwable.printStackTrace();
@@ -201,6 +204,45 @@ public class TextListItemTest {
         assertThat(viewHolder.getSwitch().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getSwitch().isChecked(), is(equalTo(false)));
         assertThat(viewHolder.getSwitchDivider().getVisibility(), is(equalTo(View.VISIBLE)));
+    }
+
+    @Test
+    public void testSetSwitchState() {
+        TextListItem item0 = new TextListItem(mActivity);
+        item0.setSwitch(true, true, null);
+
+        setupPagedListView(Arrays.asList(item0));
+
+        item0.setSwitchState(false);
+        try {
+            mActivityRule.runOnUiThread(() -> mAdapter.notifyItemChanged(0));
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+        // Wait for paged list view to layout by using espresso to scroll to a position.
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertThat(viewHolder.getSwitch().getVisibility(), is(equalTo(View.VISIBLE)));
+        assertThat(viewHolder.getSwitch().isChecked(), is(equalTo(false)));
+    }
+
+    @Test
+    public void testSetSwitchStateHasNoEffectIfSwitchIsNotEnabled() {
+        TextListItem item0 = new TextListItem(mActivity);
+        setupPagedListView(Arrays.asList(item0));
+
+        item0.setSwitchState(false);
+        try {
+            mActivityRule.runOnUiThread(() -> mAdapter.notifyItemChanged(0));
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+        // Wait for paged list view to layout by using espresso to scroll to a position.
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertThat(viewHolder.getSwitch().getVisibility(), is(not(equalTo(View.VISIBLE))));
     }
 
     @Test
