@@ -27,9 +27,16 @@ import android.view.View;
 /**
  * Space is a lightweight {@link View} subclass that may be used to create gaps between components
  * in general purpose layouts.
+ *
+ * @deprecated Use framework {@link android.widget.Space} class instead.
  */
+@Deprecated
 public class Space extends View {
 
+    /**
+     * @deprecated Use framework {@link android.widget.Space} class instead.
+     */
+    @Deprecated
     public Space(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         if (getVisibility() == VISIBLE) {
@@ -37,10 +44,18 @@ public class Space extends View {
         }
     }
 
+    /**
+     * @deprecated Use framework {@link android.widget.Space} class instead.
+     */
+    @Deprecated
     public Space(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
+    /**
+     * @deprecated Use framework {@link android.widget.Space} class instead.
+     */
+    @Deprecated
     public Space(@NonNull Context context) {
         this(context, null);
     }
@@ -49,7 +64,10 @@ public class Space extends View {
      * Draw nothing.
      *
      * @param canvas an unused parameter.
+     *
+     * @deprecated Use framework {@link android.widget.Space} class instead.
      */
+    @Deprecated
     @Override
     @SuppressLint("MissingSuperCall")
     public void draw(Canvas canvas) {
@@ -79,6 +97,10 @@ public class Space extends View {
         return result;
     }
 
+    /**
+     * @deprecated Use framework {@link android.widget.Space} class instead.
+     */
+    @Deprecated
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(
