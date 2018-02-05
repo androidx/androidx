@@ -57,7 +57,6 @@ public class WrapContentBasicTest {
 
     @Test
     public void testLayoutInOnMeasureWithoutPredictive() {
-        mLayoutManager.setAutoMeasureEnabled(true);
         when(mLayoutManager.supportsPredictiveItemAnimations()).thenReturn(false);
         mRecyclerView.onMeasure(WRAP, WRAP);
         mRecyclerView.onMeasure(WRAP, WRAP);
@@ -68,7 +67,6 @@ public class WrapContentBasicTest {
 
     @Test
     public void dataChangeAfterMeasure() {
-        mLayoutManager.setAutoMeasureEnabled(true);
         mRecyclerView.onMeasure(WRAP, WRAP);
         mRecyclerView.onMeasure(WRAP, WRAP);
         mAdapter.notifyItemChanged(1);
@@ -79,7 +77,6 @@ public class WrapContentBasicTest {
 
     @Test
     public void setDimensionsFromChildren() {
-        mLayoutManager.setAutoMeasureEnabled(true);
         View[] children = createMockChildren(3);
         mLayoutManager.setMeasuredDimensionFromChildren(WRAP, WRAP);
         verify(mLayoutManager).setMeasuredDimension(children[0].getWidth(),
@@ -88,7 +85,6 @@ public class WrapContentBasicTest {
 
     @Test
     public void setDimensionsFromChildrenAnsSpec1() {
-        mLayoutManager.setAutoMeasureEnabled(true);
         View[] children = createMockChildren(3);
         int hSpec = View.MeasureSpec.makeMeasureSpec(111, View.MeasureSpec.EXACTLY);
         mLayoutManager.setMeasuredDimensionFromChildren(WRAP, hSpec);
@@ -97,7 +93,6 @@ public class WrapContentBasicTest {
 
     @Test
     public void setDimensionsFromChildrenAnsSpec2() {
-        mLayoutManager.setAutoMeasureEnabled(true);
         View[] children = createMockChildren(3);
         int wSpec = View.MeasureSpec.makeMeasureSpec(111, View.MeasureSpec.EXACTLY);
         mLayoutManager.setMeasuredDimensionFromChildren(wSpec, WRAP);
@@ -106,7 +101,6 @@ public class WrapContentBasicTest {
 
     @Test
     public void setDimensionsFromChildrenAnsSpec3() {
-        mLayoutManager.setAutoMeasureEnabled(true);
         View[] children = createMockChildren(3);
         children[0].layout(0, 0, 100, 100);
         children[1].layout(-5, 0, 100, 100);
@@ -117,7 +111,6 @@ public class WrapContentBasicTest {
 
     @Test
     public void setDimensionsFromChildrenAnsSpec4() {
-        mLayoutManager.setAutoMeasureEnabled(true);
         View[] children = createMockChildren(3);
         children[0].layout(0, 0, 100, 100);
         children[1].layout(-5, 0, 100, 100);
@@ -129,7 +122,6 @@ public class WrapContentBasicTest {
 
     @Test
     public void setDimensionsFromChildrenAnsSpec5() {
-        mLayoutManager.setAutoMeasureEnabled(true);
         View[] children = createMockChildren(3);
         children[0].layout(0, 0, 100, 100);
         children[1].layout(-5, 0, 100, 100);
@@ -145,7 +137,6 @@ public class WrapContentBasicTest {
 
     @Test
     public void setDimensionsFromChildrenAnsSpec6() {
-        mLayoutManager.setAutoMeasureEnabled(true);
         View[] children = createMockChildren(3);
         children[0].layout(0, 0, 100, 100);
         children[1].layout(-5, 0, 100, 100);
@@ -182,6 +173,11 @@ public class WrapContentBasicTest {
         public RecyclerView.LayoutParams generateDefaultLayoutParams() {
             return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        @Override
+        public boolean isAutoMeasureEnabled() {
+            return true;
         }
 
         // START MOCKITO OVERRIDES

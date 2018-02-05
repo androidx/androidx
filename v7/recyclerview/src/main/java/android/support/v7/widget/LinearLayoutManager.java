@@ -165,7 +165,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             boolean reverseLayout) {
         setOrientation(orientation);
         setReverseLayout(reverseLayout);
-        setAutoMeasureEnabled(true);
     }
 
     /**
@@ -182,7 +181,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         setOrientation(properties.orientation);
         setReverseLayout(properties.reverseLayout);
         setStackFromEnd(properties.stackFromEnd);
-        setAutoMeasureEnabled(true);
+    }
+
+    @Override
+    public boolean isAutoMeasureEnabled() {
+        return true;
     }
 
     /**
