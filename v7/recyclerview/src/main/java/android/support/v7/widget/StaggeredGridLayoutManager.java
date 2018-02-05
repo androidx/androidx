@@ -235,7 +235,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         setOrientation(properties.orientation);
         setSpanCount(properties.spanCount);
         setReverseLayout(properties.reverseLayout);
-        setAutoMeasureEnabled(mGapStrategy != GAP_HANDLING_NONE);
         mLayoutState = new LayoutState();
         createOrientationHelpers();
     }
@@ -250,9 +249,13 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     public StaggeredGridLayoutManager(int spanCount, int orientation) {
         mOrientation = orientation;
         setSpanCount(spanCount);
-        setAutoMeasureEnabled(mGapStrategy != GAP_HANDLING_NONE);
         mLayoutState = new LayoutState();
         createOrientationHelpers();
+    }
+
+    @Override
+    public boolean isAutoMeasureEnabled() {
+        return mGapStrategy != GAP_HANDLING_NONE;
     }
 
     private void createOrientationHelpers() {
@@ -519,7 +522,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
                     + "or GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS");
         }
         mGapStrategy = gapStrategy;
-        setAutoMeasureEnabled(mGapStrategy != GAP_HANDLING_NONE);
         requestLayout();
     }
 
