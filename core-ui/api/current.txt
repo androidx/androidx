@@ -642,10 +642,12 @@ package android.support.v4.widget {
     method public void onPanelSlide(android.view.View, float);
   }
 
-  public class Space extends android.view.View {
-    ctor public Space(android.content.Context, android.util.AttributeSet, int);
-    ctor public Space(android.content.Context, android.util.AttributeSet);
-    ctor public Space(android.content.Context);
+  public deprecated class Space extends android.view.View {
+    ctor public deprecated Space(android.content.Context, android.util.AttributeSet, int);
+    ctor public deprecated Space(android.content.Context, android.util.AttributeSet);
+    ctor public deprecated Space(android.content.Context);
+    method public deprecated void draw(android.graphics.Canvas);
+    method protected deprecated void onMeasure(int, int);
   }
 
   public class SwipeRefreshLayout extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingChild android.support.v4.view.NestedScrollingParent {
