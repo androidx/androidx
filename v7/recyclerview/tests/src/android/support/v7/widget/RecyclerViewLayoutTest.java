@@ -700,9 +700,13 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 }
                 super.onMeasure(recycler, state, widthSpec, heightSpec);
             }
+
+            @Override
+            public boolean isAutoMeasureEnabled() {
+                return false;
+            }
         };
         lm.setSupportsPredictive(true);
-        lm.setAutoMeasureEnabled(false);
         rv.setHasFixedSize(false);
         final TestAdapter adapter = new TestAdapter(0);
         rv.setAdapter(adapter);
@@ -860,8 +864,12 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 mRecyclerView.offsetChildrenVertical(-dy);
                 return dy;
             }
+
+            @Override
+            public boolean isAutoMeasureEnabled() {
+                return true;
+            }
         };
-        tlm.setAutoMeasureEnabled(true);
         rv.setLayoutManager(tlm);
         TextView viewAbove = new TextView(getActivity());
         viewAbove.setText("view above");
