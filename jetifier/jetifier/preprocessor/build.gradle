@@ -19,8 +19,6 @@ plugins {
     id("application")
 }
 
-version '1.0'
-
 mainClassName = "android.support.tools.jetifier.preprocessor.MainKt"
 
 dependencies {
