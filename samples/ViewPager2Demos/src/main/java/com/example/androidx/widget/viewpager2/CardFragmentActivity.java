@@ -61,7 +61,7 @@ public class CardFragmentActivity extends FragmentActivity {
                         return sCards.size();
                     }
                 },
-                ViewPager2.FragmentRetentionPolicy.ALWAYS_RECREATE);
+                ViewPager2.FragmentRetentionPolicy.SAVE_STATE);
     }
 
         /** {@inheritDoc} */

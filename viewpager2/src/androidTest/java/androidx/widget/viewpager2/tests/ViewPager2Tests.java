@@ -25,10 +25,10 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.view.View.OVER_SCROLL_NEVER;
 
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -43,10 +43,11 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,14 +55,20 @@ import android.widget.TextView;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import androidx.widget.ViewPager2;
 import androidx.widget.viewpager2.test.R;
@@ -69,6 +76,7 @@ import androidx.widget.viewpager2.test.R;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ViewPager2Tests {
+    private static final Random RANDOM = new Random();
     private static final int[] sColors = {
             Color.parseColor("#BBA9FF00"),
             Color.parseColor("#BB00E87E"),
@@ -103,100 +111,333 @@ public class ViewPager2Tests {
                 }
             }
         });
+
+        final long seed = RANDOM.nextLong();
+        RANDOM.setSeed(seed);
+        Log.i(getClass().getName(), "Random seed: " + seed);
+    }
+
+    public static class PageFragment extends Fragment {
+        private static final String KEY_VALUE = "value";
+
+        public interface EventListener {
+            void onEvent(PageFragment fragment);
+
+            EventListener NO_OP = new EventListener() {
+                @Override
+                public void onEvent(PageFragment fragment) {
+                    // do nothing
+                }
+            };
+        }
+
+        private EventListener mOnAttachListener = EventListener.NO_OP;
+        private EventListener mOnDestroyListener = EventListener.NO_OP;
+
+        private int mPosition;
+        private int mValue;
+
+        public static PageFragment create(int position, int value) {
+            PageFragment result = new PageFragment();
+            Bundle args = new Bundle(1);
+            args.putInt(KEY_VALUE, value);
+            result.setArguments(args);
+            result.mPosition = position;
+            return result;
+        }
+
+        @Override
+        public void onAttach(Context context) {
+            super.onAttach(context);
+            mOnAttachListener.onEvent(this);
+        }
+
+        @NonNull
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.item_test_layout, container, false);
+        }
+
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            Bundle data = savedInstanceState != null ? savedInstanceState : getArguments();
+            setValue(data.getInt(KEY_VALUE));
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            mOnDestroyListener.onEvent(this);
+        }
+
+        @Override
+        public void onSaveInstanceState(@NonNull Bundle outState) {
+            outState.putInt(KEY_VALUE, mValue);
+        }
+
+        public void setValue(int value) {
+            mValue = value;
+            TextView textView = getView().findViewById(R.id.text_view);
+            applyViewValue(textView, mValue);
+        }
+    }
+
+    private static void applyViewValue(TextView textView, int value) {
+        textView.setText(String.valueOf(value));
+        textView.setBackgroundColor(getColor(value));
+    }
+
+    private static int getColor(int value) {
+        return sColors[value % sColors.length];
+    }
+
+    @Test
+    public void fragmentAdapter_fullPass() throws Throwable {
+        testFragmentLifecycle(8, Arrays.asList(1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0));
+    }
+
+    @Test
+    public void fragmentAdapter_random() throws Throwable {
+        final int totalPages = 10;
+        final int sequenceLength = 50;
+        testFragmentLifecycle_random(totalPages, sequenceLength, PageMutator.NO_OP);
+    }
+
+    @Test
+    public void fragmentAdapter_random_withMutations() throws Throwable {
+        final int totalPages = 10;
+        final int sequenceLength = 50;
+        testFragmentLifecycle_random(totalPages, sequenceLength, PageMutator.RANDOM);
+    }
+
+    private void testFragmentLifecycle_random(int totalPages, int sequenceLength,
+            PageMutator pageMutator) throws Throwable {
+        List<Integer> pageSequence = generateRandomPageSequence(totalPages, sequenceLength);
+
+        Log.i(getClass().getName(),
+                String.format("Testing with a sequence [%s]", TextUtils.join(", ", pageSequence)));
+
+        testFragmentLifecycle(totalPages, pageSequence, pageMutator);
+    }
+
+    @NonNull
+    private List<Integer> generateRandomPageSequence(int totalPages, int sequenceLength) {
+        List<Integer> pageSequence = new ArrayList<>(sequenceLength);
+
+        int pageIx = 0;
+        Double goRightProbability = null;
+        while (pageSequence.size() != sequenceLength) {
+            boolean goRight;
+            if (pageIx == 0) {
+                goRight = true;
+                goRightProbability = 0.7;
+            } else if (pageIx == totalPages - 1) { // last page
+                goRight = false;
+                goRightProbability = 0.3;
+            } else {
+                goRight = RANDOM.nextDouble() < goRightProbability;
+            }
+
+            pageSequence.add(goRight ? ++pageIx : --pageIx);
+        }
+
+        return pageSequence;
     }
 
     /**
-     * Responsible for setting an adapter on a target {@link ViewPager2}.
-     *
-     * Allows for parameterization of a test (so it can run with different adapters). Adapter
-     * setters can vary by signature hence the overly flexible signature of this interface.
+     * Test added when caught a bug: after the last swipe: actual=6, expected=4
+     * <p>
+     * Bug was caused by an invalid test assumption (new Fragment value can be inferred from number
+     * of instances created) - invalid in a case when we sometimes create Fragments off-screen and
+     * end up scrapping them.
+     **/
+    @Test
+    public void fragmentAdapter_regression1() throws Throwable {
+        testFragmentLifecycle(10, Arrays.asList(1, 2, 3, 2, 1, 2, 3, 4));
+    }
+
+    /**
+     * Test added when caught a bug: after the last swipe: actual=4, expected=5
+     * <p>
+     * Bug was caused by mSavedStates.add(position, ...) instead of mSavedStates.set(position, ...)
+     **/
+    @Test
+    public void fragmentAdapter_regression2() throws Throwable {
+        testFragmentLifecycle(10, Arrays.asList(1, 2, 3, 4, 3, 2, 1, 2, 3, 4, 5));
+    }
+
+    /**
+     * Test added when caught a bug: after the last swipe: ArrayIndexOutOfBoundsException: length=5;
+     * index=-1 at androidx.widget.viewpager2.tests.ViewPager2Tests$PageFragment.onCreateView
+     * <p>
+     * Bug was caused by always saving states of unattached fragments as null (even if there was a
+     * valid previously saved state)
      */
-    private interface AdapterStrategy {
-        void apply(Activity activity, ViewPager2 target);
+    @Test
+    public void fragmentAdapter_regression3() throws Throwable {
+        testFragmentLifecycle(10, Arrays.asList(1, 2, 3, 2, 1, 2, 3, 2, 1, 0));
     }
 
-    private static class ViewAdapterStrategy implements AdapterStrategy {
-        @Override
-        public void apply(final Activity activity, ViewPager2 target) {
-            target.setAdapter(
-                    new Adapter<ViewHolder>() {
-                        @NonNull
-                        @Override
-                        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                                int viewType) {
-                            return new ViewHolder(
-                                    activity.getLayoutInflater().inflate(
-                                            R.layout.item_test_layout, parent, false)) {
-                            };
-                        }
-
-                        @Override
-                        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-                            TextView view = (TextView) holder.itemView;
-                            view.setText(String.valueOf(position));
-                            view.setBackgroundColor(sColors[position]);
-                        }
-
-                        @Override
-                        public int getItemCount() {
-                            return sColors.length;
-                        }
-                    });
-        }
+    /** Goes left on left edge / right on right edge */
+    @Test
+    public void fragmentAdapter_edges() throws Throwable {
+        testFragmentLifecycle(4, Arrays.asList(0, 0, 1, 2, 3, 3, 3, 2, 1, 0, 0, 0));
     }
 
-    private static class FragmentAdapterStrategy implements AdapterStrategy {
-        @Override
-        public void apply(Activity activity, ViewPager2 target) {
-            target.setAdapter(((FragmentActivity) activity).getSupportFragmentManager(),
-                    new ViewPager2.FragmentProvider() {
-                        @Override
-                        public Fragment getItem(int position) {
-                            return new PageFragment(position);
-                        }
+    private interface PageMutator {
+        void mutate(PageFragment fragment);
 
-                        @Override
-                        public int getCount() {
-                            return sColors.length;
-                        }
-                    }, ViewPager2.FragmentRetentionPolicy.ALWAYS_RECREATE);
-        }
-
-        public static class PageFragment extends Fragment {
-            private final int mPosition;
-
-            PageFragment(int position) {
-                mPosition = position;
-            }
-
-            @NonNull
+        PageMutator NO_OP = new PageMutator() {
             @Override
-            public View onCreateView(@NonNull LayoutInflater inflater,
-                    @Nullable ViewGroup container,
-                    @Nullable Bundle savedInstanceState) {
-                View result = inflater.inflate(R.layout.item_test_layout,
-                        container, false);
-                TextView textView = result.findViewById(R.id.text_view);
-                textView.setText(String.valueOf(mPosition));
-                textView.setBackgroundColor(sColors[mPosition]);
-                return result;
+            public void mutate(PageFragment fragment) {
+                // do nothing
             }
+        };
+
+        /** At random modifies the page under Fragment */
+        PageMutator RANDOM = new PageMutator() {
+            @Override
+            public void mutate(PageFragment fragment) {
+                Random random = ViewPager2Tests.RANDOM;
+                if (random.nextDouble() < 0.125) {
+                    int delta = (1 + random.nextInt(5)) * sColors.length;
+                    fragment.setValue(fragment.mValue + delta);
+                }
+            }
+        };
+    }
+
+    /** @see this#testFragmentLifecycle(int, List, PageMutator) */
+    private void testFragmentLifecycle(final int totalPages, List<Integer> pageSequence)
+            throws Throwable {
+        testFragmentLifecycle(totalPages, pageSequence, PageMutator.NO_OP);
+    }
+
+    /**
+     * Verifies:
+     * <ul>
+     * <li>page content / background
+     * <li>maximum number of Fragments held in memory
+     * <li>Fragment state saving / restoring
+     * </ul>
+     */
+    private void testFragmentLifecycle(final int totalPages, List<Integer> pageSequence,
+            final PageMutator pageMutator) throws Throwable {
+        final AtomicInteger attachCount = new AtomicInteger(0);
+        final AtomicInteger destroyCount = new AtomicInteger(0);
+        final boolean[] wasEverAttached = new boolean[totalPages];
+        final PageFragment[] fragments = new PageFragment[totalPages];
+
+        final int[] expectedValues = new int[totalPages];
+        for (int i = 0; i < totalPages; i++) {
+            expectedValues[i] = i;
+        }
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mViewPager.setAdapter(mActivityTestRule.getActivity().getSupportFragmentManager(),
+                        new ViewPager2.FragmentProvider() {
+                            @Override
+                            public Fragment getItem(final int position) {
+                                // if the fragment was attached in the past, it means we have
+                                // provided it with the correct value already; give a dummy one
+                                // to prove state save / restore functionality works
+                                int value = wasEverAttached[position] ? -1 : position;
+                                PageFragment fragment = PageFragment.create(position, value);
+
+                                fragment.mOnAttachListener = new PageFragment.EventListener() {
+                                    @Override
+                                    public void onEvent(PageFragment fragment) {
+                                        attachCount.incrementAndGet();
+                                        wasEverAttached[fragment.mPosition] = true;
+                                    }
+                                };
+
+                                fragment.mOnDestroyListener = new PageFragment.EventListener() {
+                                    @Override
+                                    public void onEvent(PageFragment fragment) {
+                                        destroyCount.incrementAndGet();
+                                    }
+                                };
+
+                                fragments[position] = fragment;
+                                return fragment;
+                            }
+
+                            @Override
+                            public int getCount() {
+                                return totalPages;
+                            }
+                        }, ViewPager2.FragmentRetentionPolicy.SAVE_STATE);
+            }
+        });
+
+        final AtomicInteger currentPage = new AtomicInteger(0);
+        verifyView(expectedValues[currentPage.get()]);
+        for (int nextPage : pageSequence) {
+            swipe(currentPage.get(), nextPage, totalPages);
+            currentPage.set(nextPage);
+            verifyView(expectedValues[currentPage.get()]);
+
+            // TODO: validate Fragments that are instantiated, but not attached. No destruction
+            // steps are done to them - they're just left to the Garbage Collector. Maybe
+            // WeakReferences could help, but the GC behaviour is not predictable. Alternatively,
+            // we could only create Fragments onAttach, but there is a potential performance
+            // trade-off.
+            assertThat(attachCount.get() - destroyCount.get(), isBetween(1, 4));
+
+            mActivityTestRule.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    final int page = currentPage.get();
+                    PageFragment fragment = fragments[page];
+                    pageMutator.mutate(fragment);
+                    expectedValues[page] = fragment.mValue;
+                }
+            });
         }
     }
 
-    @Test
-    public void rendersAndHandlesSwipingViewAdapter() throws Throwable {
-        rendersAndHandlesSwiping(new ViewAdapterStrategy());
+    private void swipe(int currentPageIx, int nextPageIx, int totalPages)
+            throws InterruptedException {
+        if (nextPageIx >= totalPages) {
+            throw new IllegalArgumentException("Invalid nextPageIx: >= totalPages.");
+        }
+
+        if (currentPageIx == nextPageIx) { // dedicated for testing edge behaviour
+            if (nextPageIx == 0) {
+                swipeRight(); // bounce off the left edge
+                return;
+            }
+            if (nextPageIx == totalPages - 1) { // bounce off the right edge
+                swipeLeft();
+                return;
+            }
+            throw new IllegalArgumentException(
+                    "Invalid sequence. Not on an edge, and currentPageIx/nextPageIx pages same.");
+        }
+
+        if (Math.abs(nextPageIx - currentPageIx) > 1) {
+            throw new IllegalArgumentException(
+                    "Specified nextPageIx not adjacent to the current page.");
+        }
+
+        if (nextPageIx > currentPageIx) {
+            swipeLeft();
+        } else {
+            swipeRight();
+        }
+    }
+
+    private Matcher<Integer> isBetween(int min, int max) {
+        return allOf(greaterThanOrEqualTo(min), lessThanOrEqualTo(max));
     }
 
     @Test
-    public void rendersAndHandlesSwipingFragmentAdapter() throws Throwable {
-        rendersAndHandlesSwiping(new FragmentAdapterStrategy());
-        // TODO: test Fragment lifecycle
-    }
-
-    public void rendersAndHandlesSwiping(final AdapterStrategy adapterStrategy) throws Throwable {
-        final int pageCount = sColors.length;
+    public void viewAdapter_rendersAndHandlesSwiping() throws Throwable {
+        final int totalPages = 8;
 
         if (Build.VERSION.SDK_INT < 16) { // TODO(b/71500143): remove temporary workaround
             RecyclerView mRecyclerView = (RecyclerView) mViewPager.getChildAt(0);
@@ -207,24 +448,41 @@ public class ViewPager2Tests {
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                adapterStrategy.apply(mActivityTestRule.getActivity(), mViewPager);
+                mViewPager.setAdapter(
+                        new Adapter<ViewHolder>() {
+                            @NonNull
+                            @Override
+                            public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                                    int viewType) {
+                                return new ViewHolder(
+                                        mActivityTestRule.getActivity().getLayoutInflater().inflate(
+                                                R.layout.item_test_layout, parent, false)) {
+                                };
+                            }
+
+                            @Override
+                            public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+                                TextView view = (TextView) holder.itemView;
+                                applyViewValue(view, position);
+                            }
+
+                            @Override
+                            public int getItemCount() {
+                                return totalPages;
+                            }
+                        });
             }
         });
 
-        final int pageIxFirst = 0;
-        final int pageIxLast = pageCount - 1;
-        final int swipeCount = pageCount + 1; // two swipes beyond edge to test 'edge behavior'
-        int pageNumber = pageIxFirst;
-        for (int i = 0; i < swipeCount; i++, pageNumber = Math.min(pageIxLast, ++pageNumber)) {
-            verifyView(pageNumber);
-            performSwipe(ViewActions.swipeLeft());
+        List<Integer> pageSequence = Arrays.asList(0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 6, 5, 4, 3, 2,
+                1, 0, 0, 0);
+        verifyView(0);
+        int currentPage = 0;
+        for (int nextPage : pageSequence) {
+            swipe(currentPage, nextPage, totalPages);
+            currentPage = nextPage;
+            verifyView(currentPage);
         }
-        assertThat(pageNumber, equalTo(pageIxLast));
-        for (int i = 0; i < swipeCount; i++, pageNumber = Math.max(pageIxFirst, --pageNumber)) {
-            verifyView(pageNumber);
-            performSwipe(ViewActions.swipeRight());
-        }
-        assertThat(pageNumber, equalTo(pageIxFirst));
     }
 
     private void verifyView(int pageNumber) {
@@ -243,14 +501,22 @@ public class ViewPager2Tests {
         @Override
         public void describeTo(Description description) {
             description.appendText("should have background color: ").appendValue(
-                    sColors[mPageNumber]);
+                    getColor(mPageNumber));
         }
 
         @Override
         public boolean matches(Object item) {
             ColorDrawable background = (ColorDrawable) ((View) item).getBackground();
-            return background.getColor() == sColors[mPageNumber];
+            return background.getColor() == getColor(mPageNumber);
         }
+    }
+
+    private void swipeLeft() throws InterruptedException {
+        performSwipe(ViewActions.swipeLeft());
+    }
+
+    private void swipeRight() throws InterruptedException {
+        performSwipe(ViewActions.swipeRight());
     }
 
     private void performSwipe(ViewAction swipeAction) throws InterruptedException {
@@ -302,4 +568,5 @@ public class ViewPager2Tests {
 
     // TODO: verify correct padding behavior
     // TODO: add test for screen orientation change
+    // TODO: port some of the fragment adapter tests as view adapter tests
 }

@@ -43,6 +43,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import java.lang.annotation.Retention;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Work in progress: go/viewpager2
@@ -143,20 +145,37 @@ public class ViewPager2 extends ViewGroup {
      */
     public void setAdapter(FragmentManager fragmentManager, FragmentProvider fragmentProvider,
             @FragmentRetentionPolicy int fragmentRetentionPolicy) {
-        if (fragmentRetentionPolicy != FragmentRetentionPolicy.ALWAYS_RECREATE) {
-            // TODO: implement Fragment reuse
-            throw new IllegalArgumentException(
-                    "Currently only ALWAYS_RECREATE policy is supported");
+        if (fragmentRetentionPolicy != FragmentRetentionPolicy.SAVE_STATE) {
+            throw new IllegalArgumentException("Currently only SAVE_STATE policy is supported");
         }
 
-        mRecyclerView.setAdapter(new FragmentAdapter(fragmentManager, fragmentProvider));
+        mRecyclerView.setAdapter(new FragmentStateAdapter(fragmentManager, fragmentProvider));
     }
 
-    private static class FragmentAdapter extends RecyclerView.Adapter<FragmentViewHolder> {
+    /**
+     * Similar in behavior to {@link FragmentStatePagerAdapter}
+     * <p>
+     * Lifecycle within {@link RecyclerView}:
+     * <ul>
+     * <li>{@link RecyclerView.ViewHolder} initially an empty {@link FrameLayout}, serves as a
+     * re-usable container for a {@link Fragment} in later stages.
+     * <li>{@link RecyclerView.Adapter#onBindViewHolder} we ask for a {@link Fragment} for the
+     * position. If we already have the fragment, or have previously saved its state, we use those.
+     * <li>{@link RecyclerView.Adapter#onAttachedToWindow} we attach the {@link Fragment} to a
+     * container.
+     * <li>{@link RecyclerView.Adapter#onViewRecycled} and
+     * {@link RecyclerView.Adapter#onFailedToRecycleView} we remove, save state, destroy the
+     * {@link Fragment}.
+     * </ul>
+     */
+    private static class FragmentStateAdapter extends RecyclerView.Adapter<FragmentViewHolder> {
+        private final List<Fragment.SavedState> mSavedStates = new ArrayList<>();
+        // TODO: handle current item's menuVisibility userVisibleHint as FragmentStatePagerAdapter
+
         private final FragmentManager mFragmentManager;
         private final FragmentProvider mFragmentProvider;
 
-        private FragmentAdapter(FragmentManager fragmentManager,
+        private FragmentStateAdapter(FragmentManager fragmentManager,
                 FragmentProvider fragmentProvider) {
             this.mFragmentManager = fragmentManager;
             this.mFragmentProvider = fragmentProvider;
@@ -170,20 +189,35 @@ public class ViewPager2 extends ViewGroup {
 
         @Override
         public void onBindViewHolder(@NonNull FragmentViewHolder holder, int position) {
-            if (ViewCompat.isAttachedToWindow(holder.itemView)) {
+            if (ViewCompat.isAttachedToWindow(holder.getContainer())) {
                 // this should never happen; if it does, it breaks our assumption that attaching
                 // a Fragment can reliably happen inside onViewAttachedToWindow
                 throw new IllegalStateException(
                         String.format("View %s unexpectedly attached to a window.",
-                                holder.itemView));
+                                holder.getContainer()));
             }
 
-            holder.setFragment(mFragmentProvider.getItem(position));
+            holder.mFragment = getFragment(position);
+        }
+
+        private Fragment getFragment(int position) {
+            Fragment fragment = mFragmentProvider.getItem(position);
+            if (mSavedStates.size() > position) {
+                Fragment.SavedState savedState = mSavedStates.get(position);
+                if (savedState != null) {
+                    fragment.setInitialSavedState(savedState);
+                }
+            }
+            return fragment;
         }
 
         @Override
         public void onViewAttachedToWindow(@NonNull FragmentViewHolder holder) {
-            holder.applyFragment(mFragmentManager);
+            if (holder.mFragment.isAdded()) {
+                return;
+            }
+            mFragmentManager.beginTransaction().add(holder.getContainer().getId(),
+                    holder.mFragment).commitNowAllowingStateLoss();
         }
 
         @Override
@@ -193,7 +227,7 @@ public class ViewPager2 extends ViewGroup {
 
         @Override
         public void onViewRecycled(@NonNull FragmentViewHolder holder) {
-            holder.removeFragment(mFragmentManager);
+            removeFragment(holder);
         }
 
         @Override
@@ -202,17 +236,36 @@ public class ViewPager2 extends ViewGroup {
             // animation). We don't have sufficient information on how to clear up what lead to
             // the transient state, so we are throwing away the ViewHolder to stay on the
             // conservative side.
-
-            holder.removeFragment(mFragmentManager);
+            removeFragment(holder);
             return false; // don't recycle the view
+        }
+
+        private void removeFragment(@NonNull FragmentViewHolder holder) {
+            if (holder.mFragment == null) {
+                return; // fresh ViewHolder, nothing to do
+            }
+
+            int position = holder.getAdapterPosition();
+
+            if (holder.mFragment.isAdded()) {
+                while (mSavedStates.size() <= position) {
+                    mSavedStates.add(null);
+                }
+                mSavedStates.set(position,
+                        mFragmentManager.saveFragmentInstanceState(holder.mFragment));
+            }
+
+            mFragmentManager.beginTransaction().remove(
+                    holder.mFragment).commitNowAllowingStateLoss();
+            holder.mFragment = null;
         }
     }
 
     private static class FragmentViewHolder extends RecyclerView.ViewHolder {
         private Fragment mFragment;
 
-        FragmentViewHolder(View itemView) {
-            super(itemView);
+        private FragmentViewHolder(FrameLayout container) {
+            super(container);
         }
 
         static FragmentViewHolder create(ViewGroup parent) {
@@ -224,20 +277,8 @@ public class ViewPager2 extends ViewGroup {
             return new FragmentViewHolder(container);
         }
 
-        void setFragment(Fragment fragment) {
-            mFragment = fragment;
-        }
-
-        /**
-         * Inserts a Fragment into the container (replacing an existing one if present).
-         */
-        void applyFragment(FragmentManager fragmentManager) {
-            fragmentManager.beginTransaction().replace(itemView.getId(),
-                    mFragment).commitNowAllowingStateLoss();
-        }
-
-        void removeFragment(FragmentManager fragmentManager) {
-            fragmentManager.beginTransaction().remove(mFragment).commitNowAllowingStateLoss();
+        FrameLayout getContainer() {
+            return (FrameLayout) itemView;
         }
     }
 
@@ -257,14 +298,10 @@ public class ViewPager2 extends ViewGroup {
     }
 
     @Retention(CLASS)
-    @IntDef({FragmentRetentionPolicy.ALWAYS_RECREATE})
+    @IntDef({FragmentRetentionPolicy.SAVE_STATE})
     public @interface FragmentRetentionPolicy {
-        /**
-         * Most CPU intensive, least memory intensive. Not sure if we will ship this one, but it's a
-         * reasonable intermediate step in the implementation.
-         */
-        int ALWAYS_RECREATE = 0;
-        // TODO: implement Fragment reuse similar to current ViewPager Fragment adapters
+        /** Approach similar to {@link FragmentStatePagerAdapter} */
+        int SAVE_STATE = 0;
     }
 
     @Override
