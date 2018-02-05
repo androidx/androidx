@@ -3196,15 +3196,25 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             defaultOnMeasure(widthSpec, heightSpec);
             return;
         }
-        if (mLayout.mAutoMeasure) {
+        if (mLayout.isAutoMeasureEnabled()) {
             final int widthMode = MeasureSpec.getMode(widthSpec);
             final int heightMode = MeasureSpec.getMode(heightSpec);
-            final boolean skipMeasure = widthMode == MeasureSpec.EXACTLY
-                    && heightMode == MeasureSpec.EXACTLY;
+
+            /**
+             * This specific call should be considered deprecated and replaced with
+             * {@link #defaultOnMeasure(int, int)}. It can't actually be replaced as it could
+             * break existing third party code but all documentation directs developers to not
+             * override {@link LayoutManager#onMeasure(int, int)} when
+             * {@link LayoutManager#isAutoMeasureEnabled()} returns true.
+             */
             mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
-            if (skipMeasure || mAdapter == null) {
+
+            final boolean measureSpecModeIsExactly =
+                    widthMode == MeasureSpec.EXACTLY && heightMode == MeasureSpec.EXACTLY;
+            if (measureSpecModeIsExactly || mAdapter == null) {
                 return;
             }
+
             if (mState.mLayoutStep == State.STEP_START) {
                 dispatchLayoutStep1();
             }
@@ -7288,6 +7298,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         boolean mIsAttachedToWindow = false;
 
+        /**
+         * This field is only set via the deprecated {@link #setAutoMeasureEnabled(boolean)} and is
+         * only accessed via {@link #isAutoMeasureEnabled()} for backwards compatability reasons.
+         */
         boolean mAutoMeasure = false;
 
         /**
@@ -7426,21 +7440,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         /**
          * Sets the measured dimensions from the given bounding box of the children and the
          * measurement specs that were passed into {@link RecyclerView#onMeasure(int, int)}. It is
-         * called after the RecyclerView calls
-         * {@link LayoutManager#onLayoutChildren(Recycler, State)} during a measurement pass.
+         * only called if a LayoutManager returns <code>true</code> from
+         * {@link #isAutoMeasureEnabled()} and it is called after the RecyclerView calls
+         * {@link LayoutManager#onLayoutChildren(Recycler, State)} in the execution of
+         * {@link RecyclerView#onMeasure(int, int)}.
          * <p>
-         * This method should call {@link #setMeasuredDimension(int, int)}.
+         * This method must call {@link #setMeasuredDimension(int, int)}.
          * <p>
          * The default implementation adds the RecyclerView's padding to the given bounding box
          * then caps the value to be within the given measurement specs.
-         * <p>
-         * This method is only called if the LayoutManager opted into the auto measurement API.
          *
          * @param childrenBounds The bounding box of all children
          * @param wSpec The widthMeasureSpec that was passed into the RecyclerView.
          * @param hSpec The heightMeasureSpec that was passed into the RecyclerView.
          *
-         * @see #setAutoMeasureEnabled(boolean)
+         * @see #isAutoMeasureEnabled()
+         * @see #setMeasuredDimension(int, int)
          */
         public void setMeasuredDimension(Rect childrenBounds, int wSpec, int hSpec) {
             int usedWidth = childrenBounds.width() + getPaddingLeft() + getPaddingRight();
@@ -7510,32 +7525,55 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * Defines whether the layout should be measured by the RecyclerView or the LayoutManager
-         * wants to handle the layout measurements itself.
+         * Defines whether the measuring pass of layout should use the AutoMeasure mechanism of
+         * {@link RecyclerView} or if it should be done by the LayoutManager's implementation of
+         * {@link LayoutManager#onMeasure(Recycler, State, int, int)}.
+         *
+         * @param enabled <code>True</code> if layout measurement should be done by the
+         *                RecyclerView, <code>false</code> if it should be done by this
+         *                LayoutManager.
+         *
+         * @see #isAutoMeasureEnabled()
+         *
+         * @deprecated Implementors of LayoutManager should define whether or not it uses
+         *             AutoMeasure by overriding {@link #isAutoMeasureEnabled()}.
+         */
+        @Deprecated
+        public void setAutoMeasureEnabled(boolean enabled) {
+            mAutoMeasure = enabled;
+        }
+
+        /**
+         * Returns whether the measuring pass of layout should use the AutoMeasure mechanism of
+         * {@link RecyclerView} or if it should be done by the LayoutManager's implementation of
+         * {@link LayoutManager#onMeasure(Recycler, State, int, int)}.
          * <p>
-         * This method is usually called by the LayoutManager with value {@code true} if it wants
-         * to support {@link ViewGroup.LayoutParams#WRAP_CONTENT}. If you are using a public
-         * LayoutManager but want to customize the measurement logic, you can call this method with
-         * {@code false} and override {@link LayoutManager#onMeasure(Recycler, State, int, int)} to
-         * implement your custom measurement logic.
+         * This method returns false by default (it actually returns the value passed to the
+         * deprecated {@link #setAutoMeasureEnabled(boolean)}) and should be overridden to return
+         * true if a LayoutManager wants to be auto measured by the RecyclerView.
          * <p>
-         * AutoMeasure is a convenience mechanism for LayoutManagers to easily wrap their content or
-         * handle various specs provided by the RecyclerView's parent.
-         * It works by calling {@link LayoutManager#onLayoutChildren(Recycler, State)} during an
-         * {@link RecyclerView#onMeasure(int, int)} call, then calculating desired dimensions based
-         * on children's positions. It does this while supporting all existing animation
-         * capabilities of the RecyclerView.
+         * If this method is overridden to return true,
+         * {@link LayoutManager#onMeasure(Recycler, State, int, int)} should not be overridden.
          * <p>
-         * AutoMeasure works as follows:
+         * AutoMeasure is a RecyclerView mechanism that handles the measuring pass of layout in a
+         * simple and contract satisfying way, including the wrapping of children laid out by
+         * LayoutManager. Simply put, it handles wrapping children by calling
+         * {@link LayoutManager#onLayoutChildren(Recycler, State)} during a call to
+         * {@link RecyclerView#onMeasure(int, int)}, and then calculating desired dimensions based
+         * on children's dimensions and positions. It does this while supporting all existing
+         * animation capabilities of the RecyclerView.
+         * <p>
+         * More specifically:
          * <ol>
-         * <li>LayoutManager should call {@code setAutoMeasureEnabled(true)} to enable it. All of
-         * the framework LayoutManagers use {@code auto-measure}.</li>
-         * <li>When {@link RecyclerView#onMeasure(int, int)} is called, if the provided specs are
-         * exact, RecyclerView will only call LayoutManager's {@code onMeasure} and return without
-         * doing any layout calculation.</li>
+         * <li>When {@link RecyclerView#onMeasure(int, int)} is called, if the provided measure
+         * specs both have a mode of {@link View.MeasureSpec#EXACTLY}, RecyclerView will set its
+         * measured dimensions accordingly and return, allowing layout to continue as normal
+         * (Actually, RecyclerView will call
+         * {@link LayoutManager#onMeasure(Recycler, State, int, int)} for backwards compatibility
+         * reasons but it should not be overridden if AutoMeasure is being used).</li>
          * <li>If one of the layout specs is not {@code EXACT}, the RecyclerView will start the
-         * layout process in {@code onMeasure} call. It will process all pending Adapter updates and
-         * decide whether to run a predictive layout or not. If it decides to do so, it will first
+         * layout process. It will first process all pending Adapter updates and
+         * then decide whether to run a predictive layout. If it decides to do so, it will first
          * call {@link #onLayoutChildren(Recycler, State)} with {@link State#isPreLayout()} set to
          * {@code true}. At this stage, {@link #getWidth()} and {@link #getHeight()} will still
          * return the width and height of the RecyclerView as of the last layout calculation.
@@ -7551,13 +7589,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * different values. For instance, GridLayoutManager overrides this value to handle the case
          * where if it is vertical and has 3 columns but only 2 items, it should still measure its
          * width to fit 3 items, not 2.</li>
-         * <li>Any following on measure call to the RecyclerView will run
+         * <li>Any following calls to {@link RecyclerView#onMeasure(int, int)} will run
          * {@link #onLayoutChildren(Recycler, State)} with {@link State#isMeasuring()} set to
          * {@code true} and {@link State#isPreLayout()} set to {@code false}. RecyclerView will
          * take care of which views are actually added / removed / moved / changed for animations so
          * that the LayoutManager should not worry about them and handle each
-         * {@link #onLayoutChildren(Recycler, State)} call as if it is the last one.
-         * </li>
+         * {@link #onLayoutChildren(Recycler, State)} call as if it is the last one.</li>
          * <li>When measure is complete and RecyclerView's
          * {@link #onLayout(boolean, int, int, int, int)} method is called, RecyclerView checks
          * whether it already did layout calculations during the measure pass and if so, it re-uses
@@ -7567,24 +7604,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * <li>Finally, animations are calculated and run as usual.</li>
          * </ol>
          *
-         * @param enabled <code>True</code> if the Layout should be measured by the
-         *                             RecyclerView, <code>false</code> if the LayoutManager wants
-         *                             to measure itself.
+         * @return <code>True</code> if the measuring pass of layout should use the AutoMeasure
+         * mechanism of {@link RecyclerView} or <code>False</code> if it should be done by the
+         * LayoutManager's implementation of
+         * {@link LayoutManager#onMeasure(Recycler, State, int, int)}.
          *
          * @see #setMeasuredDimension(Rect, int, int)
-         * @see #isAutoMeasureEnabled()
-         */
-        public void setAutoMeasureEnabled(boolean enabled) {
-            mAutoMeasure = enabled;
-        }
-
-        /**
-         * Returns whether the LayoutManager uses the automatic measurement API or not.
-         *
-         * @return <code>True</code> if the LayoutManager is measured by the RecyclerView or
-         * <code>false</code> if it measures itself.
-         *
-         * @see #setAutoMeasureEnabled(boolean)
+         * @see #onMeasure(Recycler, State, int, int)
          */
         public boolean isAutoMeasureEnabled() {
             return mAutoMeasure;
@@ -8527,43 +8553,47 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * Return the width measurement spec mode of the RecyclerView.
-         * <p>
-         * This value is set only if the LayoutManager opts into the auto measure api via
+         * Return the width measurement spec mode that is currently relevant to the LayoutManager.
+         *
+         * <p>This value is set only if the LayoutManager opts into the AutoMeasure api via
          * {@link #setAutoMeasureEnabled(boolean)}.
-         * <p>
-         * When RecyclerView is running a layout, this value is always set to
+         *
+         * <p>When RecyclerView is running a layout, this value is always set to
          * {@link View.MeasureSpec#EXACTLY} even if it was measured with a different spec mode.
          *
-         * @return Width measure spec mode.
+         * @return Width measure spec mode
          *
          * @see View.MeasureSpec#getMode(int)
-         * @see View#onMeasure(int, int)
          */
         public int getWidthMode() {
             return mWidthMode;
         }
 
         /**
-         * Return the height measurement spec mode of the RecyclerView.
-         * <p>
-         * This value is set only if the LayoutManager opts into the auto measure api via
+         * Return the height measurement spec mode that is currently relevant to the LayoutManager.
+         *
+         * <p>This value is set only if the LayoutManager opts into the AutoMeasure api via
          * {@link #setAutoMeasureEnabled(boolean)}.
-         * <p>
-         * When RecyclerView is running a layout, this value is always set to
+         *
+         * <p>When RecyclerView is running a layout, this value is always set to
          * {@link View.MeasureSpec#EXACTLY} even if it was measured with a different spec mode.
          *
-         * @return Height measure spec mode.
+         * @return Height measure spec mode
          *
          * @see View.MeasureSpec#getMode(int)
-         * @see View#onMeasure(int, int)
          */
         public int getHeightMode() {
             return mHeightMode;
         }
 
         /**
-         * Return the width of the parent RecyclerView
+         * Returns the width that is currently relevant to the LayoutManager.
+         *
+         * <p>This value is usually equal to the laid out width of the {@link RecyclerView} but may
+         * reflect the current {@link android.view.View.MeasureSpec} width if the
+         * {@link LayoutManager} is using AutoMeasure and the RecyclerView is in the process of
+         * measuring. The LayoutManager must always use this method to retrieve the width relevant
+         * to it at any given time.
          *
          * @return Width in pixels
          */
@@ -8572,7 +8602,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * Return the height of the parent RecyclerView
+         * Returns the height that is currently relevant to the LayoutManager.
+         *
+         * <p>This value is usually equal to the laid out height of the {@link RecyclerView} but may
+         * reflect the current {@link android.view.View.MeasureSpec} height if the
+         * {@link LayoutManager} is using AutoMeasure and the RecyclerView is in the process of
+         * measuring. The LayoutManager must always use this method to retrieve the height relevant
+         * to it at any given time.
          *
          * @return Height in pixels
          */
@@ -9802,16 +9838,25 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         /**
          * Measure the attached RecyclerView. Implementations must call
          * {@link #setMeasuredDimension(int, int)} before returning.
-         *
-         * <p>The default implementation will handle EXACTLY measurements and respect
+         * <p>
+         * It is strongly advised to use the AutoMeasure mechanism by overriding
+         * {@link #isAutoMeasureEnabled()} to return true as AutoMeasure handles all the standard
+         * measure cases including when the RecyclerView's layout_width or layout_height have been
+         * set to wrap_content.  If {@link #isAutoMeasureEnabled()} is overridden to return true,
+         * this method should not be overridden.
+         * <p>
+         * The default implementation will handle EXACTLY measurements and respect
          * the minimum width and height properties of the host RecyclerView if measured
          * as UNSPECIFIED. AT_MOST measurements will be treated as EXACTLY and the RecyclerView
-         * will consume all available space.</p>
+         * will consume all available space.
          *
          * @param recycler Recycler
          * @param state Transient state of RecyclerView
          * @param widthSpec Width {@link android.view.View.MeasureSpec}
          * @param heightSpec Height {@link android.view.View.MeasureSpec}
+         *
+         * @see #isAutoMeasureEnabled()
+         * @see #setMeasuredDimension(int, int)
          */
         public void onMeasure(Recycler recycler, State state, int widthSpec, int heightSpec) {
             mRecyclerView.defaultOnMeasure(widthSpec, heightSpec);
