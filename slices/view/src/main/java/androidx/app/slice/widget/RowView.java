@@ -24,6 +24,7 @@ import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
+
 import static androidx.app.slice.core.SliceHints.EXTRA_RANGE_VALUE;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_MAX;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_VALUE;
@@ -241,6 +242,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         } else {
             // If the only end item is an action, make the whole row clickable.
             if (mRowContent.endItemsContainAction() && itemCount == 1) {
+                if (!SUBTYPE_TOGGLE.equals(endItems.get(0).getSubType())) {
+                    mRowAction = endItems.get(0);
+                }
                 setViewClickable(this, true);
             }
         }

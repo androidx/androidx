@@ -25,6 +25,7 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
+
 import static androidx.app.slice.core.SliceHints.SUBTYPE_RANGE;
 
 import android.support.annotation.Nullable;
@@ -135,6 +136,7 @@ public class RowContent {
                 } else if (desiredFormat == null) {
                     desiredFormat = item.getFormat();
                     mEndItems.add(item);
+                    mEndItemsContainAction |= FORMAT_ACTION.equals(item.getFormat());
                 } else if (desiredFormat.equals(item.getFormat())) {
                     mEndItems.add(item);
                     mEndItemsContainAction |= FORMAT_ACTION.equals(item.getFormat());
