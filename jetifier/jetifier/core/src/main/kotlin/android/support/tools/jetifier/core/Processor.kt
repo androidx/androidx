@@ -94,7 +94,17 @@ class Processor private constructor (private val context: TransformationContext)
      * - [XmlResourcesTransformer] for java native code
      * - [ProGuardTransformer] for PorGuard files
      */
-    fun transform(inputLibraries: Set<File>, outputPath: Path): TransformationResult {
+    fun transform(inputLibraries: Set<File>,
+            outputPath: Path,
+            outputIsDir: Boolean
+    ): TransformationResult {
+        // 0) Validate arguments
+        if (!outputIsDir && inputLibraries.size > 1) {
+            throw IllegalArgumentException("Cannot process more than 1 library (" + inputLibraries +
+                    ") when it is requested tha the destination (" + outputPath +
+                    ") be made a file")
+        }
+
         // 1) Extract and load all libraries
         val libraries = loadLibraries(inputLibraries)
 
@@ -116,7 +126,13 @@ class Processor private constructor (private val context: TransformationContext)
         transformPomFiles(pomFiles)
 
         // 5) Repackage the libraries back to archives
-        val outputLibraries = libraries.map { it.writeSelfToDir(outputPath) }.toSet()
+        val outputLibraries = libraries.map {
+            if (outputIsDir) {
+                it.writeSelfToDir(outputPath)
+            } else {
+                it.writeSelfToFile(outputPath)
+            }
+        }.toSet()
 
         // TODO: Filter out only the libraries that have been really changed
         return TransformationResult(

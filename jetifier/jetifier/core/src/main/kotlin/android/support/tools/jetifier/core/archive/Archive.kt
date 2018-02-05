@@ -53,16 +53,21 @@ class Archive(
     }
 
     @Throws(IOException::class)
-    fun writeSelfToDir(outputDirPath: Path) : File {
+    fun writeSelfToDir(outputDirPath: Path): File {
         val outputPath = Paths.get(outputDirPath.toString(), fileName)
 
+        return writeSelfToFile(outputPath)
+    }
+
+    @Throws(IOException::class)
+    fun writeSelfToFile(outputPath: Path): File {
         if (Files.exists(outputPath)) {
             Log.i(TAG, "Deleting old output file")
             Files.delete(outputPath)
         }
 
         // Create directories if they don't exist yet
-        Files.createDirectories(outputDirPath)
+        Files.createDirectories(outputPath.parent)
 
         Log.i(TAG, "Writing archive: %s", outputPath.toUri())
         val file = outputPath.toFile()
@@ -88,7 +93,6 @@ class Archive(
         out.finish()
     }
 
-
     object Builder {
 
         @Throws(IOException::class)
@@ -102,8 +106,7 @@ class Archive(
         }
 
         @Throws(IOException::class)
-        private fun extractArchive(inputStream: InputStream, relativePath: Path)
-                : Archive {
+        private fun extractArchive(inputStream: InputStream, relativePath: Path): Archive {
             val zipIn = ZipInputStream(inputStream)
             val files = mutableListOf<ArchiveItem>()
 
@@ -136,9 +139,8 @@ class Archive(
             return ArchiveFile(relativePath, data)
         }
 
-        private fun isArchive(zipEntry: ZipEntry) : Boolean {
+        private fun isArchive(zipEntry: ZipEntry): Boolean {
             return ARCHIVE_EXTENSIONS.any { zipEntry.name.endsWith(it, ignoreCase = true) }
         }
-
     }
 }
