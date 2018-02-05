@@ -20,7 +20,6 @@ import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
 import android.arch.navigation.safe.args.generator.models.Id
-import android.arch.navigation.safe.args.generator.models.Type
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.File
@@ -34,6 +33,7 @@ private const val ATTRIBUTE_ID = "id"
 private const val ATTRIBUTE_DESTINATION = "destination"
 private const val ATTRIBUTE_DEFAULT_VALUE = "defaultValue"
 private const val ATTRIBUTE_NAME = "name"
+private const val ATTRIBUTE_TYPE = "type"
 
 private const val NAMESPACE_RES_AUTO = "http://schemas.android.com/apk/res-auto"
 private const val NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/android"
@@ -60,7 +60,10 @@ private fun parseDestination(parser: XmlPullParser, defaultPackageName: String):
 private fun parseArgument(parser: XmlPullParser): Argument {
     val name = parser.attrValueOrThrow(NAMESPACE_ANDROID, ATTRIBUTE_NAME)
     val defaultValue = parser.attrValue(NAMESPACE_ANDROID, ATTRIBUTE_DEFAULT_VALUE)
-    return Argument(name, Type.STRING, defaultValue)
+    val typeString = parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_TYPE)
+    val type = typeString?.let { NavType.parse(typeString) } ?: StringType
+    defaultValue?.let { type.verify(defaultValue) }
+    return Argument(name, type, defaultValue)
 }
 
 private fun parseAction(parser: XmlPullParser, defaultPackageName: String): Action {

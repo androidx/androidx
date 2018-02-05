@@ -23,11 +23,14 @@ import java.lang.String;
 
 public static class Next implements NavDirections {
     private final String main;
+    private final int mainInt;
 
-    private String optional;
+    private String optional = "bla";
+    private int optionalInt = 239;
 
-    public Next(String main) {
+    public Next(String main, int mainInt) {
         this.main = main;
+        this.mainInt = mainInt;
     }
 
     public Next setOptional(String optional) {
@@ -35,10 +38,17 @@ public static class Next implements NavDirections {
         return this;
     }
 
+    public Next setOptionalInt(int optionalInt) {
+        this.optionalInt = optionalInt;
+        return this;
+    }
+
     public Bundle getArguments() {
         Bundle __outBundle = new Bundle();
         __outBundle.putString("main", main);
+        __outBundle.putInt("mainInt", mainInt);
         __outBundle.putString("optional", optional);
+        __outBundle.putInt("optionalInt", optionalInt);
         return __outBundle;
     }
 

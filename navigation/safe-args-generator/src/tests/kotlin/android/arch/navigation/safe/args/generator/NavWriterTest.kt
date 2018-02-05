@@ -20,7 +20,6 @@ import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
 import android.arch.navigation.safe.args.generator.models.Id
-import android.arch.navigation.safe.args.generator.models.Type
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubject
 import com.squareup.javapoet.JavaFile
@@ -56,8 +55,10 @@ class WriterTest {
         val destination = workingDir.newFolder()
         val actionSpec = generateDirectionsTypeSpec(Action(id("next"), id("destA"),
                 listOf(
-                        Argument("main", Type.STRING),
-                        Argument("optional", Type.STRING, "bla"))))
+                        Argument("main", StringType),
+                        Argument("mainInt", IntegerType),
+                        Argument("optional", StringType, "bla"),
+                        Argument("optionalInt", IntegerType, "239"))))
         JavaFile.builder("a.b", actionSpec).build().writeTo(destination)
         val expected = load("a.b.Next", "expected")
         val generated = File(destination, "/a/b/Next.java")
@@ -84,13 +85,13 @@ class WriterTest {
 
         val nextAction = Action(id("next"), id("destA"),
                 listOf(
-                        Argument("main", Type.STRING),
-                        Argument("optional", Type.STRING, "bla")))
+                        Argument("main", StringType),
+                        Argument("optional", StringType, "bla")))
 
         val prevAction = Action(id("previous"), id("destB"),
                 listOf(
-                        Argument("arg1", Type.STRING),
-                        Argument("arg2", Type.STRING)))
+                        Argument("arg1", StringType),
+                        Argument("arg2", StringType)))
 
         val dest = Destination(null, "fragment", "a.b.MainFragment", listOf(),
                 listOf(prevAction, nextAction))

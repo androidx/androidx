@@ -22,8 +22,9 @@
               android:name="android.arch.navigation.testapp.MainFragment">
         <argument android:name="myarg1" android:defaultValue="one" />
         <action android:id="@+id/next" app:destination="@+id/next_fragment">
-            <argument android:name="myarg2"/>
+            <argument android:name="myarg2" app:type="string"/>
             <argument android:name="randomArgument"/>
+            <argument android:name="intArgument" app:type="integer" android:defaultValue="261"/>
         </action>
     </fragment>
     <fragment android:id="@+id/next_fragment"
