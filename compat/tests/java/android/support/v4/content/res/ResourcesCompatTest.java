@@ -152,6 +152,17 @@ public class ResourcesCompatTest {
         }
     }
 
+    @Test(expected = Resources.NotFoundException.class)
+    public void testGetDrawableCannotDecode() {
+        ResourcesCompat.getDrawable(mResources, R.drawable.fake_image_will_not_decode, null);
+    }
+
+    @Test(expected = Resources.NotFoundException.class)
+    public void testGetDrawableForDensityCannotDecode() {
+        ResourcesCompat.getDrawableForDensity(mResources, R.drawable.fake_image_will_not_decode,
+                DisplayMetrics.DENSITY_MEDIUM, null);
+    }
+
     @Test
     public void testGetDrawableForDensityUnthemed() throws Throwable {
         // Density-aware drawable loading for now only works on raw bitmap drawables.
