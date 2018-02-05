@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.impl.constraints.controllers;
 
-import static android.arch.background.workmanager.Constraints.NETWORK_CONNECTED;
+import static android.arch.background.workmanager.NetworkType.CONNECTED;
 
 import android.arch.background.workmanager.impl.constraints.NetworkState;
 import android.arch.background.workmanager.impl.constraints.trackers.Trackers;
@@ -41,7 +41,7 @@ public class NetworkConnectedController extends ConstraintController<NetworkStat
 
     @Override
     boolean hasConstraint(@NonNull WorkSpec workSpec) {
-        return workSpec.getConstraints().getRequiredNetworkType() == NETWORK_CONNECTED;
+        return workSpec.getConstraints().getRequiredNetworkType() == CONNECTED;
     }
 
     @Override

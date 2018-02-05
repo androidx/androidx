@@ -16,6 +16,7 @@
 
 package android.arch.background.workmanager.impl.background.firebase;
 
+import android.arch.background.workmanager.BackoffPolicy;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.ContentUriTriggers;
@@ -97,7 +98,7 @@ class FirebaseJobConverter {
     }
 
     private RetryStrategy createRetryStrategy(WorkSpec workSpec) {
-        int policy = workSpec.getBackoffPolicy() == BaseWork.BackoffPolicy.LINEAR
+        int policy = workSpec.getBackoffPolicy() == BackoffPolicy.LINEAR
                 ? RetryStrategy.RETRY_POLICY_LINEAR : RetryStrategy.RETRY_POLICY_EXPONENTIAL;
         int initialBackoff = (int) TimeUnit.SECONDS
                 .convert(workSpec.getBackoffDelayDuration(), TimeUnit.MILLISECONDS);
@@ -137,22 +138,34 @@ class FirebaseJobConverter {
         }
 
         switch (constraints.getRequiredNetworkType()) {
-            case Constraints.NETWORK_METERED:
-                Logger.warn(TAG, "Metered Network is not a supported constraint with "
-                        + "FirebaseJobDispatcher. Falling back to Any Network constraint.");
+            case NOT_REQUIRED: {
+                // Don't add a constraint.
+                break;
+            }
+
+            case CONNECTED: {
                 mConstraints.add(Constraint.ON_ANY_NETWORK);
                 break;
-            case Constraints.NETWORK_NOT_ROAMING:
+            }
+
+            case UNMETERED: {
+                mConstraints.add(Constraint.ON_UNMETERED_NETWORK);
+                break;
+            }
+
+            case NOT_ROAMING: {
                 Logger.warn(TAG, "Not Roaming Network is not a supported constraint with "
                         + "FirebaseJobDispatcher. Falling back to Any Network constraint.");
                 mConstraints.add(Constraint.ON_ANY_NETWORK);
                 break;
-            case Constraints.NETWORK_CONNECTED:
+            }
+
+            case METERED: {
+                Logger.warn(TAG, "Metered Network is not a supported constraint with "
+                        + "FirebaseJobDispatcher. Falling back to Any Network constraint.");
                 mConstraints.add(Constraint.ON_ANY_NETWORK);
                 break;
-            case Constraints.NETWORK_UNMETERED:
-                mConstraints.add(Constraint.ON_UNMETERED_NETWORK);
-                break;
+            }
         }
 
         return toIntArray(mConstraints);

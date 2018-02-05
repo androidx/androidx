@@ -19,7 +19,7 @@ package android.arch.background.workmanager.impl.model;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.background.workmanager.Arguments;
-import android.arch.background.workmanager.BaseWork;
+import android.arch.background.workmanager.WorkStatus;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
@@ -90,7 +90,7 @@ public interface WorkSpecDao {
      * @return The number of rows that were updated
      */
     @Query("UPDATE workspec SET status=:status WHERE id IN (:ids)")
-    int setStatus(BaseWork.WorkStatus status, String... ids);
+    int setStatus(WorkStatus status, String... ids);
 
     /**
      * Updates the output of a {@link WorkSpec}.
@@ -135,11 +135,11 @@ public interface WorkSpecDao {
      * @return The status of the {@link WorkSpec}
      */
     @Query("SELECT status FROM workspec WHERE id=:id")
-    BaseWork.WorkStatus getWorkSpecStatus(String id);
+    WorkStatus getWorkSpecStatus(String id);
 
     /**
      * For a list of {@link WorkSpec} identifiers, retrieves a {@link LiveData} list of their ids
-     * and corresponding {@link android.arch.background.workmanager.BaseWork.WorkStatus}.
+     * and corresponding {@link WorkStatus}.
      *
      * @param ids The identifiers of the {@link WorkSpec}s
      * @return A {@link LiveData} list of {@link WorkSpec.IdAndStatus} with each identifier and its
@@ -152,10 +152,10 @@ public interface WorkSpecDao {
      * Retrieves a {@link LiveData} status of a {@link WorkSpec}
      *
      * @param id The identifier for the {@link WorkSpec}
-     * @return The {@link LiveData} {@link BaseWork.WorkStatus} of the {@link WorkSpec}
+     * @return The {@link LiveData} {@link WorkStatus} of the {@link WorkSpec}
      */
     @Query("SELECT status FROM workspec WHERE id=:id")
-    LiveData<BaseWork.WorkStatus> getWorkSpecLiveDataStatus(String id);
+    LiveData<WorkStatus> getWorkSpecLiveDataStatus(String id);
 
     /**
      * Retrieves {@link WorkSpec}s that have status {@code ENQUEUED} or

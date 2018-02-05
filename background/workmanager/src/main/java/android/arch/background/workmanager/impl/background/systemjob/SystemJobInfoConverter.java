@@ -19,9 +19,10 @@ package android.arch.background.workmanager.impl.background.systemjob;
 import static android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 
 import android.app.job.JobInfo;
-import android.arch.background.workmanager.BaseWork;
+import android.arch.background.workmanager.BackoffPolicy;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.ContentUriTriggers;
+import android.arch.background.workmanager.NetworkType;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.IdGenerator;
@@ -86,7 +87,7 @@ class SystemJobInfoConverter {
 
         if (!constraints.requiresDeviceIdle()) {
             // Device Idle and Backoff Criteria cannot be set together
-            int backoffPolicy = workSpec.getBackoffPolicy() == BaseWork.BackoffPolicy.LINEAR
+            int backoffPolicy = workSpec.getBackoffPolicy() == BackoffPolicy.LINEAR
                     ? JobInfo.BACKOFF_POLICY_LINEAR : JobInfo.BACKOFF_POLICY_EXPONENTIAL;
             builder.setBackoffCriteria(workSpec.getBackoffDelayDuration(), backoffPolicy);
         }
@@ -125,25 +126,25 @@ class SystemJobInfoConverter {
     }
 
     /**
-     * Converts {@link Constraints.NetworkType} into {@link JobInfo}'s network values.
+     * Converts {@link NetworkType} into {@link JobInfo}'s network values.
      *
-     * @param networkType The {@link Constraints.NetworkType} network type
+     * @param networkType The {@link NetworkType} network type
      * @return The {@link JobInfo} network type
      */
-    static int convertNetworkType(@Constraints.NetworkType int networkType) {
+    static int convertNetworkType(NetworkType networkType) {
         switch(networkType) {
-            case Constraints.NETWORK_NOT_REQUIRED:
+            case NOT_REQUIRED:
                 return JobInfo.NETWORK_TYPE_NONE;
-            case Constraints.NETWORK_CONNECTED:
+            case CONNECTED:
                 return JobInfo.NETWORK_TYPE_ANY;
-            case Constraints.NETWORK_UNMETERED:
+            case UNMETERED:
                 return JobInfo.NETWORK_TYPE_UNMETERED;
-            case Constraints.NETWORK_NOT_ROAMING:
+            case NOT_ROAMING:
                 if (Build.VERSION.SDK_INT >= 24) {
                     return JobInfo.NETWORK_TYPE_NOT_ROAMING;
                 }
                 break;
-            case Constraints.NETWORK_METERED:
+            case METERED:
                 if (Build.VERSION.SDK_INT >= 26) {
                     return JobInfo.NETWORK_TYPE_METERED;
                 }

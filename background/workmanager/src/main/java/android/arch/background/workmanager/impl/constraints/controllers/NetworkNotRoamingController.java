@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.impl.constraints.controllers;
 
-import static android.arch.background.workmanager.Constraints.NETWORK_NOT_ROAMING;
+import static android.arch.background.workmanager.NetworkType.NOT_ROAMING;
 
 import android.arch.background.workmanager.impl.constraints.NetworkState;
 import android.arch.background.workmanager.impl.constraints.trackers.Trackers;
@@ -39,7 +39,7 @@ public class NetworkNotRoamingController extends ConstraintController<NetworkSta
 
     @Override
     boolean hasConstraint(@NonNull WorkSpec workSpec) {
-        return workSpec.getConstraints().getRequiredNetworkType() == NETWORK_NOT_ROAMING;
+        return workSpec.getConstraints().getRequiredNetworkType() == NOT_ROAMING;
     }
 
     /**

@@ -16,8 +16,8 @@
 
 package android.arch.background.integration.testapp.sherlockholmes;
 
-import static android.arch.background.workmanager.BaseWork.WorkStatus.FAILED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
+import static android.arch.background.workmanager.WorkStatus.FAILED;
+import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
 
 import android.arch.background.integration.testapp.R;
 import android.arch.background.integration.testapp.db.TestDatabase;

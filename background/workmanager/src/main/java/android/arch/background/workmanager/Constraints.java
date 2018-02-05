@@ -16,35 +16,19 @@
 
 package android.arch.background.workmanager;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import android.arch.persistence.room.ColumnInfo;
 import android.net.Uri;
-import android.support.annotation.IntDef;
-
-import java.lang.annotation.Retention;
+import android.support.annotation.NonNull;
 
 /**
  * The constraints that can be applied to one {@link BaseWork}.
  */
 public class Constraints {
-    @Retention(SOURCE)
-    @IntDef({NETWORK_NOT_REQUIRED, NETWORK_CONNECTED, NETWORK_UNMETERED, NETWORK_NOT_ROAMING,
-            NETWORK_METERED})
-    public @interface NetworkType {
-    }
 
     public static final Constraints NONE = new Constraints.Builder().build();
 
-    public static final int NETWORK_NOT_REQUIRED = 0;
-    public static final int NETWORK_CONNECTED = 1;
-    public static final int NETWORK_UNMETERED = 2;
-    public static final int NETWORK_NOT_ROAMING = 3;
-    public static final int NETWORK_METERED = 4;
-
-    @NetworkType
     @ColumnInfo(name = "required_network_type")
-    int mRequiredNetworkType;
+    NetworkType mRequiredNetworkType;
 
     @ColumnInfo(name = "requires_charging")
     boolean mRequiresCharging;
@@ -73,11 +57,11 @@ public class Constraints {
         mContentUriTriggers = builder.mContentUriTriggers;
     }
 
-    public int getRequiredNetworkType() {
+    public @NonNull NetworkType getRequiredNetworkType() {
         return mRequiredNetworkType;
     }
 
-    public void setRequiredNetworkType(int requiredNetworkType) {
+    public void setRequiredNetworkType(@NonNull NetworkType requiredNetworkType) {
         mRequiredNetworkType = requiredNetworkType;
     }
 
@@ -160,7 +144,7 @@ public class Constraints {
 
     @Override
     public int hashCode() {
-        int result = mRequiredNetworkType;
+        int result = mRequiredNetworkType.hashCode();
         result = 31 * result + (mRequiresCharging ? 1 : 0);
         result = 31 * result + (mRequiresDeviceIdle ? 1 : 0);
         result = 31 * result + (mRequiresBatteryNotLow ? 1 : 0);
@@ -175,7 +159,7 @@ public class Constraints {
     public static class Builder {
         private boolean mRequiresCharging = false;
         private boolean mRequiresDeviceIdle = false;
-        private int mRequiredNetworkType = NETWORK_NOT_REQUIRED;
+        private NetworkType mRequiredNetworkType = NetworkType.NOT_REQUIRED;
         private boolean mRequiresBatteryNotLow = false;
         private boolean mRequiresStorageNotLow = false;
         private ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
@@ -205,12 +189,12 @@ public class Constraints {
 
         /**
          * Specify whether device should have a particular {@link NetworkType} for {@link BaseWork}
-         * to run. Default is {@value #NETWORK_NOT_REQUIRED}
+         * to run. Default is {@link NetworkType#NOT_REQUIRED}
          *
          * @param networkType type of network required
          * @return current builder
          */
-        public Builder setRequiredNetworkType(@NetworkType int networkType) {
+        public Builder setRequiredNetworkType(@NonNull NetworkType networkType) {
             this.mRequiredNetworkType = networkType;
             return this;
         }

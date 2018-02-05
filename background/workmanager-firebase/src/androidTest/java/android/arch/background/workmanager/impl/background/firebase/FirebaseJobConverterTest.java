@@ -16,12 +16,17 @@
 
 package android.arch.background.workmanager.impl.background.firebase;
 
+import static android.arch.background.workmanager.NetworkType.CONNECTED;
+import static android.arch.background.workmanager.NetworkType.METERED;
+import static android.arch.background.workmanager.NetworkType.NOT_ROAMING;
+import static android.arch.background.workmanager.NetworkType.UNMETERED;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 
-import android.arch.background.workmanager.BaseWork;
+import android.arch.background.workmanager.BackoffPolicy;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
@@ -85,7 +90,7 @@ public class FirebaseJobConverterTest extends WorkManagerTest {
         long givenBackoffDelayDuration = 50000L;
         WorkSpec workSpec = new WorkSpec("id");
         workSpec.setBackoffDelayDuration(givenBackoffDelayDuration);
-        workSpec.setBackoffPolicy(BaseWork.BackoffPolicy.LINEAR);
+        workSpec.setBackoffPolicy(BackoffPolicy.LINEAR);
         Job job = mConverter.convert(workSpec);
 
         int expectedBackoffDelayDuration = (int) TimeUnit.SECONDS
@@ -174,7 +179,7 @@ public class FirebaseJobConverterTest extends WorkManagerTest {
     public void testConvert_requiresNetworkAny() {
         WorkSpec workSpec = getWorkSpec(new Work.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(Constraints.NETWORK_CONNECTED)
+                        .setRequiredNetworkType(CONNECTED)
                         .build())
                 .build());
         Job job = mConverter.convert(workSpec);
@@ -186,7 +191,7 @@ public class FirebaseJobConverterTest extends WorkManagerTest {
     public void testConvert_requiresNetworkMetered_unsupported() {
         WorkSpec workSpec = getWorkSpec(new Work.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(Constraints.NETWORK_METERED)
+                        .setRequiredNetworkType(METERED)
                         .build())
                 .build());
         Job job = mConverter.convert(workSpec);
@@ -198,7 +203,7 @@ public class FirebaseJobConverterTest extends WorkManagerTest {
     public void testConvert_requiresNetworkNotRoaming_unsupported() {
         WorkSpec workSpec = getWorkSpec(new Work.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(Constraints.NETWORK_NOT_ROAMING)
+                        .setRequiredNetworkType(NOT_ROAMING)
                         .build())
                 .build());
         Job job = mConverter.convert(workSpec);
@@ -210,7 +215,7 @@ public class FirebaseJobConverterTest extends WorkManagerTest {
     public void testConvert_requiresNetworkUnmetered() {
         WorkSpec workSpec = getWorkSpec(new Work.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(Constraints.NETWORK_UNMETERED)
+                        .setRequiredNetworkType(UNMETERED)
                         .build())
                 .build());
         Job job = mConverter.convert(workSpec);

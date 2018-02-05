@@ -16,16 +16,18 @@
 
 package android.arch.background.workmanager.impl.model;
 
-import static android.arch.background.workmanager.BaseWork.BackoffPolicy.EXPONENTIAL;
-import static android.arch.background.workmanager.BaseWork.BackoffPolicy.LINEAR;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.BLOCKED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.CANCELLED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.FAILED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
+import static android.arch.background.workmanager.BackoffPolicy.EXPONENTIAL;
+import static android.arch.background.workmanager.BackoffPolicy.LINEAR;
+import static android.arch.background.workmanager.WorkStatus.BLOCKED;
+import static android.arch.background.workmanager.WorkStatus.CANCELLED;
+import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
+import static android.arch.background.workmanager.WorkStatus.FAILED;
+import static android.arch.background.workmanager.WorkStatus.RUNNING;
+import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
 
-import android.arch.background.workmanager.BaseWork;
+import android.arch.background.workmanager.BackoffPolicy;
+import android.arch.background.workmanager.NetworkType;
+import android.arch.background.workmanager.WorkStatus;
 import android.arch.persistence.room.TypeConverter;
 
 /**
@@ -35,7 +37,7 @@ import android.arch.persistence.room.TypeConverter;
 public class EnumTypeConverters {
 
     /**
-     * Integer identifiers that map to {@link BaseWork.WorkStatus}.
+     * Integer identifiers that map to {@link WorkStatus}.
      */
     public interface StatusIds {
         int ENQUEUED = 0;
@@ -47,11 +49,22 @@ public class EnumTypeConverters {
     }
 
     /**
-     * Integer identifiers that map to {@link BaseWork.BackoffPolicy}.
+     * Integer identifiers that map to {@link BackoffPolicy}.
      */
     public interface BackoffPolicyIds {
         int EXPONENTIAL = 0;
         int LINEAR = 1;
+    }
+
+    /**
+     * Integer identifiers that map to {@link NetworkType}.
+     */
+    public interface NetworkTypeIds {
+        int NOT_REQUIRED = 0;
+        int CONNECTED = 1;
+        int UNMETERED = 2;
+        int NOT_ROAMING = 3;
+        int METERED = 4;
     }
 
     /**
@@ -61,7 +74,7 @@ public class EnumTypeConverters {
      * @return The associated int constant
      */
     @TypeConverter
-    public static int workStatusToInt(BaseWork.WorkStatus workStatus) {
+    public static int workStatusToInt(WorkStatus workStatus) {
         switch (workStatus) {
             case ENQUEUED:
                 return StatusIds.ENQUEUED;
@@ -94,7 +107,7 @@ public class EnumTypeConverters {
      * @return The associated WorkStatus enum value
      */
     @TypeConverter
-    public static BaseWork.WorkStatus intToWorkStatus(int value) {
+    public static WorkStatus intToWorkStatus(int value) {
         switch (value) {
             case StatusIds.ENQUEUED:
                 return ENQUEUED;
@@ -127,7 +140,7 @@ public class EnumTypeConverters {
      * @return The associated int constant
      */
     @TypeConverter
-    public static int backoffPolicyToInt(BaseWork.BackoffPolicy backoffPolicy) {
+    public static int backoffPolicyToInt(BackoffPolicy backoffPolicy) {
         switch (backoffPolicy) {
             case EXPONENTIAL:
                 return BackoffPolicyIds.EXPONENTIAL;
@@ -148,7 +161,7 @@ public class EnumTypeConverters {
      * @return The associated BackoffPolicy enum value
      */
     @TypeConverter
-    public static BaseWork.BackoffPolicy intToBackoffPolicy(int value) {
+    public static BackoffPolicy intToBackoffPolicy(int value) {
         switch (value) {
             case BackoffPolicyIds.EXPONENTIAL:
                 return EXPONENTIAL;
@@ -159,6 +172,66 @@ public class EnumTypeConverters {
             default:
                 throw new IllegalArgumentException(
                         "Could not convert " + value + " to BackoffPolicy");
+        }
+    }
+
+    /**
+     * TypeConverter for a NetworkType to an int.
+     *
+     * @param networkType The input NetworkType
+     * @return The associated int constant
+     */
+    @TypeConverter
+    public static int networkTypeToInt(NetworkType networkType) {
+        switch (networkType) {
+            case NOT_REQUIRED:
+                return NetworkTypeIds.NOT_REQUIRED;
+
+            case CONNECTED:
+                return NetworkTypeIds.CONNECTED;
+
+            case UNMETERED:
+                return NetworkTypeIds.UNMETERED;
+
+            case NOT_ROAMING:
+                return NetworkTypeIds.NOT_ROAMING;
+
+            case METERED:
+                return NetworkTypeIds.METERED;
+
+            default:
+                throw new IllegalArgumentException(
+                        "Could not convert " + networkType + " to int");
+        }
+    }
+
+    /**
+     * TypeConverter for an int to a NetworkType.
+     *
+     * @param value The input integer
+     * @return The associated NetworkType enum value
+     */
+    @TypeConverter
+    public static NetworkType intToNetworkType(int value) {
+        switch (value) {
+            case NetworkTypeIds.NOT_REQUIRED:
+                return NetworkType.NOT_REQUIRED;
+
+            case NetworkTypeIds.CONNECTED:
+                return NetworkType.CONNECTED;
+
+            case NetworkTypeIds.UNMETERED:
+                return NetworkType.UNMETERED;
+
+            case NetworkTypeIds.NOT_ROAMING:
+                return NetworkType.NOT_ROAMING;
+
+            case NetworkTypeIds.METERED:
+                return NetworkType.METERED;
+
+            default:
+                throw new IllegalArgumentException(
+                        "Could not convert " + value + " to NetworkType");
         }
     }
 

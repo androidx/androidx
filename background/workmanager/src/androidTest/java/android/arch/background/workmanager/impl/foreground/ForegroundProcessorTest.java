@@ -15,9 +15,9 @@
  */
 package android.arch.background.workmanager.impl.foreground;
 
-import static android.arch.background.workmanager.BaseWork.WorkStatus.BLOCKED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
+import static android.arch.background.workmanager.WorkStatus.BLOCKED;
+import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
+import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

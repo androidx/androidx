@@ -18,13 +18,15 @@ package android.arch.background.workmanager.impl.model;
 
 import static android.arch.background.workmanager.BaseWork.MAX_BACKOFF_MILLIS;
 import static android.arch.background.workmanager.BaseWork.MIN_BACKOFF_MILLIS;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
 import static android.arch.background.workmanager.PeriodicWork.MIN_PERIODIC_FLEX_MILLIS;
 import static android.arch.background.workmanager.PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
+import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
 
 import android.arch.background.workmanager.Arguments;
+import android.arch.background.workmanager.BackoffPolicy;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
+import android.arch.background.workmanager.WorkStatus;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
@@ -45,7 +47,7 @@ public class WorkSpec {
     String mId;
 
     @ColumnInfo(name = "status")
-    BaseWork.WorkStatus mStatus = ENQUEUED;
+    WorkStatus mStatus = ENQUEUED;
 
     @ColumnInfo(name = "worker_class_name")
     String mWorkerClassName;
@@ -78,7 +80,7 @@ public class WorkSpec {
 
     // TODO(sumir): Should Backoff be disabled by default?
     @ColumnInfo(name = "backoff_policy")
-    BaseWork.BackoffPolicy mBackoffPolicy = BaseWork.BackoffPolicy.EXPONENTIAL;
+    BackoffPolicy mBackoffPolicy = BackoffPolicy.EXPONENTIAL;
 
     @ColumnInfo(name = "backoff_delay_duration")
     long mBackoffDelayDuration = BaseWork.DEFAULT_BACKOFF_DELAY_MILLIS;
@@ -99,11 +101,11 @@ public class WorkSpec {
         mId = id;
     }
 
-    public BaseWork.WorkStatus getStatus() {
+    public WorkStatus getStatus() {
         return mStatus;
     }
 
-    public void setStatus(BaseWork.WorkStatus status) {
+    public void setStatus(WorkStatus status) {
         mStatus = status;
     }
 
@@ -147,11 +149,11 @@ public class WorkSpec {
         mConstraints = constraints;
     }
 
-    public BaseWork.BackoffPolicy getBackoffPolicy() {
+    public BackoffPolicy getBackoffPolicy() {
         return mBackoffPolicy;
     }
 
-    public void setBackoffPolicy(BaseWork.BackoffPolicy backoffPolicy) {
+    public void setBackoffPolicy(BackoffPolicy backoffPolicy) {
         mBackoffPolicy = backoffPolicy;
     }
 
@@ -267,11 +269,11 @@ public class WorkSpec {
      * Calculates the UTC time at which this {@link WorkSpec} should be allowed to run.
      * This method accounts for work that is backed off or periodic.
      *
-     * If Backoff Policy is set to {@link BaseWork.BackoffPolicy#EXPONENTIAL}, then delay
+     * If Backoff Policy is set to {@link BackoffPolicy#EXPONENTIAL}, then delay
      * increases at an exponential rate with respect to the run attempt count and is capped at
      * {@link BaseWork#MAX_BACKOFF_MILLIS}.
      *
-     * If Backoff Policy is set to {@link BaseWork.BackoffPolicy#LINEAR}, then delay
+     * If Backoff Policy is set to {@link BackoffPolicy#LINEAR}, then delay
      * increases at an linear rate with respect to the run attempt count and is capped at
      * {@link BaseWork#MAX_BACKOFF_MILLIS}.
      *
@@ -290,7 +292,7 @@ public class WorkSpec {
      */
     public long calculateNextRunTime() {
         if (isBackedOff()) {
-            boolean isLinearBackoff = (mBackoffPolicy == BaseWork.BackoffPolicy.LINEAR);
+            boolean isLinearBackoff = (mBackoffPolicy == BackoffPolicy.LINEAR);
             long delay = isLinearBackoff ? (mBackoffDelayDuration * mRunAttemptCount)
                     : (long) Math.scalb(mBackoffDelayDuration, mRunAttemptCount - 1);
             return mPeriodStartTime + Math.min(BaseWork.MAX_BACKOFF_MILLIS, delay);
@@ -365,7 +367,7 @@ public class WorkSpec {
 
 
         @ColumnInfo(name = "status")
-        public BaseWork.WorkStatus status;
+        public WorkStatus status;
 
         @Override
         public boolean equals(Object o) {

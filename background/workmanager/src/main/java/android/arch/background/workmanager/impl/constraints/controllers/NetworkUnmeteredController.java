@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.impl.constraints.controllers;
 
-import static android.arch.background.workmanager.Constraints.NETWORK_UNMETERED;
+import static android.arch.background.workmanager.NetworkType.UNMETERED;
 
 import android.arch.background.workmanager.impl.constraints.NetworkState;
 import android.arch.background.workmanager.impl.constraints.trackers.Trackers;
@@ -35,7 +35,7 @@ public class NetworkUnmeteredController extends ConstraintController<NetworkStat
 
     @Override
     boolean hasConstraint(@NonNull WorkSpec workSpec) {
-        return workSpec.getConstraints().getRequiredNetworkType() == NETWORK_UNMETERED;
+        return workSpec.getConstraints().getRequiredNetworkType() == UNMETERED;
     }
 
     @Override

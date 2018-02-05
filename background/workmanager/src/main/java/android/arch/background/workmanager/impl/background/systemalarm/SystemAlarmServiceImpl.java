@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.impl.background.systemalarm;
 
-import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
+import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
 
 import android.app.Service;
 import android.arch.background.workmanager.Constraints;
@@ -33,7 +33,6 @@ import android.support.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 /**

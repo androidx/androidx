@@ -16,16 +16,15 @@
 
 package android.arch.background.workmanager.impl.utils;
 
-import static android.arch.background.workmanager.BaseWork.WorkStatus.BLOCKED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
-import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy
-        .APPEND;
-import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.KEEP;
+import static android.arch.background.workmanager.ExistingWorkPolicy.APPEND;
+import static android.arch.background.workmanager.ExistingWorkPolicy.KEEP;
+import static android.arch.background.workmanager.WorkStatus.BLOCKED;
+import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
+import static android.arch.background.workmanager.WorkStatus.RUNNING;
+import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
 
 import android.arch.background.workmanager.BaseWork;
-import android.arch.background.workmanager.WorkManager;
+import android.arch.background.workmanager.ExistingWorkPolicy;
 import android.arch.background.workmanager.impl.InternalWorkImpl;
 import android.arch.background.workmanager.impl.WorkContinuationImpl;
 import android.arch.background.workmanager.impl.WorkDatabase;
@@ -151,7 +150,7 @@ public class EnqueueRunnable implements Runnable {
             @NonNull List<? extends BaseWork> workList,
             String[] prerequisiteIds,
             String uniqueTag,
-            WorkManager.ExistingWorkPolicy existingWorkPolicy,
+            ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<InternalWorkImpl> workToBeScheduled) {
 
         long currentTimeMillis = System.currentTimeMillis();

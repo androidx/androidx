@@ -16,16 +16,17 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.BaseWork.WorkStatus.BLOCKED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.CANCELLED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.ENQUEUED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.FAILED;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.RUNNING;
-import static android.arch.background.workmanager.BaseWork.WorkStatus.SUCCEEDED;
-import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy
-        .APPEND;
-import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.KEEP;
-import static android.arch.background.workmanager.WorkManager.ExistingWorkPolicy.REPLACE;
+import static android.arch.background.workmanager.ExistingWorkPolicy.APPEND;
+import static android.arch.background.workmanager.ExistingWorkPolicy.KEEP;
+import static android.arch.background.workmanager.ExistingWorkPolicy.REPLACE;
+import static android.arch.background.workmanager.NetworkType.METERED;
+import static android.arch.background.workmanager.NetworkType.NOT_REQUIRED;
+import static android.arch.background.workmanager.WorkStatus.BLOCKED;
+import static android.arch.background.workmanager.WorkStatus.CANCELLED;
+import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
+import static android.arch.background.workmanager.WorkStatus.FAILED;
+import static android.arch.background.workmanager.WorkStatus.RUNNING;
+import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.arch.background.workmanager.BackoffPolicy;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.ContentUriTriggers;
@@ -49,6 +51,7 @@ import android.arch.background.workmanager.TestLifecycleOwner;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManagerTest;
+import android.arch.background.workmanager.WorkStatus;
 import android.arch.background.workmanager.executors.SynchronousExecutorService;
 import android.arch.background.workmanager.impl.model.Dependency;
 import android.arch.background.workmanager.impl.model.DependencyDao;
@@ -234,7 +237,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
                         new Constraints.Builder()
                                 .setRequiresCharging(true)
                                 .setRequiresDeviceIdle(true)
-                                .setRequiredNetworkType(Constraints.NETWORK_METERED)
+                                .setRequiredNetworkType(METERED)
                                 .setRequiresBatteryNotLow(true)
                                 .setRequiresStorageNotLow(true)
                                 .addContentUriTrigger(testUri1, true)
@@ -257,7 +260,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(constraints.requiresDeviceIdle(), is(true));
         assertThat(constraints.requiresBatteryNotLow(), is(true));
         assertThat(constraints.requiresStorageNotLow(), is(true));
-        assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_METERED));
+        assertThat(constraints.getRequiredNetworkType(), is(METERED));
         assertThat(constraints.getContentUriTriggers(), is(expectedTriggers));
 
         constraints = workSpec1.getConstraints();
@@ -266,7 +269,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(constraints.requiresDeviceIdle(), is(false));
         assertThat(constraints.requiresBatteryNotLow(), is(false));
         assertThat(constraints.requiresStorageNotLow(), is(false));
-        assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_NOT_REQUIRED));
+        assertThat(constraints.getRequiredNetworkType(), is(NOT_REQUIRED));
         assertThat(constraints.getContentUriTriggers().size(), is(0));
     }
 
@@ -291,7 +294,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @SmallTest
     public void testEnqueue_insertWorkBackoffPolicy() {
         Work work0 = new Work.Builder(TestWorker.class)
-                .withBackoffCriteria(BaseWork.BackoffPolicy.LINEAR, 50000)
+                .withBackoffCriteria(BackoffPolicy.LINEAR, 50000)
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl.beginWith(work0).then(work1).enqueue();
@@ -299,10 +302,10 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertThat(workSpec0.getBackoffPolicy(), is(BaseWork.BackoffPolicy.LINEAR));
+        assertThat(workSpec0.getBackoffPolicy(), is(BackoffPolicy.LINEAR));
         assertThat(workSpec0.getBackoffDelayDuration(), is(50000L));
 
-        assertThat(workSpec1.getBackoffPolicy(), is(BaseWork.BackoffPolicy.EXPONENTIAL));
+        assertThat(workSpec1.getBackoffPolicy(), is(BackoffPolicy.EXPONENTIAL));
         assertThat(workSpec1.getBackoffDelayDuration(), is(BaseWork.DEFAULT_BACKOFF_DELAY_MILLIS));
     }
 
@@ -571,14 +574,14 @@ public class WorkManagerImplTest extends WorkManagerTest {
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
 
-        Observer<Map<String, BaseWork.WorkStatus>> mockObserver = mock(Observer.class);
+        Observer<Map<String, WorkStatus>> mockObserver = mock(Observer.class);
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
-        LiveData<Map<String, BaseWork.WorkStatus>> liveData =
+        LiveData<Map<String, WorkStatus>> liveData =
                 mWorkManagerImpl.getStatusesFor(Arrays.asList(work0.getId(), work1.getId()));
         liveData.observe(testLifecycleOwner, mockObserver);
 
-        ArgumentCaptor<Map<String, BaseWork.WorkStatus>> captor =
+        ArgumentCaptor<Map<String, WorkStatus>> captor =
                 ArgumentCaptor.forClass(Map.class);
         verify(mockObserver).onChanged(captor.capture());
         assertThat(captor.getValue(), is(not(nullValue())));

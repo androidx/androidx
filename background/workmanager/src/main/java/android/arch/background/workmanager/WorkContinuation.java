@@ -56,9 +56,9 @@ public abstract class WorkContinuation {
      * {@link android.arch.lifecycle.Observer}s will trigger.
      *
      * @return A {@link LiveData} containing a map of work identifiers to their corresponding
-     * {@link BaseWork.WorkStatus}
+     * {@link WorkStatus}
      */
-    public abstract LiveData<Map<String, BaseWork.WorkStatus>> getStatuses();
+    public abstract LiveData<Map<String, WorkStatus>> getStatuses();
 
     /**
      * Enqueues the instance of {@link WorkContinuation} on the background thread.

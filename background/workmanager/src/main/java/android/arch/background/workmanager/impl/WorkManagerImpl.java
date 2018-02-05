@@ -18,9 +18,11 @@ package android.arch.background.workmanager.impl;
 
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.BaseWork;
+import android.arch.background.workmanager.ExistingWorkPolicy;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManager;
+import android.arch.background.workmanager.WorkStatus;
 import android.arch.background.workmanager.impl.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkSpecDao;
@@ -175,7 +177,7 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public LiveData<BaseWork.WorkStatus> getStatus(@NonNull String id) {
+    public LiveData<WorkStatus> getStatus(@NonNull String id) {
         return LiveDataUtils.dedupedLiveDataFor(
                 mWorkDatabase.workSpecDao().getWorkSpecLiveDataStatus(id));
     }
@@ -185,9 +187,9 @@ public class WorkManagerImpl extends WorkManager {
         return LiveDataUtils.dedupedLiveDataFor(mWorkDatabase.workSpecDao().getOutput(id));
     }
 
-    LiveData<Map<String, BaseWork.WorkStatus>> getStatusesFor(@NonNull List<String> workSpecIds) {
+    LiveData<Map<String, WorkStatus>> getStatusesFor(@NonNull List<String> workSpecIds) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
-        final MediatorLiveData<Map<String, BaseWork.WorkStatus>> mediatorLiveData =
+        final MediatorLiveData<Map<String, WorkStatus>> mediatorLiveData =
                 new MediatorLiveData<>();
         mediatorLiveData.addSource(
                 LiveDataUtils.dedupedLiveDataFor(dao.getWorkSpecStatuses(workSpecIds)),
@@ -198,7 +200,7 @@ public class WorkManagerImpl extends WorkManager {
                             return;
                         }
 
-                        Map<String, BaseWork.WorkStatus> idToStatusMap =
+                        Map<String, WorkStatus> idToStatusMap =
                                 new HashMap<>(idAndStatuses.size());
                         for (WorkSpec.IdAndStatus idAndStatus : idAndStatuses) {
                             idToStatusMap.put(idAndStatus.id, idAndStatus.status);

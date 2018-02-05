@@ -15,6 +15,8 @@
  */
 package android.arch.background.workmanager.impl.background.systemalarm;
 
+import static android.arch.background.workmanager.NetworkType.NOT_REQUIRED;
+
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
@@ -77,7 +79,7 @@ abstract class ConstraintProxy extends BroadcastReceiver {
             batteryChargingProxyEnabled |= constraints.requiresCharging();
             storageNotLowProxyEnabled |= constraints.requiresStorageNotLow();
             networkStateProxyEnabled |=
-                    constraints.getRequiredNetworkType() != Constraints.NETWORK_NOT_REQUIRED;
+                    constraints.getRequiredNetworkType() != NOT_REQUIRED;
 
             if (batteryNotLowProxyEnabled && batteryChargingProxyEnabled
                     && storageNotLowProxyEnabled && networkStateProxyEnabled) {

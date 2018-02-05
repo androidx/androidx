@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager.impl.constraints.controllers;
 
-import static android.arch.background.workmanager.Constraints.NETWORK_METERED;
+import static android.arch.background.workmanager.NetworkType.METERED;
 
 import android.arch.background.workmanager.impl.constraints.NetworkState;
 import android.arch.background.workmanager.impl.constraints.trackers.Trackers;
@@ -39,7 +39,7 @@ public class NetworkMeteredController extends ConstraintController<NetworkState>
 
     @Override
     boolean hasConstraint(@NonNull WorkSpec workSpec) {
-        return workSpec.getConstraints().getRequiredNetworkType() == NETWORK_METERED;
+        return workSpec.getConstraints().getRequiredNetworkType() == METERED;
     }
 
     /**

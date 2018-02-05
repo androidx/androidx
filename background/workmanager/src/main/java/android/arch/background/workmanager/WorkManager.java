@@ -87,7 +87,7 @@ public abstract class WorkManager {
      * run, then the entire chain will be considered a no-op.
      *
      * @param tag A tag which should uniquely label all the work in this chain
-     * @param existingWorkPolicy An {@link WorkManager.ExistingWorkPolicy}.
+     * @param existingWorkPolicy An {@link ExistingWorkPolicy}.
      * @param work One or more {@link Work} to enqueue. {@code REPLACE} ensures that
      *             if there is pending work labelled with {@code tag}, it will be cancelled and the
      *             new work will run. {@code KEEP} will run the new sequence of work
@@ -117,7 +117,7 @@ public abstract class WorkManager {
      * run, then the entire chain will be considered a no-op.
      *
      * @param tag A tag which should uniquely label all the work in this chain
-     * @param existingWorkPolicy An {@link WorkManager.ExistingWorkPolicy}.
+     * @param existingWorkPolicy An {@link ExistingWorkPolicy}.
      * @param work One or more {@link Work} to enqueue. {@code REPLACE} ensures that if there is
      *             pending work labelled with {@code tag}, it will be cancelled and the new work
      *             will run. {@code KEEP} will run the new sequence of work only if there is no
@@ -157,12 +157,12 @@ public abstract class WorkManager {
     public abstract void pruneDatabase();
 
     /**
-     * Gets the {@link BaseWork.WorkStatus} for a given work id.
+     * Gets the {@link WorkStatus} for a given work id.
      *
      * @param id The id of the work
-     * @return A {@link LiveData} of the {@link BaseWork.WorkStatus}
+     * @return A {@link LiveData} of the {@link WorkStatus}
      */
-    public abstract LiveData<BaseWork.WorkStatus> getStatus(@NonNull String id);
+    public abstract LiveData<WorkStatus> getStatus(@NonNull String id);
 
     /**
      * Gets the output for a given work id.
@@ -172,9 +172,4 @@ public abstract class WorkManager {
      */
     public abstract LiveData<Arguments> getOutput(@NonNull String id);
 
-    public enum ExistingWorkPolicy {
-        REPLACE,
-        KEEP,
-        APPEND
-    }
 }

@@ -25,57 +25,6 @@ import android.support.annotation.VisibleForTesting;
 public interface BaseWork {
 
     /**
-     * The current status of a unit of work.
-     */
-    enum WorkStatus {
-        /**
-         * The status for work that is enqueued (hasn't completed and isn't running)
-         */
-        ENQUEUED,
-
-        /**
-         * The status for work that is currently being executed
-         */
-        RUNNING,
-
-        /**
-         * The status for work that has completed successfully
-         */
-        SUCCEEDED,
-
-        /**
-         * The status for work that has completed in a failure state
-         */
-        FAILED,
-
-        /**
-         * The status for work that is currently blocked because its prerequisites haven't finished
-         * successfully
-         */
-        BLOCKED,
-
-        /**
-         * The status for work that has been cancelled and will not execute
-         */
-        CANCELLED
-    }
-
-    /**
-     * The backoff policy to use when rescheduling work.
-     */
-    enum BackoffPolicy {
-        /**
-         * An exponentially-increasing backoff policy
-         */
-        EXPONENTIAL,
-
-        /**
-         * A linearly-increasing backoff policy
-         */
-        LINEAR
-    }
-
-    /**
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#77}
      */
     long DEFAULT_BACKOFF_DELAY_MILLIS = 30000L;
@@ -107,7 +56,7 @@ public interface BaseWork {
 
         /**
          * Change backoff policy and delay for the work.
-         * Default is {@link BaseWork.BackoffPolicy#EXPONENTIAL} and 30 seconds.
+         * Default is {@link BackoffPolicy#EXPONENTIAL} and 30 seconds.
          * Maximum backoff delay duration is {@value BaseWork#MAX_BACKOFF_MILLIS}.
          *
          * @param backoffPolicy Backoff Policy to use for work
@@ -151,7 +100,7 @@ public interface BaseWork {
         /**
          * Set the initial status for this work.  Used in testing only.
          *
-         * @param status The {@link BaseWork.WorkStatus} to set
+         * @param status The {@link WorkStatus} to set
          * @return The current {@link Builder}
          */
         @VisibleForTesting
