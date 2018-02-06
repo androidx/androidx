@@ -23,6 +23,7 @@ import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.transform.Transformer
 import android.support.tools.jetifier.core.transform.bytecode.ByteCodeTransformer
+import android.support.tools.jetifier.core.transform.metainf.MetaInfTransformer
 import android.support.tools.jetifier.core.transform.pom.PomDocument
 import android.support.tools.jetifier.core.transform.pom.PomScanner
 import android.support.tools.jetifier.core.transform.proguard.ProGuardTransformer
@@ -37,8 +38,10 @@ import java.nio.file.Path
  * the registered [Transformer]s over the set and creates new archives that will contain the
  * transformed files.
  */
-class Processor private constructor (private val context: TransformationContext)
-    : ArchiveItemVisitor {
+class Processor private constructor (
+    private val context: TransformationContext,
+    private val transformers: List<Transformer>
+) : ArchiveItemVisitor {
 
     companion object {
         private const val TAG = "Processor"
@@ -47,6 +50,27 @@ class Processor private constructor (private val context: TransformationContext)
          * Value of "restrictToPackagePrefixes" config for reversed jetification.
          */
         private const val REVERSE_RESTRICT_TO_PACKAGE = "androidx"
+
+        /**
+         * Transformers to be used when refactoring general libraries.
+         */
+        private fun createTransformers(context: TransformationContext) = listOf(
+            // Register your transformers here
+            ByteCodeTransformer(context),
+            XmlResourcesTransformer(context),
+            ProGuardTransformer(context)
+        )
+
+        /**
+         * Transformers to be used when refactoring the support library itself.
+         */
+        private fun createSLTransformers(context: TransformationContext) = listOf(
+            // Register your transformers here
+            ByteCodeTransformer(context),
+            XmlResourcesTransformer(context),
+            ProGuardTransformer(context),
+            MetaInfTransformer(context)
+        )
 
         /**
          * Creates a new instance of the [Processor].
@@ -73,17 +97,16 @@ class Processor private constructor (private val context: TransformationContext)
                 )
             }
 
-            val context = TransformationContext(newConfig, rewritingSupportLib)
-            return Processor(context)
+            val context = TransformationContext(newConfig, rewritingSupportLib, reversedMode)
+            val transformers = if (rewritingSupportLib) {
+                createSLTransformers(context)
+            } else {
+                createTransformers(context)
+            }
+
+            return Processor(context, transformers)
         }
     }
-
-    private val transformers = listOf(
-        // Register your transformers here
-        ByteCodeTransformer(context),
-        XmlResourcesTransformer(context),
-        ProGuardTransformer(context)
-    )
 
     /**
      * Transforms the input libraries given in [inputLibraries] using all the registered
