@@ -27,6 +27,7 @@ android {
 
 supportLibrary {
     name = "WebView Support Library"
+    publish = false
     inceptionYear = "2017"
     description = "The WebView Support Library is a static library you can add to your Android application in order to use android.webkit APIs that are not available for older platform versions."
 }
