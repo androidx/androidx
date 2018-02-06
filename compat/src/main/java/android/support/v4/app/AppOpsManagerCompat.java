@@ -32,14 +32,21 @@ public final class AppOpsManagerCompat {
      * Result from {@link #noteOp}: the given caller is allowed to
      * perform the given operation.
      */
-    public static final int MODE_ALLOWED = 0;
+    public static final int MODE_ALLOWED = AppOpsManager.MODE_ALLOWED;
 
     /**
      * Result from {@link #noteOp}: the given caller is not allowed to perform
      * the given operation, and this attempt should <em>silently fail</em> (it
      * should not cause the app to crash).
      */
-    public static final int MODE_IGNORED = 1;
+    public static final int MODE_IGNORED = AppOpsManager.MODE_IGNORED;
+
+    /**
+     * Result from {@link #noteOpNoThrow}: the
+     * given caller is not allowed to perform the given operation, and this attempt should
+     * cause it to have a fatal error, typically a {@link SecurityException}.
+     */
+    public static final int MODE_ERRORED = AppOpsManager.MODE_ERRORED;
 
     /**
      * Result from {@link #noteOp}: the given caller should use its default
@@ -47,12 +54,17 @@ public final class AppOpsManagerCompat {
      * with appop permissions, and callers must explicitly check for it and
      * deal with it.
      */
-    public static final int MODE_DEFAULT = 3;
+    public static final int MODE_DEFAULT = AppOpsManager.MODE_DEFAULT;
 
     private AppOpsManagerCompat() {}
 
     /**
      * Gets the app op name associated with a given permission.
+     * <p>
+     * <strong>Compatibility</strong>
+     * <ul>
+     * <li>On API 22 and lower, this method always returns {@code null}
+     * </ul>
      *
      * @param permission The permission.
      * @return The app op associated with the permission or null.
@@ -72,6 +84,11 @@ public final class AppOpsManagerCompat {
      * that these two match, and if not, return {@link #MODE_IGNORED}.  If this call
      * succeeds, the last execution time of the operation for this app will be updated to
      * the current time.
+     * <p>
+     * <strong>Compatibility</strong>
+     * <ul>
+     * <li>On API 18 and lower, this method always returns {@link #MODE_IGNORED}
+     * </ul>
      * @param context Your context.
      * @param op The operation to note.  One of the OPSTR_* constants.
      * @param uid The user id of the application attempting to perform the operation.
@@ -83,9 +100,30 @@ public final class AppOpsManagerCompat {
      */
     public static int noteOp(@NonNull Context context, @NonNull String op, int uid,
             @NonNull String packageName) {
-        if (SDK_INT >= 23) {
-            AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
+        if (SDK_INT >= 19) {
+            AppOpsManager appOpsManager =
+                    (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
             return appOpsManager.noteOp(op, uid, packageName);
+        } else {
+            return MODE_IGNORED;
+        }
+    }
+
+    /**
+     * Like {@link #noteOp} but instead of throwing a {@link SecurityException} it
+     * returns {@link #MODE_ERRORED}.
+     * <p>
+     * <strong>Compatibility</strong>
+     * <ul>
+     * <li>On API 18 and lower, this method always returns {@link #MODE_IGNORED}
+     * </ul>
+     */
+    public static int noteOpNoThrow(@NonNull Context context, @NonNull String op, int uid,
+            @NonNull String packageName) {
+        if (SDK_INT >= 19) {
+            AppOpsManager appOpsManager =
+                    (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            return appOpsManager.noteOpNoThrow(op, uid, packageName);
         } else {
             return MODE_IGNORED;
         }
@@ -99,6 +137,11 @@ public final class AppOpsManagerCompat {
      * package name match, and if not, return {@link #MODE_IGNORED}. If this call
      * succeeds, the last execution time of the operation for the proxied app and
      * your app will be updated to the current time.
+     * <p>
+     * <strong>Compatibility</strong>
+     * <ul>
+     * <li>On API 22 and lower, this method always returns {@link #MODE_IGNORED}
+     * </ul>
      * @param context Your context.
      * @param op The operation to note.  One of the OPSTR_* constants.
      * @param proxiedPackageName The name of the application calling into the proxy application.
@@ -112,6 +155,25 @@ public final class AppOpsManagerCompat {
         if (SDK_INT >= 23) {
             AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
             return appOpsManager.noteProxyOp(op, proxiedPackageName);
+        } else {
+            return MODE_IGNORED;
+        }
+    }
+
+    /**
+     * Like {@link #noteProxyOp(Context, String, String)} but instead
+     * of throwing a {@link SecurityException} it returns {@link #MODE_ERRORED}.
+     * <p>
+     * <strong>Compatibility</strong>
+     * <ul>
+     * <li>On API 22 and lower, this method always returns {@link #MODE_IGNORED}
+     * </ul>
+     */
+    public static int noteProxyOpNoThrow(@NonNull Context context, @NonNull String op,
+            @NonNull String proxiedPackageName) {
+        if (SDK_INT >= 23) {
+            AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
+            return appOpsManager.noteProxyOpNoThrow(op, proxiedPackageName);
         } else {
             return MODE_IGNORED;
         }
