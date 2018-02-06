@@ -49,6 +49,7 @@ dependencies {
     compile(JAVAPOET)
     compile(ANTLR)
     compile(XERIAL)
+    compile(KOTLIN_METADATA)
     compile(APACHE_COMMONS_CODEC)
     testCompile(GOOGLE_COMPILE_TESTING)
     testCompile project(":paging:common")

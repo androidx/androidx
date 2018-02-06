@@ -43,7 +43,6 @@ dependencies {
     implementation(project(":arch:runtime"))
 
     implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
-    kapt project(":room:compiler")
     kaptAndroidTest project(":room:compiler")
 
     androidTestImplementation(TEST_RUNNER) {
