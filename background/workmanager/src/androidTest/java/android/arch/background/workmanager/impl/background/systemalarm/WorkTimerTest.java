@@ -16,16 +16,14 @@
 
 package android.arch.background.workmanager.impl.background.systemalarm;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
-import android.arch.background.workmanager.WorkManagerTest;
-import android.arch.background.workmanager.impl.background.systemalarm.WorkTimer
-        .TimeLimitExceededListener;
+import android.support.annotation.NonNull;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -34,69 +32,48 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class WorkTimerTest extends WorkManagerTest {
-    private static final String TEST_WORK_SPEC_ID = "TEST";
-    private static final long TEST_TIME_LIMIT_MILLIS = 100L;
-    private static final long HALF_TEST_TIME_LIMIT_MILLIS = TEST_TIME_LIMIT_MILLIS / 2;
+public class WorkTimerTest {
+
+    private static final String WORKSPEC_ID_1 = "1";
 
     private WorkTimer mWorkTimer;
-    private TimeLimitExceededListener mMockListener;
+    private TestTimeLimitExceededListener mListener;
 
     @Before
     public void setUp() {
-        mMockListener = mock(TimeLimitExceededListener.class);
-
         mWorkTimer = new WorkTimer();
-        mWorkTimer.setOnTimeLimitExceededListener(mMockListener);
+        mListener = new TestTimeLimitExceededListener();
     }
 
     @Test
     @SmallTest
-    public void testStartTimer() throws InterruptedException {
-        mWorkTimer.startTimer(TEST_WORK_SPEC_ID, TEST_TIME_LIMIT_MILLIS);
-        verifyZeroInteractions(mMockListener);
-        Thread.sleep(TEST_TIME_LIMIT_MILLIS + 50L);
-        verify(mMockListener).onTimeLimitExceeded(TEST_WORK_SPEC_ID);
+    public void testTimer_withListenerAndCleanUp() throws InterruptedException {
+        TestTimeLimitExceededListener listenerSpy = spy(mListener);
+        mWorkTimer.startTimer(WORKSPEC_ID_1, 0, listenerSpy);
+        Thread.sleep(5); // introduce a small delay
+        verify(listenerSpy, times(1)).onTimeLimitExceeded(WORKSPEC_ID_1);
+        assertThat(mWorkTimer.getTimerMap().size(), is(0));
+        assertThat(mWorkTimer.getListeners().size(), is(0));
     }
 
     @Test
-    @SmallTest
-    public void testStartTimer_twiceWithSameId_secondTimerNotifies() throws InterruptedException {
-        mWorkTimer.startTimer(TEST_WORK_SPEC_ID, TEST_TIME_LIMIT_MILLIS);
-
-        // Wait a bit before starting second timer.
-        Thread.sleep(HALF_TEST_TIME_LIMIT_MILLIS);
-        verifyZeroInteractions(mMockListener);
-
-        mWorkTimer.startTimer(TEST_WORK_SPEC_ID, TEST_TIME_LIMIT_MILLIS);
-
-        // First timer should have notified here, but was stopped after the startTimer was called.
-        Thread.sleep(HALF_TEST_TIME_LIMIT_MILLIS + 10L);
-        verify(mMockListener, never()).onTimeLimitExceeded(TEST_WORK_SPEC_ID);
-
-        // Second startTimer() should notify here. Listener should only be notified by second call.
-        Thread.sleep(HALF_TEST_TIME_LIMIT_MILLIS);
-        verify(mMockListener, times(1)).onTimeLimitExceeded(TEST_WORK_SPEC_ID);
+    @MediumTest
+    public void testStopTimer_withCleanUp() throws InterruptedException {
+        TestTimeLimitExceededListener listenerSpy = spy(mListener);
+        mWorkTimer.startTimer(WORKSPEC_ID_1, 100, listenerSpy);
+        mWorkTimer.stopTimer(WORKSPEC_ID_1);
+        Thread.sleep(100);
+        verify(listenerSpy, times(0)).onTimeLimitExceeded(WORKSPEC_ID_1);
+        assertThat(mWorkTimer.getTimerMap().size(), is(0));
+        assertThat(mWorkTimer.getListeners().size(), is(0));
     }
 
-    @Test
-    @SmallTest
-    public void testStopTimer_beforeTimeLimit() throws InterruptedException {
-        mWorkTimer.startTimer(TEST_WORK_SPEC_ID, TEST_TIME_LIMIT_MILLIS);
-        mWorkTimer.stopTimer(TEST_WORK_SPEC_ID);
-        Thread.sleep(TEST_TIME_LIMIT_MILLIS + 50L);
-        verifyZeroInteractions(mMockListener);
-    }
-
-    @Test
-    @SmallTest
-    public void testStopTimer_afterTimeLimit() throws InterruptedException {
-        mWorkTimer.startTimer(TEST_WORK_SPEC_ID, TEST_TIME_LIMIT_MILLIS);
-
-        Thread.sleep(TEST_TIME_LIMIT_MILLIS + 50L);
-        verify(mMockListener).onTimeLimitExceeded(TEST_WORK_SPEC_ID);
-
-        mWorkTimer.stopTimer(TEST_WORK_SPEC_ID);
-        verifyNoMoreInteractions(mMockListener);
+    // Making this a defined class to its easy to proxy
+    public static class TestTimeLimitExceededListener implements
+            WorkTimer.TimeLimitExceededListener {
+        @Override
+        public void onTimeLimitExceeded(@NonNull String workSpecId) {
+            // does nothing
+        }
     }
 }

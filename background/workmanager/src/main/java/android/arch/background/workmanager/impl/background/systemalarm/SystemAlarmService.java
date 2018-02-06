@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,12 @@
 
 package android.arch.background.workmanager.impl.background.systemalarm;
 
-import static android.arch.background.workmanager.impl.background.systemalarm
-        .SystemAlarmServiceImpl.EXTRA_WORK_ID;
-
-import android.arch.background.workmanager.impl.ExecutionListener;
-import android.arch.background.workmanager.impl.Scheduler;
-import android.arch.background.workmanager.impl.WorkDatabase;
-import android.arch.background.workmanager.impl.WorkManagerImpl;
-import android.arch.background.workmanager.impl.constraints.WorkConstraintsCallback;
-import android.arch.background.workmanager.impl.constraints.WorkConstraintsTracker;
+import android.app.Service;
 import android.arch.background.workmanager.impl.logger.Logger;
-import android.arch.background.workmanager.impl.model.WorkSpec;
-import android.arch.background.workmanager.impl.utils.LiveDataUtils;
 import android.arch.lifecycle.LifecycleService;
-import android.arch.lifecycle.Observer;
-import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.annotation.MainThread;
 import android.support.annotation.RestrictTo;
-
-import java.util.List;
 
 /**
  * Service invoked by {@link android.app.AlarmManager} to run work tasks.
@@ -44,99 +29,32 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class SystemAlarmService extends LifecycleService implements ExecutionListener,
-        Observer<List<WorkSpec>>, WorkConstraintsCallback,
-        SystemAlarmServiceImpl.AllWorkExecutedCallback {
+public class SystemAlarmService extends LifecycleService
+        implements SystemAlarmDispatcher.CommandsCompletedListener {
 
     private static final String TAG = "SystemAlarmService";
-    private SystemAlarmServiceImpl mSystemAlarmServiceImpl;
+
+    private SystemAlarmDispatcher mDispatcher;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
-        WorkDatabase database = workManagerImpl.getWorkDatabase();
-        Scheduler scheduler = workManagerImpl.getBackgroundScheduler();
-        Context context = getApplicationContext();
-
-        WorkTimer workTimer = new WorkTimer();
-        TimedBackgroundProcessor processor = new TimedBackgroundProcessor(
-                context,
-                database,
-                scheduler,
-                 workManagerImpl.getBackgroundExecutorService(),
-                this,
-                workTimer);
-
-        WorkConstraintsTracker workConstraintsTracker = new WorkConstraintsTracker(
-                context, this);
-
-        mSystemAlarmServiceImpl = new SystemAlarmServiceImpl(
-                context, processor, workConstraintsTracker, this);
-
-        LiveDataUtils
-                .dedupedLiveDataFor(database.workSpecDao().getSystemAlarmEligibleWorkSpecs())
-                .observe(this, this);
+        mDispatcher = new SystemAlarmDispatcher(this);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        return mSystemAlarmServiceImpl.onStartCommand(intent);
-    }
-
-    @Override
-    public void onChanged(@Nullable List<WorkSpec> workSpecs) {
-        if (workSpecs == null) {
-            return;
+        if (intent != null) {
+            mDispatcher.add(intent, startId);
         }
-        Logger.debug(TAG, "onChanged. Number of WorkSpecs: %s", workSpecs.size());
-        mSystemAlarmServiceImpl.onEligibleWorkChanged(workSpecs);
+        return Service.START_STICKY;
     }
 
+    @MainThread
     @Override
-    public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
-        mSystemAlarmServiceImpl.onAllConstraintsMet(workSpecIds);
-    }
-
-    @Override
-    public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
-        mSystemAlarmServiceImpl.onAllConstraintsNotMet(workSpecIds);
-    }
-
-    @Override
-    public void onExecuted(
-            @NonNull String workSpecId,
-            boolean isSuccessful,
-            boolean needsReschedule) {
-
-        Logger.debug(TAG, "%s executed on AlarmManager", workSpecId);
-        mSystemAlarmServiceImpl.onExecuted(workSpecId, isSuccessful, needsReschedule);
-    }
-
-    @Override
-    public void onAllWorkExecuted() {
-        Logger.debug(TAG, "All work executed. Stopping self");
+    public void onAllCommandsCompleted() {
+        Logger.debug(TAG, "All commands completed in dispatcher");
         stopSelf();
-    }
-
-    static Intent createConstraintChangedIntent(Context context) {
-        Intent intent = new Intent(context, SystemAlarmService.class);
-        intent.setAction(SystemAlarmServiceImpl.ACTION_CONSTRAINT_CHANGED);
-        return intent;
-    }
-
-    static Intent createDelayMetIntent(Context context, String workSpecId) {
-        Intent intent = new Intent(context, SystemAlarmService.class);
-        intent.setAction(SystemAlarmServiceImpl.ACTION_DELAY_MET);
-        intent.putExtra(EXTRA_WORK_ID, workSpecId);
-        return intent;
-    }
-
-    static Intent createCancelWorkIntent(Context context, String workSpecId) {
-        Intent intent = new Intent(context, SystemAlarmService.class);
-        intent.setAction(SystemAlarmServiceImpl.ACTION_CANCEL_WORK);
-        intent.putExtra(EXTRA_WORK_ID, workSpecId);
-        return intent;
     }
 }
