@@ -256,7 +256,9 @@ public final class Slice {
          */
         public Slice.Builder addAction(@NonNull PendingIntent action,
                 @NonNull Slice s, @Nullable String subType) {
-            mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, new String[0]));
+            @SliceHint String[] hints = s != null
+                    ? s.getHints().toArray(new String[s.getHints().size()]) : new String[0];
+            mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, hints));
             return this;
         }
 
