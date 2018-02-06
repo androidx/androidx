@@ -85,9 +85,7 @@ public class WorkContinuationImplTest {
         WorkManagerConfiguration configuration = new WorkManagerConfiguration(
                 context,
                 true,
-                new SynchronousExecutorService(),
-                new SynchronousExecutorService(),
-                lifecycleOwner);
+                new SynchronousExecutorService());
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
     }

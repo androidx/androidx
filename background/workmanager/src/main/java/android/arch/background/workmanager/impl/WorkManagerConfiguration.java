@@ -26,8 +26,6 @@ import android.arch.background.workmanager.impl.background.systemalarm.SystemAla
 import android.arch.background.workmanager.impl.background.systemjob.SystemJobScheduler;
 import android.arch.background.workmanager.impl.background.systemjob.SystemJobService;
 import android.arch.background.workmanager.impl.logger.Logger;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -55,29 +53,21 @@ class WorkManagerConfiguration {
 
     private final WorkDatabase mWorkDatabase;
     private final Scheduler mBackgroundScheduler;
-    private final ExecutorService mForegroundExecutorService;
     private final ExecutorService mBackgroundExecutorService;
-    private final LifecycleOwner mForegroundLifecycleOwner;
 
     WorkManagerConfiguration(@NonNull Context context) {
         this(context,
                 context.getResources().getBoolean(R.bool.workmanager_test_configuration),
-                createForegroundExecutorService(),
-                createBackgroundExecutorService(),
-                ProcessLifecycleOwner.get());
+                createBackgroundExecutorService());
     }
 
     @VisibleForTesting
     WorkManagerConfiguration(@NonNull Context context,
             boolean useTestDatabase,
-            @NonNull ExecutorService foregroundExecutorService,
-            @NonNull ExecutorService backgroundExecutorService,
-            @NonNull LifecycleOwner foregroundLifecycleOwner) {
+            @NonNull ExecutorService backgroundExecutorService) {
         mWorkDatabase = WorkDatabase.create(context, useTestDatabase);
         mBackgroundScheduler = createBestAvailableBackgroundScheduler(context);
-        mForegroundExecutorService = foregroundExecutorService;
         mBackgroundExecutorService = backgroundExecutorService;
-        mForegroundLifecycleOwner = foregroundLifecycleOwner;
     }
 
     @NonNull
@@ -91,18 +81,8 @@ class WorkManagerConfiguration {
     }
 
     @NonNull
-    ExecutorService getForegroundExecutorService() {
-        return mForegroundExecutorService;
-    }
-
-    @NonNull
     ExecutorService getBackgroundExecutorService() {
         return mBackgroundExecutorService;
-    }
-
-    @NonNull
-    LifecycleOwner getForegroundLifecycleOwner() {
-        return mForegroundLifecycleOwner;
     }
 
     @NonNull

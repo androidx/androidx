@@ -22,7 +22,6 @@ import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.WorkStatus;
-import android.arch.background.workmanager.impl.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkSpecDao;
 import android.arch.background.workmanager.impl.utils.CancelWorkRunnable;
@@ -55,7 +54,6 @@ public class WorkManagerImpl extends WorkManager {
     private WorkManagerConfiguration mConfiguration;
     private WorkDatabase mWorkDatabase;
     private TaskExecutor mTaskExecutor;
-    private Processor mForegroundProcessor;
     private Scheduler mBackgroundScheduler;
 
     private static WorkManagerImpl sInstance = null;
@@ -81,17 +79,9 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     WorkManagerImpl(Context context, WorkManagerConfiguration configuration) {
-        // TODO(janclarin): Move ForegroundProcessor and TaskExecutor to WorkManagerConfiguration.
         // TODO(janclarin): Remove context parameter.
-        Context appContext = context.getApplicationContext();
         mConfiguration = configuration;
         mWorkDatabase = configuration.getWorkDatabase();
-        mForegroundProcessor = new ForegroundProcessor(
-                appContext,
-                mWorkDatabase,
-                mBackgroundScheduler,
-                configuration.getForegroundLifecycleOwner(),
-                configuration.getForegroundExecutorService());
         mBackgroundScheduler = configuration.getBackgroundScheduler();
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
     }
@@ -103,15 +93,6 @@ public class WorkManagerImpl extends WorkManager {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkDatabase getWorkDatabase() {
         return mWorkDatabase;
-    }
-
-    /**
-     * @return The foreground {@link Processor} associated with this WorkManager.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public Processor getForegroundProcessor() {
-        return mForegroundProcessor;
     }
 
     /**

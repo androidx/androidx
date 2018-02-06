@@ -64,7 +64,6 @@ import android.arch.background.workmanager.impl.utils.taskexecutor.InstantTaskEx
 import android.arch.background.workmanager.worker.TestWorker;
 import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
-import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.persistence.db.SupportSQLiteDatabase;
@@ -89,7 +88,6 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest extends WorkManagerTest {
-    private TestLifecycleOwner mLifecycleOwner;
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
 
@@ -115,16 +113,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
             }
         });
 
-        mLifecycleOwner = new TestLifecycleOwner();
-        mLifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.CREATED);
-
         Context context = InstrumentationRegistry.getTargetContext();
         WorkManagerConfiguration configuration = new WorkManagerConfiguration(
                 context,
                 true,
-                new SynchronousExecutorService(),
-                new SynchronousExecutorService(),
-                mLifecycleOwner);
+                new SynchronousExecutorService());
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
     }
@@ -211,15 +204,13 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testEnqueue_insertWithCompletedDependencies_isNotStatusBlocked() {
-        Work work1 = new Work.Builder(TestWorker.class).build();
+        Work work1 = new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
 
-        mLifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.STARTED);
         WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
         workContinuation.enqueue();
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpecState(work1.getId()), is(SUCCEEDED));
 
-        mLifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.CREATED);
         Work work2 = new Work.Builder(TestWorker.class).build();
         workContinuation.then(work2).enqueue();
         assertThat(workSpecDao.getWorkSpecState(work2.getId()), is(ENQUEUED));
