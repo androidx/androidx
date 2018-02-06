@@ -129,8 +129,8 @@ public abstract class Work implements BaseWork {
 
         @VisibleForTesting
         @Override
-        public Builder withInitialStatus(WorkStatus status) {
-            mInternalBuilder.withInitialStatus(status);
+        public Builder withInitialState(State state) {
+            mInternalBuilder.withInitialState(state);
             return this;
         }
 

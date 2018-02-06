@@ -16,8 +16,8 @@
 
 package android.arch.background.integration.testapp.sherlockholmes;
 
-import static android.arch.background.workmanager.WorkStatus.FAILED;
-import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
+import static android.arch.background.workmanager.State.FAILED;
+import static android.arch.background.workmanager.State.SUCCEEDED;
 
 import android.arch.background.integration.testapp.R;
 import android.arch.background.integration.testapp.db.TestDatabase;
@@ -87,8 +87,8 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
                 this,
                 status -> {
                     boolean loading = (status != null
-                            && status != SUCCEEDED
-                            && status != FAILED);
+                            && status.getState() != SUCCEEDED
+                            && status.getState() != FAILED);
                     mProgressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
                     mResultsView.setVisibility(loading ? View.GONE : View.VISIBLE);
                 }

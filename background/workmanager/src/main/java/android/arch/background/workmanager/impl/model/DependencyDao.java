@@ -44,8 +44,8 @@ public interface DependencyDao {
      * @return {@code true} if the {@link WorkSpec} has no pending prerequisites.
      */
     @Query("SELECT COUNT(*)=0 FROM dependency WHERE work_spec_id=:id AND prerequisite_id IN "
-            + "(SELECT id FROM workspec WHERE status!="
-            + EnumTypeConverters.StatusIds.SUCCEEDED + ")")
+            + "(SELECT id FROM workspec WHERE state!="
+            + EnumTypeConverters.StateIds.SUCCEEDED + ")")
     boolean hasCompletedAllPrerequisites(String id);
 
     /**

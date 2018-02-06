@@ -20,13 +20,13 @@ import static android.arch.background.workmanager.BaseWork.MAX_BACKOFF_MILLIS;
 import static android.arch.background.workmanager.BaseWork.MIN_BACKOFF_MILLIS;
 import static android.arch.background.workmanager.PeriodicWork.MIN_PERIODIC_FLEX_MILLIS;
 import static android.arch.background.workmanager.PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
-import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
+import static android.arch.background.workmanager.State.ENQUEUED;
 
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.BackoffPolicy;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
-import android.arch.background.workmanager.WorkStatus;
+import android.arch.background.workmanager.State;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
@@ -46,8 +46,8 @@ public class WorkSpec {
     @NonNull
     String mId;
 
-    @ColumnInfo(name = "status")
-    WorkStatus mStatus = ENQUEUED;
+    @ColumnInfo(name = "state")
+    State mState = ENQUEUED;
 
     @ColumnInfo(name = "worker_class_name")
     String mWorkerClassName;
@@ -101,12 +101,12 @@ public class WorkSpec {
         mId = id;
     }
 
-    public WorkStatus getStatus() {
-        return mStatus;
+    public State getState() {
+        return mState;
     }
 
-    public void setStatus(WorkStatus status) {
-        mStatus = status;
+    public void setState(State state) {
+        mState = state;
     }
 
     public String getWorkerClassName() {
@@ -186,7 +186,7 @@ public class WorkSpec {
     }
 
     public boolean isBackedOff() {
-        return mStatus == ENQUEUED && mRunAttemptCount > 0;
+        return mState == ENQUEUED && mRunAttemptCount > 0;
     }
 
     /**
@@ -313,7 +313,7 @@ public class WorkSpec {
         }
         WorkSpec other = (WorkSpec) o;
         return mId.equals(other.mId)
-                && mStatus == other.mStatus
+                && mState == other.mState
                 && mInitialDelay == other.mInitialDelay
                 && mIntervalDuration == other.mIntervalDuration
                 && mFlexDuration == other.mFlexDuration
@@ -336,7 +336,7 @@ public class WorkSpec {
     @Override
     public int hashCode() {
         int result = mId.hashCode();
-        result = 31 * result + mStatus.hashCode();
+        result = 31 * result + mState.hashCode();
         result = 31 * result + (mWorkerClassName != null ? mWorkerClassName.hashCode() : 0);
         result = 31 * result
                 + (mInputMergerClassName != null ? mInputMergerClassName.hashCode() : 0);
@@ -358,32 +358,66 @@ public class WorkSpec {
     }
 
     /**
-     * A POJO containing the ID and status of a WorkSpec.
+     * A POJO containing the ID and state of a WorkSpec.
      */
-    public static class IdAndStatus {
+    public static class IdAndState {
 
         @ColumnInfo(name = "id")
         public String id;
 
-
-        @ColumnInfo(name = "status")
-        public WorkStatus status;
+        @ColumnInfo(name = "state")
+        public State state;
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            IdAndStatus that = (IdAndStatus) o;
+            IdAndState that = (IdAndState) o;
 
-            if (status != that.status) return false;
+            if (state != that.state) return false;
             return id.equals(that.id);
         }
 
         @Override
         public int hashCode() {
             int result = id.hashCode();
-            result = 31 * result + status.hashCode();
+            result = 31 * result + state.hashCode();
+            return result;
+        }
+    }
+
+    /**
+     * A POJO containing the ID, state, and output of a WorkSpec.
+     */
+    public static class IdStateAndOutput {
+
+        @ColumnInfo(name = "id")
+        public String id;
+
+        @ColumnInfo(name = "state")
+        public State state;
+
+        @ColumnInfo(name = "output")
+        public Arguments output;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            IdStateAndOutput that = (IdStateAndOutput) o;
+
+            if (!id.equals(that.id)) return false;
+            if (state != that.state) return false;
+            return output != null ? output.equals(that.output) : that.output == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = id.hashCode();
+            result = 31 * result + state.hashCode();
+            result = 31 * result + (output != null ? output.hashCode() : 0);
             return result;
         }
     }

@@ -16,7 +16,7 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
+import static android.arch.background.workmanager.State.SUCCEEDED;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -41,13 +41,13 @@ public class WorkSpecDaoTest extends DatabaseTest {
     public void testPruneLeaves() {
         Work enqueuedWork = new Work.Builder(TestWorker.class).build();
         Work finishedPrerequisiteWork1A =
-                new Work.Builder(TestWorker.class).withInitialStatus(SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
         Work finishedPrerequisiteWork1B =
-                new Work.Builder(TestWorker.class).withInitialStatus(SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
         Work finishedPrerequisiteWork2 =
-                new Work.Builder(TestWorker.class).withInitialStatus(SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
         Work finishedFinalWork =
-                new Work.Builder(TestWorker.class).withInitialStatus(SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
 
         insertWork(enqueuedWork);
         insertWork(finishedPrerequisiteWork1A);

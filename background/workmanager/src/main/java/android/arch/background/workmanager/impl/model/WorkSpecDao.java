@@ -19,7 +19,7 @@ package android.arch.background.workmanager.impl.model;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.background.workmanager.Arguments;
-import android.arch.background.workmanager.WorkStatus;
+import android.arch.background.workmanager.State;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
@@ -72,9 +72,9 @@ public interface WorkSpecDao {
      * @param tag The tag of the desired {@link WorkSpec}s.
      * @return The {@link WorkSpec}s with the requested tag.
      */
-    @Query("SELECT id, status FROM workspec WHERE id IN "
+    @Query("SELECT id, state FROM workspec WHERE id IN "
             + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
-    List<WorkSpec.IdAndStatus> getWorkSpecIdAndStatusesForTag(String tag);
+    List<WorkSpec.IdAndState> getWorkSpecIdAndStatesForTag(String tag);
 
     /**
      * @return All WorkSpec ids in the database.
@@ -83,14 +83,14 @@ public interface WorkSpecDao {
     List<String> getAllWorkSpecIds();
 
     /**
-     * Updates the status of at least one {@link WorkSpec} by ID.
+     * Updates the state of at least one {@link WorkSpec} by ID.
      *
-     * @param status The new status
+     * @param state The new state
      * @param ids The IDs for the {@link WorkSpec}s to update
      * @return The number of rows that were updated
      */
-    @Query("UPDATE workspec SET status=:status WHERE id IN (:ids)")
-    int setStatus(WorkStatus status, String... ids);
+    @Query("UPDATE workspec SET state=:state WHERE id IN (:ids)")
+    int setState(State state, String... ids);
 
     /**
      * Updates the output of a {@link WorkSpec}.
@@ -129,53 +129,42 @@ public interface WorkSpecDao {
     int resetWorkSpecRunAttemptCount(String id);
 
     /**
-     * Retrieves the status of a {@link WorkSpec}.
+     * Retrieves the state of a {@link WorkSpec}.
      *
      * @param id The identifier for the {@link WorkSpec}
-     * @return The status of the {@link WorkSpec}
+     * @return The state of the {@link WorkSpec}
      */
-    @Query("SELECT status FROM workspec WHERE id=:id")
-    WorkStatus getWorkSpecStatus(String id);
+    @Query("SELECT state FROM workspec WHERE id=:id")
+    State getWorkSpecState(String id);
 
     /**
-     * For a list of {@link WorkSpec} identifiers, retrieves a {@link LiveData} list of their ids
-     * and corresponding {@link WorkStatus}.
+     * For a list of {@link WorkSpec} identifiers, retrieves a {@link LiveData} list of their
+     * {@link WorkSpec.IdStateAndOutput}.
      *
-     * @param ids The identifiers of the {@link WorkSpec}s
-     * @return A {@link LiveData} list of {@link WorkSpec.IdAndStatus} with each identifier and its
-     * status
+     * @param ids The identifier of the {@link WorkSpec}s
+     * @return A {@link LiveData} list of {@link WorkSpec.IdStateAndOutput}
      */
-    @Query("SELECT id, status FROM workspec WHERE id IN (:ids)")
-    LiveData<List<WorkSpec.IdAndStatus>> getWorkSpecStatuses(List<String> ids);
+    @Query("SELECT id, state, output FROM workspec WHERE id IN (:ids)")
+    LiveData<List<WorkSpec.IdStateAndOutput>> getIdStateAndOutputs(List<String> ids);
 
     /**
-     * Retrieves a {@link LiveData} status of a {@link WorkSpec}
-     *
-     * @param id The identifier for the {@link WorkSpec}
-     * @return The {@link LiveData} {@link WorkStatus} of the {@link WorkSpec}
-     */
-    @Query("SELECT status FROM workspec WHERE id=:id")
-    LiveData<WorkStatus> getWorkSpecLiveDataStatus(String id);
-
-    /**
-     * Retrieves {@link WorkSpec}s that have status {@code ENQUEUED} or
+     * Retrieves {@link WorkSpec}s that have state {@code ENQUEUED} or
      * {@code RUNNING}, no initial delay, and are not periodic.
      *
      * @return A {@link LiveData} list of {@link WorkSpec}s.
      */
-    @Query("SELECT * FROM workspec WHERE (status=" + EnumTypeConverters.StatusIds.ENQUEUED
-            + " OR status=" + EnumTypeConverters.StatusIds.RUNNING
+    @Query("SELECT * FROM workspec WHERE (state=" + EnumTypeConverters.StateIds.ENQUEUED
+            + " OR state=" + EnumTypeConverters.StateIds.RUNNING
             + ") AND initial_delay=0 AND interval_duration=0")
     LiveData<List<WorkSpec>> getForegroundEligibleWorkSpecs();
 
     /**
-     * Retrieves {@link WorkSpec}s that have status {@code ENQUEUED} or
-     * {@code RUNNING}
+     * Retrieves {@link WorkSpec}s that have state {@code ENQUEUED} or {@code RUNNING}
      *
      * @return A {@link LiveData} list of {@link WorkSpec}s.
      */
-    @Query("SELECT * FROM workspec WHERE status=" + EnumTypeConverters.StatusIds.ENQUEUED
-            + " OR status=" + EnumTypeConverters.StatusIds.RUNNING)
+    @Query("SELECT * FROM workspec WHERE state=" + EnumTypeConverters.StateIds.ENQUEUED
+            + " OR state=" + EnumTypeConverters.StateIds.RUNNING)
     LiveData<List<WorkSpec>> getSystemAlarmEligibleWorkSpecs();
 
     /**
@@ -204,8 +193,8 @@ public interface WorkSpecDao {
      * @param tag The tag used to identify the work
      * @return A list of work ids
      */
-    @Query("SELECT id FROM workspec WHERE status!=" + EnumTypeConverters.StatusIds.SUCCEEDED
-            + " AND status!=" + EnumTypeConverters.StatusIds.FAILED
+    @Query("SELECT id FROM workspec WHERE state!=" + EnumTypeConverters.StateIds.SUCCEEDED
+            + " AND state!=" + EnumTypeConverters.StateIds.FAILED
             + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
     List<String> getUnfinishedWorkWithTag(@NonNull String tag);
 
@@ -216,10 +205,10 @@ public interface WorkSpecDao {
      *
      * @return The number of deleted work items
      */
-    @Query("DELETE FROM workspec WHERE status IN "
-            + "(" + EnumTypeConverters.StatusIds.CANCELLED + ", "
-            + EnumTypeConverters.StatusIds.FAILED + ", "
-            + EnumTypeConverters.StatusIds.SUCCEEDED + ")"
+    @Query("DELETE FROM workspec WHERE state IN "
+            + "(" + EnumTypeConverters.StateIds.CANCELLED + ", "
+            + EnumTypeConverters.StateIds.FAILED + ", "
+            + EnumTypeConverters.StateIds.SUCCEEDED + ")"
             + " AND id NOT IN (SELECT DISTINCT prerequisite_id FROM dependency)")
     int pruneLeaves();
 }

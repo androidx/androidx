@@ -18,10 +18,10 @@ package android.arch.background.workmanager.impl.utils;
 
 import static android.arch.background.workmanager.ExistingWorkPolicy.APPEND;
 import static android.arch.background.workmanager.ExistingWorkPolicy.KEEP;
-import static android.arch.background.workmanager.WorkStatus.BLOCKED;
-import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
-import static android.arch.background.workmanager.WorkStatus.RUNNING;
-import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
+import static android.arch.background.workmanager.State.BLOCKED;
+import static android.arch.background.workmanager.State.ENQUEUED;
+import static android.arch.background.workmanager.State.RUNNING;
+import static android.arch.background.workmanager.State.SUCCEEDED;
 
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.ExistingWorkPolicy;
@@ -175,7 +175,7 @@ public class EnqueueRunnable implements Runnable {
                     return;
                 }
                 hasCompletedAllPrerequisites &=
-                        (prerequisiteWorkSpec.getStatus() == SUCCEEDED);
+                        (prerequisiteWorkSpec.getState() == SUCCEEDED);
             }
         }
 
@@ -186,18 +186,18 @@ public class EnqueueRunnable implements Runnable {
         boolean shouldApplyExistingWorkPolicy = hasUniqueTag && !hasPrerequisite;
         if (shouldApplyExistingWorkPolicy) {
             // Get everything with the unique tag.
-            List<WorkSpec.IdAndStatus> existingWorkSpecIdAndStatuses =
-                    workDatabase.workSpecDao().getWorkSpecIdAndStatusesForTag(uniqueTag);
+            List<WorkSpec.IdAndState> existingWorkSpecIdAndStates =
+                    workDatabase.workSpecDao().getWorkSpecIdAndStatesForTag(uniqueTag);
 
-            if (!existingWorkSpecIdAndStatuses.isEmpty()) {
+            if (!existingWorkSpecIdAndStates.isEmpty()) {
                 // If appending, these are the new prerequisites.
                 if (existingWorkPolicy == APPEND) {
                     DependencyDao dependencyDao = workDatabase.dependencyDao();
                     List<String> newPrerequisiteIds = new ArrayList<>();
-                    for (WorkSpec.IdAndStatus idAndStatus : existingWorkSpecIdAndStatuses) {
-                        if (!dependencyDao.hasDependents(idAndStatus.id)) {
-                            hasCompletedAllPrerequisites &= (idAndStatus.status == SUCCEEDED);
-                            newPrerequisiteIds.add(idAndStatus.id);
+                    for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
+                        if (!dependencyDao.hasDependents(idAndState.id)) {
+                            hasCompletedAllPrerequisites &= (idAndState.state == SUCCEEDED);
+                            newPrerequisiteIds.add(idAndState.id);
                         }
                     }
                     prerequisiteIds = newPrerequisiteIds.toArray(prerequisiteIds);
@@ -206,8 +206,8 @@ public class EnqueueRunnable implements Runnable {
                     // If we're keeping existing work, make sure to do so only if something is
                     // enqueued or running.
                     if (existingWorkPolicy == KEEP) {
-                        for (WorkSpec.IdAndStatus idAndStatus : existingWorkSpecIdAndStatuses) {
-                            if (idAndStatus.status == ENQUEUED || idAndStatus.status == RUNNING) {
+                        for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
+                            if (idAndState.state == ENQUEUED || idAndState.state == RUNNING) {
                                 return;
                             }
                         }
@@ -219,8 +219,8 @@ public class EnqueueRunnable implements Runnable {
                     cancelWorkRunnable.run();
                     // And delete all the database records.
                     WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-                    for (WorkSpec.IdAndStatus idAndStatus : existingWorkSpecIdAndStatuses) {
-                        workSpecDao.delete(idAndStatus.id);
+                    for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
+                        workSpecDao.delete(idAndState.id);
                     }
                 }
             }
@@ -230,7 +230,7 @@ public class EnqueueRunnable implements Runnable {
             WorkSpec workSpec = work.getWorkSpec();
 
             if (hasPrerequisite && !hasCompletedAllPrerequisites) {
-                workSpec.setStatus(BLOCKED);
+                workSpec.setState(BLOCKED);
             } else {
                 // Set scheduled times only for work without prerequisites. Dependent work
                 // will set their scheduled times when they are unblocked.

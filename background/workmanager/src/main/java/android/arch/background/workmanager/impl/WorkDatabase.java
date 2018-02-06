@@ -16,12 +16,12 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.BLOCKED;
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.CANCELLED;
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.ENQUEUED;
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.FAILED;
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.RUNNING;
-import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StatusIds.SUCCEEDED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StateIds.BLOCKED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StateIds.CANCELLED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StateIds.ENQUEUED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StateIds.FAILED;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StateIds.RUNNING;
+import static android.arch.background.workmanager.impl.model.EnumTypeConverters.StateIds.SUCCEEDED;
 
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.ContentUriTriggers;
@@ -44,7 +44,7 @@ import android.support.annotation.RestrictTo;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A Room database for keeping track of work statuses.
+ * A Room database for keeping track of work states.
  *
  * @hide
  */
@@ -55,12 +55,12 @@ import java.util.concurrent.TimeUnit;
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "android.arch.background.workmanager.work";
-    private static final String CLEANUP_SQL = "UPDATE workspec SET status=" + ENQUEUED
-            + " WHERE status=" + RUNNING;
-    private static final String PRUNE_SQL_PREFIX = "DELETE FROM workspec WHERE status IN ("
+    private static final String CLEANUP_SQL = "UPDATE workspec SET state=" + ENQUEUED
+            + " WHERE state=" + RUNNING;
+    private static final String PRUNE_SQL_PREFIX = "DELETE FROM workspec WHERE state IN ("
             + SUCCEEDED + ", " + FAILED + ", " + CANCELLED + ") AND period_start_time < ";
     private static final String BLOCKED_WITHOUT_PREREQUISITES_WHERE_CLAUSE =
-            "status=" + BLOCKED + " AND id NOT IN "
+            "state=" + BLOCKED + " AND id NOT IN "
             + "(SELECT DISTINCT work_spec_id FROM dependency)";
 
     private static final long PRUNE_THRESHOLD_MILLIS = TimeUnit.DAYS.toMillis(7);

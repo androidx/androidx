@@ -157,19 +157,11 @@ public abstract class WorkManager {
     public abstract void pruneDatabase();
 
     /**
-     * Gets the {@link WorkStatus} for a given work id.
+     * Gets the {@link State} for a given work id.
      *
      * @param id The id of the work
-     * @return A {@link LiveData} of the {@link WorkStatus}
+     * @return A {@link LiveData} of the {@link WorkStatus} associated with {@code id}
      */
     public abstract LiveData<WorkStatus> getStatus(@NonNull String id);
-
-    /**
-     * Gets the output for a given work id.
-     *
-     * @param id The id of the work
-     * @return A {@link LiveData} of the output
-     */
-    public abstract LiveData<Arguments> getOutput(@NonNull String id);
 
 }

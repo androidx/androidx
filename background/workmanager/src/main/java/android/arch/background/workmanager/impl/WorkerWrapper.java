@@ -16,15 +16,15 @@
 
 package android.arch.background.workmanager.impl;
 
-import static android.arch.background.workmanager.WorkStatus.CANCELLED;
-import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
-import static android.arch.background.workmanager.WorkStatus.FAILED;
-import static android.arch.background.workmanager.WorkStatus.RUNNING;
-import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
+import static android.arch.background.workmanager.State.CANCELLED;
+import static android.arch.background.workmanager.State.ENQUEUED;
+import static android.arch.background.workmanager.State.FAILED;
+import static android.arch.background.workmanager.State.RUNNING;
+import static android.arch.background.workmanager.State.SUCCEEDED;
 
 import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.InputMerger;
-import android.arch.background.workmanager.WorkStatus;
+import android.arch.background.workmanager.State;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.DependencyDao;
@@ -83,7 +83,7 @@ public class WorkerWrapper implements Runnable {
             return;
         }
 
-        if (mWorkSpec.getStatus() != ENQUEUED) {
+        if (mWorkSpec.getState() != ENQUEUED) {
             notifyIncorrectStatus();
             return;
         }
@@ -119,7 +119,7 @@ public class WorkerWrapper implements Runnable {
         try {
             checkForInterruption();
             Worker.WorkerResult result = mWorker.doWork();
-            if (mWorkSpecDao.getWorkSpecStatus(mWorkSpecId) != CANCELLED) {
+            if (mWorkSpecDao.getWorkSpecState(mWorkSpecId) != CANCELLED) {
                 checkForInterruption();
                 handleResult(result);
             }
@@ -131,7 +131,7 @@ public class WorkerWrapper implements Runnable {
 
     private void notifyIncorrectStatus() {
         // incorrect status is treated as a false-y attempt at execution
-        WorkStatus status = mWorkSpec.getStatus();
+        State status = mWorkSpec.getState();
         if (status == RUNNING) {
             Logger.debug(TAG, "Status for %s is RUNNING;"
                     + "not doing any work and rescheduling for later execution", mWorkSpecId);
@@ -193,7 +193,7 @@ public class WorkerWrapper implements Runnable {
     private void setRunning() {
         mWorkDatabase.beginTransaction();
         try {
-            mWorkSpecDao.setStatus(RUNNING, mWorkSpecId);
+            mWorkSpecDao.setState(RUNNING, mWorkSpecId);
             mWorkSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);
             mWorkDatabase.setTransactionSuccessful();
         } finally {
@@ -202,14 +202,14 @@ public class WorkerWrapper implements Runnable {
     }
 
     private void setFailedAndNotify() {
-        mWorkSpecDao.setStatus(FAILED, mWorkSpecId);
+        mWorkSpecDao.setState(FAILED, mWorkSpecId);
         notifyListener(false, false);
     }
 
     private void rescheduleAndNotify(boolean isSuccessful) {
         mWorkDatabase.beginTransaction();
         try {
-            mWorkSpecDao.setStatus(ENQUEUED, mWorkSpecId);
+            mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
             // TODO(xbhatnag): Period Start Time is confusing for non-periodic work. Rename.
             mWorkSpecDao.setPeriodStartTime(mWorkSpecId, System.currentTimeMillis());
             mWorkDatabase.setTransactionSuccessful();
@@ -225,7 +225,7 @@ public class WorkerWrapper implements Runnable {
             long currentPeriodStartTime = mWorkSpec.getPeriodStartTime();
             long nextPeriodStartTime = currentPeriodStartTime + mWorkSpec.getIntervalDuration();
             mWorkSpecDao.setPeriodStartTime(mWorkSpecId, nextPeriodStartTime);
-            mWorkSpecDao.setStatus(ENQUEUED, mWorkSpecId);
+            mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
             mWorkSpecDao.resetWorkSpecRunAttemptCount(mWorkSpecId);
             mWorkDatabase.setTransactionSuccessful();
         } finally {
@@ -237,7 +237,7 @@ public class WorkerWrapper implements Runnable {
     private void setSucceededAndNotify() {
         mWorkDatabase.beginTransaction();
         try {
-            mWorkSpecDao.setStatus(SUCCEEDED, mWorkSpecId);
+            mWorkSpecDao.setState(SUCCEEDED, mWorkSpecId);
 
             // Update Arguments as necessary.
             Arguments outputArgs = mWorker.getOutput();
@@ -252,7 +252,7 @@ public class WorkerWrapper implements Runnable {
             for (String dependentWorkId : dependentWorkIds) {
                 if (mDependencyDao.hasCompletedAllPrerequisites(dependentWorkId)) {
                     Logger.debug(TAG, "Setting status to enqueued for %s", dependentWorkId);
-                    mWorkSpecDao.setStatus(ENQUEUED, dependentWorkId);
+                    mWorkSpecDao.setState(ENQUEUED, dependentWorkId);
                     mWorkSpecDao.setPeriodStartTime(dependentWorkId, currentTimeMillis);
                     unblockedWorkIds.add(dependentWorkId);
                 }

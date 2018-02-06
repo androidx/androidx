@@ -21,7 +21,7 @@ import android.arch.background.workmanager.BackoffPolicy;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.PeriodicWork;
-import android.arch.background.workmanager.WorkStatus;
+import android.arch.background.workmanager.State;
 import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.support.annotation.NonNull;
@@ -84,8 +84,8 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
 
         @VisibleForTesting
         @Override
-        public Builder withInitialStatus(@NonNull WorkStatus status) {
-            mWorkSpec.setStatus(status);
+        public Builder withInitialState(@NonNull State state) {
+            mWorkSpec.setState(state);
             return this;
         }
 

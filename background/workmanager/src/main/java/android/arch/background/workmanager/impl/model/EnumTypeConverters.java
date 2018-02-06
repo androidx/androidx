@@ -18,16 +18,16 @@ package android.arch.background.workmanager.impl.model;
 
 import static android.arch.background.workmanager.BackoffPolicy.EXPONENTIAL;
 import static android.arch.background.workmanager.BackoffPolicy.LINEAR;
-import static android.arch.background.workmanager.WorkStatus.BLOCKED;
-import static android.arch.background.workmanager.WorkStatus.CANCELLED;
-import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
-import static android.arch.background.workmanager.WorkStatus.FAILED;
-import static android.arch.background.workmanager.WorkStatus.RUNNING;
-import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
+import static android.arch.background.workmanager.State.BLOCKED;
+import static android.arch.background.workmanager.State.CANCELLED;
+import static android.arch.background.workmanager.State.ENQUEUED;
+import static android.arch.background.workmanager.State.FAILED;
+import static android.arch.background.workmanager.State.RUNNING;
+import static android.arch.background.workmanager.State.SUCCEEDED;
 
 import android.arch.background.workmanager.BackoffPolicy;
 import android.arch.background.workmanager.NetworkType;
-import android.arch.background.workmanager.WorkStatus;
+import android.arch.background.workmanager.State;
 import android.arch.persistence.room.TypeConverter;
 
 /**
@@ -37,9 +37,9 @@ import android.arch.persistence.room.TypeConverter;
 public class EnumTypeConverters {
 
     /**
-     * Integer identifiers that map to {@link WorkStatus}.
+     * Integer identifiers that map to {@link State}.
      */
-    public interface StatusIds {
+    public interface StateIds {
         int ENQUEUED = 0;
         int RUNNING = 1;
         int SUCCEEDED = 2;
@@ -68,68 +68,68 @@ public class EnumTypeConverters {
     }
 
     /**
-     * TypeConverter for a WorkStatus to an int.
+     * TypeConverter for a State to an int.
      *
-     * @param workStatus The input WorkStatus
+     * @param state The input State
      * @return The associated int constant
      */
     @TypeConverter
-    public static int workStatusToInt(WorkStatus workStatus) {
-        switch (workStatus) {
+    public static int stateToInt(State state) {
+        switch (state) {
             case ENQUEUED:
-                return StatusIds.ENQUEUED;
+                return StateIds.ENQUEUED;
 
             case RUNNING:
-                return StatusIds.RUNNING;
+                return StateIds.RUNNING;
 
             case SUCCEEDED:
-                return StatusIds.SUCCEEDED;
+                return StateIds.SUCCEEDED;
 
             case FAILED:
-                return StatusIds.FAILED;
+                return StateIds.FAILED;
 
             case BLOCKED:
-                return StatusIds.BLOCKED;
+                return StateIds.BLOCKED;
 
             case CANCELLED:
-                return StatusIds.CANCELLED;
+                return StateIds.CANCELLED;
 
             default:
                 throw new IllegalArgumentException(
-                        "Could not convert " + workStatus + " to int");
+                        "Could not convert " + state + " to int");
         }
     }
 
     /**
-     * TypeConverter for an int to a WorkStatus.
+     * TypeConverter for an int to a State.
      *
      * @param value The input integer
-     * @return The associated WorkStatus enum value
+     * @return The associated State enum value
      */
     @TypeConverter
-    public static WorkStatus intToWorkStatus(int value) {
+    public static State intToState(int value) {
         switch (value) {
-            case StatusIds.ENQUEUED:
+            case StateIds.ENQUEUED:
                 return ENQUEUED;
 
-            case StatusIds.RUNNING:
+            case StateIds.RUNNING:
                 return RUNNING;
 
-            case StatusIds.SUCCEEDED:
+            case StateIds.SUCCEEDED:
                 return SUCCEEDED;
 
-            case StatusIds.FAILED:
+            case StateIds.FAILED:
                 return FAILED;
 
-            case StatusIds.BLOCKED:
+            case StateIds.BLOCKED:
                 return BLOCKED;
 
-            case StatusIds.CANCELLED:
+            case StateIds.CANCELLED:
                 return CANCELLED;
 
             default:
                 throw new IllegalArgumentException(
-                        "Could not convert " + value + " to WorkStatus");
+                        "Could not convert " + value + " to State");
         }
     }
 

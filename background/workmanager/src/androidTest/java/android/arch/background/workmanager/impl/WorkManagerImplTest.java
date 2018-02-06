@@ -21,12 +21,12 @@ import static android.arch.background.workmanager.ExistingWorkPolicy.KEEP;
 import static android.arch.background.workmanager.ExistingWorkPolicy.REPLACE;
 import static android.arch.background.workmanager.NetworkType.METERED;
 import static android.arch.background.workmanager.NetworkType.NOT_REQUIRED;
-import static android.arch.background.workmanager.WorkStatus.BLOCKED;
-import static android.arch.background.workmanager.WorkStatus.CANCELLED;
-import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
-import static android.arch.background.workmanager.WorkStatus.FAILED;
-import static android.arch.background.workmanager.WorkStatus.RUNNING;
-import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
+import static android.arch.background.workmanager.State.BLOCKED;
+import static android.arch.background.workmanager.State.CANCELLED;
+import static android.arch.background.workmanager.State.ENQUEUED;
+import static android.arch.background.workmanager.State.FAILED;
+import static android.arch.background.workmanager.State.RUNNING;
+import static android.arch.background.workmanager.State.SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -42,6 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.BackoffPolicy;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.Constraints;
@@ -84,9 +85,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest extends WorkManagerTest {
@@ -218,12 +217,12 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
         workContinuation.enqueue();
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getWorkSpecStatus(work1.getId()), is(SUCCEEDED));
+        assertThat(workSpecDao.getWorkSpecState(work1.getId()), is(SUCCEEDED));
 
         mLifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.CREATED);
         Work work2 = new Work.Builder(TestWorker.class).build();
         workContinuation.then(work2).enqueue();
-        assertThat(workSpecDao.getWorkSpecStatus(work2.getId()), is(ENQUEUED));
+        assertThat(workSpecDao.getWorkSpecState(work2.getId()), is(ENQUEUED));
     }
 
     @Test
@@ -444,7 +443,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String testTag = "mytag";
 
         Work originalWork = new Work.Builder(TestWorker.class)
-                .withInitialStatus(SUCCEEDED)
+                .withInitialState(SUCCEEDED)
                 .addTag(testTag)
                 .build();
         insertWorkSpecAndTags(originalWork);
@@ -487,8 +486,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(originalWork.getId()), is(not(nullValue())));
-        assertThat(workSpecDao.getWorkSpecStatus(appendWork1.getId()), is(BLOCKED));
-        assertThat(workSpecDao.getWorkSpecStatus(appendWork2.getId()), is(BLOCKED));
+        assertThat(workSpecDao.getWorkSpecState(appendWork1.getId()), is(BLOCKED));
+        assertThat(workSpecDao.getWorkSpecState(appendWork2.getId()), is(BLOCKED));
 
         assertThat(mDatabase.dependencyDao().getDependentWorkIds(originalWork.getId()),
                 containsInAnyOrder(appendWork1.getId()));
@@ -539,8 +538,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(workSpecDao.getWorkSpec(originalWork2.getId()), is(not(nullValue())));
         assertThat(workSpecDao.getWorkSpec(originalWork3.getId()), is(not(nullValue())));
         assertThat(workSpecDao.getWorkSpec(originalWork4.getId()), is(not(nullValue())));
-        assertThat(workSpecDao.getWorkSpecStatus(appendWork1.getId()), is(BLOCKED));
-        assertThat(workSpecDao.getWorkSpecStatus(appendWork2.getId()), is(BLOCKED));
+        assertThat(workSpecDao.getWorkSpecState(appendWork1.getId()), is(BLOCKED));
+        assertThat(workSpecDao.getWorkSpecState(appendWork2.getId()), is(BLOCKED));
 
         assertThat(dependencyDao.getPrerequisites(appendWork1.getId()),
                 containsInAnyOrder(originalWork3.getId(), originalWork4.getId()));
@@ -574,43 +573,42 @@ public class WorkManagerImplTest extends WorkManagerTest {
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
 
-        Observer<Map<String, WorkStatus>> mockObserver = mock(Observer.class);
+        Observer<List<WorkStatus>> mockObserver = mock(Observer.class);
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
-        LiveData<Map<String, WorkStatus>> liveData =
-                mWorkManagerImpl.getStatusesFor(Arrays.asList(work0.getId(), work1.getId()));
+        LiveData<List<WorkStatus>> liveData =
+                mWorkManagerImpl.getStatuses(Arrays.asList(work0.getId(), work1.getId()));
         liveData.observe(testLifecycleOwner, mockObserver);
 
-        ArgumentCaptor<Map<String, WorkStatus>> captor =
-                ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<List<WorkStatus>> captor =
+                ArgumentCaptor.forClass(List.class);
         verify(mockObserver).onChanged(captor.capture());
         assertThat(captor.getValue(), is(not(nullValue())));
         assertThat(captor.getValue().size(), is(2));
 
-        Map expectedMap = new HashMap(2);
-        expectedMap.put(work0.getId(), ENQUEUED);
-        expectedMap.put(work1.getId(), ENQUEUED);
-        assertThat(captor.getValue(), is(expectedMap));
+        WorkStatus workStatus0 = new WorkStatus(work0.getId(), ENQUEUED, Arguments.EMPTY);
+        WorkStatus workStatus1 = new WorkStatus(work1.getId(), ENQUEUED, Arguments.EMPTY);
+        assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        workSpecDao.setStatus(RUNNING, work0.getId());
+        workSpecDao.setState(RUNNING, work0.getId());
 
         verify(mockObserver, times(2)).onChanged(captor.capture());
         assertThat(captor.getValue(), is(not(nullValue())));
         assertThat(captor.getValue().size(), is(2));
 
-        expectedMap.put(work0.getId(), RUNNING);
-        assertThat(captor.getValue(), is(expectedMap));
+        workStatus0 = new WorkStatus(work0.getId(), RUNNING, Arguments.EMPTY);
+        assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         clearInvocations(mockObserver);
-        workSpecDao.setStatus(RUNNING, work1.getId());
+        workSpecDao.setState(RUNNING, work1.getId());
 
         verify(mockObserver).onChanged(captor.capture());
         assertThat(captor.getValue(), is(not(nullValue())));
         assertThat(captor.getValue().size(), is(2));
 
-        expectedMap.put(work1.getId(), RUNNING);
-        assertThat(captor.getValue(), is(expectedMap));
+        workStatus1 = new WorkStatus(work1.getId(), RUNNING, Arguments.EMPTY);
+        assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         liveData.removeObservers(testLifecycleOwner);
     }
@@ -627,8 +625,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         mWorkManagerImpl.cancelWorkForId(work0.getId());
 
-        assertThat(workSpecDao.getWorkSpecStatus(work0.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecStatus(work1.getId()), is(not(CANCELLED)));
+        assertThat(workSpecDao.getWorkSpecState(work0.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getWorkSpecState(work1.getId()), is(not(CANCELLED)));
     }
 
     @Test
@@ -650,10 +648,10 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         mWorkManagerImpl.cancelAllWorkWithTag(tagToClear);
 
-        assertThat(workSpecDao.getWorkSpecStatus(work0.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecStatus(work1.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecStatus(work2.getId()), is(not(CANCELLED)));
-        assertThat(workSpecDao.getWorkSpecStatus(work3.getId()), is(not(CANCELLED)));
+        assertThat(workSpecDao.getWorkSpecState(work0.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getWorkSpecState(work1.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getWorkSpecState(work2.getId()), is(not(CANCELLED)));
+        assertThat(workSpecDao.getWorkSpecState(work3.getId()), is(not(CANCELLED)));
     }
 
     @Test
@@ -697,11 +695,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
         mWorkManagerImpl.cancelAllWorkWithTag(tag);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getWorkSpecStatus(work0.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecStatus(work1.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecStatus(work2.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecStatus(work3.getId()), is(not(CANCELLED)));
-        assertThat(workSpecDao.getWorkSpecStatus(work4.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getWorkSpecState(work0.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getWorkSpecState(work1.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getWorkSpecState(work2.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getWorkSpecState(work3.getId()), is(not(CANCELLED)));
+        assertThat(workSpecDao.getWorkSpecState(work4.getId()), is(CANCELLED));
     }
 
     @Test
@@ -709,13 +707,13 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testPruneDatabase() {
         Work enqueuedWork = new Work.Builder(TestWorker.class).build();
         Work finishedPrerequisiteWork1A =
-                new Work.Builder(TestWorker.class).withInitialStatus(SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
         Work finishedPrerequisiteWork1B =
-                new Work.Builder(TestWorker.class).withInitialStatus(SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
         Work finishedPrerequisiteWork2 =
-                new Work.Builder(TestWorker.class).withInitialStatus(SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
         Work finishedFinalWork =
-                new Work.Builder(TestWorker.class).withInitialStatus(SUCCEEDED).build();
+                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
 
         insertWorkSpecAndTags(enqueuedWork);
         insertWorkSpecAndTags(finishedPrerequisiteWork1A);
@@ -750,23 +748,23 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
-        Work work = new Work.Builder(TestWorker.class).withInitialStatus(RUNNING).build();
+        Work work = new Work.Builder(TestWorker.class).withInitialState(RUNNING).build();
         workSpecDao.insertWorkSpec(getWorkSpec(work));
 
-        assertThat(workSpecDao.getWorkSpecStatus(work.getId()), is(RUNNING));
+        assertThat(workSpecDao.getWorkSpecState(work.getId()), is(RUNNING));
 
         SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
         SupportSQLiteDatabase db = openHelper.getWritableDatabase();
         WorkDatabase.generateCleanupCallback().onOpen(db);
 
-        assertThat(workSpecDao.getWorkSpecStatus(work.getId()), is(ENQUEUED));
+        assertThat(workSpecDao.getWorkSpecState(work.getId()), is(ENQUEUED));
     }
 
     @Test
     @SmallTest
     public void testGenerateCleanupCallback_deletesOldFinishedWork() {
         Work work1 = new Work.Builder(TestWorker.class)
-                .withInitialStatus(SUCCEEDED)
+                .withInitialState(SUCCEEDED)
                 .withPeriodStartTime(0L)
                 .build();
         Work work2 = new Work.Builder(TestWorker.class).withPeriodStartTime(Long.MAX_VALUE).build();
@@ -787,15 +785,15 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @SmallTest
     public void testGenerateCleanupCallback_deletesDanglingBlockedDependencies() {
         Work work1 = new Work.Builder(TestWorker.class)
-                .withInitialStatus(FAILED)
+                .withInitialState(FAILED)
                 .withPeriodStartTime(0L)
                 .build();
         Work work2 = new Work.Builder(TestWorker.class)
-                .withInitialStatus(BLOCKED)
+                .withInitialState(BLOCKED)
                 .withPeriodStartTime(Long.MAX_VALUE)
                 .build();
         Work work3 = new Work.Builder(TestWorker.class)
-                .withInitialStatus(BLOCKED)
+                .withInitialState(BLOCKED)
                 .withPeriodStartTime(Long.MAX_VALUE)
                 .build();
 

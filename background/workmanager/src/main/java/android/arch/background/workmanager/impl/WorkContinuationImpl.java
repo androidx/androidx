@@ -35,7 +35,6 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A concrete implementation of {@link WorkContinuation}.
@@ -153,8 +152,8 @@ public class WorkContinuationImpl extends WorkContinuation {
     }
 
     @Override
-    public LiveData<Map<String, WorkStatus>> getStatuses() {
-        return mWorkManagerImpl.getStatusesFor(mAllIds);
+    public LiveData<List<WorkStatus>> getStatuses() {
+        return mWorkManagerImpl.getStatuses(mAllIds);
     }
 
     @Override

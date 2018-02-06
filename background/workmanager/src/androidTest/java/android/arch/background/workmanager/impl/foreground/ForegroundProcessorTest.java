@@ -15,9 +15,9 @@
  */
 package android.arch.background.workmanager.impl.foreground;
 
-import static android.arch.background.workmanager.WorkStatus.BLOCKED;
-import static android.arch.background.workmanager.WorkStatus.ENQUEUED;
-import static android.arch.background.workmanager.WorkStatus.SUCCEEDED;
+import static android.arch.background.workmanager.State.BLOCKED;
+import static android.arch.background.workmanager.State.ENQUEUED;
+import static android.arch.background.workmanager.State.SUCCEEDED;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -90,7 +90,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
         drain();
         assertThat(mForegroundProcessor.process(work.getId()), is(true));
         drain();
-        assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()), is(SUCCEEDED));
+        assertThat(mDatabase.workSpecDao().getWorkSpecState(work.getId()), is(SUCCEEDED));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
     public void testProcess_dependentWorkers() throws TimeoutException, InterruptedException {
         Work prerequisite = new Work.Builder(TestWorker.class).build();
         Work workSpec = new Work.Builder(TestWorker.class)
-                .withInitialStatus(BLOCKED)
+                .withInitialState(BLOCKED)
                 .build();
 
         insertWork(prerequisite);
@@ -109,9 +109,9 @@ public class ForegroundProcessorTest extends DatabaseTest {
         assertThat(mForegroundProcessor.process(prerequisite.getId()), is(true));
         drain();
 
-        assertThat(mDatabase.workSpecDao().getWorkSpecStatus(prerequisite.getId()),
+        assertThat(mDatabase.workSpecDao().getWorkSpecState(prerequisite.getId()),
                 is(SUCCEEDED));
-        assertThat(mDatabase.workSpecDao().getWorkSpecStatus(workSpec.getId()),
+        assertThat(mDatabase.workSpecDao().getWorkSpecState(workSpec.getId()),
                 is(SUCCEEDED));
     }
 
@@ -125,7 +125,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
         drain();
         assertThat(mForegroundProcessor.process(work.getId()), is(true));
         drain();
-        assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()), is(SUCCEEDED));
+        assertThat(mDatabase.workSpecDao().getWorkSpecState(work.getId()), is(SUCCEEDED));
     }
 
     @Test
@@ -138,7 +138,7 @@ public class ForegroundProcessorTest extends DatabaseTest {
         drain();
         assertThat(mForegroundProcessor.process(work.getId()), is(false));
         drain();
-        assertThat(mDatabase.workSpecDao().getWorkSpecStatus(work.getId()), is(ENQUEUED));
+        assertThat(mDatabase.workSpecDao().getWorkSpecState(work.getId()), is(ENQUEUED));
     }
 
     private void postLifecycleEventOnMainThread(@NonNull final Lifecycle.Event event) {

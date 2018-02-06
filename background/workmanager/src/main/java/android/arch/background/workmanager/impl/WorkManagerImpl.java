@@ -16,7 +16,6 @@
 
 package android.arch.background.workmanager.impl;
 
-import android.arch.background.workmanager.Arguments;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.ExistingWorkPolicy;
 import android.arch.background.workmanager.Work;
@@ -39,9 +38,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -178,34 +177,49 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public LiveData<WorkStatus> getStatus(@NonNull String id) {
-        return LiveDataUtils.dedupedLiveDataFor(
-                mWorkDatabase.workSpecDao().getWorkSpecLiveDataStatus(id));
-    }
-
-    @Override
-    public LiveData<Arguments> getOutput(@NonNull String id) {
-        return LiveDataUtils.dedupedLiveDataFor(mWorkDatabase.workSpecDao().getOutput(id));
-    }
-
-    LiveData<Map<String, WorkStatus>> getStatusesFor(@NonNull List<String> workSpecIds) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
-        final MediatorLiveData<Map<String, WorkStatus>> mediatorLiveData =
-                new MediatorLiveData<>();
+        final MediatorLiveData<WorkStatus> mediatorLiveData = new MediatorLiveData<>();
         mediatorLiveData.addSource(
-                LiveDataUtils.dedupedLiveDataFor(dao.getWorkSpecStatuses(workSpecIds)),
-                new Observer<List<WorkSpec.IdAndStatus>>() {
+                LiveDataUtils.dedupedLiveDataFor(
+                        dao.getIdStateAndOutputs(Collections.singletonList(id))),
+                new Observer<List<WorkSpec.IdStateAndOutput>>() {
                     @Override
-                    public void onChanged(@Nullable List<WorkSpec.IdAndStatus> idAndStatuses) {
-                        if (idAndStatuses == null) {
-                            return;
+                    public void onChanged(
+                            @Nullable List<WorkSpec.IdStateAndOutput> idStateAndOutputs) {
+                        WorkStatus workStatus = null;
+                        if (idStateAndOutputs != null) {
+                            WorkSpec.IdStateAndOutput idStateAndOutput = idStateAndOutputs.get(0);
+                            workStatus = new WorkStatus(
+                                    idStateAndOutput.id,
+                                    idStateAndOutput.state,
+                                    idStateAndOutput.output);
                         }
+                        mediatorLiveData.setValue(workStatus);
+                    }
+                });
+        return mediatorLiveData;
+    }
 
-                        Map<String, WorkStatus> idToStatusMap =
-                                new HashMap<>(idAndStatuses.size());
-                        for (WorkSpec.IdAndStatus idAndStatus : idAndStatuses) {
-                            idToStatusMap.put(idAndStatus.id, idAndStatus.status);
+    LiveData<List<WorkStatus>> getStatuses(@NonNull List<String> workSpecIds) {
+        WorkSpecDao dao = mWorkDatabase.workSpecDao();
+        final MediatorLiveData<List<WorkStatus>> mediatorLiveData = new MediatorLiveData<>();
+        mediatorLiveData.addSource(
+                LiveDataUtils.dedupedLiveDataFor(dao.getIdStateAndOutputs(workSpecIds)),
+                new Observer<List<WorkSpec.IdStateAndOutput>>() {
+                    @Override
+                    public void onChanged(
+                            @Nullable List<WorkSpec.IdStateAndOutput> idStateAndOutputs) {
+                        List<WorkStatus> workStatuses = null;
+                        if (idStateAndOutputs != null) {
+                            workStatuses = new ArrayList<>(idStateAndOutputs.size());
+                            for (WorkSpec.IdStateAndOutput idStateAndOutput : idStateAndOutputs) {
+                                workStatuses.add(new WorkStatus(
+                                        idStateAndOutput.id,
+                                        idStateAndOutput.state,
+                                        idStateAndOutput.output));
+                            }
                         }
-                        mediatorLiveData.setValue(idToStatusMap);
+                        mediatorLiveData.setValue(workStatuses);
                     }
                 });
         return mediatorLiveData;

@@ -23,7 +23,6 @@ import android.support.annotation.WorkerThread;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * An opaque class that allows you to chain together {@link Work}.
@@ -51,14 +50,13 @@ public abstract class WorkContinuation {
     public abstract WorkContinuation then(@NonNull List<Work> work);
 
     /**
-     * Returns a {@link LiveData} mapping of work identifiers to their statuses for all work in this
-     * chain.  Whenever the status of one of the work enqueued in this chain changes, any attached
-     * {@link android.arch.lifecycle.Observer}s will trigger.
+     * Returns a {@link LiveData} list of {@link WorkStatus} that provides information about work,
+     * their progress, and any resulting output.  If status or outputs of any of the jobs in this
+     * chain changes, any attached {@link android.arch.lifecycle.Observer}s will trigger.
      *
-     * @return A {@link LiveData} containing a map of work identifiers to their corresponding
-     * {@link WorkStatus}
+     * @return A {@link LiveData} containing a list of {@link WorkStatus}es
      */
-    public abstract LiveData<Map<String, WorkStatus>> getStatuses();
+    public abstract LiveData<List<WorkStatus>> getStatuses();
 
     /**
      * Enqueues the instance of {@link WorkContinuation} on the background thread.
