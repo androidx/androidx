@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -116,15 +117,17 @@ public class MultiRecyclerViewPrefetchTest {
 
             // first view 50x100 pixels, rest are 100x100 so second column is offset
             rv.setAdapter(new RecyclerView.Adapter() {
+                @NonNull
                 @Override
-                public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
+                public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                         int viewType) {
                     registerTimePassingMs(5);
                     return new RecyclerView.ViewHolder(new View(parent.getContext())) {};
                 }
 
                 @Override
-                public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                public void onBindViewHolder(
+                        @NonNull RecyclerView.ViewHolder holder, int position) {
                     registerTimePassingMs(5);
                     holder.itemView.setMinimumWidth(100);
                     holder.itemView.setMinimumHeight(position == 0 ? 50 : 100);

@@ -21,6 +21,7 @@ import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
+import android.support.annotation.NonNull;
 import android.support.test.filters.MediumTest;
 import android.view.View;
 
@@ -124,7 +125,8 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
         final Config config = (Config) mConfig.clone();
         config.mTestAdapter = new BaseRecyclerViewInstrumentationTest.TestAdapter(100) {
             @Override
-            public void onBindViewHolder(BaseRecyclerViewInstrumentationTest.TestViewHolder holder,
+            public void onBindViewHolder(
+                    @NonNull BaseRecyclerViewInstrumentationTest.TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (config.mOrientation == HORIZONTAL) {

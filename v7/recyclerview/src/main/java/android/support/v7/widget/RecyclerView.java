@@ -6140,7 +6140,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param holder Holder to be added to the pool.
          * @param dispatchRecycled True to dispatch View recycled callbacks.
          */
-        void addViewHolderToRecycledViewPool(ViewHolder holder, boolean dispatchRecycled) {
+        void addViewHolderToRecycledViewPool(@NonNull ViewHolder holder, boolean dispatchRecycled) {
             clearNestedRecyclerViewIfNotNested(holder);
             if (holder.hasAnyOfTheFlags(ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE)) {
                 holder.setFlags(0, ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE);
@@ -6371,7 +6371,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return null;
         }
 
-        void dispatchViewRecycled(ViewHolder holder) {
+        void dispatchViewRecycled(@NonNull ViewHolder holder) {
             if (mRecyclerListener != null) {
                 mRecyclerListener.onViewRecycled(holder);
             }
@@ -10406,7 +10406,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *         to continue with the current behavior and continue observing future events in
          *         the gesture.
          */
-        boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e);
+        boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e);
 
         /**
          * Process a touch event as part of a gesture that was claimed by returning true from
@@ -10415,7 +10415,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param e MotionEvent describing the touch event. All coordinates are in
          *          the RecyclerView's coordinate system.
          */
-        void onTouchEvent(RecyclerView rv, MotionEvent e);
+        void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e);
 
         /**
          * Called when a child of RecyclerView does not want RecyclerView and its ancestors to
@@ -10440,12 +10440,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     public static class SimpleOnItemTouchListener implements RecyclerView.OnItemTouchListener {
         @Override
-        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+        public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
             return false;
         }
 
         @Override
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+        public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
         }
 
         @Override
@@ -10504,7 +10504,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @param holder The ViewHolder containing the view that was recycled
          */
-        void onViewRecycled(ViewHolder holder);
+        void onViewRecycled(@NonNull ViewHolder holder);
     }
 
     /**
@@ -10518,14 +10518,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @param view The View which is attached to the RecyclerView
          */
-        void onChildViewAttachedToWindow(View view);
+        void onChildViewAttachedToWindow(@NonNull View view);
 
         /**
          * Called when a view is detached from RecyclerView.
          *
          * @param view The View which is being detached from the RecyclerView
          */
-        void onChildViewDetachedFromWindow(View view);
+        void onChildViewDetachedFromWindow(@NonNull View view);
     }
 
     /**
@@ -10542,6 +10542,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * strong references to extra off-screen item views for caching purposes</p>
      */
     public abstract static class ViewHolder {
+        @NonNull
         public final View itemView;
         WeakReference<RecyclerView> mNestedRecyclerView;
         int mPosition = NO_POSITION;

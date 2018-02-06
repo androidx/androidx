@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
@@ -266,12 +267,12 @@ public class AsyncListUtilLayoutTest extends BaseRecyclerViewInstrumentationTest
         }
 
         @Override
-        public SimpleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public SimpleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             return new SimpleViewHolder(parent.getContext());
         }
 
         @Override
-        public void onBindViewHolder(SimpleViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull SimpleViewHolder holder, int position) {
             final String item = mAsyncListUtil == null ? null : mAsyncListUtil.getItem(position);
             ((TextView) (holder.itemView)).setText(item == null ? "" : item);
 

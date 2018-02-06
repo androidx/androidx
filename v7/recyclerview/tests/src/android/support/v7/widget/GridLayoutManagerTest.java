@@ -33,6 +33,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
@@ -84,7 +85,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         RecyclerView recyclerView = setupBasic(new Config(2, 100).reverseLayout(reverseLayout),
                 new GridTestAdapter(100) {
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
@@ -126,7 +127,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     RecyclerView mAttachedRv;
 
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                         testViewHolder.itemView.setFocusable(true);
@@ -147,7 +148,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         holder.itemView.setMinimumHeight(mAttachedRv.getHeight() / 3);
@@ -322,7 +323,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     RecyclerView mAttachedRv;
 
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                         // Good to have colors for debugging
@@ -341,7 +342,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         if (position < spanCount * consecutiveFocusableRowsCount) {
@@ -412,7 +413,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     RecyclerView mAttachedRv;
 
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                         // Good to have colors for debugging
@@ -431,7 +432,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         if (position < spanCount * consecutiveFocusableRowsCount) {
@@ -502,7 +503,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     RecyclerView mAttachedRv;
 
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                         // Good to have colors for debugging
@@ -521,7 +522,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         if (position < spanCount * consecutiveFocusableColsCount) {
@@ -592,7 +593,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     RecyclerView mAttachedRv;
 
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                         // Good to have colors for debugging
@@ -611,7 +612,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         if (position < spanCount * consecutiveFocusableColsCount) {
@@ -846,7 +847,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         final RecyclerView rv = setupBasic(new Config(3, 100).orientation(orientation),
                 new GridTestAdapter(100) {
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         GridLayoutManager.LayoutParams glp = ensureGridLp(holder.itemView);
@@ -1076,7 +1077,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
             final int removePos) throws Throwable {
         GridTestAdapter adapter = new GridTestAdapter(adapterSize) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
@@ -1219,7 +1220,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                 new HashMap<Integer, RecyclerView.ViewHolder>();
         RecyclerView recyclerView = setupBasic(new Config(3, 3), new GridTestAdapter(3) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 final GridLayoutManager.LayoutParams glp = ensureGridLp(holder.itemView);
@@ -1246,7 +1247,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         RecyclerView recyclerView = setupBasic(new Config(3, HORIZONTAL, false),
                 new GridTestAdapter(3) {
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         final GridLayoutManager.LayoutParams glp = ensureGridLp(holder.itemView);

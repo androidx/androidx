@@ -32,6 +32,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
@@ -456,13 +457,13 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         final RecyclerView.OnChildAttachStateChangeListener listener =
                 new RecyclerView.OnChildAttachStateChangeListener() {
                     @Override
-                    public void onChildViewAttachedToWindow(View view) {
+                    public void onChildViewAttachedToWindow(@NonNull View view) {
                         if (position == mRecyclerView.getChildAdapterPosition(view)) {
                             viewAdded.countDown();
                         }
                     }
                     @Override
-                    public void onChildViewDetachedFromWindow(View view) {
+                    public void onChildViewDetachedFromWindow(@NonNull View view) {
                     }
                 };
         final AtomicBoolean addedListener = new AtomicBoolean(false);
@@ -803,7 +804,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
 
         @Override
-        public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             final TextView textView = new TextView(parent.getContext());
             textView.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -813,7 +814,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
 
         @Override
-        public void onBindViewHolder(TestViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull TestViewHolder holder, int position) {
             ((TextView) holder.itemView).setText("Item " + position);
         }
 
@@ -878,7 +879,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
 
         @Override
-        public TestViewHolder onCreateViewHolder(ViewGroup parent,
+        public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                 int viewType) {
             TextView itemView = new TextView(parent.getContext());
             itemView.setFocusableInTouchMode(true);
@@ -887,7 +888,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
 
         @Override
-        public void onBindViewHolder(TestViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull TestViewHolder holder, int position) {
             assertNotNull(holder.mOwnerRecyclerView);
             assertEquals(position, holder.getAdapterPosition());
             final Item item = mItems.get(position);
@@ -903,7 +904,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
 
         @Override
-        public void onViewRecycled(TestViewHolder holder) {
+        public void onViewRecycled(@NonNull TestViewHolder holder) {
             super.onViewRecycled(holder);
             final int adapterPosition = holder.getAdapterPosition();
             final boolean shouldHavePosition = !holder.isRemoved() && holder.isBound() &&

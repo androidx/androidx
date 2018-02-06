@@ -26,6 +26,7 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.StateListDrawable;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.LargeTest;
@@ -417,7 +418,7 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
         }
 
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                 int viewType) {
             final ViewHolder h = new ViewHolder(new TextView(parent.getContext()));
             h.mTextView.setMinimumHeight(128);
@@ -436,7 +437,7 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             holder.itemView.setTag("pos " + position);
         }
 

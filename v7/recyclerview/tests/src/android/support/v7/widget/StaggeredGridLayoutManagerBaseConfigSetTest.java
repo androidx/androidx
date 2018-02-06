@@ -33,6 +33,7 @@ import android.graphics.Rect;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.Suppress;
@@ -95,7 +96,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
         setupByConfig(mConfig.itemCount(5),
                 new GridTestAdapter(mConfig.mItemCount, mConfig.mOrientation) {
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         if (wrapContent) {
@@ -353,7 +354,7 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
         final int totalSpace = mLayoutManager.mPrimaryOrientation.getTotalSpace();
         final TestAdapter newAdapter = new TestAdapter(100) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (mConfig.mOrientation == LinearLayoutManager.HORIZONTAL) {

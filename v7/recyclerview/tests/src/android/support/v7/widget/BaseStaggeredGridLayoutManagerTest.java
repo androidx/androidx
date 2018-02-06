@@ -18,6 +18,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.StateSet;
@@ -835,8 +836,9 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
             mOrientation = orientation;
         }
 
+        @NonNull
         @Override
-        public TestViewHolder onCreateViewHolder(ViewGroup parent,
+        public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                 int viewType) {
             mRecyclerViewWidth = parent.getWidth();
             mRecyclerViewHeight = parent.getHeight();
@@ -875,7 +877,7 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
         }
 
         @Override
-        public void onBindViewHolder(TestViewHolder holder,
+        public void onBindViewHolder(@NonNull TestViewHolder holder,
                 int position) {
             if (mSizeReference == null) {
                 mSizeReference = mOrientation == OrientationHelper.HORIZONTAL ? mRecyclerViewWidth

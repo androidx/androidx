@@ -82,7 +82,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
 
         setupBasic(10, 0, 10, new TestAdapter(10) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (position == 0) {

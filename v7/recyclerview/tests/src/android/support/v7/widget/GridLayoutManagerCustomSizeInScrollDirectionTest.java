@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.test.filters.MediumTest;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,7 +72,7 @@ public class GridLayoutManagerCustomSizeInScrollDirectionTest extends BaseGridLa
 
         final GridTestAdapter testAdapter = new GridTestAdapter(10) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams)

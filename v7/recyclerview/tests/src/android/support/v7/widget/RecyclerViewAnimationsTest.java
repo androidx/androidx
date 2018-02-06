@@ -63,7 +63,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     public void keepFocusAfterChangeAnimation() throws Throwable {
         setupBasic(10, 0, 5, new TestAdapter(10) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 holder.itemView.setFocusableInTouchMode(true);
@@ -111,7 +111,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         final List<RecyclerView.ViewHolder> mRecycled = new ArrayList<>();
         final TestAdapter adapter = new TestAdapter(1) {
             @Override
-            public void onViewRecycled(TestViewHolder holder) {
+            public void onViewRecycled(@NonNull TestViewHolder holder) {
                 super.onViewRecycled(holder);
                 mRecycled.add(holder);
             }
@@ -500,7 +500,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     public void reuseHiddenViewTest(ReuseTestCallback callback) throws Throwable {
         TestAdapter adapter = new TestAdapter(10) {
             @Override
-            public void onViewRecycled(TestViewHolder holder) {
+            public void onViewRecycled(@NonNull TestViewHolder holder) {
                 super.onViewRecycled(holder);
                 recycledVHs.add(holder);
             }
@@ -600,7 +600,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         // RecyclerView is expected to change it to 'expectedImportantForAccessibility'.
         TestAdapter adapter = new TestAdapter(1) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder, int position) {
+            public void onBindViewHolder(@NonNull TestViewHolder holder, int position) {
                 super.onBindViewHolder(holder, position);
                 ViewCompat.setImportantForAccessibility(
                         holder.itemView, boundImportantForAccessibility);
@@ -739,7 +739,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 = new ArrayList<RecyclerView.ViewHolder>();
         TestAdapter adapter = new TestAdapter(50) {
             @Override
-            public void onViewRecycled(TestViewHolder holder) {
+            public void onViewRecycled(@NonNull TestViewHolder holder) {
                 super.onViewRecycled(holder);
                 mRecycledViews.add(holder);
             }
@@ -859,7 +859,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             }
 
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                     int viewType) {
                 TestViewHolder vh = super.onCreateViewHolder(parent, viewType);
                 if (DEBUG) {
@@ -869,7 +869,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             }
 
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (DEBUG) {
@@ -946,7 +946,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             }
 
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                     int viewType) {
                 TestViewHolder vh = super.onCreateViewHolder(parent, viewType);
                 if (DEBUG) {
@@ -1064,7 +1064,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         final AtomicInteger childCount = new AtomicInteger(0);
         final TestAdapter adapter = new TestAdapter(1000) {
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                     int viewType) {
                 childCount.incrementAndGet();
                 return super.onCreateViewHolder(parent, viewType);

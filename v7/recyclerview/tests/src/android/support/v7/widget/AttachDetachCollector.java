@@ -16,6 +16,7 @@
 package android.support.v7.widget;
 
 
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -33,12 +34,12 @@ public class AttachDetachCollector implements RecyclerView.OnChildAttachStateCha
     }
 
     @Override
-    public void onChildViewAttachedToWindow(View view) {
+    public void onChildViewAttachedToWindow(@NonNull View view) {
         mAttached.add(view);
     }
 
     @Override
-    public void onChildViewDetachedFromWindow(View view) {
+    public void onChildViewDetachedFromWindow(@NonNull View view) {
         mDetached.add(view);
     }
 

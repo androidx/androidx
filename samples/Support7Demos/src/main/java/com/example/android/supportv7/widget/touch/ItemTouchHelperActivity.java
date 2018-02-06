@@ -16,14 +16,11 @@
 
 package com.example.android.supportv7.widget.touch;
 
-import com.example.android.supportv7.Cheeses;
-import com.example.android.supportv7.R;
-import com.example.android.supportv7.widget.util.ConfigToggle;
-import com.example.android.supportv7.widget.util.ConfigViewHolder;
-
 import android.app.Activity;
 import android.graphics.Canvas;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,6 +30,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.example.android.supportv7.Cheeses;
+import com.example.android.supportv7.R;
+import com.example.android.supportv7.widget.util.ConfigToggle;
+import com.example.android.supportv7.widget.util.ConfigViewHolder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,32 +105,34 @@ abstract public class ItemTouchHelperActivity extends Activity {
     public ItemTouchHelper.Callback createCallback() {
         return new ItemTouchHelper.Callback() {
             @Override
-            public int getMovementFlags(RecyclerView recyclerView,
-                    RecyclerView.ViewHolder viewHolder) {
+            public int getMovementFlags(@NonNull RecyclerView recyclerView,
+                    @NonNull RecyclerView.ViewHolder viewHolder) {
                 return ItemTouchHelperActivity.this.getMovementFlags(recyclerView, viewHolder);
             }
 
             @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-                    RecyclerView.ViewHolder target) {
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                    @NonNull RecyclerView.ViewHolder viewHolder,
+                    @NonNull RecyclerView.ViewHolder target) {
                 mAdapter.move(viewHolder.getAdapterPosition(), target.getAdapterPosition());
                 return true;
             }
 
             @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 mAdapter.delete(viewHolder.getAdapterPosition());
             }
 
             @Override
-            public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+            public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder,
+                    int actionState) {
                 super.onSelectedChanged(viewHolder, actionState);
                 ItemTouchHelperActivity.this.onSelectedChanged(viewHolder, actionState);
             }
 
             @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView,
-                    RecyclerView.ViewHolder viewHolder,
+            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+                    @NonNull RecyclerView.ViewHolder viewHolder,
                     float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 if (ItemTouchHelperActivity.this.onChildDraw(c, recyclerView, viewHolder,
                         dX, dY, actionState, isCurrentlyActive)) {
@@ -139,7 +143,7 @@ abstract public class ItemTouchHelperActivity extends Activity {
             }
 
             @Override
-            public void onChildDrawOver(Canvas c, RecyclerView recyclerView,
+            public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
                     RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState,
                     boolean isCurrentlyActive) {
                 if (ItemTouchHelperActivity.this.onChildDrawOver(c, recyclerView, viewHolder,
@@ -161,7 +165,8 @@ abstract public class ItemTouchHelperActivity extends Activity {
             }
 
             @Override
-            public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            public void clearView(@NonNull RecyclerView recyclerView,
+                    @NonNull RecyclerView.ViewHolder viewHolder) {
                 super.clearView(recyclerView, viewHolder);
                 ItemTouchHelperActivity.this.clearView(viewHolder);
             }
@@ -203,10 +208,9 @@ abstract public class ItemTouchHelperActivity extends Activity {
     }
 
     public ItemTouchViewHolder onCreateViewHolder(ViewGroup parent) {
-        ItemTouchViewHolder itemTouchViewHolder = new ItemTouchViewHolder(
+        return new ItemTouchViewHolder(
                 LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.touch_item, parent, false));
-        return itemTouchViewHolder;
     }
 
     abstract public int getMovementFlags(RecyclerView recyclerView,

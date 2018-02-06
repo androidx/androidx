@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.LongSparseArray;
 import android.support.v7.widget.TestedFrameLayout.FullControlLayoutParams;
@@ -72,7 +73,7 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
         WrappedRecyclerView rv = createRecyclerView(getActivity());
         TestAdapter testAdapter = new TestAdapter(20) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 holder.itemView.setLayoutParams(new ViewGroup.LayoutParams(itemWidth, itemHeight));

@@ -222,7 +222,7 @@ public class RecyclerViewBasicTest {
         mRecyclerView.setLayoutManager(layoutManager);
         MockAdapter adapter = new MockAdapter(100) {
             @Override
-            public void onViewRecycled(RecyclerView.ViewHolder holder) {
+            public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
                 super.onViewRecycled(holder);
                 recycledVhs.add(holder);
             }
@@ -245,7 +245,7 @@ public class RecyclerViewBasicTest {
         mRecyclerView.setLayoutManager(layoutManager);
         MockAdapter adapter = new MockAdapter(100) {
             @Override
-            public void onViewRecycled(RecyclerView.ViewHolder holder) {
+            public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
                 super.onViewRecycled(holder);
                 recycledVhs.add(holder);
             }
@@ -338,8 +338,10 @@ public class RecyclerViewBasicTest {
         };
         mRecyclerView.setLayoutManager(mlm);
         mRecyclerView.setAdapter(new MockAdapter(3) {
+            @NonNull
             @Override
-            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            public RecyclerView.ViewHolder onCreateViewHolder(
+                    @NonNull ViewGroup parent, int viewType) {
                 final LoggingView itemView = new LoggingView(parent.getContext());
                 //noinspection ResourceType
                 itemView.setId(3);
@@ -716,13 +718,14 @@ public class RecyclerViewBasicTest {
             this.mCount = count;
         }
 
+        @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             return new MockViewHolder(new TextView(parent.getContext()));
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
         }
 
@@ -797,14 +800,14 @@ public class RecyclerViewBasicTest {
         }
 
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LinearLayout holder = new LinearLayout(parent.getContext());
             holder.setOrientation(LinearLayout.HORIZONTAL);
             return new MockViewHolder(holder);
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             LinearLayout l = (LinearLayout) holder.itemView;
             l.removeAllViews();
             if (position == 0) {

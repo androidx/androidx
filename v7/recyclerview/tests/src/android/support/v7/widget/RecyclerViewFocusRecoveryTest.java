@@ -662,7 +662,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         final int TYPE_NO_FOCUS = 1001;
         TestAdapter adapter = new FocusTestAdapter(10) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (holder.getItemViewType() == TYPE_NO_FOCUS) {
@@ -706,7 +706,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
 
         FocusTestAdapter adapter = new FocusTestAdapter(10) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (holder.getItemId() == toFocusId.get()) {
@@ -817,7 +817,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         }
 
         @Override
-        public FocusViewHolder onCreateViewHolder(ViewGroup parent,
+        public FocusViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                 int viewType) {
             final FocusViewHolder fvh;
             if (mFocusOnChild) {
@@ -832,7 +832,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         }
 
         @Override
-        public void onBindViewHolder(TestViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull TestViewHolder holder, int position) {
             cast(holder).bindTo(mItems.get(position));
         }
     }
