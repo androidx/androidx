@@ -14,5 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <string name="over_120_chars">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+    <string name="over_uxr_text_length_limit">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
 </resources>

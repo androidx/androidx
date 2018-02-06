@@ -1,5 +1,6 @@
 package androidx.car.widget;
 
+import android.car.drivingstate.CarUxRestrictions;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -214,5 +215,12 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
                 mCleanUps.add(cleanUp);
             }
         }
+
+        /**
+         * Update children views to comply with UX restriction changes.
+         *
+         * @param restrictions current car UX restrictions.
+         */
+        public abstract void complyWithUxRestrictions(CarUxRestrictions restrictions);
     }
 }

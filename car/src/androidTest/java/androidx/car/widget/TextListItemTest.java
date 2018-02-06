@@ -24,6 +24,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.IsCloseTo.closeTo;
@@ -31,6 +32,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.UiController;
@@ -39,12 +41,14 @@ import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import org.hamcrest.Matcher;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,8 +57,10 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.car.test.R;
+import androidx.car.utils.CarUxRestrictionsTestUtils;
 
 /**
 * Tests the layout configuration in {@link TextListItem}.
@@ -71,10 +77,30 @@ public class TextListItemTest {
     private PagedListView mPagedListView;
     private ListItemAdapter mAdapter;
 
+    private boolean isAutoDevice() {
+        PackageManager packageManager = mActivityRule.getActivity().getPackageManager();
+        return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
+    }
+
     @Before
     public void setUp() {
+        Assume.assumeTrue(isAutoDevice());
+
         mActivity = mActivityRule.getActivity();
         mPagedListView = mActivity.findViewById(R.id.paged_list_view);
+    }
+
+    private void refreshUi() {
+        try {
+            mActivityRule.runOnUiThread(() -> {
+                mAdapter.notifyDataSetChanged();
+            });
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            throw new RuntimeException(throwable);
+        }
+        // Wait for paged list view to layout by using espresso to scroll to a position.
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
     }
 
     private void setupPagedListView(List<TextListItem> items) {
@@ -89,8 +115,8 @@ public class TextListItemTest {
             throwable.printStackTrace();
             throw new RuntimeException(throwable);
         }
-        // Wait for paged list view to layout by using espresso to scroll to a position.
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+
+        refreshUi();
     }
 
     private static void verifyViewIsHidden(View view) {
@@ -214,13 +240,8 @@ public class TextListItemTest {
         setupPagedListView(Arrays.asList(item0));
 
         item0.setSwitchState(false);
-        try {
-            mActivityRule.runOnUiThread(() -> mAdapter.notifyItemChanged(0));
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }
-        // Wait for paged list view to layout by using espresso to scroll to a position.
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+
+        refreshUi();
 
         TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getSwitch().getVisibility(), is(equalTo(View.VISIBLE)));
@@ -233,13 +254,8 @@ public class TextListItemTest {
         setupPagedListView(Arrays.asList(item0));
 
         item0.setSwitchState(false);
-        try {
-            mActivityRule.runOnUiThread(() -> mAdapter.notifyItemChanged(0));
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }
-        // Wait for paged list view to layout by using espresso to scroll to a position.
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+
+        refreshUi();
 
         TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getSwitch().getVisibility(), is(not(equalTo(View.VISIBLE))));
@@ -330,7 +346,7 @@ public class TextListItemTest {
         // String wouldn't fit in one line.
         TextListItem item3 = new TextListItem(mActivity);
         item3.setTitle(InstrumentationRegistry.getContext().getResources().getString(
-                R.string.over_120_chars));
+                R.string.over_uxr_text_length_limit));
 
         List<TextListItem> items = Arrays.asList(item0, item1, item2, item3);
         setupPagedListView(items);
@@ -359,7 +375,7 @@ public class TextListItemTest {
         // String wouldn't fit in one line.
         TextListItem item2 = new TextListItem(mActivity);
         item2.setBody(InstrumentationRegistry.getContext().getResources().getString(
-                R.string.over_120_chars));
+                R.string.over_uxr_text_length_limit));
 
         List<TextListItem> items = Arrays.asList(item0, item1, item2);
         setupPagedListView(items);
@@ -374,24 +390,6 @@ public class TextListItemTest {
             assertThat(layoutManager.findViewByPosition(i).getHeight(),
                     is(greaterThanOrEqualTo(doubleLineHeight)));
         }
-    }
-
-    @Test
-    public void testBodyTextLengthLimit() {
-        final String longText = InstrumentationRegistry.getContext().getResources().getString(
-                R.string.over_120_chars);
-        final int limit = InstrumentationRegistry.getContext().getResources().getInteger(
-                R.integer.car_list_item_text_length_limit);
-
-        TextListItem item0 = new TextListItem(mActivity);
-        item0.setBody(longText);
-
-        List<TextListItem> items = Arrays.asList(item0);
-        setupPagedListView(items);
-
-        // + 1 for appended ellipsis.
-        assertThat(getViewHolderAtPosition(0).getBody().getText().length(),
-                is(equalTo(limit + 1)));
     }
 
     @Test
@@ -441,7 +439,7 @@ public class TextListItemTest {
     @Test
     public void testSmallPrimaryIconTopMarginRemainsTheSameRegardlessOfTextLength() {
         final String longText = InstrumentationRegistry.getContext().getResources().getString(
-                R.string.over_120_chars);
+                R.string.over_uxr_text_length_limit);
 
         // Single line item.
         TextListItem item0 = new TextListItem(mActivity);
@@ -738,13 +736,54 @@ public class TextListItemTest {
 
         String title = "updated title";
         item.setTitle(title);
-        mActivityRule.runOnUiThread(() -> mPagedListView.getAdapter().notifyItemChanged(0));
 
-        // Wait for paged list view to layout by using espresso to scroll to a position.
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+        refreshUi();
 
         TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getTitle().getText(), is(equalTo(title)));
+    }
+
+    @Test
+    public void testUxRestrictionsChange() throws Throwable {
+        String longText = mActivity.getString(R.string.over_uxr_text_length_limit);
+        TextListItem item = new TextListItem(mActivity);
+        item.setBody(longText);
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        // Default behavior without UXR is unrestricted.
+        assertThat(viewHolder.getBody().getText(), is(equalTo(longText)));
+
+        viewHolder.complyWithUxRestrictions(CarUxRestrictionsTestUtils.getFullyRestricted());
+
+        refreshUi();
+
+        // Verify that the body text length is limited.
+        assertThat(viewHolder.getBody().getText().length(), is(lessThan(longText.length())));
+    }
+
+    @Test
+    public void testUxRestrictionsChangesDoNotAlterExistingInputFilters() {
+        InputFilter filter = new InputFilter.AllCaps(Locale.US);
+        String bodyText = "bodytext";
+        TextListItem item = new TextListItem(mActivity);
+        item.setBody(bodyText);
+        item.addViewBinder(vh -> vh.getBody().setFilters(new InputFilter[] {filter}));
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+
+        // Toggle UX restrictions between fully restricted and unrestricted should not affect
+        // existing filters.
+        viewHolder.complyWithUxRestrictions(CarUxRestrictionsTestUtils.getFullyRestricted());
+        refreshUi();
+        assertTrue(Arrays.asList(viewHolder.getBody().getFilters()).contains(filter));
+
+        viewHolder.complyWithUxRestrictions(CarUxRestrictionsTestUtils.getUnrestricted());
+        refreshUi();
+        assertTrue(Arrays.asList(viewHolder.getBody().getFilters()).contains(filter));
     }
 
     private static ViewAction clickChildViewWithId(final int id) {

@@ -26,6 +26,14 @@ LOCAL_PATH := $(call my-dir)
 #       android-support-v7-recyclerview
 #
 # in their makefiles to include the resources and their dependencies in their package.
+
+# Create a prebuilt library for android.car stubs. Implementation will be available as part of
+# system on automotive devices.
+include $(CLEAR_VARS)
+LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
+        prebuilt-android.car-stubs:car-stubs/android.car.jar
+include $(BUILD_MULTI_PREBUILT)
+
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-car
@@ -33,6 +41,8 @@ LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under,src/main/java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_MANIFEST_FILE := src/main/AndroidManifest.xml
+LOCAL_STATIC_JAVA_LIBRARIES := \
+    prebuilt-android.car-stubs
 LOCAL_JAVA_LIBRARIES := \
         android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
