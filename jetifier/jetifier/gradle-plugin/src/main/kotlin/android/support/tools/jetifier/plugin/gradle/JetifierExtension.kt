@@ -16,6 +16,7 @@
 
 package android.support.tools.jetifier.plugin.gradle
 
+import groovy.lang.Closure
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
@@ -31,7 +32,6 @@ open class JetifierExtension(val project: Project) {
     /**
      * Adds dependency defined via string notation to be processed by jetifyLibs task.
      *
-     *
      * Example usage in Gradle:
      * dependencies {
      *   compile jetifier.process('groupId:artifactId:1.0')
@@ -42,21 +42,20 @@ open class JetifierExtension(val project: Project) {
     }
 
     /**
-     * Adds dependency defined via string notation to be processed by jetifyLibs task while also
-     * applying the given exclude rules.
-     *
+     * Adds dependency defined via string notation to be processed by jetifyLibs task. This version
+     * supports Gradle's configuration closure that is passed to the Gradle's DependencyHandler.
      *
      * Example usage in Gradle:
      * dependencies {
-     *   compile jetifier.processAndExclude('groupId:artifactId:1.0',
-     *     [group: 'some.package', module: 'moduleName'])
+     *   compile jetifier.process('groupId:artifactId:1.0') {
+     *     exclude group: 'groupId'
+     *
+     *     transitive = false
+     *   }
      * }
      */
-    fun processAndExclude(
-        dependencyNotation: String,
-        vararg excludes: Map<String, String>
-    ): FileCollection {
-        return processAndExclude(project.dependencies.create(dependencyNotation), *excludes)
+    fun process(dependencyNotation: String, closure: Closure<Any>): FileCollection {
+        return process(project.dependencies.create(dependencyNotation, closure))
     }
 
     /**
@@ -65,20 +64,6 @@ open class JetifierExtension(val project: Project) {
     fun process(dependency: Dependency): FileCollection {
         val configuration = project.configurations.detachedConfiguration()
         configuration.dependencies.add(dependency)
-        return process(configuration)
-    }
-
-    /**
-     * Adds dependency to be processed by jetifyLibs task while also applying the given excludes
-     * rules.
-     */
-    fun processAndExclude(
-        dependency: Dependency,
-        vararg excludes: Map<String, String>
-    ): FileCollection {
-        val configuration = project.configurations.detachedConfiguration()
-        configuration.dependencies.add(dependency)
-        excludes.forEach { configuration.exclude(it) }
         return process(configuration)
     }
 
