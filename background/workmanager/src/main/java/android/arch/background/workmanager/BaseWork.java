@@ -98,13 +98,13 @@ public interface BaseWork {
         W build();
 
         /**
-         * Set the initial status for this work.  Used in testing only.
+         * Set the initial state for this work.  Used in testing only.
          *
-         * @param status The {@link WorkStatus} to set
+         * @param state The {@link State} to set
          * @return The current {@link Builder}
          */
         @VisibleForTesting
-        B withInitialStatus(@NonNull WorkStatus status);
+        B withInitialState(@NonNull State state);
 
         /**
          * Set the initial run attempt count for this work.  Used in testing only.

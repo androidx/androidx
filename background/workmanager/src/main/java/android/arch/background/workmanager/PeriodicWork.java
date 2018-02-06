@@ -117,8 +117,8 @@ public abstract class PeriodicWork implements BaseWork {
 
         @VisibleForTesting
         @Override
-        public Builder withInitialStatus(@NonNull WorkStatus status) {
-            mInternalBuilder.withInitialStatus(status);
+        public Builder withInitialState(@NonNull State state) {
+            mInternalBuilder.withInitialState(state);
             return this;
         }
 

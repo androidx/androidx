@@ -16,39 +16,54 @@
 
 package android.arch.background.workmanager;
 
+import android.support.annotation.NonNull;
+
 /**
- * The current status of a unit of work.
+ * A simple class with the id of a {@link BaseWork}, its current {@link State}, and its output.
+ * Note that output is only available for {@link State#SUCCEEDED}.
  */
-public enum WorkStatus {
 
-    /**
-     * The status for work that is enqueued (hasn't completed and isn't running)
-     */
-    ENQUEUED,
+public class WorkStatus {
 
-    /**
-     * The status for work that is currently being executed
-     */
-    RUNNING,
+    private String mId;
+    private State mState;
+    private Arguments mOutput;
 
-    /**
-     * The status for work that has completed successfully
-     */
-    SUCCEEDED,
+    public WorkStatus(@NonNull String id, @NonNull State state, @NonNull Arguments output) {
+        mId = id;
+        mState = state;
+        mOutput = output;
+    }
 
-    /**
-     * The status for work that has completed in a failure state
-     */
-    FAILED,
+    public @NonNull String getId() {
+        return mId;
+    }
 
-    /**
-     * The status for work that is currently blocked because its prerequisites haven't finished
-     * successfully
-     */
-    BLOCKED,
+    public @NonNull State getState() {
+        return mState;
+    }
 
-    /**
-     * The status for work that has been cancelled and will not execute
-     */
-    CANCELLED
+    public @NonNull Arguments getOutput() {
+        return mOutput;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WorkStatus that = (WorkStatus) o;
+
+        if (!mId.equals(that.mId)) return false;
+        if (mState != that.mState) return false;
+        return mOutput.equals(that.mOutput);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mId.hashCode();
+        result = 31 * result + mState.hashCode();
+        result = 31 * result + mOutput.hashCode();
+        return result;
+    }
 }
