@@ -705,6 +705,18 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     }
 
     /**
+     * Sets the state of {@code Switch}. For this method to take effect,
+     * {@link #setSwitch(boolean, boolean, CompoundButton.OnCheckedChangeListener)} must be called
+     * first to set {@code Supplemental Action} as a {@code Switch}.
+     *
+     * @param isChecked sets the "checked/unchecked, namely on/off" state of switch.
+     */
+    public void setSwitchState(boolean isChecked) {
+        mSwitchChecked = isChecked;
+        markDirty();
+    }
+
+    /**
      * Holds views of TextListItem.
      */
     public static class ViewHolder extends ListItem.ViewHolder {
