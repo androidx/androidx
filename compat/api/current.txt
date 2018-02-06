@@ -138,10 +138,13 @@ package android.support.v4.app {
 
   public final class AppOpsManagerCompat {
     method public static int noteOp(android.content.Context, java.lang.String, int, java.lang.String);
+    method public static int noteOpNoThrow(android.content.Context, java.lang.String, int, java.lang.String);
     method public static int noteProxyOp(android.content.Context, java.lang.String, java.lang.String);
+    method public static int noteProxyOpNoThrow(android.content.Context, java.lang.String, java.lang.String);
     method public static java.lang.String permissionToOp(java.lang.String);
     field public static final int MODE_ALLOWED = 0; // 0x0
     field public static final int MODE_DEFAULT = 3; // 0x3
+    field public static final int MODE_ERRORED = 2; // 0x2
     field public static final int MODE_IGNORED = 1; // 0x1
   }
 

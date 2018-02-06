@@ -110,7 +110,7 @@ public final class PermissionChecker {
             packageName = packageNames[0];
         }
 
-        if (AppOpsManagerCompat.noteProxyOp(context, op, packageName)
+        if (AppOpsManagerCompat.noteProxyOpNoThrow(context, op, packageName)
                 != AppOpsManagerCompat.MODE_ALLOWED) {
             return PERMISSION_DENIED_APP_OP;
         }
