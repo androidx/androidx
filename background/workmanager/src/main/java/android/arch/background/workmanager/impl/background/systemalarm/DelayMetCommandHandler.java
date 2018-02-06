@@ -77,7 +77,7 @@ public class DelayMetCommandHandler implements
     @Override
     public void onAllConstraintsMet(@NonNull List<String> ignored) {
         // constraints met, schedule execution
-        boolean isEnqueued = mDispatcher.getBackgroundProcessor()
+        boolean isEnqueued = mDispatcher.getProcessor()
                 .process(mWorkSpecId);
 
         if (isEnqueued) {

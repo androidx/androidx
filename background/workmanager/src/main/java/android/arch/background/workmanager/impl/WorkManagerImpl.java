@@ -40,7 +40,6 @@ import android.support.annotation.RestrictTo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 /**
  * A concrete implementation of {@link WorkManager}.
@@ -55,6 +54,7 @@ public class WorkManagerImpl extends WorkManager {
     private WorkDatabase mWorkDatabase;
     private TaskExecutor mTaskExecutor;
     private Scheduler mBackgroundScheduler;
+    private Processor mProcessor;
 
     private static WorkManagerImpl sInstance = null;
 
@@ -84,6 +84,11 @@ public class WorkManagerImpl extends WorkManager {
         mWorkDatabase = configuration.getWorkDatabase();
         mBackgroundScheduler = configuration.getBackgroundScheduler();
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
+        mProcessor = new Processor(
+                context.getApplicationContext(),
+                mWorkDatabase,
+                mBackgroundScheduler,
+                configuration.getExecutorService());
     }
 
     /**
@@ -106,12 +111,12 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
-     * @return The {@link ExecutorService} for background {@link Processor}s.
+     * @return The {@link Processor} used to process background work.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @NonNull ExecutorService getBackgroundExecutorService() {
-        return mConfiguration.getBackgroundExecutorService();
+    public @NonNull Processor getProcessor() {
+        return mProcessor;
     }
 
     /**

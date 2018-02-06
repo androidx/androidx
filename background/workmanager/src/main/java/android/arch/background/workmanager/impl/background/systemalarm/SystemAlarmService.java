@@ -43,6 +43,12 @@ public class SystemAlarmService extends LifecycleService
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mDispatcher.onDestroy();
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         if (intent != null) {

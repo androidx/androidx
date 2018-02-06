@@ -17,11 +17,9 @@
 package android.arch.background.workmanager.impl.background.firebase;
 
 import android.arch.background.workmanager.impl.ExecutionListener;
-import android.arch.background.workmanager.impl.WorkDatabase;
+import android.arch.background.workmanager.impl.Processor;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
-import android.arch.background.workmanager.impl.background.BackgroundProcessor;
 import android.arch.background.workmanager.impl.logger.Logger;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
@@ -40,21 +38,21 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FirebaseJobService extends JobService implements ExecutionListener {
     private static final String TAG = "FirebaseJobService";
-    private BackgroundProcessor mProcessor;
+    private Processor mProcessor;
     private Map<String, JobParameters> mJobParameters = new HashMap<>();
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Context context = getApplicationContext();
         WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
-        WorkDatabase database = workManagerImpl.getWorkDatabase();
-        mProcessor = new BackgroundProcessor(
-                context,
-                database,
-                workManagerImpl.getBackgroundScheduler(),
-                workManagerImpl.getBackgroundExecutorService(),
-                this);
+        mProcessor = workManagerImpl.getProcessor();
+        mProcessor.addExecutionListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mProcessor.removeExecutionListener(this);
     }
 
     @Override

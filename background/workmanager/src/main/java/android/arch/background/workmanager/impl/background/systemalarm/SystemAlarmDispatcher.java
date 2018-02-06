@@ -17,8 +17,8 @@
 package android.arch.background.workmanager.impl.background.systemalarm;
 
 import android.arch.background.workmanager.impl.ExecutionListener;
+import android.arch.background.workmanager.impl.Processor;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
-import android.arch.background.workmanager.impl.background.BackgroundProcessor;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.content.Context;
 import android.content.Intent;
@@ -50,9 +50,8 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     private static final String PROCESS_COMMAND_TAG = "ProcessCommand";
     private static final String KEY_START_ID = "KEY_START_ID";
 
-    private final Context mContext;
     private final WorkTimer mWorkTimer;
-    private final BackgroundProcessor mProcessor;
+    private final Processor mProcessor;
     private final WorkManagerImpl mWorkManager;
     private final PowerManager mPowerManager;
     private final CommandHandler mCommandHandler;
@@ -71,26 +70,26 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     @VisibleForTesting
     SystemAlarmDispatcher(
             @NonNull Context context,
-            @Nullable BackgroundProcessor processor,
+            @Nullable Processor processor,
             @Nullable WorkManagerImpl workManager) {
 
-        mContext = context.getApplicationContext();
-        mPowerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
-        mCommandHandler = new CommandHandler(mContext);
+        Context appContext = context.getApplicationContext();
+        mPowerManager = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
+        mCommandHandler = new CommandHandler(appContext);
         mWorkTimer = new WorkTimer();
         mWorkManager = workManager != null ? workManager : WorkManagerImpl.getInstance();
-        mProcessor = processor != null ? processor : new BackgroundProcessor(
-                mContext.getApplicationContext(),
-                mWorkManager.getWorkDatabase(),
-                mWorkManager.getBackgroundScheduler(),
-                mWorkManager.getBackgroundExecutorService(),
-                this);
+        mProcessor = processor != null ? processor : mWorkManager.getProcessor();
+        mProcessor.addExecutionListener(this);
         // a list of pending intents which need to be processed
         mIntents = new ArrayList<>();
         mMainHandler = new Handler(Looper.getMainLooper());
         // Use a single thread executor for handling the actual
         // execution of the commands themselves
         mCommandExecutorService = Executors.newSingleThreadExecutor();
+    }
+
+    void onDestroy() {
+        mProcessor.removeExecutionListener(this);
     }
 
     @Override
@@ -123,7 +122,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         mCompletedListener = listener;
     }
 
-    BackgroundProcessor getBackgroundProcessor() {
+    Processor getProcessor() {
         return mProcessor;
     }
 

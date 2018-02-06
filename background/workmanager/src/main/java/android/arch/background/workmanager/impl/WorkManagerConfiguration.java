@@ -53,21 +53,21 @@ class WorkManagerConfiguration {
 
     private final WorkDatabase mWorkDatabase;
     private final Scheduler mBackgroundScheduler;
-    private final ExecutorService mBackgroundExecutorService;
+    private final ExecutorService mExecutorService;
 
     WorkManagerConfiguration(@NonNull Context context) {
         this(context,
                 context.getResources().getBoolean(R.bool.workmanager_test_configuration),
-                createBackgroundExecutorService());
+                createExecutorService());
     }
 
     @VisibleForTesting
     WorkManagerConfiguration(@NonNull Context context,
             boolean useTestDatabase,
-            @NonNull ExecutorService backgroundExecutorService) {
+            @NonNull ExecutorService executorService) {
         mWorkDatabase = WorkDatabase.create(context, useTestDatabase);
         mBackgroundScheduler = createBestAvailableBackgroundScheduler(context);
-        mBackgroundExecutorService = backgroundExecutorService;
+        mExecutorService = executorService;
     }
 
     @NonNull
@@ -81,8 +81,8 @@ class WorkManagerConfiguration {
     }
 
     @NonNull
-    ExecutorService getBackgroundExecutorService() {
-        return mBackgroundExecutorService;
+    ExecutorService getExecutorService() {
+        return mExecutorService;
     }
 
     @NonNull
@@ -125,14 +125,8 @@ class WorkManagerConfiguration {
     }
 
     @VisibleForTesting
-    static ExecutorService createForegroundExecutorService() {
+    static ExecutorService createExecutorService() {
         // TODO(sumir): Make this more intelligent.
         return Executors.newFixedThreadPool(4);
-    }
-
-    @VisibleForTesting
-    static ExecutorService createBackgroundExecutorService() {
-        // TODO(sumir): Make this more intelligent.
-        return Executors.newSingleThreadExecutor();
     }
 }

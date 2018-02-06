@@ -27,9 +27,9 @@ import static org.mockito.Mockito.when;
 import android.arch.background.workmanager.DatabaseTest;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.impl.ExecutionListener;
+import android.arch.background.workmanager.impl.Processor;
 import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
-import android.arch.background.workmanager.impl.background.BackgroundProcessor;
 import android.arch.background.workmanager.worker.SleepTestWorker;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.content.Context;
@@ -39,6 +39,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,12 +53,14 @@ import java.util.concurrent.TimeUnit;
 public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     private static final int START_ID = 0;
-    private static final int TEST_TIMEOUT = 5; // seconds;
+    // Test timeout in seconds - this needs to be longer than SleepTestWorker.SLEEP_DURATION
+    private static final int TEST_TIMEOUT = 6;
 
     private Context mContext;
     private Scheduler mScheduler;
     private WorkManagerImpl mWorkManager;
-    private BackgroundProcessor mProcessor;
+    private Processor mProcessor;
+    private Processor mSpyProcessor;
     private SystemAlarmDispatcher mDispatcher;
     private SystemAlarmDispatcher.CommandsCompletedListener mCompletedListener;
     private ForwardingExecutionListener mExecutionListener;
@@ -78,19 +81,26 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         };
 
         when(mWorkManager.getWorkDatabase()).thenReturn(mDatabase);
-        mProcessor = spy(new BackgroundProcessor(
+        mProcessor = new Processor(
                 mContext,
                 mDatabase,
                 mScheduler,
                 // simulate real world use-case
-                Executors.newSingleThreadExecutor(),
-                mExecutionListener));
+                Executors.newSingleThreadExecutor());
+        mProcessor.addExecutionListener(mExecutionListener);
+        mSpyProcessor = spy(mProcessor);
 
-        mDispatcher = spy(new SystemAlarmDispatcher(mContext, mProcessor, mWorkManager));
+        mDispatcher = spy(new SystemAlarmDispatcher(mContext, mSpyProcessor, mWorkManager));
         mDispatcher.setCompletedListener(mCompletedListener);
 
         // set forwarding of execution listener to the dispatcher
         mExecutionListener.setDispatcher(mDispatcher);
+    }
+
+    @After
+    public void tearDown() {
+        mProcessor.removeExecutionListener(mExecutionListener);
+        mDispatcher.onDestroy();
     }
 
     @Test
@@ -131,7 +141,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
         assertThat(mLatch.getCount(), equalTo(0L));
-        verify(mProcessor, times(1)).process(workSpecId);
+        verify(mSpyProcessor, times(1)).process(workSpecId);
     }
 
     @Test
@@ -158,8 +168,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
 
         assertThat(mLatch.getCount(), equalTo(0L));
-        verify(mProcessor, times(1)).process(workSpecId);
-        verify(mProcessor, times(1)).cancel(workSpecId, true);
+        verify(mSpyProcessor, times(1)).process(workSpecId);
+        verify(mSpyProcessor, times(1)).cancel(workSpecId, true);
     }
 
     static class ForwardingExecutionListener implements ExecutionListener {

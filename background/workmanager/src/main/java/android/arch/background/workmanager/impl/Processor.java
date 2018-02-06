@@ -20,7 +20,9 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -31,7 +33,7 @@ import java.util.concurrent.Future;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class Processor implements ExecutionListener {
+public class Processor implements ExecutionListener {
     private static final String TAG = "Processor";
     protected Context mAppContext;
     protected WorkDatabase mWorkDatabase;
@@ -40,7 +42,9 @@ public abstract class Processor implements ExecutionListener {
     protected Scheduler mScheduler;
     protected ExecutorService mExecutorService;
 
-    protected Processor(
+    private final List<ExecutionListener> mOuterListeners;
+
+    public Processor(
             Context appContext,
             WorkDatabase workDatabase,
             Scheduler scheduler,
@@ -50,6 +54,7 @@ public abstract class Processor implements ExecutionListener {
         mEnqueuedWorkMap = new HashMap<>();
         mScheduler = scheduler;
         mExecutorService = executorService;
+        mOuterListeners = new ArrayList<>();
     }
 
     /**
@@ -58,7 +63,7 @@ public abstract class Processor implements ExecutionListener {
      * @param id The work id to execute.
      * @return {@code true} if the work was successfully enqueued for processing
      */
-    public boolean process(String id) {
+    public synchronized boolean process(String id) {
         // Work may get triggered multiple times if they have passing constraints and new work with
         // those constraints are added.
         if (mEnqueuedWorkMap.containsKey(id)) {
@@ -83,7 +88,7 @@ public abstract class Processor implements ExecutionListener {
      *                              running
      * @return {@code true} if the work was cancelled successfully.
      */
-    public boolean cancel(String id, boolean mayInterruptIfRunning) {
+    public synchronized boolean cancel(String id, boolean mayInterruptIfRunning) {
         Logger.debug(TAG, "%s canceling %s; mayInterruptIfRunning = %s", getClass().getSimpleName(),
                 id, mayInterruptIfRunning);
         Future<?> future = mEnqueuedWorkMap.get(id);
@@ -106,12 +111,32 @@ public abstract class Processor implements ExecutionListener {
     /**
      * @return {@code true} if the processor has work to process.
      */
-    public boolean hasWork() {
+    public synchronized boolean hasWork() {
         return !mEnqueuedWorkMap.isEmpty();
     }
 
+    /**
+     * Adds an {@link ExecutionListener} to track when work finishes.
+     *
+     * @param executionListener The {@link ExecutionListener} to add
+     */
+    public synchronized void addExecutionListener(ExecutionListener executionListener) {
+        // TODO(sumir): Let's get some synchronization guarantees here.
+        mOuterListeners.add(executionListener);
+    }
+
+    /**
+     * Removes a tracked {@link ExecutionListener}.
+     *
+     * @param executionListener The {@link ExecutionListener} to remove
+     */
+    public synchronized void removeExecutionListener(ExecutionListener executionListener) {
+        // TODO(sumir): Let's get some synchronization guarantees here.
+        mOuterListeners.remove(executionListener);
+    }
+
     @Override
-    public void onExecuted(
+    public synchronized void onExecuted(
             @NonNull String workSpecId,
             boolean isSuccessful,
             boolean needsReschedule) {
@@ -120,5 +145,9 @@ public abstract class Processor implements ExecutionListener {
         Logger.debug(TAG, "%s %s executed; isSuccessful = %s, reschedule = %s",
                 getClass().getSimpleName(), workSpecId, isSuccessful, needsReschedule);
 
+        // TODO(sumir): Let's get some synchronization guarantees here.
+        for (ExecutionListener executionListener : mOuterListeners) {
+            executionListener.onExecuted(workSpecId, isSuccessful, needsReschedule);
+        }
     }
 }

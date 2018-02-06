@@ -205,7 +205,7 @@ public class CommandHandler implements ExecutionListener {
         // Request background processor to cancel the worker
         // no need to worry about clearing pending work because,
         // the onExecutionListeners will trigger an automatic cleanup
-        dispatcher.getBackgroundProcessor().cancel(workSpecId, true);
+        dispatcher.getProcessor().cancel(workSpecId, true);
         // reschedule if necessary
         if (shouldReschedule) {
             Logger.debug(TAG, "WorkSpec %s needs to be rescheduled", workSpecId);
