@@ -2489,7 +2489,7 @@ package androidx.core.widget {
     method public static void scrollListBy(android.widget.ListView, int);
   }
 
-  public class NestedScrollView extends android.widget.FrameLayout implements androidx.core.view.NestedScrollingChild2 androidx.core.view.NestedScrollingParent androidx.core.view.ScrollingView {
+  public class NestedScrollView extends android.widget.FrameLayout implements androidx.core.view.NestedScrollingChild2 androidx.core.view.NestedScrollingParent2 androidx.core.view.ScrollingView {
     ctor public NestedScrollView(android.content.Context);
     ctor public NestedScrollView(android.content.Context, android.util.AttributeSet);
     ctor public NestedScrollView(android.content.Context, android.util.AttributeSet, int);
@@ -2511,6 +2511,11 @@ package androidx.core.widget {
     method public boolean isFillViewport();
     method public boolean isSmoothScrollingEnabled();
     method public void onAttachedToWindow();
+    method public void onNestedPreScroll(android.view.View, int, int, int[], int);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int);
+    method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
+    method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
+    method public void onStopNestedScroll(android.view.View, int);
     method public boolean pageScroll(int);
     method public void setFillViewport(boolean);
     method public void setOnScrollChangeListener(androidx.core.widget.NestedScrollView.OnScrollChangeListener);
