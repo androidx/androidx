@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
@@ -303,9 +304,48 @@ class WebViewOnUiThread {
         }
     }
 
+    public WebMessagePortCompat[] createWebMessageChannelCompat() {
+        return getValue(new ValueGetter<WebMessagePortCompat[]>() {
+            @Override
+            public WebMessagePortCompat[] capture() {
+                return WebViewCompat.createWebMessageChannel(mWebView);
+            }
+        });
+    }
+
+    public void postWebMessageCompat(final WebMessageCompat message, final Uri targetOrigin) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                WebViewCompat.postWebMessage(mWebView, message, targetOrigin);
+            }
+        });
+    }
+
     private <T> T getValue(ValueGetter<T> getter) {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(getter);
         return getter.getValue();
+    }
+
+    public String getTitle() {
+        return getValue(new ValueGetter<String>() {
+            @Override
+            public String capture() {
+                return mWebView.getTitle();
+            }
+        });
+    }
+
+    public void loadDataWithBaseURLAndWaitForCompletion(final String baseUrl,
+            final String data, final String mimeType, final String encoding,
+            final String historyUrl) {
+        callAndWait(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding,
+                        historyUrl);
+            }
+        });
     }
 
     private abstract class ValueGetter<T> implements Runnable {
