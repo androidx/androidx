@@ -119,7 +119,7 @@ public class WorkerWrapper implements Runnable {
         try {
             checkForInterruption();
             Worker.WorkerResult result = mWorker.doWork();
-            if (mWorkSpecDao.getWorkSpecState(mWorkSpecId) != CANCELLED) {
+            if (mWorkSpecDao.getState(mWorkSpecId) != CANCELLED) {
                 checkForInterruption();
                 handleResult(result);
             }
