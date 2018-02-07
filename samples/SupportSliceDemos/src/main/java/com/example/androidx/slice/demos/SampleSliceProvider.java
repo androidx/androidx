@@ -153,15 +153,15 @@ public class SampleSliceProvider extends SliceProvider {
                 .setColor(0xff4285F4)
                 .addRow(b -> b
                     .setTitle("Family trip to Hawaii")
-                    .setSubtitle("Sep 30, 2017 - Oct 2, 2017")
-                    .addEndItem(new SliceAction(
-                            getBroadcastIntent(ACTION_TOAST, "cast photo album"),
-                            Icon.createWithResource(getContext(), R.drawable.ic_cast),
-                            "Cast photo album"))
-                    .addEndItem(new SliceAction(
-                            getBroadcastIntent(ACTION_TOAST, "share photo album"),
-                            Icon.createWithResource(getContext(), R.drawable.ic_share),
-                            "Share photo album")))
+                    .setSubtitle("Sep 30, 2017 - Oct 2, 2017"))
+                .addAction(new SliceAction(
+                        getBroadcastIntent(ACTION_TOAST, "cast photo album"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_cast),
+                        "Cast photo album"))
+                .addAction(new SliceAction(
+                        getBroadcastIntent(ACTION_TOAST, "share photo album"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_share),
+                        "Share photo album"))
                 .addGrid(b -> b
                     .addCell(cb -> cb
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_1)))
@@ -197,23 +197,15 @@ public class SampleSliceProvider extends SliceProvider {
                         .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_text))
                         .setTitle("You: Coooooool see you then")
                         .addEndItem(System.currentTimeMillis() - 40 * DateUtils.MINUTE_IN_MILLIS))
-                .addGrid(b -> b
-                        .addCell(cb -> cb
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_call))
-                            .addText("Call")
-                            .setContentIntent(getBroadcastIntent(ACTION_TOAST, "call")))
-                        .addCell(cb -> cb
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_text))
-                            .addText("Text")
-                            .setContentIntent(getBroadcastIntent(ACTION_TOAST, "text")))
-                        .addCell(cb ->cb
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_video))
-                            .setContentIntent(getBroadcastIntent(ACTION_TOAST, "video"))
-                            .addText("Video"))
-                        .addCell(cb -> cb
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_email))
-                            .addText("Email")
-                            .setContentIntent(getBroadcastIntent(ACTION_TOAST, "email"))))
+                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "call"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_call), "Call mady"))
+                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "text"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_text), "Text mady"))
+                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "video"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_video),
+                        "Video call mady"))
+                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "email"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_email), "Email mady"))
                 .build();
     }
 
@@ -240,34 +232,32 @@ public class SampleSliceProvider extends SliceProvider {
         // TODO: Remote input.
         return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xfff4b400)
-                .addRow(b -> b
-                    .setTitle("Create new note")
-                    .setSubtitle("with this note taking app")
-                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
-                            Icon.createWithResource(getContext(), R.drawable.ic_create),
-                            "Create note"))
-                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "voice note"),
-                            Icon.createWithResource(getContext(), R.drawable.ic_voice),
-                            "Voice note"))
-                    .addEndItem(new SliceAction(getIntent("android.media.action.IMAGE_CAPTURE"),
-                            Icon.createWithResource(getContext(), R.drawable.ic_camera),
-                            "Photo note")))
+                .addRow(b -> b.setTitle("Create new note"))
+                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_create),
+                        "Create note"))
+                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "voice note"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_voice),
+                        "Voice note"))
+                .addAction(new SliceAction(getIntent("android.media.action.IMAGE_CAPTURE"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_camera),
+                        "Photo note"))
                 .build();
     }
 
     private Slice createReservationSlice(Uri sliceUri) {
         return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xffFF5252)
-                .addRow(b -> b
+                .setHeader(b -> b
                     .setTitle("Upcoming trip to Seattle")
-                    .setSubtitle("Feb 1 - 19 | 2 guests")
-                    .addEndItem(new SliceAction(
-                            getBroadcastIntent(ACTION_TOAST, "show location on map"),
-                            Icon.createWithResource(getContext(), R.drawable.ic_location),
-                            "Show reservation location"))
-                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "contact host"),
-                            Icon.createWithResource(getContext(), R.drawable.ic_text),
-                            "Contact host")))
+                    .setSubtitle("Feb 1 - 19 | 2 guests"))
+                .addAction(new SliceAction(
+                        getBroadcastIntent(ACTION_TOAST, "show location on map"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_location),
+                        "Show reservation location"))
+                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "contact host"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_text),
+                        "Contact host"))
                 .addGrid(b -> b
                     .addCell(cb -> cb
                         .addLargeImage(

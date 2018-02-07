@@ -26,7 +26,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
+import java.util.List;
+
 import androidx.app.slice.Slice;
+import androidx.app.slice.SliceItem;
 import androidx.app.slice.core.SliceQuery;
 import androidx.app.slice.view.R;
 
@@ -42,6 +45,7 @@ public class LargeTemplateView extends SliceChildView {
     private final int mDefaultHeight;
     private Slice mSlice;
     private boolean mIsScrollable;
+    private ListContent mListContent;
 
     public LargeTemplateView(Context context) {
         super(context);
@@ -70,6 +74,11 @@ public class LargeTemplateView extends SliceChildView {
         if (mAdapter != null) {
             mAdapter.setSliceObserver(mObserver);
         }
+    }
+
+    @Override
+    public void setSliceActions(List<SliceItem> actions) {
+        mAdapter.setSliceActions(actions);
     }
 
     @Override
@@ -102,8 +111,8 @@ public class LargeTemplateView extends SliceChildView {
         if (mSlice == null) {
             return;
         }
-        ListContent lc = new ListContent(mSlice);
-        mAdapter.setSliceItems(lc.getRowItems(), mTintColor);
+        mListContent = new ListContent(mSlice);
+        mAdapter.setSliceItems(mListContent.getRowItems(), mTintColor);
     }
 
     /**
@@ -117,6 +126,8 @@ public class LargeTemplateView extends SliceChildView {
     @Override
     public void resetView() {
         mSlice = null;
+        mAdapter.setSliceItems(null, -1);
+        mListContent = null;
         mAdapter.setSliceItems(null, -1);
     }
 }

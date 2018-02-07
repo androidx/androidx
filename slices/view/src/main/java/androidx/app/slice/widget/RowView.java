@@ -53,6 +53,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
@@ -88,6 +89,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private RowContent mRowContent;
     private ActionContent mRowAction;
     private boolean mIsHeader;
+    private List<SliceItem> mHeaderActions;
 
     private int mIconSize;
     private int mPadding;
@@ -112,7 +114,14 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         super.setTint(tintColor);
         if (mRowContent != null) {
             // TODO -- can be smarter about this
-            resetView();
+            populateViews();
+        }
+    }
+
+    @Override
+    public void setSliceActions(List<SliceItem> actions) {
+        mHeaderActions = actions;
+        if (mRowContent != null) {
             populateViews();
         }
     }
@@ -126,6 +135,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         setSliceActionListener(observer);
         mRowIndex = index;
         mIsHeader = isHeader;
+        mHeaderActions = null;
         mRowContent = new RowContent(slice, mIsHeader);
         populateViews();
     }
@@ -137,6 +147,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     public void setSlice(Slice slice) {
         mRowIndex = 0;
         mIsHeader = true;
+        mHeaderActions = null;
         ListContent lc = new ListContent(slice);
         mRowContent = new RowContent(lc.getHeaderItem(), true /* isHeader */);
         populateViews();
@@ -187,7 +198,19 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (primaryAction != null) {
             mRowAction = new ActionContent(primaryAction);
         }
-        ArrayList<SliceItem> endItems = mRowContent.getEndItems();
+        List<SliceItem> endItems = mRowContent.getEndItems();
+
+        // If we're here we might be able to show end items
+        String desiredFormat = FORMAT_ACTION;
+        if (mIsHeader && mHeaderActions != null && mHeaderActions.size() > 0) {
+            // Use these if we have them instead
+            endItems = mHeaderActions;
+        } else if (!endItems.isEmpty()) {
+            // Prefer to show actions as end items if possible; fall back to the first format type.
+            SliceItem firstEndItem = endItems.get(0);
+            desiredFormat = mRowContent.endItemsContainAction()
+                    ? FORMAT_ACTION : firstEndItem.getSlice().getItems().get(0).getFormat();
+        }
         boolean hasRowAction = mRowAction != null;
         if (endItems.isEmpty()) {
             if (hasRowAction) setViewClickable(this, true);
@@ -196,9 +219,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
         // If we're here we might be able to show end items
         int itemCount = 0;
-        // Prefer to show actions as end items if possible; fall back to the first format type.
-        String desiredFormat = mRowContent.endItemsContainAction()
-                ? FORMAT_ACTION : endItems.get(0).getSlice().getItems().get(0).getFormat();
         boolean firstItemIsADefaultToggle = false;
         for (int i = 0; i < endItems.size(); i++) {
             final SliceItem endItem = endItems.get(i);

@@ -16,19 +16,24 @@
 
 package androidx.app.slice;
 
+import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_PARTIAL;
+import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
+import static android.app.slice.SliceItem.FORMAT_SLICE;
 
 import android.content.Context;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import androidx.app.slice.core.SliceQuery;
 
@@ -188,7 +193,7 @@ public class SliceUtils {
      * @see #LOADING_PARTIAL
      * @see #LOADING_COMPLETE
      */
-    public static int getLoadingState(Slice slice) {
+    public static int getLoadingState(@NonNull Slice slice) {
         // Check loading state
         boolean hasHintPartial =
                 SliceQuery.find(slice, null, HINT_PARTIAL, null) != null;
@@ -202,5 +207,17 @@ public class SliceUtils {
             // Full slice
             return LOADING_COMPLETE;
         }
+    }
+
+    /**
+     * @return the group of actions associated with the provided slice, if they exist.
+     */
+    @Nullable
+    public static List<SliceItem> getSliceActions(@NonNull Slice slice) {
+        SliceItem actionGroup = SliceQuery.find(slice, FORMAT_SLICE, HINT_ACTIONS, null);
+        String[] hints = new String[] {HINT_ACTIONS, HINT_SHORTCUT};
+        return (actionGroup != null)
+                ? SliceQuery.findAll(actionGroup, FORMAT_SLICE, hints, null)
+                : null;
     }
 }
