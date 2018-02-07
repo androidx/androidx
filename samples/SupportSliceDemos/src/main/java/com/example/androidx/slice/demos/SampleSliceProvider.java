@@ -39,6 +39,7 @@ import androidx.app.slice.SliceProvider;
 import androidx.app.slice.builders.GridBuilder;
 import androidx.app.slice.builders.ListBuilder;
 import androidx.app.slice.builders.MessagingSliceBuilder;
+import androidx.app.slice.builders.SliceAction;
 
 /**
  * Examples of using slice template builders.
@@ -153,10 +154,14 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(b -> b
                     .setTitle("Family trip to Hawaii")
                     .setSubtitle("Sep 30, 2017 - Oct 2, 2017")
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_cast),
-                            getBroadcastIntent(ACTION_TOAST, "cast photo album"))
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_share),
-                            getBroadcastIntent(ACTION_TOAST, "share photo album")))
+                    .addEndItem(new SliceAction(
+                            getBroadcastIntent(ACTION_TOAST, "cast photo album"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_cast),
+                            "Cast photo album"))
+                    .addEndItem(new SliceAction(
+                            getBroadcastIntent(ACTION_TOAST, "share photo album"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_share),
+                            "Share photo album")))
                 .addGrid(b -> b
                     .addCell(cb -> cb
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_1)))
@@ -174,12 +179,15 @@ public class SampleSliceProvider extends SliceProvider {
         CharSequence lastCalledString = DateUtils.getRelativeTimeSpanString(lastCalled,
                 Calendar.getInstance().getTimeInMillis(),
                 DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
+        SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
+                "See contact info"), Icon.createWithResource(getContext(),
+                R.drawable.mady), "Mady");
         return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff3949ab)
                 .setHeader(b -> b
                         .setTitle("Mady Pitza")
                         .setSummarySubtitle("Called " + lastCalledString)
-                        .setContentIntent(getBroadcastIntent(ACTION_TOAST, "See contact info")))
+                        .setPrimaryAction(primaryAction))
                 .addRow(b -> b
                         .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_call))
                         .setTitle("314-259-2653")
@@ -235,12 +243,15 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(b -> b
                     .setTitle("Create new note")
                     .setSubtitle("with this note taking app")
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_create),
-                            getBroadcastIntent(ACTION_TOAST, "create note"))
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_voice),
-                            getBroadcastIntent(ACTION_TOAST, "voice note"))
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_camera),
-                            getIntent("android.media.action.IMAGE_CAPTURE")))
+                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_create),
+                            "Create note"))
+                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "voice note"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_voice),
+                            "Voice note"))
+                    .addEndItem(new SliceAction(getIntent("android.media.action.IMAGE_CAPTURE"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_camera),
+                            "Photo note")))
                 .build();
     }
 
@@ -250,10 +261,13 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(b -> b
                     .setTitle("Upcoming trip to Seattle")
                     .setSubtitle("Feb 1 - 19 | 2 guests")
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_location),
-                            getBroadcastIntent(ACTION_TOAST, "show reservation location on map"))
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_text),
-                            getBroadcastIntent(ACTION_TOAST, "contact host")))
+                    .addEndItem(new SliceAction(
+                            getBroadcastIntent(ACTION_TOAST, "show location on map"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_location),
+                            "Show reservation location"))
+                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "contact host"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_text),
+                            "Contact host")))
                 .addGrid(b -> b
                     .addCell(cb -> cb
                         .addLargeImage(
@@ -277,23 +291,27 @@ public class SampleSliceProvider extends SliceProvider {
         SpannableString workSubtitle = new SpannableString("44 miles | 1 hour 45 min | $31.41");
         workSubtitle.setSpan(colorSpan, 27, workSubtitle.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
 
+        SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "get ride"),
+                Icon.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
         return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff0F9D58)
                 .setHeader(b -> b
                     .setTitle("Get ride")
                     .setSubtitle(headerSubtitle)
                     .setSummarySubtitle("Ride to work in 12 min | Ride home in 1 hour 45 min")
-                    .setContentIntent(getBroadcastIntent(ACTION_TOAST, "get ride")))
+                    .setPrimaryAction(primaryAction))
                 .addRow(b -> b
                     .setTitle("Work")
                     .setSubtitle(workSubtitle)
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_work),
-                            getBroadcastIntent(ACTION_TOAST, "work")))
+                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "work"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_work),
+                            "Get ride to work")))
                 .addRow(b -> b
                     .setTitle("Home")
                     .setSubtitle(homeSubtitle)
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_home),
-                            getBroadcastIntent(ACTION_TOAST, "home")))
+                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "home"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_home),
+                            "Get ride home")))
                 .build();
     }
 
@@ -303,9 +321,9 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(b -> b
                     .setTitle("Custom toggle")
                     .setSubtitle("It can support two states")
-                    .addToggle(getBroadcastIntent(ACTION_TOAST, "star toggled"),
-                            true /* isChecked */,
-                            Icon.createWithResource(getContext(), R.drawable.toggle_star)))
+                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "star toggled"),
+                            Icon.createWithResource(getContext(), R.drawable.toggle_star),
+                            "Toggle star", true /* isChecked */)))
                 .build();
     }
 
@@ -315,12 +333,14 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(b -> b
                         .setTitle("2 toggles")
                         .setSubtitle("each supports two states")
-                        .addToggle(getBroadcastIntent(ACTION_TOAST, "first star toggled"),
-                                true /* isChecked */,
-                                Icon.createWithResource(getContext(), R.drawable.toggle_star))
-                        .addToggle(getBroadcastIntent(ACTION_TOAST, "second star toggled"),
-                                false /* isChecked */,
-                                Icon.createWithResource(getContext(), R.drawable.toggle_star)))
+                        .addEndItem(new SliceAction(
+                                getBroadcastIntent(ACTION_TOAST, "first star toggled"),
+                                Icon.createWithResource(getContext(), R.drawable.toggle_star),
+                                "Toggle star", true /* isChecked */))
+                        .addEndItem(new SliceAction(
+                                getBroadcastIntent(ACTION_TOAST, "second star toggled"),
+                                Icon.createWithResource(getContext(), R.drawable.toggle_star),
+                                "Toggle star", false /* isChecked */)))
                 .build();
     }
 
@@ -346,14 +366,16 @@ public class SampleSliceProvider extends SliceProvider {
                 break;
         }
         boolean finalWifiEnabled = wifiEnabled;
+        SliceAction primaryAction = new SliceAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
+                Icon.createWithResource(getContext(), R.drawable.ic_wifi), "Wi-fi Settings");
         return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff4285f4)
                 .addRow(b -> b
                     .setTitle("Wi-fi")
-                    .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_wifi))
                     .setSubtitle(state)
-                    .addToggle(getBroadcastIntent(ACTION_WIFI_CHANGED, null), finalWifiEnabled)
-                    .setContentIntent(getIntent(Settings.ACTION_WIFI_SETTINGS)))
+                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
+                            "Toggle wifi", finalWifiEnabled))
+                    .setPrimaryAction(primaryAction))
                 .build();
     }
 
@@ -418,7 +440,11 @@ public class SampleSliceProvider extends SliceProvider {
                         .addRow(b -> createRow(b, "Slice that has content to load",
                                 "Temporary subtitle", icon, intent, true))
                         .addRow(b -> createRow(b, null, null, null, intent, true))
-                        .addRow(b -> b.setTitle("My title").addToggle(intent2, false, true))
+                        .addRow(b -> b
+                                .setTitle("My title")
+                                .addEndItem(new SliceAction(intent2, "Some action",
+                                        false /* isChecked */),
+                                        true /* isLoading */))
                         .build();
             } else {
                 return new GridBuilder(getContext(), sliceUri)
@@ -434,7 +460,10 @@ public class SampleSliceProvider extends SliceProvider {
                                 "Subtitle loaded", icon, intent, false))
                         .addRow(b -> createRow(b, "Loaded row", "Loaded subtitle",
                                 icon, intent, false))
-                        .addRow(b -> b.setTitle("My title").addToggle(intent2, false))
+                        .addRow(b -> b
+                                .setTitle("My title")
+                                .addEndItem(new SliceAction(intent2, "Some action",
+                                                false /* isChecked */)))
                         .build();
             } else {
                 return new GridBuilder(getContext(), sliceUri)
@@ -448,10 +477,11 @@ public class SampleSliceProvider extends SliceProvider {
 
     private ListBuilder.RowBuilder createRow(ListBuilder.RowBuilder rb, String title,
             String subtitle, Icon icon, PendingIntent content, boolean isLoading) {
+        SliceAction primaryAction = new SliceAction(content, icon, title);
         return rb.setTitle(title, isLoading)
           .setSubtitle(subtitle, isLoading)
           .addEndItem(icon, isLoading)
-          .setContentIntent(content);
+          .setPrimaryAction(primaryAction);
     }
 
     private GridBuilder.CellBuilder createCell(GridBuilder.CellBuilder cb, String text1,

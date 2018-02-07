@@ -18,6 +18,7 @@ package androidx.app.slice.widget;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
+import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_INT;
@@ -135,7 +136,8 @@ public class ListContent {
     @Nullable
     private static SliceItem findHeaderItem(@NonNull Slice slice) {
         // See if header is specified
-        SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null, HINT_LIST_ITEM);
+        SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null,
+                new String[] {HINT_LIST_ITEM, HINT_SHORTCUT});
         if (header != null && isValidHeader(header)) {
             return header;
         }

@@ -140,33 +140,18 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Sets the group of actions for this template. These actions may be shown on the template in
-     * large or small formats. Generally these actions will be displayed in the order they were
-     * added to the {@link ActionBuilder}, however, if not all actions can be displayed then
+     * Adds an action to this template. Actions added with this method are grouped together and
+     * may be shown on the template in large or small formats. Generally these actions will be
+     * displayed in the order they were added, however, if not all actions can be displayed then
      * actions with a higher priority may be shown first.
      *
-     * @see ActionBuilder#addAction(PendingIntent, Icon, CharSequence, int)
+     * @see SliceAction
+     * @see SliceAction#setPriority(int)
      */
     @NonNull
-    public ListBuilder setActions(@NonNull ActionBuilder builder) {
-        mImpl.setActions((TemplateBuilderImpl) builder.mImpl);
+    public ListBuilder addAction(@NonNull SliceAction action) {
+        mImpl.addAction(action);
         return this;
-    }
-
-    /**
-     * Sets the group of actions for this template. These actions may be shown on the template in
-     * large or small formats. Generally these actions will be displayed in the order they were
-     * added to the {@link ActionBuilder}, however, if not all actions can be displayed then
-     * actions with a higher priority may be shown first.
-     *
-     * @see ActionBuilder#addAction(PendingIntent, Icon, CharSequence, int)
-     */
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    @NonNull
-    public ListBuilder setActions(@NonNull Consumer<ActionBuilder> c) {
-        ActionBuilder b = new ActionBuilder(this);
-        c.accept(b);
-        return setActions(b);
     }
 
     /**
@@ -515,8 +500,8 @@ public class ListBuilder extends TemplateSliceBuilder {
          * replace any other title items that may have been set.
          */
         @NonNull
-        public RowBuilder setTitleItem(@NonNull Icon icon, @NonNull PendingIntent action) {
-            return setTitleItem(icon, action, false /* isLoading */);
+        public RowBuilder setTitleItem(@NonNull SliceAction action) {
+            return setTitleItem(action, false /* isLoading */);
         }
 
         /**
@@ -530,9 +515,8 @@ public class ListBuilder extends TemplateSliceBuilder {
          *                  background or not.
          */
         @NonNull
-        public RowBuilder setTitleItem(@NonNull Icon icon, @NonNull PendingIntent action,
-                boolean isLoading) {
-            mImpl.setTitleItem(icon, action, isLoading);
+        public RowBuilder setTitleItem(@NonNull SliceAction action, boolean isLoading) {
+            mImpl.setTitleItem(action, isLoading);
             return this;
         }
 
@@ -540,8 +524,8 @@ public class ListBuilder extends TemplateSliceBuilder {
          * Sets the action to be invoked if the user taps on the main content of the template.
          */
         @NonNull
-        public RowBuilder setContentIntent(@NonNull PendingIntent action) {
-            mImpl.setContentIntent(action);
+        public RowBuilder setPrimaryAction(@NonNull SliceAction action) {
+            mImpl.setPrimaryAction(action);
             return this;
         }
 
@@ -608,8 +592,8 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Adds an icon to be displayed at the end of the row. A mixture of icons and tappable
-         * icons is not permitted. If an action has already been added this will throw
+         * Adds an icon to be displayed at the end of the row. A mixture of icons and actions
+         * is not permitted. If an action has already been added this will throw
          * {@link IllegalArgumentException}.
          */
         @NonNull
@@ -618,8 +602,8 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Adds an icon to be displayed at the end of the row. A mixture of icons and tappable
-         * icons is not permitted. If an action has already been added this will throw
+         * Adds an icon to be displayed at the end of the row. A mixture of icons and actions
+         * is not permitted. If an action has already been added this will throw
          * {@link IllegalArgumentException}.
          * <p>
          * Use this method to specify content that will appear in the template once it's been
@@ -633,7 +617,7 @@ public class ListBuilder extends TemplateSliceBuilder {
             if (mHasEndActionOrToggle) {
                 throw new IllegalArgumentException("Trying to add an icon to end items when an"
                         + "action has already been added. End items cannot have a mixture of "
-                        + "tappable icons and icons.");
+                        + "actions and icons.");
             }
             mImpl.addEndItem(icon, isLoading);
             mHasEndImage = true;
@@ -641,18 +625,18 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Adds a tappable icon to be displayed at the end of the row. A mixture of icons and
-         * tappable icons is not permitted. If an icon has already been added, this will throw
+         * Adds an action to display at the end of the row. A mixture of icons and
+         * actions is not permitted. If an icon has already been added, this will throw
          * {@link IllegalArgumentException}.
          */
         @NonNull
-        public RowBuilder addEndItem(@NonNull Icon icon, @NonNull PendingIntent action) {
-            return addEndItem(icon, action, false /* isLoading */);
+        public RowBuilder addEndItem(@NonNull SliceAction action) {
+            return addEndItem(action, false /* isLoading */);
         }
 
         /**
-         * Adds a tappable icon to be displayed at the end of the row. A mixture of icons and
-         * tappable icons is not permitted. If an icon has already been added, this will throw
+         * Adds an action to be displayed at the end of the row. A mixture of icons and
+         * actions is not permitted. If an icon has already been added, this will throw
          * {@link IllegalArgumentException}.
          * <p>
          * Use this method to specify content that will appear in the template once it's been
@@ -662,83 +646,19 @@ public class ListBuilder extends TemplateSliceBuilder {
          *                  background or not.
          */
         @NonNull
-        public RowBuilder addEndItem(@Nullable Icon icon, @Nullable PendingIntent action,
-                boolean isLoading) {
-            mImpl.addEndItem(icon, action, isLoading);
-            return this;
-        }
-
-        /**
-         * Adds a toggle action to be displayed at the end of the row. A mixture of icons and
-         * tappable icons is not permitted. If an icon has already been added, this will throw an
-         * {@link IllegalArgumentException}.
-         */
-        @NonNull
-        public RowBuilder addToggle(@NonNull PendingIntent action, boolean isChecked) {
-            return addToggle(action, isChecked, null, false /* isLoading */);
-        }
-
-        /**
-         * Adds a toggle action to be displayed at the end of the row. A mixture of icons and
-         * tappable icons is not permitted. If an icon has already been added, this will throw an
-         * {@link IllegalArgumentException}.
-         * <p>
-         * Use this method to specify content that will appear in the template once it's been
-         * loaded.
-         * </p>
-         * @param isLoading indicates whether the app is doing work to load the added content in the
-         *                  background or not.
-         */
-        @NonNull
-        public RowBuilder addToggle(@NonNull PendingIntent action, boolean isChecked,
-                boolean isLoading) {
-            return addToggleInternal(action, isChecked, null, isLoading);
-        }
-
-        /**
-         * Adds a toggle action to be displayed with custom icons to represent checked and
-         * unchecked state at the end of the row. A mixture of icons and tappable icons is not
-         * permitted. If an icon has already been added, this will throw an
-         * {@link IllegalArgumentException}.
-         */
-        @NonNull
-        public RowBuilder addToggle(@NonNull PendingIntent action, boolean isChecked,
-                @NonNull Icon icon) {
-            return addToggle(action, isChecked, icon, false /* isLoading */);
-        }
-
-        /**
-         * Adds a toggle action to be displayed with custom icons to represent checked and
-         * unchecked state at the end of the row. A mixture of icons and tappable icons is not
-         * permitted. If an icon has already been added, this will throw an
-         * {@link IllegalArgumentException}.
-         * <p>
-         * Use this method to specify content that will appear in the template once it's been
-         * loaded.
-         * </p>
-         * @param isLoading indicates whether the app is doing work to load the added content in the
-         *                  background or not.
-         */
-        @NonNull
-        public RowBuilder addToggle(@NonNull PendingIntent action, boolean isChecked,
-                @NonNull Icon icon, boolean isLoading) {
-            return addToggleInternal(action, isChecked, icon, isLoading);
-        }
-
-        private RowBuilder addToggleInternal(@NonNull PendingIntent action, boolean isChecked,
-                @Nullable Icon icon, boolean isLoading) {
+        public RowBuilder addEndItem(@NonNull SliceAction action, boolean isLoading) {
             if (mHasEndImage) {
-                throw new IllegalStateException("Trying to add a toggle to end items when an "
+                throw new IllegalArgumentException("Trying to add an action to end items when an"
                         + "icon has already been added. End items cannot have a mixture of "
-                        + "tappable icons and icons.");
+                        + "actions and icons.");
             }
             if (mHasDefaultToggle) {
                 throw new IllegalStateException("Only one non-custom toggle can be added "
                         + "in a single row. If you would like to include multiple toggles "
                         + "in a row, set a custom icon for each toggle.");
             }
-            mImpl.addToggle(action, isChecked, icon, isLoading);
-            mHasDefaultToggle = icon == null;
+            mImpl.addEndItem(action, isLoading);
+            mHasDefaultToggle = action.isDefaultToggle();
             mHasEndActionOrToggle = true;
             return this;
         }
@@ -747,6 +667,15 @@ public class ListBuilder extends TemplateSliceBuilder {
         void setImpl(TemplateBuilderImpl impl) {
             mImpl = (androidx.app.slice.builders.impl.ListBuilder.RowBuilder) impl;
         }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public androidx.app.slice.builders.impl.ListBuilder.RowBuilder getImpl() {
+            return mImpl;
+        }
+
     }
 
     /**
@@ -804,76 +733,17 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the pending intent to activate when the header is activated.
+         * Sets the action to activate when the header is activated.
          */
         @NonNull
-        public HeaderBuilder setContentIntent(@NonNull PendingIntent intent) {
-            mImpl.setContentIntent(intent);
+        public HeaderBuilder setPrimaryAction(@NonNull SliceAction action) {
+            mImpl.setPrimaryAction(action);
             return this;
         }
 
         @Override
         void setImpl(TemplateBuilderImpl impl) {
             mImpl = (androidx.app.slice.builders.impl.ListBuilder.HeaderBuilder) impl;
-        }
-    }
-
-    /**
-     * Builder to construct a group of actions.
-     *
-     * @see ListBuilder#setActions(ActionBuilder)
-     */
-    public static class ActionBuilder extends TemplateSliceBuilder  {
-        private androidx.app.slice.builders.impl.ListBuilder.ActionBuilder mImpl;
-
-        /**
-         * Create a builder to construct a group of actions
-         */
-        public ActionBuilder(@NonNull ListBuilder parent) {
-            super(parent.mImpl.createActionBuilder());
-        }
-
-        /**
-         * Create a builder to construct a group of actions
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public ActionBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
-            super(parent.mImpl.createHeaderBuilder(uri));
-        }
-
-        /**
-         * Adds an action to this builder.
-         *
-         * @param action the pending intent to send when the action is activated.
-         * @param actionIcon the icon to display for this action.
-         * @param contentDescription the content description to use for accessibility.
-         * @param priority what priority to display this action in, with the lowest priority having
-         *                 the highest ranking.
-         */
-        @NonNull
-        public ActionBuilder addAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
-                @NonNull CharSequence contentDescription, int priority) {
-            mImpl.addAction(action, actionIcon, contentDescription, priority);
-            return this;
-        }
-
-        /**
-         * Adds an action to this builder.
-         *
-         * @param action the pending intent to send when the action is activated.
-         * @param actionIcon the icon to display for this action.
-         * @param contentDescription the content description to use for accessibility.
-         */
-        @NonNull
-        public ActionBuilder addAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
-                @NonNull CharSequence contentDescription) {
-            return addAction(action, actionIcon, contentDescription, -1);
-        }
-
-        @Override
-        void setImpl(TemplateBuilderImpl impl) {
-            mImpl = (androidx.app.slice.builders.impl.ListBuilder.ActionBuilder) impl;
         }
     }
 }

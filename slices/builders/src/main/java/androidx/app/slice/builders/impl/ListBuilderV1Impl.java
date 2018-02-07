@@ -22,18 +22,13 @@ import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SEE_MORE;
-import static android.app.slice.Slice.HINT_SELECTED;
+import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
-import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
-import static android.app.slice.Slice.SUBTYPE_PRIORITY;
-import static android.app.slice.Slice.SUBTYPE_TOGGLE;
-import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+
 import static androidx.app.slice.core.SliceHints.SUBTYPE_MAX;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_RANGE;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_VALUE;
@@ -46,10 +41,12 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
 import androidx.app.slice.SliceSpec;
+import androidx.app.slice.builders.SliceAction;
 
 /**
  * @hide
@@ -57,7 +54,7 @@ import androidx.app.slice.SliceSpec;
 @RestrictTo(LIBRARY)
 public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilder {
 
-    private Slice mSliceActions;
+    private List<Slice> mSliceActions;
     private Slice mSliceHeader;
 
     /**
@@ -74,7 +71,11 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             builder.addSubSlice(mSliceHeader);
         }
         if (mSliceActions != null) {
-            builder.addSubSlice(mSliceActions);
+            Slice.Builder sb = new Slice.Builder(builder);
+            for (int i = 0; i < mSliceActions.size(); i++) {
+                sb.addSubSlice(mSliceActions.get(i));
+            }
+            builder.addSubSlice(sb.addHints(HINT_ACTIONS).build());
         }
     }
 
@@ -105,8 +106,12 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     /**
      */
     @Override
-    public void setActions(@NonNull TemplateBuilderImpl builder) {
-        mSliceActions = builder.build();
+    public void addAction(@NonNull SliceAction action) {
+        if (mSliceActions == null) {
+            mSliceActions = new ArrayList<>();
+        }
+        Slice.Builder b = new Slice.Builder(getBuilder()).addHints(HINT_ACTIONS);
+        mSliceActions.add(action.buildSlice(b));
     }
 
     @Override
@@ -265,26 +270,16 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         return new HeaderBuilderImpl(uri);
     }
 
-    @Override
-    public TemplateBuilderImpl createActionBuilder() {
-        return new ActionBuilderImpl(this);
-    }
-
-    @Override
-    public TemplateBuilderImpl createActionBuilder(Uri uri) {
-        return new ActionBuilderImpl(uri);
-    }
-
     /**
      */
     public static class RowBuilderImpl extends TemplateBuilderImpl
             implements ListBuilder.RowBuilder {
 
-        private PendingIntent mContentIntent;
+        private SliceAction mPrimaryAction;
         private SliceItem mTitleItem;
         private SliceItem mSubtitleItem;
-        private SliceItem mStartItem;
-        private ArrayList<SliceItem> mEndItems = new ArrayList<>();
+        private Slice mStartItem;
+        private ArrayList<Slice> mEndItems = new ArrayList<>();
 
         /**
          */
@@ -309,7 +304,8 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @NonNull
         @Override
         public void setTitleItem(long timeStamp) {
-            mStartItem = new SliceItem(timeStamp, FORMAT_TIMESTAMP, null, new String[]{HINT_TITLE});
+            mStartItem = new Slice.Builder(getBuilder())
+                    .addTimestamp(timeStamp, null).addHints(HINT_TITLE).build();
         }
 
         /**
@@ -324,38 +320,38 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
          */
         @Override
         public void setTitleItem(@Nullable Icon icon, boolean isLoading) {
-            mStartItem = new SliceItem(icon, FORMAT_IMAGE, null, new String[]{HINT_TITLE});
+            Slice.Builder sb = new Slice.Builder(getBuilder()).addIcon(icon, null /* subtype */);
             if (isLoading) {
-                mStartItem.addHint(HINT_PARTIAL);
+                sb.addHints(HINT_PARTIAL);
             }
+            mStartItem = sb.addHints(HINT_TITLE).build();
         }
 
         /**
          */
         @NonNull
         @Override
-        public void setTitleItem(@NonNull Icon icon, @NonNull PendingIntent action) {
-            setTitleItem(icon, action, false /* isLoading */);
+        public void setTitleItem(@NonNull SliceAction action) {
+            setTitleItem(action, false /* isLoading */);
         }
 
         /**
          */
         @Override
-        public void setTitleItem(Icon icon, PendingIntent action, boolean isLoading) {
-            Slice actionSlice = new Slice.Builder(getBuilder()).addIcon(icon, null).build();
-            mStartItem = new SliceItem(action, actionSlice, FORMAT_ACTION, null,
-                    new String[]{HINT_TITLE});
+        public void setTitleItem(SliceAction action, boolean isLoading) {
+            Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
             if (isLoading) {
-                mStartItem.addHint(HINT_PARTIAL);
+                sb.addHints(HINT_PARTIAL);
             }
+            mStartItem = action.buildSlice(sb);
         }
 
         /**
          */
         @NonNull
         @Override
-        public void setContentIntent(@NonNull PendingIntent action) {
-            mContentIntent = action;
+        public void setPrimaryAction(@NonNull SliceAction action) {
+            mPrimaryAction = action;
         }
 
         /**
@@ -399,7 +395,8 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @NonNull
         @Override
         public void addEndItem(long timeStamp) {
-            mEndItems.add(new SliceItem(timeStamp, FORMAT_TIMESTAMP, null, new String[0]));
+            mEndItems.add(new Slice.Builder(getBuilder()).addTimestamp(timeStamp,
+                    null, new String[0]).build());
         }
 
         /**
@@ -414,73 +411,39 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
          */
         @Override
         public void addEndItem(Icon icon, boolean isLoading) {
-            SliceItem item = new SliceItem(icon, FORMAT_IMAGE, null,
-                    new String[] {HINT_NO_TINT, HINT_LARGE});
+            Slice.Builder sb = new Slice.Builder(getBuilder()).addIcon(icon, null /* subType */,
+                    HINT_NO_TINT, HINT_LARGE);
             if (isLoading) {
-                item.addHint(HINT_PARTIAL);
+                sb.addHints(HINT_PARTIAL);
             }
-            mEndItems.add(item);
+            mEndItems.add(sb.build());
         }
 
         /**
          */
         @NonNull
         @Override
-        public void addEndItem(@NonNull Icon icon, @NonNull PendingIntent action) {
-            addEndItem(icon, action, false /* isLoading */);
+        public void addEndItem(@NonNull SliceAction action) {
+            addEndItem(action, false /* isLoading */);
         }
 
         /**
          */
         @Override
-        public void addEndItem(Icon icon, PendingIntent action, boolean isLoading) {
-            Slice actionSlice = new Slice.Builder(getBuilder()).addIcon(icon, null).build();
-            SliceItem item = new SliceItem(action, actionSlice, FORMAT_ACTION, null,
-                    new String[0]);
+        public void addEndItem(@NonNull SliceAction action, boolean isLoading) {
+            Slice.Builder sb = new Slice.Builder(getBuilder());
             if (isLoading) {
-                item.addHint(HINT_PARTIAL);
+                sb.addHints(HINT_PARTIAL);
             }
-            mEndItems.add(item);
-        }
-
-        /**
-         */
-        @NonNull
-        @Override
-        public void addToggle(@NonNull PendingIntent action, boolean isChecked,
-                @NonNull Icon icon) {
-            addToggle(action, isChecked, icon, false /* isLoading */);
-        }
-
-        @Override
-        public void addToggle(PendingIntent action, boolean isChecked, Icon icon,
-                boolean isLoading) {
-            @Slice.SliceHint String[] hints = isChecked
-                    ? new String[] {HINT_SELECTED}
-                    : new String[0];
-            Slice.Builder actionSliceBuilder = new Slice.Builder(getBuilder()).addHints(hints);
-            if (icon != null) {
-                actionSliceBuilder.addIcon(icon, null);
-            }
-            Slice actionSlice = actionSliceBuilder.build();
-            SliceItem item = new SliceItem(action, actionSlice, FORMAT_ACTION, SUBTYPE_TOGGLE,
-                    hints);
-            if (isLoading) {
-                item.addHint(HINT_PARTIAL);
-            }
-            mEndItems.add(item);
+            mEndItems.add(action.buildSlice(sb));
         }
 
         /**
          */
         @Override
         public void apply(Slice.Builder b) {
-            Slice.Builder wrapped = b;
-            if (mContentIntent != null) {
-                b = new Slice.Builder(wrapped);
-            }
             if (mStartItem != null) {
-                b.addItem(mStartItem);
+                b.addSubSlice(mStartItem);
             }
             if (mTitleItem != null) {
                 b.addItem(mTitleItem);
@@ -489,13 +452,15 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 b.addItem(mSubtitleItem);
             }
             for (int i = 0; i < mEndItems.size(); i++) {
-                SliceItem item = mEndItems.get(i);
-                b.addItem(item);
+                Slice item = mEndItems.get(i);
+                b.addSubSlice(item);
             }
-            if (mContentIntent != null) {
-                wrapped.addAction(mContentIntent, b.build(), null);
+            if (mPrimaryAction != null) {
+                Slice.Builder sb = new Slice.Builder(
+                        getBuilder()).addHints(HINT_TITLE, HINT_SHORTCUT);
+                b.addSubSlice(mPrimaryAction.buildSlice(sb), null);
             }
-            wrapped.addHints(HINT_LIST_ITEM);
+            b.addHints(HINT_LIST_ITEM);
         }
     }
 
@@ -507,7 +472,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         private CharSequence mTitle;
         private CharSequence mSubtitle;
         private CharSequence mSummarySubtitle;
-        private PendingIntent mContentIntent;
+        private SliceAction mPrimaryAction;
 
         /**
          */
@@ -525,10 +490,6 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
          */
         @Override
         public void apply(Slice.Builder b) {
-            Slice.Builder wrapped = b;
-            if (mContentIntent != null) {
-                b = new Slice.Builder(wrapped);
-            }
             if (mTitle != null) {
                 b.addText(mTitle, null /* subtype */, HINT_TITLE);
             }
@@ -538,8 +499,10 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             if (mSummarySubtitle != null) {
                 b.addText(mSummarySubtitle, null /* subtype */, HINT_SUMMARY);
             }
-            if (mContentIntent != null) {
-                wrapped.addAction(mContentIntent, b.build(), null /* subtype */);
+            if (mPrimaryAction != null) {
+                Slice.Builder sb = new Slice.Builder(
+                        getBuilder()).addHints(HINT_TITLE, HINT_SHORTCUT);
+                b.addSubSlice(mPrimaryAction.buildSlice(sb), null /* subtype */);
             }
         }
 
@@ -567,45 +530,8 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         /**
          */
         @Override
-        public void setContentIntent(PendingIntent intent) {
-            mContentIntent = intent;
-        }
-    }
-
-    /**
-     */
-    public static class ActionBuilderImpl extends TemplateBuilderImpl
-            implements ListBuilder.ActionBuilder {
-
-        /**
-         */
-        public ActionBuilderImpl(@NonNull ListBuilderV1Impl parent) {
-            super(parent.createChildBuilder(), null);
-        }
-
-        /**
-         */
-        public ActionBuilderImpl(@NonNull Uri uri) {
-            super(new Slice.Builder(uri), null);
-        }
-
-        /**
-         */
-        @Override
-        public void apply(Slice.Builder builder) {
-            builder.addHints(HINT_ACTIONS);
-        }
-
-        /**
-         */
-        @Override
-        public void addAction(PendingIntent action, Icon actionIcon,
-                CharSequence contentDescription, int priority) {
-            getBuilder().addAction(action, new Slice.Builder(getBuilder())
-                    .addIcon(actionIcon, null /* subtype */)
-                    .addInt(priority, SUBTYPE_PRIORITY /* subtype */)
-                    .addText(contentDescription, SUBTYPE_CONTENT_DESCRIPTION)
-                    .addHints(HINT_ACTIONS).build(), null /* subtype */);
+        public void setPrimaryAction(SliceAction action) {
+            mPrimaryAction = action;
         }
     }
 }
