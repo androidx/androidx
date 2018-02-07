@@ -296,12 +296,6 @@ public class PagedListView extends FrameLayout {
             mRecyclerView.addItemDecoration(new TopOffsetDecoration(listContentTopMargin));
         }
 
-        // Set this to true so that this view consumes clicks events and views underneath
-        // don't receive this click event. Without this it's possible to click places in the
-        // view that don't capture the event, and as a result, elements visually hidden consume
-        // the event.
-        setClickable(true);
-
         // Set focusable false explicitly to handle the behavior change in Android O where
         // clickable view becomes focusable by default.
         setFocusable(false);
@@ -391,19 +385,24 @@ public class PagedListView extends FrameLayout {
     public void setGutter(@Gutter int gutter) {
         mGutter = gutter;
 
-        int startPadding = 0;
-        int endPadding = 0;
+        int startMargin = 0;
+        int endMargin = 0;
         if ((mGutter & Gutter.START) != 0) {
-            startPadding = mGutterSize;
+            startMargin = mGutterSize;
         }
         if ((mGutter & Gutter.END) != 0) {
-            endPadding = mGutterSize;
+            endMargin = mGutterSize;
         }
-        mRecyclerView.setPaddingRelative(startPadding, 0, endPadding, 0);
+        MarginLayoutParams layoutParams = (MarginLayoutParams) mRecyclerView.getLayoutParams();
+        layoutParams.setMarginStart(startMargin);
+        layoutParams.setMarginEnd(endMargin);
+        // requestLayout() isn't sufficient because we also need to resolveLayoutParams().
+        mRecyclerView.setLayoutParams(layoutParams);
 
         // If there's a gutter, set ClipToPadding to false so that CardView's shadow will still
         // appear outside of the padding.
-        mRecyclerView.setClipToPadding(startPadding == 0 && endPadding == 0);
+        mRecyclerView.setClipToPadding(startMargin == 0 && endMargin == 0);
+
     }
 
     /**

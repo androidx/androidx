@@ -19,7 +19,7 @@
     android:id="@+id/container"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:foreground="@drawable/car_card_ripple_background">
+    android:background="@drawable/car_card_ripple_background">
     <!-- Primary Action. -->
     <ImageView
         android:id="@+id/primary_icon"
