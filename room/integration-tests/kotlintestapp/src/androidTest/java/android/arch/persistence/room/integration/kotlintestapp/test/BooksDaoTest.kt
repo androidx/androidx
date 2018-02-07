@@ -49,6 +49,24 @@ class BooksDaoTest : TestDatabaseTest() {
     }
 
     @Test
+    fun bookByIdJavaOptional() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        assertThat(
+                booksDao.getBookJavaOptional(TestUtil.BOOK_1.bookId),
+                `is`<java.util.Optional<Book>>(java.util.Optional.of(TestUtil.BOOK_1)))
+    }
+
+    @Test
+    fun bookByIdJavaOptionalEmpty() {
+        assertThat(
+                booksDao.getBookJavaOptional(TestUtil.BOOK_1.bookId),
+                `is`<java.util.Optional<Book>>(java.util.Optional.empty()))
+    }
+
+    @Test
     fun bookByIdOptional() {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)
