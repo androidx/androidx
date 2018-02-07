@@ -166,7 +166,8 @@ public class CommandHandler implements ExecutionListener {
             // We should be already processing this worker
             // Request dispatcher to treat this as a delayMet intent
             Logger.debug(TAG, "triggerAt is in the past. Processing the worker %s", workSpecId);
-            dispatcher.add(delayMet, startId);
+            dispatcher.postOnMainThread(
+                    new SystemAlarmDispatcher.AddRunnable(dispatcher, delayMet, startId));
         } else {
             // Update constraint proxies for the given workSpec
             ConstraintProxy.updateAll(mContext, Collections.singletonList(workSpec));
@@ -203,14 +204,18 @@ public class CommandHandler implements ExecutionListener {
         // user initiated cancel.
         boolean shouldReschedule = mPendingDelayMet.containsKey(workSpecId);
         // Request background processor to cancel the worker
-        // no need to worry about clearing pending work because,
-        // the onExecutionListeners will trigger an automatic cleanup
-        dispatcher.getProcessor().cancel(workSpecId, true);
+        boolean isCancelled = dispatcher.getProcessor().cancel(workSpecId, true);
         // reschedule if necessary
         if (shouldReschedule) {
             Logger.debug(TAG, "WorkSpec %s needs to be rescheduled", workSpecId);
             Intent reschedule = CommandHandler.createScheduleWorkIntent(mContext, workSpecId);
-            dispatcher.add(reschedule, startId);
+            dispatcher.postOnMainThread(
+                    new SystemAlarmDispatcher.AddRunnable(dispatcher, reschedule, startId));
+        }
+        // If the cancellation was successful, notify dispatcher, so
+        // it can clean up.
+        if (isCancelled) {
+            dispatcher.onExecuted(workSpecId, false, shouldReschedule);
         }
     }
 

@@ -112,13 +112,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         insertWork(work);
         String workSpecId = work.getId();
         final Intent intent = CommandHandler.createScheduleWorkIntent(mContext, workSpecId);
-
-        mDispatcher.postOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                mDispatcher.add(intent, START_ID);
-            }
-        });
+        mDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, START_ID));
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
         assertThat(mLatch.getCount(), equalTo(0L));
     }
@@ -132,13 +127,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         insertWork(work);
         String workSpecId = work.getId();
         final Intent intent = CommandHandler.createDelayMetIntent(mContext, workSpecId);
-        mDispatcher.postOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                mDispatcher.add(intent, START_ID);
-            }
-        });
-
+        mDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, START_ID));
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
         assertThat(mLatch.getCount(), equalTo(0L));
         verify(mSpyProcessor, times(1)).process(workSpecId);
@@ -157,13 +147,37 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         final Intent delayMet = CommandHandler.createDelayMetIntent(mContext, workSpecId);
         final Intent cancel = CommandHandler.createCancelWorkIntent(mContext, workSpecId);
-        mDispatcher.postOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                mDispatcher.add(delayMet, START_ID);
-                mDispatcher.add(cancel, START_ID);
-            }
-        });
+
+        mDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mDispatcher, delayMet, START_ID));
+
+        mDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mDispatcher, cancel, START_ID));
+
+        mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
+
+        assertThat(mLatch.getCount(), equalTo(0L));
+        verify(mSpyProcessor, times(1)).process(workSpecId);
+        verify(mSpyProcessor, times(1)).cancel(workSpecId, true);
+    }
+
+    @Test
+    public void testSchedule_withCancel() throws InterruptedException {
+        Work work = new Work.Builder(SleepTestWorker.class)
+                .withPeriodStartTime(System.currentTimeMillis())
+                .build();
+
+        insertWork(work);
+        String workSpecId = work.getId();
+
+        final Intent delayMet = CommandHandler.createScheduleWorkIntent(mContext, workSpecId);
+        final Intent cancel = CommandHandler.createCancelWorkIntent(mContext, workSpecId);
+
+        mDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mDispatcher, delayMet, START_ID));
+
+        mDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mDispatcher, cancel, START_ID));
 
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
 
