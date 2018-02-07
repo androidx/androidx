@@ -185,7 +185,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                             // by a worker's onExecutionComplete().
                             // For e.g.
                             // t0 -> delay_met_intent
-                            // t1 -> bgProcessor.process(workSpec)
+                            // t1 -> bgProcessor.startWork(workSpec)
                             // t2 -> constraints_changed_intent
                             // t3 -> bgProcessor.onExecutionCompleted(...)
                             // t4 -> CheckForCompletionRunnable (while constraints_changed_intent is

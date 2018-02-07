@@ -131,7 +131,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, START_ID));
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
         assertThat(mLatch.getCount(), equalTo(0L));
-        verify(mSpyProcessor, times(1)).process(workSpecId);
+        verify(mSpyProcessor, times(1)).startWork(workSpecId);
     }
 
     @Test
@@ -157,8 +157,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
 
         assertThat(mLatch.getCount(), equalTo(0L));
-        verify(mSpyProcessor, times(1)).process(workSpecId);
-        verify(mSpyProcessor, times(1)).cancel(workSpecId, true);
+        verify(mSpyProcessor, times(1)).startWork(workSpecId);
+        verify(mSpyProcessor, times(1)).stopWork(workSpecId, true);
     }
 
     @Test
@@ -182,8 +182,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
 
         assertThat(mLatch.getCount(), equalTo(0L));
-        verify(mSpyProcessor, times(1)).process(workSpecId);
-        verify(mSpyProcessor, times(1)).cancel(workSpecId, true);
+        verify(mSpyProcessor, times(1)).startWork(workSpecId);
+        verify(mSpyProcessor, times(1)).stopWork(workSpecId, true);
     }
 
     static class ForwardingExecutionListener implements ExecutionListener {
