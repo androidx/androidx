@@ -756,7 +756,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testGenerateCleanupCallback_deletesOldFinishedWork() {
         Work work1 = new Work.Builder(TestWorker.class)
                 .withInitialState(SUCCEEDED)
-                .withPeriodStartTime(0L)
+                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L)
                 .build();
         Work work2 = new Work.Builder(TestWorker.class).withPeriodStartTime(Long.MAX_VALUE).build();
 
@@ -777,7 +777,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testGenerateCleanupCallback_deletesDanglingBlockedDependencies() {
         Work work1 = new Work.Builder(TestWorker.class)
                 .withInitialState(FAILED)
-                .withPeriodStartTime(0L)
+                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L)
                 .build();
         Work work2 = new Work.Builder(TestWorker.class)
                 .withInitialState(BLOCKED)
