@@ -77,8 +77,7 @@ public class DelayMetCommandHandler implements
     @Override
     public void onAllConstraintsMet(@NonNull List<String> ignored) {
         // constraints met, schedule execution
-        boolean isEnqueued = mDispatcher.getProcessor()
-                .process(mWorkSpecId);
+        boolean isEnqueued = mDispatcher.getProcessor().startWork(mWorkSpecId);
 
         if (isEnqueued) {
             // setup timers to enforce quotas on workers that have
@@ -141,7 +140,7 @@ public class DelayMetCommandHandler implements
 
     private void cleanUp() {
         // cleanUp() may occur from one of 2 threads.
-        // * In the call to bgProcessor.process() returns false,
+        // * In the call to bgProcessor.startWork() returns false,
         //   it probably means that the worker is already being processed
         //   so we just need to call cleanUp to release wakelocks on the command processor thread.
         // * It could also happen on the onExecutionCompleted() pass of the bgProcessor.

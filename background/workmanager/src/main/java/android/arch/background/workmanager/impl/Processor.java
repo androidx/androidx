@@ -58,12 +58,12 @@ public class Processor implements ExecutionListener {
     }
 
     /**
-     * Processes a given unit of work in the background.
+     * Starts a given unit of work in the background.
      *
      * @param id The work id to execute.
      * @return {@code true} if the work was successfully enqueued for processing
      */
-    public synchronized boolean process(String id) {
+    public synchronized boolean startWork(String id) {
         // Work may get triggered multiple times if they have passing constraints and new work with
         // those constraints are added.
         if (mEnqueuedWorkMap.containsKey(id)) {
@@ -81,16 +81,19 @@ public class Processor implements ExecutionListener {
     }
 
     /**
-     * Tries to cancel a unit of work.
+     * Tries to stop a unit of work.
      *
-     * @param id The work id to cancel.
+     * @param id The work id to stop.
      * @param mayInterruptIfRunning If {@code true}, we try to interrupt the {@link Future} if it's
      *                              running
-     * @return {@code true} if the work was cancelled successfully.
+     * @return {@code true} if the work was stopped successfully.
      */
-    public synchronized boolean cancel(String id, boolean mayInterruptIfRunning) {
-        Logger.debug(TAG, "%s canceling %s; mayInterruptIfRunning = %s", getClass().getSimpleName(),
-                id, mayInterruptIfRunning);
+    public synchronized boolean stopWork(String id, boolean mayInterruptIfRunning) {
+        Logger.debug(TAG,
+                "%s canceling %s; mayInterruptIfRunning = %s",
+                getClass().getSimpleName(),
+                id,
+                mayInterruptIfRunning);
         Future<?> future = mEnqueuedWorkMap.get(id);
         if (future != null) {
             boolean cancelled = future.cancel(mayInterruptIfRunning);

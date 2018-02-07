@@ -65,7 +65,7 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
         Logger.debug(TAG, "%s started on FirebaseJobDispatcher", workSpecId);
         mJobParameters.put(workSpecId, params);
 
-        mProcessor.process(workSpecId);
+        mProcessor.startWork(workSpecId);
         return true;
     }
 
@@ -76,9 +76,9 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
             Logger.error(TAG, "WorkSpec id not found!");
             return false;
         }
-        boolean cancelled = mProcessor.cancel(workSpecId, true);
-        Logger.debug(TAG, "onStopJob for %s; Processor.cancel = ", workSpecId, cancelled);
-        return cancelled;
+        boolean isStopped = mProcessor.stopWork(workSpecId, true);
+        Logger.debug(TAG, "onStopJob for %s; Processor.stopWork = ", workSpecId, isStopped);
+        return isStopped;
     }
 
     @Override

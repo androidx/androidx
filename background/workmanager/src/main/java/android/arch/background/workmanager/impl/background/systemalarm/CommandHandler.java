@@ -198,13 +198,12 @@ public class CommandHandler implements ExecutionListener {
 
         Bundle extras = intent.getExtras();
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
-        Logger.debug(TAG, "Handing cancel work for %s", workSpecId);
+        Logger.debug(TAG, "Handing stopWork work for %s", workSpecId);
         // TODO(rahulrav@) Cancel alarm when necessary.
-        // TODO(rahulrav@) This is not a great signal if this was a
-        // user initiated cancel.
+        // TODO(rahulrav@) This is not a great signal if this was a user initiated cancel.
         boolean shouldReschedule = mPendingDelayMet.containsKey(workSpecId);
-        // Request background processor to cancel the worker
-        boolean isCancelled = dispatcher.getProcessor().cancel(workSpecId, true);
+        // Request background processor to stopWork the worker
+        boolean isStopped = dispatcher.getProcessor().stopWork(workSpecId, true);
         // reschedule if necessary
         if (shouldReschedule) {
             Logger.debug(TAG, "WorkSpec %s needs to be rescheduled", workSpecId);
@@ -214,7 +213,7 @@ public class CommandHandler implements ExecutionListener {
         }
         // If the cancellation was successful, notify dispatcher, so
         // it can clean up.
-        if (isCancelled) {
+        if (isStopped) {
             dispatcher.onExecuted(workSpecId, false, shouldReschedule);
         }
     }

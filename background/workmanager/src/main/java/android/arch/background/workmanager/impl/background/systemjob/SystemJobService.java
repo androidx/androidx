@@ -75,7 +75,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
         Logger.debug(TAG, "%s started on JobScheduler", workSpecId);
         mJobParameters.put(workSpecId, params);
-        mProcessor.process(workSpecId);
+        mProcessor.startWork(workSpecId);
         return true;
     }
 
@@ -86,9 +86,9 @@ public class SystemJobService extends JobService implements ExecutionListener {
             Logger.error(TAG, "WorkSpec id not found!");
             return false;
         }
-        boolean cancelled = mProcessor.cancel(workSpecId, true);
-        Logger.debug(TAG, "onStopJob for %s; Processor.cancel = %s", workSpecId, cancelled);
-        return cancelled;
+        boolean isStopped = mProcessor.stopWork(workSpecId, true);
+        Logger.debug(TAG, "onStopJob for %s; Processor.stopWork = %s", workSpecId, isStopped);
+        return isStopped;
     }
 
     @Override

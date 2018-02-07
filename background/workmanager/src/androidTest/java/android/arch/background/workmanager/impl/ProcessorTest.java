@@ -51,20 +51,20 @@ public class ProcessorTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testCancel_invalidWorkId() {
+    public void testStopWork_invalidWorkId() {
         String id = "INVALID_WORK_ID";
-        assertThat(mProcessor.cancel(id, true), is(false));
-        assertThat(mProcessor.cancel(id, false), is(false));
+        assertThat(mProcessor.stopWork(id, true), is(false));
+        assertThat(mProcessor.stopWork(id, false), is(false));
     }
 
     @Test
     @SmallTest
-    public void testProcess_doesNotProcessTwice() {
+    public void testStartWork_doesNotStartWorkTwice() {
         Work work = new Work.Builder(InfiniteTestWorker.class).build();
         String id = work.getId();
         insertWork(work);
-        assertThat(mProcessor.process(id), is(true));
-        assertThat(mProcessor.process(id), is(false));
+        assertThat(mProcessor.startWork(id), is(true));
+        assertThat(mProcessor.startWork(id), is(false));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class ProcessorTest extends DatabaseTest {
         insertWork(work);
 
         assertThat(mProcessor.hasWork(), is(false));
-        mProcessor.process(work.getId());
+        mProcessor.startWork(work.getId());
         assertThat(mProcessor.hasWork(), is(true));
     }
 }
