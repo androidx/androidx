@@ -89,11 +89,14 @@ public final class PagedListViewTest {
 
     private PagedListViewTestActivity mActivity;
     private PagedListView mPagedListView;
+    private ViewGroup.MarginLayoutParams mRecyclerViewLayoutParams;
 
     @Before
     public void setUp() {
         mActivity = mActivityRule.getActivity();
         mPagedListView = mActivity.findViewById(R.id.paged_list_view);
+        mRecyclerViewLayoutParams =
+                (ViewGroup.MarginLayoutParams) mPagedListView.getRecyclerView().getLayoutParams();
 
         // Using deprecated Espresso methods instead of calling it on the IdlingRegistry because
         // the latter does not seem to work as reliably. Specifically, on the latter, it does
@@ -382,6 +385,23 @@ public final class PagedListViewTest {
     }
 
     @Test
+    public void testSwipingScrollbarDoesNotScrollList() {
+        if (!isAutoDevice()) {
+            return;
+        }
+
+        // Just need enough items to ensure the scroll bar is showing.
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+
+        // Swipe on the filler instead of the whole scrollbar because buttons at top/bottom set
+        // OnLongClickListener and thus eat the motion event.
+        onView(withId(R.id.filler)).perform(swipeUp());
+        assertThat(((LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager())
+                        .findFirstCompletelyVisibleItemPosition(),
+                is(equalTo(0)));
+    }
+
+    @Test
     public void testSetGutterNone() {
         if (!isAutoDevice()) {
             return;
@@ -392,8 +412,8 @@ public final class PagedListViewTest {
 
         mPagedListView.setGutter(PagedListView.Gutter.NONE);
 
-        assertThat(mPagedListView.getRecyclerView().getPaddingStart(), is(equalTo(0)));
-        assertThat(mPagedListView.getRecyclerView().getPaddingEnd(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(0)));
     }
 
     @Test
@@ -410,8 +430,8 @@ public final class PagedListViewTest {
         Resources res = InstrumentationRegistry.getContext().getResources();
         int gutterSize = res.getDimensionPixelSize(R.dimen.car_margin);
 
-        assertThat(mPagedListView.getRecyclerView().getPaddingStart(), is(equalTo(gutterSize)));
-        assertThat(mPagedListView.getRecyclerView().getPaddingEnd(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(gutterSize)));
+        assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(0)));
     }
 
     @Test
@@ -428,8 +448,8 @@ public final class PagedListViewTest {
         Resources res = InstrumentationRegistry.getContext().getResources();
         int gutterSize = res.getDimensionPixelSize(R.dimen.car_margin);
 
-        assertThat(mPagedListView.getRecyclerView().getPaddingStart(), is(equalTo(0)));
-        assertThat(mPagedListView.getRecyclerView().getPaddingEnd(), is(equalTo(gutterSize)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(gutterSize)));
     }
 
     @Test
@@ -446,8 +466,8 @@ public final class PagedListViewTest {
         Resources res = InstrumentationRegistry.getContext().getResources();
         int gutterSize = res.getDimensionPixelSize(R.dimen.car_margin);
 
-        assertThat(mPagedListView.getRecyclerView().getPaddingStart(), is(equalTo(gutterSize)));
-        assertThat(mPagedListView.getRecyclerView().getPaddingEnd(), is(equalTo(gutterSize)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(gutterSize)));
+        assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(gutterSize)));
     }
 
     @Test
@@ -462,8 +482,8 @@ public final class PagedListViewTest {
         mPagedListView.setGutter(PagedListView.Gutter.NONE);
         mPagedListView.setGutterSize(120);
 
-        assertThat(mPagedListView.getRecyclerView().getPaddingStart(), is(equalTo(0)));
-        assertThat(mPagedListView.getRecyclerView().getPaddingEnd(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(0)));
     }
 
     @Test
@@ -480,8 +500,8 @@ public final class PagedListViewTest {
         int gutterSize = 120;
         mPagedListView.setGutterSize(gutterSize);
 
-        assertThat(mPagedListView.getRecyclerView().getPaddingStart(), is(equalTo(gutterSize)));
-        assertThat(mPagedListView.getRecyclerView().getPaddingEnd(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(gutterSize)));
+        assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(0)));
     }
 
     @Test
@@ -498,8 +518,8 @@ public final class PagedListViewTest {
         int gutterSize = 120;
         mPagedListView.setGutterSize(gutterSize);
 
-        assertThat(mPagedListView.getRecyclerView().getPaddingStart(), is(equalTo(0)));
-        assertThat(mPagedListView.getRecyclerView().getPaddingEnd(), is(equalTo(gutterSize)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(gutterSize)));
     }
 
     @Test
@@ -516,8 +536,8 @@ public final class PagedListViewTest {
         int gutterSize = 120;
         mPagedListView.setGutterSize(gutterSize);
 
-        assertThat(mPagedListView.getRecyclerView().getPaddingStart(), is(equalTo(gutterSize)));
-        assertThat(mPagedListView.getRecyclerView().getPaddingEnd(), is(equalTo(gutterSize)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(gutterSize)));
+        assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(gutterSize)));
     }
 
     @Test
