@@ -20,6 +20,7 @@ import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_PARTIAL;
+import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
@@ -70,6 +71,26 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
     @Override
     public void addCell(TemplateBuilderImpl builder) {
         getBuilder().addSubSlice(builder.build());
+    }
+
+
+    /**
+     */
+    @Override
+    public void addSeeMoreCell(@NonNull TemplateBuilderImpl builder) {
+        builder.getBuilder().addHints(HINT_SEE_MORE);
+        getBuilder().addSubSlice(builder.build());
+    }
+
+    /**
+     */
+    @Override
+    public void addSeeMoreAction(PendingIntent intent) {
+        getBuilder().addSubSlice(
+                new Slice.Builder(getBuilder())
+                        .addHints(HINT_SEE_MORE)
+                        .addAction(intent, new Slice.Builder(getBuilder()).build(), null)
+                        .build());
     }
 
     /**

@@ -57,6 +57,7 @@ import androidx.app.slice.builders.impl.TemplateBuilderImpl;
  */
 public class ListBuilder extends TemplateSliceBuilder {
 
+    private boolean mHasSeeMore;
     private androidx.app.slice.builders.impl.ListBuilder mImpl;
 
     /**
@@ -176,6 +177,74 @@ public class ListBuilder extends TemplateSliceBuilder {
     @NonNull
     public ListBuilder setColor(int color) {
         mImpl.setColor(color);
+        return this;
+    }
+
+    /**
+     * If all content in a slice cannot be shown, the row added here may be displayed where the
+     * content is cut off. This row should have an affordance to take the user to an activity to
+     * see all of the content.
+     * <p>
+     * This method should only be used if you want to display a custom row to indicate more
+     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
+     * choose to specify a custom row, the row should have a content intent or action end item
+     * specified to take the user to an activity to see all of the content.
+     * </p>
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     */
+    @NonNull
+    public ListBuilder addSeeMoreRow(@NonNull RowBuilder builder) {
+        if (mHasSeeMore) {
+            throw new IllegalArgumentException("Trying to add see more row when one has "
+                    + "already been added");
+        }
+        mImpl.addSeeMoreRow((TemplateBuilderImpl) builder.mImpl);
+        mHasSeeMore = true;
+        return this;
+    }
+
+    /**
+     * If all content in a slice cannot be shown, the row added here may be displayed where the
+     * content is cut off. This row should have an affordance to take the user to an activity to
+     * see all of the content.
+     * <p>
+     * This method should only be used if you want to display a custom row to indicate more
+     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
+     * choose to specify a custom row, the row should have a content intent or action end item
+     * specified to take the user to an activity to see all of the content.
+     * </p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @NonNull
+    public ListBuilder addSeeMoreRow(@NonNull Consumer<RowBuilder> c) {
+        RowBuilder b = new RowBuilder(this);
+        c.accept(b);
+        return addSeeMoreRow(b);
+    }
+
+    /**
+     * If all content in a slice cannot be shown, a "see more" affordance may be displayed where
+     * the content is cut off. The action added here should take the user to an activity to see
+     * all of the content, and will be invoked when the "see more" affordance is tapped.
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     */
+    @NonNull
+    public ListBuilder addSeeMoreAction(@NonNull PendingIntent intent) {
+        if (mHasSeeMore) {
+            throw new IllegalArgumentException("Trying to add see more action when one has "
+                    + "already been added");
+        }
+        mImpl.addSeeMoreAction(intent);
+        mHasSeeMore = true;
         return this;
     }
 

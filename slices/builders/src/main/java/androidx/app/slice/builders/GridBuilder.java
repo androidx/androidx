@@ -36,6 +36,7 @@ import androidx.app.slice.builders.impl.GridBuilderBasicImpl;
 import androidx.app.slice.builders.impl.GridBuilderListV1Impl;
 import androidx.app.slice.builders.impl.TemplateBuilderImpl;
 
+
 /**
  * Builder to construct a row of slice content in a grid format.
  * <p>
@@ -46,6 +47,7 @@ import androidx.app.slice.builders.impl.TemplateBuilderImpl;
 public class GridBuilder extends TemplateSliceBuilder {
 
     private androidx.app.slice.builders.impl.GridBuilder mImpl;
+    private boolean mHasSeeMore;
 
     /**
      * Create a builder which will construct a slice displayed in a grid format.
@@ -107,6 +109,76 @@ public class GridBuilder extends TemplateSliceBuilder {
         c.accept(b);
         return addCell(b);
     }
+
+    /**
+     * If all content in a slice cannot be shown, the cell added here may be displayed where the
+     * content is cut off.
+     * <p>
+     * This method should only be used if you want to display a custom cell to indicate more
+     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
+     * choose to specify a custom cell, the cell should have
+     * {@link CellBuilder#setContentIntent(PendingIntent)} specified to take the user to an
+     * activity to see all of the content.
+     * </p>
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     */
+    @NonNull
+    public GridBuilder addSeeMoreCell(@NonNull CellBuilder builder) {
+        if (mHasSeeMore) {
+            throw new IllegalStateException("Trying to add see more cell when one has "
+                    + "already been added");
+        }
+        mImpl.addSeeMoreCell((TemplateBuilderImpl) builder.mImpl);
+        mHasSeeMore = true;
+        return this;
+    }
+
+    /**
+     * If all content in a slice cannot be shown, the cell added here may be displayed where the
+     * content is cut off.
+     * <p>
+     * This method should only be used if you want to display a custom cell to indicate more
+     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
+     * choose to specify a custom cell, the cell should have
+     * {@link CellBuilder#setContentIntent(PendingIntent)} specified to take the user to an
+     * activity to see all of the content.
+     * </p>
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     */
+    @RequiresApi(Build.VERSION_CODES.N)
+    @NonNull
+    public GridBuilder addSeeMoreCell(@NonNull Consumer<CellBuilder> c) {
+        CellBuilder b = new CellBuilder(this);
+        c.accept(b);
+        return addSeeMoreCell(b);
+    }
+
+    /**
+     * If all content in a slice cannot be shown, a "see more" affordance may be displayed where
+     * the content is cut off. The action added here should take the user to an activity to see
+     * all of the content, and will be invoked when the "see more" affordance is tapped.
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     */
+    @NonNull
+    public GridBuilder addSeeMoreAction(@NonNull PendingIntent intent) {
+        if (mHasSeeMore) {
+            throw new IllegalStateException("Trying to add see more action when one has "
+                    + "already been added");
+        }
+        mImpl.addSeeMoreAction(intent);
+        mHasSeeMore = true;
+        return this;
+    }
+
 
     /**
      * @hide

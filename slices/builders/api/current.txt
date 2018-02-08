@@ -5,6 +5,9 @@ package androidx.app.slice.builders {
     ctor public GridBuilder(androidx.app.slice.builders.ListBuilder);
     method public androidx.app.slice.builders.GridBuilder addCell(androidx.app.slice.builders.GridBuilder.CellBuilder);
     method public androidx.app.slice.builders.GridBuilder addCell(java.util.function.Consumer<androidx.app.slice.builders.GridBuilder.CellBuilder>);
+    method public androidx.app.slice.builders.GridBuilder addSeeMoreAction(android.app.PendingIntent);
+    method public androidx.app.slice.builders.GridBuilder addSeeMoreCell(androidx.app.slice.builders.GridBuilder.CellBuilder);
+    method public androidx.app.slice.builders.GridBuilder addSeeMoreCell(java.util.function.Consumer<androidx.app.slice.builders.GridBuilder.CellBuilder>);
   }
 
   public static final class GridBuilder.CellBuilder extends androidx.app.slice.builders.TemplateSliceBuilder {
@@ -31,6 +34,9 @@ package androidx.app.slice.builders {
     method public androidx.app.slice.builders.ListBuilder addRange(java.util.function.Consumer<androidx.app.slice.builders.ListBuilder.RangeBuilder>);
     method public androidx.app.slice.builders.ListBuilder addRow(androidx.app.slice.builders.ListBuilder.RowBuilder);
     method public androidx.app.slice.builders.ListBuilder addRow(java.util.function.Consumer<androidx.app.slice.builders.ListBuilder.RowBuilder>);
+    method public androidx.app.slice.builders.ListBuilder addSeeMoreAction(android.app.PendingIntent);
+    method public androidx.app.slice.builders.ListBuilder addSeeMoreRow(androidx.app.slice.builders.ListBuilder.RowBuilder);
+    method public androidx.app.slice.builders.ListBuilder addSeeMoreRow(java.util.function.Consumer<androidx.app.slice.builders.ListBuilder.RowBuilder>);
     method public androidx.app.slice.builders.ListBuilder setActions(androidx.app.slice.builders.ListBuilder.ActionBuilder);
     method public androidx.app.slice.builders.ListBuilder setActions(java.util.function.Consumer<androidx.app.slice.builders.ListBuilder.ActionBuilder>);
     method public androidx.app.slice.builders.ListBuilder setHeader(androidx.app.slice.builders.ListBuilder.HeaderBuilder);
