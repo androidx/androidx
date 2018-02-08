@@ -25,7 +25,11 @@ import java.util.regex.Pattern
 /**
  * Context to share the transformation state between individual [Transformer]s.
  */
-class TransformationContext(val config: Config, val rewritingSupportLib: Boolean) {
+class TransformationContext(
+    val config: Config,
+    val rewritingSupportLib: Boolean = false,
+    val isInReversedMode: Boolean = false
+) {
 
     // Merges all packages prefixes into one regEx pattern
     private val packagePrefixPattern = Pattern.compile(
