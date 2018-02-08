@@ -57,11 +57,38 @@ ANDROID_SUPPORT_DESIGN_TARGETS := \
     android-support-fragment \
     android-support-transition \
     android-support-v7-appcompat \
+    android-support-v7-cardview \
     android-support-v7-recyclerview \
+    android-support-design-animation \
+    android-support-design-bottomnavigation \
+    android-support-design-bottomsheet \
+    android-support-design-button \
+    android-support-design-canvas \
+    android-support-design-card \
+    android-support-design-chip \
+    android-support-design-circularreveal \
+    android-support-design-circularreveal-cardview \
+    android-support-design-circularreveal-coordinatorlayout \
+    android-support-design-color \
+    android-support-design-dialog \
+    android-support-design-drawable \
+    android-support-design-expandable \
+    android-support-design-floatingactionbutton \
+    android-support-design-math \
+    android-support-design-resources \
+    android-support-design-ripple \
+    android-support-design-snackbar \
+    android-support-design-stateful \
+    android-support-design-textfield \
+    android-support-design-theme \
+    android-support-design-transformation \
+    android-support-design-typography \
+    android-support-design-widget \
+    android-support-design-internal \
+    flexbox
 
 # List of all Car transitive dependencies. Use this instead of android-support-car.
 ANDROID_SUPPORT_CAR_TARGETS := \
     android-support-car \
     $(ANDROID_SUPPORT_DESIGN_TARGETS) \
-    android-support-media-compat \
-    android-support-v7-cardview
+    android-support-media-compat
