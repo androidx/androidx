@@ -18,6 +18,7 @@ package com.example.android.supportv7.widget;
 
 import android.graphics.Color;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -135,7 +136,7 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
         }
 
         @Override
-        public void onViewRecycled(ViewHolder holder) {
+        public void onViewRecycled(@NonNull ViewHolder holder) {
             mSavedStates.set(holder.getAdapterPosition(),
                     holder.mRecyclerView.getLayoutManager().onSaveInstanceState());
         }

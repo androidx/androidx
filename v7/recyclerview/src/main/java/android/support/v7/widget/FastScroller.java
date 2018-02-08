@@ -24,6 +24,7 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.view.ViewCompat;
@@ -379,7 +380,8 @@ class FastScroller extends ItemDecoration implements OnItemTouchListener {
     }
 
     @Override
-    public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent ev) {
+    public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView,
+            @NonNull MotionEvent ev) {
         final boolean handled;
         if (mState == STATE_VISIBLE) {
             boolean insideVerticalThumb = isPointInsideVerticalThumb(ev.getX(), ev.getY());
@@ -408,7 +410,7 @@ class FastScroller extends ItemDecoration implements OnItemTouchListener {
     }
 
     @Override
-    public void onTouchEvent(RecyclerView recyclerView, MotionEvent me) {
+    public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent me) {
         if (mState == STATE_HIDDEN) {
             return;
         }

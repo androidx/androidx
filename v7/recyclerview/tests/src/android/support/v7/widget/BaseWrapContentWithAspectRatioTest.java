@@ -15,23 +15,24 @@
  */
 package android.support.v7.widget;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 
 abstract public class BaseWrapContentWithAspectRatioTest extends BaseRecyclerViewInstrumentationTest {
     final BaseWrapContentTest.WrapContentConfig mWrapContentConfig;
@@ -202,12 +203,12 @@ abstract public class BaseWrapContentWithAspectRatioTest extends BaseRecyclerVie
         }
 
         @Override
-        public WrapContentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public WrapContentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             return new WrapContentViewHolder(parent);
         }
 
         @Override
-        public void onBindViewHolder(WrapContentViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull WrapContentViewHolder holder, int position) {
             holder.mView.setBehavior(behaviors.get(position));
             holder.mView.prepareLayoutParams();
         }

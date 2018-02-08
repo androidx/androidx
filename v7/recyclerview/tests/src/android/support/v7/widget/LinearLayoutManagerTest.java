@@ -34,6 +34,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.v4.view.AccessibilityDelegateCompat;
@@ -206,7 +207,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             RecyclerView mAttachedRv;
 
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                 // Good to have colors for debugging
                 StateListDrawable stl = new StateListDrawable();
@@ -224,7 +225,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             }
 
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (position < consecutiveFocusablesCount) {
@@ -292,7 +293,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             RecyclerView mAttachedRv;
 
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                 // Good to have colors for debugging
                 StateListDrawable stl = new StateListDrawable();
@@ -310,7 +311,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             }
 
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (position < consecutiveFocusablesCount) {
@@ -377,7 +378,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             RecyclerView mAttachedRv;
 
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                 // Good to have colors for debugging
                 StateListDrawable stl = new StateListDrawable();
@@ -395,7 +396,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             }
 
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (position < consecutiveFocusablesCount) {
@@ -463,7 +464,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             RecyclerView mAttachedRv;
 
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                 // Good to have colors for debugging
                 StateListDrawable stl = new StateListDrawable();
@@ -481,7 +482,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             }
 
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (position < consecutiveFocusablesCount) {
@@ -554,7 +555,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             RecyclerView mAttachedRv;
 
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                 // Good to have colors for debugging
                 StateListDrawable stl = new StateListDrawable();
@@ -572,7 +573,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             }
 
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (position < consecutiveFocusablesCount) {
@@ -710,7 +711,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             final int removePos) throws Throwable {
         config.adapter(new TestAdapter(adapterSize) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
@@ -808,7 +809,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         final boolean[] firstItemSpecialSize = new boolean[] {false};
         TestAdapter adapter = new TestAdapter(adapterSize) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
@@ -1123,7 +1124,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         final AtomicInteger childCount = new AtomicInteger(0);
         final TestAdapter adapter = new TestAdapter(300) {
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                     int viewType) {
                 final int cnt = childCount.incrementAndGet();
                 final TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);

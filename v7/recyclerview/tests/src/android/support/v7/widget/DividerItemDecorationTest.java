@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -67,12 +68,12 @@ public class DividerItemDecorationTest {
         }
 
         @Override
-        public MyAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public MyAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             return new ViewHolder(new TextView(parent.getContext()));
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             holder.mTextView.setText(mDataset[position]);
         }
 

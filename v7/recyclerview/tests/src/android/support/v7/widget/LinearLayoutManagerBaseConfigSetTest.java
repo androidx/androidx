@@ -29,6 +29,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.test.filters.LargeTest;
 import android.util.Log;
 import android.view.View;
@@ -205,7 +206,7 @@ public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManage
         final int totalSpace = mLayoutManager.mOrientationHelper.getTotalSpace();
         final TestAdapter newAdapter = new TestAdapter(100) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (config.mOrientation == HORIZONTAL) {

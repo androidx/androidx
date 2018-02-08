@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.support.annotation.NonNull;
 import android.support.test.filters.MediumTest;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,7 +91,7 @@ public class GridLayoutManagerRtlTest extends BaseGridLayoutManagerTest {
 
         RecyclerView rv = setupBasic(mConfig, new GridTestAdapter(mConfig.mItemCount) {
             @Override
-            public void onBindViewHolder(TestViewHolder holder,
+            public void onBindViewHolder(@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (mItemsWrapContent) {

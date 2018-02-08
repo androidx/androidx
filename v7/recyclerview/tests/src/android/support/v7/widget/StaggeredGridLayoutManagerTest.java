@@ -38,6 +38,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.test.filters.LargeTest;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.text.TextUtils;
@@ -91,8 +92,10 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         setupByConfig(new Config(orientation, false, 1, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS),
                 new GridTestAdapter(10, orientation) {
 
+                    @NonNull
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                    public TestViewHolder onCreateViewHolder(
+                            @NonNull ViewGroup parent, int viewType) {
                         View view = new View(parent.getContext());
                         StaggeredGridLayoutManager.LayoutParams layoutParams =
                                 new StaggeredGridLayoutManager.LayoutParams(
@@ -104,7 +107,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder, int position) {
+                    public void onBindViewHolder(@NonNull TestViewHolder holder, int position) {
                         // No actual binding needed, but we need to override this to prevent default
                         // behavior of GridTestAdapter.
                     }
@@ -147,6 +150,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         });
         assertTrue(mRecyclerView.isLayoutRequested());
     }
+
     @Test
     public void areAllStartsTheSame() throws Throwable {
         setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_NONE).itemCount(300));
@@ -336,8 +340,10 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS),
                 new GridTestAdapter(1000, VERTICAL) {
 
+                    @NonNull
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                    public TestViewHolder onCreateViewHolder(
+                            @NonNull ViewGroup parent, int viewType) {
                         FrameLayout fl = new FrameLayout(parent.getContext());
                         EditText editText = new EditText(parent.getContext());
                         fl.addView(editText);
@@ -346,7 +352,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder, int position) {
+                    public void onBindViewHolder(@NonNull TestViewHolder holder, int position) {
                         Item item = mItems.get(position);
                         holder.mBoundItem = item;
                         ((EditText) ((FrameLayout) holder.itemView).getChildAt(0)).setText(
@@ -397,7 +403,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     RecyclerView mAttachedRv;
 
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                         testViewHolder.itemView.setFocusable(true);
@@ -418,7 +424,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         holder.itemView.setMinimumHeight(mAttachedRv.getHeight() / 3);
@@ -490,7 +496,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     RecyclerView mAttachedRv;
 
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                         testViewHolder.itemView.setFocusable(true);
@@ -511,7 +517,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) holder.itemView
@@ -604,7 +610,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     RecyclerView mAttachedRv;
 
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                         testViewHolder.itemView.setFocusable(true);
@@ -625,7 +631,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) holder.itemView
@@ -719,7 +725,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     RecyclerView mAttachedRv;
 
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                         testViewHolder.itemView.setFocusable(true);
@@ -740,7 +746,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) holder.itemView
@@ -827,7 +833,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     RecyclerView mAttachedRv;
 
                     @Override
-                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
                         testViewHolder.itemView.setFocusable(true);
@@ -848,7 +854,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     }
 
                     @Override
-                    public void onBindViewHolder(TestViewHolder holder,
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
                         RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) holder.itemView

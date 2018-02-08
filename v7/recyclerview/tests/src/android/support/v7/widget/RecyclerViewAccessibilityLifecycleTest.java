@@ -28,6 +28,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
@@ -77,7 +78,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         };
         TestAdapter adapter = new TestAdapter(10) {
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                     int viewType) {
                 TestViewHolder vh = super.onCreateViewHolder(parent, viewType);
                 ViewCompat.setImportantForAccessibility(vh.itemView,
@@ -189,7 +190,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         };
         final TestAdapter adapter = new TestAdapter(100) {
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                     int viewType) {
                 TestViewHolder vh = super.onCreateViewHolder(parent, viewType);
                 ViewCompat.setAccessibilityDelegate(vh.itemView, delegateCompat);

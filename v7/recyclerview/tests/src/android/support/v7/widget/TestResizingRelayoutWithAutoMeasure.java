@@ -188,13 +188,13 @@ public class TestResizingRelayoutWithAutoMeasure extends BaseRecyclerViewInstrum
         }
 
         @Override
-        public TestViewHolder onCreateViewHolder(ViewGroup parent,
+        public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                 int viewType) {
             return new TestViewHolder(new View(parent.getContext()));
         }
 
         @Override
-        public void onBindViewHolder(TestViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull TestViewHolder holder, int position) {
             holder.mBoundItem = new Item(position, "none");
             if (mMinItemHeight < 1 && mMinItemWidth < 1) {
                 return;

@@ -62,7 +62,7 @@ public class CustomEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         mRecyclerView.setAdapter(new TestAdapter(NUM_ITEMS) {
 
             @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                     int viewType) {
                 TestViewHolder holder = super.onCreateViewHolder(parent, viewType);
                 holder.itemView.setMinimumHeight(mRecyclerView.getMeasuredHeight() * 2 / NUM_ITEMS);

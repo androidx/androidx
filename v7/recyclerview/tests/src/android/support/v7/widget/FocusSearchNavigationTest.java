@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
@@ -244,7 +245,7 @@ public class FocusSearchNavigationTest {
         }
 
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
         int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_view,
                     parent, false);
@@ -259,7 +260,7 @@ public class FocusSearchNavigationTest {
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             holder.itemView.setTag("pos " + position);
         }
 
