@@ -294,6 +294,7 @@ class LoaderManagerImpl extends LoaderManager {
                 LoaderInfo info = mLoaders.valueAt(index);
                 info.destroy();
             }
+            mLoaders.clear();
         }
 
         public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
