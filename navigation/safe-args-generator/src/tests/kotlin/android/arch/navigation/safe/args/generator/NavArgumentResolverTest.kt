@@ -20,6 +20,7 @@ import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
 import android.arch.navigation.safe.args.generator.models.Id
+import com.squareup.javapoet.ClassName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -34,7 +35,7 @@ class NavArgumentResolverTest {
 
     private fun createTemplateDestination(name: String) =
             Destination(
-                    id(name), "test", "Fragment${name.capitalize()}",
+                    id(name), ClassName.get("foo", "Fragment${name.capitalize()}"), "test",
                     listOf(
                             Argument("arg1", StringType),
                             Argument("arg2", StringType, "foo")
@@ -52,7 +53,8 @@ class NavArgumentResolverTest {
                 listOf(Argument("arg1", StringType, "actionValue"),
                         Argument("actionArg", StringType)))))
 
-        val topLevel = Destination(null, "test", "", emptyList(), emptyList(), listOf(dest1, dest2))
+        val topLevel = Destination(null, null, "test",
+                emptyList(), emptyList(), listOf(dest1, dest2))
 
         val resolveArguments = resolveArguments(topLevel)
         assertThat(resolveArguments.nested.size, `is`(2))
@@ -77,7 +79,7 @@ class NavArgumentResolverTest {
                 Argument("arg1", StringType)
         ))
 
-        val topLevel = Destination(null, "test", "", emptyList(), listOf(invalidAction),
+        val topLevel = Destination(null, null, "test", emptyList(), listOf(invalidAction),
                 listOf(dest1))
 
         try {

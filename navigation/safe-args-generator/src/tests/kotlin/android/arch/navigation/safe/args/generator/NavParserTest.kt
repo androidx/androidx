@@ -20,6 +20,7 @@ import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
 import android.arch.navigation.safe.args.generator.models.Id
+import com.squareup.javapoet.ClassName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -33,11 +34,12 @@ class NavParserTest {
     @Test
     fun test() {
         val id: (String) -> Id = { id -> Id("a.b", id) }
-        val navGraph = parseNavigationFile(File("src/tests/test-data/naive_test.xml"), "a.b")
+        val navGraph = parseNavigationFile(File("src/tests/test-data/naive_test.xml"), "a.b",
+                "foo.app")
 
-        val nameFirst = "android.arch.navigation.testapp.MainFragment"
-        val nameNext = ".NextFragment"
-        val expectedFirst = Destination(id("first_screen"), "fragment", nameFirst,
+        val nameFirst = ClassName.get("android.arch.navigation.testapp", "MainFragment")
+        val nameNext = ClassName.get("foo.app", "NextFragment")
+        val expectedFirst = Destination(id("first_screen"), nameFirst, "fragment" ,
                 listOf(Argument("myarg1", StringType, "one")),
                 listOf(Action(id("next"), id("next_fragment"), listOf(
                         Argument("myarg2", StringType),
@@ -45,12 +47,12 @@ class NavParserTest {
                         Argument("intArgument", IntegerType, "261")
                 ))))
 
-        val expectedNext = Destination(id("next_fragment"), "fragment", nameNext,
+        val expectedNext = Destination(id("next_fragment"), nameNext, "fragment",
                 listOf(Argument("myarg2", StringType)),
                 listOf(Action(id("next"), id("first_screen")),
                         Action(id("finish"), null)))
 
-        val expectedGraph = Destination(null, "navigation", "", emptyList(), emptyList(),
+        val expectedGraph = Destination(null, null, "navigation", emptyList(), emptyList(),
                 listOf(expectedFirst, expectedNext))
         assertThat(navGraph, `is`(expectedGraph))
     }

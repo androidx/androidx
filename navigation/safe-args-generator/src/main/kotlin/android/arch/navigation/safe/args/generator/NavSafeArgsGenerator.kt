@@ -21,14 +21,17 @@ import java.io.File
 
 fun generateSafeArgs(rFilePackage: String, applicationId: String,
         navigationXml: File, outputDir: File) {
-    val rawDestination = parseNavigationFile(navigationXml, rFilePackage)
+    val rawDestination = parseNavigationFile(navigationXml, rFilePackage, applicationId)
     val resolvedDestination = resolveArguments(rawDestination)
 
-    fun writeJavaFile(destination: Destination) {
+    fun writeJavaFiles(destination: Destination) {
         if (destination.actions.isNotEmpty()) {
-            generateDirectionsJavaFile(applicationId, destination).writeTo(outputDir)
+            generateDirectionsJavaFile(destination).writeTo(outputDir)
         }
-        destination.nested.forEach(::writeJavaFile)
+        if (destination.args.isNotEmpty()) {
+            generateArgsJavaFile(destination)
+        }
+        destination.nested.forEach(::writeJavaFiles)
     }
-    writeJavaFile(resolvedDestination)
+    writeJavaFiles(resolvedDestination)
 }
