@@ -19,19 +19,22 @@ package android.arch.persistence.room.integration.kotlintestapp
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.integration.kotlintestapp.dao.BooksDao
+import android.arch.persistence.room.integration.kotlintestapp.dao.DependencyDao
 import android.arch.persistence.room.integration.kotlintestapp.dao.DerivedDao
 import android.arch.persistence.room.integration.kotlintestapp.vo.Author
 import android.arch.persistence.room.integration.kotlintestapp.vo.Book
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookAuthor
+import android.arch.persistence.room.integration.kotlintestapp.vo.DataClassFromDependency
 import android.arch.persistence.room.integration.kotlintestapp.vo.NoArgClass
 import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
 
-@Database(entities = arrayOf(Book::class, Author::class, Publisher::class, BookAuthor::class,
-        NoArgClass::class),
-        version = 1)
+@Database(entities = [Book::class, Author::class, Publisher::class, BookAuthor::class,
+    NoArgClass::class, DataClassFromDependency::class], version = 1)
 abstract class TestDatabase : RoomDatabase() {
 
     abstract fun booksDao(): BooksDao
 
     abstract fun derivedDao(): DerivedDao
+
+    abstract fun dependencyDao(): DependencyDao
 }
