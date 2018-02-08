@@ -116,6 +116,7 @@ object CommonTypeNames {
     val SET = ClassName.get("java.util", "Set")
     val STRING = ClassName.get("java.lang", "String")
     val INTEGER = ClassName.get("java.lang", "Integer")
+    val OPTIONAL = ClassName.get("java.util", "Optional")
 }
 
 object GuavaBaseTypeNames {
