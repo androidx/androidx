@@ -17,6 +17,7 @@
 package android.arch.persistence.room.solver
 
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.ext.CommonTypeNames
 import android.arch.persistence.room.ext.GuavaBaseTypeNames
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.typeName
@@ -43,6 +44,7 @@ import android.arch.persistence.room.solver.query.result.EntityRowAdapter
 import android.arch.persistence.room.solver.query.result.GuavaOptionalQueryResultAdapter
 import android.arch.persistence.room.solver.query.result.InstantQueryResultBinder
 import android.arch.persistence.room.solver.query.result.ListQueryResultAdapter
+import android.arch.persistence.room.solver.query.result.OptionalQueryResultAdapter
 import android.arch.persistence.room.solver.query.result.PojoRowAdapter
 import android.arch.persistence.room.solver.query.result.QueryResultAdapter
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
@@ -285,6 +287,13 @@ class TypeAdapterStore private constructor(
                 val typeArg = declared.typeArguments.first()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
                 return GuavaOptionalQueryResultAdapter(rowAdapter)
+            } else if (
+                    context.processingEnv.typeUtils.erasure(typeMirror).typeName() ==
+                    CommonTypeNames.OPTIONAL) {
+                // Handle java.util.Optional similarly.
+                val typeArg = declared.typeArguments.first()
+                val rowAdapter = findRowAdapter(typeArg, query) ?: return null
+                return OptionalQueryResultAdapter(SingleEntityQueryResultAdapter(rowAdapter))
             } else if (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)) {
                 val typeArg = declared.typeArguments.first()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null

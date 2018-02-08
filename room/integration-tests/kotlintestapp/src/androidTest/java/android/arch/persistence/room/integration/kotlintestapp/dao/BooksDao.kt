@@ -67,6 +67,9 @@ interface BooksDao {
     fun getBookFlowable(bookId: String): Flowable<Book>
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
+    fun getBookJavaOptional(bookId: String): java.util.Optional<Book>
+
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookOptional(bookId: String): Optional<Book>
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
