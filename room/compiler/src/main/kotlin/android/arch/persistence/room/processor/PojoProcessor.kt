@@ -47,6 +47,13 @@ import android.arch.persistence.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import me.eugeniomarletti.kotlin.metadata.KotlinClassMetadata
+import me.eugeniomarletti.kotlin.metadata.KotlinMetadataUtils
+import me.eugeniomarletti.kotlin.metadata.jvm.getJvmConstructorSignature
+import me.eugeniomarletti.kotlin.metadata.kotlinMetadata
+import org.jetbrains.kotlin.serialization.ProtoBuf
+import org.jetbrains.kotlin.serialization.deserialization.NameResolver
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.Modifier.PRIVATE
@@ -69,12 +76,28 @@ class PojoProcessor(baseContext: Context,
                     val element: TypeElement,
                     val bindingScope: FieldProcessor.BindingScope,
                     val parent: EmbeddedField?,
-                    val referenceStack: LinkedHashSet<Name> = LinkedHashSet<Name>()) {
+                    val referenceStack: LinkedHashSet<Name> = LinkedHashSet())
+    : KotlinMetadataUtils {
     val context = baseContext.fork(element)
+
+    // for KotlinMetadataUtils
+    override val processingEnv: ProcessingEnvironment
+        get() = context.processingEnv
+
+    // opportunistic kotlin metadata
+    private val kotlinMetadata by lazy {
+        try {
+            element.kotlinMetadata
+        } catch (throwable: Throwable) {
+            context.logger.d(element, "failed to read get kotlin metadata from %s", element)
+        }
+    }
+
     companion object {
         val PROCESSED_ANNOTATIONS = listOf(ColumnInfo::class, Embedded::class,
-                    Relation::class)
+                Relation::class)
     }
+
     fun process(): Pojo {
         return context.cache.pojos.get(Cache.PojoKey(element, bindingScope, parent), {
             referenceStack.add(element.qualifiedName)
@@ -94,9 +117,9 @@ class PojoProcessor(baseContext: Context,
                     !it.hasAnnotation(Ignore::class)
                             && !it.hasAnyOf(STATIC)
                             && (!it.hasAnyOf(TRANSIENT)
-                                    || it.hasAnnotation(ColumnInfo::class)
-                                    || it.hasAnnotation(Embedded::class)
-                                    || it.hasAnnotation(Relation::class))
+                            || it.hasAnnotation(ColumnInfo::class)
+                            || it.hasAnnotation(Embedded::class)
+                            || it.hasAnnotation(Relation::class))
                 }
                 .groupBy { field ->
                     context.checker.check(
@@ -199,6 +222,40 @@ class PojoProcessor(baseContext: Context,
                 constructor = constructor)
     }
 
+    /**
+     * Retrieves the parameter names of a method. If the method is inherited from a dependency
+     * module, the parameter name is not available (not in java spec). For kotlin, since parameter
+     * names are part of the API, we can read them via the kotlin metadata annotation.
+     * <p>
+     * Since we are using an unofficial library to read the metadata, all access to that code
+     * is safe guarded to avoid unexpected failures. In other words, it is a best effort but
+     * better than not supporting these until JB provides a proper API.
+     */
+    private fun getParamNames(method: ExecutableElement): List<String> {
+        val paramNames = method.parameters.map { it.simpleName.toString() }
+        if (paramNames.isEmpty()) {
+            return emptyList()
+        }
+        (kotlinMetadata as? KotlinClassMetadata)?.let {
+            try {
+                val kotlinParams = it
+                        .findConstructor(method)
+                        ?.tryGetParameterNames(it.data.nameResolver)
+                if (kotlinParams != null) {
+                    return kotlinParams
+                }
+            } catch (throwable: Throwable) {
+                context.logger.d(
+                        method,
+                        "Cannot read kotlin metadata, falling back to jvm signature. %s",
+                        throwable.message as Any)
+            }
+        }
+        // either it is java or something went wrong w/ kotlin metadata. default to whatever
+        // we can read.
+        return paramNames
+    }
+
     private fun chooseConstructor(
             myFields: List<Field>,
             embedded: List<EmbeddedField>,
@@ -208,10 +265,12 @@ class PojoProcessor(baseContext: Context,
         val fieldMap = myFields.associateBy { it.name }
         val embeddedMap = embedded.associateBy { it.field.name }
         val typeUtils = context.processingEnv.typeUtils
-        val failedConstructors = mutableMapOf<ExecutableElement, List<Constructor.Param?>>()
+        // list of param names -> matched params pairs for each failed constructor
+        val failedConstructors = arrayListOf<FailedConstructor>()
         val goodConstructors = constructors.map { constructor ->
-            val params = constructor.parameters.map param@ { param ->
-                val paramName = param.simpleName.toString()
+            val parameterNames = getParamNames(constructor)
+            val params = constructor.parameters.mapIndexed param@ { index, param ->
+                val paramName = parameterNames[index]
                 val paramType = param.asType()
 
                 val matches = fun(field: Field?): Boolean {
@@ -261,7 +320,7 @@ class PojoProcessor(baseContext: Context,
                 } else {
                     context.logger.e(param, ProcessorErrors.ambigiousConstructor(
                             pojo = element.qualifiedName.toString(),
-                            paramName = param.simpleName.toString(),
+                            paramName = paramName,
                             matchingFields = matchingFields.map { it.getPath() }
                                     + embedded.map { it.field.getPath() }
                     ))
@@ -269,7 +328,7 @@ class PojoProcessor(baseContext: Context,
                 }
             }
             if (params.any { it == null }) {
-                failedConstructors.put(constructor, params)
+                failedConstructors.add(FailedConstructor(constructor, parameterNames, params))
                 null
             } else {
                 @Suppress("UNCHECKED_CAST")
@@ -278,12 +337,8 @@ class PojoProcessor(baseContext: Context,
         }.filterNotNull()
         if (goodConstructors.isEmpty()) {
             if (failedConstructors.isNotEmpty()) {
-                val failureMsg = failedConstructors.entries.joinToString("\n") { entry ->
-                    val paramsMatching = entry.key.parameters.withIndex().joinToString(", ") {
-                        "param:${it.value.simpleName} -> matched field:" +
-                                (entry.value[it.index]?.log() ?: "unmatched")
-                    }
-                    "${entry.key} -> [$paramsMatching]"
+                val failureMsg = failedConstructors.joinToString("\n") { entry ->
+                    entry.log()
                 }
                 context.logger.e(element, ProcessorErrors.MISSING_POJO_CONSTRUCTOR +
                         "\nTried the following constructors but they failed to match:\n$failureMsg")
@@ -512,7 +567,7 @@ class PojoProcessor(baseContext: Context,
         val recursiveTailTypeName = typeElement.qualifiedName
 
         val referenceRecursionList = mutableListOf<Name>()
-        with (referenceRecursionList) {
+        with(referenceRecursionList) {
             add(recursiveTailTypeName)
             addAll(referenceStack.toList().takeLastWhile { it != recursiveTailTypeName })
             add(recursiveTailTypeName)
@@ -649,5 +704,52 @@ class PojoProcessor(baseContext: Context,
             reportAmbiguity(candidates.map { it.simpleName.toString() })
         }
         return candidates.first()
+    }
+
+    /**
+     * Finds the kotlin meteadata for a constructor.
+     */
+    private fun KotlinClassMetadata.findConstructor(
+            executableElement: ExecutableElement
+    ): ProtoBuf.Constructor? {
+        val (nameResolver, classProto) = data
+        val jvmSignature = executableElement.jvmMethodSignature
+        // find constructor
+        return classProto.constructorList.singleOrNull {
+            it.getJvmConstructorSignature(nameResolver, classProto.typeTable) == jvmSignature
+        }
+    }
+
+    /**
+     * Tries to get the parameter names of a kotlin method
+     */
+    private fun ProtoBuf.Constructor.tryGetParameterNames(
+            nameResolver: NameResolver
+    ): List<String>? {
+        return valueParameterList.map {
+            if (it.hasName()) {
+                nameResolver.getName(it.name)
+                        .asString()
+                        .replace("`", "")
+                        .removeSuffix("?")
+                        .trim()
+            } else {
+                // early return bad parameter
+                return null
+            }
+        }
+    }
+
+    private data class FailedConstructor(
+            val method: ExecutableElement,
+            val params: List<String>,
+            val matches: List<Constructor.Param?>
+    ) {
+        fun log(): String {
+            val logPerParam = params.withIndex().joinToString(", ") {
+                "param:${it.value} -> matched field:" + (matches[it.index]?.log() ?: "unmatched")
+            }
+            return "$method -> [$logPerParam]"
+        }
     }
 }
