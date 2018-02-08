@@ -18,6 +18,7 @@ package android.arch.background.workmanager.impl.background.firebase;
 
 import android.arch.background.workmanager.impl.ExecutionListener;
 import android.arch.background.workmanager.impl.Processor;
+import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.support.annotation.NonNull;
@@ -39,6 +40,7 @@ import java.util.Map;
 public class FirebaseJobService extends JobService implements ExecutionListener {
     private static final String TAG = "FirebaseJobService";
     private Processor mProcessor;
+    private Scheduler mScheduler;
     private Map<String, JobParameters> mJobParameters = new HashMap<>();
 
     @Override
@@ -47,6 +49,7 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
         WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
         mProcessor = workManagerImpl.getProcessor();
         mProcessor.addExecutionListener(this);
+        mScheduler = workManagerImpl.getBackgroundScheduler();
     }
 
     @Override
@@ -78,7 +81,7 @@ public class FirebaseJobService extends JobService implements ExecutionListener 
         }
         boolean isStopped = mProcessor.stopWork(workSpecId, true);
         Logger.debug(TAG, "onStopJob for %s; Processor.stopWork = ", workSpecId, isStopped);
-        return isStopped;
+        return !mScheduler.isCancelled(workSpecId);
     }
 
     @Override

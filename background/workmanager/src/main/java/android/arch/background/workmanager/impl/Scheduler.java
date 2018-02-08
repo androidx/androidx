@@ -31,14 +31,23 @@ public interface Scheduler {
      * Schedule the given {@link WorkSpec}s for background execution.  The Scheduler does NOT need
      * to check if there are any dependencies.
      *
-     * @param workSpecs The array of {@link WorkSpec}s to schedule.
+     * @param workSpecs The array of {@link WorkSpec}s to schedule
      */
     void schedule(WorkSpec... workSpecs);
 
     /**
      * Cancel the work identified by the given {@link WorkSpec} id.
      *
-     * @param workSpecId The id of the work to cancel.
+     * @param workSpecId The id of the work to stopWork
      */
     void cancel(@NonNull String workSpecId);
+
+    /**
+     * Determines if the given {@link WorkSpec} id has already been cancelled.
+     *
+     * @param workSpecId  The id of the work to check
+     * @return {@code true} if the work has been cancelled through {@link #cancel(String)};
+     *         {@code false} otherwise
+     */
+    boolean isCancelled(@NonNull String workSpecId);
 }

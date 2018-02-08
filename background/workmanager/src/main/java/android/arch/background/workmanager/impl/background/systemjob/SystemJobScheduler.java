@@ -25,7 +25,9 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A class that schedules work using {@link android.app.job.JobScheduler}.
@@ -35,13 +37,17 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @TargetApi(23)
 public class SystemJobScheduler implements Scheduler {
+
     private static final String TAG = "SystemJobScheduler";
+
     private JobScheduler mJobScheduler;
     private SystemJobInfoConverter mSystemJobInfoConverter;
+    private Set<String> mCancelledIds;
 
     public SystemJobScheduler(Context context) {
         mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         mSystemJobInfoConverter = new SystemJobInfoConverter(context);
+        mCancelledIds = new HashSet<>();
     }
 
     @Override
@@ -55,6 +61,7 @@ public class SystemJobScheduler implements Scheduler {
 
     @Override
     public void cancel(@NonNull String workSpecId) {
+        mCancelledIds.add(workSpecId);
         // Note: despite what the word "pending" and the associated Javadoc might imply, this is
         // actually a list of all unfinished jobs that JobScheduler knows about for the current
         // process.
@@ -66,5 +73,10 @@ public class SystemJobScheduler implements Scheduler {
                 return;
             }
         }
+    }
+
+    @Override
+    public boolean isCancelled(@NonNull String workSpecId) {
+        return mCancelledIds.contains(workSpecId);
     }
 }
