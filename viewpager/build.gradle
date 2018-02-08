@@ -9,39 +9,19 @@ plugins {
 dependencies {
     api(project(":support-annotations"))
     api(project(":support-compat"))
-    api(project(":support-core-utils"))
     api(project(":customview"))
-    api(project(":viewpager"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_support)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation project(':support-testutils'), {
-        exclude group: 'com.android.support', module: 'support-core-ui'
-    }
-
-    testImplementation(JUNIT)
-}
-
-android {
-    sourceSets {
-        main.res.srcDirs = [
-                'res',
-                'res-public'
-        ]
-    }
-    buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
-    }
 }
 
 supportLibrary {
-    name = "Android Support Library core UI"
+    name = "Android Support Library View Pager"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SUPPORT
-    inceptionYear = "2011"
+    inceptionYear = "2018"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
-    legacySourceLocation = true
 }

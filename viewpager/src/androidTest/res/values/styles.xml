@@ -14,5 +14,7 @@
      limitations under the License.
 -->
 <resources>
-    <item name="anchor" type="id"/>
+    <style name="TestActivityTheme" parent="android:Theme.Holo">
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
 </resources>

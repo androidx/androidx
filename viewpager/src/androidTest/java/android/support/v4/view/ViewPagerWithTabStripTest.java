@@ -15,7 +15,7 @@
  */
 package android.support.v4.view;
 
-import android.support.coreui.test.R;
+import android.support.viewpager.test.R;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -29,66 +29,65 @@ import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Provides assertions that depend on the non-interactive nature of <code>PagerTabStrip</code>.
+ * Provides assertions that depend on the interactive nature of <code>PagerTabStrip</code>.
  */
-public class ViewPagerWithTitleStripTest
-        extends BaseViewPagerTest<ViewPagerWithTitleStripActivity> {
-    public ViewPagerWithTitleStripTest() {
-        super(ViewPagerWithTitleStripActivity.class);
+public class ViewPagerWithTabStripTest extends BaseViewPagerTest<ViewPagerWithTabStripActivity> {
+    public ViewPagerWithTabStripTest() {
+        super(ViewPagerWithTabStripActivity.class);
     }
 
     @Override
     protected Class getStripClass() {
-        return PagerTitleStrip.class;
+        return PagerTabStrip.class;
     }
 
     @Override
     protected void assertStripInteraction(boolean smoothScroll) {
-        // The following block tests that nothing happens on clicking titles of various tabs
-        // as PagerTitleStrip is not interactive
+        // The following block tests that ViewPager page selection changes on clicking titles of
+        // various tabs as PagerTabStrip is interactive
 
         // Click the tab title for page #0 and verify that we're still on page #0
         onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Red"))).perform(click());
         assertEquals("Click tab #0 on tab #0", 0, mViewPager.getCurrentItem());
 
-        // Click the tab title for page #1 and verify that we're still on page #0
+        // Click the tab title for page #1 and verify that we're on page #1
         onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Green"))).perform(click());
-        assertEquals("Click tab #1 on tab #0", 0, mViewPager.getCurrentItem());
+        assertEquals("Click tab #1 on tab #0", 1, mViewPager.getCurrentItem());
 
-        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
-
-        // Click the tab title for page #0 and verify that we're still on page #1
+        // Click the tab title for page #0 and verify that we're on page #0
         onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Red"))).perform(click());
-        assertEquals("Click tab #0 on tab #1", 1, mViewPager.getCurrentItem());
+        assertEquals("Click tab #0 on tab #1", 0, mViewPager.getCurrentItem());
+
+        // Go back to page #1
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
 
         // Click the tab title for page #1 and verify that we're still on page #1
         onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Green"))).perform(click());
         assertEquals("Click tab #1 on tab #1", 1, mViewPager.getCurrentItem());
 
-        // Click the tab title for page #2 and verify that we're still on page #1
+        // Click the tab title for page #2 and verify that we're on page #2
         onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Blue"))).perform(click());
-        assertEquals("Click tab #2 on tab #1", 1, mViewPager.getCurrentItem());
+        assertEquals("Click tab #2 on tab #1", 2, mViewPager.getCurrentItem());
 
-
-        // The following block tests that nothing happens on clicking in between titles of various
-        // tabs as PagerTitleStrip is not interactive
+        // The following block tests that ViewPager page selection changes on clicking in
+        // between titles of tabs as that functionality is exposed by PagerTabStrip
 
         // Scroll back to page #0
         onView(withId(R.id.pager)).perform(scrollToPage(0, smoothScroll));
 
-        // Click between titles of page #0 and page #1 and verify that we're still on page #0
+        // Click between titles of page #0 and page #1 and verify that we're on page #1
         onView(withId(R.id.titles)).perform(clickBetweenTwoTitles("Red", "Green"));
-        assertEquals("Click in between tabs #0 and #1 on tab #0", 0, mViewPager.getCurrentItem());
+        assertEquals("Click in between tabs #0 and #1 on tab #0", 1, mViewPager.getCurrentItem());
 
-        // Go to page #1
+        // Click between titles of page #0 and page #1 and verify that we're on page #0
+        onView(withId(R.id.titles)).perform(clickBetweenTwoTitles("Red", "Green"));
+        assertEquals("Click in between tabs #0 and #1 on tab #1", 0, mViewPager.getCurrentItem());
+
+        // Go back to page #1
         onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
 
-        // Click between titles of page #1 and page #2 and verify that we're still on page #1
+        // Click between titles of page #1 and page #2 and verify that we're on page #2
         onView(withId(R.id.titles)).perform(clickBetweenTwoTitles("Green", "Blue"));
-        assertEquals("Click in between tabs #1 and #2 on tab #1", 1, mViewPager.getCurrentItem());
-
-        // Click between titles of page #0 and page #1 and verify that we're still on page #1
-        onView(withId(R.id.titles)).perform(clickBetweenTwoTitles("Red", "Green"));
-        assertEquals("Click in between tabs #0 and #1 on tab #1", 1, mViewPager.getCurrentItem());
+        assertEquals("Click in between tabs #1 and #2 on tab #1", 2, mViewPager.getCurrentItem());
     }
 }

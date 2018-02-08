@@ -61,7 +61,7 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.support.coreui.test.R;
+import android.support.viewpager.test.R;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.EspressoKey;
 import android.support.test.filters.FlakyTest;

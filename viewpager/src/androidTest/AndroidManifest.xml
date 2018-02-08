@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.coreui.test">
+          package="android.support.viewpager.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <uses-permission android:name="android.permission.VIBRATE"/>
@@ -26,17 +26,12 @@
     <application
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
-        <activity android:name="android.support.v4.widget.ExploreByTouchHelperTestActivity"/>
 
-        <activity android:name="android.support.v4.widget.CircularProgressDrawableActivity"/>
+        <activity android:name="android.support.v4.view.ViewPagerWithTitleStripActivity"/>
 
-        <activity android:name="android.support.v4.widget.SwipeRefreshLayoutActivity"/>
+        <activity android:name="android.support.v4.view.ViewPagerWithTabStripActivity"/>
 
-        <activity android:name="android.support.v4.widget.ContentLoadingProgressBarActivity"/>
-
-        <activity android:name="android.support.design.widget.CoordinatorLayoutActivity"/>
-
-        <activity android:name="android.support.design.widget.DynamicCoordinatorLayoutActivity"/>
+        <activity android:name="android.support.v4.view.ViewPagerTest$ViewPagerActivity"/>
 
     </application>
 
