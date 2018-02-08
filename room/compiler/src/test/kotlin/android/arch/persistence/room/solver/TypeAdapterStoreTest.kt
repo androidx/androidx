@@ -27,13 +27,14 @@ import android.arch.persistence.room.ext.ReactiveStreamsTypeNames
 import android.arch.persistence.room.ext.RoomTypeNames.STRING_UTIL
 import android.arch.persistence.room.ext.RxJava2TypeNames
 import android.arch.persistence.room.ext.T
+import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.processor.ProcessorErrors
+import android.arch.persistence.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.FlowableQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.LiveDataQueryResultBinderProvider
-import android.arch.persistence.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
 import android.arch.persistence.room.solver.types.CompositeAdapter
 import android.arch.persistence.room.solver.types.TypeConverter
 import android.arch.persistence.room.testing.TestInvocation
@@ -43,6 +44,7 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
+import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.notNullValue
@@ -70,6 +72,26 @@ class TypeAdapterStoreTest {
             val primitiveType = invocation.processingEnv.typeUtils.getPrimitiveType(TypeKind.INT)
             val adapter = store.findColumnTypeAdapter(primitiveType, null)
             assertThat(adapter, notNullValue())
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testJavaLangBoolean() {
+        singleRun { invocation ->
+            val store = TypeAdapterStore.create(Context(invocation.processingEnv))
+            val boolean = invocation
+                    .processingEnv
+                    .elementUtils
+                    .getTypeElement("java.lang.Boolean")
+                    .asType()
+            val adapter = store.findColumnTypeAdapter(boolean, null)
+            assertThat(adapter, notNullValue())
+            assertThat(adapter, instanceOf(CompositeAdapter::class.java))
+            val composite = adapter as CompositeAdapter
+            assertThat(composite.intoStatementConverter?.from?.typeName(),
+                    `is`(TypeName.BOOLEAN.box()))
+            assertThat(composite.columnTypeAdapter.out.typeName(),
+                    `is`(TypeName.INT.box()))
         }.compilesWithoutError()
     }
 
