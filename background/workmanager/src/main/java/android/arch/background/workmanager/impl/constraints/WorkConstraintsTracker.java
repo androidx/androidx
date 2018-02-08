@@ -28,13 +28,14 @@ import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Tracks {@link WorkSpec}s and their {@link Constraints}, and notifies a
+ * Tracks {@link WorkSpec}s and their {@link Constraints}, and notifies an optional
  * {@link WorkConstraintsCallback} when all of their constraints are met or not met.
  */
 
@@ -42,13 +43,19 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
 
     private static final String TAG = "WorkConstraintsTracker";
 
-    private final WorkConstraintsCallback mCallback;
+    @Nullable private final WorkConstraintsCallback mCallback;
     private final ConstraintController[] mConstraintControllers;
 
-    public WorkConstraintsTracker(Context context, WorkConstraintsCallback callback) {
+    /**
+     * @param context  The application {@link Context}
+     * @param callback The callback is only necessary when you need {@link WorkConstraintsTracker}
+     *                 to notify you about changes in constraints for the list of  {@link
+     *                 WorkSpec}'s that it is tracking.
+     */
+    public WorkConstraintsTracker(Context context, @Nullable WorkConstraintsCallback callback) {
         Context appContext = context.getApplicationContext();
         mCallback = callback;
-        mConstraintControllers = new ConstraintController[] {
+        mConstraintControllers = new ConstraintController[]{
                 new BatteryChargingController(appContext, this),
                 new BatteryNotLowController(appContext, this),
                 new StorageNotLowController(appContext, this),
@@ -60,7 +67,10 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
     }
 
     @VisibleForTesting
-    WorkConstraintsTracker(WorkConstraintsCallback callback, ConstraintController[] controllers) {
+    WorkConstraintsTracker(
+            @Nullable WorkConstraintsCallback callback,
+            ConstraintController[] controllers) {
+
         mCallback = callback;
         mConstraintControllers = controllers;
     }
@@ -85,7 +95,14 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
         }
     }
 
-    private boolean areAllConstraintsMet(@NonNull String workSpecId) {
+    /**
+     * Returns <code>true</code> if all the underlying constraints for a given WorkSpec are met.
+     *
+     * @param workSpecId The {@link WorkSpec} id
+     * @return <code>true</code> if all the underlying constraints for a given {@link WorkSpec} are
+     * met.
+     */
+    public boolean areAllConstraintsMet(@NonNull String workSpecId) {
         for (ConstraintController constraintController : mConstraintControllers) {
             if (constraintController.isWorkSpecConstrained(workSpecId)) {
                 Logger.debug(TAG, "Work %s constrained by %s", workSpecId,
@@ -105,11 +122,15 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
                 unconstrainedWorkSpecIds.add(workSpecId);
             }
         }
-        mCallback.onAllConstraintsMet(unconstrainedWorkSpecIds);
+        if (mCallback != null) {
+            mCallback.onAllConstraintsMet(unconstrainedWorkSpecIds);
+        }
     }
 
     @Override
     public void onConstraintNotMet(@NonNull List<String> workSpecIds) {
-        mCallback.onAllConstraintsNotMet(workSpecIds);
+        if (mCallback != null) {
+            mCallback.onAllConstraintsNotMet(workSpecIds);
+        }
     }
 }

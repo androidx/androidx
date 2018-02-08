@@ -18,6 +18,7 @@ package android.arch.background.workmanager.impl.constraints.trackers;
 import android.arch.background.workmanager.impl.constraints.ConstraintListener;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -26,8 +27,9 @@ import java.util.Set;
  * A base for tracking constraints and notifying listeners of changes.
  *
  * @param <T> the constraint data type observed by this tracker
+ * @hide
  */
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class ConstraintTracker<T> {
 
     private static final String TAG = "ConstraintTracker";
@@ -90,7 +92,7 @@ public abstract class ConstraintTracker<T> {
     /**
      * Determines the initial state of the constraint being tracked.
      */
-    protected abstract T getInitialState();
+    public abstract T getInitialState();
 
     /**
      * Start tracking for constraint state changes.

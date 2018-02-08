@@ -22,12 +22,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 /**
  * A {@link ConstraintTracker} with a {@link BroadcastReceiver} for monitoring constraint changes.
+ *
+ * @param <T> the constraint data type observed by this tracker
+ * @hide
  */
-
-abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTracker<T> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTracker<T> {
     private static final String TAG = "BrdcstRcvrCnstrntTrckr";
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
@@ -39,7 +43,7 @@ abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTracker<T
         }
     };
 
-    BroadcastReceiverConstraintTracker(Context context) {
+    public BroadcastReceiverConstraintTracker(Context context) {
         super(context);
     }
 
@@ -48,14 +52,14 @@ abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTracker<T
      * handle the received {@link Intent}.
      *
      * @param context The {@link Context} in which the receiver is running.
-     * @param intent The {@link Intent} being received.
+     * @param intent  The {@link Intent} being received.
      */
-    abstract void onBroadcastReceive(Context context, @NonNull Intent intent);
+    public abstract void onBroadcastReceive(Context context, @NonNull Intent intent);
 
     /**
      * @return The {@link IntentFilter} associated with this tracker.
      */
-    abstract IntentFilter getIntentFilter();
+    public abstract IntentFilter getIntentFilter();
 
     @Override
     public void startTracking() {

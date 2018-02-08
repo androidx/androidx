@@ -303,6 +303,13 @@ public class WorkSpec {
         }
     }
 
+    /**
+     * @return <code>true</code> if the {@link WorkSpec} has constraints.
+     */
+    public boolean hasConstraints() {
+        return !Constraints.NONE.equals(getConstraints());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

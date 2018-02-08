@@ -22,21 +22,27 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 /**
  * Tracks whether or not the device's battery is charging.
+ * @hide
  */
-
-class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<Boolean> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<Boolean> {
 
     private static final String TAG = "BatteryChrgTracker";
 
-    BatteryChargingTracker(Context context) {
+    /**
+     * Create an instance of {@link BatteryChargingTracker}.
+     * @param context The application {@link Context}
+     */
+    public BatteryChargingTracker(Context context) {
         super(context);
     }
 
     @Override
-    protected Boolean getInitialState() {
+    public Boolean getInitialState() {
         // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so
         // we use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);

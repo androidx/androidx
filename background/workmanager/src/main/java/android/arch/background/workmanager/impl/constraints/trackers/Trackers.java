@@ -16,11 +16,15 @@
 package android.arch.background.workmanager.impl.constraints.trackers;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
 
 /**
  * A singleton class to hold an instance of each {@link ConstraintTracker}.
+ * @hide
  */
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Trackers {
 
     private static Trackers sInstance;
@@ -36,6 +40,14 @@ public class Trackers {
             sInstance = new Trackers(context);
         }
         return sInstance;
+    }
+
+    /**
+     * Sets an instance of the {@link Trackers} for testing.
+     */
+    @VisibleForTesting
+    public static synchronized void setInstance(@NonNull Trackers trackers) {
+        sInstance = trackers;
     }
 
     private BatteryChargingTracker mBatteryChargingTracker;

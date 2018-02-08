@@ -17,4 +17,7 @@
 /**
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package android.arch.background.workmanager.impl;
+
+import android.support.annotation.RestrictTo;
