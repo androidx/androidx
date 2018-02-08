@@ -31,6 +31,7 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
 import android.support.annotation.RequiresApi;
+import android.support.v4.os.BuildCompat;
 import android.util.Log;
 
 import java.lang.reflect.Field;
@@ -140,8 +141,9 @@ class MediaSessionCompatApi21 {
 
     public static boolean hasCallback(Object sessionObj) {
         Field callbackField = null;
+        String callbackFieldName = BuildCompat.isAtLeastP() ? "mCallbackHandler" : "mCallback";
         try {
-            callbackField = sessionObj.getClass().getDeclaredField("mCallback");
+            callbackField = sessionObj.getClass().getDeclaredField(callbackFieldName);
             if (callbackField != null) {
                 callbackField.setAccessible(true);
                 return callbackField.get(sessionObj) != null;
