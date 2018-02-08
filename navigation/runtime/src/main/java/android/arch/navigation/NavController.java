@@ -73,18 +73,19 @@ public class NavController {
     private final Deque<NavDestination> mBackStack = new ArrayDeque<>();
 
     private final SimpleNavigatorProvider mNavigatorProvider = new SimpleNavigatorProvider() {
+        @Nullable
         @Override
-        public void addNavigator(String name, Navigator<? extends NavDestination> navigator) {
-            Navigator previousNavigator = getNavigator(name);
-            super.addNavigator(name, navigator);
+        public Navigator<? extends NavDestination> addNavigator(@NonNull String name,
+                @NonNull Navigator<? extends NavDestination> navigator) {
+            Navigator<? extends NavDestination> previousNavigator =
+                    super.addNavigator(name, navigator);
             if (previousNavigator != navigator) {
                 if (previousNavigator != null) {
                     previousNavigator.removeOnNavigatorNavigatedListener(mOnNavigatedListener);
                 }
-                if (navigator != null) {
-                    navigator.addOnNavigatorNavigatedListener(mOnNavigatedListener);
-                }
+                navigator.addOnNavigatorNavigatedListener(mOnNavigatedListener);
             }
+            return previousNavigator;
         }
     };
 

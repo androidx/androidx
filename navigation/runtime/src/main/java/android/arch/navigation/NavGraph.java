@@ -51,9 +51,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      *                          will be associated with.
      */
     public NavGraph(@NonNull NavigatorProvider navigatorProvider) {
-        //noinspection unchecked
-        this((Navigator<? extends NavGraph>) navigatorProvider
-                .getNavigator(NavGraphNavigator.class));
+        this(navigatorProvider.getNavigator(NavGraphNavigator.class));
     }
 
     /**

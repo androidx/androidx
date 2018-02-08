@@ -275,10 +275,14 @@ public class NavDeepLinkBuilder {
             addNavigator(new NavGraphNavigator(context));
         }
 
+        @NonNull
         @Override
-        public Navigator<? extends NavDestination> getNavigator(String name) {
-            Navigator<? extends NavDestination> navigator = super.getNavigator(name);
-            return navigator != null ? navigator : mDestNavigator;
+        public Navigator<? extends NavDestination> getNavigator(@NonNull String name) {
+            try {
+                return super.getNavigator(name);
+            } catch (IllegalStateException e) {
+                return mDestNavigator;
+            }
         }
     }
 }

@@ -119,7 +119,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
         assertThat(navigator.mBackStack.size(), is(1));
@@ -218,7 +218,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
 
         navController.navigate(R.id.second_test, args);
 
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         args = navigator.mBackStack.peekLast().second;
         assertThat(args, is(notNullValue(Bundle.class)));
@@ -231,7 +231,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
         assertThat(navigator.mBackStack.size(), is(1));
@@ -250,7 +250,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         BaseNavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
         assertThat(navigator.mBackStack.size(), is(1));
@@ -271,7 +271,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_simple);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(1));
 
@@ -287,7 +287,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(2));
 
@@ -303,7 +303,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(2));
 
@@ -319,7 +319,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(2));
 
@@ -352,7 +352,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(2));
 
@@ -372,7 +372,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         args.putString(TEST_OVERRIDDEN_VALUE_ARG, TEST_OVERRIDDEN_VALUE_ARG_VALUE);
         navController.navigate(R.id.second, args);
 
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         Bundle returnedArgs = navigator.mBackStack.peekLast().second;
         assertThat(returnedArgs, is(notNullValue(Bundle.class)));
@@ -395,7 +395,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         NavController navController = activity.getNavController();
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(2));
 
@@ -430,7 +430,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         NavController navController = activity.getNavController();
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(2));
         assertThat(navigator.mBackStack.peekLast().second.getString(TEST_ARG), is(TEST_ARG_VALUE));
@@ -455,7 +455,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         navController.setGraph(R.navigation.nav_deep_link);
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(2));
         assertThat(navigator.mBackStack.peekLast().second.getString(TEST_ARG), is(TEST_ARG_VALUE));

@@ -17,8 +17,8 @@
 package android.arch.navigation;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
 import android.support.test.filters.SmallTest;
 
@@ -30,11 +30,17 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 @SmallTest
 public class SimpleNavigatorProviderTest {
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void addWithMissingAnnotationName() {
         SimpleNavigatorProvider provider = new SimpleNavigatorProvider();
         Navigator navigator = new NoNameNavigator();
-        provider.addNavigator(navigator);
+        try {
+            provider.addNavigator(navigator);
+            fail("Adding a provider with no @Navigator.Name should cause an "
+                    + "IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
     }
 
     @Test
@@ -51,15 +57,26 @@ public class SimpleNavigatorProviderTest {
         Navigator navigator = new EmptyNavigator();
         provider.addNavigator("name", navigator);
         assertThat(provider.getNavigator("name"), is(navigator));
-        assertThat(provider.getNavigator(EmptyNavigator.class), is(nullValue(Navigator.class)));
+        try {
+            provider.getNavigator(EmptyNavigator.class);
+            fail("getNavigator(Class) with an invalid name should cause an IllegalStateException");
+        } catch (IllegalStateException e) {
+            // Expected
+        }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void addWithExplicitNameGetWithMissingAnnotationName() {
         SimpleNavigatorProvider provider = new SimpleNavigatorProvider();
         Navigator navigator = new NoNameNavigator();
         provider.addNavigator("name", navigator);
-        assertThat(provider.getNavigator(NoNameNavigator.class), is(navigator));
+        try {
+            provider.getNavigator(NoNameNavigator.class);
+            fail("getNavigator(Class) with no @Navigator.Name should cause "
+                    + "an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
     }
 
     @Test
