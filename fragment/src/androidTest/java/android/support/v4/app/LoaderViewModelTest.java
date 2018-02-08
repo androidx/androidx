@@ -17,6 +17,7 @@
 package android.support.v4.app;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -63,6 +64,8 @@ public class LoaderViewModelTest {
         assertFalse("LoaderInfo shouldn't be destroyed before onCleared", info.mDestroyed);
         loaderViewModel.onCleared();
         assertTrue("LoaderInfo should be destroyed after onCleared", info.mDestroyed);
+        assertNull("LoaderInfo should be removed from LoaderViewModel after onCleared",
+                loaderViewModel.getLoader(0));
     }
 
     private class AlwaysRunningLoaderInfo extends LoaderManagerImpl.LoaderInfo<Boolean> {
