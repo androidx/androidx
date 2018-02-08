@@ -39,7 +39,7 @@ class OptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryRes
             resultAdapter?.convert(valueVarName, cursorVarName, scope)
             addStatement(
                     "final $T $L = $T.ofNullable($L)",
-                    ParameterizedTypeName.get(CommonTypeNames.OPTIONAL, type?.typeName()) ,
+                    ParameterizedTypeName.get(CommonTypeNames.OPTIONAL, type?.typeName()),
                     outVarName,
                     CommonTypeNames.OPTIONAL,
                     valueVarName)
