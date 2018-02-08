@@ -116,13 +116,16 @@ class QueryVisitor(
 
     private fun unescapeIdentifier(text: String): String {
         val trimmed = text.trim()
-        if (trimmed.startsWith("`") && trimmed.endsWith('`')) {
-            return unescapeIdentifier(trimmed.substring(1, trimmed.length - 1))
-        }
-        if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
-            return unescapeIdentifier(trimmed.substring(1, trimmed.length - 1))
+        ESCAPE_LITERALS.forEach {
+            if (trimmed.startsWith(it) && trimmed.endsWith(it)) {
+                return unescapeIdentifier(trimmed.substring(1, trimmed.length - 1))
+            }
         }
         return trimmed
+    }
+
+    companion object {
+        private val ESCAPE_LITERALS = listOf("\"", "'", "`")
     }
 }
 
