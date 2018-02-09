@@ -35,9 +35,11 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.WorkerThread;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -154,8 +156,22 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
+    @WorkerThread
+    public void cancelWorkForIdSync(@NonNull String id) {
+        assertBackgroundThread("Cannot cancelWorkForIdSync on main thread!");
+        new CancelWorkRunnable(this, id, null).run();
+    }
+
+    @Override
     public void cancelAllWorkWithTag(@NonNull final String tag) {
         mTaskExecutor.executeOnBackgroundThread(new CancelWorkRunnable(this, null, tag));
+    }
+
+    @Override
+    @WorkerThread
+    public void cancelAllWorkWithTagSync(@NonNull String tag) {
+        assertBackgroundThread("Cannot cancelAllWorkWithTagSync on main thread!");
+        new CancelWorkRunnable(this, null, tag).run();
     }
 
     @Override
@@ -169,7 +185,7 @@ public class WorkManagerImpl extends WorkManager {
         final MediatorLiveData<WorkStatus> mediatorLiveData = new MediatorLiveData<>();
         mediatorLiveData.addSource(
                 LiveDataUtils.dedupedLiveDataFor(
-                        dao.getIdStateAndOutputs(Collections.singletonList(id))),
+                        dao.getIdStateAndOutputsLiveData(Collections.singletonList(id))),
                 new Observer<List<WorkSpec.IdStateAndOutput>>() {
                     @Override
                     public void onChanged(
@@ -188,11 +204,20 @@ public class WorkManagerImpl extends WorkManager {
         return mediatorLiveData;
     }
 
+    @Override
+    @WorkerThread
+    public WorkStatus getStatusSync(@NonNull String id) {
+        assertBackgroundThread("Cannot call getStatusSync on main thread!");
+        WorkSpec.IdStateAndOutput idStateAndOutput =
+                mWorkDatabase.workSpecDao().getIdStateAndOutput(id);
+        return new WorkStatus(idStateAndOutput.id, idStateAndOutput.state, idStateAndOutput.output);
+    }
+
     LiveData<List<WorkStatus>> getStatuses(@NonNull List<String> workSpecIds) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         final MediatorLiveData<List<WorkStatus>> mediatorLiveData = new MediatorLiveData<>();
         mediatorLiveData.addSource(
-                LiveDataUtils.dedupedLiveDataFor(dao.getIdStateAndOutputs(workSpecIds)),
+                LiveDataUtils.dedupedLiveDataFor(dao.getIdStateAndOutputsLiveData(workSpecIds)),
                 new Observer<List<WorkSpec.IdStateAndOutput>>() {
                     @Override
                     public void onChanged(
@@ -229,5 +254,11 @@ public class WorkManagerImpl extends WorkManager {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopWork(String workSpecId) {
         mTaskExecutor.executeOnBackgroundThread(new StopWorkRunnable(this, workSpecId));
+    }
+
+    private void assertBackgroundThread(String errorMessage) {
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+            throw new IllegalStateException(errorMessage);
+        }
     }
 }

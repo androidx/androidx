@@ -19,6 +19,7 @@ package android.arch.background.workmanager;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
+import android.support.annotation.WorkerThread;
 
 import java.util.Arrays;
 import java.util.List;
@@ -141,6 +142,18 @@ public abstract class WorkManager {
     public abstract void cancelWorkForId(@NonNull String id);
 
     /**
+     * Cancels work with the given id in a blocking fashion.  Note that cancellation is dependent
+     * on timing (for example, the work could have completed in a different thread just as you issue
+     * this call).  Use {@link #getStatus(String)} or {@link #getStatusSync(String)} to find out the
+     * actual state of the work after this call.  This method is expected to be called from a
+     * background thread.
+     *
+     * @param id The id of the work
+     */
+    @WorkerThread
+    public abstract void cancelWorkForIdSync(@NonNull String id);
+
+    /**
      * Cancels all work with the given tag, regardless of the current state of the work.
      * Note that cancellation is a best-effort policy and work that is already executing may
      * continue to run.
@@ -150,6 +163,18 @@ public abstract class WorkManager {
     public abstract void cancelAllWorkWithTag(@NonNull String tag);
 
     /**
+     * Cancels all work with the given tag in a blocking fashion.  Note that cancellation is
+     * dependent on timing (for example, the work could have completed in a different thread just as
+     * you issue this call).  Use {@link #getStatus(String)} or {@link #getStatusSync(String)} to
+     * find out the actual state of the work after this call.  This method is expected to be called
+     * from a background thread.
+     *
+     * @param tag The tag used to identify the work
+     */
+    @WorkerThread
+    public abstract void cancelAllWorkWithTagSync(@NonNull String tag);
+
+    /**
      * Prunes the database of all non-pending work.  Any work that has cancelled, failed, or
      * succeeded that is not part of a pending chain of work will be deleted.  This includes all
      * outputs stored in the database.
@@ -157,11 +182,20 @@ public abstract class WorkManager {
     public abstract void pruneDatabase();
 
     /**
-     * Gets the {@link State} for a given work id.
+     * Gets the {@link WorkStatus} for a given work id.
      *
      * @param id The id of the work
      * @return A {@link LiveData} of the {@link WorkStatus} associated with {@code id}
      */
     public abstract LiveData<WorkStatus> getStatus(@NonNull String id);
 
+    /**
+     * Gets the {@link WorkStatus} of a given work id in a blocking fashion.  This method is
+     * expected to be called from a background thread.
+     *
+     * @param id The id of the work
+     * @return A {@link WorkStatus} associated with {@code id}
+     */
+    @WorkerThread
+    public abstract WorkStatus getStatusSync(@NonNull String id);
 }
