@@ -1432,6 +1432,7 @@ package android.support.v4.view {
   }
 
   public final class MenuCompat {
+    method public static void setGroupDividerEnabled(android.view.Menu, boolean);
     method public static deprecated void setShowAsAction(android.view.MenuItem, int);
   }
 

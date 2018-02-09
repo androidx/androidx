@@ -70,6 +70,10 @@
         <item name="android:textAlignment">viewStart</item>
     </style>
 
+    <style name="RtlOverlay.Widget.AppCompat.PopupMenuItem.SubmenuArrow" parent="android:Widget">
+        <item name="android:layout_marginStart">8dp</item>
+    </style>
+
     <style name="RtlOverlay.Widget.AppCompat.DialogTitle.Icon" parent="android:Widget">
         <item name="android:layout_marginEnd">8dp</item>
     </style>

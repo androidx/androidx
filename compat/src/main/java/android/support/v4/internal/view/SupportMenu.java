@@ -64,5 +64,13 @@ public interface SupportMenu extends android.view.Menu {
      * Flag which stops the Menu being closed when a sub menu is opened
      */
     int FLAG_KEEP_OPEN_ON_SUBMENU_OPENED = 4;
+
+    /**
+     * Enable or disable the group dividers.
+     *
+     * @param enabled True if enabled.
+     */
+    @Override
+    void setGroupDividerEnabled(boolean enabled);
 }
 

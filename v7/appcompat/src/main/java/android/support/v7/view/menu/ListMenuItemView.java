@@ -19,6 +19,8 @@ package android.support.v7.view.menu;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
@@ -28,6 +30,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -41,7 +44,8 @@ import android.widget.TextView;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public class ListMenuItemView extends LinearLayout implements MenuView.ItemView {
+public class ListMenuItemView extends LinearLayout
+        implements MenuView.ItemView, AbsListView.SelectionBoundsAdjuster {
     private static final String TAG = "ListMenuItemView";
     private MenuItemImpl mItemData;
 
@@ -51,12 +55,15 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
     private CheckBox mCheckBox;
     private TextView mShortcutView;
     private ImageView mSubMenuArrowView;
+    private ImageView mGroupDivider;
+    private LinearLayout mContent;
 
     private Drawable mBackground;
     private int mTextAppearance;
     private Context mTextAppearanceContext;
     private boolean mPreserveIconSpacing;
     private Drawable mSubMenuArrow;
+    private boolean mHasListDivider;
 
     private int mMenuType;
 
@@ -82,7 +89,13 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         mTextAppearanceContext = context;
         mSubMenuArrow = a.getDrawable(R.styleable.MenuView_subMenuArrow);
 
+        final TypedArray b = context.getTheme()
+                .obtainStyledAttributes(null, new int[] { android.R.attr.divider },
+                        R.attr.dropDownListViewStyle, 0);
+        mHasListDivider = b.hasValue(0);
+
         a.recycle();
+        b.recycle();
     }
 
     @Override
@@ -102,6 +115,9 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         if (mSubMenuArrowView != null) {
             mSubMenuArrowView.setImageDrawable(mSubMenuArrow);
         }
+        mGroupDivider = findViewById(R.id.group_divider);
+
+        mContent = findViewById(R.id.content);
     }
 
     @Override
@@ -118,6 +134,18 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         setEnabled(itemData.isEnabled());
         setSubMenuArrowVisible(itemData.hasSubMenu());
         setContentDescription(itemData.getContentDescription());
+    }
+
+    private void addContentView(View v) {
+        addContentView(v, -1);
+    }
+
+    private void addContentView(View v, int index) {
+        if (mContent != null) {
+            mContent.addView(v, index);
+        } else {
+            addView(v, index);
+        }
     }
 
     public void setForceShowIcon(boolean forceShow) {
@@ -269,7 +297,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         LayoutInflater inflater = getInflater();
         mIconView = (ImageView) inflater.inflate(R.layout.abc_list_menu_item_icon,
                 this, false);
-        addView(mIconView, 0);
+        addContentView(mIconView, 0);
     }
 
     private void insertRadioButton() {
@@ -277,7 +305,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         mRadioButton =
                 (RadioButton) inflater.inflate(R.layout.abc_list_menu_item_radio,
                         this, false);
-        addView(mRadioButton);
+        addContentView(mRadioButton);
     }
 
     private void insertCheckBox() {
@@ -285,7 +313,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         mCheckBox =
                 (CheckBox) inflater.inflate(R.layout.abc_list_menu_item_checkbox,
                         this, false);
-        addView(mCheckBox);
+        addContentView(mCheckBox);
     }
 
     @Override
@@ -303,6 +331,28 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
             mInflater = LayoutInflater.from(getContext());
         }
         return mInflater;
+    }
+
+    /**
+     * Enable or disable group dividers for this view.
+     */
+    public void setGroupDividerEnabled(boolean groupDividerEnabled) {
+        // If mHasListDivider is true, disabling the groupDivider.
+        // Otherwise, checking enbling it according to groupDividerEnabled flag.
+        mGroupDivider.setVisibility(!mHasListDivider
+                && groupDividerEnabled ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void adjustListItemSelectionBounds(Rect rect) {
+        if (mGroupDivider.getVisibility() == View.VISIBLE) {
+            // groupDivider is a part of ListMenuItemView.
+            // If ListMenuItem with divider enabled is hovered/clicked, divider also gets selected.
+            // Clipping the selector bounds from the top divider portion when divider is enabled,
+            // so that divider does not get selected on hover or click.
+            final LayoutParams lp = (LayoutParams) mGroupDivider.getLayoutParams();
+            rect.top += mGroupDivider.getHeight() + lp.topMargin + lp.bottomMargin;
+        }
     }
 }
 
