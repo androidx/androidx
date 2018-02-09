@@ -141,6 +141,32 @@ public class LoaderTest {
         assertEquals("Loaded!", fragment.textView.getText().toString());
     }
 
+    /**
+     * Test to ensure that loader operations, such as destroyLoader, can safely be called
+     * in onLoadFinished
+     */
+    @Test
+    public void testDestroyFromOnLoadFinished() throws Throwable {
+        final LoaderActivity activity = mActivityRule.getActivity();
+        final CountDownLatch onLoadFinishedLatch = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final LoaderManager loaderManager = activity.getSupportLoaderManager();
+                activity.getSupportLoaderManager().initLoader(43, null,
+                        new DummyLoaderCallbacks(activity) {
+                            @Override
+                            public void onLoadFinished(@NonNull Loader<Boolean> loader,
+                                    Boolean data) {
+                                super.onLoadFinished(loader, data);
+                                loaderManager.destroyLoader(43);
+                            }
+                        });
+            }
+        });
+        onLoadFinishedLatch.await(1, TimeUnit.SECONDS);
+    }
+
     @Test(expected = IllegalStateException.class)
     public void enforceOnMainThread_initLoader() {
         LoaderActivity activity = mActivityRule.getActivity();
