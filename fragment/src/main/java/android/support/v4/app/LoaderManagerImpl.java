@@ -337,6 +337,7 @@ class LoaderManagerImpl extends LoaderManager {
     @NonNull
     private <D> Loader<D> createAndInstallLoader(int id, @Nullable Bundle args,
             @NonNull LoaderCallbacks<D> callback) {
+        LoaderInfo<D> info;
         try {
             mCreatingLoader = true;
             Loader<D> loader = callback.onCreateLoader(id, args);
@@ -346,13 +347,13 @@ class LoaderManagerImpl extends LoaderManager {
                         + "must not be a non-static inner member class: "
                         + loader);
             }
-            LoaderInfo<D> info = new LoaderInfo<>(id, args, loader);
+            info = new LoaderInfo<>(id, args, loader);
             if (DEBUG) Log.v(TAG, "  Created new loader " + info);
             mLoaderViewModel.putLoader(id, info);
-            return info.setCallback(mLifecycleOwner, callback);
         } finally {
             mCreatingLoader = false;
         }
+        return info.setCallback(mLifecycleOwner, callback);
     }
 
     @MainThread
