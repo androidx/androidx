@@ -27,6 +27,8 @@ import android.arch.background.workmanager.impl.model.WorkSpecDao;
 import android.arch.background.workmanager.impl.utils.CancelWorkRunnable;
 import android.arch.background.workmanager.impl.utils.LiveDataUtils;
 import android.arch.background.workmanager.impl.utils.PruneDatabaseRunnable;
+import android.arch.background.workmanager.impl.utils.StartWorkRunnable;
+import android.arch.background.workmanager.impl.utils.StopWorkRunnable;
 import android.arch.background.workmanager.impl.utils.taskexecutor.TaskExecutor;
 import android.arch.background.workmanager.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import android.arch.lifecycle.LiveData;
@@ -209,5 +211,23 @@ public class WorkManagerImpl extends WorkManager {
                     }
                 });
         return mediatorLiveData;
+    }
+
+    /**
+     * @param workSpecId The {@link WorkSpec} id to start
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void startWork(String workSpecId) {
+        mTaskExecutor.executeOnBackgroundThread(new StartWorkRunnable(this, workSpecId));
+    }
+
+    /**
+     * @param workSpecId The {@link WorkSpec} id to stop
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void stopWork(String workSpecId) {
+        mTaskExecutor.executeOnBackgroundThread(new StopWorkRunnable(this, workSpecId));
     }
 }

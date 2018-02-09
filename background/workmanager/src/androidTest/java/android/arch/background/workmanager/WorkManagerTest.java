@@ -16,10 +16,16 @@
 
 package android.arch.background.workmanager;
 
+import android.app.job.JobScheduler;
 import android.arch.background.workmanager.impl.InternalWorkImpl;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
+import android.content.Context;
+import android.os.Build;
+import android.support.test.InstrumentationRegistry;
 import android.util.Log;
+
+import org.junit.After;
 
 import java.util.Set;
 
@@ -28,6 +34,16 @@ public abstract class WorkManagerTest {
     // set log level to verbose for tests
     static {
         Logger.LOG_LEVEL = Log.VERBOSE;
+    }
+
+    @After
+    public void clearJobs() {
+        // Note: @SdkSuppress doesn't seem to work here.
+        if (Build.VERSION.SDK_INT >= 23) {
+            JobScheduler jobScheduler = (JobScheduler) InstrumentationRegistry.getTargetContext()
+                    .getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            jobScheduler.cancelAll();
+        }
     }
 
     protected WorkSpec getWorkSpec(BaseWork work) {

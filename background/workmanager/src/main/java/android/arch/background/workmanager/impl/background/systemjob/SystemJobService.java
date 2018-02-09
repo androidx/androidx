@@ -20,7 +20,6 @@ import android.annotation.TargetApi;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.arch.background.workmanager.impl.ExecutionListener;
-import android.arch.background.workmanager.impl.Processor;
 import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.logger.Logger;
@@ -41,23 +40,22 @@ import java.util.Map;
 @TargetApi(23)
 public class SystemJobService extends JobService implements ExecutionListener {
     private static final String TAG = "SystemJobService";
-    private Processor mProcessor;
+    private WorkManagerImpl mWorkManagerImpl;
     private Scheduler mScheduler;
-    private Map<String, JobParameters> mJobParameters = new HashMap<>();
+    private final Map<String, JobParameters> mJobParameters = new HashMap<>();
 
     @Override
     public void onCreate() {
         super.onCreate();
-        WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
-        mProcessor = workManagerImpl.getProcessor();
-        mProcessor.addExecutionListener(this);
-        mScheduler = workManagerImpl.getBackgroundScheduler();
+        mWorkManagerImpl = WorkManagerImpl.getInstance();
+        mWorkManagerImpl.getProcessor().addExecutionListener(this);
+        mScheduler = mWorkManagerImpl.getBackgroundScheduler();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mProcessor.removeExecutionListener(this);
+        mWorkManagerImpl.getProcessor().removeExecutionListener(this);
     }
 
     @Override
@@ -76,9 +74,12 @@ public class SystemJobService extends JobService implements ExecutionListener {
             return false;
         }
 
-        Logger.debug(TAG, "%s started on JobScheduler", workSpecId);
-        mJobParameters.put(workSpecId, params);
-        mProcessor.startWork(workSpecId);
+        Logger.debug(TAG, "onStartJob for %s", workSpecId);
+
+        synchronized (mJobParameters) {
+            mJobParameters.put(workSpecId, params);
+        }
+        mWorkManagerImpl.startWork(workSpecId);
         return true;
     }
 
@@ -89,8 +90,13 @@ public class SystemJobService extends JobService implements ExecutionListener {
             Logger.error(TAG, "WorkSpec id not found!");
             return false;
         }
-        boolean isStopped = mProcessor.stopWork(workSpecId, true);
-        Logger.debug(TAG, "onStopJob for %s; Processor.stopWork = %s", workSpecId, isStopped);
+
+        Logger.debug(TAG, "onStopJob for %s", workSpecId);
+
+        synchronized (mJobParameters) {
+            mJobParameters.remove(workSpecId);
+        }
+        mWorkManagerImpl.stopWork(workSpecId);
         return !mScheduler.isCancelled(workSpecId);
     }
 
@@ -100,7 +106,12 @@ public class SystemJobService extends JobService implements ExecutionListener {
             boolean isSuccessful,
             boolean needsReschedule) {
         Logger.debug(TAG, "%s executed on JobScheduler", workSpecId);
-        JobParameters parameters = mJobParameters.get(workSpecId);
-        jobFinished(parameters, needsReschedule);
+        JobParameters parameters;
+        synchronized (mJobParameters) {
+            parameters = mJobParameters.get(workSpecId);
+        }
+        if (parameters != null) {
+            jobFinished(parameters, needsReschedule);
+        }
     }
 }

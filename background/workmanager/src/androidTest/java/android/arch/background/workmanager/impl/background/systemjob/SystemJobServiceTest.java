@@ -19,16 +19,23 @@ package android.arch.background.workmanager.impl.background.systemjob;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import android.app.job.JobParameters;
-import android.arch.background.workmanager.DatabaseTest;
+import android.arch.background.workmanager.BaseWork;
+import android.arch.background.workmanager.State;
 import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.WorkManagerTest;
+import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
+import android.arch.background.workmanager.impl.model.WorkSpecDao;
 import android.arch.background.workmanager.impl.utils.taskexecutor.InstantTaskExecutorRule;
 import android.arch.background.workmanager.worker.InfiniteTestWorker;
+import android.arch.core.executor.ArchTaskExecutor;
+import android.arch.core.executor.TaskExecutor;
 import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -38,20 +45,37 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 23)
-public class SystemJobServiceTest extends DatabaseTest {
+public class SystemJobServiceTest extends WorkManagerTest {
 
     @Rule
     public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
 
+    private WorkDatabase mDatabase;
     private SystemJobService mSystemJobService;
 
     @Before
     public void setUp() {
+        ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
+            @Override
+            public void executeOnDiskIO(@NonNull Runnable runnable) {
+                runnable.run();
+            }
+
+            @Override
+            public void postToMainThread(@NonNull Runnable runnable) {
+                runnable.run();
+            }
+
+            @Override
+            public boolean isMainThread() {
+                return true;
+            }
+        });
+
+        mDatabase = WorkManagerImpl.getInstance().getWorkDatabase();
         mSystemJobService = new SystemJobService(); // Bleh.
         mSystemJobService.onCreate();
     }
@@ -59,11 +83,31 @@ public class SystemJobServiceTest extends DatabaseTest {
     @After
     public void tearDown() {
         mSystemJobService.onDestroy();
+        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
     @Test
     @SmallTest
-    public void testOnStopJob_ReschedulesWhenNotCancelled() throws Exception {
+    public void testOnStopJob_ResetsWorkStatus() throws InterruptedException {
+        Work work = new Work.Builder(InfiniteTestWorker.class).build();
+        insertWork(work);
+
+        JobParameters mockParams = createMockJobParameters(work.getId());
+        mSystemJobService.onStartJob(mockParams);
+
+        // TODO(sumir): Remove later.  Put here because WorkerWrapper sets state to RUNNING.
+        Thread.sleep(1000L);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpecState(work.getId()), is(State.RUNNING));
+
+        mSystemJobService.onStopJob(mockParams);
+        assertThat(workSpecDao.getWorkSpecState(work.getId()), is(State.ENQUEUED));
+    }
+
+    @Test
+    @SmallTest
+    public void testOnStopJob_ReschedulesWhenNotCancelled() {
         Work work = new Work.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
@@ -74,7 +118,7 @@ public class SystemJobServiceTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testOnStopJob_DoesNotRescheduleWhenCancelled() throws Exception {
+    public void testOnStopJob_DoesNotRescheduleWhenCancelled() {
         Work work = new Work.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
@@ -84,17 +128,17 @@ public class SystemJobServiceTest extends DatabaseTest {
         assertThat(mSystemJobService.onStopJob(mockParams), is(false));
     }
 
-    private JobParameters createMockJobParameters(String id) throws Exception {
+    private JobParameters createMockJobParameters(String id) {
         JobParameters jobParameters = mock(JobParameters.class);
-        final PersistableBundle persistableBundle = new PersistableBundle();
-        persistableBundle.putString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID, id);
 
-        doAnswer(new Answer() {
-            @Override
-            public PersistableBundle answer(InvocationOnMock invocation) throws Throwable {
-                return persistableBundle;
-            }
-        }).when(jobParameters).getExtras();
+        PersistableBundle persistableBundle = new PersistableBundle();
+        persistableBundle.putString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID, id);
+        when(jobParameters.getExtras()).thenReturn(persistableBundle);
+
         return jobParameters;
+    }
+
+    private void insertWork(BaseWork work) {
+        mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(work));
     }
 }
