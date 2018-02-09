@@ -14,6 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
+    <!-- Paddings -->
+    <dimen name="car_padding_2">16dp</dimen>
+    <dimen name="car_padding_3">28dp</dimen>
+    <dimen name="car_padding_4">32dp</dimen>
+    <dimen name="car_padding_5">64dp</dimen>
+    <dimen name="car_padding_6">96dp</dimen>
+
+    <!-- Type Sizings -->
+    <dimen name="car_headline2_size">36sp</dimen>
+
     <!-- Car Component Dimensions -->
     <!-- Application Bar -->
     <dimen name="car_app_bar_height">96dp</dimen>
