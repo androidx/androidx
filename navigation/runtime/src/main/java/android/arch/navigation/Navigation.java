@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewParent;
 
@@ -58,42 +57,8 @@ public class Navigation {
     }
 
     /**
-     * Find a {@link NavController} given a local {@link Fragment}.
-     *
-     * <p>This method will locate the {@link NavController} associated with this Fragment,
-     * looking first for a {@link NavHostFragment} along the given Fragment's parent chain.
-     * If a {@link NavController} is not found, this method will look for one along this
-     * Fragment's {@link Fragment#getView() view hierarchy} as specified by
-     * {@link #findController(View)}.</p>
-     *
-     * @param fragment the locally scoped Fragment for navigation
-     * @return the locally scoped {@link NavController} for navigating from this {@link Fragment}
-     */
-    public static NavController findController(@Nullable Fragment fragment) {
-        if (fragment == null) {
-            return null;
-        }
-
-        Fragment findFragment = fragment;
-        while (findFragment != null) {
-            if (findFragment instanceof NavHostFragment) {
-                return ((NavHostFragment) findFragment).getNavController();
-            }
-            Fragment primaryNavFragment = findFragment.getFragmentManager()
-                    .getPrimaryNavigationFragment();
-            if (primaryNavFragment instanceof NavHostFragment) {
-                return ((NavHostFragment) primaryNavFragment).getNavController();
-            }
-            findFragment = findFragment.getParentFragment();
-        }
-
-        // Try looking for one associated with the view instead, if applicable
-        return findController(fragment.getView());
-    }
-
-    /**
      * Find a {@link NavController} given the id of a View and its containing
-     * {@link Activity}. This is a convenience wrapper around {@link #findController(View)}.
+     * {@link Activity}. This is a convenience wrapper around {@link #findNavController(View)}.
      *
      * <p>This method will locate the {@link NavController} associated with this view.
      * This is automatically populated for the id of a {@link NavHostFragment} and its children.</p>
@@ -103,8 +68,8 @@ public class Navigation {
      * @return the {@link NavController} associated with the view referenced by id
      */
     @Nullable
-    public static NavController findController(@NonNull Activity activity, @IdRes int viewId) {
-        return Navigation.findController(activity.findViewById(viewId));
+    public static NavController findNavController(@NonNull Activity activity, @IdRes int viewId) {
+        return Navigation.findNavController(activity.findViewById(viewId));
     }
 
     /**
@@ -118,8 +83,7 @@ public class Navigation {
      * @param view the view to search from
      * @return the locally scoped {@link NavController} to the given view
      */
-    @Nullable
-    public static NavController findController(@Nullable View view) {
+    public static NavController findNavController(@Nullable View view) {
         if (view == null) {
             return null;
         }
@@ -164,7 +128,7 @@ public class Navigation {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final NavController controller = findController(view);
+                final NavController controller = findNavController(view);
                 if (controller != null) {
                     controller.navigate(resId, args);
                 } else {
@@ -178,13 +142,13 @@ public class Navigation {
 
     /**
      * Associates a NavController with the given View, allowing developers to use
-     * {@link #findController(View)} and {@link #findController(Activity, int)} with that View or
-     * any of its children to retrieve the NavController.
+     * {@link #findNavController(View)} and {@link #findNavController(Activity, int)} with that
+     * View or any of its children to retrieve the NavController.
      * <p>
      * This is generally called for you by the hosting component, such as a {@link NavHostFragment}.
      * @param view View that should be associated with the given NavController
      * @param controller The controller you wish to later retrieve via
-     *                   {@link #findController(View)}
+     *                   {@link #findNavController(View)}
      */
     public static void setViewNavController(@NonNull View view,
             @Nullable NavController controller) {

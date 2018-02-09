@@ -37,6 +37,6 @@ public abstract class BaseNavigationActivity extends FragmentActivity {
     }
 
     public NavController getNavController() {
-        return Navigation.findController(this, R.id.nav_host);
+        return Navigation.findNavController(this, R.id.nav_host);
     }
 }

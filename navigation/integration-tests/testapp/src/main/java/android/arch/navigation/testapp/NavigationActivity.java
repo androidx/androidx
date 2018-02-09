@@ -92,14 +92,14 @@ public class NavigationActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return NavHelper.handleMenuItemSelected(
-                Navigation.findController(this, R.id.my_nav_host_fragment), item)
+                Navigation.findNavController(this, R.id.my_nav_host_fragment), item)
                 || super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         return NavHelper.handleNavigateUp(
-                Navigation.findController(this, R.id.my_nav_host_fragment),
+                Navigation.findNavController(this, R.id.my_nav_host_fragment),
                 mDrawerLayout);
     }
 }
