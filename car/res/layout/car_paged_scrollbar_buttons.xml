@@ -39,12 +39,12 @@
         android:layout_marginBottom="@dimen/car_scroll_bar_thumb_margin"
         android:layout_marginTop="@dimen/car_scroll_bar_thumb_margin" >
 
-        <ImageView
+        <View
             android:id="@+id/scrollbar_thumb"
             android:layout_width="@dimen/car_scroll_bar_thumb_width"
             android:layout_height="0dp"
             android:layout_gravity="center_horizontal"
-            android:background="@color/car_scrollbar_thumb" />
+            android:background="@drawable/car_scrollbar_thumb" />
     </FrameLayout>
 
     <ImageView
