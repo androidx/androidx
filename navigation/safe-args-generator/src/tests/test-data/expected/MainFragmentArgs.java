@@ -1,19 +1,3 @@
-/*
- * Copyright 2018 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package a.b;
 
 import android.os.Bundle;
@@ -23,9 +7,9 @@ import java.lang.String;
 public class MainFragmentArgs {
     private String main;
 
-    private int optional;
+    private int optional = -1;
 
-    private int reference;
+    private int reference = a.b.R.drawable.background;
 
     private MainFragmentArgs() {
     }
@@ -39,13 +23,9 @@ public class MainFragmentArgs {
         }
         if (bundle.containsKey("optional")) {
             result.optional = bundle.getInt("optional");
-        } else {
-            result.optional = -1;
         }
         if (bundle.containsKey("reference")) {
             result.reference = bundle.getInt("reference");
-        } else {
-            result.reference = a.b.R.drawable.background;
         }
         return result;
     }
@@ -60,5 +40,66 @@ public class MainFragmentArgs {
 
     public int getReference() {
         return reference;
+    }
+
+    public Bundle toBundle() {
+        Bundle __outBundle = new Bundle();
+        __outBundle.putString("main", main);
+        __outBundle.putInt("optional", optional);
+        __outBundle.putInt("reference", reference);
+        return __outBundle;
+    }
+
+    public static class Builder {
+        private String main;
+
+        private int optional = -1;
+
+        private int reference = a.b.R.drawable.background;
+
+        public Builder(MainFragmentArgs original) {
+            this.main = original.main;
+            this.optional = original.optional;
+            this.reference = original.reference;
+        }
+
+        public Builder(String main) {
+            this.main = main;
+        }
+
+        MainFragmentArgs build() {
+            MainFragmentArgs result = new MainFragmentArgs();
+            result.main = this.main;
+            result.optional = this.optional;
+            result.reference = this.reference;
+            return result;
+        }
+
+        public Builder setMain(String main) {
+            this.main = main;
+            return this;
+        }
+
+        public Builder setOptional(int optional) {
+            this.optional = optional;
+            return this;
+        }
+
+        public Builder setReference(int reference) {
+            this.reference = reference;
+            return this;
+        }
+
+        public String getMain() {
+            return main;
+        }
+
+        public int getOptional() {
+            return optional;
+        }
+
+        public int getReference() {
+            return reference;
+        }
     }
 }

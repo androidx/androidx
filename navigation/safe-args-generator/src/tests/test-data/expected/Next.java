@@ -22,15 +22,27 @@ import android.os.Bundle;
 import java.lang.String;
 
 public static class Next implements NavDirections {
-    private final String main;
-    private final int mainInt;
+    private String main;
+
+    private int mainInt;
 
     private String optional = "bla";
+
     private int optionalInt = 239;
 
     public Next(String main, int mainInt) {
         this.main = main;
         this.mainInt = mainInt;
+    }
+
+    public Next setMain(String main) {
+        this.main = main;
+        return this;
+    }
+
+    public Next setMainInt(int mainInt) {
+        this.mainInt = mainInt;
+        return this;
     }
 
     public Next setOptional(String optional) {
