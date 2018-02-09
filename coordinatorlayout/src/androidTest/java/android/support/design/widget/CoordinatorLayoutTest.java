@@ -41,7 +41,7 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
-import android.support.coreui.test.R;
+import android.support.coordinatorlayout.test.R;
 import android.support.design.testutils.CoordinatorLayoutUtils;
 import android.support.design.testutils.CoordinatorLayoutUtils.DependentBehavior;
 import android.support.design.widget.CoordinatorLayout.Behavior;

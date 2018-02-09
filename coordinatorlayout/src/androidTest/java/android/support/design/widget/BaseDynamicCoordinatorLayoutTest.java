@@ -20,7 +20,7 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.any;
 
 import android.support.annotation.LayoutRes;
-import android.support.coreui.test.R;
+import android.support.coordinatorlayout.test.R;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,24 @@
 
 package android.support.design.widget;
 
-import android.support.coreui.test.R;
+import android.support.coordinatorlayout.test.R;
+import android.support.v4.BaseTestActivity;
+import android.widget.FrameLayout;
 
-/**
- * Test activity for testing various aspects of {@link CoordinatorLayout}.
- */
-public class DynamicCoordinatorLayoutActivity extends BaseTestActivity {
+public class CoordinatorLayoutActivity extends BaseTestActivity {
+
+    FrameLayout mContainer;
+    CoordinatorLayout mCoordinatorLayout;
+
     @Override
     protected int getContentViewLayoutResId() {
-        return R.layout.dynamic_coordinator_layout;
+        return R.layout.activity_coordinator_layout;
     }
+
+    @Override
+    protected void onContentViewSet() {
+        mContainer = findViewById(R.id.container);
+        mCoordinatorLayout = findViewById(R.id.coordinator);
+    }
+
 }

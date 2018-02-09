@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.support.coreui.test.R;
+import android.support.coordinatorlayout.test.R;
 import android.support.design.custom.CustomBar;
 import android.support.design.custom.TestFloatingBehavior;
 import android.support.test.annotation.UiThreadTest;
