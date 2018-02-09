@@ -209,11 +209,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
         workContinuation.enqueue();
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getWorkSpecState(work1.getId()), is(SUCCEEDED));
+        assertThat(workSpecDao.getState(work1.getId()), is(SUCCEEDED));
 
         Work work2 = new Work.Builder(TestWorker.class).build();
         workContinuation.then(work2).enqueue();
-        assertThat(workSpecDao.getWorkSpecState(work2.getId()), is(ENQUEUED));
+        assertThat(workSpecDao.getState(work2.getId()), is(ENQUEUED));
     }
 
     @Test
@@ -477,8 +477,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(originalWork.getId()), is(not(nullValue())));
-        assertThat(workSpecDao.getWorkSpecState(appendWork1.getId()), is(BLOCKED));
-        assertThat(workSpecDao.getWorkSpecState(appendWork2.getId()), is(BLOCKED));
+        assertThat(workSpecDao.getState(appendWork1.getId()), is(BLOCKED));
+        assertThat(workSpecDao.getState(appendWork2.getId()), is(BLOCKED));
 
         assertThat(mDatabase.dependencyDao().getDependentWorkIds(originalWork.getId()),
                 containsInAnyOrder(appendWork1.getId()));
@@ -529,8 +529,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(workSpecDao.getWorkSpec(originalWork2.getId()), is(not(nullValue())));
         assertThat(workSpecDao.getWorkSpec(originalWork3.getId()), is(not(nullValue())));
         assertThat(workSpecDao.getWorkSpec(originalWork4.getId()), is(not(nullValue())));
-        assertThat(workSpecDao.getWorkSpecState(appendWork1.getId()), is(BLOCKED));
-        assertThat(workSpecDao.getWorkSpecState(appendWork2.getId()), is(BLOCKED));
+        assertThat(workSpecDao.getState(appendWork1.getId()), is(BLOCKED));
+        assertThat(workSpecDao.getState(appendWork2.getId()), is(BLOCKED));
 
         assertThat(dependencyDao.getPrerequisites(appendWork1.getId()),
                 containsInAnyOrder(originalWork3.getId(), originalWork4.getId()));
@@ -616,8 +616,50 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         mWorkManagerImpl.cancelWorkForId(work0.getId());
 
-        assertThat(workSpecDao.getWorkSpecState(work0.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecState(work1.getId()), is(not(CANCELLED)));
+        assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work1.getId()), is(not(CANCELLED)));
+    }
+
+    @Test
+    @SmallTest
+    public void testCancelWorkForId_cancelsDependentWork() {
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        Work work0 = new Work.Builder(TestWorker.class).build();
+        Work work1 = new Work.Builder(TestWorker.class).withInitialState(BLOCKED).build();
+        insertWorkSpecAndTags(work0);
+        insertWorkSpecAndTags(work1);
+
+        Dependency dependency10 = new Dependency(work1.getId(), work0.getId());
+
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
+        dependencyDao.insertDependency(dependency10);
+
+        mWorkManagerImpl.cancelWorkForId(work0.getId());
+
+        assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
+    }
+
+    @Test
+    @SmallTest
+    public void testCancelWorkForId_cancelsUnfinishedWorkOnly() {
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        Work work0 = new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
+        Work work1 = new Work.Builder(TestWorker.class).withInitialState(ENQUEUED).build();
+        insertWorkSpecAndTags(work0);
+        insertWorkSpecAndTags(work1);
+
+        Dependency dependency10 = new Dependency(work1.getId(), work0.getId());
+
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
+        dependencyDao.insertDependency(dependency10);
+
+        mWorkManagerImpl.cancelWorkForId(work0.getId());
+
+        assertThat(workSpecDao.getState(work0.getId()), is(SUCCEEDED));
+        assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
     }
 
     @Test
@@ -639,15 +681,15 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         mWorkManagerImpl.cancelAllWorkWithTag(tagToClear);
 
-        assertThat(workSpecDao.getWorkSpecState(work0.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecState(work1.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecState(work2.getId()), is(not(CANCELLED)));
-        assertThat(workSpecDao.getWorkSpecState(work3.getId()), is(not(CANCELLED)));
+        assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work2.getId()), is(not(CANCELLED)));
+        assertThat(workSpecDao.getState(work3.getId()), is(not(CANCELLED)));
     }
 
     @Test
     @SmallTest
-    public void testCancelAllWorkWithTag_deletesDependentWork() {
+    public void testCancelAllWorkWithTag_cancelsDependentWork() {
         String tag = "tag";
 
         Work work0 = new Work.Builder(TestWorker.class).addTag(tag).build();
@@ -686,11 +728,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
         mWorkManagerImpl.cancelAllWorkWithTag(tag);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getWorkSpecState(work0.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecState(work1.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecState(work2.getId()), is(CANCELLED));
-        assertThat(workSpecDao.getWorkSpecState(work3.getId()), is(not(CANCELLED)));
-        assertThat(workSpecDao.getWorkSpecState(work4.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work2.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work3.getId()), is(not(CANCELLED)));
+        assertThat(workSpecDao.getState(work4.getId()), is(CANCELLED));
     }
 
     @Test
@@ -700,7 +742,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         insertWorkSpecAndTags(work);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getWorkSpecState(work.getId()), is(ENQUEUED));
+        assertThat(workSpecDao.getState(work.getId()), is(ENQUEUED));
 
         mWorkManagerImpl.cancelWorkForIdSync(work.getId());
         assertThat(mWorkManagerImpl.getStatusSync(work.getId()).getState(), is(CANCELLED));
@@ -755,13 +797,13 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work work = new Work.Builder(TestWorker.class).withInitialState(RUNNING).build();
         workSpecDao.insertWorkSpec(getWorkSpec(work));
 
-        assertThat(workSpecDao.getWorkSpecState(work.getId()), is(RUNNING));
+        assertThat(workSpecDao.getState(work.getId()), is(RUNNING));
 
         SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
         SupportSQLiteDatabase db = openHelper.getWritableDatabase();
         WorkDatabase.generateCleanupCallback().onOpen(db);
 
-        assertThat(workSpecDao.getWorkSpecState(work.getId()), is(ENQUEUED));
+        assertThat(workSpecDao.getState(work.getId()), is(ENQUEUED));
     }
 
     @Test

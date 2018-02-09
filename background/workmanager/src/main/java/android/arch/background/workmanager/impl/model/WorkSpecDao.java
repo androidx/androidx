@@ -135,7 +135,7 @@ public interface WorkSpecDao {
      * @return The state of the {@link WorkSpec}
      */
     @Query("SELECT state FROM workspec WHERE id=:id")
-    State getWorkSpecState(String id);
+    State getState(String id);
 
     /**
      * For a {@link WorkSpec} identifier, retrieves its {@link WorkSpec.IdStateAndOutput}.
