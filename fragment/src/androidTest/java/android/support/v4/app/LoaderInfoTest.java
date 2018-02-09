@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -89,63 +90,51 @@ public class LoaderInfoTest {
         });
     }
 
+    @UiThreadTest
     @Test
     public void testSetCallback() throws Throwable {
         final LoaderTest.DummyLoaderCallbacks loaderCallback =
                 new LoaderTest.DummyLoaderCallbacks(mActivityRule.getActivity());
         Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
-        LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
+        final LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
                 0, null, loader);
         assertFalse("onLoadFinished shouldn't be called before setCallback",
                 loaderCallback.mOnLoadFinished);
 
         loaderInfo.setCallback(mActivityRule.getActivity(), loaderCallback);
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                assertTrue("onLoadFinished should be called after setCallback",
-                        loaderCallback.mOnLoadFinished);
-            }
-        });
+        assertTrue("onLoadFinished should be called after setCallback",
+                loaderCallback.mOnLoadFinished);
     }
 
+    @UiThreadTest
     @Test
     public void testSetCallback_replace() throws Throwable {
-        final LoaderTest.DummyLoaderCallbacks initialCallback =
+        LoaderTest.DummyLoaderCallbacks initialCallback =
                 new LoaderTest.DummyLoaderCallbacks(mActivityRule.getActivity());
         Loader<Boolean> loader = initialCallback.onCreateLoader(0, null);
-        final LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
+        LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
                 0, null, loader);
         assertFalse("onLoadFinished for initial shouldn't be called before setCallback initial",
                 initialCallback.mOnLoadFinished);
 
         loaderInfo.setCallback(mActivityRule.getActivity(), initialCallback);
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                assertTrue("onLoadFinished for initial should be called after setCallback initial",
-                        initialCallback.mOnLoadFinished);
-            }
-        });
+        assertTrue("onLoadFinished for initial should be called after setCallback initial",
+                initialCallback.mOnLoadFinished);
 
         final LoaderTest.DummyLoaderCallbacks replacementCallback =
                 new LoaderTest.DummyLoaderCallbacks(mActivityRule.getActivity());
         initialCallback.mOnLoadFinished = false;
 
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                loaderInfo.setCallback(mActivityRule.getActivity(), replacementCallback);
-                assertFalse("onLoadFinished for initial should not be called "
-                                + "after setCallback replacement",
-                        initialCallback.mOnLoadFinished);
-                assertTrue("onLoadFinished for replacement should be called "
-                                + " after setCallback replacement",
-                        replacementCallback.mOnLoadFinished);
-            }
-        });
+        loaderInfo.setCallback(mActivityRule.getActivity(), replacementCallback);
+        assertFalse("onLoadFinished for initial should not be called "
+                        + "after setCallback replacement",
+                initialCallback.mOnLoadFinished);
+        assertTrue("onLoadFinished for replacement should be called "
+                        + " after setCallback replacement",
+                replacementCallback.mOnLoadFinished);
     }
 
+    @UiThreadTest
     @Test
     public void testDestroy() throws Throwable {
         final LoaderTest.DummyLoaderCallbacks loaderCallback =
@@ -156,13 +145,7 @@ public class LoaderInfoTest {
 
         loaderInfo.setCallback(mActivityRule.getActivity(), loaderCallback);
         assertTrue("Loader should be started after setCallback", loader.isStarted());
-
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                loaderInfo.destroy();
-                assertFalse("Loader should not be started after destroy", loader.isStarted());
-            }
-        });
+        loaderInfo.destroy();
+        assertFalse("Loader should not be started after destroy", loader.isStarted());
     }
 }
