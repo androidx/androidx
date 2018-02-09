@@ -50,6 +50,7 @@ class FlowableQueryResultBinder(val typeArg: TypeMirror, val queryTableNames: Se
                 returns(typeName)
                 addException(Exception::class.typeName())
                 addModifiers(Modifier.PUBLIC)
+                addAnnotation(Override::class.java)
                 createRunQueryAndReturnStatements(builder = this,
                         roomSQLiteQueryVar = roomSQLiteQueryVar,
                         inTransaction = inTransaction,
