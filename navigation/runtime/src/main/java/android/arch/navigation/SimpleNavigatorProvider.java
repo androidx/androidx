@@ -17,6 +17,7 @@
 package android.arch.navigation;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.HashMap;
 
@@ -28,9 +29,10 @@ class SimpleNavigatorProvider implements NavigatorProvider {
     private final HashMap<String, Navigator<? extends NavDestination>> mNavigators =
             new HashMap<>();
 
+    @NonNull
     @Override
-    public Navigator<? extends NavDestination> getNavigator(
-            @NonNull Class<? extends Navigator> navigatorClass) {
+    public <D extends NavDestination, T extends Navigator<? extends D>> T getNavigator(
+            @NonNull Class<T> navigatorClass) {
         Navigator.Name annotation = navigatorClass.getAnnotation(Navigator.Name.class);
         String name = annotation != null ? annotation.value() : null;
         if (!validateName(name)) {
@@ -41,17 +43,27 @@ class SimpleNavigatorProvider implements NavigatorProvider {
         return getNavigator(name);
     }
 
+    @NonNull
     @Override
-    public Navigator<? extends NavDestination> getNavigator(@NonNull String name) {
+    public <D extends NavDestination, T extends Navigator<? extends D>> T getNavigator(
+            @NonNull String name) {
         if (!validateName(name)) {
             throw new IllegalArgumentException("navigator name cannot be an empty string");
         }
 
-        return mNavigators.get(name);
+        Navigator<? extends NavDestination> navigator = mNavigators.get(name);
+        if (navigator == null) {
+            throw new IllegalStateException("Could not find Navigator with name \"" + name
+                    + "\". You must call NavController.addNavigator() for each navigation type.");
+        }
+        //noinspection unchecked
+        return (T) navigator;
     }
 
+    @Nullable
     @Override
-    public void addNavigator(@NonNull Navigator<? extends NavDestination> navigator) {
+    public Navigator<? extends NavDestination> addNavigator(
+            @NonNull Navigator<? extends NavDestination> navigator) {
         Navigator.Name annotation = navigator.getClass().getAnnotation(Navigator.Name.class);
         String name = annotation != null ? annotation.value() : null;
         if (!validateName(name)) {
@@ -59,16 +71,17 @@ class SimpleNavigatorProvider implements NavigatorProvider {
                     + navigator.getClass().getSimpleName());
         }
 
-        addNavigator(name, navigator);
+        return addNavigator(name, navigator);
     }
 
+    @Nullable
     @Override
-    public void addNavigator(@NonNull String name,
+    public Navigator<? extends NavDestination> addNavigator(@NonNull String name,
             @NonNull Navigator<? extends NavDestination> navigator) {
         if (!validateName(name)) {
             throw new IllegalArgumentException("navigator name cannot be an empty string");
         }
-        mNavigators.put(name, navigator);
+        return mNavigators.put(name, navigator);
     }
 
     private boolean validateName(String name) {

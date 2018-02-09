@@ -165,9 +165,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          *                          will be associated with.
          */
         public Destination(@NonNull NavigatorProvider navigatorProvider) {
-            //noinspection unchecked
-            this((Navigator<? extends Destination>) navigatorProvider
-                    .getNavigator(ActivityNavigator.class));
+            this(navigatorProvider.getNavigator(ActivityNavigator.class));
         }
 
         /**

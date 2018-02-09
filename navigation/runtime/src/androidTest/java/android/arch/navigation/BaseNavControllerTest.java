@@ -18,14 +18,12 @@ package android.arch.navigation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Instrumentation;
 import android.arch.navigation.activity.BaseNavigationActivity;
 import android.arch.navigation.test.R;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -36,7 +34,6 @@ import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.TaskStackBuilder;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,8 +42,6 @@ import org.junit.Test;
 public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
     private static final String TEST_ARG = "test";
     private static final String TEST_ARG_VALUE = "value";
-    private static final String TEST_OVERRIDDEN_VALUE_ARG = "test_overriden_value";
-    private static final String TEST_OVERRIDDEN_VALUE_ARG_VALUE = "override";
     private static final String TEST_DEEP_LINK_ACTION = "deep_link";
 
     /**
@@ -66,336 +61,13 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
     }
 
     @Test
-    public void testStartDestination() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        NavController navController = new NavController(context);
-        TestNavigator navigator = new TestNavigator();
-        navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.navigation.nav_start_destination);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testMissingStartDestination() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        NavController navController = new NavController(context);
-        TestNavigator navigator = new TestNavigator();
-        navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.navigation.nav_missing_start_destination);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidStartDestination() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        NavController navController = new NavController(context);
-        TestNavigator navigator = new TestNavigator();
-        navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.navigation.nav_invalid_start_destination);
-    }
-
-    @Test
-    public void testNestedStartDestination() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        NavController navController = new NavController(context);
-        TestNavigator navigator = new TestNavigator();
-        navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.navigation.nav_nested_start_destination);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.nested_test));
-    }
-
-    @Test
-    public void testSetGraph() throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        assertThat(navController.getGraph(), is(nullValue(NavGraph.class)));
-
-        navController.setGraph(R.navigation.nav_start_destination);
-        assertThat(navController.getGraph(), is(notNullValue(NavGraph.class)));
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-    }
-
-    @Test
-    public void testNavigate() throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(R.navigation.nav_simple);
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
-                .getNavigator(TestNavigator.class);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-        assertThat(navigator.mBackStack.size(), is(1));
-
-        navController.navigate(R.id.second_test);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        assertThat(navigator.mBackStack.size(), is(2));
-    }
-
-    @Test
-    public void testSaveRestoreStateXml() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        NavController navController = new NavController(context);
-        TestNavigator navigator = new TestNavigator();
-        navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.navigation.nav_simple);
-        navController.navigate(R.id.second_test);
-
-        Bundle savedState = navController.saveState();
-        navController = new NavController(context);
-        navController.getNavigatorProvider().addNavigator(navigator);
-
-        // Restore state should automatically re-inflate the graph
-        // Since the graph has a set id
-        navController.restoreState(savedState);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        assertThat(navigator.mBackStack.size(), is(2));
-    }
-
-    @Test
-    public void testSaveRestoreStateProgrammatic() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        NavController navController = new NavController(context);
-        TestNavigator navigator = new TestNavigator();
-        navController.getNavigatorProvider().addNavigator(navigator);
-        NavGraph graph = new NavInflater(context, navController.getNavigatorProvider())
-                .inflate(R.navigation.nav_simple);
-        navController.setGraph(graph);
-        navController.navigate(R.id.second_test);
-
-        Bundle savedState = navController.saveState();
-        navController = new NavController(context);
-        navController.getNavigatorProvider().addNavigator(navigator);
-
-        // Restore state doesn't recreate any graph
-        navController.restoreState(savedState);
-        assertThat(navController.getGraph(), is(nullValue(NavGraph.class)));
-
-        // Explicitly setting a graph then restores the state
-        navController.setGraph(graph);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        assertThat(navigator.mBackStack.size(), is(2));
-    }
-
-    @Test
-    public void testNavigateWithNoDefaultValue() throws Throwable {
-        Bundle returnedArgs = navigateWithArgs(null);
-
-        // Test that arguments without a default value aren't passed through at all
-        assertThat(returnedArgs.containsKey("test_no_default_value"), is(false));
-    }
-
-    @Test
-    public void testNavigateWithDefaultArgs() throws Throwable {
-        Bundle returnedArgs = navigateWithArgs(null);
-
-        // Test that default values are passed through
-        assertThat(returnedArgs.getString("test_default_value"), is("default"));
-    }
-
-    @Test
-    public void testNavigateWithArgs() throws Throwable {
-        Bundle args = new Bundle();
-        args.putString(TEST_ARG, TEST_ARG_VALUE);
-        Bundle returnedArgs = navigateWithArgs(args);
-
-        // Test that programmatically constructed arguments are passed through
-        assertThat(returnedArgs.getString(TEST_ARG), is(TEST_ARG_VALUE));
-    }
-
-    @Test
-    public void testNavigateWithOverriddenDefaultArgs() throws Throwable {
-        Bundle args = new Bundle();
-        args.putString(TEST_OVERRIDDEN_VALUE_ARG, TEST_OVERRIDDEN_VALUE_ARG_VALUE);
-        Bundle returnedArgs = navigateWithArgs(args);
-
-        // Test that default values can be overridden by programmatic values
-        assertThat(returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG),
-                is(TEST_OVERRIDDEN_VALUE_ARG_VALUE));
-    }
-
-    private Bundle navigateWithArgs(Bundle args) throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(R.navigation.nav_arguments);
-
-        navController.navigate(R.id.second_test, args);
-
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
-                .getNavigator(TestNavigator.class);
-        args = navigator.mBackStack.peekLast().second;
-        assertThat(args, is(notNullValue(Bundle.class)));
-
-        return args;
-    }
-
-    @Test
-    public void testNavigateThenPop() throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(R.navigation.nav_simple);
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
-                .getNavigator(TestNavigator.class);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-        assertThat(navigator.mBackStack.size(), is(1));
-
-        navController.navigate(R.id.second_test);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        assertThat(navigator.mBackStack.size(), is(2));
-
-        navController.popBackStack();
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-        assertThat(navigator.mBackStack.size(), is(1));
-    }
-
-    @Test
-    public void testNavigateThenNavigateUp() throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(R.navigation.nav_simple);
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
-                .getNavigator(TestNavigator.class);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-        assertThat(navigator.mBackStack.size(), is(1));
-
-        navController.navigate(R.id.second_test);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        assertThat(navigator.mBackStack.size(), is(2));
-
-        // This should function identically to popBackStack()
-        navController.navigateUp();
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-        assertThat(navigator.mBackStack.size(), is(1));
-    }
-
-    @Test
-    public void testNavigateViaAction() throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(R.navigation.nav_simple);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
-                .getNavigator(TestNavigator.class);
-        assertThat(navigator.mBackStack.size(), is(1));
-
-        navController.navigate(R.id.second);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        assertThat(navigator.mBackStack.size(), is(2));
-    }
-
-    @Test
-    public void testNavigateOptionSingleTop() throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(R.navigation.nav_simple);
-        navController.navigate(R.id.second_test);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
-                .getNavigator(TestNavigator.class);
-        assertThat(navigator.mBackStack.size(), is(2));
-
-        navController.navigate(R.id.self);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        assertThat(navigator.mBackStack.size(), is(2));
-    }
-
-    @Test
-    public void testNavigateOptionPopUpToInAction() throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(R.navigation.nav_simple);
-        navController.navigate(R.id.second_test);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
-                .getNavigator(TestNavigator.class);
-        assertThat(navigator.mBackStack.size(), is(2));
-
-        navController.navigate(R.id.finish);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-        assertThat(navigator.mBackStack.size(), is(1));
-    }
-
-    @Test
-    public void testNavigateWithPopUpOptionsOnly() throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(R.navigation.nav_simple);
-        navController.navigate(R.id.second_test);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
-                .getNavigator(TestNavigator.class);
-        assertThat(navigator.mBackStack.size(), is(2));
-
-        NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.start_test, false).build();
-        // the same as to call .navigate(R.id.finish)
-        navController.navigate(0, null, navOptions);
-
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-        assertThat(navigator.mBackStack.size(), is(1));
-    }
-
-    @Test
-    public void testNoDestinationNoPopUpTo() throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(R.navigation.nav_simple);
-        NavOptions options = new NavOptions.Builder().build();
-        try {
-            navController.navigate(0, null, options);
-            Assert.fail("navController.navigate must throw");
-        } catch (IllegalArgumentException e) {
-            // expected exception
-        }
-    }
-
-    @Test
-    public void testNavigateOptionPopSelf() throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(R.navigation.nav_simple);
-        navController.navigate(R.id.second_test);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
-                .getNavigator(TestNavigator.class);
-        assertThat(navigator.mBackStack.size(), is(2));
-
-        navController.navigate(R.id.finish_self);
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-        assertThat(navigator.mBackStack.size(), is(1));
-    }
-
-    @Test
-    public void testNavigateViaActionWithArgs() throws Throwable {
-        BaseNavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(R.navigation.nav_arguments);
-
-        Bundle args = new Bundle();
-        args.putString(TEST_ARG, TEST_ARG_VALUE);
-        args.putString(TEST_OVERRIDDEN_VALUE_ARG, TEST_OVERRIDDEN_VALUE_ARG_VALUE);
-        navController.navigate(R.id.second, args);
-
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
-                .getNavigator(TestNavigator.class);
-        Bundle returnedArgs = navigator.mBackStack.peekLast().second;
-        assertThat(returnedArgs, is(notNullValue(Bundle.class)));
-
-        // Test that arguments without a default value aren't passed through at all
-        assertThat(returnedArgs.containsKey("test_no_default_value"), is(false));
-        // Test that default values are passed through
-        assertThat(returnedArgs.getString("test_default_value"), is("default"));
-        // Test that programmatically constructed arguments are passed through
-        assertThat(returnedArgs.getString(TEST_ARG), is(TEST_ARG_VALUE));
-        // Test that default values can be overridden by programmatic values
-        assertThat(returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG),
-                is(TEST_OVERRIDDEN_VALUE_ARG_VALUE));
-    }
-
-    @Test
     public void testDeeplink() throws Throwable {
         BaseNavigationActivity activity = launchDeepLink(R.navigation.nav_deep_link,
                 R.id.deep_link_test, null);
         NavController navController = activity.getNavController();
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(2));
 
@@ -408,20 +80,6 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
     }
 
     @Test
-    public void testDeepLinkFromNavGraph() throws Throwable {
-        NavController navController = new NavController(mInstrumentation.getTargetContext());
-        TestNavigator navigator = new TestNavigator();
-        navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.navigation.nav_deep_link);
-
-        TaskStackBuilder taskStackBuilder = navController.createDeepLink()
-                .setDestination(R.id.deep_link_test)
-                .createTaskStackBuilder();
-        assertThat(taskStackBuilder, is(notNullValue(TaskStackBuilder.class)));
-        assertThat(taskStackBuilder.getIntentCount(), is(1));
-    }
-
-    @Test
     public void testDeeplinkWithArgs() throws Throwable {
         Bundle args = new Bundle();
         args.putString(TEST_ARG, TEST_ARG_VALUE);
@@ -430,7 +88,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         NavController navController = activity.getNavController();
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(2));
         assertThat(navigator.mBackStack.peekLast().second.getString(TEST_ARG), is(TEST_ARG_VALUE));
@@ -455,7 +113,7 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         navController.setGraph(R.navigation.nav_deep_link);
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
+        TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(2));
         assertThat(navigator.mBackStack.peekLast().second.getString(TEST_ARG), is(TEST_ARG_VALUE));
@@ -466,11 +124,6 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         assertThat(deepLinkIntent, is(notNullValue(Intent.class)));
         //noinspection ConstantConditions
         assertThat(deepLinkIntent.getData(), is(deepLinkUri));
-    }
-
-    private BaseNavigationActivity launchActivity() throws Throwable {
-        return launchActivity(new Intent(mInstrumentation.getTargetContext(),
-                getActivityClass()));
     }
 
     private BaseNavigationActivity launchActivity(Intent intent) throws Throwable {

@@ -167,9 +167,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
          *                          will be associated with.
          */
         public Destination(@NonNull NavigatorProvider navigatorProvider) {
-            //noinspection unchecked
-            this((Navigator<? extends Destination>) navigatorProvider
-                    .getNavigator(FragmentNavigator.class));
+            this(navigatorProvider.getNavigator(FragmentNavigator.class));
         }
 
         /**

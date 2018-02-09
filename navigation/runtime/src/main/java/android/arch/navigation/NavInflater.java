@@ -72,18 +72,6 @@ public class NavInflater {
     }
 
     /**
-     * Retrieve a Navigator with the given name from the {@link NavigatorProvider} used to
-     * construct this class.
-     *
-     * @param name
-     * @return
-     */
-    @Nullable
-    public Navigator getNavigator(@NonNull String name) {
-        return mNavigatorProvider.getNavigator(name);
-    }
-
-    /**
      * Inflates {@link NavGraph navigation graph} as specified in the application manifest.
      *
      * <p>Applications may declare a graph resource in their manifest instead of declaring
@@ -144,12 +132,7 @@ public class NavInflater {
 
     private NavDestination inflate(Resources res, XmlResourceParser parser, AttributeSet attrs)
             throws XmlPullParserException, IOException {
-        String navigatorName = parser.getName();
-        Navigator navigator = getNavigator(parser.getName());
-        if (navigator == null) {
-            throw new IllegalArgumentException("Could not inflate " + navigatorName
-                    + ". You must call NavController.addNavigator() for each navigation type.");
-        }
+        Navigator navigator = mNavigatorProvider.getNavigator(parser.getName());
         final NavDestination dest = navigator.createDestination();
 
         dest.onInflate(mContext, attrs);
