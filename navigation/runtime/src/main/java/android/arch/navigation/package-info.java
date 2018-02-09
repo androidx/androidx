@@ -71,8 +71,8 @@
  *
  *   // Retrieve the NavController from any Fragment created by a NavHostFragment by passing in
  *   // this
- *   final NavController navController = Navigation.findController(this);
- *   // Alternatively, you can use findController(view) with any View within the NavHostFragment
+ *   final NavController navController = Navigation.findNavController(this);
+ *   // Alternatively, you can use findNavController(view) with any View within the NavHostFragment
  *
  *   // And set the listener
  *   b.setOnClickListener(() -%gt; navController.navigate(R.id.details));

@@ -62,7 +62,7 @@ import android.widget.FrameLayout;
  *
  * <p>NavHostFragments register their navigation controller at the root of their view subtree
  * such that any descendant can obtain the controller instance through the {@link Navigation}
- * helper class's methods such as {@link Navigation#findController(View)}. View event listener
+ * helper class's methods such as {@link Navigation#findNavController(View)}. View event listener
  * implementations such as {@link android.view.View.OnClickListener} within navigation destination
  * fragments can use these helpers to navigate based on user interaction without creating a tight
  * coupling to the navigation host.</p>
@@ -72,6 +72,40 @@ public class NavHostFragment extends Fragment {
     private static final String KEY_NAV_CONTROLLER_STATE =
             "android-support-nav:fragment:navControllerState";
     private static final String KEY_DEFAULT_NAV_HOST = "android-support-nav:fragment:defaultHost";
+
+    /**
+     * Find a {@link NavController} given a local {@link Fragment}.
+     *
+     * <p>This method will locate the {@link NavController} associated with this Fragment,
+     * looking first for a {@link NavHostFragment} along the given Fragment's parent chain.
+     * If a {@link NavController} is not found, this method will look for one along this
+     * Fragment's {@link Fragment#getView() view hierarchy} as specified by
+     * {@link Navigation#findNavController(View)}.</p>
+     *
+     * @param fragment the locally scoped Fragment for navigation
+     * @return the locally scoped {@link NavController} for navigating from this {@link Fragment}
+     */
+    public static NavController findNavController(@Nullable Fragment fragment) {
+        if (fragment == null) {
+            return null;
+        }
+
+        Fragment findFragment = fragment;
+        while (findFragment != null) {
+            if (findFragment instanceof NavHostFragment) {
+                return ((NavHostFragment) findFragment).getNavController();
+            }
+            Fragment primaryNavFragment = findFragment.getFragmentManager()
+                    .getPrimaryNavigationFragment();
+            if (primaryNavFragment instanceof NavHostFragment) {
+                return ((NavHostFragment) primaryNavFragment).getNavController();
+            }
+            findFragment = findFragment.getParentFragment();
+        }
+
+        // Try looking for one associated with the view instead, if applicable
+        return Navigation.findNavController(fragment.getView());
+    }
 
     private NavController mNavController;
 
