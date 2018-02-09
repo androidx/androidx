@@ -152,7 +152,18 @@ class LoaderManagerImpl extends LoaderManager {
         @Override
         public void onLoadComplete(@NonNull Loader<D> loader, @Nullable D data) {
             if (DEBUG) Log.v(TAG, "onLoadComplete: " + this);
-            postValue(data);
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                setValue(data);
+            } else {
+                // The Loader#deliverResult method that calls this should
+                // only be called on the main thread, so this should never
+                // happen, but we don't want to lose the data
+                if (DEBUG) {
+                    Log.w(TAG, "onLoadComplete was incorrectly called on a "
+                            + "background thread");
+                }
+                postValue(data);
+            }
         }
 
         @Override
