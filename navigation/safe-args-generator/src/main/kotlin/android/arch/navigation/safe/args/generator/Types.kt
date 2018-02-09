@@ -17,58 +17,53 @@
 package android.arch.navigation.safe.args.generator
 
 import android.arch.navigation.safe.args.generator.ext.S
+import android.arch.navigation.safe.args.generator.models.ResReference
+import android.arch.navigation.safe.args.generator.models.accessor
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 
-sealed class NavType {
-    companion object {
-        fun parse(name: String): NavType? = when (name) {
-            "integer" -> IntegerType
-            "string" -> StringType
-            else -> null
-        }
-    }
+enum class NavType {
+
+    INT {
+        override fun typeName(): TypeName = TypeName.INT
+        override fun bundlePutMethod() = "putInt"
+        override fun bundleGetMethod() = "getInt"
+    },
+
+    STRING {
+        override fun typeName(): TypeName = ClassName.get(String::class.java)
+        override fun bundlePutMethod() = "putString"
+        override fun bundleGetMethod() = "getString"
+    },
+
+    REFERENCE {
+        // it is internally the same as INT, but we don't want to allow to
+        // assignment between int and reference args
+        override fun typeName(): TypeName = TypeName.INT
+
+        override fun bundlePutMethod() = "putInt"
+        override fun bundleGetMethod() = "getInt"
+    };
 
     abstract fun typeName(): TypeName
-
-    abstract fun verify(value: String): Boolean
-
-    abstract fun write(value: String): CodeBlock
-
     abstract fun bundlePutMethod(): String
-
     abstract fun bundleGetMethod(): String
 }
 
-object IntegerType : NavType() {
-    override fun bundlePutMethod() = "putInt"
-
-    override fun bundleGetMethod() = "getInt"
-
-    override fun write(value: String): CodeBlock = CodeBlock.of(value)
-
-    override fun typeName(): TypeName = TypeName.INT
-
-    override fun verify(value: String): Boolean {
-        try {
-            Integer.parseInt(value)
-            return true
-        } catch (ex: NumberFormatException) {
-            return false
-        }
-    }
+sealed class WriteableValue {
+    abstract fun write(): CodeBlock
 }
 
-object StringType : NavType() {
+data class ReferenceValue(private val resReference: ResReference?) : WriteableValue() {
+    override fun write(): CodeBlock = CodeBlock.of(resReference.accessor())
+}
 
-    override fun bundlePutMethod() = "putString"
+data class StringValue(private val value: String) : WriteableValue() {
+    override fun write(): CodeBlock = CodeBlock.of(S, value)
+}
 
-    override fun bundleGetMethod() = "getString"
-
-    override fun typeName(): TypeName = ClassName.get(String::class.java)
-
-    override fun verify(value: String) = true
-
-    override fun write(value: String) = CodeBlock.of(S, value)
+// keeping value as String, it will help to preserve client format of it: hex, dec
+data class IntValue(private val value: String) : WriteableValue() {
+    override fun write(): CodeBlock = CodeBlock.of(value)
 }

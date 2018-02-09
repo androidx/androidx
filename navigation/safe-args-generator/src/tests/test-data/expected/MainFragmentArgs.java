@@ -25,6 +25,8 @@ public class MainFragmentArgs {
 
     private int optional;
 
+    private int reference;
+
     private MainFragmentArgs() {
     }
 
@@ -40,6 +42,11 @@ public class MainFragmentArgs {
         } else {
             result.optional = -1;
         }
+        if (bundle.containsKey("reference")) {
+            result.reference = bundle.getInt("reference");
+        } else {
+            result.reference = a.b.R.drawable.background;
+        }
         return result;
     }
 
@@ -49,5 +56,9 @@ public class MainFragmentArgs {
 
     public int getOptional() {
         return optional;
+    }
+
+    public int getReference() {
+        return reference;
     }
 }

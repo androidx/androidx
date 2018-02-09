@@ -19,7 +19,7 @@ package android.arch.navigation.safe.args.generator.models
 import com.squareup.javapoet.ClassName
 
 data class Destination(
-        val id: Id?,
+        val id: ResReference?,
         val name: ClassName?,
         val type: String,
         val args: List<Argument>,
@@ -27,7 +27,7 @@ data class Destination(
         val nested: List<Destination> = emptyList()) {
 
     companion object {
-        fun createName(id: Id?, name: String, applicationId: String): ClassName? = when {
+        fun createName(id: ResReference?, name: String, applicationId: String): ClassName? = when {
             name.isNotEmpty() -> {
                 val simpleName = name.substringAfterLast('.')
                 val specifiedPackage = name.substringBeforeLast('.', "")

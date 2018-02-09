@@ -23,4 +23,8 @@ public class R {
         public static final int destA = 0x7f060000;
         public static final int destB = 0x7f060001;
     }
+
+    public static final class drawable {
+        public static int background = 0x7f090001;
+    }
 }

@@ -18,10 +18,10 @@ package android.arch.navigation.safe.args.generator
 
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
-import android.arch.navigation.safe.args.generator.models.Id
+import android.arch.navigation.safe.args.generator.models.ResReference
 
 fun resolveArguments(rootDestination: Destination): Destination {
-    val destinations = mutableMapOf<Id, Destination>()
+    val destinations = mutableMapOf<ResReference, Destination>()
 
     fun dfs(dest: Destination): Destination {
         val nested = dest.nested.filter { it.id != null }.associateBy { it.id!! }

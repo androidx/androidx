@@ -17,8 +17,9 @@
 package android.arch.navigation.safe.args.generator.models
 
 import android.arch.navigation.safe.args.generator.NavType
+import android.arch.navigation.safe.args.generator.WriteableValue
 
-data class Argument(val name: String, val type: NavType, val defaultValue: String? = null) {
+data class Argument(val name: String, val type: NavType, val defaultValue: WriteableValue? = null) {
     fun isOptional() = defaultValue != null
 }
 

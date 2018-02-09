@@ -16,6 +16,7 @@
 
 package android.arch.navigation.safe.args.generator
 
+import android.arch.navigation.safe.args.generator.models.ResReference
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -23,28 +24,23 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class NavTypesTest {
-
-    @Test
-    fun testIntVerify() {
-        assertThat(IntegerType.verify("foo"), `is`(false))
-        assertThat(IntegerType.verify("10"), `is`(true))
-        assertThat(IntegerType.verify("-10"), `is`(true))
-    }
+class WritableValueTest {
 
     @Test
     fun testIntWrite() {
-        assertThat(IntegerType.write("-10").toString(), `is`("-10"))
-        assertThat(IntegerType.write("11").toString(), `is`("11"))
-    }
-
-    @Test
-    fun testStringVerify() {
-        assertThat(StringType.verify("foo"), `is`(true))
+        assertThat(IntValue("-10").write().toString(), `is`("-10"))
+        assertThat(IntValue("11").write().toString(), `is`("11"))
     }
 
     @Test
     fun testStringWrite() {
-        assertThat(StringType.write("foo").toString(), `is`("\"foo\""))
+        assertThat(StringValue("foo").write().toString(), `is`("\"foo\""))
+    }
+
+    @Test
+    fun testReferenceWrite() {
+        assertThat(ReferenceValue(ResReference("foo", "id", "bla")).write().toString(),
+                `is`("foo.R.id.bla"))
+        assertThat(ReferenceValue(null).write().toString(), `is`("0"))
     }
 }

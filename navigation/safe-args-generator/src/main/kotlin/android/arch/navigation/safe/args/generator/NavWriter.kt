@@ -22,7 +22,7 @@ import android.arch.navigation.safe.args.generator.ext.T
 import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
-import android.arch.navigation.safe.args.generator.models.Id
+import android.arch.navigation.safe.args.generator.models.accessor
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
@@ -44,7 +44,7 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
                     if (!arg.isOptional()) {
                         addModifiers(Modifier.FINAL)
                     } else {
-                        initializer(arg.type.write(arg.defaultValue!!))
+                        initializer(arg.defaultValue!!.write())
                     }
                 }
                 .build()
@@ -121,7 +121,7 @@ fun generateDirectionsTypeSpec(action: Action): TypeSpec {
     val getDestIdMethod = MethodSpec.methodBuilder("getDestinationId")
             .addModifiers(Modifier.PUBLIC)
             .returns(Int::class.java)
-            .addStatement("return $N", idAccessor(action.destination))
+            .addStatement("return $N", action.destination.accessor())
             .build()
 
     val getNavOptions = MethodSpec.methodBuilder("getOptions")
@@ -161,7 +161,7 @@ internal fun generateArgsJavaFile(destination: Destination): JavaFile {
             }.nextControlFlow("else").apply {
                 if (arg.isOptional()) {
                     addCode("$N.$N = ", result, arg.name)
-                    addCode(arg.type.write(arg.defaultValue!!))
+                    addCode(arg.defaultValue!!.write())
                     addStatement("")
                 } else {
                     addStatement("throw new $T($S)", IllegalArgumentException::class.java,
@@ -197,8 +197,6 @@ internal fun generateArgsJavaFile(destination: Destination): JavaFile {
 
     return JavaFile.builder(className.packageName(), typeSpec).build()
 }
-
-fun idAccessor(id: Id?) = id?.let { "${id.packageName}.R.id.${id.name}" } ?: "0"
 
 fun generateDirectionsJavaFile(destination: Destination): JavaFile {
     val destName = destination.name

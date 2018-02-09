@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,4 +16,9 @@
 
 package android.arch.navigation.safe.args.generator.models
 
-data class Id(val packageName: String, val name: String)
+data class ResReference(val packageName: String, val resType: String, val name: String) {
+    fun isId() = resType == "id"
+}
+
+fun ResReference?.accessor() = this?.let { "$packageName.R.$resType.$name" } ?: "0"
+
