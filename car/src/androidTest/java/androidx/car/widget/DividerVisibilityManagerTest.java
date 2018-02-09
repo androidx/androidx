@@ -171,6 +171,10 @@ public final class DividerVisibilityManagerTest {
 
     @Test
     public void testSettingItemDividersHidden() throws Throwable {
+        if (!isAutoDevice()) {
+            return;
+        }
+
         TextListItem item0 = new TextListItem(mActivity);
         item0.setHideDivider(true);
 
