@@ -19,24 +19,19 @@ package android.support.v4.app;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.app.test.LoaderActivity;
+import android.support.v4.app.test.DummyLoader;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(JUnit4.class)
 @SmallTest
 public class LoaderViewModelTest {
-
-    @Rule
-    public ActivityTestRule<LoaderActivity> mActivityRule =
-            new ActivityTestRule<>(LoaderActivity.class);
 
     @Test
     public void testHasRunningLoaders() {
@@ -44,7 +39,7 @@ public class LoaderViewModelTest {
         assertFalse("LoaderViewModel should not be running with before putLoader",
                 loaderViewModel.hasRunningLoaders());
 
-        AlwaysRunningLoaderInfo info = new AlwaysRunningLoaderInfo(mActivityRule.getActivity());
+        AlwaysRunningLoaderInfo info = new AlwaysRunningLoaderInfo(mock(Context.class));
         loaderViewModel.putLoader(0, info);
         assertTrue("LoaderViewModel should be running after a running LoaderInfo is added",
                 loaderViewModel.hasRunningLoaders());
@@ -57,8 +52,7 @@ public class LoaderViewModelTest {
     @Test
     public void testOnCleared() {
         LoaderManagerImpl.LoaderViewModel loaderViewModel = new LoaderManagerImpl.LoaderViewModel();
-        AlwaysRunningLoaderInfo info = new AlwaysRunningLoaderInfo(
-                mActivityRule.getActivity());
+        AlwaysRunningLoaderInfo info = new AlwaysRunningLoaderInfo(mock(Context.class));
         loaderViewModel.putLoader(0, info);
 
         assertFalse("LoaderInfo shouldn't be destroyed before onCleared", info.mDestroyed);
@@ -72,7 +66,7 @@ public class LoaderViewModelTest {
         boolean mDestroyed = false;
 
         AlwaysRunningLoaderInfo(Context context) {
-            super(0, null, new LoaderTest.DummyLoader(context));
+            super(0, null, new DummyLoader(context));
         }
 
         @Override
