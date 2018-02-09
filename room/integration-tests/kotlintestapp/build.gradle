@@ -60,7 +60,7 @@ dependencies {
     androidTestImplementation project(':room:testing')
     androidTestImplementation project(':room:rxjava2')
     androidTestImplementation project(':arch:core-testing')
-    androidTestImplementation(GUAVA)
+    androidTestImplementation(GUAVA_ANDROID)
     androidTestImplementation(RX_JAVA)
     testImplementation(MOCKITO_CORE)
 }
