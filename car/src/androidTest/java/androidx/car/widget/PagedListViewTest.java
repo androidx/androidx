@@ -37,7 +37,6 @@ import static org.junit.Assert.assertThat;
 
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
@@ -329,14 +328,12 @@ public final class PagedListViewTest {
 
         // Setting non-zero res ID changes color.
         mPagedListView.setScrollbarColor(color);
-        assertThat(((ColorDrawable)
-                        mPagedListView.mScrollBarView.mScrollThumb.getBackground()).getColor(),
+        assertThat(mPagedListView.mScrollBarView.getScrollbarThumbColor(),
                 is(equalTo(InstrumentationRegistry.getContext().getColor(color))));
 
         // Resets to default color.
         mPagedListView.resetScrollbarColor();
-        assertThat(((ColorDrawable)
-                        mPagedListView.mScrollBarView.mScrollThumb.getBackground()).getColor(),
+        assertThat(mPagedListView.mScrollBarView.getScrollbarThumbColor(),
                 is(equalTo(InstrumentationRegistry.getContext().getColor(
                         R.color.car_scrollbar_thumb))));
     }
@@ -352,8 +349,7 @@ public final class PagedListViewTest {
                 DayNightStyle.FORCE_NIGHT, DayNightStyle.FORCE_DAY}) {
             mPagedListView.setDayNightStyle(style);
 
-            assertThat(((ColorDrawable)
-                            mPagedListView.mScrollBarView.mScrollThumb.getBackground()).getColor(),
+            assertThat(mPagedListView.mScrollBarView.getScrollbarThumbColor(),
                     is(equalTo(InstrumentationRegistry.getContext().getColor(color))));
         }
     }
