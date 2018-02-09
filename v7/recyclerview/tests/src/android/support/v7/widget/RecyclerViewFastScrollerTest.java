@@ -316,8 +316,10 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
 
         mScroller = (FastScroller) recyclerView.getItemDecorationAt(0);
 
+        testedFrameLayout.expectLayouts(1);
         testedFrameLayout.expectDraws(1);
         setRecyclerView(recyclerView);
+        testedFrameLayout.waitForLayout(2);
         testedFrameLayout.waitForDraw(2);
     }
 
