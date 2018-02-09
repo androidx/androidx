@@ -123,7 +123,7 @@ limitations under the License.
     <dimen name="car_scroll_bar_padding">@dimen/car_padding_2</dimen>
 
     <!-- Scroll Bar Thumb -->
-    <dimen name="car_scroll_bar_thumb_width">@dimen/car_seekbar_height</dimen>
+    <dimen name="car_scroll_bar_thumb_width">6dp</dimen>
     <dimen name="car_scroll_bar_thumb_margin">@dimen/car_padding_1</dimen>
 
     <!-- Scroll Bar and Alpha Jump Buttons -->

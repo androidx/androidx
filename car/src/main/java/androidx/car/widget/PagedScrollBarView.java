@@ -19,6 +19,7 @@ package androidx.car.widget;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.ColorRes;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.ContextCompat;
@@ -51,8 +52,7 @@ public class PagedScrollBarView extends FrameLayout
 
     private final ImageView mUpButton;
     private final ImageView mDownButton;
-    @VisibleForTesting
-    final ImageView mScrollThumb;
+    private final View mScrollThumb;
     /** The "filler" view between the up and down buttons */
     private final View mFiller;
 
@@ -85,7 +85,7 @@ public class PagedScrollBarView extends FrameLayout
         mDownButton.setOnClickListener(this);
         mDownButton.setOnLongClickListener(this);
 
-        mScrollThumb = (ImageView) findViewById(R.id.scrollbar_thumb);
+        mScrollThumb = findViewById(R.id.scrollbar_thumb);
         mFiller = findViewById(R.id.filler);
     }
 
@@ -241,28 +241,28 @@ public class PagedScrollBarView extends FrameLayout
     /** Reload the colors for the current {@link DayNightStyle}. */
     private void reloadColors() {
         int tintResId;
-        int thumbBackgroundResId;
+        int thumbColorResId;
         int upDownBackgroundResId;
 
         switch (mDayNightStyle) {
             case DayNightStyle.AUTO:
                 tintResId = R.color.car_tint;
-                thumbBackgroundResId = R.color.car_scrollbar_thumb;
+                thumbColorResId = R.color.car_scrollbar_thumb;
                 upDownBackgroundResId = R.drawable.car_card_ripple_background;
                 break;
             case DayNightStyle.AUTO_INVERSE:
                 tintResId = R.color.car_tint_inverse;
-                thumbBackgroundResId = R.color.car_scrollbar_thumb_inverse;
+                thumbColorResId = R.color.car_scrollbar_thumb_inverse;
                 upDownBackgroundResId = R.drawable.car_card_ripple_background_inverse;
                 break;
             case DayNightStyle.FORCE_NIGHT:
                 tintResId = R.color.car_tint_light;
-                thumbBackgroundResId = R.color.car_scrollbar_thumb_light;
+                thumbColorResId = R.color.car_scrollbar_thumb_light;
                 upDownBackgroundResId = R.drawable.car_card_ripple_background_night;
                 break;
             case DayNightStyle.FORCE_DAY:
                 tintResId =  R.color.car_tint_dark;
-                thumbBackgroundResId = R.color.car_scrollbar_thumb_dark;
+                thumbColorResId = R.color.car_scrollbar_thumb_dark;
                 upDownBackgroundResId = R.drawable.car_card_ripple_background_day;
                 break;
             default:
@@ -270,9 +270,10 @@ public class PagedScrollBarView extends FrameLayout
         }
 
         if (mUseCustomThumbBackground) {
-            thumbBackgroundResId = mCustomThumbBackgroundResId;
+            thumbColorResId = mCustomThumbBackgroundResId;
         }
-        mScrollThumb.setBackgroundColor(ContextCompat.getColor(getContext(), thumbBackgroundResId));
+
+        setScrollbarThumbColor(thumbColorResId);
 
         int tint = ContextCompat.getColor(getContext(), tintResId);
         mUpButton.setColorFilter(tint, PorterDuff.Mode.SRC_IN);
@@ -280,6 +281,16 @@ public class PagedScrollBarView extends FrameLayout
 
         mDownButton.setColorFilter(tint, PorterDuff.Mode.SRC_IN);
         mDownButton.setBackgroundResource(upDownBackgroundResId);
+    }
+
+    private void setScrollbarThumbColor(@ColorRes int color) {
+        GradientDrawable background = (GradientDrawable) mScrollThumb.getBackground();
+        background.setColor(getContext().getColor(color));
+    }
+
+    @VisibleForTesting
+    int getScrollbarThumbColor() {
+        return ((GradientDrawable) mScrollThumb.getBackground()).getColor().getDefaultColor();
     }
 
     private void dispatchPageClick(View v) {
