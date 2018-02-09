@@ -19,12 +19,16 @@ package android.arch.background.workmanager.impl.background.firebase;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import android.arch.background.workmanager.DatabaseTest;
+import android.arch.background.workmanager.BaseWork;
+import android.arch.background.workmanager.State;
 import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.WorkManagerTest;
+import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
+import android.arch.background.workmanager.impl.model.WorkSpecDao;
 import android.arch.background.workmanager.impl.utils.taskexecutor.InstantTaskExecutorRule;
 import android.arch.background.workmanager.worker.FirebaseInfiniteTestWorker;
 import android.support.test.filters.SmallTest;
@@ -37,19 +41,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 @RunWith(AndroidJUnit4.class)
-public class FirebaseJobServiceTest extends DatabaseTest {
+public class FirebaseJobServiceTest extends WorkManagerTest {
 
     @Rule
     public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
 
+    private WorkDatabase mDatabase;
     private FirebaseJobService mFirebaseJobService;
 
     @Before
     public void setUp() {
+        mDatabase = WorkManagerImpl.getInstance().getWorkDatabase();
         mFirebaseJobService = new FirebaseJobService(); // Bleh.
         mFirebaseJobService.onCreate();
     }
@@ -61,7 +65,26 @@ public class FirebaseJobServiceTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testOnStopJob_ReschedulesWhenNotCancelled() throws Exception {
+    public void testOnStopJob_ResetsWorkStatus() throws InterruptedException {
+        Work work = new Work.Builder(FirebaseInfiniteTestWorker.class).build();
+        insertWork(work);
+
+        JobParameters mockParams = createMockJobParameters(work.getId());
+        mFirebaseJobService.onStartJob(mockParams);
+
+        // TODO(sumir): Remove later.  Put here because WorkerWrapper sets state to RUNNING.
+        Thread.sleep(1000L);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpecState(work.getId()), is(State.RUNNING));
+
+        mFirebaseJobService.onStopJob(mockParams);
+        assertThat(workSpecDao.getWorkSpecState(work.getId()), is(State.ENQUEUED));
+    }
+
+    @Test
+    @SmallTest
+    public void testOnStopJob_ReschedulesWhenNotCancelled() {
         Work work = new Work.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
@@ -72,7 +95,7 @@ public class FirebaseJobServiceTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testOnStopJob_DoesNotRescheduleWhenCancelled() throws Exception {
+    public void testOnStopJob_DoesNotRescheduleWhenCancelled() {
         Work work = new Work.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
@@ -82,15 +105,13 @@ public class FirebaseJobServiceTest extends DatabaseTest {
         assertThat(mFirebaseJobService.onStopJob(mockParams), is(false));
     }
 
-    private JobParameters createMockJobParameters(final String id) throws Exception {
+    private JobParameters createMockJobParameters(String id) {
         JobParameters jobParameters = mock(JobParameters.class);
-
-        doAnswer(new Answer() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return id;
-            }
-        }).when(jobParameters).getTag();
+        when(jobParameters.getTag()).thenReturn(id);
         return jobParameters;
+    }
+
+    private void insertWork(BaseWork work) {
+        mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(work));
     }
 }
