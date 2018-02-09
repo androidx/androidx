@@ -695,6 +695,19 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
+    public void testSynchronousCancelAndGetStatus() {
+        Work work = new Work.Builder(TestWorker.class).build();
+        insertWorkSpecAndTags(work);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpecState(work.getId()), is(ENQUEUED));
+
+        mWorkManagerImpl.cancelWorkForIdSync(work.getId());
+        assertThat(mWorkManagerImpl.getStatusSync(work.getId()).getState(), is(CANCELLED));
+    }
+
+    @Test
+    @SmallTest
     public void testPruneDatabase() {
         Work enqueuedWork = new Work.Builder(TestWorker.class).build();
         Work finishedPrerequisiteWork1A =

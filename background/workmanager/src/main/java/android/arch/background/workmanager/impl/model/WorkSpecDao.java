@@ -138,6 +138,15 @@ public interface WorkSpecDao {
     State getWorkSpecState(String id);
 
     /**
+     * For a {@link WorkSpec} identifier, retrieves its {@link WorkSpec.IdStateAndOutput}.
+     *
+     * @param id The identifier of the {@link WorkSpec}
+     * @return A list of {@link WorkSpec.IdStateAndOutput}
+     */
+    @Query("SELECT id, state, output FROM workspec WHERE id=:id")
+    WorkSpec.IdStateAndOutput getIdStateAndOutput(String id);
+
+    /**
      * For a list of {@link WorkSpec} identifiers, retrieves a {@link LiveData} list of their
      * {@link WorkSpec.IdStateAndOutput}.
      *
@@ -145,7 +154,7 @@ public interface WorkSpecDao {
      * @return A {@link LiveData} list of {@link WorkSpec.IdStateAndOutput}
      */
     @Query("SELECT id, state, output FROM workspec WHERE id IN (:ids)")
-    LiveData<List<WorkSpec.IdStateAndOutput>> getIdStateAndOutputs(List<String> ids);
+    LiveData<List<WorkSpec.IdStateAndOutput>> getIdStateAndOutputsLiveData(List<String> ids);
 
     /**
      * Retrieves {@link WorkSpec}s that have state {@code ENQUEUED} or
