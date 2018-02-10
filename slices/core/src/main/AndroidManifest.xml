@@ -15,8 +15,6 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.app.slice.core">
-    <uses-sdk android:minSdkVersion="28"/>
-
     <application>
         <activity android:name="androidx.app.slice.compat.SlicePermissionActivity">
         </activity>
