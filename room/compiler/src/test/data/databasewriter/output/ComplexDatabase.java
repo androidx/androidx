@@ -25,18 +25,22 @@ import javax.annotation.Generated;
 public class ComplexDatabase_Impl extends ComplexDatabase {
     private volatile ComplexDao _complexDao;
 
+    @Override
     protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration configuration) {
         final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(configuration, new RoomOpenHelper.Delegate(1923) {
+            @Override
             public void createAllTables(SupportSQLiteDatabase _db) {
                 _db.execSQL("CREATE TABLE IF NOT EXISTS `User` (`uid` INTEGER NOT NULL, `name` TEXT, `lastName` TEXT, `ageColumn` INTEGER NOT NULL, PRIMARY KEY(`uid`))");
                 _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
                 _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"cd8098a1e968898879c194cef2dff8f7\")");
             }
 
+            @Override
             public void dropAllTables(SupportSQLiteDatabase _db) {
                 _db.execSQL("DROP TABLE IF EXISTS `User`");
             }
 
+            @Override
             protected void onCreate(SupportSQLiteDatabase _db) {
                 if (mCallbacks != null) {
                     for (int _i = 0, _size = mCallbacks.size(); _i < _size; _i++) {
@@ -45,6 +49,7 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
                 }
             }
 
+            @Override
             public void onOpen(SupportSQLiteDatabase _db) {
                 mDatabase = _db;
                 internalInitInvalidationTracker(_db);
@@ -55,6 +60,7 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
                 }
             }
 
+            @Override
             protected void validateMigration(SupportSQLiteDatabase _db) {
                 final HashMap<String, TableInfo.Column> _columnsUser = new HashMap<String, TableInfo.Column>(4);
                 _columnsUser.put("uid", new TableInfo.Column("uid", "INTEGER", true, 1));
