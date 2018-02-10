@@ -19,36 +19,40 @@ package android.support.v4.widget;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assume.assumeTrue;
 
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.coreui.test.R;
+import android.support.annotation.NonNull;
+import android.support.customview.test.R;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
-import android.support.v4.BaseInstrumentationTestCase;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.view.View;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.List;
 
 @SmallTest
-public class ExploreByTouchHelperTest extends BaseInstrumentationTestCase<ExploreByTouchHelperTestActivity> {
+@RunWith(AndroidJUnit4.class)
+public class ExploreByTouchHelperTest {
+    @Rule
+    public final ActivityTestRule<ExploreByTouchHelperTestActivity> mActivityTestRule;
+
     private View mHost;
 
     public ExploreByTouchHelperTest() {
-        super(ExploreByTouchHelperTestActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(ExploreByTouchHelperTestActivity.class);
     }
 
     @Before
     public void setUp() {
-        // Accessibility delegates are only supported on API 14+.
-        assumeTrue(Build.VERSION.SDK_INT >= 14);
         mHost = mActivityTestRule.getActivity().findViewById(R.id.host_view);
     }
 
@@ -132,7 +136,8 @@ public class ExploreByTouchHelperTest extends BaseInstrumentationTestCase<Explor
         }
 
         @Override
-        protected void onPopulateNodeForVirtualView(int virtualViewId, AccessibilityNodeInfoCompat node) {
+        protected void onPopulateNodeForVirtualView(int virtualViewId,
+                @NonNull AccessibilityNodeInfoCompat node) {
             if (virtualViewId == 1) {
                 node.setContentDescription("test");
 
@@ -142,7 +147,8 @@ public class ExploreByTouchHelperTest extends BaseInstrumentationTestCase<Explor
         }
 
         @Override
-        protected boolean onPerformActionForVirtualView(int virtualViewId, int action, Bundle arguments) {
+        protected boolean onPerformActionForVirtualView(int virtualViewId, int action,
+                Bundle arguments) {
             return false;
         }
     }

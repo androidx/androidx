@@ -9,7 +9,8 @@ plugins {
 dependencies {
     api(project(":support-annotations"))
     api(project(":support-compat"))
-    api project(':support-core-utils')
+    api(project(":support-core-utils"))
+    api(project(":customview"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)

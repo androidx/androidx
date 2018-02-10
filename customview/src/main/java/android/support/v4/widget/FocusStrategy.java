@@ -19,10 +19,9 @@ package android.support.v4.widget;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.View;
-
 import android.support.v4.view.ViewCompat.FocusRealDirection;
 import android.support.v4.view.ViewCompat.FocusRelativeDirection;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -430,8 +429,7 @@ class FocusStrategy {
             case View.FOCUS_DOWN:
                 // the distance between the center horizontals
                 return Math.abs(
-                        ((source.left + source.width() / 2) -
-                                ((dest.left + dest.width() / 2))));
+                        ((source.left + source.width() / 2) - ((dest.left + dest.width() / 2))));
         }
         throw new IllegalArgumentException("direction must be one of "
                 + "{FOCUS_UP, FOCUS_DOWN, FOCUS_LEFT, FOCUS_RIGHT}.");

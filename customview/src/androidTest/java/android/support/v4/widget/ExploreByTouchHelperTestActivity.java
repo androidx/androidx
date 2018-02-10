@@ -16,12 +16,14 @@
 
 package android.support.v4.widget;
 
-import android.support.coreui.test.R;
-import android.support.v4.BaseTestActivity;
+import android.app.Activity;
+import android.os.Bundle;
+import android.support.customview.test.R;
 
-public class ExploreByTouchHelperTestActivity extends BaseTestActivity {
+public class ExploreByTouchHelperTestActivity extends Activity {
     @Override
-    protected int getContentViewLayoutResId() {
-        return R.layout.explore_by_touch_helper_activity;
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.explore_by_touch_helper_activity);
     }
 }

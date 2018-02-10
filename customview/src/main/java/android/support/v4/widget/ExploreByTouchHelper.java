@@ -1251,8 +1251,8 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
 
         @Override
         public AccessibilityNodeInfoCompat findFocus(int focusType) {
-            int focusedId = (focusType == AccessibilityNodeInfoCompat.FOCUS_ACCESSIBILITY) ?
-                    mAccessibilityFocusedVirtualViewId : mKeyboardFocusedVirtualViewId;
+            int focusedId = (focusType == AccessibilityNodeInfoCompat.FOCUS_ACCESSIBILITY)
+                    ? mAccessibilityFocusedVirtualViewId : mKeyboardFocusedVirtualViewId;
             if (focusedId == INVALID_ID) {
                 return null;
             }
