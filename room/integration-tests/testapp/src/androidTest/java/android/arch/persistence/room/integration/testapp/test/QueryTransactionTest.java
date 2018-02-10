@@ -24,7 +24,6 @@ import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
 import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
@@ -43,7 +42,6 @@ import android.arch.persistence.room.RoomWarnings;
 import android.arch.persistence.room.Transaction;
 import android.arch.persistence.room.paging.LimitOffsetDataSource;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 
@@ -56,7 +54,6 @@ import org.junit.runners.Parameterized;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -72,6 +69,7 @@ import io.reactivex.subscribers.TestSubscriber;
 
 @SmallTest
 @RunWith(Parameterized.class)
+@SuppressWarnings("CheckReturnValue")
 public class QueryTransactionTest {
     @Rule
     public CountingTaskExecutorRule countingTaskExecutorRule = new CountingTaskExecutorRule();
@@ -94,12 +92,8 @@ public class QueryTransactionTest {
 
     @Before
     public void initDb() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
-            }
-        });
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START));
 
         resetTransactionCount();
         mDb = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getTargetContext(),
@@ -110,12 +104,8 @@ public class QueryTransactionTest {
 
     @After
     public void closeDb() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mLifecycleOwner.handleEvent(Lifecycle.Event.ON_DESTROY);
-            }
-        });
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mLifecycleOwner.handleEvent(Lifecycle.Event.ON_DESTROY));
         drain();
         mDb.close();
     }
@@ -292,17 +282,10 @@ public class QueryTransactionTest {
     }
 
     private <T> void observeForever(final LiveData<T> liveData) {
-        FutureTask<Void> futureTask = new FutureTask<>(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                liveData.observe(mLifecycleOwner, new Observer<T>() {
-                    @Override
-                    public void onChanged(@Nullable T t) {
-
-                    }
-                });
-                return null;
-            }
+        FutureTask<Void> futureTask = new FutureTask<>(() -> {
+            liveData.observe(mLifecycleOwner, t -> {
+            });
+            return null;
         });
         ArchTaskExecutor.getMainThreadExecutor().execute(futureTask);
         try {

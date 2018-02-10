@@ -101,6 +101,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
         val scope = CodeGenScope(this)
         return MethodSpec.methodBuilder("createOpenHelper").apply {
             addModifiers(Modifier.PROTECTED)
+            addAnnotation(Override::class.java)
             returns(SupportDbTypeNames.SQLITE_OPEN_HELPER)
 
             val configParam = ParameterSpec.builder(RoomTypeNames.ROOM_DB_CONFIG,
