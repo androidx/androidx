@@ -71,6 +71,7 @@ class RxCallableQueryResultBinder(val rxType: RxType,
             returns(typeArg.typeName())
             addException(Exception::class.typeName())
             addModifiers(Modifier.PUBLIC)
+            addAnnotation(Override::class.java)
             val transactionWrapper = if (inTransaction) {
                 transactionWrapper(dbField)
             } else {
