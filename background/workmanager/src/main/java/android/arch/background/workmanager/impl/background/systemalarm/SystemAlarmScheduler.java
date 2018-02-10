@@ -56,7 +56,7 @@ public class SystemAlarmScheduler implements Scheduler {
     public void cancel(@NonNull String workSpecId) {
         //TODO (rahulrav@) Store mapping alarm ids along / in a separate table
         mCancelledIds.add(workSpecId);
-        Intent cancelIntent = CommandHandler.createCancelWorkIntent(mContext, workSpecId);
+        Intent cancelIntent = CommandHandler.createStopWorkIntent(mContext, workSpecId);
         mContext.startService(cancelIntent);
     }
 

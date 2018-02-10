@@ -21,12 +21,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 /**
  * Tracks whether or not the device's battery level is low.
+ * @hide
  */
-
-class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
 
     private static final String TAG = "BatteryNotLowTracker";
 
@@ -40,7 +42,11 @@ class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
      */
     static final float BATTERY_LOW_PERCENTAGE = 0.15f;
 
-    BatteryNotLowTracker(Context context) {
+    /**
+     * Create an instance of {@link BatteryNotLowTracker}.
+     * @param context The application {@link Context}
+     */
+    public BatteryNotLowTracker(Context context) {
         super(context);
     }
 

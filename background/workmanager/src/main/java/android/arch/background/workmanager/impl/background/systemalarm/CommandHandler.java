@@ -22,6 +22,7 @@ import static android.app.PendingIntent.FLAG_ONE_SHOT;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.arch.background.workmanager.impl.ExecutionListener;
+import android.arch.background.workmanager.impl.constraints.WorkConstraintsTracker;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.IdGenerator;
@@ -32,7 +33,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
+import android.support.annotation.WorkerThread;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,19 +50,18 @@ public class CommandHandler implements ExecutionListener {
     private static final String TAG = "CommandHandler";
 
     // actions
-    private static final String ACTION_SCHEDULE_WORK = "ACTION_SCHEDULE_WORK";
-    private static final String ACTION_DELAY_MET = "ACTION_DELAY_MET";
-    private static final String ACTION_CANCEL_WORK = "ACTION_CANCEL_WORK";
-    private static final String ACTION_CONSTRAINTS_CHANGED = "ACTION_CONSTRAINTS_CHANGED";
+    static final String ACTION_SCHEDULE_WORK = "ACTION_SCHEDULE_WORK";
+    static final String ACTION_DELAY_MET = "ACTION_DELAY_MET";
+    static final String ACTION_STOP_WORK = "ACTION_STOP_WORK";
+    static final String ACTION_CONSTRAINTS_CHANGED = "ACTION_CONSTRAINTS_CHANGED";
 
     // keys
     private static final String KEY_WORKSPEC_ID = "KEY_WORKSPEC_ID";
 
     // constants
-    static final long WORK_PROCESSING_TIME_IN_MS = 10 * 60 * 1000L;;
+    static final long WORK_PROCESSING_TIME_IN_MS = 10 * 60 * 1000L;
 
     // utilities
-
     static Intent createScheduleWorkIntent(@NonNull Context context, @NonNull String workSpecId) {
         Intent intent = new Intent(context, SystemAlarmService.class);
         intent.setAction(ACTION_SCHEDULE_WORK);
@@ -76,9 +76,9 @@ public class CommandHandler implements ExecutionListener {
         return intent;
     }
 
-    static Intent createCancelWorkIntent(@NonNull Context context, @NonNull String workSpecId) {
+    static Intent createStopWorkIntent(@NonNull Context context, @NonNull String workSpecId) {
         Intent intent = new Intent(context, SystemAlarmService.class);
-        intent.setAction(ACTION_CANCEL_WORK);
+        intent.setAction(ACTION_STOP_WORK);
         intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
         return intent;
     }
@@ -104,6 +104,23 @@ public class CommandHandler implements ExecutionListener {
         mLock = new Object();
     }
 
+    @Override
+    public void onExecuted(
+            @NonNull String workSpecId,
+            boolean isSuccessful,
+            boolean needsReschedule) {
+
+        synchronized (mLock) {
+            Logger.debug(TAG, "onExecuted (%s, %s, %s)", workSpecId, isSuccessful, needsReschedule);
+            // This listener is only necessary for knowing when a pending work is complete.
+            // Delegate to the underlying execution listener itself.
+            ExecutionListener listener = mPendingDelayMet.remove(workSpecId);
+            if (listener != null) {
+                listener.onExecuted(workSpecId, isSuccessful, needsReschedule);
+            }
+        }
+    }
+
     /**
      * @return <code>true</code> if there is work pending.
      */
@@ -121,6 +138,7 @@ public class CommandHandler implements ExecutionListener {
     /**
      * The actual command handler.
      */
+    @WorkerThread
     void onHandleIntent(
             @NonNull Intent intent,
             int startId,
@@ -128,21 +146,22 @@ public class CommandHandler implements ExecutionListener {
 
         String action = intent.getAction();
 
-        Bundle extras = intent.getExtras();
-        if (!hasKeys(extras, KEY_WORKSPEC_ID)) {
-            Logger.error(TAG, "Invalid request for %s, requires %s.",
-                    ACTION_SCHEDULE_WORK, KEY_WORKSPEC_ID);
+        if (ACTION_CONSTRAINTS_CHANGED.equals(action)) {
+            handleConstraintsChanged(intent, startId, dispatcher);
         } else {
-            if (ACTION_SCHEDULE_WORK.equals(action)) {
-                handleScheduleWorkIntent(intent, startId, dispatcher);
-            } else if (ACTION_DELAY_MET.equals(action)) {
-                handleDelayMet(intent, startId, dispatcher);
-            } else if (ACTION_CANCEL_WORK.equals(action)) {
-                handleCancelWork(intent, startId, dispatcher);
-            } else if (ACTION_CONSTRAINTS_CHANGED.equals(action)) {
-                handleConstraintsChanged(intent, startId, dispatcher);
+            Bundle extras = intent.getExtras();
+            if (!hasKeys(extras, KEY_WORKSPEC_ID)) {
+                Logger.error(TAG, "Invalid request for %s, requires %s.", action, KEY_WORKSPEC_ID);
             } else {
-                Logger.warn(TAG, "Ignoring intent %s", intent);
+                if (ACTION_SCHEDULE_WORK.equals(action)) {
+                    handleScheduleWorkIntent(intent, startId, dispatcher);
+                } else if (ACTION_DELAY_MET.equals(action)) {
+                    handleDelayMet(intent, startId, dispatcher);
+                } else if (ACTION_STOP_WORK.equals(action)) {
+                    handleStopWork(intent, startId, dispatcher);
+                } else {
+                    Logger.warn(TAG, "Ignoring intent %s", intent);
+                }
             }
         }
     }
@@ -159,20 +178,40 @@ public class CommandHandler implements ExecutionListener {
                 .getWorkDatabase()
                 .workSpecDao()
                 .getWorkSpec(workSpecId);
-        long triggerAt = workSpec.calculateNextRunTime();
-        Intent delayMet = CommandHandler.createDelayMetIntent(mContext, workSpecId);
 
-        if (triggerAt <= System.currentTimeMillis()) {
-            // We should be already processing this worker
-            // Request dispatcher to treat this as a delayMet intent
-            Logger.debug(TAG, "triggerAt is in the past. Processing the worker %s", workSpecId);
-            dispatcher.postOnMainThread(
-                    new SystemAlarmDispatcher.AddRunnable(dispatcher, delayMet, startId));
+        Intent delayMet = CommandHandler.createDelayMetIntent(mContext, workSpecId);
+        if (!workSpec.hasConstraints()) {
+            long triggerAt = workSpec.calculateNextRunTime();
+            if (triggerAt <= System.currentTimeMillis()) {
+                // We should be already processing this worker
+                // Request dispatcher to treat this as a delayMet intent
+                Logger.debug(TAG, "triggerAt is in the past. Processing the worker %s", workSpecId);
+                dispatcher.postOnMainThread(
+                        new SystemAlarmDispatcher.AddRunnable(dispatcher, delayMet, startId));
+            } else {
+                Logger.debug(TAG, "Setting up Alarms for %s", workSpecId);
+                // TODO (rahulrav@) Schedule alarm with an id only if one does not already exist.
+                setExactAlarm(delayMet, triggerAt);
+            }
         } else {
-            // Update constraint proxies for the given workSpec
-            ConstraintProxy.updateAll(mContext, Collections.singletonList(workSpec));
-            Logger.debug(TAG, "Setting up Alarms for %s", workSpecId);
-            setExactAlarm(delayMet, triggerAt);
+            // We have constraints on a workspec
+            WorkConstraintsTracker tracker = new WorkConstraintsTracker(mContext, null);
+            tracker.replace(Collections.singletonList(workSpec));
+            if (tracker.areAllConstraintsMet(workSpecId)) {
+                // TODO(rahulrav@) Schedule an alarm irrespective of whether all constraints
+                // matched. Figure out a better way to do this.
+                Logger.debug(TAG, "Opportunistically setting an alarm for %s", workSpecId);
+                setExactAlarm(delayMet, workSpec.calculateNextRunTime());
+            }
+            // Schedule an update for constraint proxies
+            // This in turn sets enables us to track changes in constraints
+            Intent constraintsUpdate = CommandHandler.createConstraintsChangedIntent(mContext);
+            dispatcher.postOnMainThread(
+                    new SystemAlarmDispatcher.AddRunnable(
+                            dispatcher,
+                            constraintsUpdate,
+                            startId));
+            tracker.reset();
         }
     }
 
@@ -192,7 +231,7 @@ public class CommandHandler implements ExecutionListener {
         }
     }
 
-    private void handleCancelWork(
+    private void handleStopWork(
             @NonNull Intent intent, int startId,
             @NonNull SystemAlarmDispatcher dispatcher) {
 
@@ -200,10 +239,11 @@ public class CommandHandler implements ExecutionListener {
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
         Logger.debug(TAG, "Handing stopWork work for %s", workSpecId);
         // TODO(rahulrav@) Cancel alarm when necessary.
-        // TODO(rahulrav@) This is not a great signal if this was a user initiated cancel.
+        // TODO(rahulrav@) This is not a great signal if this was a user initiated stopWork.
         boolean shouldReschedule = mPendingDelayMet.containsKey(workSpecId);
         // Request background processor to stopWork the worker
-        boolean isStopped = dispatcher.getProcessor().stopWork(workSpecId, true);
+        // TODO(rahulrav@) Call WorkManagerImpl#stopWork() here.
+        dispatcher.getProcessor().stopWork(workSpecId, true);
         // reschedule if necessary
         if (shouldReschedule) {
             Logger.debug(TAG, "WorkSpec %s needs to be rescheduled", workSpecId);
@@ -211,48 +251,30 @@ public class CommandHandler implements ExecutionListener {
             dispatcher.postOnMainThread(
                     new SystemAlarmDispatcher.AddRunnable(dispatcher, reschedule, startId));
         }
-        // If the cancellation was successful, notify dispatcher, so
-        // it can clean up.
-        if (isStopped) {
-            dispatcher.onExecuted(workSpecId, false, shouldReschedule);
-        }
+        // Notify dispatcher, so it can clean up.
+        dispatcher.onExecuted(workSpecId, false, shouldReschedule);
     }
 
     private void handleConstraintsChanged(
             @NonNull Intent intent, int startId,
             @NonNull SystemAlarmDispatcher dispatcher) {
 
-        Logger.debug(TAG, "Handling constraints changed");
-        // TODO(rahulrav@) Enable constraint proxies
+        Logger.debug(TAG, "Handling constraints changed %s", intent);
+        // Constraints changed command handler is synchronous. No cleanup
+        // is necessary.
+        ConstraintsCommandHandler changedCommandHandler =
+                new ConstraintsCommandHandler(mContext, startId, dispatcher);
+        changedCommandHandler.handleConstraintsChanged();
     }
 
-    @VisibleForTesting
     private void setExactAlarm(@NonNull Intent intent, long triggerAtMillis) {
         int alarmId = mIdGenerator.nextAlarmManagerId();
-        PendingIntent pendingIntent =
-                PendingIntent.getService(mContext, alarmId, intent, FLAG_ONE_SHOT);
-
+        PendingIntent pendingIntent = PendingIntent.getService(
+                mContext, alarmId, intent, FLAG_ONE_SHOT);
         if (Build.VERSION.SDK_INT >= 19) {
             mAlarmManager.setExact(RTC_WAKEUP, triggerAtMillis, pendingIntent);
         } else {
             mAlarmManager.set(RTC_WAKEUP, triggerAtMillis, pendingIntent);
-        }
-    }
-
-    @Override
-    public void onExecuted(
-            @NonNull String workSpecId,
-            boolean isSuccessful,
-            boolean needsReschedule) {
-
-        synchronized (mLock) {
-            Logger.debug(TAG, "onExecuted (%s, %s, %s)", workSpecId, isSuccessful, needsReschedule);
-            // This listener is only necessary for knowing when a pending work is complete.
-            // Delegate to the underlying execution listener itself.
-            ExecutionListener listener = mPendingDelayMet.remove(workSpecId);
-            if (listener != null) {
-                listener.onExecuted(workSpecId, isSuccessful, needsReschedule);
-            }
         }
     }
 

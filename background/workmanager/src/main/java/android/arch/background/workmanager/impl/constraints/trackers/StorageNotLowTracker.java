@@ -20,21 +20,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 /**
  * Tracks whether or not the device's storage is low.
+ * @hide
  */
-
-class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
 
     private static final String TAG = "StorageNotLowTracker";
 
-    StorageNotLowTracker(Context context) {
+    /**
+     * Create an instance of {@link StorageNotLowTracker}.
+     * @param context The application {@link Context}
+     */
+    public StorageNotLowTracker(Context context) {
         super(context);
     }
 
     @Override
-    protected Boolean getInitialState() {
+    public Boolean getInitialState() {
         Intent intent = mAppContext.registerReceiver(null, getIntentFilter());
         if (intent == null || intent.getAction() == null) {
             // ACTION_DEVICE_STORAGE_LOW is a sticky broadcast that is removed when sufficient

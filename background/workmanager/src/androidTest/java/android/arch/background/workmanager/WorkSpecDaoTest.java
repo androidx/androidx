@@ -19,12 +19,14 @@ package android.arch.background.workmanager;
 import static android.arch.background.workmanager.State.SUCCEEDED;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 
 import android.arch.background.workmanager.impl.model.Dependency;
 import android.arch.background.workmanager.impl.model.DependencyDao;
+import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkSpecDao;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.support.test.filters.SmallTest;
@@ -32,6 +34,9 @@ import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkSpecDaoTest extends DatabaseTest {
@@ -97,5 +102,30 @@ public class WorkSpecDaoTest extends DatabaseTest {
         result = workSpecDao.pruneLeaves();
         assertThat(result, is(0));
         assertThat(workSpecDao.getWorkSpec(enqueuedWork.getId()), is(not(nullValue())));
+    }
+
+    @Test
+    @SmallTest
+    public void testSystemAlarmEligibleWorkSpecs() {
+        long startTime = System.currentTimeMillis();
+        Work work = new Work.Builder(TestWorker.class)
+                .withPeriodStartTime(startTime + TimeUnit.HOURS.toMillis(1))
+                .build();
+        Work succeeded = new Work.Builder(TestWorker.class)
+                .withPeriodStartTime(startTime)
+                .withInitialState(SUCCEEDED)
+                .build();
+        Work enqueued = new Work.Builder(TestWorker.class)
+                .withPeriodStartTime(startTime)
+                .build();
+
+        insertWork(work);
+        insertWork(succeeded);
+        insertWork(enqueued);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        List<WorkSpec> eligibleWorkSpecs = workSpecDao.getSystemAlarmEligibleWorkSpecs(startTime);
+        assertThat(eligibleWorkSpecs.size(), equalTo(1));
+        assertThat(eligibleWorkSpecs.get(0).getId(), equalTo(enqueued.getId()));
     }
 }

@@ -28,6 +28,7 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
 import android.support.v4.net.ConnectivityManagerCompat;
 
 /**
@@ -41,7 +42,9 @@ import android.support.v4.net.ConnectivityManagerCompat;
  * <p>
  * Based on {@link android.app.job.JobScheduler}'s ConnectivityController on API 26.
  * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/job/controllers/ConnectivityController.java}
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     private static final String TAG = "NetworkStateTracker";
 
@@ -51,7 +54,11 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     private NetworkStateCallback mNetworkCallback;
     private NetworkStateBroadcastReceiver mBroadcastReceiver;
 
-    NetworkStateTracker(Context context) {
+    /**
+     * Create an instance of {@link NetworkStateTracker}
+     * @param context the application {@link Context}
+     */
+    public NetworkStateTracker(Context context) {
         super(context);
         mConnectivityManager =
                 (ConnectivityManager) mAppContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -63,7 +70,7 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     }
 
     @Override
-    protected NetworkState getInitialState() {
+    public NetworkState getInitialState() {
         return getActiveNetworkState();
     }
 

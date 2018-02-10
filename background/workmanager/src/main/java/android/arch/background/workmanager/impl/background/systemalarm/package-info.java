@@ -17,4 +17,7 @@
 /**
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package android.arch.background.workmanager.impl.background.systemalarm;
+
+import android.support.annotation.RestrictTo;

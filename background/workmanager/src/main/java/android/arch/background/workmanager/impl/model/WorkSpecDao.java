@@ -170,11 +170,12 @@ public interface WorkSpecDao {
     /**
      * Retrieves {@link WorkSpec}s that have state {@code ENQUEUED} or {@code RUNNING}
      *
-     * @return A {@link LiveData} list of {@link WorkSpec}s.
+     * @return A list of {@link WorkSpec}s.
      */
-    @Query("SELECT * FROM workspec WHERE state=" + EnumTypeConverters.StateIds.ENQUEUED
-            + " OR state=" + EnumTypeConverters.StateIds.RUNNING)
-    LiveData<List<WorkSpec>> getSystemAlarmEligibleWorkSpecs();
+    @Query("SELECT * FROM workspec WHERE (state=" + EnumTypeConverters.StateIds.ENQUEUED
+            + " OR state=" + EnumTypeConverters.StateIds.RUNNING
+            + ") AND period_start_time<=:startTime")
+    List<WorkSpec> getSystemAlarmEligibleWorkSpecs(long startTime);
 
     /**
      * Gets all inputs coming from prerequisites for a particular {@link WorkSpec}.  These are

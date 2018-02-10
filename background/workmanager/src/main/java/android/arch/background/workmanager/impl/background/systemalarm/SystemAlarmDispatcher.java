@@ -60,8 +60,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     // The executor service responsible for dispatching all the commands.
     private final ExecutorService mCommandExecutorService;
 
-    @Nullable
-    private CommandsCompletedListener mCompletedListener;
+    @Nullable private CommandsCompletedListener mCompletedListener;
 
     SystemAlarmDispatcher(@NonNull Context context) {
         this(context, null, null);
@@ -104,8 +103,14 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         postOnMainThread(new CheckForCompletionRunnable(this));
     }
 
+    /**
+     * Adds the {@link Intent} intent and the startId to the command processor queue.
+     *
+     * @param intent The {@link Intent} command that needs to be added to the command queue.
+     * @param startId The command startId
+     */
     @MainThread
-    void add(@NonNull final Intent intent, final int startId) {
+    public void add(@NonNull final Intent intent, final int startId) {
         assertMainThread();
         String action = intent.getAction();
         if (TextUtils.isEmpty(action)) {
