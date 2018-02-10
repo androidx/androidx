@@ -75,6 +75,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
     private fun createValidateMigration(scope: CodeGenScope): MethodSpec {
         return MethodSpec.methodBuilder("validateMigration").apply {
             addModifiers(PROTECTED)
+            addAnnotation(Override::class.java)
             val dbParam = ParameterSpec.builder(SupportDbTypeNames.DB, "_db").build()
             addParameter(dbParam)
             database.entities.forEach { entity ->
@@ -88,6 +89,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
     private fun createOnCreate(scope: CodeGenScope): MethodSpec {
         return MethodSpec.methodBuilder("onCreate").apply {
             addModifiers(PROTECTED)
+            addAnnotation(Override::class.java)
             addParameter(SupportDbTypeNames.DB, "_db")
             invokeCallbacks(scope, "onCreate")
         }.build()
@@ -96,6 +98,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
     private fun createOnOpen(scope: CodeGenScope): MethodSpec {
         return MethodSpec.methodBuilder("onOpen").apply {
             addModifiers(PUBLIC)
+            addAnnotation(Override::class.java)
             addParameter(SupportDbTypeNames.DB, "_db")
             addStatement("mDatabase = _db")
             if (database.enableForeignKeys) {
@@ -109,6 +112,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
     private fun createCreateAllTables(): MethodSpec {
         return MethodSpec.methodBuilder("createAllTables").apply {
             addModifiers(PUBLIC)
+            addAnnotation(Override::class.java)
             addParameter(SupportDbTypeNames.DB, "_db")
             database.bundle.buildCreateQueries().forEach {
                 addStatement("_db.execSQL($S)", it)
@@ -119,6 +123,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
     private fun createDropAllTables(): MethodSpec {
         return MethodSpec.methodBuilder("dropAllTables").apply {
             addModifiers(PUBLIC)
+            addAnnotation(Override::class.java)
             addParameter(SupportDbTypeNames.DB, "_db")
             database.entities.forEach {
                 addStatement("_db.execSQL($S)", createDropTableQuery(it))
