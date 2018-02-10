@@ -3126,7 +3126,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         TestAdapter testAdapter = new TestAdapter(itemLayoutCount * 2);
         rv.setAdapter(testAdapter);
 
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final CountDownLatch countDownLatch = new CountDownLatch(eventCount);
         final AtomicInteger actualInitialScrollDx = new AtomicInteger(0);
         final AtomicInteger actualInitialScrollDy = new AtomicInteger(0);
 
