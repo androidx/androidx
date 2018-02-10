@@ -17,21 +17,19 @@
 package android.support.v7.recyclerview.extensions;
 
 import android.arch.lifecycle.LiveData;
-import android.support.annotation.RestrictTo;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
-import android.support.v7.widget.RecyclerView;
 
 import java.util.List;
 
 /**
- * Helper object for displaying a List in {@link RecyclerView.Adapter RecyclerView.Adapter}, which
- * signals the adapter of changes when the List is changed by computing changes with DiffUtil in the
- * background.
+ * Helper object for displaying a List in {@link android.support.v7.widget.RecyclerView.Adapter
+ * RecyclerView.Adapter}, which signals the adapter of changes when the List is changed by computing
+ * changes with DiffUtil in the background.
  * <p>
- * For simplicity, the {@link ListAdapter} wrapper class can often be used instead of the
- * helper directly. This helper class is exposed for complex cases, and where overriding an adapter
- * base class to support List diffing isn't convenient.
+ * For simplicity, the {@link android.support.v7.recyclerview.extensions.ListAdapter} wrapper class
+ * can often be used instead of the helper directly. This helper class is exposed for complex cases,
+ * and where overriding an adapter base class to support List diffing isn't convenient.
  * <p>
  * The ListAdapterHelper can take a {@link LiveData} of List and present the data simply for an
  * adapter. It computes differences in List contents via DiffUtil on a background thread as new
@@ -39,68 +37,13 @@ import java.util.List;
  * <p>
  * It provides a simple list-like API with {@link #getItem(int)} and {@link #getItemCount()} for an
  * adapter to acquire and present data objects.
- * <p>
- * A complete usage pattern with Room would look like this:
- * <pre>
- * {@literal @}Dao
- * interface UserDao {
- *     {@literal @}Query("SELECT * FROM user ORDER BY lastName ASC")
- *     public abstract LiveData&lt;List&lt;User>> usersByLastName();
- * }
- *
- * class MyViewModel extends ViewModel {
- *     public final LiveData&lt;List&lt;User>> usersList;
- *     public MyViewModel(UserDao userDao) {
- *         usersList = userDao.usersByLastName();
- *     }
- * }
- *
- * class MyActivity extends AppCompatActivity {
- *     {@literal @}Override
- *     public void onCreate(Bundle savedState) {
- *         super.onCreate(savedState);
- *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
- *         RecyclerView recyclerView = findViewById(R.id.user_list);
- *         UserAdapter&lt;User> adapter = new UserAdapter();
- *         viewModel.usersList.observe(this, list -> adapter.setList(list));
- *         recyclerView.setAdapter(adapter);
- *     }
- * }
- *
- * class UserAdapter extends RecyclerView.Adapter&lt;UserViewHolder> {
- *     private final ListAdapterHelper&lt;User> mHelper
- *             = new ListAdapterHelper(this, User.DIFF_CALLBACK);
- *     {@literal @}Override
- *     public int getItemCount() {
- *         return mHelper.getItemCount();
- *     }
- *     public void setList(List&lt;User> list) {
- *         mHelper.setList(list);
- *     }
- *     {@literal @}Override
- *     public void onBindViewHolder(UserViewHolder holder, int position) {
- *         User user = mHelper.getItem(position);
- *         holder.bindTo(user);
- *     }
- *     public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;User>() {
- *         {@literal @}Override
- *         public boolean areItemsTheSame(
- *                 {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
- *             // User properties may have changed if reloaded from the DB, but ID is fixed
- *             return oldUser.getId() == newUser.getId();
- *         }
- *         {@literal @}Override
- *         public boolean areContentsTheSame(
- *                 {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
- *             // NOTE: if you use equals, your object must properly override Object#equals()
- *             // Incorrectly returning false here will result in too many animations.
- *             return oldUser.equals(newUser);
- *         }
- *     }
- * }</pre>
  *
  * @param <T> Type of the lists this helper will receive.
+ * @deprecated use {@link android.support.v7.recyclerview.extensions.AsyncListDiffer} in the
+ * RecyclerView module, starting in 27.1.0. It is being moved from the Paging Library to
+ * RecyclerView since it is useful independent of paging.
  */
+@Deprecated
 public class ListAdapterHelper<T> {
     private final ListUpdateCallback mUpdateCallback;
     private final ListAdapterConfig<T> mConfig;
@@ -110,42 +53,6 @@ public class ListAdapterHelper<T> {
             ListAdapterConfig<T> config) {
         mUpdateCallback = listUpdateCallback;
         mConfig = config;
-    }
-
-    /**
-     * Default ListUpdateCallback that dispatches directly to an adapter. Can be replaced by a
-     * custom ListUpdateCallback if e.g. your adapter has a header in it, and so has an offset
-     * between list positions and adapter positions.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static class AdapterCallback implements ListUpdateCallback {
-        private final RecyclerView.Adapter mAdapter;
-
-        public AdapterCallback(RecyclerView.Adapter adapter) {
-            mAdapter = adapter;
-        }
-
-        @Override
-        public void onInserted(int position, int count) {
-            mAdapter.notifyItemRangeInserted(position, count);
-        }
-
-        @Override
-        public void onRemoved(int position, int count) {
-            mAdapter.notifyItemRangeRemoved(position, count);
-        }
-
-        @Override
-        public void onMoved(int fromPosition, int toPosition) {
-            mAdapter.notifyItemMoved(fromPosition, toPosition);
-        }
-
-        @Override
-        public void onChanged(int position, int count, Object payload) {
-            mAdapter.notifyItemRangeChanged(position, count, payload);
-        }
     }
 
     private List<T> mList;
@@ -171,7 +78,7 @@ public class ListAdapterHelper<T> {
 
     /**
      * Get the number of items currently presented by this AdapterHelper. This value can be directly
-     * returned to {@link RecyclerView.Adapter#getItemCount()}.
+     * returned to {@link android.support.v7.widget.RecyclerView.Adapter#getItemCount()}.
      *
      * @return Number of items being presented.
      */

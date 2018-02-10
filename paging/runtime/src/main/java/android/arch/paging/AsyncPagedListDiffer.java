@@ -17,10 +17,10 @@
 package android.arch.paging;
 
 import android.arch.lifecycle.LiveData;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.recyclerview.extensions.DiffCallback;
-import android.support.v7.recyclerview.extensions.ListAdapterConfig;
-import android.support.v7.recyclerview.extensions.ListAdapterHelper;
+import android.support.v7.recyclerview.extensions.AsyncDifferConfig;
+import android.support.v7.util.AdapterListUpdateCallback;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 import android.support.v7.widget.RecyclerView;
@@ -36,7 +36,7 @@ import android.support.v7.widget.RecyclerView;
  * Both the internal paging of the list as more data is loaded, and updates in the form of new
  * PagedLists.
  * <p>
- * The PagedListAdapterHelper can be bound to a {@link LiveData} of PagedList and present the data
+ * The AsyncPagedListDiffer can be bound to a {@link LiveData} of PagedList and present the data
  * simply for an adapter. It listens to PagedList loading callbacks, and uses DiffUtil on a
  * background thread to compute updates as new PagedLists are received.
  * <p>
@@ -66,28 +66,28 @@ import android.support.v7.widget.RecyclerView;
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
  *         final UserAdapter&lt;User> adapter = new UserAdapter();
- *         viewModel.usersList.observe(this, pagedList -> adapter.setList(pagedList));
+ *         viewModel.usersList.observe(this, pagedList -> adapter.submitList(pagedList));
  *         recyclerView.setAdapter(adapter);
  *     }
  * }
  *
  * class UserAdapter extends RecyclerView.Adapter&lt;UserViewHolder> {
- *     private final PagedListAdapterHelper&lt;User> mHelper
- *             = new PagedListAdapterHelper(this, DIFF_CALLBACK);
+ *     private final AsyncPagedListDiffer&lt;User> mDiffer
+ *             = new AsyncPagedListDiffer(this, DIFF_CALLBACK);
  *     {@literal @}Override
  *     public int getItemCount() {
- *         return mHelper.getItemCount();
+ *         return mDiffer.getItemCount();
  *     }
- *     public void setList(PagedList&lt;User> pagedList) {
- *         mHelper.setList(pagedList);
+ *     public void submitList(PagedList&lt;User> pagedList) {
+ *         mDiffer.submitList(pagedList);
  *     }
  *     {@literal @}Override
  *     public void onBindViewHolder(UserViewHolder holder, int position) {
- *         User user = mHelper.getItem(position);
+ *         User user = mDiffer.getItem(position);
  *         if (user != null) {
  *             holder.bindTo(user);
  *         } else {
- *             // Null defines a placeholder item - PagedListAdapterHelper will automatically
+ *             // Null defines a placeholder item - AsyncPagedListDiffer will automatically
  *             // invalidate this row when the actual object is loaded from the database
  *             holder.clear();
  *         }
@@ -111,11 +111,11 @@ import android.support.v7.widget.RecyclerView;
  *
  * @param <T> Type of the PagedLists this helper will receive.
  */
-public class PagedListAdapterHelper<T> {
+public class AsyncPagedListDiffer<T> {
     // updateCallback notifications must only be notified *after* new data and item count are stored
     // this ensures Adapter#notifyItemRangeInserted etc are accessing the new data
     private final ListUpdateCallback mUpdateCallback;
-    private final ListAdapterConfig<T> mConfig;
+    private final AsyncDifferConfig<T> mConfig;
 
     // TODO: REAL API
     interface PagedListListener<T> {
@@ -134,21 +134,23 @@ public class PagedListAdapterHelper<T> {
     private int mMaxScheduledGeneration;
 
     /**
-     * Convenience for {@code PagedListAdapterHelper(new ListAdapterHelper.AdapterCallback(adapter),
-     * new ListAdapterConfig.Builder<T>().setDiffCallback(diffCallback).build());
+     * Convenience for {@code AsyncPagedListDiffer(new AdapterListUpdateCallback(adapter),
+     * new AsyncDifferConfig.Builder<T>(diffCallback).build();}
      *
      * @param adapter Adapter that will receive update signals.
-     * @param diffCallback The {@link DiffCallback } instance to compare items in the list.
+     * @param diffCallback The {@link DiffUtil.ItemCallback DiffUtil.ItemCallback} instance to
+     * compare items in the list.
      */
     @SuppressWarnings("WeakerAccess")
-    public PagedListAdapterHelper(RecyclerView.Adapter adapter, DiffCallback<T> diffCallback) {
-        mUpdateCallback = new ListAdapterHelper.AdapterCallback(adapter);
-        mConfig = new ListAdapterConfig.Builder<T>().setDiffCallback(diffCallback).build();
+    public AsyncPagedListDiffer(@NonNull RecyclerView.Adapter adapter,
+            @NonNull DiffUtil.ItemCallback<T> diffCallback) {
+        mUpdateCallback = new AdapterListUpdateCallback(adapter);
+        mConfig = new AsyncDifferConfig.Builder<T>(diffCallback).build();
     }
 
     @SuppressWarnings("WeakerAccess")
-    public PagedListAdapterHelper(ListUpdateCallback listUpdateCallback,
-            ListAdapterConfig<T> config) {
+    public AsyncPagedListDiffer(@NonNull ListUpdateCallback listUpdateCallback,
+            @NonNull AsyncDifferConfig<T> config) {
         mUpdateCallback = listUpdateCallback;
         mConfig = config;
     }
@@ -219,7 +221,7 @@ public class PagedListAdapterHelper<T> {
      *
      * @param pagedList The new PagedList.
      */
-    public void setList(final PagedList<T> pagedList) {
+    public void submitList(final PagedList<T> pagedList) {
         if (pagedList != null) {
             if (mPagedList == null && mSnapshot == null) {
                 mIsContiguous = pagedList.isContiguous();
@@ -285,6 +287,7 @@ public class PagedListAdapterHelper<T> {
         final PagedList<T> newSnapshot = (PagedList<T>) pagedList.snapshot();
         mConfig.getBackgroundThreadExecutor().execute(new Runnable() {
             @Override
+            @SuppressWarnings("RestrictedApi")
             public void run() {
                 final DiffUtil.DiffResult result;
                 result = PagedStorageDiffHelper.computeDiff(
@@ -328,9 +331,9 @@ public class PagedListAdapterHelper<T> {
     /**
      * Returns the list currently being displayed by the AdapterHelper.
      * <p>
-     * This is not necessarily the most recent list passed to {@link #setList(PagedList)}, because a
-     * diff is computed asynchronously between the new list and the current list before updating the
-     * currentList value.
+     * This is not necessarily the most recent list passed to {@link #submitList(PagedList)},
+     * because a diff is computed asynchronously between the new list and the current list before
+     * updating the currentList value.
      *
      * @return The list currently being displayed.
      */
