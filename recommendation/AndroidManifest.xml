@@ -13,7 +13,4 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.recommendation">
-    <uses-sdk android:minSdkVersion="21"/>
-</manifest>
+<manifest package="android.support.recommendation"/>
