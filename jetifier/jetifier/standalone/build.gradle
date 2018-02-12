@@ -28,3 +28,10 @@ dependencies {
     compile group: 'commons-cli', name: 'commons-cli', version: '1.3.1'
 }
 
+task dist(type: Copy) {
+  from project.tasks.findByPath("distZip") // defined by application plugin
+
+  destinationDir rootProject.distDir // defined by support library plugin
+}
+rootProject.tasks["buildOnServer"].dependsOn(dist)
+
