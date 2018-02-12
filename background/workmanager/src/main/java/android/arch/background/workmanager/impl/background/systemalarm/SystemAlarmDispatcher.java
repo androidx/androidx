@@ -108,19 +108,31 @@ public class SystemAlarmDispatcher implements ExecutionListener {
      *
      * @param intent The {@link Intent} command that needs to be added to the command queue.
      * @param startId The command startId
+     * @return <code>true</code> when the command was added to the command processor queue.
      */
     @MainThread
-    public void add(@NonNull final Intent intent, final int startId) {
+    public boolean add(@NonNull final Intent intent, final int startId) {
         assertMainThread();
         String action = intent.getAction();
         if (TextUtils.isEmpty(action)) {
             Logger.warn(TAG, "Unknown command. Ignoring");
-            return;
+            return false;
         }
+
+        // If we have a constraints changed intent in the queue don't add a second one. We are
+        // treating this intent as special because every time a worker with constraints is complete
+        // it kicks off an update for constraint proxies.
+        if (CommandHandler.ACTION_CONSTRAINTS_CHANGED.equals(action)
+                && hasIntentWithAction(CommandHandler.ACTION_CONSTRAINTS_CHANGED)) {
+            Logger.debug(TAG, "Ignoring an add for %s", CommandHandler.ACTION_CONSTRAINTS_CHANGED);
+            return false;
+        }
+
         intent.putExtra(KEY_START_ID, startId);
         Logger.debug(TAG, "Adding intent to the queue %s, %s", intent, startId);
         mIntents.add(intent);
         processCommand();
+        return true;
     }
 
     void setCompletedListener(@NonNull CommandsCompletedListener listener) {
@@ -214,6 +226,17 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         } finally {
             processCommandLock.release();
         }
+    }
+
+    @MainThread
+    private boolean hasIntentWithAction(@NonNull String action) {
+        assertMainThread();
+        for (Intent intent : mIntents) {
+            if (action.equals(intent.getAction())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void assertMainThread() {
