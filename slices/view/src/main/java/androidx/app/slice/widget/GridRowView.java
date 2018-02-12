@@ -162,6 +162,13 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     }
 
     private void populateViews(GridContent gc) {
+        if (gc.getContentIntent() != null) {
+            EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
+                    EventInfo.ROW_TYPE_GRID, mRowIndex);
+            Pair<SliceItem, EventInfo> tagItem = new Pair(gc.getContentIntent(), info);
+            mViewContainer.setTag(tagItem);
+            makeClickable(mViewContainer);
+        }
         mIsAllImages = gc.isAllImages();
         ArrayList<GridContent.CellContent> cells = gc.getGridContent();
         final int max = mIsAllImages ? MAX_IMAGES : MAX_ALL;

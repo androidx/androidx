@@ -179,6 +179,14 @@ public class GridBuilder extends TemplateSliceBuilder {
         return this;
     }
 
+    /**
+     * Sets the intent to send when the slice is activated.
+     */
+    @NonNull
+    public GridBuilder setPrimaryAction(@NonNull SliceAction action) {
+        mImpl.setPrimaryAction(action);
+        return this;
+    }
 
     /**
      * @hide

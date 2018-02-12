@@ -27,6 +27,7 @@ import android.support.annotation.RestrictTo;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceSpec;
+import androidx.app.slice.builders.SliceAction;
 
 
 /**
@@ -72,6 +73,12 @@ public class GridBuilderBasicImpl extends TemplateBuilderImpl implements GridBui
      */
     @Override
     public void addSeeMoreAction(PendingIntent intent) {
+    }
+
+    /**
+     */
+    @Override
+    public void setPrimaryAction(SliceAction action) {
     }
 
     /**

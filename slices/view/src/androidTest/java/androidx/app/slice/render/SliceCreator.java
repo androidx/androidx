@@ -98,7 +98,11 @@ public class SliceCreator {
     }
 
     private Slice createWeather(Uri sliceUri) {
+        SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
+                "open weather app"), Icon.createWithResource(getContext(), R.drawable.weather_1),
+                "Weather is happening!");
         GridBuilder b = new GridBuilder(getContext(), sliceUri);
+        b.setPrimaryAction(primaryAction);
         return b.addCell(new GridBuilder.CellBuilder(b)
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
                         .addText("MON")

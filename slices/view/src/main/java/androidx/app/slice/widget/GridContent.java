@@ -16,6 +16,9 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_SHORTCUT;
+import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -24,6 +27,7 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import java.util.ArrayList;
@@ -40,8 +44,9 @@ import androidx.app.slice.core.SliceQuery;
 public class GridContent {
 
     private boolean mAllImages;
-    public SliceItem mColorItem;
-    public ArrayList<CellContent> mGridContent = new ArrayList<>();
+    private SliceItem mColorItem;
+    private SliceItem mPrimaryAction;
+    private ArrayList<CellContent> mGridContent = new ArrayList<>();
 
     public GridContent(SliceItem gridItem) {
         populate(gridItem);
@@ -58,9 +63,13 @@ public class GridContent {
     public boolean populate(SliceItem gridItem) {
         reset();
         mColorItem = SliceQuery.findSubtype(gridItem, FORMAT_INT, SUBTYPE_COLOR);
+        String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};
+        mPrimaryAction = SliceQuery.find(gridItem, FORMAT_SLICE, hints,
+                new String[] {HINT_ACTIONS} /* nonHints */);
         mAllImages = true;
         if (FORMAT_SLICE.equals(gridItem.getFormat())) {
             List<SliceItem> items = gridItem.getSlice().getItems();
+            items = filterInvalidItems(items);
             // Check if it it's only one item that is a slice
             if (items.size() == 1 && items.get(0).getFormat().equals(FORMAT_SLICE)) {
                 items = items.get(0).getSlice().getItems();
@@ -99,6 +108,14 @@ public class GridContent {
     }
 
     /**
+     * @return the content intent item for this grid.
+     */
+    @Nullable
+    public SliceItem getContentIntent() {
+        return mPrimaryAction;
+    }
+
+    /**
      * @return whether this grid has content that is valid to display.
      */
     public boolean isValid() {
@@ -110,6 +127,17 @@ public class GridContent {
      */
     public boolean isAllImages() {
         return mAllImages;
+    }
+
+    private List<SliceItem> filterInvalidItems(List<SliceItem> items) {
+        List<SliceItem> filteredItems = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            SliceItem item = items.get(i);
+            if (!item.hasHint(HINT_SHORTCUT)) {
+                filteredItems.add(item);
+            }
+        }
+        return filteredItems;
     }
 
     /**
@@ -130,7 +158,8 @@ public class GridContent {
          */
         public boolean populate(SliceItem cellItem) {
             final String format = cellItem.getFormat();
-            if (FORMAT_SLICE.equals(format) || FORMAT_ACTION.equals(format)) {
+            if (!cellItem.hasHint(HINT_SHORTCUT)
+                    && (FORMAT_SLICE.equals(format) || FORMAT_ACTION.equals(format))) {
                 List<SliceItem> items = cellItem.getSlice().getItems();
                 // If we've only got one item that's a slice / action use those items instead
                 if (items.size() == 1 && (FORMAT_ACTION.equals(items.get(0).getFormat())
