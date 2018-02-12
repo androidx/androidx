@@ -202,8 +202,22 @@ public class WorkerWrapper implements Runnable {
     }
 
     private void setFailedAndNotify() {
-        mWorkSpecDao.setState(FAILED, mWorkSpecId);
-        notifyListener(false, false);
+        mWorkDatabase.beginTransaction();
+        try {
+            mWorkSpecDao.setState(FAILED, mWorkSpecId);
+            // This could be a permanent error where we couldn't find or create the worker class.
+            if (mWorker != null) {
+                // Update Arguments as necessary.
+                Arguments outputArgs = mWorker.getOutput();
+                if (outputArgs != null) {
+                    mWorkSpecDao.setOutput(mWorkSpecId, outputArgs);
+                }
+            }
+            mWorkDatabase.setTransactionSuccessful();
+        } finally {
+            mWorkDatabase.endTransaction();
+            notifyListener(false, false);
+        }
     }
 
     private void rescheduleAndNotify(boolean isSuccessful) {
