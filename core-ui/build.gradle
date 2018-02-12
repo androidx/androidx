@@ -13,6 +13,7 @@ dependencies {
     api(project(":customview"))
     api(project(":viewpager"))
     api(project(":coordinatorlayout"))
+    api(project(":drawerlayout"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)

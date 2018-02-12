@@ -19,6 +19,7 @@ package android.support.v4.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -964,6 +965,7 @@ public class DrawerLayout extends ViewGroup {
         mFirstLayout = true;
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
