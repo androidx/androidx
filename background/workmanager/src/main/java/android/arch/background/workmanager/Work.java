@@ -36,7 +36,7 @@ public abstract class Work implements BaseWork {
      * @param workerClasses An array of {@link Worker} class names
      * @return A list of {@link Work} constructed by using defaults in the {@link Builder}
      */
-    public static @NonNull List<? extends BaseWork> from(
+    @SafeVarargs public static @NonNull List<Work> from(
             @NonNull Class<? extends Worker>... workerClasses) {
         return from(Arrays.asList(workerClasses));
     }
@@ -47,7 +47,7 @@ public abstract class Work implements BaseWork {
      * @param workerClasses A list of {@link Worker} class names
      * @return A list of {@link Work} constructed by using defaults in the {@link Builder}
      */
-    public static @NonNull List<? extends Work> from(
+    public static @NonNull List<Work> from(
             @NonNull List<Class<? extends Worker>> workerClasses) {
         List<Work> workList = new ArrayList<>(workerClasses.size());
         for (Class<? extends Worker> workerClass : workerClasses) {
