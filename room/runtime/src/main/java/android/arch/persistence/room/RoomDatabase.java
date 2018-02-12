@@ -16,6 +16,8 @@
 
 package android.arch.persistence.room;
 
+import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteDatabase;
@@ -26,10 +28,13 @@ import android.arch.persistence.db.framework.FrameworkSQLiteOpenHelperFactory;
 import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Build;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+import android.support.v4.app.ActivityManagerCompat;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.Log;
 
@@ -66,6 +71,7 @@ public abstract class RoomDatabase {
     private SupportSQLiteOpenHelper mOpenHelper;
     private final InvalidationTracker mInvalidationTracker;
     private boolean mAllowMainThreadQueries;
+    boolean mWriteAheadLoggingEnabled;
 
     @Nullable
     protected List<Callback> mCallbacks;
@@ -101,8 +107,14 @@ public abstract class RoomDatabase {
     @CallSuper
     public void init(@NonNull DatabaseConfiguration configuration) {
         mOpenHelper = createOpenHelper(configuration);
+        boolean wal = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            wal = configuration.journalMode == JournalMode.WRITE_AHEAD_LOGGING;
+            mOpenHelper.setWriteAheadLoggingEnabled(wal);
+        }
         mCallbacks = configuration.callbacks;
         mAllowMainThreadQueries = configuration.allowMainThreadQueries;
+        mWriteAheadLoggingEnabled = wal;
     }
 
     /**
@@ -319,6 +331,53 @@ public abstract class RoomDatabase {
     }
 
     /**
+     * Journal modes for SQLite database.
+     *
+     * @see RoomDatabase.Builder#setJournalMode(JournalMode)
+     */
+    public enum JournalMode {
+
+        /**
+         * Let Room choose the journal mode. This is the default value when no explicit value is
+         * specified.
+         * <p>
+         * The actual value will be {@link #TRUNCATE} when the device runs API Level lower than 16
+         * or it is a low-RAM device. Otherwise, {@link #WRITE_AHEAD_LOGGING} will be used.
+         */
+        AUTOMATIC,
+
+        /**
+         * Truncate journal mode.
+         */
+        TRUNCATE,
+
+        /**
+         * Write-Ahead Logging mode.
+         */
+        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+        WRITE_AHEAD_LOGGING;
+
+        /**
+         * Resolves {@link #AUTOMATIC} to either {@link #TRUNCATE} or
+         * {@link #WRITE_AHEAD_LOGGING}.
+         */
+        @SuppressLint("NewApi")
+        JournalMode resolve(Context context) {
+            if (this != AUTOMATIC) {
+                return this;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                ActivityManager manager = (ActivityManager)
+                        context.getSystemService(Context.ACTIVITY_SERVICE);
+                if (manager != null && !ActivityManagerCompat.isLowRamDevice(manager)) {
+                    return WRITE_AHEAD_LOGGING;
+                }
+            }
+            return TRUNCATE;
+        }
+    }
+
+    /**
      * Builder for RoomDatabase.
      *
      * @param <T> The type of the abstract database class.
@@ -331,6 +390,7 @@ public abstract class RoomDatabase {
 
         private SupportSQLiteOpenHelper.Factory mFactory;
         private boolean mAllowMainThreadQueries;
+        private JournalMode mJournalMode;
         private boolean mRequireMigration;
         /**
          * Migrations, mapped by from-to pairs.
@@ -348,6 +408,7 @@ public abstract class RoomDatabase {
             mContext = context;
             mDatabaseClass = klass;
             mName = name;
+            mJournalMode = JournalMode.AUTOMATIC;
             mRequireMigration = true;
             mMigrationContainer = new MigrationContainer();
         }
@@ -413,6 +474,27 @@ public abstract class RoomDatabase {
         @NonNull
         public Builder<T> allowMainThreadQueries() {
             mAllowMainThreadQueries = true;
+            return this;
+        }
+
+        /**
+         * Sets the journal mode for this database.
+         *
+         * <p>
+         * This value is ignored if the builder is initialized with
+         * {@link Room#inMemoryDatabaseBuilder(Context, Class)}.
+         * <p>
+         * The journal mode should be consistent across multiple instances of
+         * {@link RoomDatabase} for a single SQLite database file.
+         * <p>
+         * The default value is {@link JournalMode#AUTOMATIC}.
+         *
+         * @param journalMode The journal mode.
+         * @return this
+         */
+        @NonNull
+        public Builder<T> setJournalMode(@NonNull JournalMode journalMode) {
+            mJournalMode = journalMode;
             return this;
         }
 
@@ -523,8 +605,9 @@ public abstract class RoomDatabase {
             }
             DatabaseConfiguration configuration =
                     new DatabaseConfiguration(mContext, mName, mFactory, mMigrationContainer,
-                            mCallbacks, mAllowMainThreadQueries, mRequireMigration,
-                            mMigrationsNotRequiredFrom);
+                            mCallbacks, mAllowMainThreadQueries,
+                            mJournalMode.resolve(mContext),
+                            mRequireMigration, mMigrationsNotRequiredFrom);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
