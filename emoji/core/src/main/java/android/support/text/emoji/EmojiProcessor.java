@@ -171,6 +171,15 @@ final class EmojiProcessor {
             // into a Spannable.
             if (isSpannableBuilder || charSequence instanceof Spannable) {
                 spannable = (Spannable) charSequence;
+            } else if (charSequence instanceof Spanned) {
+                // check if there are any EmojiSpans as cheap as possible
+                // start-1, end+1 will return emoji span that starts/ends at start/end indices
+                final int nextSpanTransition = ((Spanned) charSequence).nextSpanTransition(
+                        start - 1, end + 1, EmojiSpan.class);
+
+                if (nextSpanTransition <= end) {
+                    spannable = new SpannableString(charSequence);
+                }
             }
 
             if (spannable != null) {
