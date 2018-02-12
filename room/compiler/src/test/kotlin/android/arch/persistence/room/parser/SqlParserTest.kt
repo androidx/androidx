@@ -97,6 +97,8 @@ class SqlParserTest {
                 `is`(setOf(Table("users", "users"))))
         assertThat(SqlParser.parse("select * from \"users\"").tables,
                 `is`(setOf(Table("users", "users"))))
+        assertThat(SqlParser.parse("select * from 'users'").tables,
+                `is`(setOf(Table("users", "users"))))
     }
 
     @Test
