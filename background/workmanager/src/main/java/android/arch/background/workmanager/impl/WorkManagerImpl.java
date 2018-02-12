@@ -191,7 +191,7 @@ public class WorkManagerImpl extends WorkManager {
                     public void onChanged(
                             @Nullable List<WorkSpec.IdStateAndOutput> idStateAndOutputs) {
                         WorkStatus workStatus = null;
-                        if (idStateAndOutputs != null) {
+                        if (idStateAndOutputs != null && idStateAndOutputs.size() > 0) {
                             WorkSpec.IdStateAndOutput idStateAndOutput = idStateAndOutputs.get(0);
                             workStatus = new WorkStatus(
                                     idStateAndOutput.id,
