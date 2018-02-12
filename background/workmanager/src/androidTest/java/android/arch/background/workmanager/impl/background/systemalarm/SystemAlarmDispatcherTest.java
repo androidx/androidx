@@ -307,16 +307,11 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         assertThat(mLatch.getCount(), is(0L));
         // Verify order of events
-        // We get 2 constraint changes here as both ACTION_STOP_WORK (onExecutionCompleted) &
-        // ACTION_SCHEDULE_WORK add their own ACTION_CONSTRAINTS_CHANGED.
-        // TODO (rahulrav@) SystemDispatcher should be smarter about de-duping commands
-        // and avoiding additional work.
         assertThat(intentActions,
                 IsIterableContainingInOrder.contains(
                         CommandHandler.ACTION_DELAY_MET,
                         CommandHandler.ACTION_STOP_WORK,
                         CommandHandler.ACTION_SCHEDULE_WORK,
-                        CommandHandler.ACTION_CONSTRAINTS_CHANGED,
                         CommandHandler.ACTION_CONSTRAINTS_CHANGED));
 
         assertThat(workSpec.getState(), is(State.ENQUEUED));
@@ -377,9 +372,12 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         }
 
         @Override
-        public void add(@NonNull Intent intent, int startId) {
-            update(intent);
-            super.add(intent, startId);
+        public boolean add(@NonNull Intent intent, int startId) {
+            boolean isAdded = super.add(intent, startId);
+            if (isAdded) {
+                update(intent);
+            }
+            return isAdded;
         }
 
         private void update(Intent intent) {

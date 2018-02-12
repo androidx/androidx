@@ -22,7 +22,6 @@ import static android.app.PendingIntent.FLAG_ONE_SHOT;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.arch.background.workmanager.impl.ExecutionListener;
-import android.arch.background.workmanager.impl.constraints.WorkConstraintsTracker;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.IdGenerator;
@@ -35,7 +34,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -180,8 +178,9 @@ public class CommandHandler implements ExecutionListener {
                 .getWorkSpec(workSpecId);
 
         Intent delayMet = CommandHandler.createDelayMetIntent(mContext, workSpecId);
+        long triggerAt = workSpec.calculateNextRunTime();
+
         if (!workSpec.hasConstraints()) {
-            long triggerAt = workSpec.calculateNextRunTime();
             if (triggerAt <= System.currentTimeMillis()) {
                 // We should be already processing this worker
                 // Request dispatcher to treat this as a delayMet intent
@@ -194,15 +193,10 @@ public class CommandHandler implements ExecutionListener {
                 setExactAlarm(delayMet, triggerAt);
             }
         } else {
-            // We have constraints on a workspec
-            WorkConstraintsTracker tracker = new WorkConstraintsTracker(mContext, null);
-            tracker.replace(Collections.singletonList(workSpec));
-            if (tracker.areAllConstraintsMet(workSpecId)) {
-                // TODO(rahulrav@) Schedule an alarm irrespective of whether all constraints
-                // matched. Figure out a better way to do this.
-                Logger.debug(TAG, "Opportunistically setting an alarm for %s", workSpecId);
-                setExactAlarm(delayMet, workSpec.calculateNextRunTime());
-            }
+            // Schedule an alarm irrespective of whether all constraints matched.
+            Logger.debug(TAG, "Opportunistically setting an alarm for %s", workSpecId);
+            setExactAlarm(delayMet, workSpec.calculateNextRunTime());
+
             // Schedule an update for constraint proxies
             // This in turn sets enables us to track changes in constraints
             Intent constraintsUpdate = CommandHandler.createConstraintsChangedIntent(mContext);
@@ -211,7 +205,6 @@ public class CommandHandler implements ExecutionListener {
                             dispatcher,
                             constraintsUpdate,
                             startId));
-            tracker.reset();
         }
     }
 
