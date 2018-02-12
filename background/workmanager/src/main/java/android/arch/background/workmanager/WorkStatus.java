@@ -20,7 +20,8 @@ import android.support.annotation.NonNull;
 
 /**
  * A simple class with the id of a {@link BaseWork}, its current {@link State}, and its output.
- * Note that output is only available for {@link State#SUCCEEDED}.
+ * Note that output is only available for terminal states ({@link State#SUCCEEDED} and
+ * {@link State#FAILED}).
  */
 
 public class WorkStatus {
