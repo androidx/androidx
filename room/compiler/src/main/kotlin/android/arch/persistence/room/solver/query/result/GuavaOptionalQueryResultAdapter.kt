@@ -21,39 +21,27 @@ import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.solver.CodeGenScope
+import com.squareup.javapoet.ParameterizedTypeName
 
 /**
  * Wraps a row adapter when there is only 1 item in the result, and the result's outer type is
  * {@link com.google.common.base.Optional}.
  */
-class GuavaOptionalQueryResultAdapter(rowAdapter: RowAdapter)
-        : QueryResultAdapter(rowAdapter) {
-    val type = rowAdapter.out
-    override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
+class GuavaOptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryResultAdapter)
+    : QueryResultAdapter(resultAdapter.rowAdapter) {
+    val type = resultAdapter.rowAdapter?.out
+    override fun convert(
+            outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            rowAdapter?.onCursorReady(cursorVarName, scope)
             val valueVarName = scope.getTmpVar("_value")
-            addStatement("final $T $L;", type.typeName(), valueVarName)
+            resultAdapter?.convert(valueVarName, cursorVarName, scope)
             addStatement(
-                    "final $T<$T> $L", GuavaBaseTypeNames.OPTIONAL, type.typeName(), outVarName)
-            beginControlFlow("if($L.moveToFirst())", cursorVarName).apply {
-                // _value = X;
-                rowAdapter?.convert(valueVarName, cursorVarName, scope)
-                // _outVar = Optional.of(_value);
-                addStatement(
-                        // _outVar = Optional.of(X);
-                        "$L = $T.of($L)",
-                        outVarName,
-                        GuavaBaseTypeNames.OPTIONAL,
-                        valueVarName)
-            }
-            nextControlFlow("else").apply {
-                // _outVar = Optional.absent();
-                // Ignore the default value of the type - absent is absent is absent.
-                addStatement("$L = $T.absent()", outVarName, GuavaBaseTypeNames.OPTIONAL)
-            }
-            endControlFlow()
-            rowAdapter?.onCursorFinished()?.invoke(scope)
+                    "final $T $L = $T.fromNullable($L)",
+                    ParameterizedTypeName.get(GuavaBaseTypeNames.OPTIONAL, type?.typeName()),
+                    outVarName,
+                    GuavaBaseTypeNames.OPTIONAL,
+                    valueVarName)
         }
     }
 }
+
