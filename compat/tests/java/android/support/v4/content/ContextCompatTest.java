@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.compat.test.R;
@@ -104,11 +103,6 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
             TestUtils.assertAllPixelsOfColor("Themed yellow drawable load",
                     themedYellowDrawable, 0xFFF0B000);
         }
-    }
-
-    @Test(expected = Resources.NotFoundException.class)
-    public void testGetDrawableCannotDecode() {
-        ContextCompat.getDrawable(mContext, R.drawable.fake_image_will_not_decode);
     }
 
     @Test

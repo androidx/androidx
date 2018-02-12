@@ -72,25 +72,15 @@ public final class ResourcesCompat {
      * @throws NotFoundException Throws NotFoundException if the given ID does
      *         not exist.
      */
-    @NonNull
+    @Nullable
     @SuppressWarnings("deprecation")
     public static Drawable getDrawable(@NonNull Resources res, @DrawableRes int id,
             @Nullable Theme theme) throws NotFoundException {
-        @Nullable
-        final Drawable drawable;
         if (SDK_INT >= 21) {
-            drawable = res.getDrawable(id, theme);
+            return res.getDrawable(id, theme);
         } else {
-            drawable = res.getDrawable(id);
+            return res.getDrawable(id);
         }
-
-        // verify the drawable is non-null. Prior to a platform change, null could be returned only
-        // by BitmapFactory decoding failure, so this check safely enables @NonNull access by
-        // throwing in those cases
-        if (drawable == null) {
-            throw new NotFoundException("could not decode drawable from resource stream");
-        }
-        return drawable;
     }
 
 
@@ -115,27 +105,17 @@ public final class ResourcesCompat {
      * @throws NotFoundException Throws NotFoundException if the given ID does
      *         not exist.
      */
-    @NonNull
+    @Nullable
     @SuppressWarnings("deprecation")
     public static Drawable getDrawableForDensity(@NonNull Resources res, @DrawableRes int id,
             int density, @Nullable Theme theme) throws NotFoundException {
-        @Nullable
-        final Drawable drawable;
         if (SDK_INT >= 21) {
-            drawable = res.getDrawableForDensity(id, density, theme);
+            return res.getDrawableForDensity(id, density, theme);
         } else if (SDK_INT >= 15) {
-            drawable = res.getDrawableForDensity(id, density);
+            return res.getDrawableForDensity(id, density);
         } else {
-            drawable = res.getDrawable(id);
+            return res.getDrawable(id);
         }
-
-        // verify the drawable is non-null. Prior to a platform change, null could be returned only
-        // by BitmapFactory decoding failure, so this check safely enables @NonNull access by
-        // throwing in those cases
-        if (drawable == null) {
-            throw new NotFoundException("could not decode drawable from resource stream");
-        }
-        return drawable;
     }
 
     /**
