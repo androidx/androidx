@@ -19,12 +19,11 @@ package android.arch.persistence.room.integration.kotlintestapp.vo
 import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Relation
 
-class PublisherWithBookSales {
-    @Embedded
-    var publisher: Publisher? = null
-    @Relation(parentColumn = "publisherId", // publisher.publisherId
-            entityColumn = "bookPublisherId", // book.bookPublisherId
-            entity = Book::class,
-            projection = ["salesCnt"])
-    var sales: List<Int>? = emptyList()
-}
+data class PublisherWithBookSales @JvmOverloads constructor(
+        @Embedded
+        val publisher: Publisher,
+        @Relation(parentColumn = "publisherId", // publisher.publisherId
+                entityColumn = "bookPublisherId", // book.bookPublisherId
+                entity = Book::class,
+                projection = ["salesCnt"])
+        var sales: List<Int>? = emptyList())
