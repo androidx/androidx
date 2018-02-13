@@ -324,6 +324,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
 
     @Override
     public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {
+        super.onDetachedFromWindow(view, recycler);
+
         removeCallbacks(mCheckForGapsRunnable);
         for (int i = 0; i < mSpanCount; i++) {
             mSpans[i].clear();
