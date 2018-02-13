@@ -20,6 +20,7 @@ import android.arch.background.workmanager.impl.ExecutionListener;
 import android.arch.background.workmanager.impl.Processor;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.logger.Logger;
+import android.arch.background.workmanager.impl.utils.WakeLocks;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -50,10 +51,10 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     private static final String PROCESS_COMMAND_TAG = "ProcessCommand";
     private static final String KEY_START_ID = "KEY_START_ID";
 
+    private final Context mContext;
     private final WorkTimer mWorkTimer;
     private final Processor mProcessor;
     private final WorkManagerImpl mWorkManager;
-    private final PowerManager mPowerManager;
     private final CommandHandler mCommandHandler;
     private final Handler mMainHandler;
     private final List<Intent> mIntents;
@@ -72,9 +73,8 @@ public class SystemAlarmDispatcher implements ExecutionListener {
             @Nullable Processor processor,
             @Nullable WorkManagerImpl workManager) {
 
-        Context appContext = context.getApplicationContext();
-        mPowerManager = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
-        mCommandHandler = new CommandHandler(appContext);
+        mContext = context.getApplicationContext();
+        mCommandHandler = new CommandHandler(mContext);
         mWorkTimer = new WorkTimer();
         mWorkManager = workManager != null ? workManager : WorkManagerImpl.getInstance();
         mProcessor = processor != null ? processor : mWorkManager.getProcessor();
@@ -173,7 +173,8 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     @SuppressWarnings("FutureReturnValueIgnored")
     private void processCommand() {
         assertMainThread();
-        PowerManager.WakeLock processCommandLock = newProcessCommandWakeLock();
+        PowerManager.WakeLock processCommandLock =
+                WakeLocks.newWakeLock(mContext, PROCESS_COMMAND_TAG);
         try {
             processCommandLock.acquire();
             // Process commands on the actual executor service,
@@ -186,8 +187,9 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                         final String action = intent.getAction();
                         final int startId = intent.getIntExtra(KEY_START_ID, 0);
                         Logger.debug(TAG, "Processing command %s, %s", intent, startId);
-                        final PowerManager.WakeLock wakeLock =
-                                newOperationWakeLock(action, startId);
+                        final PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(
+                                mContext,
+                                String.format("%s (%s)", action, startId));
                         try {
                             Logger.debug(TAG, "Acquiring operation wake lock (%s) %s", action,
                                     wakeLock);
@@ -243,15 +245,6 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         if (mMainHandler.getLooper().getThread() != Thread.currentThread()) {
             throw new IllegalStateException("Needs to be invoked on the main thread.");
         }
-    }
-
-    private PowerManager.WakeLock newProcessCommandWakeLock() {
-        return mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, PROCESS_COMMAND_TAG);
-    }
-
-    private PowerManager.WakeLock newOperationWakeLock(String action, int startId) {
-        String tag = String.format("%s (%s)", action, startId);
-        return mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, tag);
     }
 
     /**
