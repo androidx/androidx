@@ -369,7 +369,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
         } else {
             itemIndex = mStartIndex != START_DEFAULT ? mStartIndex : 0;
             // if there are cached items,  put on previous row of first cached item.
-            rowIndex = (mLocations.size() >= 0 ? getLocation(getFirstIndex()).row + mNumRows - 1
+            rowIndex = (mLocations.size() > 0 ? getLocation(getFirstIndex()).row + mNumRows - 1
                     : itemIndex) % mNumRows;
             edgeLimit = 0;
             edgeLimitIsValid = false;
