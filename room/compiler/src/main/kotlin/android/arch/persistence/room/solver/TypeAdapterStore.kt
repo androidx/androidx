@@ -286,7 +286,7 @@ class TypeAdapterStore private constructor(
                 // The Optional adapter will reappend the Optional type.
                 val typeArg = declared.typeArguments.first()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
-                return GuavaOptionalQueryResultAdapter(rowAdapter)
+                return GuavaOptionalQueryResultAdapter(SingleEntityQueryResultAdapter(rowAdapter))
             } else if (
                     context.processingEnv.typeUtils.erasure(typeMirror).typeName() ==
                     CommonTypeNames.OPTIONAL) {
