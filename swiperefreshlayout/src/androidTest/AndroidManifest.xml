@@ -15,25 +15,14 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.coreui.test">
+          package="android.support.swiperefreshlayout.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
-
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.READ_CONTACTS"/>
-    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
 
     <application
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
-        <activity android:name="android.support.v4.widget.ExploreByTouchHelperTestActivity"/>
-
-        <activity android:name="android.support.v4.widget.ContentLoadingProgressBarActivity"/>
-
-        <activity android:name="android.support.design.widget.CoordinatorLayoutActivity"/>
-
-        <activity android:name="android.support.design.widget.DynamicCoordinatorLayoutActivity"/>
-
+        <activity android:name="android.support.v4.widget.CircularProgressDrawableActivity"/>
+        <activity android:name="android.support.v4.widget.SwipeRefreshLayoutActivity"/>
     </application>
 
 </manifest>

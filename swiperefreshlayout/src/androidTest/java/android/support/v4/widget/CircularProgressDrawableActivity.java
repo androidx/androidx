@@ -16,12 +16,14 @@
 
 package android.support.v4.widget;
 
-import android.support.coreui.test.R;
-import android.support.v4.BaseTestActivity;
+import android.app.Activity;
+import android.os.Bundle;
+import android.support.swiperefreshlayout.test.R;
 
-public class CircularProgressDrawableActivity extends BaseTestActivity {
+public class CircularProgressDrawableActivity extends Activity {
     @Override
-    protected int getContentViewLayoutResId() {
-        return R.layout.circular_progress_drawable_activity;
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.circular_progress_drawable_activity);
     }
 }

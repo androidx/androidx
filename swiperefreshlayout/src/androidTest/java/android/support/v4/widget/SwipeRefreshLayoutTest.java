@@ -32,17 +32,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.support.coreui.test.R;
+import android.support.swiperefreshlayout.test.R;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.testutils.PollingCheck;
-import android.support.v4.BaseInstrumentationTestCase;
 import android.view.View;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -50,21 +53,20 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests SwipeRefreshLayout widget.
  */
-public class SwipeRefreshLayoutTest
-        extends BaseInstrumentationTestCase<SwipeRefreshLayoutActivity> {
+@RunWith(AndroidJUnit4.class)
+public class SwipeRefreshLayoutTest {
+    @Rule
+    public final ActivityTestRule<SwipeRefreshLayoutActivity> mActivityTestRule =
+            new ActivityTestRule<>(SwipeRefreshLayoutActivity.class);
+
     private static final long TIMEOUT = 1000;
     private static final int INVALID_SIZE = 1000;
 
     private SwipeRefreshLayout mSwipeRefresh;
 
-    public SwipeRefreshLayoutTest() {
-        super(SwipeRefreshLayoutActivity.class);
-    }
-
     @Before
     public void setUp() {
-        mSwipeRefresh = (SwipeRefreshLayout) mActivityTestRule.getActivity().findViewById(
-                R.id.swipe_refresh);
+        mSwipeRefresh = mActivityTestRule.getActivity().findViewById(R.id.swipe_refresh);
     }
 
     @Test

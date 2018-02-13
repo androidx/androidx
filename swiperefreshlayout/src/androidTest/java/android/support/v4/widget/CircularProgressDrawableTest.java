@@ -30,22 +30,24 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.test.filters.SmallTest;
-import android.support.v4.BaseInstrumentationTestCase;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 /**
  * Tests for CircularProgressDrawable
  */
-public class CircularProgressDrawableTest extends
-        BaseInstrumentationTestCase<CircularProgressDrawableActivity> {
-
-    public CircularProgressDrawableTest() {
-        super(CircularProgressDrawableActivity.class);
-    }
+@RunWith(AndroidJUnit4.class)
+public class CircularProgressDrawableTest {
+    @Rule
+    public final ActivityTestRule<CircularProgressDrawableActivity> mActivityTestRule =
+            new ActivityTestRule<>(CircularProgressDrawableActivity.class);
 
     private CircularProgressDrawable mDrawableUnderTest;
 
