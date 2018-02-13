@@ -267,6 +267,9 @@ class PojoProcessor(baseContext: Context,
         val typeUtils = context.processingEnv.typeUtils
         // list of param names -> matched params pairs for each failed constructor
         val failedConstructors = arrayListOf<FailedConstructor>()
+        // if developer puts a relation into a constructor, it is usually an error but if there
+        // is another constructor that is good, we can ignore the error. b/72884434
+        val relationsInConstructor = arrayListOf<VariableElement>()
         val goodConstructors = constructors.map { constructor ->
             val parameterNames = getParamNames(constructor)
             val params = constructor.parameters.mapIndexed param@ { index, param ->
@@ -307,8 +310,7 @@ class PojoProcessor(baseContext: Context,
                         it.field.nameWithVariations.contains(paramName)
                     }
                     if (matchedRelation) {
-                        context.logger.e(param,
-                                ProcessorErrors.RELATION_CANNOT_BE_CONSTRUCTOR_PARAMETER)
+                        relationsInConstructor.add(param)
                     }
                     null
                 } else if (matchingFields.size + embeddedMatches.size == 1) {
@@ -335,31 +337,38 @@ class PojoProcessor(baseContext: Context,
                 Constructor(constructor, params as List<Constructor.Param>)
             }
         }.filterNotNull()
-        if (goodConstructors.isEmpty()) {
-            if (failedConstructors.isNotEmpty()) {
-                val failureMsg = failedConstructors.joinToString("\n") { entry ->
-                    entry.log()
+        when {
+            goodConstructors.isEmpty() -> {
+                relationsInConstructor.forEach {
+                    context.logger.e(it,
+                            ProcessorErrors.RELATION_CANNOT_BE_CONSTRUCTOR_PARAMETER)
                 }
-                context.logger.e(element, ProcessorErrors.MISSING_POJO_CONSTRUCTOR +
-                        "\nTried the following constructors but they failed to match:\n$failureMsg")
+                if (failedConstructors.isNotEmpty()) {
+                    val failureMsg = failedConstructors.joinToString("\n") { entry ->
+                        entry.log()
+                    }
+                    context.logger.e(element, ProcessorErrors.MISSING_POJO_CONSTRUCTOR +
+                            "\nTried the following constructors but they failed to match:" +
+                            "\n$failureMsg")
+                }
+                context.logger.e(element, ProcessorErrors.MISSING_POJO_CONSTRUCTOR)
+                return null
             }
-            context.logger.e(element, ProcessorErrors.MISSING_POJO_CONSTRUCTOR)
-            return null
-        } else if (goodConstructors.size > 1) {
-            // if there is a no-arg constructor, pick it. Even though it is weird, easily happens
-            // with kotlin data classes.
-            val noArg = goodConstructors.firstOrNull { it.params.isEmpty() }
-            if (noArg != null) {
-                context.logger.w(Warning.DEFAULT_CONSTRUCTOR, element,
-                        ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS_CHOOSING_NO_ARG)
-                return noArg
+            goodConstructors.size > 1 -> {
+                // if there is a no-arg constructor, pick it. Even though it is weird, easily happens
+                // with kotlin data classes.
+                val noArg = goodConstructors.firstOrNull { it.params.isEmpty() }
+                if (noArg != null) {
+                    context.logger.w(Warning.DEFAULT_CONSTRUCTOR, element,
+                            ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS_CHOOSING_NO_ARG)
+                    return noArg
+                }
+                goodConstructors.forEach {
+                    context.logger.e(it.element, ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS)
+                }
+                return null
             }
-            goodConstructors.forEach {
-                context.logger.e(it.element, ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS)
-            }
-            return null
-        } else {
-            return goodConstructors.first()
+            else -> return goodConstructors.first()
         }
     }
 
