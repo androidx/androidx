@@ -54,16 +54,16 @@ public class WorkManagerConfigurationTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
-    public void testGetBackgroundScheduler_afterApi23() {
+    @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
+    public void testGetBackgroundScheduler_withJobSchedulerApiLevel() {
         Scheduler scheduler = mConfiguration.getBackgroundScheduler();
         assertThat(scheduler, is(instanceOf(SystemJobScheduler.class)));
         assertServicesEnabled(true, false, false);
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 22)
-    public void testGetBackgroundScheduler_beforeApi23() {
+    @SdkSuppress(maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL)
+    public void testGetBackgroundScheduler_beforeJobSchedulerApiLevel() {
         Scheduler scheduler = mConfiguration.getBackgroundScheduler();
         assertThat(scheduler, is(instanceOf(SystemAlarmScheduler.class)));
         assertServicesEnabled(false, false, true);
@@ -72,7 +72,7 @@ public class WorkManagerConfigurationTest {
     // Only one service should really be enabled at one time.
     private void assertServicesEnabled(
             boolean systemJobEnabled, boolean firebaseJobEnabled, boolean systemAlarmEnabled) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
             assertThat(isComponentExplicitlyEnabled(mAppContext, SystemJobService.class),
                     is(systemJobEnabled));
         }

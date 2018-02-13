@@ -54,6 +54,9 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerImpl extends WorkManager {
 
+    public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 23;
+    public static final int MIN_JOB_SCHEDULER_API_LEVEL = 24;
+
     private WorkManagerConfiguration mConfiguration;
     private WorkDatabase mWorkDatabase;
     private TaskExecutor mTaskExecutor;

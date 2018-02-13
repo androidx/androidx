@@ -23,6 +23,7 @@ import android.arch.background.workmanager.BackoffPolicy;
 import android.arch.background.workmanager.Constraints;
 import android.arch.background.workmanager.ContentUriTriggers;
 import android.arch.background.workmanager.NetworkType;
+import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.IdGenerator;
@@ -37,7 +38,7 @@ import android.support.annotation.VisibleForTesting;
 /**
  * Converts a {@link WorkSpec} into a JobInfo.
  */
-@RequiresApi(api = 23)
+@RequiresApi(api = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
 class SystemJobInfoConverter {
     private static final String TAG = "SystemJobInfoConverter";
 
@@ -93,14 +94,14 @@ class SystemJobInfoConverter {
         }
 
         if (workSpec.isPeriodic()) {
-            builder = setBuilderPeriodic(builder, workSpec);
+            builder.setPeriodic(workSpec.getIntervalDuration(), workSpec.getFlexDuration());
         } else {
             // Even if a Work has no constraints, setMinimumLatency(0) still needs to be called due
             // to an issue in JobInfo.Builder#build and JobInfo with no constraints. See b/67716867.
             builder.setMinimumLatency(workSpec.getInitialDelay());
         }
 
-        if (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers()) {
+        if (constraints.hasContentUriTriggers()) {
             for (ContentUriTriggers.Trigger trigger : constraints.getContentUriTriggers()) {
                 builder.addTriggerContentUri(convertContentUriTrigger(trigger));
             }
@@ -117,7 +118,6 @@ class SystemJobInfoConverter {
         return builder.build();
     }
 
-    @RequiresApi(24)
     private static JobInfo.TriggerContentUri convertContentUriTrigger(
             ContentUriTriggers.Trigger trigger) {
         int flag = trigger.shouldTriggerForDescendants()
@@ -140,10 +140,7 @@ class SystemJobInfoConverter {
             case UNMETERED:
                 return JobInfo.NETWORK_TYPE_UNMETERED;
             case NOT_ROAMING:
-                if (Build.VERSION.SDK_INT >= 24) {
-                    return JobInfo.NETWORK_TYPE_NOT_ROAMING;
-                }
-                break;
+                return JobInfo.NETWORK_TYPE_NOT_ROAMING;
             case METERED:
                 if (Build.VERSION.SDK_INT >= 26) {
                     return JobInfo.NETWORK_TYPE_METERED;
@@ -152,19 +149,5 @@ class SystemJobInfoConverter {
         }
         Logger.debug(TAG, "API version too low. Cannot convert network type value %s", networkType);
         return JobInfo.NETWORK_TYPE_ANY;
-    }
-
-    private static JobInfo.Builder setBuilderPeriodic(JobInfo.Builder builder, WorkSpec workSpec) {
-        long intervalDuration = workSpec.getIntervalDuration();
-        long flexDuration = workSpec.getFlexDuration();
-
-        if (Build.VERSION.SDK_INT >= 24) {
-            builder.setPeriodic(intervalDuration, flexDuration);
-        } else {
-            // TODO(janclarin): Support flex for JobScheduler before API 24.
-            Logger.debug(TAG, "Flex duration is currently not supported before API 24. Ignoring.");
-            builder.setPeriodic(intervalDuration);
-        }
-        return builder;
     }
 }
