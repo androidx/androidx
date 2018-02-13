@@ -16,6 +16,7 @@
 
 package android.arch.persistence.room.processor
 
+import android.arch.persistence.room.ext.findKotlinDefaultImpl
 import android.arch.persistence.room.ext.hasAnyOf
 import android.arch.persistence.room.vo.TransactionMethod
 import javax.lang.model.element.ExecutableElement
@@ -32,13 +33,20 @@ class TransactionMethodProcessor(baseContext: Context,
     val context = baseContext.fork(executableElement)
 
     fun process(): TransactionMethod {
-        context.checker.check(!executableElement.hasAnyOf(PRIVATE, FINAL, ABSTRACT),
+        val kotlinDefaultImpl =
+                executableElement.findKotlinDefaultImpl(context.processingEnv.typeUtils)
+        context.checker.check(
+                !executableElement.hasAnyOf(PRIVATE, FINAL)
+                        && (!executableElement.hasAnyOf(ABSTRACT) || kotlinDefaultImpl != null),
                 executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
 
-        val callType = if (executableElement.hasAnyOf(DEFAULT)) {
-            TransactionMethod.CallType.DEFAULT_IN_INTERFACE
-        } else {
-            TransactionMethod.CallType.CONCRETE
+        val callType = when {
+            executableElement.hasAnyOf(DEFAULT) ->
+                TransactionMethod.CallType.DEFAULT_JAVA8
+            kotlinDefaultImpl != null ->
+                TransactionMethod.CallType.DEFAULT_KOTLIN
+            else ->
+                TransactionMethod.CallType.CONCRETE
         }
 
         return TransactionMethod(
