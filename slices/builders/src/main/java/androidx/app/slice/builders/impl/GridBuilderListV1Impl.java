@@ -33,7 +33,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import androidx.app.slice.Slice;
-import androidx.app.slice.SliceSpec;
 import androidx.app.slice.builders.SliceAction;
 
 /**
@@ -46,19 +45,30 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
 
     /**
      */
-    public GridBuilderListV1Impl(@NonNull Slice.Builder builder, SliceSpec spec) {
-        super(builder, spec);
+    public GridBuilderListV1Impl(@NonNull ListBuilderV1Impl parent) {
+        super(parent.createChildBuilder(), null);
+    }
+
+    /**
+     */
+    @Override
+    @NonNull
+    public Slice build() {
+        Slice.Builder sb = new Slice.Builder(getBuilder())
+                .addHints(HINT_HORIZONTAL, HINT_LIST_ITEM);
+        sb.addSubSlice(getBuilder().addHints(HINT_HORIZONTAL, HINT_LIST_ITEM).build());
+        if (mPrimaryAction != null) {
+            Slice.Builder actionBuilder = new Slice.Builder(getBuilder())
+                    .addHints(HINT_SHORTCUT, HINT_TITLE);
+            sb.addSubSlice(mPrimaryAction.buildSlice(actionBuilder));
+        }
+        return sb.build();
     }
 
     /**
      */
     @Override
     public void apply(Slice.Builder builder) {
-        builder.addHints(HINT_HORIZONTAL, HINT_LIST_ITEM);
-        if (mPrimaryAction != null) {
-            Slice.Builder sb = new Slice.Builder(builder).addHints(HINT_SHORTCUT, HINT_TITLE);
-            builder.addSubSlice(mPrimaryAction.buildSlice(sb));
-        }
     }
 
     /**
@@ -107,21 +117,6 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
     @Override
     public void setPrimaryAction(SliceAction action) {
         mPrimaryAction = action;
-    }
-
-    /**
-     */
-    @Override
-    public Slice buildIndividual() {
-        Slice.Builder sb = new Slice.Builder(getBuilder())
-                .addHints(HINT_HORIZONTAL, HINT_LIST_ITEM);
-        sb.addSubSlice(getBuilder().addHints(HINT_HORIZONTAL, HINT_LIST_ITEM).build());
-        if (mPrimaryAction != null) {
-            Slice.Builder actionBuilder = new Slice.Builder(getBuilder())
-                    .addHints(HINT_SHORTCUT, HINT_TITLE);
-            sb.addSubSlice(mPrimaryAction.buildSlice(actionBuilder));
-        }
-        return sb.build();
     }
 
     /**

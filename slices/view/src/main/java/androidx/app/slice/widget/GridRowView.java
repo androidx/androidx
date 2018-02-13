@@ -141,10 +141,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     public void setSlice(Slice slice) {
         resetView();
         mRowIndex = 0;
-        Slice.Builder sb = new Slice.Builder(slice.getUri());
-        sb.addSubSlice(slice);
-        Slice parentSlice = sb.build();
-        mGridContent = new GridContent(parentSlice.getItems().get(0));
+        mGridContent = new GridContent(slice.getItems().get(0));
         populateViews(mGridContent);
     }
 

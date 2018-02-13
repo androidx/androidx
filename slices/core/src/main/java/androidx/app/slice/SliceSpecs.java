@@ -41,11 +41,4 @@ public class SliceSpecs {
      * a source of where the message came from.
      */
     public static final SliceSpec MESSAGING = new SliceSpec("androidx.app.slice.MESSAGING", 1);
-
-    /**
-     * Grid template.
-     * Lists can contain grids, so use the same spec for both. Grid needs a spec to use because
-     * it can be a top level builder.
-     */
-    public static final SliceSpec GRID = LIST;
 }

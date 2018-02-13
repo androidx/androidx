@@ -114,7 +114,7 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
      */
     @Override
     public TemplateBuilderImpl createGridBuilder() {
-        return new GridBuilderBasicImpl(createChildBuilder(), null);
+        return new GridBuilderBasicImpl(this);
     }
 
     @Override

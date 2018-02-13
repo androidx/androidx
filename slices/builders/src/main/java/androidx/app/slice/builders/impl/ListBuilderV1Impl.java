@@ -255,7 +255,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @Override
     public TemplateBuilderImpl createGridBuilder() {
-        return new GridBuilderListV1Impl(createChildBuilder(), null);
+        return new GridBuilderListV1Impl(this);
     }
 
     /**

@@ -360,16 +360,14 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         return mShowActions;
     }
 
-    private SliceChildView createView(int mode) {
-        boolean isGrid = SliceQuery.hasHints(mCurrentSlice, HINT_HORIZONTAL);
+    private SliceChildView createView(int mode, boolean isGrid) {
         switch (mode) {
             case MODE_SHORTCUT:
                 return new ShortcutView(getContext());
             case MODE_SMALL:
-                // Check if it's horizontal and use a grid instead
                 return isGrid ? new GridRowView(getContext()) : new RowView(getContext());
         }
-        return isGrid ? new GridRowView(getContext()) : new LargeTemplateView(getContext());
+        return new LargeTemplateView(getContext());
     }
 
     private void reinflate() {
@@ -377,15 +375,23 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
             mCurrentView.resetView();
             return;
         }
+        ListContent lc = new ListContent(mCurrentSlice);
+        if (!lc.isValid()) {
+            mCurrentView.resetView();
+            mCurrentView.setVisibility(View.GONE);
+            return;
+        }
         // TODO: Smarter mapping here from one state to the next.
         int mode = getMode();
-        boolean isGridShowing = mCurrentView instanceof GridRowView;
-        boolean isGridSlice = SliceQuery.hasHints(mCurrentSlice, HINT_HORIZONTAL);
-        if (mMode == mCurrentView.getMode() && isGridSlice == isGridShowing) {
-            mCurrentView.setSlice(mCurrentSlice);
-        } else {
+        boolean reuseView = mode == mCurrentView.getMode();
+        SliceItem header = lc.getHeaderItem();
+        boolean isSmallGrid = header != null && SliceQuery.hasHints(header, HINT_HORIZONTAL);
+        if (reuseView && mode == MODE_SMALL) {
+            reuseView = (mCurrentView instanceof GridRowView) == isSmallGrid;
+        }
+        if (!reuseView) {
             removeAllViews();
-            mCurrentView = createView(mode);
+            mCurrentView = createView(mode, isSmallGrid);
             if (mSliceObserver != null) {
                 mCurrentView.setSliceActionListener(mSliceObserver);
             }
@@ -400,8 +406,8 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         // Styles
         mCurrentView.setStyle(mAttrs);
         mCurrentView.setTint(getTintColor());
+        mCurrentView.setVisibility(lc.isValid() ? View.VISIBLE : View.GONE);
         // Set the slice
-        mCurrentView.getView().setVisibility(View.VISIBLE);
         mCurrentView.setSlice(mCurrentSlice);
         updateActions();
     }

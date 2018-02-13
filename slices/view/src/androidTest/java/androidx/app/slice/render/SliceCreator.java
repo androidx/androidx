@@ -101,40 +101,42 @@ public class SliceCreator {
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
                 "open weather app"), Icon.createWithResource(getContext(), R.drawable.weather_1),
                 "Weather is happening!");
-        GridBuilder b = new GridBuilder(getContext(), sliceUri);
-        b.setPrimaryAction(primaryAction);
-        return b.addCell(new GridBuilder.CellBuilder(b)
+        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        GridBuilder gb = new GridBuilder(b);
+        gb.setPrimaryAction(primaryAction);
+        gb.addCell(new GridBuilder.CellBuilder(gb)
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
                         .addText("MON")
                         .addTitleText("69\u00B0"))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_2))
                         .addText("TUE")
                         .addTitleText("71\u00B0"))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_3))
                         .addText("WED")
                         .addTitleText("76\u00B0"))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_4))
                         .addText("THU")
                         .addTitleText("72\u00B0"))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
                         .addText("FRI")
-                        .addTitleText("68\u00B0"))
-                .build();
+                        .addTitleText("68\u00B0"));
+        return b.addGrid(gb).build();
     }
 
     private Slice createGallery(Uri sliceUri) {
-        GridBuilder b = new GridBuilder(getContext(), sliceUri);
-        return b.addCell(new GridBuilder.CellBuilder(b)
+        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        GridBuilder gb = new GridBuilder(b);
+        return gb.addCell(new GridBuilder.CellBuilder(gb)
                     .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_1)))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                     .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_2)))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                     .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_3)))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                     .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_4)))
                 .build();
     }

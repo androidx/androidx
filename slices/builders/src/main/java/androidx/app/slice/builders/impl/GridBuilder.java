@@ -25,7 +25,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
-import androidx.app.slice.Slice;
 import androidx.app.slice.builders.SliceAction;
 
 /**
@@ -74,11 +73,6 @@ public interface GridBuilder {
      * Sets the action to be invoked if the user taps on the main content of the template.
      */
     void setPrimaryAction(SliceAction action);
-
-    /**
-     * Builds a standalone slice of this grid builder (i.e. not contained within a List).
-     */
-    Slice buildIndividual();
 
     /**
      */

@@ -127,7 +127,7 @@ public class SampleSliceProvider extends SliceProvider {
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
                 "open weather app"), Icon.createWithResource(getContext(), R.drawable.weather_1),
                 "Weather is happening!");
-        return new GridBuilder(getContext(), sliceUri)
+        return new ListBuilder(getContext(), sliceUri).addGrid(gb -> gb
                 .setPrimaryAction(primaryAction)
                 .addCell(cb -> cb
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
@@ -148,7 +148,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .addCell(cb -> cb
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
                         .addText("FRI")
-                        .addTitleText("68\u00B0"))
+                        .addTitleText("68\u00B0")))
                 .build();
     }
 
@@ -413,9 +413,7 @@ public class SampleSliceProvider extends SliceProvider {
                 mHandler.postDelayed(mLoader, LOADING_DELAY_MS);
             }
             if (loadAll) {
-                return isList
-                        ? new ListBuilder(getContext(), sliceUri).build()
-                        : new GridBuilder(getContext(), sliceUri).build();
+                return new ListBuilder(getContext(), sliceUri).build();
             }
             return createPartialSlice(sliceUri, true, isList);
         } else {
@@ -441,10 +439,10 @@ public class SampleSliceProvider extends SliceProvider {
                                         true /* isLoading */))
                         .build();
             } else {
-                return new GridBuilder(getContext(), sliceUri)
+                return new ListBuilder(getContext(), sliceUri).addGrid(gb -> gb
                         .addCell(b -> createCell(b, null, null, null, true))
                         .addCell(b -> createCell(b, "Two stars", null, icon, true))
-                        .addCell(b -> createCell(b, null, null, null, true))
+                        .addCell(b -> createCell(b, null, null, null, true)))
                         .build();
             }
         } else {
@@ -460,10 +458,10 @@ public class SampleSliceProvider extends SliceProvider {
                                                 false /* isChecked */)))
                         .build();
             } else {
-                return new GridBuilder(getContext(), sliceUri)
+                return new ListBuilder(getContext(), sliceUri).addGrid(gb -> gb
                         .addCell(b -> createCell(b, "One star", "meh", icon, false))
                         .addCell(b -> createCell(b, "Two stars", "good", icon, false))
-                        .addCell(b -> createCell(b, "Three stars", "best", icon, false))
+                        .addCell(b -> createCell(b, "Three stars", "best", icon, false)))
                         .build();
             }
         }
