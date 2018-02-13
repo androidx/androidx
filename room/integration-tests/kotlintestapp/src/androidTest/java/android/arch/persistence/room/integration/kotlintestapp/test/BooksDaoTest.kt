@@ -67,6 +67,17 @@ class BooksDaoTest : TestDatabaseTest() {
     }
 
     @Test
+    fun bookByIdListenableFuture() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        assertThat(
+                booksDao.getBookListenableFuture(TestUtil.BOOK_1.bookId).get(),
+                `is`<Book>(TestUtil.BOOK_1))
+    }
+
+    @Test
     fun bookByIdOptional() {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)
@@ -75,6 +86,24 @@ class BooksDaoTest : TestDatabaseTest() {
         assertThat(
                 booksDao.getBookOptional(TestUtil.BOOK_1.bookId),
                 `is`<Optional<Book>>(Optional.of(TestUtil.BOOK_1)))
+    }
+
+    @Test
+    fun bookByIdOptionalListenableFuture() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        assertThat(
+                booksDao.getBookOptionalListenableFuture(TestUtil.BOOK_1.bookId).get(),
+                `is`<Optional<Book>>(Optional.of(TestUtil.BOOK_1)))
+    }
+
+    @Test
+    fun bookByIdOptionalListenableFutureAbsent() {
+        assertThat(
+                booksDao.getBookOptionalListenableFuture(TestUtil.BOOK_1.bookId).get(),
+                `is`<Optional<Book>>(Optional.absent()))
     }
 
     @Test
@@ -124,6 +153,21 @@ class BooksDaoTest : TestDatabaseTest() {
         expectedList.add(expected)
 
         assertThat(database.booksDao().getBooksWithPublisher(),
+                `is`<List<BookWithPublisher>>(expectedList))
+    }
+
+    @Test
+    fun bookWithPublisherListenableFuture() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        val expected = BookWithPublisher(TestUtil.BOOK_1.bookId, TestUtil.BOOK_1.title,
+                TestUtil.PUBLISHER)
+        val expectedList = ArrayList<BookWithPublisher>()
+        expectedList.add(expected)
+
+        assertThat(database.booksDao().getBooksWithPublisherListenableFuture().get(),
                 `is`<List<BookWithPublisher>>(expectedList))
     }
 
