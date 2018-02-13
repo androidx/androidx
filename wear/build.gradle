@@ -11,7 +11,7 @@ dependencies {
     api(project(":support-core-ui"))
     api(project(":support-fragment"))
     api(project(":recyclerview-v7"))
-    api(CONSTRAINT_LAYOUT)
+    api(CONSTRAINT_LAYOUT, { transitive = true })
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
