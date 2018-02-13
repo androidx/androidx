@@ -15,18 +15,16 @@
 //   the Maven artifactId
 //
 def includeProject(name, filePath) {
-  settings.include(name)
+    settings.include(name)
 
-  def file
-  if (filePath instanceof String) {
-    file = new File(filePath)
-  } else {
-    file = filePath
-  }
-  project(name).projectDir = file
+    def file
+    if (filePath instanceof String) {
+        file = new File(filePath)
+    } else {
+        file = filePath
+    }
+    project(name).projectDir = file
 }
-
-
 
 
 /////////////////////////////
@@ -35,51 +33,51 @@ def includeProject(name, filePath) {
 //
 /////////////////////////////
 
-includeProject(":support-annotations", "annotations")
-includeProject(":support-compat", "compat")
-includeProject(":support-media-compat", "media-compat")
-includeProject(":support-core-ui", "core-ui")
-includeProject(":support-fragment", "fragment")
-includeProject(":support-core-utils", "core-utils")
-includeProject(":support-v4", "v4")
-includeProject(":appcompat-v7", "v7/appcompat")
-includeProject(":gridlayout-v7", "v7/gridlayout")
-includeProject(":mediarouter-v7", "v7/mediarouter")
-includeProject(":palette-v7", "v7/palette")
-includeProject(":recyclerview-v7", "v7/recyclerview")
-includeProject(":recyclerview-selection", "recyclerview-selection")
-includeProject(":cardview-v7", "v7/cardview")
-includeProject(":preference-v7", "v7/preference")
-includeProject(":preference-v14", "v14/preference")
-includeProject(":preference-leanback-v17", "preference-leanback")
-includeProject(":support-v13", "v13")
-includeProject(":leanback-v17", "leanback")
-includeProject(":percent", "percent")
-includeProject(":customtabs", "customtabs")
-includeProject(":recommendation", "recommendation")
-includeProject(":support-vector-drawable", "graphics/drawable/static")
 includeProject(":animated-vector-drawable", "graphics/drawable/animated")
-includeProject(":transition", "transition")
-includeProject(":support-dynamic-animation", "dynamic-animation")
-includeProject(":viewpager2", "viewpager2")
-includeProject(":exifinterface", "exifinterface")
-includeProject(":wear", "wear")
-includeProject(":support-tv-provider", "tv-provider")
-includeProject(":support-emoji", "emoji/core")
-includeProject(":support-emoji-bundled", "emoji/bundled")
-includeProject(":support-emoji-appcompat", "emoji/appcompat")
-includeProject(":support-content", "content")
+includeProject(":appcompat-v7", "v7/appcompat")
 includeProject(":car", "car")
-includeProject(":webkit", "webkit")
-includeProject(":slices-core", "slices/core")
-includeProject(":slices-view", "slices/view")
-includeProject(":slices-builders", "slices/builders")
-includeProject(":textclassifier", "textclassifier")
-includeProject(":webkit-codegen", "webkit-codegen")
+includeProject(":cardview-v7", "v7/cardview")
+includeProject(":customtabs", "customtabs")
+includeProject(":exifinterface", "exifinterface")
+includeProject(":gridlayout-v7", "v7/gridlayout")
 includeProject(":jetifier-core", "jetifier/jetifier/core")
 includeProject(":jetifier-gradle-plugin", "jetifier/jetifier/gradle-plugin")
 includeProject(":jetifier-standalone", "jetifier/jetifier/standalone")
 includeProject(":jetifier-preprocessor", "jetifier/jetifier/preprocessor")
+includeProject(":leanback-v17", "leanback")
+includeProject(":mediarouter-v7", "v7/mediarouter")
+includeProject(":palette-v7", "v7/palette")
+includeProject(":percent", "percent")
+includeProject(":preference-v7", "v7/preference")
+includeProject(":preference-v14", "v14/preference")
+includeProject(":preference-leanback-v17", "preference-leanback")
+includeProject(":recommendation", "recommendation")
+includeProject(":recyclerview-v7", "v7/recyclerview")
+includeProject(":recyclerview-selection", "recyclerview-selection")
+includeProject(":slices-core", "slices/core")
+includeProject(":slices-view", "slices/view")
+includeProject(":slices-builders", "slices/builders")
+includeProject(":support-annotations", "annotations")
+includeProject(":support-compat", "compat")
+includeProject(":support-content", "content")
+includeProject(":support-core-ui", "core-ui")
+includeProject(":support-core-utils", "core-utils")
+includeProject(":support-dynamic-animation", "dynamic-animation")
+includeProject(":support-emoji", "emoji/core")
+includeProject(":support-emoji-bundled", "emoji/bundled")
+includeProject(":support-emoji-appcompat", "emoji/appcompat")
+includeProject(":support-fragment", "fragment")
+includeProject(":support-media-compat", "media-compat")
+includeProject(":support-tv-provider", "tv-provider")
+includeProject(":support-vector-drawable", "graphics/drawable/static")
+includeProject(":support-v4", "v4")
+includeProject(":support-v13", "v13")
+includeProject(":textclassifier", "textclassifier")
+includeProject(":transition", "transition")
+includeProject(":viewpager2", "viewpager2")
+includeProject(":wear", "wear")
+includeProject(":webkit", "webkit")
+includeProject(":webkit-codegen", "webkit-codegen")
 
 /////////////////////////////
 //
@@ -89,24 +87,24 @@ includeProject(":jetifier-preprocessor", "jetifier/jetifier/preprocessor")
 
 File samplesRoot = new File(rootDir, "samples")
 
+includeProject(":support-animation-demos", new File(samplesRoot, "SupportAnimationDemos"))
+includeProject(":support-app-navigation", new File(samplesRoot, "SupportAppNavigation"))
+includeProject(":support-car-demos", new File(samplesRoot, "SupportCarDemos"))
 includeProject(":support-content-demos", new File(samplesRoot, "SupportContentDemos"))
 includeProject(":support-design-demos", new File(samplesRoot, "SupportDesignDemos"))
+includeProject(":support-emoji-demos", new File(samplesRoot, "SupportEmojiDemos"))
 includeProject(":support-leanback-demos", new File(samplesRoot, "SupportLeanbackDemos"))
 includeProject(":support-leanback-jank", new File(samplesRoot, "SupportLeanbackJank"))
 includeProject(":support-percent-demos", new File(samplesRoot, "SupportPercentDemos"))
 includeProject(":support-preference-demos", new File(samplesRoot, "SupportPreferenceDemos"))
+includeProject(":support-slices-demos", new File(samplesRoot, "SupportSliceDemos"))
 includeProject(":support-transition-demos", new File(samplesRoot, "SupportTransitionDemos"))
+includeProject(":support-vector-drawable-demos", new File(samplesRoot, "SupportVectorDrawableDemos"))
 includeProject(":support-v4-demos", new File(samplesRoot, "Support4Demos"))
 includeProject(":support-v7-demos", new File(samplesRoot, "Support7Demos"))
 includeProject(":support-v13-demos", new File(samplesRoot, "Support13Demos"))
-includeProject(":support-vector-drawable-demos", new File(samplesRoot, "SupportVectorDrawableDemos"))
-includeProject(":support-animation-demos", new File(samplesRoot, "SupportAnimationDemos"))
-includeProject(":viewpager2-demos", new File(samplesRoot, "ViewPager2Demos"))
 includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"))
-includeProject(":support-app-navigation", new File(samplesRoot, "SupportAppNavigation"))
-includeProject(":support-emoji-demos", new File(samplesRoot, "SupportEmojiDemos"))
-includeProject(":support-car-demos", new File(samplesRoot, "SupportCarDemos"))
-includeProject(":support-slices-demos", new File(samplesRoot, "SupportSliceDemos"))
+includeProject(":viewpager2-demos", new File(samplesRoot, "ViewPager2Demos"))
 
 /////////////////////////////
 //
