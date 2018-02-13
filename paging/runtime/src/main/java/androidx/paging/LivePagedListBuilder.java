@@ -30,7 +30,7 @@ import java.util.concurrent.Executor;
  * {@link PagedList.Config}.
  * <p>
  * The required parameters are in the constructor, so you can simply construct and build, or
- * optionally enable extra features (such as initial load key, or BoundaryCallback.
+ * optionally enable extra features (such as initial load key, or BoundaryCallback).
  *
  * @param <Key> Type of input valued used to load data from the DataSource. Must be integer if
  *             you're using PositionalDataSource.
