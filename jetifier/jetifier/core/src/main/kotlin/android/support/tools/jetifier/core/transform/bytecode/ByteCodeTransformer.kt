@@ -25,9 +25,9 @@ import org.objectweb.asm.ClassWriter
 /**
  * The [Transformer] responsible for java byte code refactoring.
  */
-class ByteCodeTransformer internal constructor(context: TransformationContext) : Transformer {
-
-    private val remapper: CoreRemapperImpl = CoreRemapperImpl(context)
+class ByteCodeTransformer internal constructor(
+    private val context: TransformationContext
+) : Transformer {
 
     override fun canTransform(file: ArchiveFile) = file.isClassFile()
 
@@ -35,11 +35,14 @@ class ByteCodeTransformer internal constructor(context: TransformationContext) :
         val reader = ClassReader(file.data)
         val writer = ClassWriter(0 /* flags */)
 
-        val visitor = remapper.createClassRemapper(writer)
+        val remapper = CoreRemapperImpl(context, writer)
+        reader.accept(remapper.classRemapper, 0 /* flags */)
 
-        reader.accept(visitor, 0 /* flags */)
+        if (!remapper.changesDone) {
+            return
+        }
 
-        file.data = writer.toByteArray()
+        file.setNewData(writer.toByteArray())
         file.updateRelativePath(remapper.rewritePath(file.relativePath))
     }
 }

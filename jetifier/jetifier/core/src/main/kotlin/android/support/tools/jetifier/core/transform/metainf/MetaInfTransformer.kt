@@ -61,6 +61,6 @@ class MetaInfTransformer internal constructor(
             return
         }
 
-        file.data = to.toByteArray()
+        file.setNewData(to.toByteArray())
     }
 }

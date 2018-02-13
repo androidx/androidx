@@ -29,7 +29,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
     companion object {
         private const val TAG = "Pom"
 
-        fun loadFrom(file: ArchiveFile) : PomDocument {
+        fun loadFrom(file: ArchiveFile): PomDocument {
             val document = XmlUtils.createDocumentFromByteArray(file.data)
             val pomDoc = PomDocument(file, document)
             pomDoc.initialize()
@@ -37,10 +37,10 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
         }
     }
 
-    val dependencies : MutableSet<PomDependency> = mutableSetOf()
-    private val properties : MutableMap<String, String> = mutableMapOf()
-    private var dependenciesGroup : Element? = null
-    private var hasChanged : Boolean = false
+    val dependencies: MutableSet<PomDependency> = mutableSetOf()
+    private val properties: MutableMap<String, String> = mutableMapOf()
+    private var dependenciesGroup: Element? = null
+    private var hasChanged: Boolean = false
 
     private fun initialize() {
         val propertiesGroup = document.rootElement
@@ -64,7 +64,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
      * Currently it checks that all the dependencies that are going to be rewritten by the given
      * rules satisfy the minimal version requirements defined by the rules.
      */
-    fun validate(rules: List<PomRewriteRule>) : Boolean {
+    fun validate(rules: List<PomRewriteRule>): Boolean {
         if (dependenciesGroup == null) {
             // Nothing to validate as this file has no dependencies section
             return true
@@ -96,7 +96,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
                 newDependencies.add(dependency)
             } else {
                 // Replace with new dependencies
-                newDependencies.addAll(rule.to.mapTo(newDependencies){ it.rewrite(dependency) })
+                newDependencies.addAll(rule.to.mapTo(newDependencies) { it.rewrite(dependency) })
             }
         }
 
@@ -118,7 +118,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
             return
         }
 
-        file.data =  XmlUtils.convertDocumentToByteArray(document)
+        file.setNewData(XmlUtils.convertDocumentToByteArray(document))
     }
 
     /**

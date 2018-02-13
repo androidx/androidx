@@ -20,7 +20,8 @@ import java.io.OutputStream
 import java.nio.file.Path
 
 /**
- * Abstraction to represent archive and its files as a one thing.
+ * Abstraction to represent archive and its files as a one thing before and after transformation
+ * together with information if any changes happened during the transformation.
  */
 interface ArchiveItem {
 
@@ -30,12 +31,17 @@ interface ArchiveItem {
      * Files in a nested archive have a path relative to that archive not to the parent of
      * the archive. The root archive has the file system path set as its relative path.
      */
-    val relativePath : Path
+    val relativePath: Path
 
     /**
      * Name of the file.
      */
-    val fileName : String
+    val fileName: String
+
+    /**
+     * Whether the item's content or its children were changed by Jetifier.
+     */
+    val wasChanged: Boolean
 
     /**
      * Accepts visitor.
@@ -47,7 +53,6 @@ interface ArchiveItem {
      */
     fun writeSelfTo(outputStream: OutputStream)
 
-
     fun isPomFile() = fileName.equals("pom.xml", ignoreCase = true)
 
     fun isClassFile() = fileName.endsWith(".class", ignoreCase = true)
@@ -55,5 +60,4 @@ interface ArchiveItem {
     fun isXmlFile() = fileName.endsWith(".xml", ignoreCase = true)
 
     fun isProGuardFile () = fileName.equals("proguard.txt", ignoreCase = true)
-
 }

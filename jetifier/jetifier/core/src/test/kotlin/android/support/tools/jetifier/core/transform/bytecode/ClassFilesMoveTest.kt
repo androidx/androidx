@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License
+ */
+
 package android.support.tools.jetifier.core.transform.bytecode
 
 import android.support.tools.jetifier.core.Processor
@@ -85,10 +101,10 @@ class ClassFilesMoveTest {
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
         val tempDir = createTempDir()
-        val result = processor.transform(setOf(inputFile), tempDir.toPath(), true)
+        val resultFiles = processor.transform(setOf(inputFile), tempDir.toPath(), true)
 
-        Truth.assertThat(result.filesToAdd).hasSize(1)
-        testArchivesAreSame(result.filesToAdd.first(),
+        Truth.assertThat(resultFiles).hasSize(1)
+        testArchivesAreSame(resultFiles.first(),
             File(javaClass.getResource(expectedZipPath).file))
 
         tempDir.delete()
@@ -106,10 +122,10 @@ class ClassFilesMoveTest {
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
         val tempDir = createTempDir()
-        val result = processor.transform(setOf(inputFile), tempDir.toPath(), true)
+        val resultFiles = processor.transform(setOf(inputFile), tempDir.toPath(), true)
 
-        Truth.assertThat(result.filesToAdd).hasSize(1)
-        testArchivesAreSame(result.filesToAdd.first(),
+        Truth.assertThat(resultFiles).hasSize(1)
+        testArchivesAreSame(resultFiles.first(),
             File(javaClass.getResource(expectedZipPath).file))
 
         tempDir.delete()
@@ -129,15 +145,15 @@ class ClassFilesMoveTest {
             rewritingSupportLib = true)
         val inputFile = File(javaClass.getResource(inputZipPath).file)
         val tempDir = createTempDir()
-        val result = processor.transform(setOf(inputFile), tempDir.toPath(), true)
+        val resultFiles = processor.transform(setOf(inputFile), tempDir.toPath(), true)
 
         // Take previous result & reverse it
         val processor2 = Processor.createProcessor(TEST_CONFIG,
             rewritingSupportLib = true,
             reversedMode = true)
-        val result2 = processor2.transform(setOf(result.filesToAdd.first()), tempDir.toPath(), true)
+        val resultFiles2 = processor2.transform(setOf(resultFiles.first()), tempDir.toPath(), true)
 
-        testArchivesAreSame(result2.filesToAdd.first(),
+        testArchivesAreSame(resultFiles2.first(),
             File(javaClass.getResource(inputZipPath).file))
 
         tempDir.delete()
@@ -154,10 +170,10 @@ class ClassFilesMoveTest {
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
         val tempDir = createTempDir()
-        val result = processor.transform(setOf(inputFile), tempDir.toPath(), true)
+        val resultFiles = processor.transform(setOf(inputFile), tempDir.toPath(), true)
 
-        Truth.assertThat(result.filesToAdd).hasSize(1)
-        testArchivesAreSame(result.filesToAdd.first(),
+        Truth.assertThat(resultFiles).hasSize(1)
+        testArchivesAreSame(resultFiles.first(),
             File(javaClass.getResource(inputZipPath).file))
 
         tempDir.delete()

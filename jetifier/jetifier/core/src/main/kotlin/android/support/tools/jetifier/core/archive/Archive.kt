@@ -48,6 +48,9 @@ class Archive(
 
     override val fileName: String = relativePath.fileName.toString()
 
+    override val wasChanged: Boolean
+        get() = files.any { it.wasChanged }
+
     override fun accept(visitor: ArchiveItemVisitor) {
         visitor.visit(this)
     }

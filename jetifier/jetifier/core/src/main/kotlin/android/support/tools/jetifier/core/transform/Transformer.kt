@@ -32,5 +32,4 @@ interface Transformer {
      * Runs transformation of the given file.
      */
     fun runTransform(file: ArchiveFile)
-
 }
