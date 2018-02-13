@@ -91,7 +91,7 @@ class WorkManagerConfiguration {
         boolean enableFirebaseJobService = false;
         boolean enableSystemAlarmService = false;
 
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
             scheduler = new SystemJobScheduler(context);
             setComponentEnabled(context, SystemJobService.class, true);
             Logger.debug(TAG, "Created SystemJobScheduler and enabled SystemJobService");
