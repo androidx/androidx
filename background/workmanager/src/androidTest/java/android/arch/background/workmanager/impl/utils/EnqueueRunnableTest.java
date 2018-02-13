@@ -45,6 +45,7 @@ public class EnqueueRunnableTest {
     public void testScheduleWorkInBackground_isCalled() {
         EnqueueRunnable runnable = spy(new EnqueueRunnable(mWorkContinuation));
         doNothing().when(runnable).addToDatabase();
+        doNothing().when(runnable).scheduleWorkInBackground();
         runnable.run();
         verify(runnable, times(1)).scheduleWorkInBackground();
     }

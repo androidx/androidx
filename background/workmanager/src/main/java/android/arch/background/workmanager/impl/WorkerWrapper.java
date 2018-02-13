@@ -54,7 +54,7 @@ public class WorkerWrapper implements Runnable {
     private Context mAppContext;
     private String mWorkSpecId;
     private ExecutionListener mListener;
-    private Scheduler mScheduler;
+    private List<Scheduler> mSchedulers;
     private WorkSpec mWorkSpec;
     Worker mWorker;
 
@@ -66,7 +66,7 @@ public class WorkerWrapper implements Runnable {
         mAppContext = builder.mAppContext;
         mWorkSpecId = builder.mWorkSpecId;
         mListener = builder.mListener;
-        mScheduler = builder.mScheduler;
+        mSchedulers = builder.mSchedulers;
 
         mWorkDatabase = builder.mWorkDatabase;
         mWorkSpecDao = mWorkDatabase.workSpecDao();
@@ -278,12 +278,15 @@ public class WorkerWrapper implements Runnable {
                         "Setting status to enqueued for %s Works that were dependent on Work ID %s",
                         unblockedWorkCount, mWorkSpecId);
             }
-            mWorkDatabase.setTransactionSuccessful();
 
-            if (mScheduler != null) {
+            if (mSchedulers != null) {
                 WorkSpec[] unblockedWorkSpecs = mWorkSpecDao.getWorkSpecs(unblockedWorkIds);
-                mScheduler.schedule(unblockedWorkSpecs);
+                for (Scheduler scheduler : mSchedulers) {
+                    scheduler.schedule(unblockedWorkSpecs);
+                }
             }
+
+            mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
             notifyListener(true, false);
@@ -318,7 +321,7 @@ public class WorkerWrapper implements Runnable {
         private WorkDatabase mWorkDatabase;
         private String mWorkSpecId;
         private ExecutionListener mListener;
-        private Scheduler mScheduler;
+        private List<Scheduler> mSchedulers;
 
         Builder(@NonNull Context context,
                 @NonNull WorkDatabase database,
@@ -333,8 +336,8 @@ public class WorkerWrapper implements Runnable {
             return this;
         }
 
-        Builder withScheduler(Scheduler scheduler) {
-            mScheduler = scheduler;
+        Builder withSchedulers(List<Scheduler> schedulers) {
+            mSchedulers = schedulers;
             return this;
         }
 

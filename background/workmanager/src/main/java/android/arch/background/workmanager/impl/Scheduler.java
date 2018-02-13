@@ -41,13 +41,4 @@ public interface Scheduler {
      * @param workSpecId The id of the work to stopWork
      */
     void cancel(@NonNull String workSpecId);
-
-    /**
-     * Determines if the given {@link WorkSpec} id has already been cancelled.
-     *
-     * @param workSpecId  The id of the work to check
-     * @return {@code true} if the work has been cancelled through {@link #cancel(String)};
-     *         {@code false} otherwise
-     */
-    boolean isCancelled(@NonNull String workSpecId);
 }
