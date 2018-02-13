@@ -16,13 +16,12 @@
 
 package android.arch.background.workmanager.impl.background.systemalarm;
 
-import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
-
 import android.arch.background.workmanager.impl.ExecutionListener;
 import android.arch.background.workmanager.impl.constraints.WorkConstraintsCallback;
 import android.arch.background.workmanager.impl.constraints.WorkConstraintsTracker;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
+import android.arch.background.workmanager.impl.utils.WakeLocks;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
@@ -51,7 +50,6 @@ public class DelayMetCommandHandler implements
     private final Context mContext;
     private final int mStartId;
     private final String mWorkSpecId;
-    private final PowerManager mPowerManager;
     private final SystemAlarmDispatcher mDispatcher;
     private final WorkConstraintsTracker mWorkConstraintsTracker;
     private final Object mLock;
@@ -70,7 +68,6 @@ public class DelayMetCommandHandler implements
         mStartId = startId;
         mDispatcher = dispatcher;
         mWorkSpecId = workSpecId;
-        mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         mWorkConstraintsTracker = new WorkConstraintsTracker(mContext, this);
         mHasConstraints = false;
         mHasPendingStopWorkCommand = false;
@@ -128,7 +125,9 @@ public class DelayMetCommandHandler implements
 
     @WorkerThread
     void handleProcessWork() {
-        mWakeLock = newWakeLock();
+        mWakeLock = WakeLocks.newWakeLock(
+                mContext,
+                String.format("%s (%s)", mWorkSpecId, mStartId));
         Logger.debug(TAG, "Acquiring wakelock %s for WorkSpec %s", mWakeLock, mWorkSpecId);
         mWakeLock.acquire();
 
@@ -190,10 +189,5 @@ public class DelayMetCommandHandler implements
                 mWakeLock.release();
             }
         }
-    }
-
-    private PowerManager.WakeLock newWakeLock() {
-        String tag = String.format("%s (%s)", mWorkSpecId, mStartId);
-        return mPowerManager.newWakeLock(PARTIAL_WAKE_LOCK, tag);
     }
 }
