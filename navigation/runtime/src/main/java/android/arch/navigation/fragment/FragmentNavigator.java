@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-package android.arch.navigation;
+package android.arch.navigation.fragment;
 
+import android.arch.navigation.NavController;
+import android.arch.navigation.NavDestination;
+import android.arch.navigation.NavOptions;
+import android.arch.navigation.Navigator;
+import android.arch.navigation.NavigatorProvider;
+import android.arch.navigation.R;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -47,7 +54,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 @Override
                 public void onBackStackChanged() {
                     int newCount = mFragmentManager.getBackStackEntryCount();
-                    @BackStackEffect int backStackEffect;
+                    int backStackEffect;
                     if (newCount < mBackStackCount) {
                         backStackEffect = BACK_STACK_DESTINATION_POPPED;
                     } else if (newCount > mBackStackCount) {
@@ -91,7 +98,11 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     private String getBackStackName(@IdRes int destinationId) {
         // This gives us the resource name if it exists,
         // or just the destinationId if it doesn't exist
-        return Navigation.getDisplayName(mContext, destinationId);
+        try {
+            return mContext.getResources().getResourceName(destinationId);
+        } catch (Resources.NotFoundException e) {
+            return Integer.toString(destinationId);
+        }
     }
 
     @Override

@@ -33,46 +33,21 @@
  *     {@link android.arch.navigation.NavController#popBackStack()}, and
  *     {@link android.arch.navigation.NavController#navigateUp()} into the appropriate operations.
  *     </li>
- *     <li>{@link android.arch.navigation.NavHostFragment}: The NavHostFragment provides a
- *     {@link android.arch.navigation.NavController} that supports
- *     {@link android.arch.navigation.FragmentNavigator.Destination fragment destinations}.
+ *     <li>{@link android.arch.navigation.NavHost}:
+ *     {@link android.arch.navigation.NavController},
+ *     {@link android.arch.navigation.fragment.FragmentNavigator.Destination fragment destinations}.
  *     </li>
  * </ul>
- * Below is a minimal implementation.
+ * Below is an example of working with a NavController.
  * <pre class="prettyprint">
- * // File: res/xml/main_navigation.xml
- * &lt;navigation xmlns:android="http://schemas.android.com/apk/res/android"
- *     xmlns:app="http://schemas.android.com/apk/res-auto"
- *     app:startDestination="{@literal @}+id/home_fragment"&gt;
- *   &lt;fragment android:id="{@literal @}+id/home_fragment"
- *       android:name="com.example.HomeFragment"&gt;
- *     &lt;action android:id="{@literal @}+id/details"
- *       app:destination="{@literal @}+id/details_fragment" /&gt;
- *   &lt;fragment /&gt;
- *   &lt;fragment android:id="{@literal @}+id/details_fragment"
- *       android:name="com.example.DetailsFragment"/&gt;
- * &lt;navigation /&gt;
- *
- * // File: activity_main.xml
- * &lt;fragment
- *   android:id="{@literal @}+id/my_nav_host_fragment"
- *   android:layout_width="match_parent"
- *   android:layout_height="match_parent"
- *   android:name="android.arch.navigation.NavHostFragment"
- *   app:navGraph="{@literal @}xml/main_navigation"
- *   app:defaultNavHost="true"
- * /&gt;
- *
  * // File: HomeFragment.java
  * public void onViewCreated(View view, {@literal @}Nullable Bundle savedInstanceState) {
  *   // For example purposes, assume our layout created in onCreateView has a Button
  *   // that should navigate the user to a destination
  *   Button b = view.findViewById(R.id.view_details);
  *
- *   // Retrieve the NavController from any Fragment created by a NavHostFragment by passing in
- *   // this
+ *   // Retrieve the NavController from any View within a NavHost
  *   final NavController navController = Navigation.findNavController(this);
- *   // Alternatively, you can use findNavController(view) with any View within the NavHostFragment
  *
  *   // And set the listener
  *   b.setOnClickListener(() -%gt; navController.navigate(R.id.details));

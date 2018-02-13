@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package android.arch.navigation;
+package android.arch.navigation.fragment;
 
+import android.arch.navigation.NavController;
+import android.arch.navigation.NavGraph;
+import android.arch.navigation.NavHost;
+import android.arch.navigation.Navigation;
+import android.arch.navigation.Navigator;
+import android.arch.navigation.R;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -67,7 +73,7 @@ import android.widget.FrameLayout;
  * fragments can use these helpers to navigate based on user interaction without creating a tight
  * coupling to the navigation host.</p>
  */
-public class NavHostFragment extends Fragment {
+public class NavHostFragment extends Fragment implements NavHost {
     private static final String KEY_GRAPH_ID = "android-support-nav:fragment:graphId";
     private static final String KEY_NAV_CONTROLLER_STATE =
             "android-support-nav:fragment:navControllerState";
@@ -138,9 +144,14 @@ public class NavHostFragment extends Fragment {
      * has been called and it has had an opportunity to restore from a previous instance state.
      *
      * @return this host's navigation controller
+     * @throws IllegalStateException if called before {@link #onCreate(Bundle)}
      */
-    @Nullable
+    @NonNull
+    @Override
     public NavController getNavController() {
+        if (mNavController == null) {
+            throw new IllegalStateException("NavController is not available before onCreate()");
+        }
         return mNavController;
     }
 

@@ -18,8 +18,8 @@ package android.arch.navigation.testapp;
 
 import android.arch.navigation.NavController;
 import android.arch.navigation.NavDestination;
-import android.arch.navigation.NavHostFragment;
 import android.arch.navigation.Navigation;
+import android.arch.navigation.fragment.NavHostFragment;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;

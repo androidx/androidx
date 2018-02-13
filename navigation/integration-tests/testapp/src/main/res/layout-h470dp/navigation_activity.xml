@@ -31,7 +31,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:id="@+id/my_nav_host_fragment"
-        android:name="android.arch.navigation.NavHostFragment"
+        android:name="android.arch.navigation.fragment.NavHostFragment"
         app:navGraph="@navigation/nav_main"
         app:defaultNavHost="true"
         />
