@@ -35,6 +35,7 @@ def includeProject(name, filePath) {
 
 includeProject(":animated-vector-drawable", "graphics/drawable/animated")
 includeProject(":appcompat-v7", "v7/appcompat")
+includeProject(":asynclayoutinflater", "asynclayoutinflater")
 includeProject(":car", "car")
 includeProject(":cardview-v7", "v7/cardview")
 includeProject(":coordinatorlayout", "coordinatorlayout")

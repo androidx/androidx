@@ -17,6 +17,7 @@ dependencies {
     api(project(":slidingpanelayout"))
     api(project(":interpolator"))
     api(project(":swiperefreshlayout"))
+    api(project(":asynclayoutinflater"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
