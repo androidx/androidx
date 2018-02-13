@@ -16,6 +16,7 @@ limitations under the License.
 <resources>
     <!-- The styling for title text. The color of this text changes based on day/night mode. -->
     <style name="CarTitle">
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_title_size</item>
         <item name="android:textColor">@color/car_title</item>
@@ -33,6 +34,7 @@ limitations under the License.
 
     <!-- The styling for title2 text. The color of this text changes based on day/night mode. -->
     <style name="CarTitle2">
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_title2_size</item>
         <item name="android:textColor">@color/car_title2</item>
@@ -125,6 +127,7 @@ limitations under the License.
 
     <!-- The styles for the regular and borderless buttons. -->
     <style name="Widget.Car.Button" parent="Widget.AppCompat.Button">
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:minWidth">@dimen/car_button_min_width</item>
         <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
@@ -136,6 +139,7 @@ limitations under the License.
 
     <style name="Widget.Car.Button.Borderless.Colored"
            parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:minWidth">@dimen/car_button_min_width</item>
         <item name="android:paddingStart">@dimen/car_borderless_button_horizontal_padding</item>
