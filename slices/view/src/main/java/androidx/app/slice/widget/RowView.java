@@ -28,7 +28,6 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static androidx.app.slice.core.SliceHints.EXTRA_RANGE_VALUE;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_MAX;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_VALUE;
-import static androidx.app.slice.widget.SliceView.MODE_LARGE;
 import static androidx.app.slice.widget.SliceView.MODE_SMALL;
 
 import android.annotation.TargetApi;
@@ -85,7 +84,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private SeekBar mSeekBar;
     private ProgressBar mProgressBar;
 
-    private boolean mInSmallMode;
     private int mRowIndex;
     private RowContent mRowContent;
     private SliceItem mRowAction;
@@ -109,12 +107,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
     }
-
-    @Override
-    public @SliceView.SliceMode int getMode() {
-        return mInSmallMode ? MODE_SMALL : MODE_LARGE;
-    }
-
     @Override
     public void setTint(@ColorInt int tintColor) {
         super.setTint(tintColor);
@@ -132,7 +124,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     public void setSliceItem(SliceItem slice, boolean isHeader, int index,
             SliceView.OnSliceActionListener observer) {
         setSliceActionListener(observer);
-        mInSmallMode = false;
         mRowIndex = index;
         mIsHeader = isHeader;
         mRowContent = new RowContent(slice, mIsHeader);
@@ -144,7 +135,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
      */
     @Override
     public void setSlice(Slice slice) {
-        mInSmallMode = true;
         mRowIndex = 0;
         mIsHeader = true;
         ListContent lc = new ListContent(slice);
@@ -175,7 +165,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mPrimaryText.setTextColor(mTitleColor);
         mPrimaryText.setVisibility(titleItem != null ? View.VISIBLE : View.GONE);
 
-        final SliceItem subTitle = mInSmallMode
+        final SliceItem subTitle = getMode() == MODE_SMALL
                 ? mRowContent.getSummaryItem()
                 : mRowContent.getSubtitleItem();
         if (subTitle != null) {

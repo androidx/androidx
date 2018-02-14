@@ -37,6 +37,7 @@ import androidx.app.slice.view.R;
 public abstract class SliceChildView extends FrameLayout {
 
     protected SliceView.OnSliceActionListener mObserver;
+    protected int mMode;
     protected int mTintColor = -1;
     protected int mTitleColor;
     protected int mSubtitleColor;
@@ -55,10 +56,20 @@ public abstract class SliceChildView extends FrameLayout {
         this(context);
     }
 
+
     /**
      * @return the mode of the slice being presented.
      */
-    public abstract int getMode();
+    public void setMode(int mode) {
+        mMode = mode;
+    }
+
+    /**
+     * @return the mode of the slice being presented.
+     */
+    public int getMode() {
+        return mMode;
+    }
 
     /**
      * @param slice the slice to show in this view.

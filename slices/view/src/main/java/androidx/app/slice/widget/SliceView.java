@@ -306,18 +306,15 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     }
 
     private SliceChildView createView(int mode) {
+        boolean isGrid = SliceQuery.hasHints(mCurrentSlice, HINT_HORIZONTAL);
         switch (mode) {
             case MODE_SHORTCUT:
                 return new ShortcutView(getContext());
             case MODE_SMALL:
                 // Check if it's horizontal and use a grid instead
-                if (SliceQuery.hasHints(mCurrentSlice, HINT_HORIZONTAL)) {
-                    return new GridRowView(getContext());
-                } else {
-                    return new RowView(getContext());
-                }
+                return isGrid ? new GridRowView(getContext()) : new RowView(getContext());
         }
-        return new LargeTemplateView(getContext());
+        return isGrid ? new GridRowView(getContext()) : new LargeTemplateView(getContext());
     }
 
     private void reinflate() {
@@ -327,9 +324,9 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         }
         // TODO: Smarter mapping here from one state to the next.
         int mode = getMode();
-        boolean isSmallGridShowing = mCurrentView instanceof GridRowView;
+        boolean isGridShowing = mCurrentView instanceof GridRowView;
         boolean isGridSlice = SliceQuery.hasHints(mCurrentSlice, HINT_HORIZONTAL);
-        if (mMode == mCurrentView.getMode() && isGridSlice == isSmallGridShowing) {
+        if (mMode == mCurrentView.getMode() && isGridSlice == isGridShowing) {
             mCurrentView.setSlice(mCurrentSlice);
         } else {
             removeAllViews();
@@ -339,9 +336,10 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
             }
             addView(mCurrentView.getView(), getChildLp(mCurrentView.getView()));
             addView(mActions, getChildLp(mActions));
+            mCurrentView.setMode(mMode);
         }
         // Scrolling
-        if (mode == MODE_LARGE) {
+        if (mode == MODE_LARGE && (mCurrentView instanceof LargeTemplateView)) {
             ((LargeTemplateView) mCurrentView).setScrollable(mIsScrollable);
         }
         // Styles
