@@ -448,6 +448,10 @@ object ProcessorErrors {
                 to add $entity to the entities section of the @Database?
                 """.trim()
     }
+
+    val MISSING_ROOM_GUAVA_ARTIFACT = "To use Guava features, you must add `guava`" +
+            " artifact from Room as a dependency. android.arch.persistence.room:guava:<version>"
+
     val MISSING_ROOM_RXJAVA2_ARTIFACT = "To use RxJava2 features, you must add `rxjava2`" +
             " artifact from Room as a dependency. android.arch.persistence.room:rxjava2:<version>"
 
