@@ -61,6 +61,11 @@ public class DatabaseConfiguration {
     public final boolean allowMainThreadQueries;
 
     /**
+     * The journal mode for this database.
+     */
+    public final RoomDatabase.JournalMode journalMode;
+
+    /**
      * If true, Room should crash if a migration is missing.
      */
     public final boolean requireMigration;
@@ -79,6 +84,7 @@ public class DatabaseConfiguration {
      * @param migrationContainer The migration container for migrations.
      * @param callbacks The list of callbacks for database events.
      * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
+     * @param journalMode The journal mode. This has to be either TRUNCATE or WRITE_AHEAD_LOGGING.
      * @param requireMigration True if Room should require a valid migration if version changes,
      *                        instead of recreating the tables.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
@@ -92,6 +98,7 @@ public class DatabaseConfiguration {
             @NonNull RoomDatabase.MigrationContainer migrationContainer,
             @Nullable List<RoomDatabase.Callback> callbacks,
             boolean allowMainThreadQueries,
+            RoomDatabase.JournalMode journalMode,
             boolean requireMigration,
             @Nullable Set<Integer> migrationNotRequiredFrom) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
@@ -100,6 +107,7 @@ public class DatabaseConfiguration {
         this.migrationContainer = migrationContainer;
         this.callbacks = callbacks;
         this.allowMainThreadQueries = allowMainThreadQueries;
+        this.journalMode = journalMode;
         this.requireMigration = requireMigration;
         this.mMigrationNotRequiredFrom = migrationNotRequiredFrom;
     }
