@@ -1,4 +1,3 @@
-import static android.support.dependencies.DependenciesKt.*
 import android.support.LibraryGroups
 import android.support.LibraryVersions
 
@@ -8,21 +7,13 @@ plugins {
 
 dependencies {
     api(project(":support-annotations"))
-    api(project(":support-compat"))
-    api(project(":documentfile"))
-    api(project(":localbroadcastmanager"))
-
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 }
 
 supportLibrary {
-    name = "Android Support Library core utils"
+    name = "Android Support Library Local Broadcast Manager"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SUPPORT
-    inceptionYear = "2011"
+    inceptionYear = "2018"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
 }

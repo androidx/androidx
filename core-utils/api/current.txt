@@ -158,14 +158,6 @@ package android.support.v4.content {
     method public abstract void onLoadComplete(android.support.v4.content.Loader<D>, D);
   }
 
-  public final class LocalBroadcastManager {
-    method public static android.support.v4.content.LocalBroadcastManager getInstance(android.content.Context);
-    method public void registerReceiver(android.content.BroadcastReceiver, android.content.IntentFilter);
-    method public boolean sendBroadcast(android.content.Intent);
-    method public void sendBroadcastSync(android.content.Intent);
-    method public void unregisterReceiver(android.content.BroadcastReceiver);
-  }
-
   public final class MimeTypeFilter {
     method public static boolean matches(java.lang.String, java.lang.String);
     method public static java.lang.String matches(java.lang.String, java.lang.String[]);
