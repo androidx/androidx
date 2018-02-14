@@ -16,6 +16,8 @@
 
 package androidx.car.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -31,6 +33,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.UiThread;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.widget.LinearLayoutManager;
@@ -718,13 +721,21 @@ public class PagedListView extends FrameLayout {
         return position / mRowsPerPage;
     }
 
-    /** Scrolls the contents of the RecyclerView up a page. */
-    private void pageUp() {
+    /**
+     * Scrolls the contents of the RecyclerView up a page.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void pageUp() {
         mRecyclerView.fling(0, FLING_UP_DISTANCE);
     }
 
-    /** Scrolls the contents of the RecyclerView down a page. */
-    private void pageDown() {
+    /**
+     * Scrolls the contents of the RecyclerView down a page.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void pageDown() {
         mRecyclerView.fling(0, FLING_DOWN_DISTANCE);
     }
 
