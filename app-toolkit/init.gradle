@@ -15,7 +15,7 @@
  */
 
 import android.support.DacOptions
-
+import android.support.license.CheckExternalDependencyLicensesTask
 apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
 init.setSdkInLocalPropertiesFile()
 
@@ -42,6 +42,11 @@ buildServerAnchorTask.dependsOn zipFlatfootDocsTask
 zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
 buildServerAnchorTask.dependsOn createDiffArchive
 buildServerAnchorTask.dependsOn createArchive
+rootProject.tasks.whenTaskAdded { task ->
+    if (CheckExternalDependencyLicensesTask.ROOT_TASK_NAME.equals(task.name)) {
+        buildServerAnchorTask.dependsOn task
+    }
+}
 
 subprojects {
    project.tasks.whenTaskAdded { task ->
