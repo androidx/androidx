@@ -28,10 +28,6 @@
         <attr name="dataPattern" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="FragmentNavigator">
-        <attr name="android:name" />
-    </declare-styleable>
-
     <declare-styleable name="NavArgument">
         <attr name="android:name" />
         <attr name="android:defaultValue" />
@@ -60,10 +56,5 @@
 
     <declare-styleable name="NavInclude">
         <attr name="graph" format="reference" />
-    </declare-styleable>
-
-    <declare-styleable name="NavHostFragment">
-        <attr name="navGraph" format="reference" />
-        <attr name="defaultNavHost" format="boolean" />
     </declare-styleable>
 </resources>

@@ -37,8 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * <p>Each Navigator sets the policy for a specific type of navigation, e.g.
  * {@link ActivityNavigator} knows how to launch into {@link NavDestination destinations}
- * backed by activities using {@link Context#startActivity(Intent) startActivity} and
- * {@link FragmentNavigator} knows how to navigate by replacing fragments within a container.</p>
+ * backed by activities using {@link Context#startActivity(Intent) startActivity}.</p>
  *
  * <p>Navigators should be able to manage their own back stack when navigating between two
  * destinations that belong to that navigator. The {@link NavController} manages a back stack of
@@ -46,8 +45,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * <p>Each Navigator should add the {@link Name Navigator.Name annotation} to their class. Any
  * custom attributes used by the associated {@link NavDestination destination} subclass should
- * have a name corresponding with the name of the Navigator, e.g., {@link FragmentNavigator} uses
- * <code>&lt;declare-styleable name="FragmentNavigator"&gt;</code></p>
+ * have a name corresponding with the name of the Navigator, e.g., {@link ActivityNavigator} uses
+ * <code>&lt;declare-styleable name="ActivityNavigator"&gt;</code></p>
  *
  * @param <D> the subclass of {@link NavDestination} used with this Navigator which can be used
  *           to hold any special data that will be needed to navigate to that destination.

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,29 @@
  * limitations under the License.
  */
 
-package android.arch.navigation.activity;
+package android.arch.navigation.fragment.test;
 
 import android.arch.navigation.NavController;
-import android.arch.navigation.NavHostFragment;
+import android.arch.navigation.Navigation;
 import android.arch.navigation.test.R;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 
 /**
- * Test Navigation Activity that adds the {@link NavHostFragment} in XML.
+ * Base Navigation Activity.
  *
  * <p>You must call {@link NavController#setGraph(int)}
  * to set the appropriate graph for your test.</p>
  */
-public class XmlNavigationActivity extends BaseNavigationActivity {
+public abstract class BaseNavigationActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.navigation_activity);
+    }
+
+    public NavController getNavController() {
+        return Navigation.findNavController(this, R.id.nav_host);
     }
 }

@@ -61,7 +61,7 @@ public class Navigation {
      * {@link Activity}. This is a convenience wrapper around {@link #findNavController(View)}.
      *
      * <p>This method will locate the {@link NavController} associated with this view.
-     * This is automatically populated for the id of a {@link NavHostFragment} and its children.</p>
+     * This is automatically populated for the id of a {@link NavHost} and its children.</p>
      *
      * @param activity The Activity hosting the view
      * @param viewId The id of the view to search from
@@ -76,7 +76,7 @@ public class Navigation {
      * Find a {@link NavController} given a local {@link View}.
      *
      * <p>This method will locate the {@link NavController} associated with this view.
-     * This is automatically populated for views that are managed by a {@link NavHostFragment}
+     * This is automatically populated for views that are managed by a {@link NavHost}
      * and is intended for use by various {@link android.view.View.OnClickListener listener}
      * interfaces.</p>
      *
@@ -145,7 +145,7 @@ public class Navigation {
      * {@link #findNavController(View)} and {@link #findNavController(Activity, int)} with that
      * View or any of its children to retrieve the NavController.
      * <p>
-     * This is generally called for you by the hosting component, such as a {@link NavHostFragment}.
+     * This is generally called for you by the hosting {@link NavHost}.
      * @param view View that should be associated with the given NavController
      * @param controller The controller you wish to later retrieve via
      *                   {@link #findNavController(View)}

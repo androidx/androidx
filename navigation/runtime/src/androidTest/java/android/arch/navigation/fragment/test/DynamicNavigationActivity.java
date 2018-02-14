@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package android.arch.navigation.activity;
+package android.arch.navigation.fragment.test;
 
 import android.arch.navigation.NavController;
-import android.arch.navigation.NavHostFragment;
+import android.arch.navigation.fragment.NavHostFragment;
 import android.arch.navigation.test.R;
 import android.os.Bundle;
 import android.support.annotation.Nullable;

@@ -36,13 +36,10 @@ import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * NavController manages app navigation within a host.
+ * NavController manages app navigation within a {@link NavHost}.
  *
- * <p>A host is a single context or container for navigation, e.g. a {@link NavHostFragment}.
- * Navigation hosts are responsible for {@link #saveState() saving} and
- * {@link #restoreState(Bundle) restoring} their controller's state. Apps will generally obtain
- * a controller directly from a host, or by using one of the utility methods on the
- * {@link Navigation} class rather than create a controller directly.</p>
+ * <p>Apps will generally obtain a controller directly from a host, or by using one of the utility
+ * methods on the {@link Navigation} class rather than create a controller directly.</p>
  *
  * <p>Navigation flows and destinations are determined by the
  * {@link NavGraph navigation graph} owned by the controller. These graphs are typically
@@ -146,8 +143,7 @@ public class NavController {
      * If you need a global controller, pass {@link Context#getApplicationContext()}.
      *
      * <p>Apps should generally not construct controllers, instead obtain a relevant controller
-     * directly from a navigation host such as
-     * {@link NavHostFragment#getNavController() NavHostFragment} or by using one of
+     * directly from a navigation host via {@link NavHost#getNavController()} or by using one of
      * the utility methods on the {@link Navigation} class.</p>
      *
      * <p>Note that controllers that are not constructed with an {@link Activity} context
@@ -181,9 +177,8 @@ public class NavController {
      * to construct the {@link NavGraph navigation graph} for this nav controller should be added
      * to this navigator provider before the graph is constructed.
      * <p>
-     * Generally, the Navigators are set for you by the component hosting this NavController,
-     * such as a {@link NavHostFragment} and you do not need to manually interact with the
-     * navigator provider.
+     * Generally, the Navigators are set for you by the {@link NavHost} hosting this NavController
+     * and you do not need to manually interact with the navigator provider.
      * </p>
      * @return The {@link NavigatorProvider} used by this NavController.
      */
@@ -651,7 +646,7 @@ public class NavController {
      *
      * <p>State may be restored from a bundle returned from this method by calling
      * {@link #restoreState(Bundle)}. Saving controller state is the responsibility
-     * of a navigation host, e.g. {@link NavHostFragment}.</p>
+     * of a {@link NavHost}.</p>
      *
      * @return saved state for this controller
      */
@@ -680,8 +675,7 @@ public class NavController {
      * Restores all navigation controller state from a bundle.
      *
      * <p>State may be saved to a bundle by calling {@link #saveState()}.
-     * Restoring controller state is the responsibility of a navigation host,
-     * e.g. {@link NavHostFragment}.</p>
+     * Restoring controller state is the responsibility of a {@link NavHost}.</p>
      *
      * @param navState state bundle to restore
      */
