@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// TO debug processor, run:
+//./gradlew :r:in:k:clean :r:in:k:cC --no-daemon
+// -Dorg.gradle.debug=true
+// -Dkotlin.compiler.execution.strategy="in-process"
 import static android.support.dependencies.DependenciesKt.*
 
 plugins {
