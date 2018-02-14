@@ -777,6 +777,26 @@ public class LinkifyCompatTest {
                 + domain.length(), email);
     }
 
+    // ADDRESS RELATED TESTS
+
+    @Test
+    public void testFindAddress_withoutZipcode() {
+        final String address = "455 LARKSPUR DRIVE CALIFORNIA SPRINGS CALIFORNIA";
+        verifyAddLinksWithMapAddressSucceeds("Should match map address: " + address, address);
+    }
+
+    @Test
+    public void testFindAddress_withZipcode() {
+        final String address = "455 LARKSPUR DRIVE CALIFORNIA SPRINGS CALIFORNIA 92826";
+        verifyAddLinksWithMapAddressSucceeds("Should match map address: " + address, address);
+    }
+
+    @Test
+    public void testFindAddress_invalidAddress() {
+        final String address = "This is not an address: no town, no state, no zip.";
+        verifyAddLinksWithMapAddressFails("Should not match map address: " + address, address);
+    }
+
     // Utility functions
     private static void verifyAddLinksWithWebUrlSucceeds(String msg, String url) {
         verifyAddLinksSucceeds(msg, url, Linkify.WEB_URLS);
@@ -803,6 +823,15 @@ public class LinkifyCompatTest {
             String url) {
         verifyAddLinksPartiallyMatches(msg, expected, url, Linkify.EMAIL_ADDRESSES);
     }
+
+    private static void verifyAddLinksWithMapAddressSucceeds(String msg, String url) {
+        verifyAddLinksSucceeds(msg, url, Linkify.MAP_ADDRESSES);
+    }
+
+    private static void verifyAddLinksWithMapAddressFails(String msg, String url) {
+        verifyAddLinksFails(msg, url, Linkify.MAP_ADDRESSES);
+    }
+
 
     private static void verifyAddLinksSucceeds(String msg, String string, int type) {
         String str = "start " + string + " end";

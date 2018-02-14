@@ -23,6 +23,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.util.PatternsCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -442,7 +443,7 @@ public final class LinkifyCompat {
         int base = 0;
 
         try {
-            while ((address = WebView.findAddress(string)) != null) {
+            while ((address = findAddress(string)) != null) {
                 int start = string.indexOf(address);
 
                 if (start < 0) {
@@ -475,6 +476,13 @@ public final class LinkifyCompat {
             // in WebView.findAddress.
             return;
         }
+    }
+
+    private static String findAddress(String addr) {
+        if (BuildCompat.isAtLeastP()) {
+            return WebView.findAddress(addr);
+        }
+        return FindAddress.findAddress(addr);
     }
 
     private static void pruneOverlaps(ArrayList<LinkSpec> links, Spannable text) {
