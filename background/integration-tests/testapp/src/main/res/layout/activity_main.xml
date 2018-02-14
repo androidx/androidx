@@ -20,7 +20,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="android.arch.background.integration.testapp.MainActivity">
+    tools:context="androidx.work.integration.testapp.MainActivity">
 
     <Button
         android:id="@+id/enqueue_infinite_work"
