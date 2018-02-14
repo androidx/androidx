@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (C) 2011 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,11 @@
 package android.support.v4.util;
 
 /**
- * SparseArray mapping longs to Objects, a version of the platform's
- * {@link android.util.LongSparseArray} that can be used on older versions of the
- * platform.  Unlike a normal array of Objects,
+ * SparseArrays map integers to Objects.  Unlike a normal array of Objects,
  * there can be gaps in the indices.  It is intended to be more memory efficient
- * than using a HashMap to map Longs to Objects, both because it avoids
-  * auto-boxing keys and its data structure doesn't rely on an extra entry object
-  * for each mapping.
+ * than using a HashMap to map Integers to Objects, both because it avoids
+ * auto-boxing keys and its data structure doesn't rely on an extra entry object
+ * for each mapping.
  *
  * <p>Note that this container keeps its mappings in an array data structure,
  * using a binary search to find keys.  The implementation is not intended to be appropriate for
@@ -39,36 +37,42 @@ package android.support.v4.util;
  * a single garbage collection step of all removed entries.  This garbage collection will
  * need to be performed at any time the array needs to be grown or the the map size or
  * entry values are retrieved.</p>
+ *
+ * <p>It is possible to iterate over the items in this container using
+ * {@link #keyAt(int)} and {@link #valueAt(int)}. Iterating over the keys using
+ * <code>keyAt(int)</code> with ascending values of the index will return the
+ * keys in ascending order, or the values corresponding to the keys in ascending
+ * order in the case of <code>valueAt(int)</code>.</p>
  */
-public class LongSparseArray<E> implements Cloneable {
+public class SparseArrayCompat<E> implements Cloneable {
     private static final Object DELETED = new Object();
     private boolean mGarbage = false;
 
-    private long[] mKeys;
+    private int[] mKeys;
     private Object[] mValues;
     private int mSize;
 
     /**
-     * Creates a new LongSparseArray containing no mappings.
+     * Creates a new SparseArray containing no mappings.
      */
-    public LongSparseArray() {
+    public SparseArrayCompat() {
         this(10);
     }
 
     /**
-     * Creates a new LongSparseArray containing no mappings that will not
+     * Creates a new SparseArray containing no mappings that will not
      * require any additional memory allocation to store the specified
      * number of mappings.  If you supply an initial capacity of 0, the
      * sparse array will be initialized with a light-weight representation
      * not requiring any additional array allocations.
      */
-    public LongSparseArray(int initialCapacity) {
+    public SparseArrayCompat(int initialCapacity) {
         if (initialCapacity == 0) {
-            mKeys = ContainerHelpers.EMPTY_LONGS;
-            mValues = ContainerHelpers.EMPTY_OBJECTS;
+            mKeys =  ContainerHelpers.EMPTY_INTS;
+            mValues =  ContainerHelpers.EMPTY_OBJECTS;
         } else {
-            initialCapacity = ContainerHelpers.idealLongArraySize(initialCapacity);
-            mKeys = new long[initialCapacity];
+            initialCapacity =  ContainerHelpers.idealIntArraySize(initialCapacity);
+            mKeys = new int[initialCapacity];
             mValues = new Object[initialCapacity];
         }
         mSize = 0;
@@ -76,10 +80,10 @@ public class LongSparseArray<E> implements Cloneable {
 
     @Override
     @SuppressWarnings("unchecked")
-    public LongSparseArray<E> clone() {
-        LongSparseArray<E> clone = null;
+    public SparseArrayCompat<E> clone() {
+        SparseArrayCompat<E> clone = null;
         try {
-            clone = (LongSparseArray<E>) super.clone();
+            clone = (SparseArrayCompat<E>) super.clone();
             clone.mKeys = mKeys.clone();
             clone.mValues = mValues.clone();
         } catch (CloneNotSupportedException cnse) {
@@ -92,7 +96,7 @@ public class LongSparseArray<E> implements Cloneable {
      * Gets the Object mapped from the specified key, or <code>null</code>
      * if no such mapping has been made.
      */
-    public E get(long key) {
+    public E get(int key) {
         return get(key, null);
     }
 
@@ -101,8 +105,8 @@ public class LongSparseArray<E> implements Cloneable {
      * if no such mapping has been made.
      */
     @SuppressWarnings("unchecked")
-    public E get(long key, E valueIfKeyNotFound) {
-        int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
+    public E get(int key, E valueIfKeyNotFound) {
+        int i =  ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i < 0 || mValues[i] == DELETED) {
             return valueIfKeyNotFound;
@@ -114,8 +118,8 @@ public class LongSparseArray<E> implements Cloneable {
     /**
      * Removes the mapping from the specified key, if there was any.
      */
-    public void delete(long key) {
-        int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
+    public void delete(int key) {
+        int i =  ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
             if (mValues[i] != DELETED) {
@@ -126,9 +130,9 @@ public class LongSparseArray<E> implements Cloneable {
     }
 
     /**
-     * Alias for {@link #delete(long)}.
+     * Alias for {@link #delete(int)}.
      */
-    public void remove(long key) {
+    public void remove(int key) {
         delete(key);
     }
 
@@ -142,12 +146,25 @@ public class LongSparseArray<E> implements Cloneable {
         }
     }
 
+    /**
+     * Remove a range of mappings as a batch.
+     *
+     * @param index Index to begin at
+     * @param size Number of mappings to remove
+     */
+    public void removeAtRange(int index, int size) {
+        final int end = Math.min(mSize, index + size);
+        for (int i = index; i < end; i++) {
+            removeAt(i);
+        }
+    }
+
     private void gc() {
         // Log.e("SparseArray", "gc start with " + mSize);
 
         int n = mSize;
         int o = 0;
-        long[] keys = mKeys;
+        int[] keys = mKeys;
         Object[] values = mValues;
 
         for (int i = 0; i < n; i++) {
@@ -175,8 +192,8 @@ public class LongSparseArray<E> implements Cloneable {
      * replacing the previous mapping from the specified key if there
      * was one.
      */
-    public void put(long key, E value) {
-        int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
+    public void put(int key, E value) {
+        int i =  ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
             mValues[i] = value;
@@ -193,13 +210,13 @@ public class LongSparseArray<E> implements Cloneable {
                 gc();
 
                 // Search again because indices may have changed.
-                i = ~ContainerHelpers.binarySearch(mKeys, mSize, key);
+                i = ~ ContainerHelpers.binarySearch(mKeys, mSize, key);
             }
 
             if (mSize >= mKeys.length) {
-                int n = ContainerHelpers.idealLongArraySize(mSize + 1);
+                int n =  ContainerHelpers.idealIntArraySize(mSize + 1);
 
-                long[] nkeys = new long[n];
+                int[] nkeys = new int[n];
                 Object[] nvalues = new Object[n];
 
                 // Log.e("SparseArray", "grow " + mKeys.length + " to " + n);
@@ -223,7 +240,7 @@ public class LongSparseArray<E> implements Cloneable {
     }
 
     /**
-     * Returns the number of key-value mappings that this LongSparseArray
+     * Returns the number of key-value mappings that this SparseArray
      * currently stores.
      */
     public int size() {
@@ -245,9 +262,9 @@ public class LongSparseArray<E> implements Cloneable {
     /**
      * Given an index in the range <code>0...size()-1</code>, returns
      * the key from the <code>index</code>th key-value mapping that this
-     * LongSparseArray stores.
+     * SparseArray stores.
      */
-    public long keyAt(int index) {
+    public int keyAt(int index) {
         if (mGarbage) {
             gc();
         }
@@ -258,7 +275,7 @@ public class LongSparseArray<E> implements Cloneable {
     /**
      * Given an index in the range <code>0...size()-1</code>, returns
      * the value from the <code>index</code>th key-value mapping that this
-     * LongSparseArray stores.
+     * SparseArray stores.
      */
     @SuppressWarnings("unchecked")
     public E valueAt(int index) {
@@ -272,7 +289,7 @@ public class LongSparseArray<E> implements Cloneable {
     /**
      * Given an index in the range <code>0...size()-1</code>, sets a new
      * value for the <code>index</code>th key-value mapping that this
-     * LongSparseArray stores.
+     * SparseArray stores.
      */
     public void setValueAt(int index, E value) {
         if (mGarbage) {
@@ -287,21 +304,23 @@ public class LongSparseArray<E> implements Cloneable {
      * specified key, or a negative number if the specified
      * key is not mapped.
      */
-    public int indexOfKey(long key) {
+    public int indexOfKey(int key) {
         if (mGarbage) {
             gc();
         }
 
-        return ContainerHelpers.binarySearch(mKeys, mSize, key);
+        return  ContainerHelpers.binarySearch(mKeys, mSize, key);
     }
 
     /**
      * Returns an index for which {@link #valueAt} would return the
      * specified key, or a negative number if no keys map to the
      * specified value.
-     * Beware that this is a linear search, unlike lookups by key,
+     * <p>Beware that this is a linear search, unlike lookups by key,
      * and that multiple keys can map to the same value and this will
      * find only one of them.
+     * <p>Note also that unlike most collections' {@code indexOf} methods,
+     * this method compares values using {@code ==} rather than {@code equals}.
      */
     public int indexOfValue(E value) {
         if (mGarbage) {
@@ -316,7 +335,7 @@ public class LongSparseArray<E> implements Cloneable {
     }
 
     /**
-     * Removes all key-value mappings from this LongSparseArray.
+     * Removes all key-value mappings from this SparseArray.
      */
     public void clear() {
         int n = mSize;
@@ -334,7 +353,7 @@ public class LongSparseArray<E> implements Cloneable {
      * Puts a key/value pair into the array, optimizing for the case where
      * the key is greater than all existing keys in the array.
      */
-    public void append(long key, E value) {
+    public void append(int key, E value) {
         if (mSize != 0 && key <= mKeys[mSize - 1]) {
             put(key, value);
             return;
@@ -346,9 +365,9 @@ public class LongSparseArray<E> implements Cloneable {
 
         int pos = mSize;
         if (pos >= mKeys.length) {
-            int n = ContainerHelpers.idealLongArraySize(pos + 1);
+            int n =  ContainerHelpers.idealIntArraySize(pos + 1);
 
-            long[] nkeys = new long[n];
+            int[] nkeys = new int[n];
             Object[] nvalues = new Object[n];
 
             // Log.e("SparseArray", "grow " + mKeys.length + " to " + n);
@@ -383,7 +402,7 @@ public class LongSparseArray<E> implements Cloneable {
             if (i > 0) {
                 buffer.append(", ");
             }
-            long key = keyAt(i);
+            int key = keyAt(i);
             buffer.append(key);
             buffer.append('=');
             Object value = valueAt(i);

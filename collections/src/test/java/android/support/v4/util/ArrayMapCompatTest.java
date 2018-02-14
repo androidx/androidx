@@ -19,11 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -33,8 +29,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-@RunWith(AndroidJUnit4.class)
-@SmallTest
 public class ArrayMapCompatTest {
 
     @Test

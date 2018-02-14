@@ -16,8 +16,6 @@
 
 package android.support.v4.util;
 
-import android.util.Log;
-
 import java.util.ConcurrentModificationException;
 import java.util.Map;
 
@@ -170,7 +168,7 @@ public class SimpleArrayMap<K, V> {
                     mHashes = (int[])array[1];
                     array[0] = array[1] = null;
                     mTwiceBaseCacheSize--;
-                    if (DEBUG) Log.d(TAG, "Retrieving 2x cache " + mHashes
+                    if (DEBUG) System.out.println(TAG + " Retrieving 2x cache " + mHashes
                             + " now have " + mTwiceBaseCacheSize + " entries");
                     return;
                 }
@@ -184,7 +182,7 @@ public class SimpleArrayMap<K, V> {
                     mHashes = (int[])array[1];
                     array[0] = array[1] = null;
                     mBaseCacheSize--;
-                    if (DEBUG) Log.d(TAG, "Retrieving 1x cache " + mHashes
+                    if (DEBUG) System.out.println(TAG + " Retrieving 1x cache " + mHashes
                             + " now have " + mBaseCacheSize + " entries");
                     return;
                 }
@@ -207,7 +205,7 @@ public class SimpleArrayMap<K, V> {
                     }
                     mTwiceBaseCache = array;
                     mTwiceBaseCacheSize++;
-                    if (DEBUG) Log.d(TAG, "Storing 2x cache " + array
+                    if (DEBUG) System.out.println(TAG + " Storing 2x cache " + array
                             + " now have " + mTwiceBaseCacheSize + " entries");
                 }
             }
@@ -221,7 +219,7 @@ public class SimpleArrayMap<K, V> {
                     }
                     mBaseCache = array;
                     mBaseCacheSize++;
-                    if (DEBUG) Log.d(TAG, "Storing 1x cache " + array
+                    if (DEBUG) System.out.println(TAG + " Storing 1x cache " + array
                             + " now have " + mBaseCacheSize + " entries");
                 }
             }
@@ -430,7 +428,7 @@ public class SimpleArrayMap<K, V> {
             final int n = osize >= (BASE_SIZE*2) ? (osize+(osize>>1))
                     : (osize >= BASE_SIZE ? (BASE_SIZE*2) : BASE_SIZE);
 
-            if (DEBUG) Log.d(TAG, "put: grow from " + mHashes.length + " to " + n);
+            if (DEBUG) System.out.println(TAG + " put: grow from " + mHashes.length + " to " + n);
 
             final int[] ohashes = mHashes;
             final Object[] oarray = mArray;
@@ -441,7 +439,7 @@ public class SimpleArrayMap<K, V> {
             }
 
             if (mHashes.length > 0) {
-                if (DEBUG) Log.d(TAG, "put: copy 0-" + osize + " to 0");
+                if (DEBUG) System.out.println(TAG + " put: copy 0-" + osize + " to 0");
                 System.arraycopy(ohashes, 0, mHashes, 0, ohashes.length);
                 System.arraycopy(oarray, 0, mArray, 0, oarray.length);
             }
@@ -450,7 +448,7 @@ public class SimpleArrayMap<K, V> {
         }
 
         if (index < osize) {
-            if (DEBUG) Log.d(TAG, "put: move " + index + "-" + (osize-index)
+            if (DEBUG) System.out.println(TAG + " put: move " + index + "-" + (osize-index)
                     + " to " + (index+1));
             System.arraycopy(mHashes, index, mHashes, index + 1, osize - index);
             System.arraycopy(mArray, index << 1, mArray, (index + 1) << 1, (mSize - index) << 1);
@@ -515,7 +513,7 @@ public class SimpleArrayMap<K, V> {
         final int nsize;
         if (osize <= 1) {
             // Now empty.
-            if (DEBUG) Log.d(TAG, "remove: shrink from " + mHashes.length + " to 0");
+            if (DEBUG) System.out.println(TAG + " remove: shrink from " + mHashes.length + " to 0");
             freeArrays(mHashes, mArray, osize);
             mHashes = ContainerHelpers.EMPTY_INTS;
             mArray = ContainerHelpers.EMPTY_OBJECTS;
@@ -528,7 +526,7 @@ public class SimpleArrayMap<K, V> {
                 // that and BASE_SIZE.
                 final int n = osize > (BASE_SIZE*2) ? (osize + (osize>>1)) : (BASE_SIZE*2);
 
-                if (DEBUG) Log.d(TAG, "remove: shrink from " + mHashes.length + " to " + n);
+                if (DEBUG) System.out.println(TAG + " remove: shrink from " + mHashes.length + " to " + n);
 
                 final int[] ohashes = mHashes;
                 final Object[] oarray = mArray;
@@ -539,12 +537,12 @@ public class SimpleArrayMap<K, V> {
                 }
 
                 if (index > 0) {
-                    if (DEBUG) Log.d(TAG, "remove: copy from 0-" + index + " to 0");
+                    if (DEBUG) System.out.println(TAG + " remove: copy from 0-" + index + " to 0");
                     System.arraycopy(ohashes, 0, mHashes, 0, index);
                     System.arraycopy(oarray, 0, mArray, 0, index << 1);
                 }
                 if (index < nsize) {
-                    if (DEBUG) Log.d(TAG, "remove: copy from " + (index+1) + "-" + nsize
+                    if (DEBUG) System.out.println(TAG + " remove: copy from " + (index+1) + "-" + nsize
                             + " to " + index);
                     System.arraycopy(ohashes, index + 1, mHashes, index, nsize - index);
                     System.arraycopy(oarray, (index + 1) << 1, mArray, index << 1,
@@ -552,7 +550,7 @@ public class SimpleArrayMap<K, V> {
                 }
             } else {
                 if (index < nsize) {
-                    if (DEBUG) Log.d(TAG, "remove: move " + (index+1) + "-" + nsize
+                    if (DEBUG) System.out.println(TAG + " remove: move " + (index+1) + "-" + nsize
                             + " to " + index);
                     System.arraycopy(mHashes, index + 1, mHashes, index, nsize - index);
                     System.arraycopy(mArray, (index + 1) << 1, mArray, index << 1,

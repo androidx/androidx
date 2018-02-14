@@ -21,7 +21,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -169,7 +168,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
                     array[0] = array[1] = null;
                     sTwiceBaseCacheSize--;
                     if (DEBUG) {
-                        Log.d(TAG, "Retrieving 2x cache " + mHashes + " now have "
+                        System.out.println(TAG + " Retrieving 2x cache " + mHashes + " now have "
                                 + sTwiceBaseCacheSize + " entries");
                     }
                     return;
@@ -185,8 +184,8 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
                     array[0] = array[1] = null;
                     sBaseCacheSize--;
                     if (DEBUG) {
-                        Log.d(TAG, "Retrieving 1x cache " + mHashes + " now have " + sBaseCacheSize
-                                + " entries");
+                        System.out.println(TAG + " Retrieving 1x cache " + mHashes + " now have "
+                                + sBaseCacheSize + " entries");
                     }
                     return;
                 }
@@ -210,8 +209,8 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
                     sTwiceBaseCache = array;
                     sTwiceBaseCacheSize++;
                     if (DEBUG) {
-                        Log.d(TAG, "Storing 2x cache " + array + " now have " + sTwiceBaseCacheSize
-                                + " entries");
+                        System.out.println(TAG + " Storing 2x cache " + array + " now have "
+                                + sTwiceBaseCacheSize + " entries");
                     }
                 }
             }
@@ -226,7 +225,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
                     sBaseCache = array;
                     sBaseCacheSize++;
                     if (DEBUG) {
-                        Log.d(TAG, "Storing 1x cache " + array + " now have "
+                        System.out.println(TAG + " Storing 1x cache " + array + " now have "
                                 + sBaseCacheSize + " entries");
                     }
                 }
@@ -373,14 +372,14 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
             final int n = mSize >= (BASE_SIZE * 2) ? (mSize + (mSize >> 1))
                     : (mSize >= BASE_SIZE ? (BASE_SIZE * 2) : BASE_SIZE);
 
-            if (DEBUG) Log.d(TAG, "add: grow from " + mHashes.length + " to " + n);
+            if (DEBUG) System.out.println(TAG + " add: grow from " + mHashes.length + " to " + n);
 
             final int[] ohashes = mHashes;
             final Object[] oarray = mArray;
             allocArrays(n);
 
             if (mHashes.length > 0) {
-                if (DEBUG) Log.d(TAG, "add: copy 0-" + mSize + " to 0");
+                if (DEBUG) System.out.println(TAG + " add: copy 0-" + mSize + " to 0");
                 System.arraycopy(ohashes, 0, mHashes, 0, ohashes.length);
                 System.arraycopy(oarray, 0, mArray, 0, oarray.length);
             }
@@ -390,7 +389,8 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
 
         if (index < mSize) {
             if (DEBUG) {
-                Log.d(TAG, "add: move " + index + "-" + (mSize - index) + " to " + (index + 1));
+                System.out.println(TAG + " add: move " + index + "-" + (mSize - index) + " to "
+                        + (index + 1));
             }
             System.arraycopy(mHashes, index, mHashes, index + 1, mSize - index);
             System.arraycopy(mArray, index, mArray, index + 1, mSize - index);
@@ -418,10 +418,10 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
             // Cannot optimize since it would break the sorted order - fallback to add()
             if (DEBUG) {
                 RuntimeException e = new RuntimeException("here");
-                e.fillInStackTrace();
-                Log.w(TAG, "New hash " + hash
+                System.err.println(TAG + " New hash " + hash
                         + " is before end of array hash " + mHashes[index - 1]
-                        + " at index " + index, e);
+                        + " at index " + index);
+                e.printStackTrace();
             }
             add(value);
             return;
@@ -476,7 +476,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
         final Object old = mArray[index];
         if (mSize <= 1) {
             // Now empty.
-            if (DEBUG) Log.d(TAG, "remove: shrink from " + mHashes.length + " to 0");
+            if (DEBUG) System.out.println(TAG + " remove: shrink from " + mHashes.length + " to 0");
             freeArrays(mHashes, mArray, mSize);
             mHashes = INT;
             mArray = OBJECT;
@@ -488,7 +488,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
                 // that and BASE_SIZE.
                 final int n = mSize > (BASE_SIZE * 2) ? (mSize + (mSize >> 1)) : (BASE_SIZE * 2);
 
-                if (DEBUG) Log.d(TAG, "remove: shrink from " + mHashes.length + " to " + n);
+                if (DEBUG) System.out.println(TAG + " remove: shrink from " + mHashes.length + " to " + n);
 
                 final int[] ohashes = mHashes;
                 final Object[] oarray = mArray;
@@ -496,13 +496,13 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
 
                 mSize--;
                 if (index > 0) {
-                    if (DEBUG) Log.d(TAG, "remove: copy from 0-" + index + " to 0");
+                    if (DEBUG) System.out.println(TAG + " remove: copy from 0-" + index + " to 0");
                     System.arraycopy(ohashes, 0, mHashes, 0, index);
                     System.arraycopy(oarray, 0, mArray, 0, index);
                 }
                 if (index < mSize) {
                     if (DEBUG) {
-                        Log.d(TAG, "remove: copy from " + (index + 1) + "-" + mSize
+                        System.out.println(TAG + " remove: copy from " + (index + 1) + "-" + mSize
                                 + " to " + index);
                     }
                     System.arraycopy(ohashes, index + 1, mHashes, index, mSize - index);
@@ -512,7 +512,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
                 mSize--;
                 if (index < mSize) {
                     if (DEBUG) {
-                        Log.d(TAG, "remove: move " + (index + 1) + "-" + mSize + " to " + index);
+                        System.out.println(TAG + " remove: move " + (index + 1) + "-" + mSize + " to " + index);
                     }
                     System.arraycopy(mHashes, index + 1, mHashes, index, mSize - index);
                     System.arraycopy(mArray, index + 1, mArray, index, mSize - index);

@@ -16,12 +16,7 @@ package android.support.v4.util;
 
 import static org.junit.Assert.fail;
 
-import android.support.test.filters.LargeTest;
-import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.ConcurrentModificationException;
 import java.util.Locale;
@@ -29,10 +24,7 @@ import java.util.Locale;
 /**
  * Unit tests for SimpleArrayMap
  */
-@RunWith(AndroidJUnit4.class)
-@LargeTest
 public class SimpleArrayMapTest {
-    private static final String TAG = "SimpleArrayMapTest";
     SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
     private boolean mDone;
 
@@ -42,7 +34,7 @@ public class SimpleArrayMapTest {
     @Test
     public void testConcurrentModificationException() throws Exception {
         final int TEST_LEN_MS = 5000;
-        Log.d(TAG, "Starting SimpleArrayMap concurrency test");
+        System.out.println("Starting SimpleArrayMap concurrency test");
         mDone = false;
         new Thread(new Runnable() {
             @Override
@@ -54,11 +46,13 @@ public class SimpleArrayMapTest {
                     } catch (ArrayIndexOutOfBoundsException e) {
                         // SimpleArrayMap is not thread safe, so lots of concurrent modifications
                         // can still cause data corruption
-                        Log.w(TAG, "concurrent modification uncaught, causing indexing failure", e);
+                        System.err.println("concurrent modification uncaught, causing indexing failure");
+                        e.printStackTrace();
                     } catch (ClassCastException e) {
                         // cache corruption should not occur as it is hard to trace and one thread
                         // may corrupt the pool for all threads in the same process.
-                        Log.e(TAG, "concurrent modification uncaught, causing cache corruption", e);
+                        System.err.println("concurrent modification uncaught, causing cache corruption");
+                        e.printStackTrace();
                         fail();
                     } catch (ConcurrentModificationException e) {
                     }
@@ -71,9 +65,9 @@ public class SimpleArrayMapTest {
                 map.clear();
             } catch (InterruptedException e) {
             } catch (ArrayIndexOutOfBoundsException e) {
-                Log.w(TAG, "concurrent modification uncaught, causing indexing failure");
+                System.err.println("concurrent modification uncaught, causing indexing failure");
             } catch (ClassCastException e) {
-                Log.e(TAG, "concurrent modification uncaught, causing cache corruption");
+                System.err.println("concurrent modification uncaught, causing cache corruption");
                 fail();
             } catch (ConcurrentModificationException e) {
             }
@@ -93,7 +87,8 @@ public class SimpleArrayMapTest {
                     map.clear();
                 }
             } catch (ConcurrentModificationException e) {
-                Log.e(TAG, "concurrent modification caught on single thread", e);
+                System.err.println("Concurrent modification caught on single thread");
+                e.printStackTrace();
                 fail();
             }
         }
