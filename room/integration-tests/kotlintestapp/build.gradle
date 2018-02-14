@@ -60,6 +60,7 @@ dependencies {
     androidTestImplementation project(':lifecycle:extensions')
     androidTestImplementation project(':lifecycle:common')
     androidTestImplementation project(':lifecycle:runtime')
+    androidTestImplementation project(':room:guava')
     androidTestImplementation project(':room:testing')
     androidTestImplementation project(':room:rxjava2')
     androidTestImplementation project(':arch:core-testing')
