@@ -28,7 +28,6 @@ import static org.mockito.Mockito.verify;
 import android.arch.background.workmanager.TestLifecycleOwner;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
-import android.arch.background.workmanager.executors.SynchronousExecutorService;
 import android.arch.background.workmanager.impl.utils.taskexecutor.InstantTaskExecutorRule;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.arch.core.executor.ArchTaskExecutor;
@@ -47,6 +46,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -85,7 +85,7 @@ public class WorkContinuationImplTest {
         WorkManagerConfiguration configuration = new WorkManagerConfiguration(
                 context,
                 true,
-                new SynchronousExecutorService());
+                Executors.newSingleThreadExecutor());
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
     }

@@ -34,9 +34,6 @@ import com.firebase.jobdispatcher.Job;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * A class that schedules work using {@link FirebaseJobDispatcher}.
  *
@@ -52,7 +49,6 @@ public class FirebaseJobScheduler implements Scheduler {
     private FirebaseJobConverter mJobConverter;
     private IdGenerator mIdGenerator;
     private AlarmManager mAlarmManager;
-    private Set<String> mCancelledIds;
 
     public FirebaseJobScheduler(Context context) {
         mAppContext = context.getApplicationContext();
@@ -63,7 +59,6 @@ public class FirebaseJobScheduler implements Scheduler {
         }
         mDispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(mAppContext));
         mJobConverter = new FirebaseJobConverter(mDispatcher);
-        mCancelledIds = new HashSet<>();
     }
 
     @Override
@@ -79,13 +74,7 @@ public class FirebaseJobScheduler implements Scheduler {
 
     @Override
     public void cancel(@NonNull String workSpecId) {
-        mCancelledIds.add(workSpecId);
         mDispatcher.cancel(workSpecId);
-    }
-
-    @Override
-    public boolean isCancelled(@NonNull String workSpecId) {
-        return mCancelledIds.contains(workSpecId);
     }
 
     void scheduleNow(WorkSpec workSpec) {

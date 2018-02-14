@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
@@ -44,7 +45,7 @@ public class ProcessorTest extends DatabaseTest {
         mProcessor = new Processor(
                 appContext,
                 mDatabase,
-                mock(Scheduler.class),
+                Collections.singletonList(mock(Scheduler.class)),
                 Executors.newSingleThreadScheduledExecutor()) {
         };
     }

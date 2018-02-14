@@ -22,8 +22,10 @@ import android.support.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -35,25 +37,29 @@ import java.util.concurrent.Future;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Processor implements ExecutionListener {
     private static final String TAG = "Processor";
-    protected Context mAppContext;
-    protected WorkDatabase mWorkDatabase;
 
-    protected Map<String, Future<?>> mEnqueuedWorkMap;
-    protected Scheduler mScheduler;
-    protected ExecutorService mExecutorService;
+    private Context mAppContext;
+    private WorkDatabase mWorkDatabase;
+
+    private Map<String, Future<?>> mEnqueuedWorkMap;
+    private List<Scheduler> mSchedulers;
+    private ExecutorService mExecutorService;
+
+    private Set<String> mCancelledIds;
 
     private final List<ExecutionListener> mOuterListeners;
 
     public Processor(
             Context appContext,
             WorkDatabase workDatabase,
-            Scheduler scheduler,
+            List<Scheduler> schedulers,
             ExecutorService executorService) {
         mAppContext = appContext;
         mWorkDatabase = workDatabase;
         mEnqueuedWorkMap = new HashMap<>();
-        mScheduler = scheduler;
+        mSchedulers = schedulers;
         mExecutorService = executorService;
+        mCancelledIds = new HashSet<>();
         mOuterListeners = new ArrayList<>();
     }
 
@@ -73,7 +79,7 @@ public class Processor implements ExecutionListener {
 
         WorkerWrapper workWrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
                 .withListener(this)
-                .withScheduler(mScheduler)
+                .withSchedulers(mSchedulers)
                 .build();
         mEnqueuedWorkMap.put(id, mExecutorService.submit(workWrapper));
         Logger.debug(TAG, "%s: processing %s", getClass().getSimpleName(), id);
@@ -83,10 +89,10 @@ public class Processor implements ExecutionListener {
     /**
      * Tries to stop a unit of work.
      *
-     * @param id The work id to stop.
+     * @param id The work id to stop
      * @param mayInterruptIfRunning If {@code true}, we try to interrupt the {@link Future} if it's
      *                              running
-     * @return {@code true} if the work was stopped successfully.
+     * @return {@code true} if the work was stopped successfully
      */
     public synchronized boolean stopWork(String id, boolean mayInterruptIfRunning) {
         Logger.debug(TAG,
@@ -109,6 +115,26 @@ public class Processor implements ExecutionListener {
                     getClass().getSimpleName(), id);
         }
         return false;
+    }
+
+    /**
+     * Sets the given {@code id} as cancelled.  This does not actually stop any processing; call
+     * {@link #stopWork(String, boolean)} to do that.
+     *
+     * @param id  The work id to mark as cancelled
+     */
+    public synchronized void setCancelled(String id) {
+        mCancelledIds.add(id);
+    }
+
+    /**
+     * Determines if the given {@code id} is marked as cancelled.
+     *
+     * @param id The work id to query
+     * @return {@code true} if the id has already been marked as cancelled
+     */
+    public synchronized boolean isCancelled(String id) {
+        return mCancelledIds.contains(id);
     }
 
     /**

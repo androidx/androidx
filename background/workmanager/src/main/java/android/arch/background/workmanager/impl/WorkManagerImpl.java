@@ -22,6 +22,7 @@ import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.WorkStatus;
+import android.arch.background.workmanager.impl.background.greedy.GreedyScheduler;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.model.WorkSpecDao;
 import android.arch.background.workmanager.impl.utils.CancelWorkRunnable;
@@ -57,10 +58,9 @@ public class WorkManagerImpl extends WorkManager {
     public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 23;
     public static final int MIN_JOB_SCHEDULER_API_LEVEL = 24;
 
-    private WorkManagerConfiguration mConfiguration;
     private WorkDatabase mWorkDatabase;
     private TaskExecutor mTaskExecutor;
-    private Scheduler mBackgroundScheduler;
+    private List<Scheduler> mSchedulers;
     private Processor mProcessor;
 
     private static WorkManagerImpl sInstance = null;
@@ -86,15 +86,17 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     WorkManagerImpl(Context context, WorkManagerConfiguration configuration) {
-        // TODO(janclarin): Remove context parameter.
-        mConfiguration = configuration;
         mWorkDatabase = configuration.getWorkDatabase();
-        mBackgroundScheduler = configuration.getBackgroundScheduler();
+
+        mSchedulers = new ArrayList<>();
+        mSchedulers.add(configuration.getBackgroundScheduler());
+        mSchedulers.add(new GreedyScheduler(this));
+
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
         mProcessor = new Processor(
                 context.getApplicationContext(),
                 mWorkDatabase,
-                mBackgroundScheduler,
+                mSchedulers,
                 configuration.getExecutorService());
     }
 
@@ -108,13 +110,13 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
-     * @return The {@link Scheduler} associated with this WorkManager based on the device's
+     * @return The {@link Scheduler}s associated with this WorkManager based on the device's
      * capabilities, SDK version, etc.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @NonNull Scheduler getBackgroundScheduler() {
-        return mBackgroundScheduler;
+    public @NonNull List<Scheduler> getSchedulers() {
+        return mSchedulers;
     }
 
     /**

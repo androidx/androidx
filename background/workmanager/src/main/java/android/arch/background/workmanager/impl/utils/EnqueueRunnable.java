@@ -26,6 +26,7 @@ import static android.arch.background.workmanager.State.SUCCEEDED;
 import android.arch.background.workmanager.BaseWork;
 import android.arch.background.workmanager.ExistingWorkPolicy;
 import android.arch.background.workmanager.impl.InternalWorkImpl;
+import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkContinuationImpl;
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
@@ -92,10 +93,10 @@ public class EnqueueRunnable implements Runnable {
     @VisibleForTesting
     public void scheduleWorkInBackground() {
         // Schedule in the background. This list contains work that does not have prerequisites.
-        for (InternalWorkImpl work : mWorkToBeScheduled) {
-            mWorkContinuation.getWorkManagerImpl()
-                    .getBackgroundScheduler()
-                    .schedule(work.getWorkSpec());
+        for (Scheduler scheduler : mWorkContinuation.getWorkManagerImpl().getSchedulers()) {
+            for (InternalWorkImpl work : mWorkToBeScheduled) {
+                scheduler.schedule(work.getWorkSpec());
+            }
         }
     }
 

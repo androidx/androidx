@@ -53,7 +53,6 @@ import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkContinuation;
 import android.arch.background.workmanager.WorkManagerTest;
 import android.arch.background.workmanager.WorkStatus;
-import android.arch.background.workmanager.executors.SynchronousExecutorService;
 import android.arch.background.workmanager.impl.model.Dependency;
 import android.arch.background.workmanager.impl.model.DependencyDao;
 import android.arch.background.workmanager.impl.model.WorkSpec;
@@ -85,6 +84,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest extends WorkManagerTest {
@@ -117,7 +117,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkManagerConfiguration configuration = new WorkManagerConfiguration(
                 context,
                 true,
-                new SynchronousExecutorService());
+                Executors.newSingleThreadExecutor());
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
     }

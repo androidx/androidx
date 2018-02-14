@@ -21,6 +21,8 @@ import static android.arch.background.workmanager.State.FAILED;
 import static android.arch.background.workmanager.State.SUCCEEDED;
 
 import android.arch.background.workmanager.State;
+import android.arch.background.workmanager.impl.Processor;
+import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkDatabase;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.model.DependencyDao;
@@ -72,8 +74,14 @@ public class CancelWorkRunnable implements Runnable {
 
     private void cancel(String workSpecId) {
         recursivelyCancelWorkAndDependencies(workSpecId);
-        mWorkManagerImpl.getProcessor().stopWork(workSpecId, true);
-        mWorkManagerImpl.getBackgroundScheduler().cancel(workSpecId);
+
+        Processor processor = mWorkManagerImpl.getProcessor();
+        processor.stopWork(workSpecId, true);
+        processor.setCancelled(workSpecId);
+
+        for (Scheduler scheduler : mWorkManagerImpl.getSchedulers()) {
+            scheduler.cancel(workSpecId);
+        }
     }
 
     private void recursivelyCancelWorkAndDependencies(String workSpecId) {

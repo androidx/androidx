@@ -63,6 +63,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -240,7 +241,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
                 .withListener(mMockListener)
-                .withScheduler(mMockScheduler)
+                .withSchedulers(Collections.singletonList(mMockScheduler))
                 .build()
                 .run();
 
@@ -344,7 +345,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
                 .withListener(mMockListener)
-                .withScheduler(mMockScheduler)
+                .withSchedulers(Collections.singletonList(mMockScheduler))
                 .build()
                 .run();
 
@@ -469,7 +470,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Scheduler mockScheduler = mock(Scheduler.class);
 
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
-                .withScheduler(mockScheduler)
+                .withSchedulers(Collections.singletonList(mockScheduler))
                 .build()
                 .run();
 

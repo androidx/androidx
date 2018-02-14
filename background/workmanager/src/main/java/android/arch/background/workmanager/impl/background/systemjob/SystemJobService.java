@@ -20,7 +20,6 @@ import android.annotation.TargetApi;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.arch.background.workmanager.impl.ExecutionListener;
-import android.arch.background.workmanager.impl.Scheduler;
 import android.arch.background.workmanager.impl.WorkManagerImpl;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.os.PersistableBundle;
@@ -41,7 +40,6 @@ import java.util.Map;
 public class SystemJobService extends JobService implements ExecutionListener {
     private static final String TAG = "SystemJobService";
     private WorkManagerImpl mWorkManagerImpl;
-    private Scheduler mScheduler;
     private final Map<String, JobParameters> mJobParameters = new HashMap<>();
 
     @Override
@@ -49,7 +47,6 @@ public class SystemJobService extends JobService implements ExecutionListener {
         super.onCreate();
         mWorkManagerImpl = WorkManagerImpl.getInstance();
         mWorkManagerImpl.getProcessor().addExecutionListener(this);
-        mScheduler = mWorkManagerImpl.getBackgroundScheduler();
     }
 
     @Override
@@ -97,7 +94,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
             mJobParameters.remove(workSpecId);
         }
         mWorkManagerImpl.stopWork(workSpecId);
-        return !mScheduler.isCancelled(workSpecId);
+        return !mWorkManagerImpl.getProcessor().isCancelled(workSpecId);
     }
 
     @Override

@@ -24,9 +24,6 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * A {@link Scheduler} that schedules work using {@link android.app.AlarmManager}.
  *
@@ -38,11 +35,9 @@ public class SystemAlarmScheduler implements Scheduler {
     private static final String TAG = "SystemAlarmScheduler";
 
     private final Context mContext;
-    private Set<String> mCancelledIds;
 
     public SystemAlarmScheduler(@NonNull Context context) {
         mContext = context.getApplicationContext();
-        mCancelledIds = new HashSet<>();
     }
 
     @Override
@@ -55,14 +50,8 @@ public class SystemAlarmScheduler implements Scheduler {
     @Override
     public void cancel(@NonNull String workSpecId) {
         //TODO (rahulrav@) Store mapping alarm ids along / in a separate table
-        mCancelledIds.add(workSpecId);
         Intent cancelIntent = CommandHandler.createStopWorkIntent(mContext, workSpecId);
         mContext.startService(cancelIntent);
-    }
-
-    @Override
-    public boolean isCancelled(@NonNull String workSpecId) {
-        return mCancelledIds.contains(workSpecId);
     }
 
     /**
