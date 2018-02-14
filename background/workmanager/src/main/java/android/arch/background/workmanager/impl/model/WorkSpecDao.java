@@ -157,17 +157,6 @@ public interface WorkSpecDao {
     LiveData<List<WorkSpec.IdStateAndOutput>> getIdStateAndOutputsLiveData(List<String> ids);
 
     /**
-     * Retrieves {@link WorkSpec}s that have state {@code ENQUEUED} or
-     * {@code RUNNING}, no initial delay, and are not periodic.
-     *
-     * @return A {@link LiveData} list of {@link WorkSpec}s.
-     */
-    @Query("SELECT * FROM workspec WHERE (state=" + EnumTypeConverters.StateIds.ENQUEUED
-            + " OR state=" + EnumTypeConverters.StateIds.RUNNING
-            + ") AND initial_delay=0 AND interval_duration=0")
-    LiveData<List<WorkSpec>> getForegroundEligibleWorkSpecs();
-
-    /**
      * Retrieves {@link WorkSpec}s that have state {@code ENQUEUED} or {@code RUNNING}
      *
      * @return A list of {@link WorkSpec}s.
@@ -187,15 +176,6 @@ public interface WorkSpecDao {
     @Query("SELECT output FROM workspec WHERE id IN "
             + "(SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)")
     List<Arguments> getInputsFromPrerequisites(String id);
-
-    /**
-     * Retrieves a {@link LiveData} of the output for a {@link WorkSpec}.
-     *
-     * @param id The identifier of a {@link WorkSpec}
-     * @return The {@link LiveData} output of that unit of work
-     */
-    @Query("SELECT output FROM workspec WHERE id=:id")
-    LiveData<Arguments> getOutput(String id);
 
     /**
      * Retrieves work ids for unfinished work with a given tag.
