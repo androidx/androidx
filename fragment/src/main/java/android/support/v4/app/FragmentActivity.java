@@ -674,7 +674,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
                 writer.println(" State:");
         String innerPrefix = prefix + "  ";
         writer.print(innerPrefix); writer.print("mCreated=");
-                writer.print(mCreated); writer.print("mResumed=");
+                writer.print(mCreated); writer.print(" mResumed=");
                 writer.print(mResumed); writer.print(" mStopped=");
                 writer.print(mStopped); writer.print(" mReallyStopped=");
                 writer.println(mReallyStopped);
