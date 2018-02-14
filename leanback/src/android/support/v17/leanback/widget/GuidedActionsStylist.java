@@ -392,7 +392,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         }
     }
 
-    private static String TAG = "GuidedActionsStylist";
+    private static final String TAG = "GuidedActionsStylist";
 
     ViewGroup mMainView;
     private VerticalGridView mActionsGridView;

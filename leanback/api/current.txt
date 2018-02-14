@@ -2430,8 +2430,8 @@ package android.support.v17.leanback.widget {
     ctor public PlaybackControlsRow.ClosedCaptioningAction(android.content.Context, int);
     field public static final int INDEX_OFF = 0; // 0x0
     field public static final int INDEX_ON = 1; // 0x1
-    field public static deprecated int OFF;
-    field public static deprecated int ON;
+    field public static final deprecated int OFF = 0; // 0x0
+    field public static final deprecated int ON = 1; // 0x1
   }
 
   public static class PlaybackControlsRow.FastForwardAction extends android.support.v17.leanback.widget.PlaybackControlsRow.MultiAction {
@@ -2444,8 +2444,8 @@ package android.support.v17.leanback.widget {
     ctor public PlaybackControlsRow.HighQualityAction(android.content.Context, int);
     field public static final int INDEX_OFF = 0; // 0x0
     field public static final int INDEX_ON = 1; // 0x1
-    field public static deprecated int OFF;
-    field public static deprecated int ON;
+    field public static final deprecated int OFF = 0; // 0x0
+    field public static final deprecated int ON = 1; // 0x1
   }
 
   public static class PlaybackControlsRow.MoreActions extends android.support.v17.leanback.widget.Action {
@@ -2481,20 +2481,20 @@ package android.support.v17.leanback.widget {
     ctor public PlaybackControlsRow.PlayPauseAction(android.content.Context);
     field public static final int INDEX_PAUSE = 1; // 0x1
     field public static final int INDEX_PLAY = 0; // 0x0
-    field public static deprecated int PAUSE;
-    field public static deprecated int PLAY;
+    field public static final deprecated int PAUSE = 1; // 0x1
+    field public static final deprecated int PLAY = 0; // 0x0
   }
 
   public static class PlaybackControlsRow.RepeatAction extends android.support.v17.leanback.widget.PlaybackControlsRow.MultiAction {
     ctor public PlaybackControlsRow.RepeatAction(android.content.Context);
     ctor public PlaybackControlsRow.RepeatAction(android.content.Context, int);
     ctor public PlaybackControlsRow.RepeatAction(android.content.Context, int, int);
-    field public static deprecated int ALL;
+    field public static final deprecated int ALL = 1; // 0x1
     field public static final int INDEX_ALL = 1; // 0x1
     field public static final int INDEX_NONE = 0; // 0x0
     field public static final int INDEX_ONE = 2; // 0x2
-    field public static deprecated int NONE;
-    field public static deprecated int ONE;
+    field public static final deprecated int NONE = 0; // 0x0
+    field public static final deprecated int ONE = 2; // 0x2
   }
 
   public static class PlaybackControlsRow.RewindAction extends android.support.v17.leanback.widget.PlaybackControlsRow.MultiAction {
@@ -2507,8 +2507,8 @@ package android.support.v17.leanback.widget {
     ctor public PlaybackControlsRow.ShuffleAction(android.content.Context, int);
     field public static final int INDEX_OFF = 0; // 0x0
     field public static final int INDEX_ON = 1; // 0x1
-    field public static deprecated int OFF;
-    field public static deprecated int ON;
+    field public static final deprecated int OFF = 0; // 0x0
+    field public static final deprecated int ON = 1; // 0x1
   }
 
   public static class PlaybackControlsRow.SkipNextAction extends android.support.v17.leanback.widget.Action {
@@ -2523,8 +2523,8 @@ package android.support.v17.leanback.widget {
     ctor public PlaybackControlsRow.ThumbsAction(int, android.content.Context, int, int);
     field public static final int INDEX_OUTLINE = 1; // 0x1
     field public static final int INDEX_SOLID = 0; // 0x0
-    field public static deprecated int OUTLINE;
-    field public static deprecated int SOLID;
+    field public static final deprecated int OUTLINE = 1; // 0x1
+    field public static final deprecated int SOLID = 0; // 0x0
   }
 
   public static class PlaybackControlsRow.ThumbsDownAction extends android.support.v17.leanback.widget.PlaybackControlsRow.ThumbsAction {

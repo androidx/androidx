@@ -477,8 +477,8 @@ public class GuidedAction extends Action {
          * @param multilineDescription Whether this action has a multiline description.
          */
         public B multilineDescription(boolean multilineDescription) {
-            setFlags(multilineDescription ? PF_MULTI_lINE_DESCRIPTION : 0,
-                    PF_MULTI_lINE_DESCRIPTION);
+            setFlags(multilineDescription ? PF_MULTI_LINE_DESCRIPTION : 0,
+                PF_MULTI_LINE_DESCRIPTION);
             return (B) this;
         }
 
@@ -577,7 +577,7 @@ public class GuidedAction extends Action {
     }
 
     static final int PF_CHECKED = 0x00000001;
-    static final int PF_MULTI_lINE_DESCRIPTION = 0x00000002;
+    static final int PF_MULTI_LINE_DESCRIPTION = 0x00000002;
     static final int PF_HAS_NEXT = 0x00000004;
     static final int PF_INFO_ONLY = 0x00000008;
     static final int PF_ENABLED = 0x00000010;
@@ -799,7 +799,7 @@ public class GuidedAction extends Action {
      * otherwise.
      */
     public boolean hasMultilineDescription() {
-        return (mActionFlags & PF_MULTI_lINE_DESCRIPTION) == PF_MULTI_lINE_DESCRIPTION;
+        return (mActionFlags & PF_MULTI_LINE_DESCRIPTION) == PF_MULTI_LINE_DESCRIPTION;
     }
 
     /**

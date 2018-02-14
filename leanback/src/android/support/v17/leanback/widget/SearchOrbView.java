@@ -58,7 +58,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      * A set of colors used to display the search orb.
      */
     public static class Colors {
-        private static final float sBrightnessAlpha = 0.15f;
+        private static final float BRIGHTNESS_ALPHA = 0.15f;
 
         /**
          * Constructs a color set using the given color for the search orb.
@@ -116,11 +116,11 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
          * Computes a default brighter version of the given color.
          */
         public static int getBrightColor(int color) {
-            final float brightnessValue = 0xff * sBrightnessAlpha;
-            int red = (int)(Color.red(color) * (1 - sBrightnessAlpha) + brightnessValue);
-            int green = (int)(Color.green(color) * (1 - sBrightnessAlpha) + brightnessValue);
-            int blue = (int)(Color.blue(color) * (1 - sBrightnessAlpha) + brightnessValue);
-            int alpha = (int)(Color.alpha(color) * (1 - sBrightnessAlpha) + brightnessValue);
+            final float brightnessValue = 0xff * BRIGHTNESS_ALPHA;
+            int red = (int)(Color.red(color) * (1 - BRIGHTNESS_ALPHA) + brightnessValue);
+            int green = (int)(Color.green(color) * (1 - BRIGHTNESS_ALPHA) + brightnessValue);
+            int blue = (int)(Color.blue(color) * (1 - BRIGHTNESS_ALPHA) + brightnessValue);
+            int alpha = (int)(Color.alpha(color) * (1 - BRIGHTNESS_ALPHA) + brightnessValue);
             return Color.argb(alpha, red, green, blue);
         }
     }

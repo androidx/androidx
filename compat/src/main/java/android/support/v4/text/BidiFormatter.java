@@ -81,7 +81,7 @@ public final class BidiFormatter {
     /**
      * The default text direction heuristic.
      */
-    private static TextDirectionHeuristicCompat DEFAULT_TEXT_DIRECTION_HEURISTIC = FIRSTSTRONG_LTR;
+    private static final TextDirectionHeuristicCompat DEFAULT_TEXT_DIRECTION_HEURISTIC = FIRSTSTRONG_LTR;
 
     /**
      * Unicode "Left-To-Right Embedding" (LRE) character.

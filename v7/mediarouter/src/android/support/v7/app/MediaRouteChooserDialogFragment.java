@@ -31,7 +31,7 @@ import android.support.v7.media.MediaRouteSelector;
  * </p>
  */
 public class MediaRouteChooserDialogFragment extends DialogFragment {
-    private final String ARGUMENT_SELECTOR = "selector";
+    private static final String ARGUMENT_SELECTOR = "selector";
 
     private MediaRouteChooserDialog mDialog;
     private MediaRouteSelector mSelector;

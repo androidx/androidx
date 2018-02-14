@@ -149,7 +149,7 @@ public final class InputConnectionCompat {
      *     the {@link android.content.ContentProvider}.</li>
      * </ul>
      */
-    public static int INPUT_CONTENT_GRANT_READ_URI_PERMISSION = 0x00000001;
+    public static final int INPUT_CONTENT_GRANT_READ_URI_PERMISSION = 0x00000001;
 
     /**
      * Listener for commitContent method call, in a backwards compatible fashion.

@@ -86,7 +86,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     private ActionBarVisibilityCallback mActionBarVisibilityCallback;
 
-    private final int ACTION_BAR_ANIMATE_DELAY = 600; // ms
+    private static final int ACTION_BAR_ANIMATE_DELAY = 600; // ms
 
     private OverScroller mFlingEstimator;
 

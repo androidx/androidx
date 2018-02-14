@@ -38,7 +38,7 @@ import android.support.v7.media.MediaRouteSelector;
  * </p>
  */
 public class MediaRouteDiscoveryFragment extends Fragment {
-    private final String ARGUMENT_SELECTOR = "selector";
+    private static final String ARGUMENT_SELECTOR = "selector";
 
     private MediaRouter mRouter;
     private MediaRouteSelector mSelector;
