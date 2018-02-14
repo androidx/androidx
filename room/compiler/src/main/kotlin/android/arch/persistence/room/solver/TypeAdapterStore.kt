@@ -33,6 +33,7 @@ import android.arch.persistence.room.solver.binderprovider.FlowableQueryResultBi
 import android.arch.persistence.room.solver.binderprovider.InstantQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.GuavaListenableFutureQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.RxMaybeQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.RxSingleQueryResultBinderProvider
 import android.arch.persistence.room.solver.query.parameter.ArrayQueryParameterAdapter
@@ -137,6 +138,7 @@ class TypeAdapterStore private constructor(
             CursorQueryResultBinderProvider(context),
             LiveDataQueryResultBinderProvider(context),
             FlowableQueryResultBinderProvider(context),
+            GuavaListenableFutureQueryResultBinderProvider(context),
             RxMaybeQueryResultBinderProvider(context),
             RxSingleQueryResultBinderProvider(context),
             DataSourceQueryResultBinderProvider(context),
