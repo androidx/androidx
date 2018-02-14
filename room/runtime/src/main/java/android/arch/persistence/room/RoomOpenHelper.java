@@ -21,6 +21,7 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.room.migration.Migration;
 import android.database.Cursor;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -107,14 +108,28 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
     @Override
     public void onOpen(SupportSQLiteDatabase db) {
         super.onOpen(db);
-        checkIdentity(db);
+        checkIdentity(db, mConfiguration != null
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                && mConfiguration.journalMode == RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING);
         mDelegate.onOpen(db);
         // there might be too many configurations etc, just clear it.
         mConfiguration = null;
     }
 
-    private void checkIdentity(SupportSQLiteDatabase db) {
-        createMasterTableIfNotExists(db);
+    private void checkIdentity(SupportSQLiteDatabase db, boolean useTransaction) {
+        if (useTransaction) {
+            // This transaction is necessary in WAL mode in order to make sure this query is
+            // executed in a read-write connection.
+            try {
+                db.beginTransaction();
+                createMasterTableIfNotExists(db);
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        } else {
+            createMasterTableIfNotExists(db);
+        }
         String identityHash = "";
         Cursor cursor = db.query(new SimpleSQLiteQuery(RoomMasterTable.READ_QUERY));
         //noinspection TryFinallyCanBeTryWithResources

@@ -366,20 +366,19 @@ public class InvalidationTracker {
 
                 mCleanupStatement.executeUpdateDelete();
                 mQueryArgs[0] = mMaxVersion;
-                Cursor cursor = mDatabase.query(SELECT_UPDATED_TABLES_SQL, mQueryArgs);
-                //noinspection TryFinallyCanBeTryWithResources
-                try {
-                    while (cursor.moveToNext()) {
-                        final long version = cursor.getLong(0);
-                        final int tableId = cursor.getInt(1);
-
-                        mTableVersions[tableId] = version;
-                        hasUpdatedTable = true;
-                        // result is ordered so we can safely do this assignment
-                        mMaxVersion = version;
+                if (mDatabase.mWriteAheadLoggingEnabled) {
+                    // This transaction has to be on the underlying DB rather than the RoomDatabase
+                    // in order to avoid a recursive loop after endTransaction.
+                    SupportSQLiteDatabase db = mDatabase.getOpenHelper().getWritableDatabase();
+                    try {
+                        db.beginTransaction();
+                        hasUpdatedTable = checkUpdatedTable();
+                        db.setTransactionSuccessful();
+                    } finally {
+                        db.endTransaction();
                     }
-                } finally {
-                    cursor.close();
+                } else {
+                    hasUpdatedTable = checkUpdatedTable();
                 }
             } catch (IllegalStateException | SQLiteException exception) {
                 // may happen if db is closed. just log.
@@ -395,6 +394,26 @@ public class InvalidationTracker {
                     }
                 }
             }
+        }
+
+        private boolean checkUpdatedTable() {
+            boolean hasUpdatedTable = false;
+            Cursor cursor = mDatabase.query(SELECT_UPDATED_TABLES_SQL, mQueryArgs);
+            //noinspection TryFinallyCanBeTryWithResources
+            try {
+                while (cursor.moveToNext()) {
+                    final long version = cursor.getLong(0);
+                    final int tableId = cursor.getInt(1);
+
+                    mTableVersions[tableId] = version;
+                    hasUpdatedTable = true;
+                    // result is ordered so we can safely do this assignment
+                    mMaxVersion = version;
+                }
+            } finally {
+                cursor.close();
+            }
+            return hasUpdatedTable;
         }
     };
 
