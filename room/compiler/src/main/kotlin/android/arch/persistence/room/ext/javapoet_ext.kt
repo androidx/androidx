@@ -123,6 +123,10 @@ object GuavaBaseTypeNames {
     val OPTIONAL = ClassName.get("com.google.common.base", "Optional")
 }
 
+object GuavaUtilConcurrentTypeNames {
+    val LISTENABLE_FUTURE = ClassName.get("com.google.common.util.concurrent", "ListenableFuture")
+}
+
 object RxJava2TypeNames {
     val FLOWABLE = ClassName.get("io.reactivex", "Flowable")
     val MAYBE = ClassName.get("io.reactivex", "Maybe")
@@ -131,6 +135,10 @@ object RxJava2TypeNames {
 
 object ReactiveStreamsTypeNames {
     val PUBLISHER = ClassName.get("org.reactivestreams", "Publisher")
+}
+
+object RoomGuavaTypeNames {
+    val GUAVA_ROOM = ClassName.get("android.arch.persistence.room.guava", "GuavaRoom")
 }
 
 object RoomRxJava2TypeNames {
