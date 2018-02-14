@@ -56,12 +56,12 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
             throw new IllegalStateException("no start destination defined via"
                     + " app:startDestination for "
                     + (destination.getId() != 0
-                            ? Navigation.getDisplayName(mContext, destination.getId())
+                            ? NavDestination.getDisplayName(mContext, destination.getId())
                             : "the root navigation"));
         }
         NavDestination startDestination = destination.findNode(startId, false);
         if (startDestination == null) {
-            final String dest = Navigation.getDisplayName(mContext, startId);
+            final String dest = NavDestination.getDisplayName(mContext, startId);
             throw new IllegalArgumentException("navigation destination " + dest
                     + " is not a direct child of this NavGraph");
         }

@@ -18,14 +18,18 @@ package android.arch.navigation;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 
 import java.util.HashMap;
 
 /**
  * Simple implementation of a {@link NavigatorProvider} that stores instances of
  * {@link Navigator navigators} by name, using the {@link Navigator.Name} when given a class name.
+ *
+ * @hide
  */
-class SimpleNavigatorProvider implements NavigatorProvider {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SimpleNavigatorProvider implements NavigatorProvider {
     private final HashMap<String, Navigator<? extends NavDestination>> mNavigators =
             new HashMap<>();
 

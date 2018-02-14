@@ -16,6 +16,7 @@
 
 package android.arch.navigation;
 
+import android.arch.navigation.common.R;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.net.Uri;

@@ -109,8 +109,14 @@ project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "r
 //include ':room:integration-tests:kotlintestapp'
 //project(':room:integration-tests:kotlintestapp').projectDir = new File(supportRoot, "room/integration-tests/kotlintestapp")
 
+include ':navigation:common'
+project(':navigation:common').projectDir = new File(supportRoot, "navigation/common")
+
 include ':navigation:runtime'
 project(':navigation:runtime').projectDir = new File(supportRoot, "navigation/runtime")
+
+include ':navigation:testing'
+project(':navigation:testing').projectDir = new File(supportRoot, "navigation/testing")
 
 include ':navigation:integration-tests:testapp'
 project(':navigation:integration-tests:testapp').projectDir = new File(supportRoot, "navigation/integration-tests/testapp")

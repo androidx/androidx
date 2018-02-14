@@ -24,25 +24,33 @@ plugins {
 }
 
 dependencies {
-    api(SUPPORT_CORE_UTILS)
-    api(SUPPORT_FRAGMENTS)
-    api(project(":navigation:common"))
+    api(SUPPORT_COMPAT)
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
 
-    androidTestImplementation(project(":navigation:testing"))
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
 }
 
+//used by testCompile safe-args-generator
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+    def suffix = name.capitalize()
+    project.tasks.create(name: "jar${suffix}", type: Jar){
+        dependsOn variant.javaCompile
+        from variant.javaCompile.destinationDir
+        destinationDir new File(project.buildDir, "libJar")
+    }
+}
+
 supportLibrary {
-    name = "Android Navigation Runtime"
+    name = "Android Navigation Common"
     publish = true
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
-    description = "Android Navigation-Runtime"
+    description = "Android Navigation-Common"
     url = SupportLibraryExtension.ARCHITECTURE_URL
 }
