@@ -7,7 +7,7 @@
         errorLine1="    public void jumpDrawablesToCurrentState() {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/android/support/v7/app/MediaRouteButton.java"
+            file="src/main/java/android/support/v7/app/MediaRouteButton.java"
             line="380"
             column="17"/>
     </issue>
@@ -18,7 +18,7 @@
         errorLine1="            Log.e(TAG, &quot;onCreateActionView: this ActionProvider is already associated &quot; +"
         errorLine2="                  ~~~">
         <location
-            file="src/android/support/v7/app/MediaRouteActionProvider.java"
+            file="src/main/java/android/support/v7/app/MediaRouteActionProvider.java"
             line="248"
             column="19"/>
     </issue>
