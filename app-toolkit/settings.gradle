@@ -96,9 +96,6 @@ project(':persistence:db').projectDir = new File(supportRoot, "persistence/db")
 include ":persistence:db-framework"
 project(':persistence:db-framework').projectDir = new File(supportRoot, "persistence/db-framework")
 
-include ":room:guava"
-project(':room:guava').projectDir = new File(supportRoot, "room/guava")
-
 include ":room:testing"
 project(':room:testing').projectDir = new File(supportRoot, "room/testing")
 
