@@ -19,7 +19,7 @@ package android.arch.navigation.safe.args.generator
 import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
-import android.arch.navigation.safe.args.generator.models.Id
+import android.arch.navigation.safe.args.generator.models.ResReference
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.File
@@ -49,7 +49,7 @@ private fun parseDestination(parser: XmlPullParser, rFilePackage: String,
     parser.traverseInnerStartTags {
         when {
             parser.name == TAG_ACTION -> actions.add(parseAction(parser, rFilePackage))
-            parser.name == TAG_ARGUMENT -> args.add(parseArgument(parser))
+            parser.name == TAG_ARGUMENT -> args.add(parseArgument(parser, rFilePackage))
             type == TAG_NAVIGATION -> nested.add(parseDestination(parser, rFilePackage,
                     applicationId))
         }
@@ -64,13 +64,17 @@ private fun parseDestination(parser: XmlPullParser, rFilePackage: String,
     return Destination(id, className, type, args, actions, nested)
 }
 
-private fun parseArgument(parser: XmlPullParser): Argument {
+private fun parseArgument(parser: XmlPullParser, rFilePackage: String): Argument {
     val name = parser.attrValueOrThrow(NAMESPACE_ANDROID, ATTRIBUTE_NAME)
     val defaultValue = parser.attrValue(NAMESPACE_ANDROID, ATTRIBUTE_DEFAULT_VALUE)
     val typeString = parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_TYPE)
-    val type = typeString?.let { NavType.parse(typeString) } ?: StringType
-    defaultValue?.let { type.verify(defaultValue) }
-    return Argument(name, type, defaultValue)
+
+    val (type, defaultTypedValue) = when (typeString) {
+        "integer" -> NavType.INT to parseIntValue(defaultValue)
+        "reference" -> NavType.REFERENCE to parseReferenceValue(defaultValue, rFilePackage)
+        else -> NavType.STRING to defaultValue?.let { StringValue(it) }
+    }
+    return Argument(name, type, defaultTypedValue)
 }
 
 private fun parseAction(parser: XmlPullParser, rFilePackage: String): Action {
@@ -79,7 +83,7 @@ private fun parseAction(parser: XmlPullParser, rFilePackage: String): Action {
     val args = mutableListOf<Argument>()
     parser.traverseInnerStartTags {
         if (parser.name == TAG_ARGUMENT) {
-            args.add(parseArgument(parser))
+            args.add(parseArgument(parser, rFilePackage))
         }
     }
     return Action(parseId(idValue, rFilePackage),
@@ -99,20 +103,41 @@ fun parseNavigationFile(navigationXml: File, rFilePackage: String,
 }
 
 // @[+][package:]id/resource_name -> package.R.id.resource_name
-internal fun parseId(xmlId: String, rFilePackage: String): Id {
-    val split = xmlId.split("/")
-    if (split.size != 2) {
+internal fun parseReference(xmlValue: String, rFilePackage: String): ResReference {
+    val split = xmlValue.removePrefix("@").removePrefix("+").split(":", "/")
+    if (split.size != 2 && split.size != 3) {
         throw IllegalArgumentException("id should be in format: " +
-                "@[+][package:]id/resource_name, but is: $xmlId")
+                "@[+][package:]res_type/resource_name, but is: $xmlValue")
     }
-    val resourceName = split[1]
-
-    val packageName = split[0].removePrefix("@").removePrefix("+")
-            .removeSuffix("id").removeSuffix(":")
-
-    return Id(if (packageName.isNotEmpty()) packageName else rFilePackage, resourceName)
+    val resourceName = split.last()
+    val resType = split[split.size - 2]
+    val packageName = if (split.size == 3) split[0] else rFilePackage
+    return ResReference(packageName, resType, resourceName)
 }
 
-internal fun parseNullableId(xmlId: String?, rFilePackage: String): Id? = xmlId?.let {
+internal fun parseId(xmlId: String, rFilePackage: String): ResReference {
+    val ref = parseReference(xmlId, rFilePackage)
+    if (!ref.isId()) {
+        throw IllegalArgumentException("$xmlId was passed as id, but is ${ref.resType}")
+    }
+    return ref
+}
+
+internal fun parseNullableId(xmlId: String?, rFilePackage: String): ResReference? = xmlId?.let {
     parseId(it, rFilePackage)
 }
+
+internal fun parseIntValue(value: String?): IntValue? {
+    if (value == null) {
+        return null
+    }
+    try {
+        Integer.parseInt(value)
+        return IntValue(value)
+    } catch (ex: NumberFormatException) {
+        throw IllegalArgumentException("Failed to parse $value as int")
+    }
+}
+
+internal fun parseReferenceValue(value: String?, rFilePackage: String) =
+        value?.let { ReferenceValue(parseReference(value, rFilePackage)) }

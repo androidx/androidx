@@ -31,13 +31,23 @@ public class MainFragmentDirections {
     }
 
     public static class Previous implements NavDirections {
-        private final String arg1;
+        private String arg1;
 
-        private final String arg2;
+        private String arg2;
 
         public Previous(String arg1, String arg2) {
             this.arg1 = arg1;
             this.arg2 = arg2;
+        }
+
+        public Previous setArg1(String arg1) {
+            this.arg1 = arg1;
+            return this;
+        }
+
+        public Previous setArg2(String arg2) {
+            this.arg2 = arg2;
+            return this;
         }
 
         public Bundle getArguments() {
@@ -57,12 +67,17 @@ public class MainFragmentDirections {
     }
 
     public static class Next implements NavDirections {
-        private final String main;
+        private String main;
 
         private String optional = "bla";
 
         public Next(String main) {
             this.main = main;
+        }
+
+        public Next setMain(String main) {
+            this.main = main;
+            return this;
         }
 
         public Next setOptional(String optional) {

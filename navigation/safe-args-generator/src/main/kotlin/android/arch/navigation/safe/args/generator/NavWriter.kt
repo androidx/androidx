@@ -22,8 +22,9 @@ import android.arch.navigation.safe.args.generator.ext.T
 import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
-import android.arch.navigation.safe.args.generator.models.Id
+import android.arch.navigation.safe.args.generator.models.accessor
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
@@ -41,16 +42,14 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
         FieldSpec.builder(arg.type.typeName(), arg.name)
                 .apply {
                     addModifiers(Modifier.PRIVATE)
-                    if (!arg.isOptional()) {
-                        addModifiers(Modifier.FINAL)
-                    } else {
-                        initializer(arg.type.write(arg.defaultValue!!))
+                    if (arg.isOptional()) {
+                        initializer(arg.defaultValue!!.write())
                     }
                 }
                 .build()
     }
 
-    fun setters(thisClassName: ClassName) = args.filter(Argument::isOptional).map { (name, type) ->
+    fun setters(thisClassName: ClassName) = args.map { (name, type) ->
         MethodSpec.methodBuilder("set${name.capitalize()}")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(type.typeName(), name)
@@ -60,15 +59,15 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
                 .build()
     }
 
-    fun writeConstructor(builder: MethodSpec.Builder) = builder.apply {
+    fun constructor() = MethodSpec.constructorBuilder().apply {
         addModifiers(Modifier.PUBLIC)
         args.filterNot(Argument::isOptional).forEach { (argName, type) ->
             addParameter(type.typeName(), argName)
             addStatement("this.$N = $N", argName, argName)
         }
-    }
+    }.build()
 
-    fun writeBundleMethod(builder: MethodSpec.Builder) = builder.apply {
+    fun toBundleMethod(name: String) = MethodSpec.methodBuilder(name).apply {
         addModifiers(Modifier.PUBLIC)
         returns(BUNDLE_CLASSNAME)
         val bundleName = "__outBundle"
@@ -77,6 +76,20 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
             addStatement("$N.$N($S, $N)", bundleName, type.bundlePutMethod(), argName, argName)
         }
         addStatement("return $N", bundleName)
+    }.build()
+
+    fun copyProperties(to: String, from: String) = CodeBlock.builder()
+            .apply {
+                args.forEach { arg -> addStatement("$to.${arg.name} = $from.${arg.name}") }
+            }
+            .build()
+
+    fun getters() = args.map { arg ->
+        MethodSpec.methodBuilder("get${arg.name.capitalize()}")
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return $N", arg.name)
+                .returns(arg.type.typeName())
+                .build()
     }
 }
 
@@ -110,18 +123,10 @@ fun generateDestinationDirectionsTypeSpec(
 fun generateDirectionsTypeSpec(action: Action): TypeSpec {
     val specs = ClassWithArgsSpecs(action.args)
 
-    val constructor = MethodSpec.constructorBuilder()
-            .run(specs::writeConstructor)
-            .build()
-
-    val getArgsMethod = MethodSpec.methodBuilder("getArguments")
-            .run(specs::writeBundleMethod)
-            .build()
-
     val getDestIdMethod = MethodSpec.methodBuilder("getDestinationId")
             .addModifiers(Modifier.PUBLIC)
             .returns(Int::class.java)
-            .addStatement("return $N", idAccessor(action.destination))
+            .addStatement("return $N", action.destination.accessor())
             .build()
 
     val getNavOptions = MethodSpec.methodBuilder("getOptions")
@@ -135,9 +140,9 @@ fun generateDirectionsTypeSpec(action: Action): TypeSpec {
             .addSuperinterface(NAV_DIRECTION_CLASSNAME)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addFields(specs.fieldSpecs())
-            .addMethod(constructor)
+            .addMethod(specs.constructor())
             .addMethods(specs.setters(className))
-            .addMethod(getArgsMethod)
+            .addMethod(specs.toBundleMethod("getArguments"))
             .addMethod(getDestIdMethod)
             .addMethod(getNavOptions)
             .build()
@@ -147,6 +152,9 @@ internal fun generateArgsJavaFile(destination: Destination): JavaFile {
     val destName = destination.name
             ?: throw IllegalStateException("Destination with arguments must have name")
     val className = ClassName.get(destName.packageName(), "${destName.simpleName()}Args")
+    val args = destination.args
+    val specs = ClassWithArgsSpecs(args)
+
     val fromBundleMethod = MethodSpec.methodBuilder("fromBundle").apply {
         addModifiers(Modifier.PUBLIC, Modifier.STATIC)
         val bundle = "bundle"
@@ -154,51 +162,60 @@ internal fun generateArgsJavaFile(destination: Destination): JavaFile {
         returns(className)
         val result = "result"
         addStatement("$T $N = new $T()", className, result, className)
-        destination.args.forEach { arg ->
+        args.forEach { arg ->
             beginControlFlow("if ($N.containsKey($S))", bundle, arg.name).apply {
                 addStatement("$N.$N = $N.$N($S)", result, arg.name, bundle,
                         arg.type.bundleGetMethod(), arg.name)
-            }.nextControlFlow("else").apply {
-                if (arg.isOptional()) {
-                    addCode("$N.$N = ", result, arg.name)
-                    addCode(arg.type.write(arg.defaultValue!!))
-                    addStatement("")
-                } else {
-                    addStatement("throw new $T($S)", IllegalArgumentException::class.java,
-                            "Required argument \"${arg.name}\" is missing and does " +
-                                    "not have an android:defaultValue")
-                }
-            }.endControlFlow()
+            }
+            if (!arg.isOptional()) {
+                nextControlFlow("else")
+                addStatement("throw new $T($S)", IllegalArgumentException::class.java,
+                        "Required argument \"${arg.name}\" is missing and does " +
+                                "not have an android:defaultValue")
+            }
+            endControlFlow()
         }
         addStatement("return $N", result)
     }.build()
 
-    val fields = destination.args.map { arg ->
-        FieldSpec.builder(arg.type.typeName(), arg.name, Modifier.PRIVATE).build()
-    }
-
-    val getters = destination.args.map { arg ->
-        MethodSpec.methodBuilder("get${arg.name.capitalize()}")
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $N", arg.name)
-                .returns(arg.type.typeName())
-                .build()
-    }
-
     val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build()
+
+    val copyConstructor = MethodSpec.constructorBuilder()
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(className, "original")
+            .addCode(specs.copyProperties("this", "original"))
+            .build()
+
+    val buildMethod = MethodSpec.methodBuilder("build")
+            .returns(className)
+            .addStatement("$T result = new $T()", className, className)
+            .addCode(specs.copyProperties("result", "this"))
+            .addStatement("return result")
+            .build()
+
+    val builderClassName = ClassName.get("", "Builder")
+    val builderTypeSpec = TypeSpec.classBuilder("Builder")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addFields(specs.fieldSpecs())
+            .addMethod(copyConstructor)
+            .addMethod(specs.constructor())
+            .addMethod(buildMethod)
+            .addMethods(specs.setters(builderClassName))
+            .addMethods(specs.getters())
+            .build()
 
     val typeSpec = TypeSpec.classBuilder(className)
             .addModifiers(Modifier.PUBLIC)
-            .addFields(fields)
+            .addFields(specs.fieldSpecs())
             .addMethod(constructor)
             .addMethod(fromBundleMethod)
-            .addMethods(getters)
+            .addMethods(specs.getters())
+            .addMethod(specs.toBundleMethod("toBundle"))
+            .addType(builderTypeSpec)
             .build()
 
     return JavaFile.builder(className.packageName(), typeSpec).build()
 }
-
-fun idAccessor(id: Id?) = id?.let { "${id.packageName}.R.id.${id.name}" } ?: "0"
 
 fun generateDirectionsJavaFile(destination: Destination): JavaFile {
     val destName = destination.name

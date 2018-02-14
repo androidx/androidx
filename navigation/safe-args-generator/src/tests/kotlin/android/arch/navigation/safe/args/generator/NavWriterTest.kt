@@ -16,10 +16,14 @@
 
 package android.arch.navigation.safe.args.generator
 
+import android.arch.navigation.safe.args.generator.NavType.INT
+import android.arch.navigation.safe.args.generator.NavType.STRING
+import android.arch.navigation.safe.args.generator.NavType.REFERENCE
+
 import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
-import android.arch.navigation.safe.args.generator.models.Id
+import android.arch.navigation.safe.args.generator.models.ResReference
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubject
 import com.squareup.javapoet.ClassName
@@ -38,8 +42,8 @@ import javax.tools.JavaFileObject
 @RunWith(JUnit4::class)
 class WriterTest {
 
-    @Suppress("MemberVisibilityCanPrivate")
     @get:Rule
+    @Suppress("MemberVisibilityCanBePrivate")
     val workingDir = TemporaryFolder()
 
     private fun load(fullClassName: String, folder: String): JavaFileObject {
@@ -49,17 +53,17 @@ class WriterTest {
         return JavaFileObjects.forSourceString(fullClassName, code)
     }
 
-    private fun id(id: String) = Id("a.b", id)
+    private fun id(id: String) = ResReference("a.b", "id", id)
 
     @Test
     fun testDirectionClassGeneration() {
         val destination = workingDir.newFolder()
         val actionSpec = generateDirectionsTypeSpec(Action(id("next"), id("destA"),
                 listOf(
-                        Argument("main", StringType),
-                        Argument("mainInt", IntegerType),
-                        Argument("optional", StringType, "bla"),
-                        Argument("optionalInt", IntegerType, "239"))))
+                        Argument("main", STRING),
+                        Argument("mainInt", INT),
+                        Argument("optional", STRING, StringValue("bla")),
+                        Argument("optionalInt", INT, IntValue("239")))))
         JavaFile.builder("a.b", actionSpec).build().writeTo(destination)
         val expected = load("a.b.Next", "expected")
         val generated = File(destination, "/a/b/Next.java")
@@ -86,13 +90,13 @@ class WriterTest {
 
         val nextAction = Action(id("next"), id("destA"),
                 listOf(
-                        Argument("main", StringType),
-                        Argument("optional", StringType, "bla")))
+                        Argument("main", STRING),
+                        Argument("optional", STRING, StringValue("bla"))))
 
         val prevAction = Action(id("previous"), id("destB"),
                 listOf(
-                        Argument("arg1", StringType),
-                        Argument("arg2", StringType)))
+                        Argument("arg1", STRING),
+                        Argument("arg2", STRING)))
 
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
                 listOf(prevAction, nextAction))
@@ -112,14 +116,19 @@ class WriterTest {
         val destination = workingDir.newFolder()
 
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(
-                Argument("main", StringType), Argument("optional", IntegerType, "-1")), listOf())
+                Argument("main", STRING),
+                Argument("optional", INT, IntValue("-1")),
+                Argument("reference", REFERENCE, ReferenceValue(ResReference("a.b", "drawable",
+                        "background")))),
+                listOf())
 
         generateArgsJavaFile(dest).writeTo(destination)
         val expected = load("a.b.MainFragmentArgs", "expected")
+        val rFile = load("a.b.R", "a/b")
         val generated = File(destination, "/a/b/MainFragmentArgs.java")
         MatcherAssert.assertThat(generated.exists(), CoreMatchers.`is`(true))
         val actual = JavaFileObjects.forResource(generated.toURI().toURL())
         JavaSourcesSubject.assertThat(actual).parsesAs(expected)
-        JavaSourcesSubject.assertThat(actual).compilesWithoutError()
+        JavaSourcesSubject.assertThat(rFile, actual).compilesWithoutError()
     }
 }

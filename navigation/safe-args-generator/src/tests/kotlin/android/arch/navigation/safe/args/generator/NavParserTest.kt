@@ -16,13 +16,17 @@
 
 package android.arch.navigation.safe.args.generator
 
+import android.arch.navigation.safe.args.generator.NavType.INT
+import android.arch.navigation.safe.args.generator.NavType.STRING
 import android.arch.navigation.safe.args.generator.models.Action
 import android.arch.navigation.safe.args.generator.models.Argument
 import android.arch.navigation.safe.args.generator.models.Destination
-import android.arch.navigation.safe.args.generator.models.Id
+import android.arch.navigation.safe.args.generator.models.ResReference
 import com.squareup.javapoet.ClassName
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -33,22 +37,22 @@ class NavParserTest {
 
     @Test
     fun test() {
-        val id: (String) -> Id = { id -> Id("a.b", id) }
+        val id: (String) -> ResReference = { id -> ResReference("a.b", "id", id) }
         val navGraph = parseNavigationFile(File("src/tests/test-data/naive_test.xml"), "a.b",
                 "foo.app")
 
         val nameFirst = ClassName.get("android.arch.navigation.testapp", "MainFragment")
         val nameNext = ClassName.get("foo.app", "NextFragment")
-        val expectedFirst = Destination(id("first_screen"), nameFirst, "fragment" ,
-                listOf(Argument("myarg1", StringType, "one")),
+        val expectedFirst = Destination(id("first_screen"), nameFirst, "fragment",
+                listOf(Argument("myarg1", STRING, StringValue("one"))),
                 listOf(Action(id("next"), id("next_fragment"), listOf(
-                        Argument("myarg2", StringType),
-                        Argument("randomArgument", StringType),
-                        Argument("intArgument", IntegerType, "261")
+                        Argument("myarg2", STRING),
+                        Argument("randomArgument", STRING),
+                        Argument("intArgument", INT, IntValue("261"))
                 ))))
 
         val expectedNext = Destination(id("next_fragment"), nameNext, "fragment",
-                listOf(Argument("myarg2", StringType)),
+                listOf(Argument("myarg2", STRING)),
                 listOf(Action(id("next"), id("first_screen")),
                         Action(id("finish"), null)))
 
@@ -58,11 +62,32 @@ class NavParserTest {
     }
 
     @Test
-    fun testIdParsing() {
-        assertThat(parseId("@+id/next", "a.b"), `is`(Id("a.b", "next")))
-        assertThat(parseId("@id/next", "a.b"), `is`(Id("a.b", "next")))
-        assertThat(parseId("@android:id/text", "a.b"), `is`(Id("android", "text")))
-        assertThat(parseId("@android:id/text", "a.b"), `is`(Id("android", "text")))
-        assertThat(parseId("@not.android:id/text", "a.b"), `is`(Id("not.android", "text")))
+    fun testReferenceParsing() {
+        assertThat(parseReference("@+id/next", "a.b"), `is`(ResReference("a.b", "id", "next")))
+        assertThat(parseReference("@id/next", "a.b"), `is`(ResReference("a.b", "id", "next")))
+        assertThat(parseReference("@android:string/text", "a.b"),
+                `is`(ResReference("android", "string", "text")))
+        assertThat(parseReference("@android:id/text", "a.b"),
+                `is`(ResReference("android", "id", "text")))
+        assertThat(parseReference("@not.android:string/text", "a.b"),
+                `is`(ResReference("not.android", "string", "text")))
+    }
+
+    @Test
+    fun testIntValueParsing() {
+        val error = errorOf({ parseIntValue("foo") })
+        assertThat(error, instanceOf(IllegalArgumentException::class.java))
+        assertThat(parseIntValue("10"), `is`(IntValue("10")))
+        assertThat(parseIntValue("-10"), `is`(IntValue("-10")))
+    }
+
+    private fun errorOf(f: () -> Unit, message: String = ""): Exception {
+        try {
+            f()
+            Assert.fail(message)
+            throw Error()
+        } catch (e: Exception) {
+            return e
+        }
     }
 }
