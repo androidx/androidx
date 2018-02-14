@@ -231,6 +231,7 @@ public class BuilderTest {
         assertThat(config.context, is(context));
         assertThat(config.name, is(nullValue()));
         assertThat(config.allowMainThreadQueries, is(false));
+        assertThat(config.journalMode, is(RoomDatabase.JournalMode.TRUNCATE));
         assertThat(config.sqliteOpenHelperFactory,
                 instanceOf(FrameworkSQLiteOpenHelperFactory.class));
     }
@@ -243,6 +244,16 @@ public class BuilderTest {
                 .build();
         DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
         assertThat(config.allowMainThreadQueries, is(true));
+    }
+
+    @Test
+    public void createWriteAheadLogging() {
+        Context context = mock(Context.class);
+        TestDatabase db = Room.databaseBuilder(context, TestDatabase.class, "foo")
+                .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING).build();
+        assertThat(db, instanceOf(BuilderTest_TestDatabase_Impl.class));
+        DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
+        assertThat(config.journalMode, is(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING));
     }
 
     @Test
