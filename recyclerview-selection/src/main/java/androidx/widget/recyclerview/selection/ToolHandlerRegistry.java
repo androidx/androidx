@@ -39,7 +39,7 @@ final class ToolHandlerRegistry<T> {
     // highest value. UNKNOWN is zero, so we add one. This allows delegates to be
     // registered by type, and avoid the auto-boxing that would be necessary were we
     // to store delegates in a Map<Integer, Delegate>.
-    private static final int sNumInputTypes = MotionEvent.TOOL_TYPE_ERASER + 1;
+    private static final int NUM_INPUT_TYPES = MotionEvent.TOOL_TYPE_ERASER + 1;
 
     private final List<T> mHandlers = Arrays.asList(null, null, null, null, null);
     private final T mDefault;
@@ -49,7 +49,7 @@ final class ToolHandlerRegistry<T> {
         mDefault = defaultDelegate;
 
         // Initialize all values to null.
-        for (int i = 0; i < sNumInputTypes; i++) {
+        for (int i = 0; i < NUM_INPUT_TYPES; i++) {
             mHandlers.set(i, null);
         }
     }

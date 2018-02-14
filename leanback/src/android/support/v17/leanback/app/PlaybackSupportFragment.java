@@ -194,7 +194,7 @@ public class PlaybackSupportFragment extends Fragment {
     private static final boolean DEBUG = false;
     private static final int ANIMATION_MULTIPLIER = 1;
 
-    private static int START_FADE_OUT = 1;
+    private static final int START_FADE_OUT = 1;
 
     // Fading status
     private static final int IDLE = 0;

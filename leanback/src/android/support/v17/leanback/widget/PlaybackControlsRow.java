@@ -192,14 +192,14 @@ public class PlaybackControlsRow extends Row {
          * @deprecated Use {@link #INDEX_PLAY}
          */
         @Deprecated
-        public static int PLAY = 0;
+        public static final int PLAY = 0;
 
         /**
          * Action index for the pause icon.
          * @deprecated Use {@link #INDEX_PAUSE}
          */
         @Deprecated
-        public static int PAUSE = 1;
+        public static final int PAUSE = 1;
 
         /**
          * Action index for the play icon.
@@ -403,14 +403,14 @@ public class PlaybackControlsRow extends Row {
          * @deprecated Use {@link #INDEX_SOLID}
          */
         @Deprecated
-        public static int SOLID = 0;
+        public static final int SOLID = 0;
 
         /**
          * Action index for the outline thumb icon.
          * @deprecated Use {@link #INDEX_OUTLINE}
          */
         @Deprecated
-        public static int OUTLINE = 1;
+        public static final int OUTLINE = 1;
 
         /**
          * Action index for the solid thumb icon.
@@ -476,21 +476,21 @@ public class PlaybackControlsRow extends Row {
          * @deprecated Use {@link #INDEX_NONE}
          */
         @Deprecated
-        public static int NONE = 0;
+        public static final int NONE = 0;
 
         /**
          * Action index for the repeat-all icon.
          * @deprecated Use {@link #INDEX_ALL}
          */
         @Deprecated
-        public static int ALL = 1;
+        public static final int ALL = 1;
 
         /**
          * Action index for the repeat-one icon.
          * @deprecated Use {@link #INDEX_ONE}
          */
         @Deprecated
-        public static int ONE = 2;
+        public static final int ONE = 2;
 
         /**
          * Action index for the repeat-none icon.
@@ -564,14 +564,14 @@ public class PlaybackControlsRow extends Row {
          * @deprecated Use {@link #INDEX_OFF}
          */
         @Deprecated
-        public static int OFF = 0;
+        public static final int OFF = 0;
 
         /**
          * Action index for shuffle is on.
          * @deprecated Use {@link #INDEX_ON}
          */
         @Deprecated
-        public static int ON = 1;
+        public static final int ON = 1;
 
         /**
          * Action index for shuffle is off
@@ -622,14 +622,14 @@ public class PlaybackControlsRow extends Row {
          * @deprecated Use {@link #INDEX_OFF}
          */
         @Deprecated
-        public static int OFF = 0;
+        public static final int OFF = 0;
 
         /**
          * Action index for high quality is on.
          * @deprecated Use {@link #INDEX_ON}
          */
         @Deprecated
-        public static int ON = 1;
+        public static final int ON = 1;
 
         /**
          * Action index for high quality is off.
@@ -682,14 +682,14 @@ public class PlaybackControlsRow extends Row {
          * @deprecated Use {@link #INDEX_OFF}
          */
         @Deprecated
-        public static int OFF = 0;
+        public static final int OFF = 0;
 
         /**
          * Action index for closed caption is on.
          * @deprecated Use {@link #INDEX_ON}
          */
         @Deprecated
-        public static int ON = 1;
+        public static final int ON = 1;
 
         /**
          * Action index for closed caption is off.

@@ -450,7 +450,7 @@ public final class BackgroundManager {
      */
     private static class BackgroundContinuityService {
         private static final String TAG = "BackgroundContinuity";
-        private static boolean DEBUG = BackgroundManager.DEBUG;
+        private static final boolean DEBUG = BackgroundManager.DEBUG;
 
         private static BackgroundContinuityService sService = new BackgroundContinuityService();
 

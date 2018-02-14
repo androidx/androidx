@@ -44,7 +44,7 @@ import android.view.ViewGroup;
 @Deprecated
 public class VerticalGridFragment extends BaseFragment {
     static final String TAG = "VerticalGF";
-    static boolean DEBUG = false;
+    static final boolean DEBUG = false;
 
     private ObjectAdapter mAdapter;
     private VerticalGridPresenter mGridPresenter;

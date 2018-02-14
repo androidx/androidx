@@ -437,7 +437,7 @@ public class DatePicker extends Picker {
         return false;
     }
 
-    private static int[] DATE_FIELDS = {Calendar.DAY_OF_MONTH, Calendar.MONTH, Calendar.YEAR};
+    private static final int[] DATE_FIELDS = {Calendar.DAY_OF_MONTH, Calendar.MONTH, Calendar.YEAR};
 
     // Following implementation always keeps up-to-date date ranges (min & max values) no matter
     // what the currently selected date is. This prevents the constant updating of date values while

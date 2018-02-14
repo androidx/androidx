@@ -96,7 +96,7 @@ import java.lang.ref.WeakReference;
 @Deprecated
 public class DetailsFragment extends BaseFragment {
     static final String TAG = "DetailsFragment";
-    static boolean DEBUG = false;
+    static final boolean DEBUG = false;
 
     final State STATE_SET_ENTRANCE_START_STATE = new State("STATE_SET_ENTRANCE_START_STATE") {
         @Override

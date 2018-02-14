@@ -37,7 +37,7 @@ import java.util.ArrayList;
 @RestrictTo(LIBRARY_GROUP)
 public final class StateMachine {
 
-    static boolean DEBUG = false;
+    static final boolean DEBUG = false;
     static final String TAG = "StateMachine";
 
     /**

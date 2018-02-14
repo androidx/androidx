@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public abstract class SharedElementCallback {
     private Matrix mTempMatrix;
-    private static int MAX_IMAGE_SIZE = (1024 * 1024);
+    private static final int MAX_IMAGE_SIZE = 1024 * 1024;
     private static final String BUNDLE_SNAPSHOT_BITMAP = "sharedElement:snapshot:bitmap";
     private static final String BUNDLE_SNAPSHOT_IMAGE_SCALETYPE = "sharedElement:snapshot:imageScaleType";
     private static final String BUNDLE_SNAPSHOT_IMAGE_MATRIX = "sharedElement:snapshot:imageMatrix";

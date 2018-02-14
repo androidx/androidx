@@ -699,7 +699,7 @@ public class BrowseFragment extends BaseFragment {
 
     private static final String LB_HEADERS_BACKSTACK = "lbHeadersBackStack_";
 
-    static boolean DEBUG = false;
+    static final boolean DEBUG = false;
 
     /** The headers fragment is enabled and shown by default. */
     public static final int HEADERS_ENABLED = 1;
