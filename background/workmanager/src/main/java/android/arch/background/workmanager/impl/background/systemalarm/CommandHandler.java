@@ -22,6 +22,7 @@ import static android.app.PendingIntent.FLAG_ONE_SHOT;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.arch.background.workmanager.impl.ExecutionListener;
+import android.arch.background.workmanager.impl.Processor;
 import android.arch.background.workmanager.impl.logger.Logger;
 import android.arch.background.workmanager.impl.model.WorkSpec;
 import android.arch.background.workmanager.impl.utils.IdGenerator;
@@ -232,11 +233,14 @@ public class CommandHandler implements ExecutionListener {
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
         Logger.debug(TAG, "Handing stopWork work for %s", workSpecId);
         // TODO(rahulrav@) Cancel alarm when necessary.
-        // TODO(rahulrav@) This is not a great signal if this was a user initiated stopWork.
-        boolean shouldReschedule = mPendingDelayMet.containsKey(workSpecId);
+
+        Processor processor = dispatcher.getProcessor();
+        boolean shouldReschedule = !processor.isCancelled(workSpecId);
+
         // Request background processor to stopWork the worker
         // TODO(rahulrav@) Call WorkManagerImpl#stopWork() here.
-        dispatcher.getProcessor().stopWork(workSpecId, true);
+        processor.stopWork(workSpecId, true);
+
         // reschedule if necessary
         if (shouldReschedule) {
             Logger.debug(TAG, "WorkSpec %s needs to be rescheduled", workSpecId);
