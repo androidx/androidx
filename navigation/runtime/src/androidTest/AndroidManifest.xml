@@ -16,7 +16,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.support.navigation.test">
+          package="androidx.navigation.test">
     <application>
     </application>
 </manifest>

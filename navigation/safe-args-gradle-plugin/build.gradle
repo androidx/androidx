@@ -57,8 +57,8 @@ tasks["compileTestJava"].dependsOn generateSdkResource
 gradlePlugin {
     plugins {
         safeargs {
-            id = "android.arch.navigation.safeargs"
-            implementationClass = "android.arch.navigation.safeargs.gradle.SafeArgsPlugin"
+            id = "androidx.navigation.safeargs"
+            implementationClass = "androidx.navigation.safeargs.gradle.SafeArgsPlugin"
         }
     }
 }

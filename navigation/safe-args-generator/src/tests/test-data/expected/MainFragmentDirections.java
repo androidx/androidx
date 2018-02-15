@@ -16,9 +16,9 @@
 
 package a.b;
 
-import android.arch.navigation.NavDirections;
-import android.arch.navigation.NavOptions;
 import android.os.Bundle;
+import androidx.navigation.NavDirections;
+import androidx.navigation.NavOptions;
 import java.lang.String;
 
 public class MainFragmentDirections {

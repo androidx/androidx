@@ -16,9 +16,9 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.support.navigation.fragment.test">
+          package="androidx.navigation.fragment.test">
     <application>
-        <activity android:name="android.arch.navigation.fragment.test.XmlNavigationActivity" />
-        <activity android:name="android.arch.navigation.fragment.test.DynamicNavigationActivity" />
+        <activity android:name="androidx.navigation.fragment.test.XmlNavigationActivity" />
+        <activity android:name="androidx.navigation.fragment.test.DynamicNavigationActivity" />
     </application>
 </manifest>

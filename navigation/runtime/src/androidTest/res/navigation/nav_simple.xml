@@ -28,6 +28,6 @@
         <action android:id="@+id/finish" app:popUpTo="@id/start_test" />
         <action android:id="@+id/finish_self" app:popUpTo="@id/second_test"
             app:popUpToInclusive="true" />
-        <deepLink app:uri="android-app://android.arch.navigation.test/test" />
+        <deepLink app:uri="android-app://androidx.navigation.test/test" />
     </test>
 </navigation>

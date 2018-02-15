@@ -24,24 +24,24 @@
     </fragment>
     <fragment android:id="@+id/android"
               android:label="@string/android"
-              android:name="android.arch.navigation.testapp.AndroidFragment">
+              android:name="androidx.navigation.testapp.AndroidFragment">
         <argument android:name="myarg" android:defaultValue="Android!" />
         <deepLink app:uri="www.iana.org/domains/{myarg}"/>
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
     <fragment android:id="@+id/first_screen"
-        android:name="android.arch.navigation.testapp.MainFragment">
+        android:name="androidx.navigation.testapp.MainFragment">
         <argument android:name="myarg" android:defaultValue="one" />
         <action android:id="@+id/next" app:destination="@+id/next_fragment"/>
     </fragment>
     <fragment android:id="@+id/next_fragment"
-        android:name="android.arch.navigation.testapp.MainFragment">
+        android:name="androidx.navigation.testapp.MainFragment">
         <argument android:name="myarg" android:defaultValue="two" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
     <activity android:id="@+id/settings_activity"
               app:action="android.settings.APPLICATION_DETAILS_SETTINGS"
-              app:data="package:android.arch.navigation.testapp"/>
+              app:data="package:androidx.navigation.testapp"/>
     <activity android:id="@+id/help_activity"
               android:name=".HelpActivity"
               app:dataPattern="http://www.example.com/{topic}">
