@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,29 @@
 package android.arch.navigation.fragment.test;
 
 import android.arch.navigation.NavController;
-import android.arch.navigation.Navigation;
-import android.arch.navigation.test.R;
+import android.arch.navigation.fragment.NavHostFragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 
 /**
- * Base Navigation Activity.
+ * Test Navigation Activity that dynamically adds the {@link NavHostFragment}.
  *
  * <p>You must call {@link NavController#setGraph(int)}
  * to set the appropriate graph for your test.</p>
  */
-public abstract class BaseNavigationActivity extends FragmentActivity {
+public class DynamicNavigationActivity extends BaseNavigationActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
+        setContentView(R.layout.dynamic_navigation_activity);
 
-    public NavController getNavController() {
-        return Navigation.findNavController(this, R.id.nav_host);
+        if (savedInstanceState == null) {
+            final NavHostFragment finalHost = new NavHostFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.nav_host, finalHost)
+                    .setPrimaryNavigationFragment(finalHost)
+                    .commit();
+        }
     }
 }

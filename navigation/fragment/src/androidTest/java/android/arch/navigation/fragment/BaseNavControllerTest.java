@@ -24,7 +24,7 @@ import android.app.Instrumentation;
 import android.arch.navigation.NavController;
 import android.arch.navigation.NavDeepLinkBuilder;
 import android.arch.navigation.fragment.test.BaseNavigationActivity;
-import android.arch.navigation.test.R;
+import android.arch.navigation.fragment.test.R;
 import android.arch.navigation.testing.TestNavigator;
 import android.content.ComponentName;
 import android.content.Intent;

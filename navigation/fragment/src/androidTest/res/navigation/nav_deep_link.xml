@@ -18,16 +18,9 @@
             xmlns:app="http://schemas.android.com/apk/res-auto"
             app:startDestination="@+id/start_test">
 
-    <test android:id="@+id/start_test">
-        <action android:id="@+id/second" app:destination="@+id/second_test" />
-    </test>
+    <test android:id="@+id/start_test" />
 
-    <test android:id="@+id/second_test">
-        <action android:id="@+id/self" app:destination="@+id/second_test"
-            app:launchSingleTop="true" />
-        <action android:id="@+id/finish" app:popUpTo="@id/start_test" />
-        <action android:id="@+id/finish_self" app:popUpTo="@id/second_test"
-            app:popUpToInclusive="true" />
-        <deepLink app:uri="android-app://android.arch.navigation.test/test" />
+    <test android:id="@+id/deep_link_test">
+        <deepLink app:uri="www.example.com/{test}" />
     </test>
 </navigation>

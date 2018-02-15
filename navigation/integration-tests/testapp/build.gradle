@@ -21,7 +21,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":navigation:runtime"))
+    implementation(project(":navigation:fragment"))
     implementation(SUPPORT_DESIGN)
 }
 
