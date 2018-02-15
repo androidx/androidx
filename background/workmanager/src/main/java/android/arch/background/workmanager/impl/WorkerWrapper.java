@@ -279,14 +279,14 @@ public class WorkerWrapper implements Runnable {
                         unblockedWorkCount, mWorkSpecId);
             }
 
+            mWorkDatabase.setTransactionSuccessful();
+
             if (mSchedulers != null) {
                 WorkSpec[] unblockedWorkSpecs = mWorkSpecDao.getWorkSpecs(unblockedWorkIds);
                 for (Scheduler scheduler : mSchedulers) {
                     scheduler.schedule(unblockedWorkSpecs);
                 }
             }
-
-            mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
             notifyListener(true, false);
