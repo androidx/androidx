@@ -50,8 +50,9 @@ import androidx.work.impl.model.WorkTagDao;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+// TODO (rahulrav@) Figure out if / how we export the Room Schema
 @Database(entities = {Dependency.class, WorkSpec.class, WorkTag.class},
-        version = 1)
+        version = 1, exportSchema = false)
 @TypeConverters(value = {Arguments.class, ContentUriTriggers.class, EnumTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
