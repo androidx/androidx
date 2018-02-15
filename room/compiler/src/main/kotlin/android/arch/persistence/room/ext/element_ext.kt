@@ -21,6 +21,7 @@ package android.arch.persistence.room.ext
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import org.jetbrains.kotlin.load.java.JvmAbi
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
@@ -210,4 +211,32 @@ fun TypeMirror.extendsBound(): TypeMirror? {
             return type.extendsBound
         }
     }, null)
+}
+
+/**
+ * Finds the default implementation method corresponding to this Kotlin interface method.
+ */
+fun Element.findKotlinDefaultImpl(typeUtils: Types): Element? {
+    fun paramsMatch(ourParams: List<VariableElement>, theirParams: List<VariableElement>): Boolean {
+        if (ourParams.size != theirParams.size - 1) {
+            return false
+        }
+        ourParams.forEachIndexed { i, variableElement ->
+            // Plus 1 to their index because their first param is a self object.
+            if (!typeUtils.isSameType(theirParams[i + 1].asType(), variableElement.asType())) {
+                return false
+            }
+        }
+        return true
+    }
+
+    val parent = this.enclosingElement as TypeElement
+    val innerClass = parent.enclosedElements.find {
+        it.kind == ElementKind.CLASS && it.simpleName.contentEquals(JvmAbi.DEFAULT_IMPLS_CLASS_NAME)
+    } ?: return null
+    return innerClass.enclosedElements.find {
+        it.kind == ElementKind.METHOD && it.simpleName == this.simpleName
+                && paramsMatch(MoreElements.asExecutable(this).parameters,
+                MoreElements.asExecutable(it).parameters)
+    }
 }

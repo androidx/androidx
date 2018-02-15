@@ -23,6 +23,7 @@ import android.arch.persistence.room.RawQuery
 import android.arch.persistence.room.SkipQueryVerification
 import android.arch.persistence.room.Transaction
 import android.arch.persistence.room.Update
+import android.arch.persistence.room.ext.findKotlinDefaultImpl
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.hasAnyOf
 import android.arch.persistence.room.ext.typeName
@@ -57,6 +58,7 @@ class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: D
         val methods = allMembers
             .filter {
                 it.hasAnyOf(ABSTRACT) && it.kind == ElementKind.METHOD
+                        && it.findKotlinDefaultImpl(context.processingEnv.typeUtils) == null
             }.map {
                 MoreElements.asExecutable(it)
             }.groupBy { method ->
