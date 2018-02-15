@@ -59,6 +59,7 @@ limitations under the License.
     <dimen name="car_body3_size">16sp</dimen>
     <dimen name="car_body4_size">14sp</dimen>
     <dimen name="car_body5_size">18sp</dimen>
+    <dimen name="car_label1_size">26sp</dimen>
     <dimen name="car_action1_size">26sp</dimen>
 
     <!-- Icons and Buttons -->
