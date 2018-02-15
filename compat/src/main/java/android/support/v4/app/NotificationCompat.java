@@ -17,6 +17,7 @@
 package android.support.v4.app;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.app.Activity;
@@ -2884,6 +2885,11 @@ public class NotificationCompat {
          */
         public static final int SEMANTIC_ACTION_THUMBS_DOWN = 9;
 
+        /**
+         * {@link SemanticAction}: Call a contact, group, etc.
+         */
+        public static final int SEMANTIC_ACTION_CALL = 10;
+
         static final String EXTRA_SHOWS_USER_INTERFACE =
                 "android.support.action.showsUserInterface";
 
@@ -3446,7 +3452,8 @@ public class NotificationCompat {
                 SEMANTIC_ACTION_MUTE,
                 SEMANTIC_ACTION_UNMUTE,
                 SEMANTIC_ACTION_THUMBS_UP,
-                SEMANTIC_ACTION_THUMBS_DOWN
+                SEMANTIC_ACTION_THUMBS_DOWN,
+                SEMANTIC_ACTION_CALL
         })
         @Retention(RetentionPolicy.SOURCE)
         public @interface SemanticAction {}
