@@ -18,8 +18,10 @@ package android.arch.persistence.room.integration.kotlintestapp.dao
 
 import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Delete
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
+import android.arch.persistence.room.Transaction
 import android.arch.persistence.room.TypeConverters
 import android.arch.persistence.room.integration.kotlintestapp.vo.Author
 import android.arch.persistence.room.integration.kotlintestapp.vo.Book
@@ -40,6 +42,9 @@ interface BooksDao {
 
     @Insert
     fun addPublishers(vararg publishers: Publisher)
+
+    @Delete
+    fun deletePublishers(vararg publishers: Publisher)
 
     @Insert
     fun addAuthors(vararg authors: Author)
@@ -122,4 +127,17 @@ interface BooksDao {
     @Query("SELECT * FROM book WHERE languages & :langs != 0 ORDER BY bookId ASC")
     @TypeConverters(Lang::class)
     fun findByLanguages(langs: Set<Lang>): List<Book>
+
+    @Transaction
+    fun deleteAndAddPublisher(oldPublisher: Publisher, newPublisher: Publisher,
+            fail: Boolean = false) {
+        deletePublishers(oldPublisher)
+        if (fail) {
+            throw RuntimeException()
+        }
+        addPublishers(newPublisher)
+    }
+
+    @Query("SELECT * FROM Publisher")
+    fun getPublishers(): List<Publisher>
 }

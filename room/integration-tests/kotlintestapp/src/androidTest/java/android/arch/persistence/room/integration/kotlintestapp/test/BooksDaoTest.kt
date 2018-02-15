@@ -30,7 +30,9 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.TestSubscriber
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -283,5 +285,39 @@ class BooksDaoTest : TestDatabaseTest() {
         val author = database.derivedDao().getAuthor(TestUtil.AUTHOR_1.authorId)
 
         assertThat(author, CoreMatchers.`is`<Author>(TestUtil.AUTHOR_1))
+    }
+
+    @Test
+    fun deleteAndAddPublisher() {
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.getPublishers().run {
+            assertThat(this.size, `is`(1))
+            assertThat(this.first(), `is`(equalTo(TestUtil.PUBLISHER)))
+        }
+        booksDao.deleteAndAddPublisher(TestUtil.PUBLISHER, TestUtil.PUBLISHER2)
+        booksDao.getPublishers().run {
+            assertThat(this.size, `is`(1))
+            assertThat(this.first(), `is`(equalTo(TestUtil.PUBLISHER2)))
+        }
+    }
+
+    @Test
+    fun deleteAndAddPublisher_failure() {
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.getPublishers().run {
+            assertThat(this.size, `is`(1))
+            assertThat(this.first(), `is`(equalTo(TestUtil.PUBLISHER)))
+        }
+        var throwable: Throwable? = null
+        try {
+            booksDao.deleteAndAddPublisher(TestUtil.PUBLISHER, TestUtil.PUBLISHER2, true)
+        } catch (e: RuntimeException) {
+            throwable = e
+        }
+        assertThat(throwable, `is`(notNullValue()))
+        booksDao.getPublishers().run {
+            assertThat(this.size, `is`(1))
+            assertThat(this.first(), `is`(equalTo(TestUtil.PUBLISHER)))
+        }
     }
 }
