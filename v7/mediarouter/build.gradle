@@ -18,14 +18,12 @@ dependencies {
 
 android {
     sourceSets {
-        main.java.srcDirs = [
+        main.java.srcDirs += [
                 'jellybean',
                 'jellybean-mr1',
                 'jellybean-mr2',
-                'api24',
-                'src'
+                'api24'
         ]
-        main.res.srcDir 'res'
     }
 }
 

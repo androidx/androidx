@@ -19,16 +19,15 @@ dependencies {
 
 android {
     sourceSets {
-        main.java.srcDirs = [
+        main.java.srcDirs += [
                 'api21',
                 'api22',
                 'api23',
                 'api24',
                 'api26',
-                'java'
         ]
-        main.aidl.srcDirs = ['java']
-        main.res.srcDirs 'res', 'res-public'
+        main.aidl.srcDirs = ['src/main/java']
+        main.res.srcDirs += 'src/main/res-public'
     }
 
     buildTypes.all {

@@ -16,11 +16,9 @@ dependencies {
 
 android {
     sourceSets {
-        main.java.srcDirs = [
-                'api21',
-                'src'
+        main.java.srcDirs += [
+                'api21'
         ]
-        main.res.srcDir 'res'
     }
 }
 
