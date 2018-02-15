@@ -252,7 +252,16 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testConvertNetworkType_notRoaming() {
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 23)
+    public void testConvertNetworkType_notRoaming_returnAnyBeforeApi24() {
+        assertThat(SystemJobInfoConverter.convertNetworkType(NOT_ROAMING),
+                is(JobInfo.NETWORK_TYPE_ANY));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 24)
+    public void testConvertNetworkType_notRoaming_returnsNotRoamingAtOrAfterApi24() {
         assertThat(SystemJobInfoConverter.convertNetworkType(NOT_ROAMING),
                 is(JobInfo.NETWORK_TYPE_NOT_ROAMING));
     }

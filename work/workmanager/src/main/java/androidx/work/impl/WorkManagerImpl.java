@@ -56,8 +56,8 @@ import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerImpl extends WorkManager {
 
-    public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 23;
-    public static final int MIN_JOB_SCHEDULER_API_LEVEL = 24;
+    public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 22;
+    public static final int MIN_JOB_SCHEDULER_API_LEVEL = 23;
 
     private WorkDatabase mWorkDatabase;
     private TaskExecutor mTaskExecutor;
