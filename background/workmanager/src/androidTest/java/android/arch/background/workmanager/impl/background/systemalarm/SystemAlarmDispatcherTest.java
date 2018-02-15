@@ -222,34 +222,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     }
 
     @Test
-    public void testSchedule_withStopWhenNotCancelled() throws InterruptedException {
-        Work work = new Work.Builder(SleepTestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis())
-                .build();
-
-        insertWork(work);
-        String workSpecId = work.getId();
-
-        when(mSpyProcessor.isCancelled(workSpecId)).thenReturn(false);
-
-        final Intent scheduleWork = CommandHandler.createScheduleWorkIntent(mContext, workSpecId);
-        final Intent stopWork = CommandHandler.createStopWorkIntent(mContext, workSpecId);
-
-        mSpyDispatcher.postOnMainThread(
-                new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, scheduleWork, START_ID));
-
-        mSpyDispatcher.postOnMainThread(
-                new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, stopWork, START_ID));
-
-
-        mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
-
-        assertThat(mLatch.getCount(), is(0L));
-        verify(mSpyProcessor, times(2)).startWork(workSpecId);
-        verify(mSpyProcessor, times(1)).stopWork(workSpecId, true);
-    }
-
-    @Test
     public void testSchedule_withConstraints() throws InterruptedException {
         when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
         Work work = new Work.Builder(TestWorker.class)
@@ -337,7 +309,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 IsIterableContainingInOrder.contains(
                         CommandHandler.ACTION_DELAY_MET,
                         CommandHandler.ACTION_STOP_WORK,
-                        CommandHandler.ACTION_SCHEDULE_WORK,
                         CommandHandler.ACTION_CONSTRAINTS_CHANGED));
 
         assertThat(workSpec.getState(), is(State.ENQUEUED));

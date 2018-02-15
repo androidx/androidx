@@ -145,6 +145,14 @@ public class Processor implements ExecutionListener {
     }
 
     /**
+     * @param workSpecId The {@link android.arch.background.workmanager.impl.model.WorkSpec} id
+     * @return {@code true} if the id was enqueued in the processor.
+     */
+    public synchronized boolean isEnqueued(@NonNull String workSpecId) {
+        return mEnqueuedWorkMap.containsKey(workSpecId);
+    }
+
+    /**
      * Adds an {@link ExecutionListener} to track when work finishes.
      *
      * @param executionListener The {@link ExecutionListener} to add

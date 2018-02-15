@@ -213,8 +213,11 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                             // Note: this works only because mCommandExecutor service is a single
                             // threaded executor. If that assumption changes in the future, use a
                             // ReentrantLock, and lock the queue while command processor processes
-                            // an intent.
-                            mIntents.remove(0);
+                            // an intent. Synchronized to prevent ConcurrentModificationExceptions.
+                            synchronized (mIntents) {
+                                mIntents.remove(0);
+                            }
+
                             Logger.debug(TAG, "Releasing operation wake lock (%s) %s", action,
                                     wakeLock);
                             wakeLock.release();

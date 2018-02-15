@@ -162,6 +162,21 @@ public class DelayMetCommandHandler implements
                 Intent stopWork = CommandHandler.createStopWorkIntent(mContext, mWorkSpecId);
                 mDispatcher.postOnMainThread(
                         new SystemAlarmDispatcher.AddRunnable(mDispatcher, stopWork, mStartId));
+                // There are cases where the work may not have been enqueued at all, and therefore
+                // the processor is completely unaware of such a workSpecId in which case a
+                // reschedule should not happen. For e.g. DELAY_MET when constraints are not met,
+                // should not result in a reschedule.
+                if (mDispatcher.getProcessor().isEnqueued(mWorkSpecId)) {
+                    Logger.debug(TAG, "WorkSpec %s needs to be rescheduled", mWorkSpecId);
+                    Intent reschedule = CommandHandler.createScheduleWorkIntent(mContext,
+                            mWorkSpecId);
+                    mDispatcher.postOnMainThread(
+                            new SystemAlarmDispatcher.AddRunnable(mDispatcher, reschedule,
+                                    mStartId));
+                } else {
+                    Logger.debug(TAG, "Processor does not have WorkSpec %s. No need to reschedule ",
+                            mWorkSpecId);
+                }
                 mHasPendingStopWorkCommand = true;
             } else {
                 Logger.debug(TAG, "Already stopped work for %s", mWorkSpecId);
@@ -179,9 +194,6 @@ public class DelayMetCommandHandler implements
         synchronized (mLock) {
             // stop timers
             mDispatcher.getWorkTimer().stopTimer(mWorkSpecId);
-
-            // reset trackers
-            mWorkConstraintsTracker.reset();
 
             // release wake locks
             if (mWakeLock != null && mWakeLock.isHeld()) {

@@ -233,23 +233,14 @@ public class CommandHandler implements ExecutionListener {
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
         Logger.debug(TAG, "Handing stopWork work for %s", workSpecId);
         // TODO(rahulrav@) Cancel alarm when necessary.
-
         Processor processor = dispatcher.getProcessor();
-        boolean shouldReschedule = !processor.isCancelled(workSpecId);
 
         // Request background processor to stopWork the worker
         // TODO(rahulrav@) Call WorkManagerImpl#stopWork() here.
         processor.stopWork(workSpecId, true);
 
-        // reschedule if necessary
-        if (shouldReschedule) {
-            Logger.debug(TAG, "WorkSpec %s needs to be rescheduled", workSpecId);
-            Intent reschedule = CommandHandler.createScheduleWorkIntent(mContext, workSpecId);
-            dispatcher.postOnMainThread(
-                    new SystemAlarmDispatcher.AddRunnable(dispatcher, reschedule, startId));
-        }
         // Notify dispatcher, so it can clean up.
-        dispatcher.onExecuted(workSpecId, false, shouldReschedule);
+        dispatcher.onExecuted(workSpecId, false, false /* never reschedule */);
     }
 
     private void handleConstraintsChanged(
