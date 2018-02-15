@@ -341,10 +341,10 @@ public class NavControllerTest {
     @Test
     public void testDeepLinkFromNavGraph() throws Throwable {
         NavController navController = createNavController();
-        navController.setGraph(R.navigation.nav_deep_link);
+        navController.setGraph(R.navigation.nav_simple);
 
         TaskStackBuilder taskStackBuilder = navController.createDeepLink()
-                .setDestination(R.id.deep_link_test)
+                .setDestination(R.id.second_test)
                 .createTaskStackBuilder();
         assertThat(taskStackBuilder, is(notNullValue(TaskStackBuilder.class)));
         assertThat(taskStackBuilder.getIntentCount(), is(1));

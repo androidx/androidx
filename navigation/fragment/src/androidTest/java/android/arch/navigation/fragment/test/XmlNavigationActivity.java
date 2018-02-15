@@ -18,29 +18,20 @@ package android.arch.navigation.fragment.test;
 
 import android.arch.navigation.NavController;
 import android.arch.navigation.fragment.NavHostFragment;
-import android.arch.navigation.test.R;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 /**
- * Test Navigation Activity that dynamically adds the {@link NavHostFragment}.
+ * Test Navigation Activity that adds the {@link NavHostFragment} in XML.
  *
  * <p>You must call {@link NavController#setGraph(int)}
  * to set the appropriate graph for your test.</p>
  */
-public class DynamicNavigationActivity extends BaseNavigationActivity {
+public class XmlNavigationActivity extends BaseNavigationActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dynamic_navigation_activity);
-
-        if (savedInstanceState == null) {
-            final NavHostFragment finalHost = new NavHostFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nav_host, finalHost)
-                    .setPrimaryNavigationFragment(finalHost)
-                    .commit();
-        }
+        setContentView(R.layout.navigation_activity);
     }
 }

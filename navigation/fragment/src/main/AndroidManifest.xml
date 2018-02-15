@@ -14,14 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            app:startDestination="@+id/start_test">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="android.arch.navigation.fragment">
 
-    <test android:id="@+id/start_test" />
-
-    <test android:id="@+id/deep_link_test">
-        <deepLink app:uri="www.example.com/{test}" />
-        <deepLink app:uri="android-app://android.arch.navigation.test/test" />
-    </test>
-</navigation>
+</manifest>

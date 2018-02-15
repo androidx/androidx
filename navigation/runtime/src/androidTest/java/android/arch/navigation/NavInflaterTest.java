@@ -56,7 +56,7 @@ public class NavInflaterTest {
     public void testInflateDeepLinkWithApplicationId() {
         Context context = InstrumentationRegistry.getTargetContext();
         NavInflater navInflater = new NavInflater(context, new TestNavigatorProvider(context));
-        NavGraph graph = navInflater.inflate(R.navigation.nav_deep_link);
+        NavGraph graph = navInflater.inflate(R.navigation.nav_simple);
 
         assertThat(graph, is(notNullValue(NavGraph.class)));
         Uri expectedUri = Uri.parse("android-app://"
@@ -65,7 +65,7 @@ public class NavInflaterTest {
         assertThat(result, is(notNullValue()));
         assert result != null;
         assertThat(result.first, is(notNullValue(NavDestination.class)));
-        assertThat(result.first.getId(), is(R.id.deep_link_test));
+        assertThat(result.first.getId(), is(R.id.second_test));
     }
 
     @Test

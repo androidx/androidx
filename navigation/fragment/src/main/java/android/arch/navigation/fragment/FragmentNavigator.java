@@ -21,7 +21,6 @@ import android.arch.navigation.NavDestination;
 import android.arch.navigation.NavOptions;
 import android.arch.navigation.Navigator;
 import android.arch.navigation.NavigatorProvider;
-import android.arch.navigation.R;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
