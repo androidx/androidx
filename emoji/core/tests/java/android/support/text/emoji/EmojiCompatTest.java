@@ -545,6 +545,38 @@ public class EmojiCompatTest {
         assertThat(processed, hasEmoji(EMOJI_SINGLE_CODEPOINT));
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_withSpanned_replaceNonExistent() {
+        final Config config = TestConfigBuilder.config().setReplaceAll(false);
+        EmojiCompat.reset(config);
+
+        final String string = new TestString(EMOJI_SINGLE_CODEPOINT).append(
+                EMOJI_FLAG).toString();
+        CharSequence processed = EmojiCompat.get().process(string, 0, string.length(),
+                Integer.MAX_VALUE, EmojiCompat.REPLACE_STRATEGY_ALL);
+
+        final SpannedString spanned = new SpannedString(processed);
+        assertThat(spanned, hasEmojiCount(2));
+
+        // mock GlyphChecker so that we can return true for hasGlyph
+        final EmojiProcessor.GlyphChecker glyphChecker = mock(EmojiProcessor.GlyphChecker.class);
+        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt())).thenReturn(true);
+        EmojiCompat.get().setGlyphChecker(glyphChecker);
+
+        processed = EmojiCompat.get().process(spanned, 0, spanned.length(),
+                Integer.MAX_VALUE, EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT);
+
+        assertThat(processed, not(hasEmoji()));
+
+        // start: 1 char after the first emoji (in the second emoji)
+        processed = EmojiCompat.get().process(spanned, EMOJI_SINGLE_CODEPOINT.charCount() + 1,
+                spanned.length(), Integer.MAX_VALUE, EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT);
+
+        assertThat(processed, hasEmojiCount(1));
+        assertThat(processed, hasEmoji(EMOJI_SINGLE_CODEPOINT));
+    }
+
     @Test(expected = NullPointerException.class)
     public void testHasEmojiGlyph_withNullCharSequence() {
         EmojiCompat.get().hasEmojiGlyph(null);
