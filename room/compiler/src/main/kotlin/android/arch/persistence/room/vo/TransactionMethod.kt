@@ -20,6 +20,6 @@ import javax.lang.model.element.ExecutableElement
 
 class TransactionMethod(val element: ExecutableElement, val name: String, val callType: CallType) {
     enum class CallType {
-        CONCRETE, DEFAULT_IN_INTERFACE
+        CONCRETE, DEFAULT_JAVA8, DEFAULT_KOTLIN
     }
 }

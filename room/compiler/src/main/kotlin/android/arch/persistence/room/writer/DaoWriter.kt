@@ -40,6 +40,7 @@ import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import org.jetbrains.kotlin.load.java.JvmAbi
 import stripNonJava
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ElementKind
@@ -215,9 +216,15 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
                     append("super.$N(")
                     params.add(element.simpleName)
                 }
-                TransactionMethod.CallType.DEFAULT_IN_INTERFACE -> {
+                TransactionMethod.CallType.DEFAULT_JAVA8 -> {
                     append("$N.super.$N(")
                     params.add(element.enclosingElement.simpleName)
+                    params.add(element.simpleName)
+                }
+                TransactionMethod.CallType.DEFAULT_KOTLIN -> {
+                    append("$N.$N.$N(this, ")
+                    params.add(element.enclosingElement.simpleName)
+                    params.add(JvmAbi.DEFAULT_IMPLS_CLASS_NAME)
                     params.add(element.simpleName)
                 }
             }
