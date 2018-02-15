@@ -46,6 +46,8 @@ import androidx.app.slice.builders.SliceAction;
  */
 public class SampleSliceProvider extends SliceProvider {
 
+    private static final boolean TEST_CUSTOM_SEE_MORE = false;
+
     public static final String ACTION_WIFI_CHANGED =
             "com.example.androidx.slice.action.WIFI_CHANGED";
     public static final String ACTION_TOAST =
@@ -414,18 +416,50 @@ public class SampleSliceProvider extends SliceProvider {
                 state = ""; // just don't show anything?
                 break;
         }
+
+        // Set the first row as a toggle
         boolean finalWifiEnabled = wifiEnabled;
         SliceAction primaryAction = new SliceAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
                 Icon.createWithResource(getContext(), R.drawable.ic_wifi), "Wi-fi Settings");
-        return new ListBuilder(getContext(), sliceUri)
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff4285f4)
                 .addRow(b -> b
                     .setTitle("Wi-fi")
                     .setSubtitle(state)
                     .addEndItem(new SliceAction(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
                             "Toggle wifi", finalWifiEnabled))
-                    .setPrimaryAction(primaryAction))
-                .build();
+                    .setPrimaryAction(primaryAction));
+
+        // Add fake wifi networks
+        int[] wifiIcons = new int[] {R.drawable.ic_wifi_full, R.drawable.ic_wifi_low,
+                R.drawable.ic_wifi_fair};
+        for (int i = 0; i < 10; i++) {
+            final int iconId = wifiIcons[i % wifiIcons.length];
+            Icon icon = Icon.createWithResource(getContext(), iconId);
+            final String networkName = "Network" + i;
+            ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb);
+            rb.setTitleItem(icon)
+                .setTitle("Network" + networkName);
+            boolean locked = i % 3 == 0;
+            if (locked) {
+                rb.addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_lock));
+            }
+            String message = locked ? "Open wifi password dialog" : "Connect to " + networkName;
+            rb.setPrimaryAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, message), icon,
+                    message));
+            lb.addRow(rb);
+        }
+
+        // Add see more intent
+        if (TEST_CUSTOM_SEE_MORE) {
+            lb.addSeeMoreRow(rb -> rb
+                    .setTitle("See all available networks")
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_right_caret))
+                    .setPrimaryAction(primaryAction));
+        } else {
+            lb.addSeeMoreAction(primaryAction.getAction());
+        }
+        return lb.build();
     }
 
     private Slice createStarRatingInputRange(Uri sliceUri) {

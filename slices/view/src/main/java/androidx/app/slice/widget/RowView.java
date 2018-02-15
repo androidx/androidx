@@ -41,8 +41,10 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -84,6 +86,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private LinearLayout mEndContainer;
     private SeekBar mSeekBar;
     private ProgressBar mProgressBar;
+    private View mSeeMoreView;
 
     private int mRowIndex;
     private RowContent mRowContent;
@@ -175,6 +178,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     private void populateViews() {
         resetView();
+        if (mRowContent.isDefaultSeeMore()) {
+            showSeeMore();
+            return;
+        }
+
         boolean showStart = false;
         final SliceItem startItem = mRowContent.getStartItem();
         if (startItem != null) {
@@ -456,6 +464,26 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         return addedView != null;
     }
 
+    private void showSeeMore() {
+        Button b = (Button) LayoutInflater.from(getContext()).inflate(
+                R.layout.abc_slice_row_show_more, this, false);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    mRowContent.getSlice().getAction().send();
+                } catch (CanceledException e) {
+                    Log.w(TAG, "PendingIntent for slice cannot be sent", e);
+                }
+            }
+        });
+        if (mTintColor != -1) {
+            b.setTextColor(mTintColor);
+        }
+        mSeeMoreView = b;
+        addView(mSeeMoreView);
+    }
+
     @Override
     public void onClick(View view) {
         if (mRowAction != null && mRowAction.getActionItem() != null && !mRowAction.isToggle()) {
@@ -496,5 +524,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mDivider.setVisibility(View.GONE);
         mSeekBar.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.GONE);
+        if (mSeeMoreView != null) {
+            removeView(mSeeMoreView);
+        }
     }
 }

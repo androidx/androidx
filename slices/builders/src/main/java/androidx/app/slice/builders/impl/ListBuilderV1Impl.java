@@ -140,7 +140,8 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         getBuilder().addSubSlice(
                 new Slice.Builder(getBuilder())
                         .addHints(HINT_SEE_MORE)
-                        .addAction(intent, new Slice.Builder(getBuilder()).build(), null)
+                        .addAction(intent, new Slice.Builder(getBuilder())
+                                .addHints(HINT_SEE_MORE).build(), null)
                         .build());
     }
 

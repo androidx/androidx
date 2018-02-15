@@ -192,16 +192,17 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         final int heightAvailable = MeasureSpec.getSize(heightMeasureSpec);
         final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int height = heightAvailable;
-        if (heightAvailable >= sliceHeight) {
-            // Available space is larger than the slice
-            if (heightMode == MeasureSpec.AT_MOST || heightMode == MeasureSpec.UNSPECIFIED) {
-                height = sliceHeight;
+        if (heightAvailable >= sliceHeight || heightMode == MeasureSpec.UNSPECIFIED) {
+            // Available space is larger than the slice or we be what we want
+            if (heightMode != MeasureSpec.EXACTLY) {
+                int maxHeight = mIsScrollable ? mMinLargeHeight + actionHeight : sliceHeight;
+                height = Math.min(maxHeight, sliceHeight);
             }
         } else {
             // Not enough space available for slice in current mode
             if (getMode() == MODE_LARGE && heightAvailable >= mMinLargeHeight + actionHeight) {
                 // It's just a slice with scrolling content; cap it to height available.
-                height = heightAvailable;
+                height = Math.min(mMinLargeHeight + actionHeight, heightAvailable);
             } else if (getMode() == MODE_SHORTCUT) {
                 // TODO: consider scaling the shortcut to fit if too small
                 height = mShortcutSize;
