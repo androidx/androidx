@@ -99,6 +99,10 @@
     <color name="car_body4_dark">@android:color/black</color>
     <color name="car_body4">@color/car_body4_dark</color>
 
+    <color name="car_label1_light">@color/car_grey_50</color>
+    <color name="car_label1_dark">@color/car_grey_900</color>
+    <color name="car_label1">@color/car_label1_dark</color>
+
     <color name="car_action1_light">@color/car_grey_900</color>
     <color name="car_action1_dark">@color/car_grey_50</color>
     <color name="car_action1">@color/car_action1_dark</color>
