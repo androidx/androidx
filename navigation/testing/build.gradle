@@ -24,25 +24,22 @@ plugins {
 }
 
 dependencies {
-    api(SUPPORT_CORE_UTILS)
-    api(SUPPORT_FRAGMENTS)
     api(project(":navigation:common"))
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
 
-    androidTestImplementation(project(":navigation:testing"))
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
 }
 
 supportLibrary {
-    name = "Android Navigation Runtime"
+    name = "Android Navigation Testing"
     publish = true
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
-    description = "Android Navigation-Runtime"
+    description = "Android Navigation-Testing"
     url = SupportLibraryExtension.ARCHITECTURE_URL
 }

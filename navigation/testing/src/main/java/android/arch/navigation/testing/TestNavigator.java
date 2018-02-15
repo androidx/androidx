@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package android.arch.navigation;
+package android.arch.navigation.testing;
 
+import android.arch.navigation.NavDestination;
+import android.arch.navigation.NavOptions;
+import android.arch.navigation.Navigator;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
@@ -30,13 +33,14 @@ public class TestNavigator extends Navigator<TestNavigator.Destination> {
 
     public final ArrayDeque<Pair<Destination, Bundle>> mBackStack = new ArrayDeque<>();
 
+    @NonNull
     @Override
     public Destination createDestination() {
         return new Destination(this);
     }
 
     @Override
-    public void navigate(Destination destination, Bundle args,
+    public void navigate(@NonNull Destination destination, Bundle args,
             NavOptions navOptions) {
         if (navOptions != null && navOptions.shouldLaunchSingleTop() && !mBackStack.isEmpty()
                 && mBackStack.peekLast().first.getId() == destination.getId()) {

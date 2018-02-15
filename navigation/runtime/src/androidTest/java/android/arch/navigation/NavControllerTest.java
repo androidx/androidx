@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.navigation.test.R;
+import android.arch.navigation.testing.TestNavigator;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;

@@ -170,7 +170,7 @@ public class NavDeepLinkBuilder {
             }
         }
         if (node == null) {
-            final String dest = Navigation.getDisplayName(mContext, mDestId);
+            final String dest = NavDestination.getDisplayName(mContext, mDestId);
             throw new IllegalArgumentException("navigation destination " + dest
                     + " is unknown to this NavController");
         }

@@ -16,8 +16,10 @@
 
 package android.arch.navigation;
 
+import android.arch.navigation.common.R;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Bundle;
@@ -48,6 +50,22 @@ import java.util.ArrayList;
  * These arguments can be overridden at the time of navigation.</p>
  */
 public class NavDestination {
+
+    /**
+     * Retrieve a suitable display name for a given id.
+     * @param context Context used to resolve a resource's name
+     * @param id The id to get a display name for
+     * @return The resource's name if it is a valid id or just the id itself if it is not
+     * a valid resource
+     */
+    @NonNull
+    static String getDisplayName(@NonNull Context context, int id) {
+        try {
+            return context.getResources().getResourceName(id);
+        } catch (Resources.NotFoundException e) {
+            return Integer.toString(id);
+        }
+    }
 
     private final Navigator mNavigator;
     private NavGraph mParent;

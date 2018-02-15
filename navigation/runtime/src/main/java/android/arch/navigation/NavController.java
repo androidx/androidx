@@ -96,7 +96,7 @@ public class NavController {
                         if (newDest == null) {
                             throw new IllegalArgumentException("Navigator " + navigator
                                     + " reported navigation to unknown destination id "
-                                    + Navigation.getDisplayName(mContext, destId));
+                                    + NavDestination.getDisplayName(mContext, destId));
                         }
                         switch (backStackEffect) {
                             case Navigator.BACK_STACK_DESTINATION_POPPED:
@@ -483,7 +483,7 @@ public class NavController {
                 NavDestination node = findDestination(destinationId);
                 if (node == null) {
                     throw new IllegalStateException("unknown destination during deep link: "
-                            + Navigation.getDisplayName(mContext, destinationId));
+                            + NavDestination.getDisplayName(mContext, destinationId));
                 }
                 node.navigate(bundle,
                         new NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build());
@@ -497,7 +497,7 @@ public class NavController {
             NavDestination node = i == 0 ? mGraph : graph.findNode(destinationId);
             if (node == null) {
                 throw new IllegalStateException("unknown destination during deep link: "
-                        + Navigation.getDisplayName(mContext, destinationId));
+                        + NavDestination.getDisplayName(mContext, destinationId));
             }
             if (i != deepLink.length - 1) {
                 // We're not at the final NavDestination yet, so keep going through the chain
@@ -600,10 +600,10 @@ public class NavController {
 
         NavDestination node = findDestination(destId);
         if (node == null) {
-            final String dest = Navigation.getDisplayName(mContext, destId);
+            final String dest = NavDestination.getDisplayName(mContext, destId);
             throw new IllegalArgumentException("navigation destination " + dest
                     + (navAction != null
-                    ? " referenced from action " + Navigation.getDisplayName(mContext, resId)
+                    ? " referenced from action " + NavDestination.getDisplayName(mContext, resId)
                     : "")
                     + " is unknown to this NavController");
         }

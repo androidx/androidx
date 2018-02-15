@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package android.arch.navigation;
+package android.arch.navigation.testing;
 
+import android.arch.navigation.NavGraphNavigator;
+import android.arch.navigation.SimpleNavigatorProvider;
 import android.content.Context;
 
 /**
  * Simple NavigatorProvider that only supports &lt;navigation&gt; and &lt;test&gt; navigation
  * elements.
  */
-class TestNavigatorProvider extends SimpleNavigatorProvider {
+public class TestNavigatorProvider extends SimpleNavigatorProvider {
 
-    TestNavigatorProvider(Context context) {
+    public TestNavigatorProvider(Context context) {
         addNavigator(new NavGraphNavigator(context));
         addNavigator(new TestNavigator());
     }
