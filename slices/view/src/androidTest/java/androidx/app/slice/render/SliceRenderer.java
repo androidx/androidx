@@ -65,7 +65,7 @@ public class SliceRenderer {
             protected void onLayout(boolean changed, int l, int t, int r, int b) {
                 int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 900,
                         mContext.getResources().getDisplayMetrics());
-                int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200,
+                int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300,
                         mContext.getResources().getDisplayMetrics());
                 mLayout.measure(makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                         makeMeasureSpec(height, View.MeasureSpec.EXACTLY));

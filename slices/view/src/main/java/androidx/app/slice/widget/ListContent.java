@@ -17,6 +17,7 @@
 package androidx.app.slice.widget;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
@@ -25,6 +26,7 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -48,8 +50,10 @@ public class ListContent {
     private SliceItem mColorItem;
     private ArrayList<SliceItem> mRowItems = new ArrayList<>();
     private List<SliceItem> mSliceActions;
+    private Context mContext;
 
-    public ListContent(Slice slice) {
+    public ListContent(Context context, Slice slice) {
+        mContext = context;
         populate(slice);
     }
 
@@ -65,7 +69,7 @@ public class ListContent {
     /**
      * @return whether this row has content that is valid to display.
      */
-    public boolean populate(Slice slice) {
+    private boolean populate(Slice slice) {
         reset();
         mColorItem = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
         // Find slice actions
@@ -95,6 +99,24 @@ public class ListContent {
             mHeaderItem = mRowItems.get(0);
         }
         return isValid();
+    }
+
+    /**
+     * @return the total height of all the rows contained in this list.
+     */
+    public int getListHeight() {
+        int height = 0;
+        for (int i = 0; i < mRowItems.size(); i++) {
+            SliceItem item = mRowItems.get(i);
+            if (item.hasHint(HINT_HORIZONTAL)) {
+                GridContent gc = new GridContent(mContext, item);
+                height += gc.getActualHeight();
+            } else {
+                RowContent rc = new RowContent(mContext, item, i == 0 /* isHeader */);
+                height += rc.getActualHeight();
+            }
+        }
+        return height;
     }
 
     /**

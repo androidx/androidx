@@ -75,6 +75,20 @@ public abstract class SliceChildView extends FrameLayout {
     }
 
     /**
+     * @return the height of this view when displayed in {@link SliceView#MODE_SMALL}.
+     */
+    public int getSmallHeight() {
+        return 0;
+    }
+
+    /**
+     * @return the height of this view if it displayed all of its contents.
+     */
+    public int getActualHeight() {
+        return 0;
+    }
+
+    /**
      * @param slice the slice to show in this view.
      */
     public abstract void setSlice(Slice slice);

@@ -17,11 +17,11 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:minHeight="@dimen/abc_slice_row_min_height"
-    android:maxHeight="@dimen/abc_slice_row_max_height"
+    android:layout_height="match_parent"
     android:gravity="center_vertical"
+    android:layout_gravity="center_vertical"
     android:background="?android:attr/activatedBackgroundIndicator"
+    android:orientation="horizontal"
     android:clipToPadding="false">
 
     <LinearLayout
@@ -34,8 +34,8 @@
 
     <LinearLayout
         android:id="@android:id/content"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:orientation="vertical">
@@ -43,13 +43,13 @@
         <TextView android:id="@android:id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="2"/>
+            android:maxLines="1"/>
 
         <TextView android:id="@android:id/summary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignStart="@android:id/title"
-            android:maxLines="10" />
+            android:maxLines="1" />
 
         <SeekBar
             android:id="@+id/seek_bar"
