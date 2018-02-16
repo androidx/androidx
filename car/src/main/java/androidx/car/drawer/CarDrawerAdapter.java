@@ -16,9 +16,18 @@
 
 package androidx.car.drawer;
 
+import android.app.Activity;
+import android.car.Car;
+import android.car.CarNotConnectedException;
+import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.CarUxRestrictionsManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.ServiceConnection;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -40,6 +49,10 @@ import androidx.car.widget.PagedListView;
  *
  * <p>This class also takes care of implementing the PageListView.ItemCamp contract and subclasses
  * should implement {@link #getActualItemCount()}.
+ *
+ * <p>To enable support for {@link CarUxRestrictions}, call {@link #start()} in your
+ * {@code Activity}'s {@link android.app.Activity#onCreate(Bundle)}, and {@link #stop()} in
+ * {@link Activity#onStop()}.
  */
 public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemViewHolder>
         implements PagedListView.ItemCap, DrawerItemClickListener {
@@ -48,6 +61,69 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
     private int mMaxItems = PagedListView.ItemCap.UNLIMITED;
     private CharSequence mTitle;
     private TitleChangeListener mTitleChangeListener;
+
+    private final Car mCar;
+    @Nullable private CarUxRestrictionsManager mCarUxRestrictionsManager;
+    private CarUxRestrictions mCurrentUxRestrictions;
+    // Keep onUxRestrictionsChangedListener an internal var to avoid exposing APIs from android.car.
+    // Otherwise car sample apk will fail at compile time due to not having access to the stubs.
+    private CarUxRestrictionsManager.onUxRestrictionsChangedListener mUxrChangeListener =
+            new CarUxRestrictionsManager.onUxRestrictionsChangedListener() {
+        @Override
+        public void onUxRestrictionsChanged(CarUxRestrictions carUxRestrictions) {
+            mCurrentUxRestrictions = carUxRestrictions;
+            notifyDataSetChanged();
+        }
+    };
+
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            try {
+                mCarUxRestrictionsManager = (CarUxRestrictionsManager)
+                        mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
+                mCarUxRestrictionsManager.registerListener(mUxrChangeListener);
+                mUxrChangeListener.onUxRestrictionsChanged(
+                        mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
+            } catch (CarNotConnectedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            try {
+                mCarUxRestrictionsManager.unregisterListener();
+                mCarUxRestrictionsManager = null;
+            } catch (CarNotConnectedException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    /**
+     * Enables support for {@link CarUxRestrictions}.
+     *
+     * <p>This method can be called from {@code Activity}'s {@link Activity#onStart()}, or at the
+     * time of construction.
+     *
+     * <p>This method must be accompanied with a matching {@link #stop()} to avoid leak.
+     */
+    public void start() {
+        if (!mCar.isConnected()) {
+            mCar.connect();
+        }
+    }
+
+    /**
+     * Disables support for {@link CarUxRestrictions}, and frees up resources.
+     *
+     * <p>This method should be called from {@code Activity}'s {@link Activity#onStop()}, or at the
+     * time of this adapter being discarded.
+     */
+    public void stop() {
+        mCar.disconnect();
+    }
 
     /**
      * Interface for a class that will be notified a new title has been set on this adapter.
@@ -66,6 +142,8 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
         mEmptyListDrawable = context.getDrawable(R.drawable.ic_list_view_disable);
         mEmptyListDrawable.setColorFilter(context.getColor(R.color.car_tint),
                 PorterDuff.Mode.SRC_IN);
+
+        mCar = Car.createCar(context, mServiceConnection);
     }
 
     /** Returns the title set via {@link #setTitle(CharSequence)}. */
@@ -158,6 +236,11 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
         } else {
             holder.setItemClickListener(this);
             populateViewHolder(holder, position);
+        }
+
+        // Car may not be initialized thus current UXR will not be available.
+        if (mCurrentUxRestrictions != null) {
+            holder.complyWithUxRestrictions(mCurrentUxRestrictions);
         }
     }
 
