@@ -60,7 +60,7 @@ public abstract class SliceChildView extends FrameLayout {
 
 
     /**
-     * @return the mode of the slice being presented.
+     * Set the mode of the slice being presented.
      */
     public void setMode(int mode) {
         mMode = mode;
@@ -69,6 +69,7 @@ public abstract class SliceChildView extends FrameLayout {
     /**
      * @return the mode of the slice being presented.
      */
+    @SliceView.SliceMode
     public int getMode() {
         return mMode;
     }

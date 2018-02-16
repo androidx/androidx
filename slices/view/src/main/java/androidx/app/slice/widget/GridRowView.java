@@ -162,7 +162,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         if (gc.getContentIntent() != null) {
             EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
                     EventInfo.ROW_TYPE_GRID, mRowIndex);
-            Pair<SliceItem, EventInfo> tagItem = new Pair(gc.getContentIntent(), info);
+            Pair<SliceItem, EventInfo> tagItem = new Pair<>(gc.getContentIntent(), info);
             mViewContainer.setTag(tagItem);
             makeClickable(mViewContainer);
         }
@@ -266,7 +266,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
                 EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_BUTTON,
                         EventInfo.ROW_TYPE_GRID, mRowIndex);
                 info.setPosition(EventInfo.POSITION_CELL, index, total);
-                Pair<SliceItem, EventInfo> tagItem = new Pair(contentIntentItem, info);
+                Pair<SliceItem, EventInfo> tagItem = new Pair<>(contentIntentItem, info);
                 cellContainer.setTag(tagItem);
                 makeClickable(cellContainer);
             }
