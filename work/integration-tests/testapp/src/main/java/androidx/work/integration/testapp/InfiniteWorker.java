@@ -19,12 +19,7 @@ import android.util.Log;
 
 import androidx.work.Worker;
 
-/**
- * Created by sumir on 10/23/17.
- */
-
 public class InfiniteWorker extends Worker {
-
     @Override
     public WorkerResult doWork() {
         while (true) {
