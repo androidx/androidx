@@ -19,6 +19,8 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">
+        <activity android:name="androidx.car.drawer.CarDrawerTestActivity"
+                  android:theme="@style/CarDrawerActivityTheme" />
         <activity android:name="androidx.car.widget.ColumnCardViewTestActivity"/>
         <activity android:name="androidx.car.widget.PagedListViewSavedStateActivity"/>
         <activity android:name="androidx.car.widget.PagedListViewTestActivity"/>

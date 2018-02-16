@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.test.espresso.UiController;
@@ -39,6 +40,7 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import org.hamcrest.Matcher;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,8 +66,14 @@ public class SeekbarListItemTest {
     private PagedListViewTestActivity mActivity;
     private PagedListView mPagedListView;
 
+    private boolean isAutoDevice() {
+        PackageManager packageManager = mActivityRule.getActivity().getPackageManager();
+        return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
+    }
+
     @Before
     public void setUp() {
+        Assume.assumeTrue(isAutoDevice());
         mActivity = mActivityRule.getActivity();
         mPagedListView = mActivity.findViewById(R.id.paged_list_view);
     }
@@ -268,21 +276,6 @@ public class SeekbarListItemTest {
             assertThat(getViewHolderAtPosition(i - 1).getSeekBar().getRight(),
                     is(equalTo(getViewHolderAtPosition(i).getSeekBar().getRight())));
         }
-    }
-
-    @Test
-    public void testTextLengthLimit() {
-        String longText = mActivity.getString(R.string.over_120_chars);
-        int lengthLimit = mActivity.getResources().getInteger(
-                R.integer.car_list_item_text_length_limit);
-        SeekbarListItem item0 = new SeekbarListItem(mActivity, 0, 0, null, longText);
-
-        List<ListItem> items = Arrays.asList(item0);
-        setupPagedListView(items);
-
-        assertThat(getViewHolderAtPosition(0).getText().getText().length(),
-                // add 1 for ellipsis character.
-                is(equalTo(lengthLimit + 1)));
     }
 
     private static ViewAction clickChildViewWithId(final int id) {

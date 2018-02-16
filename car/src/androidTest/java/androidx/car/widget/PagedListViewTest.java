@@ -59,6 +59,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -89,13 +90,24 @@ public final class PagedListViewTest {
     private PagedListViewTestActivity mActivity;
     private PagedListView mPagedListView;
     private ViewGroup.MarginLayoutParams mRecyclerViewLayoutParams;
+    private LinearLayoutManager mRecyclerViewLayoutManager;
+
+    /** Returns {@code true} if the testing device has the automotive feature flag. */
+    private boolean isAutoDevice() {
+        PackageManager packageManager = mActivityRule.getActivity().getPackageManager();
+        return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
+    }
 
     @Before
     public void setUp() {
+        Assume.assumeTrue(isAutoDevice());
+
         mActivity = mActivityRule.getActivity();
         mPagedListView = mActivity.findViewById(R.id.paged_list_view);
         mRecyclerViewLayoutParams =
                 (ViewGroup.MarginLayoutParams) mPagedListView.getRecyclerView().getLayoutParams();
+        mRecyclerViewLayoutManager =
+                (LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager();
 
         // Using deprecated Espresso methods instead of calling it on the IdlingRegistry because
         // the latter does not seem to work as reliably. Specifically, on the latter, it does
@@ -108,12 +120,6 @@ public final class PagedListViewTest {
         for (IdlingResource idlingResource : Espresso.getIdlingResources()) {
             Espresso.unregisterIdlingResources(idlingResource);
         }
-    }
-
-    /** Returns {@code true} if the testing device has the automotive feature flag. */
-    private boolean isAutoDevice() {
-        PackageManager packageManager = mActivityRule.getActivity().getPackageManager();
-        return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
     }
 
     /** Sets up {@link #mPagedListView} with the given number of items. */
@@ -132,20 +138,12 @@ public final class PagedListViewTest {
 
     @Test
     public void testScrollBarIsInvisibleIfItemsDoNotFillOnePage() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         setUpPagedListView(1 /* itemCount */);
         onView(withId(R.id.paged_scroll_view)).check(matches(not(isDisplayed())));
     }
 
     @Test
     public void testPageUpButtonDisabledAtTop() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         int itemCount = ITEMS_PER_PAGE * 3;
         setUpPagedListView(itemCount);
 
@@ -163,10 +161,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testItemSnappedToTopOfListOnScroll() throws InterruptedException {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // 2.5 so last page is not full
         setUpPagedListView((int) (ITEMS_PER_PAGE * 2.5 /* itemCount */));
 
@@ -177,10 +171,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testLastItemSnappedWhenBottomReached() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // 2.5 so last page is not full
         setUpPagedListView((int) (ITEMS_PER_PAGE * 2.5 /* itemCount */));
 
@@ -188,12 +178,9 @@ public final class PagedListViewTest {
         onView(withId(R.id.page_down)).perform(click());
         onView(withId(R.id.page_down)).perform(click()).check(matches(not(isEnabled())));
 
-        LinearLayoutManager layoutManager =
-                (LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager();
-
         // Check that the last item is completely visible.
-        assertEquals(layoutManager.findLastCompletelyVisibleItemPosition(),
-                layoutManager.getItemCount() - 1);
+        assertEquals(mRecyclerViewLayoutManager.findLastCompletelyVisibleItemPosition(),
+                mRecyclerViewLayoutManager.getItemCount() - 1);
     }
 
     @Test
@@ -221,44 +208,32 @@ public final class PagedListViewTest {
 
     @Test
     public void testPageUpAndDownMoveSameDistance() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
         // Move down one page so there will be sufficient pages for up and downs.
         onView(withId(R.id.page_down)).perform(click());
 
-        LinearLayoutManager layoutManager =
-                (LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager();
-
-        int topPosition = layoutManager.findFirstVisibleItemPosition();
+        int topPosition = mRecyclerViewLayoutManager.findFirstVisibleItemPosition();
 
         for (int i = 0; i < 3; i++) {
             onView(withId(R.id.page_down)).perform(click());
             onView(withId(R.id.page_up)).perform(click());
         }
 
-        assertThat(layoutManager.findFirstVisibleItemPosition(), is(equalTo(topPosition)));
+        assertThat(mRecyclerViewLayoutManager.findFirstVisibleItemPosition(),
+                is(equalTo(topPosition)));
     }
 
     @Test
     public void setItemSpacing() throws Throwable {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         final int itemCount = 3;
         setUpPagedListView(itemCount /* itemCount */);
-        RecyclerView.LayoutManager layoutManager =
-                mPagedListView.getRecyclerView().getLayoutManager();
 
         // Initial spacing is 0.
         final View[] views = new View[itemCount];
         mActivityRule.runOnUiThread(() -> {
-            for (int i = 0; i < layoutManager.getChildCount(); i++) {
-                views[i] = layoutManager.getChildAt(i);
+            for (int i = 0; i < mRecyclerViewLayoutManager.getChildCount(); i++) {
+                views[i] = mRecyclerViewLayoutManager.getChildAt(i);
             }
         });
         for (int i = 0; i < itemCount - 1; i++) {
@@ -272,8 +247,8 @@ public final class PagedListViewTest {
             mPagedListView.setItemSpacing(itemSpacing);
         });
         mActivityRule.runOnUiThread(() -> {
-            for (int i = 0; i < layoutManager.getChildCount(); i++) {
-                views[i] = layoutManager.getChildAt(i);
+            for (int i = 0; i < mRecyclerViewLayoutManager.getChildCount(); i++) {
+                views[i] = mRecyclerViewLayoutManager.getChildAt(i);
             }
         });
         for (int i = 0; i < itemCount - 1; i++) {
@@ -285,8 +260,8 @@ public final class PagedListViewTest {
             mPagedListView.setItemSpacing(0);
         });
         mActivityRule.runOnUiThread(() -> {
-            for (int i = 0; i < layoutManager.getChildCount(); i++) {
-                views[i] = layoutManager.getChildAt(i);
+            for (int i = 0; i < mRecyclerViewLayoutManager.getChildCount(); i++) {
+                views[i] = mRecyclerViewLayoutManager.getChildAt(i);
             }
         });
         for (int i = 0; i < itemCount - 1; i++) {
@@ -297,10 +272,6 @@ public final class PagedListViewTest {
     @Test
     @UiThreadTest
     public void testSetScrollBarButtonIcons() throws Throwable {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Set up a pagedListView with a large item count to ensure the scroll bar buttons are
         // always showing.
         setUpPagedListView(100 /* itemCount */);
@@ -356,10 +327,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testDefaultScrollBarTopMargin() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
         onView(withId(R.id.paged_scroll_view)).check(matches(withTopMargin(0)));
@@ -367,10 +334,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testSetScrollbarTopMargin() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
@@ -382,27 +345,18 @@ public final class PagedListViewTest {
 
     @Test
     public void testSwipingScrollbarDoesNotScrollList() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
         // Swipe on the filler instead of the whole scrollbar because buttons at top/bottom set
         // OnLongClickListener and thus eat the motion event.
         onView(withId(R.id.filler)).perform(swipeUp());
-        assertThat(((LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager())
-                        .findFirstCompletelyVisibleItemPosition(),
+        assertThat(mRecyclerViewLayoutManager.findFirstCompletelyVisibleItemPosition(),
                 is(equalTo(0)));
     }
 
     @Test
     public void testSetGutterNone() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
@@ -414,10 +368,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testSetGutterStart() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
@@ -432,10 +382,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testSetGutterEnd() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
@@ -450,10 +396,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testSetGutterBoth() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
@@ -468,10 +410,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testSetGutterSizeNone() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
@@ -484,10 +422,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testSetGutterSizeStart() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
@@ -502,10 +436,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testSetGutterSizeEnd() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
@@ -520,10 +450,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testSetGutterSizeBoth() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
@@ -538,10 +464,6 @@ public final class PagedListViewTest {
 
     @Test
     public void setDefaultScrollBarContainerWidth() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
@@ -553,10 +475,6 @@ public final class PagedListViewTest {
 
     @Test
     public void testSetScrollBarContainerWidth() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
@@ -575,9 +493,8 @@ public final class PagedListViewTest {
      * is shown.
      */
     private void verifyItemSnappedToListTop() {
-        LinearLayoutManager layoutManager =
-                (LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager();
-        int firstVisiblePosition = layoutManager.findFirstCompletelyVisibleItemPosition();
+        int firstVisiblePosition =
+                mRecyclerViewLayoutManager.findFirstCompletelyVisibleItemPosition();
         if (firstVisiblePosition > 1) {
             int lastInPreviousPagePosition = firstVisiblePosition - 1;
             onView(withText(itemText(lastInPreviousPagePosition)))
