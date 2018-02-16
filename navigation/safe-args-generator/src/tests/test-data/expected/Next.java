@@ -18,7 +18,6 @@ package a.b;
 
 import android.os.Bundle;
 import androidx.navigation.NavDirections;
-import androidx.navigation.NavOptions;
 import java.lang.String;
 
 public static class Next implements NavDirections {
@@ -64,11 +63,7 @@ public static class Next implements NavDirections {
         return __outBundle;
     }
 
-    public int getDestinationId() {
-        return a.b.R.id.destA;
-    }
-
-    public NavOptions getOptions() {
-        return null;
+    public int getActionId() {
+        return a.b.R.id.next;
     }
 }

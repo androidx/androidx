@@ -33,7 +33,6 @@ import javax.lang.model.element.Modifier
 
 private const val NAVIGATION_PACKAGE = "androidx.navigation"
 private val NAV_DIRECTION_CLASSNAME: ClassName = ClassName.get(NAVIGATION_PACKAGE, "NavDirections")
-private val NAV_OPTIONS_CLASSNAME: ClassName = ClassName.get(NAVIGATION_PACKAGE, "NavOptions")
 private val BUNDLE_CLASSNAME: ClassName = ClassName.get("android.os", "Bundle")
 
 private class ClassWithArgsSpecs(val args: List<Argument>) {
@@ -123,16 +122,10 @@ fun generateDestinationDirectionsTypeSpec(
 fun generateDirectionsTypeSpec(action: Action): TypeSpec {
     val specs = ClassWithArgsSpecs(action.args)
 
-    val getDestIdMethod = MethodSpec.methodBuilder("getDestinationId")
+    val getDestIdMethod = MethodSpec.methodBuilder("getActionId")
             .addModifiers(Modifier.PUBLIC)
             .returns(Int::class.java)
-            .addStatement("return $N", action.destination.accessor())
-            .build()
-
-    val getNavOptions = MethodSpec.methodBuilder("getOptions")
-            .returns(NAV_OPTIONS_CLASSNAME)
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return null")
+            .addStatement("return $N", action.id.accessor())
             .build()
 
     val className = ClassName.get("", action.id.name.capitalize())
@@ -144,7 +137,6 @@ fun generateDirectionsTypeSpec(action: Action): TypeSpec {
             .addMethods(specs.setters(className))
             .addMethod(specs.toBundleMethod("getArguments"))
             .addMethod(getDestIdMethod)
-            .addMethod(getNavOptions)
             .build()
 }
 

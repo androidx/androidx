@@ -18,7 +18,6 @@ package a.b;
 
 import android.os.Bundle;
 import androidx.navigation.NavDirections;
-import androidx.navigation.NavOptions;
 import java.lang.String;
 
 public class MainFragmentDirections {
@@ -57,12 +56,8 @@ public class MainFragmentDirections {
             return __outBundle;
         }
 
-        public int getDestinationId() {
-            return a.b.R.id.destB;
-        }
-
-        public NavOptions getOptions() {
-            return null;
+        public int getActionId() {
+            return a.b.R.id.previous;
         }
     }
 
@@ -92,12 +87,8 @@ public class MainFragmentDirections {
             return __outBundle;
         }
 
-        public int getDestinationId() {
-            return a.b.R.id.destA;
-        }
-
-        public NavOptions getOptions() {
-            return null;
+        public int getActionId() {
+            return a.b.R.id.next;
         }
     }
 }
