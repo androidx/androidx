@@ -25,6 +25,8 @@
     <item name="ws_action_drawer_item_last_item_bottom_padding" type="fraction">15%</item>
     <item name="ws_action_drawer_item_left_padding" type="fraction">15%</item>
     <item name="ws_action_drawer_item_right_padding" type="fraction">10%</item>
+    <item name="ws_action_drawer_title_start" format="float" type="dimen">.15</item>
+    <item name="ws_action_drawer_title_end" format="float" type="dimen">.85</item>
     <dimen name="ws_action_drawer_item_top_padding">8dp</dimen>
     <dimen name="ws_action_drawer_item_bottom_padding">8dp</dimen>
     <dimen name="ws_action_drawer_item_icon_right_margin">8dp</dimen>
