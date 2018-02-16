@@ -264,6 +264,19 @@ class LoaderManagerImpl extends LoaderManager {
         }
 
         private SparseArrayCompat<LoaderInfo> mLoaders = new SparseArrayCompat<>();
+        private boolean mCreatingLoader = false;
+
+        void startCreatingLoader() {
+            mCreatingLoader = true;
+        }
+
+        boolean isCreatingLoader() {
+            return mCreatingLoader;
+        }
+
+        void finishCreatingLoader() {
+            mCreatingLoader = false;
+        }
 
         void putLoader(int id, @NonNull LoaderInfo info) {
             mLoaders.put(id, info);
@@ -325,8 +338,6 @@ class LoaderManagerImpl extends LoaderManager {
     private final @NonNull LifecycleOwner mLifecycleOwner;
     private final @NonNull LoaderViewModel mLoaderViewModel;
 
-    private boolean mCreatingLoader;
-
     LoaderManagerImpl(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull ViewModelStore viewModelStore) {
         mLifecycleOwner = lifecycleOwner;
@@ -339,7 +350,7 @@ class LoaderManagerImpl extends LoaderManager {
             @NonNull LoaderCallbacks<D> callback) {
         LoaderInfo<D> info;
         try {
-            mCreatingLoader = true;
+            mLoaderViewModel.startCreatingLoader();
             Loader<D> loader = callback.onCreateLoader(id, args);
             if (loader.getClass().isMemberClass()
                     && !Modifier.isStatic(loader.getClass().getModifiers())) {
@@ -351,7 +362,7 @@ class LoaderManagerImpl extends LoaderManager {
             if (DEBUG) Log.v(TAG, "  Created new loader " + info);
             mLoaderViewModel.putLoader(id, info);
         } finally {
-            mCreatingLoader = false;
+            mLoaderViewModel.finishCreatingLoader();
         }
         return info.setCallback(mLifecycleOwner, callback);
     }
@@ -361,7 +372,7 @@ class LoaderManagerImpl extends LoaderManager {
     @Override
     public <D> Loader<D> initLoader(int id, @Nullable Bundle args,
             @NonNull LoaderCallbacks<D> callback) {
-        if (mCreatingLoader) {
+        if (mLoaderViewModel.isCreatingLoader()) {
             throw new IllegalStateException("Called while creating a loader");
         }
         if (Looper.getMainLooper() != Looper.myLooper()) {
@@ -386,7 +397,7 @@ class LoaderManagerImpl extends LoaderManager {
     @Override
     public <D> Loader<D> restartLoader(int id, @Nullable Bundle args,
             @NonNull LoaderCallbacks<D> callback) {
-        if (mCreatingLoader) {
+        if (mLoaderViewModel.isCreatingLoader()) {
             throw new IllegalStateException("Called while creating a loader");
         }
         if (Looper.getMainLooper() != Looper.myLooper()) {
@@ -403,7 +414,7 @@ class LoaderManagerImpl extends LoaderManager {
     @MainThread
     @Override
     public void destroyLoader(int id) {
-        if (mCreatingLoader) {
+        if (mLoaderViewModel.isCreatingLoader()) {
             throw new IllegalStateException("Called while creating a loader");
         }
         if (Looper.getMainLooper() != Looper.myLooper()) {
@@ -421,7 +432,7 @@ class LoaderManagerImpl extends LoaderManager {
     @Nullable
     @Override
     public <D> Loader<D> getLoader(int id) {
-        if (mCreatingLoader) {
+        if (mLoaderViewModel.isCreatingLoader()) {
             throw new IllegalStateException("Called while creating a loader");
         }
 
@@ -429,15 +440,8 @@ class LoaderManagerImpl extends LoaderManager {
         return info != null ? info.getLoader() : null;
     }
 
-    /**
-     * Mark all Loaders associated with this LoaderManager for redelivery of their current
-     * data (if any) the next time the LifecycleOwner is started. In cases where no data has
-     * yet been delivered, this is effectively a no-op. In cases where data has already been
-     * delivered via {@link LoaderCallbacks#onLoadFinished(Loader, Object)}, this will ensure
-     * that {@link LoaderCallbacks#onLoadFinished(Loader, Object)} is called again with the
-     * same data.
-     */
-    void markForRedelivery() {
+    @Override
+    public void markForRedelivery() {
         mLoaderViewModel.markForRedelivery();
     }
 

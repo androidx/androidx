@@ -1098,8 +1098,8 @@ public class FragmentLifecycleTest {
     }
 
     /**
-     * When there are no retained instance fragments, the FragmentManagerNonConfig should be
-     * null
+     * When there are no retained instance fragments, the FragmentManagerNonConfig's fragments
+     * should be null
      */
     @Test
     @UiThreadTest
@@ -1116,7 +1116,7 @@ public class FragmentLifecycleTest {
         fm.executePendingTransactions();
         Pair<Parcelable, FragmentManagerNonConfig> savedState =
                 FragmentTestUtil.destroy(mActivityRule, fc);
-        assertNull(savedState.second);
+        assertNull(savedState.second.getFragments());
     }
 
     /**

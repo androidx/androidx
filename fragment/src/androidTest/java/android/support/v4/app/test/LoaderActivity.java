@@ -57,7 +57,7 @@ public class LoaderActivity extends RecreatedActivity
     @Override
     protected void onResume() {
         super.onResume();
-        getSupportLoaderManager().initLoader(TEXT_LOADER_ID, null, this);
+        LoaderManager.getInstance(this).initLoader(TEXT_LOADER_ID, null, this);
     }
 
     @NonNull
@@ -98,7 +98,7 @@ public class LoaderActivity extends RecreatedActivity
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            getLoaderManager().initLoader(TEXT_LOADER_ID, null, this);
+            LoaderManager.getInstance(this).initLoader(TEXT_LOADER_ID, null, this);
         }
 
         @Nullable
