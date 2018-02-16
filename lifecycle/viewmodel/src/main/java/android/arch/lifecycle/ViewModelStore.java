@@ -38,11 +38,10 @@ public class ViewModelStore {
     private final HashMap<String, ViewModel> mMap = new HashMap<>();
 
     final void put(String key, ViewModel viewModel) {
-        ViewModel oldViewModel = mMap.get(key);
+        ViewModel oldViewModel = mMap.put(key, viewModel);
         if (oldViewModel != null) {
             oldViewModel.onCleared();
         }
-        mMap.put(key, viewModel);
     }
 
     final ViewModel get(String key) {
