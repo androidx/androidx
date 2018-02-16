@@ -628,9 +628,20 @@ public class NavController {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void navigate(@NonNull NavDirections directions) {
-        navigate(directions.getDestinationId(), directions.getArguments(), directions.getOptions());
+        navigate(directions.getActionId(), directions.getArguments());
     }
 
+    /**
+     * @hide Not ready for public
+     *
+     * Navigate via the given {@link NavDirections}
+     *
+     * @param directions directions that describe this navigation operation
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void navigate(@NonNull NavDirections directions, @Nullable NavOptions navOptions) {
+        navigate(directions.getActionId(), directions.getArguments(), navOptions);
+    }
     /**
      * Create a deep link to a destination within this NavController.
      *

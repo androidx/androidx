@@ -23,8 +23,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 /**
- * An interface that describes a navigation operation: destination's id, arguments and
- * {@link NavOptions}
+ * An interface that describes a navigation operation: action's id and arguments
  *
  * @hide Not ready for public
  */
@@ -32,22 +31,16 @@ import android.support.annotation.RestrictTo;
 public interface NavDirections {
 
     /**
-     * Returns a destination id to navigate to.
+     * Returns a action id to navigate with.
      *
-     * @return id of a destination
+     * @return id of an action
      */
     @IdRes
-    int getDestinationId();
+    int getActionId();
 
     /**
      * Returns arguments to pass to the destination
      */
     @Nullable
     Bundle getArguments();
-
-    /**
-     * Returns special options for this navigation operation
-     */
-    @Nullable
-    NavOptions getOptions();
 }
