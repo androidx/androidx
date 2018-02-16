@@ -36,6 +36,7 @@ import static androidx.app.slice.core.SliceHints.SUBTYPE_VALUE;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -222,7 +223,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @NonNull
     @Override
-    public void setColor(int color) {
+    public void setColor(@ColorInt int color) {
         getBuilder().addInt(color, SUBTYPE_COLOR);
     }
 

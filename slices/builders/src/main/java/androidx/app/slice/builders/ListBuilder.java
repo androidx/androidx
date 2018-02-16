@@ -24,6 +24,7 @@ import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -160,7 +161,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @RestrictTo(LIBRARY_GROUP)
     @NonNull
-    public ListBuilder setColor(int color) {
+    public ListBuilder setColor(@ColorInt int color) {
         mImpl.setColor(color);
         return this;
     }
