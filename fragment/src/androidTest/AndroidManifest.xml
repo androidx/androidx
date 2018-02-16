@@ -32,6 +32,7 @@
 
         <activity android:name="android.support.v4.app.test.FragmentResultActivity"/>
 
+        <activity android:name="android.support.v4.app.test.EmptyActivity"/>
         <activity android:name="android.support.v4.app.test.LoaderActivity"/>
 
         <activity android:name="android.support.v4.app.test.NewIntentActivity"

@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -98,34 +97,6 @@ public class LoaderTest {
         assertNull(weakActivity.get());
     }
 
-    @Test
-    public void testDestroyFromOnCreateLoader() throws Throwable {
-        final LoaderActivity activity = mActivityRule.getActivity();
-        final CountDownLatch onCreateLoaderLatch = new CountDownLatch(1);
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                LoaderManager.getInstance(activity).initLoader(65, null,
-                        new DummyLoaderCallbacks(activity) {
-                            @NonNull
-                            @Override
-                            public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-                                try {
-                                    LoaderManager.getInstance(activity).destroyLoader(65);
-                                    fail("Calling destroyLoader in onCreateLoader should throw an "
-                                            + "IllegalStateException");
-                                } catch (IllegalStateException e) {
-                                    // Expected
-                                    onCreateLoaderLatch.countDown();
-                                }
-                                return super.onCreateLoader(id, args);
-                            }
-                        });
-            }
-        });
-        onCreateLoaderLatch.await(1, TimeUnit.SECONDS);
-    }
-
     /**
      * When a LoaderManager is reused, it should notify in onResume
      */
@@ -168,52 +139,6 @@ public class LoaderTest {
         FragmentTestUtil.executePendingTransactions(mActivityRule, fm);
 
         assertEquals("Loaded!", fragment.textView.getText().toString());
-    }
-
-    /**
-     * Test to ensure that loader operations, such as destroyLoader, can safely be called
-     * in onLoadFinished
-     */
-    @Test
-    public void testDestroyFromOnLoadFinished() throws Throwable {
-        final LoaderActivity activity = mActivityRule.getActivity();
-        final CountDownLatch onLoadFinishedLatch = new CountDownLatch(1);
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final LoaderManager loaderManager = activity.getSupportLoaderManager();
-                activity.getSupportLoaderManager().initLoader(43, null,
-                        new DummyLoaderCallbacks(activity) {
-                            @Override
-                            public void onLoadFinished(@NonNull Loader<Boolean> loader,
-                                    Boolean data) {
-                                super.onLoadFinished(loader, data);
-                                loaderManager.destroyLoader(43);
-                            }
-                        });
-            }
-        });
-        onLoadFinishedLatch.await(1, TimeUnit.SECONDS);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void enforceOnMainThread_initLoader() {
-        LoaderActivity activity = mActivityRule.getActivity();
-        LoaderManager.getInstance(activity).initLoader(-1, null,
-                new DummyLoaderCallbacks(activity));
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void enforceOnMainThread_restartLoader() {
-        LoaderActivity activity = mActivityRule.getActivity();
-        LoaderManager.getInstance(activity).restartLoader(-1, null,
-                new DummyLoaderCallbacks(activity));
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void enforceOnMainThread_destroyLoader() {
-        LoaderActivity activity = mActivityRule.getActivity();
-        LoaderManager.getInstance(activity).destroyLoader(-1);
     }
 
     /**
@@ -301,54 +226,41 @@ public class LoaderTest {
         assertEquals("Second Value", activity.textViewB.getText().toString());
     }
 
-
-    public static class LoaderFragment extends Fragment {
+    public static class LoaderFragment extends Fragment implements
+            LoaderManager.LoaderCallbacks<Boolean> {
         private static final int LOADER_ID = 1;
 
         @Override
         public void onActivityCreated(@Nullable Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            LoaderManager.getInstance(this).initLoader(LOADER_ID, null,
-                    new DummyLoaderCallbacks(getContext()));
-        }
-    }
-
-    static class DummyLoaderCallbacks implements LoaderManager.LoaderCallbacks<Boolean> {
-        private final Context mContext;
-
-        boolean mOnLoadFinished;
-        boolean mOnLoaderReset;
-
-        DummyLoaderCallbacks(Context context) {
-            mContext = context;
+            LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this);
         }
 
         @NonNull
         @Override
-        public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-            return new DummyLoader(mContext);
+        public Loader<Boolean> onCreateLoader(int id, @Nullable Bundle args) {
+            return new SimpleLoader(requireContext());
         }
 
         @Override
         public void onLoadFinished(@NonNull Loader<Boolean> loader, Boolean data) {
-            mOnLoadFinished = true;
         }
 
         @Override
         public void onLoaderReset(@NonNull Loader<Boolean> loader) {
-            mOnLoaderReset = true;
-        }
-    }
-
-    static class DummyLoader extends Loader<Boolean> {
-        DummyLoader(Context context) {
-            super(context);
         }
 
-        @Override
-        protected void onStartLoading() {
-            deliverResult(true);
+        static class SimpleLoader extends Loader<Boolean> {
+
+            SimpleLoader(@NonNull Context context) {
+                super(context);
+            }
+
+            @Override
+            protected void onStartLoading() {
+                deliverResult(true);
+            }
         }
     }
 }

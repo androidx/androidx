@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 import android.support.test.filters.SmallTest;
+import android.support.v4.app.test.DummyLoaderCallbacks;
 import android.support.v4.content.Loader;
 
 import org.junit.Test;
@@ -34,8 +35,7 @@ public class LoaderObserverTest {
 
     @Test
     public void testOnChanged() {
-        LoaderTest.DummyLoaderCallbacks callback =
-                new LoaderTest.DummyLoaderCallbacks(mock(Context.class));
+        DummyLoaderCallbacks callback = new DummyLoaderCallbacks(mock(Context.class));
         @SuppressWarnings("unchecked")
         LoaderManagerImpl.LoaderObserver<Boolean> observer = new LoaderManagerImpl.LoaderObserver<>(
                 mock(Loader.class), callback);
@@ -54,8 +54,7 @@ public class LoaderObserverTest {
 
     @Test
     public void testReset() {
-        LoaderTest.DummyLoaderCallbacks callback =
-                new LoaderTest.DummyLoaderCallbacks(mock(Context.class));
+        DummyLoaderCallbacks callback = new DummyLoaderCallbacks(mock(Context.class));
         @SuppressWarnings("unchecked")
         LoaderManagerImpl.LoaderObserver<Boolean> observer = new LoaderManagerImpl.LoaderObserver<>(
                 mock(Loader.class), callback);
@@ -69,8 +68,7 @@ public class LoaderObserverTest {
 
     @Test
     public void testResetWithOnChanged() {
-        LoaderTest.DummyLoaderCallbacks callback =
-                new LoaderTest.DummyLoaderCallbacks(mock(Context.class));
+        DummyLoaderCallbacks callback = new DummyLoaderCallbacks(mock(Context.class));
         @SuppressWarnings("unchecked")
         LoaderManagerImpl.LoaderObserver<Boolean> observer = new LoaderManagerImpl.LoaderObserver<>(
                 mock(Loader.class), callback);

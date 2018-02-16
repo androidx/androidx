@@ -18,14 +18,17 @@ package android.support.v4.app;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
+import android.content.Context;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.app.test.LoaderActivity;
+import android.support.v4.app.test.DummyLoaderCallbacks;
+import android.support.v4.app.test.EmptyActivity;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 
@@ -41,15 +44,14 @@ import java.util.concurrent.TimeUnit;
 public class LoaderInfoTest {
 
     @Rule
-    public ActivityTestRule<LoaderActivity> mActivityRule =
-            new ActivityTestRule<>(LoaderActivity.class);
+    public ActivityTestRule<EmptyActivity> mActivityRule =
+            new ActivityTestRule<>(EmptyActivity.class);
 
     @Test
     public void testIsCallbackWaitingForData() throws Throwable {
-        final LoaderTest.DummyLoaderCallbacks loaderCallback =
-                new LoaderTest.DummyLoaderCallbacks(mActivityRule.getActivity());
+        final DummyLoaderCallbacks loaderCallback = new DummyLoaderCallbacks(mock(Context.class));
         final CountDownLatch deliverResultLatch = new CountDownLatch(1);
-        Loader<Boolean> delayLoader = new AsyncTaskLoader<Boolean>(mActivityRule.getActivity()) {
+        Loader<Boolean> delayLoader = new AsyncTaskLoader<Boolean>(mock(Context.class)) {
             @Override
             public Boolean loadInBackground() {
                 SystemClock.sleep(50);
@@ -93,8 +95,7 @@ public class LoaderInfoTest {
     @UiThreadTest
     @Test
     public void testSetCallback() throws Throwable {
-        final LoaderTest.DummyLoaderCallbacks loaderCallback =
-                new LoaderTest.DummyLoaderCallbacks(mActivityRule.getActivity());
+        final DummyLoaderCallbacks loaderCallback = new DummyLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
         final LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
                 0, null, loader);
@@ -109,8 +110,7 @@ public class LoaderInfoTest {
     @UiThreadTest
     @Test
     public void testSetCallback_replace() throws Throwable {
-        LoaderTest.DummyLoaderCallbacks initialCallback =
-                new LoaderTest.DummyLoaderCallbacks(mActivityRule.getActivity());
+        final DummyLoaderCallbacks initialCallback = new DummyLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = initialCallback.onCreateLoader(0, null);
         LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
                 0, null, loader);
@@ -121,8 +121,8 @@ public class LoaderInfoTest {
         assertTrue("onLoadFinished for initial should be called after setCallback initial",
                 initialCallback.mOnLoadFinished);
 
-        final LoaderTest.DummyLoaderCallbacks replacementCallback =
-                new LoaderTest.DummyLoaderCallbacks(mActivityRule.getActivity());
+        final DummyLoaderCallbacks replacementCallback =
+                new DummyLoaderCallbacks(mActivityRule.getActivity());
         initialCallback.mOnLoadFinished = false;
 
         loaderInfo.setCallback(mActivityRule.getActivity(), replacementCallback);
@@ -137,8 +137,7 @@ public class LoaderInfoTest {
     @UiThreadTest
     @Test
     public void testDestroy() throws Throwable {
-        final LoaderTest.DummyLoaderCallbacks loaderCallback =
-                new LoaderTest.DummyLoaderCallbacks(mActivityRule.getActivity());
+        final DummyLoaderCallbacks loaderCallback = new DummyLoaderCallbacks(mock(Context.class));
         final Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
         final LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
                 0, null, loader);
