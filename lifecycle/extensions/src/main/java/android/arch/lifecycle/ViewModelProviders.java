@@ -21,6 +21,7 @@ import android.app.Application;
 import android.arch.lifecycle.ViewModelProvider.Factory;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
@@ -65,10 +66,7 @@ public class ViewModelProviders {
     @NonNull
     @MainThread
     public static ViewModelProvider of(@NonNull Fragment fragment) {
-        ViewModelProvider.AndroidViewModelFactory factory =
-                ViewModelProvider.AndroidViewModelFactory.getInstance(
-                        checkApplication(checkActivity(fragment)));
-        return new ViewModelProvider(ViewModelStores.of(fragment), factory);
+        return of(fragment, null);
     }
 
     /**
@@ -83,10 +81,7 @@ public class ViewModelProviders {
     @NonNull
     @MainThread
     public static ViewModelProvider of(@NonNull FragmentActivity activity) {
-        ViewModelProvider.AndroidViewModelFactory factory =
-                ViewModelProvider.AndroidViewModelFactory.getInstance(
-                        checkApplication(activity));
-        return new ViewModelProvider(ViewModelStores.of(activity), factory);
+        return of(activity, null);
     }
 
     /**
@@ -101,8 +96,11 @@ public class ViewModelProviders {
      */
     @NonNull
     @MainThread
-    public static ViewModelProvider of(@NonNull Fragment fragment, @NonNull Factory factory) {
-        checkApplication(checkActivity(fragment));
+    public static ViewModelProvider of(@NonNull Fragment fragment, @Nullable Factory factory) {
+        Application application = checkApplication(checkActivity(fragment));
+        if (factory == null) {
+            factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application);
+        }
         return new ViewModelProvider(ViewModelStores.of(fragment), factory);
     }
 
@@ -119,8 +117,11 @@ public class ViewModelProviders {
     @NonNull
     @MainThread
     public static ViewModelProvider of(@NonNull FragmentActivity activity,
-            @NonNull Factory factory) {
-        checkApplication(activity);
+            @Nullable Factory factory) {
+        Application application = checkApplication(activity);
+        if (factory == null) {
+            factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application);
+        }
         return new ViewModelProvider(ViewModelStores.of(activity), factory);
     }
 
