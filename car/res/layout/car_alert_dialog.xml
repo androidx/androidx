@@ -40,7 +40,7 @@ limitations under the License.
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/car_dialog_header_height"
-            android:textAppearance="@style/CarTitle2"
+            android:textAppearance="@style/TextAppearance.Car.Title2"
             android:gravity="center_vertical|start"
             android:maxLines="1"
             android:ellipsize="end"
@@ -50,7 +50,7 @@ limitations under the License.
             android:id="@+id/body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/CarBody2"
+            android:textAppearance="@style/TextAppearance.Car.Body2"
             android:visibility="gone" />
 
         <LinearLayout
