@@ -131,6 +131,15 @@ internal fun parseIntValue(value: String?): IntValue? {
     if (value == null) {
         return null
     }
+    if (value.startsWith("0x")) {
+        try {
+            Integer.parseUnsignedInt(value.substring(2), 16)
+            return IntValue(value)
+        } catch (ex: NumberFormatException) {
+            throw IllegalArgumentException("Failed to parse $value as int")
+        }
+    }
+
     try {
         Integer.parseInt(value)
         return IntValue(value)
