@@ -170,6 +170,7 @@ public class ViewModelProvider {
          * @param application an application to pass in {@link AndroidViewModel}
          * @return A valid {@link AndroidViewModelFactory}
          */
+        @NonNull
         public static AndroidViewModelFactory getInstance(@NonNull Application application) {
             if (sInstance == null) {
                 sInstance = new AndroidViewModelFactory(application);
