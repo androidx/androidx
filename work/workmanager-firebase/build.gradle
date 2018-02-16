@@ -26,31 +26,40 @@ plugins {
 }
 
 android {
-    buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+    buildTypes {
+        release {
+            proguardFiles 'proguard-rules.pro'
+        }
+    }
+
+    packagingOptions {
+        // This is needed due to a compatibility issue with espresso_core and play_services_base
+        // Being resolved by GMSCore in b/64815250
+        pickFirst 'protobuf.meta'
     }
 }
 
 dependencies {
-    api(project(":lifecycle:extensions"))
-    api(project(":room:runtime"))
-    annotationProcessor(project(":room:compiler"))
+    api(project(":work:workmanager"))
+    api(PLAY_SERVICES, libs.support_exclude_config)
+    api(FIREBASE_JOBDISPATCHER, libs.support_exclude_config)
+    // Tempory workaround to the fact that FIREBASE_JOBDISPATCHER imports v4 of 25.0.0, but we pull
+    // in 26.1.0 on some of the dependencies of v4, but not support-media-compat.
+    implementation(SUPPORT_V4, libs.support_exclude_config)
 
-    androidTestImplementation(project(":arch:core-testing"))
+    androidTestImplementation(project(":work:workmanager"))
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-
-    testImplementation(JUNIT)
 }
 
 supportLibrary {
-    name = "Android Support Library Background WorkManager"
+    name = "Android WorkManager Firebase"
     publish = true
     mavenVersion = LibraryVersions.WORKMANAGER
     mavenGroup = LibraryGroups.WORKMANAGER
     inceptionYear = "2017"
-    description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
+    description = "Android WorkManager Firebase"
     url = SupportLibraryExtension.ARCHITECTURE_URL
 }
