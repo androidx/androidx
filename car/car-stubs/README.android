@@ -1,0 +1,5 @@
+# stubs of android.car
+This library contains stubs generated for android.car.jar library.
+
+This library is intended to be compiled against only. Actual android.car library
+is expected to be available at runtime on automotive devices.

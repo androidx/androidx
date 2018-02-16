@@ -16,6 +16,7 @@
 
 package androidx.car.drawer;
 
+import android.car.drivingstate.CarUxRestrictions;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.car.R;
+import androidx.car.utils.CarUxRestrictionsUtils;
 
 /**
  * Re-usable {@link RecyclerView.ViewHolder} for displaying items in the
@@ -84,5 +86,16 @@ public class DrawerItemViewHolder extends RecyclerView.ViewHolder {
         itemView.setOnClickListener(listener != null
                 ? v -> listener.onItemClick(getAdapterPosition())
                 : null);
+    }
+
+    /**
+     * Update children views to comply with car UX restrictions.
+     *
+     * <p>{@code Text} might be truncated to meet length limit required by regulation.
+     *
+     * @param restrictions current car UX restrictions.
+     */
+    public void complyWithUxRestrictions(CarUxRestrictions restrictions) {
+        CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
     }
 }

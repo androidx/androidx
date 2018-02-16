@@ -41,6 +41,7 @@ import android.widget.TextView;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -83,6 +84,8 @@ public final class PagedListViewSavedStateTest {
 
     @Before
     public void setUp() {
+        Assume.assumeTrue(isAutoDevice());
+
         mActivity = mActivityRule.getActivity();
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
@@ -121,10 +124,6 @@ public final class PagedListViewSavedStateTest {
     @Suppress
     @Test
     public void testPagePositionRememberedOnRotation() {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         LinearLayoutManager layoutManager1 =
                 (LinearLayoutManager) mPagedListView1.getRecyclerView().getLayoutManager();
         LinearLayoutManager layoutManager2 =

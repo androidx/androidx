@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -67,16 +68,18 @@ public final class DividerVisibilityManagerTest {
     private DividerVisibilityManagerTestActivity mActivity;
     private PagedListView mPagedListView;
 
-    @Before
-    public void setUp() {
-        mActivity = mActivityRule.getActivity();
-        mPagedListView = mActivity.findViewById(R.id.paged_list_view_with_dividers);
-    }
-
     /** Returns {@code true} if the testing device has the automotive feature flag. */
     private boolean isAutoDevice() {
         PackageManager packageManager = mActivityRule.getActivity().getPackageManager();
         return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
+    }
+
+    @Before
+    public void setUp() {
+        Assume.assumeTrue(isAutoDevice());
+
+        mActivity = mActivityRule.getActivity();
+        mPagedListView = mActivity.findViewById(R.id.paged_list_view_with_dividers);
     }
 
     /** Sets up {@link #mPagedListView} with the given number of items. */
@@ -95,10 +98,6 @@ public final class DividerVisibilityManagerTest {
 
     @Test
     public void setCustomDividerVisibilityManager() throws Throwable {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         final int itemCount = 8;
         setUpPagedListView(itemCount /* itemCount */);
         RecyclerView.LayoutManager layoutManager =
@@ -171,10 +170,6 @@ public final class DividerVisibilityManagerTest {
 
     @Test
     public void testSettingItemDividersHidden() throws Throwable {
-        if (!isAutoDevice()) {
-            return;
-        }
-
         TextListItem item0 = new TextListItem(mActivity);
         item0.setHideDivider(true);
 
