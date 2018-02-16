@@ -29,7 +29,7 @@ fun generateSafeArgs(rFilePackage: String, applicationId: String,
             generateDirectionsJavaFile(destination).writeTo(outputDir)
         }
         if (destination.args.isNotEmpty()) {
-            generateArgsJavaFile(destination)
+            generateArgsJavaFile(destination).writeTo(outputDir)
         }
         destination.nested.forEach(::writeJavaFiles)
     }
