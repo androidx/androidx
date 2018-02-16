@@ -733,7 +733,7 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Sets the action to activate when the header is activated.
+         * Sets the action to invoke when the header is activated.
          */
         @NonNull
         public HeaderBuilder setPrimaryAction(@NonNull SliceAction action) {

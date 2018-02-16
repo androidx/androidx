@@ -99,23 +99,26 @@ public class SliceAction {
      * @param description the content description for this action.
      */
     @Nullable
-    public void setContentDescription(@NonNull CharSequence description) {
+    public SliceAction setContentDescription(@NonNull CharSequence description) {
         mContentDescription = description;
+        return this;
     }
 
     /**
      * @param isChecked whether the state of this action is checked or not; only used for toggle
      *                  actions.
      */
-    public void setChecked(boolean isChecked) {
+    public SliceAction setChecked(boolean isChecked) {
         mIsChecked = isChecked;
+        return this;
     }
 
     /**
      * Sets the priority of this action, with the lowest priority having the highest ranking.
      */
-    public void setPriority(@IntRange(from = 0) int priority) {
+    public SliceAction setPriority(@IntRange(from = 0) int priority) {
         mPriority = priority;
+        return this;
     }
 
     /**
