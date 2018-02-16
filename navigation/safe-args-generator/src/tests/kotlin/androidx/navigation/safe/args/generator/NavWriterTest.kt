@@ -28,6 +28,7 @@ import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubject
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.TypeSpec
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.Rule
@@ -55,39 +56,55 @@ class WriterTest {
 
     private fun id(id: String) = ResReference("a.b", "id", id)
 
+    private fun wrappedInnerClass(spec: TypeSpec): JavaFileObject {
+        val wrappedSpec = TypeSpec.classBuilder("BoringWrapper").addType(spec).build()
+        return toJavaFileObject(JavaFile.builder("a.b", wrappedSpec).build())
+    }
+
+    private fun toJavaFileObject(javaFile: JavaFile): JavaFileObject {
+        val destination = workingDir.newFolder()
+        javaFile.writeTo(destination)
+        val path = javaFile.packageName.replace('.', '/')
+        val generated = File(destination, "$path/${javaFile.typeSpec.name}.java")
+        MatcherAssert.assertThat(generated.exists(), CoreMatchers.`is`(true))
+        return JavaFileObjects.forResource(generated.toURI().toURL())
+    }
+
+    private fun toJavaFileObject(spec: TypeSpec) =
+            toJavaFileObject(JavaFile.builder("a.b", spec).build())
+
+    private fun assertCompilesWithoutError(javaFileObject: JavaFileObject) {
+        JavaSourcesSubject.assertThat(load("a.b.R", "a/b"), javaFileObject).compilesWithoutError()
+    }
+
+    private fun JavaSourcesSubject.parsesAs(fullClassName: String) =
+            this.parsesAs(load(fullClassName, "expected"))
+
     @Test
     fun testDirectionClassGeneration() {
-        val destination = workingDir.newFolder()
         val actionSpec = generateDirectionsTypeSpec(Action(id("next"), id("destA"),
                 listOf(
                         Argument("main", STRING),
                         Argument("mainInt", INT),
                         Argument("optional", STRING, StringValue("bla")),
                         Argument("optionalInt", INT, IntValue("239")))))
-        JavaFile.builder("a.b", actionSpec).build().writeTo(destination)
-        val expected = load("a.b.Next", "expected")
-        val generated = File(destination, "/a/b/Next.java")
-        MatcherAssert.assertThat(generated.exists(), CoreMatchers.`is`(true))
-        val actual = JavaFileObjects.forResource(generated.toURI().toURL())
-        JavaSourcesSubject.assertThat(actual).parsesAs(expected)
+        val actual = toJavaFileObject(actionSpec)
+        JavaSourcesSubject.assertThat(actual).parsesAs("a.b.Next")
+        // actions spec must be inner class to be compiled, because of static modifier on class
+        assertCompilesWithoutError(wrappedInnerClass(actionSpec))
     }
 
     @Test
     fun testDirectionNoIdClassGeneration() {
-        val destination = workingDir.newFolder()
         val actionSpec = generateDirectionsTypeSpec(Action(id("finish"), null, emptyList()))
-        JavaFile.builder("a.b", actionSpec).build().writeTo(destination)
-        val expected = load("a.b.Finish", "expected")
-        val generated = File(destination, "/a/b/Finish.java")
-        MatcherAssert.assertThat(generated.exists(), CoreMatchers.`is`(true))
-        val actual = JavaFileObjects.forResource(generated.toURI().toURL())
-        JavaSourcesSubject.assertThat(actual).parsesAs(expected)
+        val actual = toJavaFileObject(actionSpec)
+        JavaSourcesSubject.assertThat(actual).parsesAs("a.b.Finish")
+        // actions spec must be inner class to be compiled, because of static modifier on class
+        assertCompilesWithoutError(wrappedInnerClass(actionSpec))
     }
 
     @Test
     fun testDirectionsClassGeneration() {
-        val destination = workingDir.newFolder()
-
         val nextAction = Action(id("next"), id("destA"),
                 listOf(
                         Argument("main", STRING),
@@ -101,20 +118,13 @@ class WriterTest {
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
                 listOf(prevAction, nextAction))
 
-        generateDirectionsJavaFile(dest).writeTo(destination)
-        val expected = load("a.b.MainFragmentDirections", "expected")
-        val rFile = load("a.b.R", "a/b")
-        val generated = File(destination, "/a/b/MainFragmentDirections.java")
-        MatcherAssert.assertThat(generated.exists(), CoreMatchers.`is`(true))
-        val actual = JavaFileObjects.forResource(generated.toURI().toURL())
-        JavaSourcesSubject.assertThat(actual).parsesAs(expected)
-        JavaSourcesSubject.assertThat(actual, rFile).compilesWithoutError()
+        val actual = toJavaFileObject(generateDirectionsJavaFile(dest))
+        JavaSourcesSubject.assertThat(actual).parsesAs("a.b.MainFragmentDirections")
+        assertCompilesWithoutError(actual)
     }
 
     @Test
     fun testArgumentsClassGeneration() {
-        val destination = workingDir.newFolder()
-
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(
                 Argument("main", STRING),
                 Argument("optional", INT, IntValue("-1")),
@@ -122,13 +132,8 @@ class WriterTest {
                         "background")))),
                 listOf())
 
-        generateArgsJavaFile(dest).writeTo(destination)
-        val expected = load("a.b.MainFragmentArgs", "expected")
-        val rFile = load("a.b.R", "a/b")
-        val generated = File(destination, "/a/b/MainFragmentArgs.java")
-        MatcherAssert.assertThat(generated.exists(), CoreMatchers.`is`(true))
-        val actual = JavaFileObjects.forResource(generated.toURI().toURL())
-        JavaSourcesSubject.assertThat(actual).parsesAs(expected)
-        JavaSourcesSubject.assertThat(rFile, actual).compilesWithoutError()
+        val actual = toJavaFileObject(generateArgsJavaFile(dest))
+        JavaSourcesSubject.assertThat(actual).parsesAs("a.b.MainFragmentArgs")
+        assertCompilesWithoutError(actual)
     }
 }

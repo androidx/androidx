@@ -20,10 +20,9 @@ package a.b;
 public class R {
 
     public static final class id {
-        public static final int destA = 0x7f060000;
-        public static final int destB = 0x7f060001;
-        public static final int previous = 0x7f060002;
-        public static final int next = 0x7f060003;
+        public static final int finish = 0x7f060000;
+        public static final int previous = 0x7f060001;
+        public static final int next = 0x7f060002;
     }
 
     public static final class drawable {
