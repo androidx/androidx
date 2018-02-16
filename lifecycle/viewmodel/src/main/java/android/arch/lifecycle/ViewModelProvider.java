@@ -93,6 +93,7 @@ public class ViewModelProvider {
      * @return A ViewModel that is an instance of the given type {@code T}.
      */
     @NonNull
+    @MainThread
     public <T extends ViewModel> T get(@NonNull Class<T> modelClass) {
         String canonicalName = modelClass.getCanonicalName();
         if (canonicalName == null) {
