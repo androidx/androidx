@@ -51,8 +51,8 @@ public class MainFragmentDirections {
 
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
-            __outBundle.putString("arg1", arg1);
-            __outBundle.putString("arg2", arg2);
+            __outBundle.putString("arg1", this.arg1);
+            __outBundle.putString("arg2", this.arg2);
             return __outBundle;
         }
 
@@ -82,8 +82,8 @@ public class MainFragmentDirections {
 
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
-            __outBundle.putString("main", main);
-            __outBundle.putString("optional", optional);
+            __outBundle.putString("main", this.main);
+            __outBundle.putString("optional", this.optional);
             return __outBundle;
         }
 

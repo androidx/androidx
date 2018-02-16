@@ -44,9 +44,9 @@ public class MainFragmentArgs {
 
     public Bundle toBundle() {
         Bundle __outBundle = new Bundle();
-        __outBundle.putString("main", main);
-        __outBundle.putInt("optional", optional);
-        __outBundle.putInt("reference", reference);
+        __outBundle.putString("main", this.main);
+        __outBundle.putInt("optional", this.optional);
+        __outBundle.putInt("reference", this.reference);
         return __outBundle;
     }
 
@@ -67,7 +67,7 @@ public class MainFragmentArgs {
             this.main = main;
         }
 
-        MainFragmentArgs build() {
+        public MainFragmentArgs build() {
             MainFragmentArgs result = new MainFragmentArgs();
             result.main = this.main;
             result.optional = this.optional;
