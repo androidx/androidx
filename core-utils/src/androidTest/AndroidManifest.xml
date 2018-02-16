@@ -31,13 +31,6 @@
         <activity android:name="android.support.v4.app.FrameMetricsActivity"/>
         <activity android:name="android.support.v4.app.FrameMetricsSubActivity"/>
         <activity android:name="android.support.v4.widget.TestActivity"/>
-        <activity android:name="android.support.v4.provider.GrantActivity"
-                  android:label="_GrantActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="moocow"

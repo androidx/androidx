@@ -28,17 +28,7 @@
         android:theme="@style/TestActivityTheme">
         <activity android:name="android.support.v4.widget.ExploreByTouchHelperTestActivity"/>
 
-        <activity android:name="android.support.v4.widget.CircularProgressDrawableActivity"/>
-
-        <activity android:name="android.support.v4.widget.SwipeRefreshLayoutActivity"/>
-
         <activity android:name="android.support.v4.widget.ContentLoadingProgressBarActivity"/>
-
-        <activity android:name="android.support.v4.view.ViewPagerWithTitleStripActivity"/>
-
-        <activity android:name="android.support.v4.view.ViewPagerWithTabStripActivity"/>
-
-        <activity android:name="android.support.v4.view.ViewPagerTest$ViewPagerActivity"/>
 
         <activity android:name="android.support.design.widget.CoordinatorLayoutActivity"/>
 

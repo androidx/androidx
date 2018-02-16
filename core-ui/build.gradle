@@ -9,7 +9,15 @@ plugins {
 dependencies {
     api(project(":support-annotations"))
     api(project(":support-compat"))
-    api project(':support-core-utils')
+    api(project(":support-core-utils"))
+    api(project(":customview"))
+    api(project(":viewpager"))
+    api(project(":coordinatorlayout"))
+    api(project(":drawerlayout"))
+    api(project(":slidingpanelayout"))
+    api(project(":interpolator"))
+    api(project(":swiperefreshlayout"))
+    api(project(":asynclayoutinflater"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
@@ -20,18 +28,6 @@ dependencies {
     }
 
     testImplementation(JUNIT)
-}
-
-android {
-    sourceSets {
-        main.res.srcDirs = [
-                'res',
-                'res-public'
-        ]
-    }
-    buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
-    }
 }
 
 supportLibrary {

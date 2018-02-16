@@ -1562,6 +1562,26 @@ package android.support.v4.view {
     method public abstract void stopNestedScroll(int);
   }
 
+  public class NestedScrollingChildHelper {
+    ctor public NestedScrollingChildHelper(android.view.View);
+    method public boolean dispatchNestedFling(float, float, boolean);
+    method public boolean dispatchNestedPreFling(float, float);
+    method public boolean dispatchNestedPreScroll(int, int, int[], int[]);
+    method public boolean dispatchNestedPreScroll(int, int, int[], int[], int);
+    method public boolean dispatchNestedScroll(int, int, int, int, int[]);
+    method public boolean dispatchNestedScroll(int, int, int, int, int[], int);
+    method public boolean hasNestedScrollingParent();
+    method public boolean hasNestedScrollingParent(int);
+    method public boolean isNestedScrollingEnabled();
+    method public void onDetachedFromWindow();
+    method public void onStopNestedScroll(android.view.View);
+    method public void setNestedScrollingEnabled(boolean);
+    method public boolean startNestedScroll(int);
+    method public boolean startNestedScroll(int, int);
+    method public void stopNestedScroll();
+    method public void stopNestedScroll(int);
+  }
+
   public abstract interface NestedScrollingParent {
     method public abstract int getNestedScrollAxes();
     method public abstract boolean onNestedFling(android.view.View, float, float, boolean);
@@ -1579,6 +1599,15 @@ package android.support.v4.view {
     method public abstract void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
     method public abstract boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
     method public abstract void onStopNestedScroll(android.view.View, int);
+  }
+
+  public class NestedScrollingParentHelper {
+    ctor public NestedScrollingParentHelper(android.view.ViewGroup);
+    method public int getNestedScrollAxes();
+    method public void onNestedScrollAccepted(android.view.View, android.view.View, int);
+    method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
+    method public void onStopNestedScroll(android.view.View);
+    method public void onStopNestedScroll(android.view.View, int);
   }
 
   public abstract interface OnApplyWindowInsetsListener {
@@ -2381,6 +2410,42 @@ package android.support.v4.widget {
   public final class ListViewCompat {
     method public static boolean canScrollList(android.widget.ListView, int);
     method public static void scrollListBy(android.widget.ListView, int);
+  }
+
+  public class NestedScrollView extends android.widget.FrameLayout implements android.support.v4.view.NestedScrollingChild2 android.support.v4.view.NestedScrollingParent android.support.v4.view.ScrollingView {
+    ctor public NestedScrollView(android.content.Context);
+    ctor public NestedScrollView(android.content.Context, android.util.AttributeSet);
+    ctor public NestedScrollView(android.content.Context, android.util.AttributeSet, int);
+    method public boolean arrowScroll(int);
+    method public int computeHorizontalScrollExtent();
+    method public int computeHorizontalScrollOffset();
+    method public int computeHorizontalScrollRange();
+    method protected int computeScrollDeltaToGetChildRectOnScreen(android.graphics.Rect);
+    method public int computeVerticalScrollExtent();
+    method public int computeVerticalScrollOffset();
+    method public int computeVerticalScrollRange();
+    method public boolean dispatchNestedPreScroll(int, int, int[], int[], int);
+    method public boolean dispatchNestedScroll(int, int, int, int, int[], int);
+    method public boolean executeKeyEvent(android.view.KeyEvent);
+    method public void fling(int);
+    method public boolean fullScroll(int);
+    method public int getMaxScrollAmount();
+    method public boolean hasNestedScrollingParent(int);
+    method public boolean isFillViewport();
+    method public boolean isSmoothScrollingEnabled();
+    method public void onAttachedToWindow();
+    method public boolean pageScroll(int);
+    method public void setFillViewport(boolean);
+    method public void setOnScrollChangeListener(android.support.v4.widget.NestedScrollView.OnScrollChangeListener);
+    method public void setSmoothScrollingEnabled(boolean);
+    method public final void smoothScrollBy(int, int);
+    method public final void smoothScrollTo(int, int);
+    method public boolean startNestedScroll(int, int);
+    method public void stopNestedScroll(int);
+  }
+
+  public static abstract interface NestedScrollView.OnScrollChangeListener {
+    method public abstract void onScrollChange(android.support.v4.widget.NestedScrollView, int, int, int, int);
   }
 
   public final class PopupMenuCompat {

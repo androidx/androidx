@@ -9,6 +9,9 @@ plugins {
 dependencies {
     api(project(":support-annotations"))
     api(project(":support-compat"))
+    api(project(":documentfile"))
+    api(project(":localbroadcastmanager"))
+    api(project(":print"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
