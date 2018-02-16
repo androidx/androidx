@@ -419,6 +419,7 @@ public class WearableActionDrawerView extends WearableDrawerView {
                 holder.iconView.setImageDrawable(icon);
             } else if (viewHolder instanceof TitleViewHolder) {
                 TitleViewHolder holder = (TitleViewHolder) viewHolder;
+                holder.textView.setPadding(0, mFirstItemTopPadding, 0, mBottomPadding);
                 holder.textView.setText(mTitle);
             }
         }
