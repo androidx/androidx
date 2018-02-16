@@ -292,8 +292,7 @@ public interface ListBuilder {
         void setSummarySubtitle(CharSequence summarySubtitle);
 
         /**
-         * Sets the pending intent to activate when the header is activated.
-         * @param action
+         * Sets the action to invoke when the header is activated.
          */
         void setPrimaryAction(SliceAction action);
     }

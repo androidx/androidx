@@ -98,9 +98,9 @@ package androidx.app.slice.builders {
     method public java.lang.CharSequence getTitle();
     method public boolean isChecked();
     method public boolean isToggle();
-    method public void setChecked(boolean);
-    method public void setContentDescription(java.lang.CharSequence);
-    method public void setPriority(int);
+    method public androidx.app.slice.builders.SliceAction setChecked(boolean);
+    method public androidx.app.slice.builders.SliceAction setContentDescription(java.lang.CharSequence);
+    method public androidx.app.slice.builders.SliceAction setPriority(int);
   }
 
   public abstract class TemplateSliceBuilder {
