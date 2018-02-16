@@ -27,6 +27,7 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
@@ -47,6 +48,8 @@ public class GridContent {
     private SliceItem mColorItem;
     private SliceItem mPrimaryAction;
     private ArrayList<CellContent> mGridContent = new ArrayList<>();
+    private int mMaxCellLineCount;
+    private boolean mHasImage;
 
     public GridContent(SliceItem gridItem) {
         populate(gridItem);
@@ -54,6 +57,8 @@ public class GridContent {
 
     private void reset() {
         mColorItem = null;
+        mMaxCellLineCount = 0;
+        mHasImage = false;
         mGridContent.clear();
     }
 
@@ -77,25 +82,30 @@ public class GridContent {
             for (int i = 0; i < items.size(); i++) {
                 SliceItem item = items.get(i);
                 CellContent cc = new CellContent(item);
-                if (cc.isValid()) {
-                    mGridContent.add(cc);
-                    if (!cc.isImageOnly()) {
-                        mAllImages = false;
-                    }
-                }
+                processContent(cc);
             }
         } else {
             CellContent cc = new CellContent(gridItem);
-            if (cc.isValid()) {
-                mGridContent.add(cc);
-            }
+            processContent(cc);
         }
         return isValid();
+    }
+
+    private void processContent(CellContent cc) {
+        if (cc.isValid()) {
+            mGridContent.add(cc);
+            if (!cc.isImageOnly()) {
+                mAllImages = false;
+            }
+            mMaxCellLineCount = Math.max(mMaxCellLineCount, cc.getTextCount());
+            mHasImage |= cc.hasImage();
+        }
     }
 
     /**
      * @return the list of cell content for this grid.
      */
+    @NonNull
     public ArrayList<CellContent> getGridContent() {
         return mGridContent;
     }
@@ -103,6 +113,7 @@ public class GridContent {
     /**
      * @return the color to tint content in this grid.
      */
+    @Nullable
     public SliceItem getColorItem() {
         return mColorItem;
     }
@@ -141,6 +152,20 @@ public class GridContent {
     }
 
     /**
+     * @return the max number of lines of text in the cells of this grid row.
+     */
+    public int getMaxCellLineCount() {
+        return mMaxCellLineCount;
+    }
+
+    /**
+     * @return whether this row contains an image.
+     */
+    public boolean hasImage() {
+        return mHasImage;
+    }
+
+    /**
      * Extracts information required to present content in a cell.
      * @hide
      */
@@ -148,6 +173,8 @@ public class GridContent {
     public static class CellContent {
         private SliceItem mContentIntent;
         private ArrayList<SliceItem> mCellItems = new ArrayList<>();
+        private int mTextCount;
+        private boolean mHasImage;
 
         public CellContent(SliceItem cellItem) {
             populate(cellItem);
@@ -170,17 +197,18 @@ public class GridContent {
                 if (FORMAT_ACTION.equals(format)) {
                     mContentIntent = cellItem;
                 }
-                int textCount = 0;
+                mTextCount = 0;
                 int imageCount = 0;
                 for (int i = 0; i < items.size(); i++) {
                     final SliceItem item = items.get(i);
                     final String itemFormat = item.getFormat();
-                    if (textCount < 2 && (FORMAT_TEXT.equals(itemFormat)
+                    if (mTextCount < 2 && (FORMAT_TEXT.equals(itemFormat)
                             || FORMAT_TIMESTAMP.equals(itemFormat))) {
-                        textCount++;
+                        mTextCount++;
                         mCellItems.add(item);
                     } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
                         imageCount++;
+                        mHasImage = true;
                         mCellItems.add(item);
                     }
                 }
@@ -226,6 +254,20 @@ public class GridContent {
          */
         public boolean isImageOnly() {
             return mCellItems.size() == 1 && FORMAT_IMAGE.equals(mCellItems.get(0).getFormat());
+        }
+
+        /**
+         * @return number of text items in this cell.
+         */
+        public int getTextCount() {
+            return mTextCount;
+        }
+
+        /**
+         * @return whether this cell contains an image.
+         */
+        public boolean hasImage() {
+            return mHasImage;
         }
     }
 }
