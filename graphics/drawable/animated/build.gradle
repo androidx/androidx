@@ -36,5 +36,4 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2015"
     description = "Android Support AnimatedVectorDrawable"
-    legacySourceLocation = true
 }

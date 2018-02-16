@@ -23,7 +23,3 @@ plugins {
 dependencies {
     implementation(JUNIT)
 }
-
-supportLibrary {
-    legacySourceLocation = true
-}

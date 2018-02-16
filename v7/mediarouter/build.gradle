@@ -34,5 +34,4 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"
-    legacySourceLocation = true
 }

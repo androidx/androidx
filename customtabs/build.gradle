@@ -17,12 +17,6 @@ dependencies {
     androidTestImplementation(project(":support-testutils"))
 }
 
-android {
-    sourceSets {
-        main.aidl.srcDirs = ["src/main/java"]
-    }
-}
-
 supportLibrary {
     name = "Android Support Custom Tabs"
     publish = true
@@ -30,6 +24,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2015"
     description = "Android Support Custom Tabs"
-    legacySourceLocation = true
     minSdkVersion = 15
 }

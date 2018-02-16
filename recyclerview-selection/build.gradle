@@ -23,9 +23,9 @@ plugins {
 }
 
 dependencies {
-    api project(':recyclerview-v7')
-    api project(':support-annotations')
-    api project(':support-compat')
+    api(project(":recyclerview-v7"))
+    api(project(":support-annotations"))
+    api(project(":support-compat"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
@@ -34,21 +34,11 @@ dependencies {
     androidTestImplementation(JUNIT)
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-    sourceSets {
-        main.res.srcDirs 'res', 'res-public'
-    }
-}
-
 supportLibrary {
-    name 'Android RecyclerView Selection'
-    publish false
+    name = "Android RecyclerView Selection"
+    publish = false
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SUPPORT
-    inceptionYear '2017'
-    description 'Library providing item selection framework for RecyclerView. Support for touch based and band selection is provided.'
-    legacySourceLocation true
+    inceptionYear = "2017"
+    description = "Library providing item selection framework for RecyclerView. Support for touch based and band selection is provided."
 }

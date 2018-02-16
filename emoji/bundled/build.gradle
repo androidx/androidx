@@ -36,5 +36,4 @@ supportLibrary {
         name = "Unicode, Inc. License"
         url = "http://www.unicode.org/copyright.html#License"
     }
-    legacySourceLocation = true
 }

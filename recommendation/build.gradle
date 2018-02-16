@@ -16,6 +16,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2015"
     description = "Android Support Recommendation"
-    legacySourceLocation = true
     minSdkVersion = 21
 }

@@ -36,7 +36,3 @@ android {
         disable 'InvalidPackage' // Lint is unhappy about junit package
     }
 }
-
-supportLibrary {
-    legacySourceLocation = true
-}

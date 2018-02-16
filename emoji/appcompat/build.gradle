@@ -33,5 +33,4 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "EmojiCompat Widgets for AppCompat integration"
-    legacySourceLocation = true
 }

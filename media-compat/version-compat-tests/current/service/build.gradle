@@ -26,7 +26,3 @@ dependencies {
 
     androidTestImplementation(TEST_RUNNER)
 }
-
-supportLibrary {
-    legacySourceLocation = true
-}

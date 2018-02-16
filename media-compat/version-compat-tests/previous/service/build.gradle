@@ -21,18 +21,8 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation project(':support-media-compat-test-lib')
+    androidTestImplementation(project(":support-media-compat-test-lib"))
     androidTestImplementation "com.android.support:support-media-compat:27.0.1"
 
     androidTestImplementation(TEST_RUNNER)
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
-supportLibrary {
-    legacySourceLocation = true
 }

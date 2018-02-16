@@ -44,11 +44,6 @@ android {
         }
 
         androidTest {
-            // We use a non-standard test directory structure.
-            root 'tests'
-            java.srcDir 'tests/src'
-            res.srcDir 'tests/res'
-            manifest.srcFile 'tests/AndroidManifest.xml'
             assets {
                 srcDirs = [new File(fontDir, "font").getAbsolutePath(),
                            new File(fontDir, "supported-emojis").getAbsolutePath()]

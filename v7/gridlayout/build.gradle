@@ -14,12 +14,6 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
 }
 
-android {
-    sourceSets {
-        main.res.srcDir 'res'
-    }
-}
-
 supportLibrary {
     name = "Android Support Grid Layout"
     publish = true
@@ -27,5 +21,4 @@ supportLibrary {
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2013"
     description = "Android Support Grid Layout"
-    legacySourceLocation = true
 }
