@@ -82,6 +82,13 @@ limitations under the License.
         <item name="android:textColor">@color/car_headline4</item>
     </style>
 
+    <!-- The styling for label text. The color of this text changes based on the day/night mode. -->
+    <style name="CarLabel1">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_label1_size</item>
+        <item name="android:textColor">@color/car_label1</item>
+    </style>
+
     <!-- The styling for body text. The color of this text changes based on the day/night mode. -->
     <style name="CarBody1">
         <item name="android:textStyle">normal</item>
