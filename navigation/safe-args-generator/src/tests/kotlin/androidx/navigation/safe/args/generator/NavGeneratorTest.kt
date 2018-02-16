@@ -39,5 +39,9 @@ class NavGeneratorTest {
                 "androidx/navigation/testapp/MainFragmentDirections.java").exists(), `is`(true))
         assertThat(File(workingDir.root, "foo/flavor/NextFragmentDirections.java").exists(),
                 `is`(true))
+        assertThat(File(workingDir.root,
+                "androidx/navigation/testapp/MainFragmentArgs.java").exists(), `is`(true))
+        assertThat(File(workingDir.root, "foo/flavor/NextFragmentArgs.java").exists(),
+                `is`(true))
     }
 }
