@@ -18,6 +18,7 @@ package androidx.car.widget;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.car.R;
+import androidx.car.utils.CarUxRestrictionsUtils;
 
 /**
  * Class to build a list item with {@link SeekBar}.
@@ -122,8 +124,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
      * @param max the upper range of the SeekBar.
      * @param progress the current progress of the specified value.
      * @param listener listener to receive notification of changes to progress level.
-     * @param text displays a text on top of the SeekBar. Text beyond length required by
-     *             regulation will be truncated. null value hides the text field.
+     * @param text displays a text on top of the SeekBar.
      */
     public SeekbarListItem(Context context, int max, int progress,
             SeekBar.OnSeekBarChangeListener listener, String text) {
@@ -132,14 +133,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
         mMax = max;
         mProgress = progress;
         mOnSeekBarChangeListener = listener;
-
-        int limit = mContext.getResources().getInteger(
-                R.integer.car_list_item_text_length_limit);
-        if (TextUtils.isEmpty(text) || text.length() < limit) {
-            mText = text;
-        } else {
-            mText = text.substring(0, limit) + mContext.getString(R.string.ellipsis);
-        }
+        mText = text;
 
         markDirty();
     }
@@ -523,6 +517,11 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
 
             mSupplementalIcon = itemView.findViewById(R.id.supplemental_icon);
             mSupplementalIconDivider = itemView.findViewById(R.id.supplemental_icon_divider);
+        }
+
+        @Override
+        public void complyWithUxRestrictions(CarUxRestrictions restrictions) {
+            CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
         }
 
         public RelativeLayout getContainerLayout() {

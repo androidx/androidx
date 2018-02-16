@@ -16,8 +16,18 @@
 
 package androidx.car.widget;
 
+import android.app.Activity;
+import android.car.Car;
+import android.car.CarNotConnectedException;
+import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.CarUxRestrictionsManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.ServiceConnection;
+import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
@@ -41,6 +51,9 @@ import androidx.car.utils.ListItemBackgroundResolver;
  *     individual {@link ListItem}.
  * </ul>
  *
+ * <p>To enable support for {@link CarUxRestrictions}, call {@link #start()} in your
+ * {@code Activity}'s {@link android.app.Activity#onCreate(Bundle)}, and {@link #stop()} in
+ * {@link Activity#onStop()}.
  */
 public class ListItemAdapter extends
         RecyclerView.Adapter<ListItem.ViewHolder> implements PagedListView.ItemCap,
@@ -76,6 +89,68 @@ public class ListItemAdapter extends
     private final SparseIntArray mViewHolderLayoutResIds = new SparseIntArray();
     private final SparseArray<Function<View, ListItem.ViewHolder>> mViewHolderCreator =
             new SparseArray<>();
+
+    private final Car mCar;
+    @Nullable private CarUxRestrictionsManager mCarUxRestrictionsManager;
+    private CarUxRestrictions mCurrentUxRestrictions;
+    // Keep onUxRestrictionsChangedListener an internal var to avoid exposing APIs from android.car.
+    // Otherwise car sample apk will fail at compile time due to not having access to the stubs.
+    private CarUxRestrictionsManager.onUxRestrictionsChangedListener mUxrChangeListener =
+            new CarUxRestrictionsManager.onUxRestrictionsChangedListener() {
+        @Override
+        public void onUxRestrictionsChanged(CarUxRestrictions carUxRestrictions) {
+            mCurrentUxRestrictions = carUxRestrictions;
+            notifyDataSetChanged();
+        }
+    };
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            try {
+                mCarUxRestrictionsManager = (CarUxRestrictionsManager)
+                        mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
+                mCarUxRestrictionsManager.registerListener(mUxrChangeListener);
+                mUxrChangeListener.onUxRestrictionsChanged(
+                        mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
+            } catch (CarNotConnectedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            try {
+                mCarUxRestrictionsManager.unregisterListener();
+                mCarUxRestrictionsManager = null;
+            } catch (CarNotConnectedException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    /**
+     * Enables support for {@link CarUxRestrictions}.
+     *
+     * <p>This method can be called from {@code Activity}'s {@link Activity#onStart()}, or at the
+     * time of construction.
+     *
+     * <p>This method must be accompanied with a matching {@link #stop()} to avoid leak.
+     */
+    public void start() {
+        if (!mCar.isConnected()) {
+            mCar.connect();
+        }
+    }
+
+    /**
+     * Disables support for {@link CarUxRestrictions}, and frees up resources.
+     *
+     * <p>This method should be called from {@code Activity}'s {@link Activity#onStop()}, or at the
+     * time of this adapter being discarded.
+     */
+    public void stop() {
+        mCar.disconnect();
+    }
 
     /**
      * Registers a function that returns {@link android.support.v7.widget.RecyclerView.ViewHolder}
@@ -118,6 +193,8 @@ public class ListItemAdapter extends
                 R.layout.car_list_item_text_content, TextListItem::createViewHolder);
         registerListItemViewType(LIST_ITEM_TYPE_SEEKBAR,
                 R.layout.car_list_item_seekbar_content, SeekbarListItem::createViewHolder);
+
+        mCar = Car.createCar(context, mServiceConnection);
     }
 
     @Override
@@ -182,6 +259,11 @@ public class ListItemAdapter extends
         if (mBackgroundStyle == BackgroundStyle.PANEL) {
             ListItemBackgroundResolver.setBackground(
                     holder.itemView, position, mItemProvider.size());
+        }
+
+        // Car may not be initialized thus current UXR will not be available.
+        if (mCurrentUxRestrictions != null) {
+            holder.complyWithUxRestrictions(mCurrentUxRestrictions);
         }
     }
 
