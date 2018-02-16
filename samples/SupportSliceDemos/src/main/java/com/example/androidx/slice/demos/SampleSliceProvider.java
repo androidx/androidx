@@ -315,7 +315,8 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(b -> b
                     .setTitle("Custom toggle")
                     .setSubtitle("It can support two states")
-                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "star toggled"),
+                    .setPrimaryAction(new SliceAction(getBroadcastIntent(ACTION_TOAST,
+                            "star toggled"),
                             Icon.createWithResource(getContext(), R.drawable.toggle_star),
                             "Toggle star", true /* isChecked */)))
                 .build();

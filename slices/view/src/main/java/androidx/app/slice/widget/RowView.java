@@ -197,6 +197,12 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         SliceItem primaryAction = mRowContent.getPrimaryAction();
         if (primaryAction != null) {
             mRowAction = new ActionContent(primaryAction);
+            if (mRowAction.isToggle()) {
+                // If primary action is a toggle, add it and we're done
+                addToggle(mRowAction, mTintColor, mEndContainer);
+                setViewClickable(this, true);
+                return;
+            }
         }
         List<SliceItem> endItems = mRowContent.getEndItems();
 
@@ -432,7 +438,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if (mRowAction != null && mRowAction.getActionItem() != null) {
+        if (mRowAction != null && mRowAction.getActionItem() != null && !mRowAction.isToggle()) {
             // Check for a row action
             try {
                 mRowAction.getActionItem().getAction().send();
