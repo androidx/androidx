@@ -16,6 +16,8 @@
 
 package androidx.app.slice.widget;
 
+import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
@@ -46,7 +48,7 @@ import androidx.app.slice.core.SliceQuery;
 public class RowContent {
     private static final String TAG = "RowContent";
 
-    private SliceItem mContentIntent;
+    private SliceItem mPrimaryAction;
     private SliceItem mStartItem;
     private SliceItem mTitleItem;
     private SliceItem mSubtitleItem;
@@ -64,7 +66,7 @@ public class RowContent {
      * Resets the content.
      */
     public void reset() {
-        mContentIntent = null;
+        mPrimaryAction = null;
         mStartItem = null;
         mTitleItem = null;
         mSubtitleItem = null;
@@ -82,29 +84,36 @@ public class RowContent {
             Log.w(TAG, "Provided SliceItem is invalid for RowContent");
             return false;
         }
+        // Find primary action first (otherwise filtered out of valid row items)
+        String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};
+        mPrimaryAction = SliceQuery.find(rowSlice, FORMAT_SLICE, hints,
+                new String[] { HINT_ACTIONS } /* nonHints */);
+
         // Filter anything not viable for displaying in a row
         ArrayList<SliceItem> rowItems = filterInvalidItems(rowSlice);
         // If we've only got one item that's a slice / action use those items instead
         if (rowItems.size() == 1 && (FORMAT_ACTION.equals(rowItems.get(0).getFormat())
-                || FORMAT_SLICE.equals(rowItems.get(0).getFormat()))) {
+                || FORMAT_SLICE.equals(rowItems.get(0).getFormat()))
+                && !rowItems.get(0).hasHint(HINT_SHORTCUT)) {
             if (isValidRow(rowItems.get(0))) {
                 rowSlice = rowItems.get(0);
                 rowItems = filterInvalidItems(rowSlice);
             }
-        }
-        // Content intent
-        if (FORMAT_ACTION.equals(rowSlice.getFormat())) {
-            mContentIntent = rowSlice;
         }
         if (SUBTYPE_RANGE.equals(rowSlice.getSubType())) {
             mRange = rowSlice;
         }
         if (rowItems.size() > 0) {
             // Start item
-            if (isStartType(rowItems.get(0))) {
-                mStartItem = rowItems.get(0);
-                rowItems.remove(0);
+            SliceItem firstItem = rowItems.get(0);
+            if (FORMAT_SLICE.equals(firstItem.getFormat())) {
+                SliceItem unwrappedItem = firstItem.getSlice().getItems().get(0);
+                if (isStartType(unwrappedItem)) {
+                    mStartItem = unwrappedItem;
+                    rowItems.remove(0);
+                }
             }
+
             // Text + end items
             ArrayList<SliceItem> endItems = new ArrayList<>();
             for (int i = 0; i < rowItems.size(); i++) {
@@ -128,6 +137,8 @@ public class RowContent {
             String desiredFormat = null;
             for (int i = 0; i < endItems.size(); i++) {
                 final SliceItem item = endItems.get(i);
+                boolean isAction = FORMAT_SLICE.equals(item.getFormat())
+                        && item.hasHint(HINT_SHORTCUT);
                 if (FORMAT_TIMESTAMP.equals(item.getFormat())) {
                     if (!hasTimestamp) {
                         hasTimestamp = true;
@@ -136,10 +147,10 @@ public class RowContent {
                 } else if (desiredFormat == null) {
                     desiredFormat = item.getFormat();
                     mEndItems.add(item);
-                    mEndItemsContainAction |= FORMAT_ACTION.equals(item.getFormat());
+                    mEndItemsContainAction |= isAction;
                 } else if (desiredFormat.equals(item.getFormat())) {
                     mEndItems.add(item);
-                    mEndItemsContainAction |= FORMAT_ACTION.equals(item.getFormat());
+                    mEndItemsContainAction |= isAction;
                 }
             }
         }
@@ -165,8 +176,8 @@ public class RowContent {
     }
 
     @Nullable
-    public SliceItem getContentIntent() {
-        return mContentIntent;
+    public SliceItem getPrimaryAction() {
+        return mPrimaryAction;
     }
 
     @Nullable
@@ -194,7 +205,7 @@ public class RowContent {
     }
 
     /**
-     * @return whether {@link #getEndItems()} contains a SliceItem with FORMAT_ACTION
+     * @return whether {@link #getEndItems()} contains a SliceItem with FORMAT_SLICE, HINT_SHORTCUT
      */
     public boolean endItemsContainAction() {
         return mEndItemsContainAction;
@@ -232,16 +243,22 @@ public class RowContent {
     }
 
     /**
-     * @return whether this item has valid content to display in a row.
+     * @return whether this item is valid content to display in a row.
      */
     private static boolean isValidRowContent(SliceItem slice, SliceItem item) {
-        // TODO -- filter for shortcut once that's in
+        if (FORMAT_SLICE.equals(item.getFormat()) && !item.hasHint(HINT_SHORTCUT)) {
+            // Unpack contents of slice
+            item = item.getSlice().getItems().get(0);
+        }
         final String itemFormat = item.getFormat();
-        // Must be a format that is presentable
         return FORMAT_TEXT.equals(itemFormat)
                 || FORMAT_IMAGE.equals(itemFormat)
                 || FORMAT_TIMESTAMP.equals(itemFormat)
                 || FORMAT_REMOTE_INPUT.equals(itemFormat)
+                || (FORMAT_SLICE.equals(itemFormat) && item.hasHint(HINT_TITLE)
+                && !item.hasHint(HINT_SHORTCUT))
+                || (FORMAT_SLICE.equals(itemFormat) && item.hasHint(HINT_SHORTCUT)
+                && !item.hasHint(HINT_TITLE))
                 || FORMAT_ACTION.equals(itemFormat)
                 || (FORMAT_INT.equals(itemFormat) && SUBTYPE_RANGE.equals(slice.getSubType()));
     }
@@ -252,9 +269,8 @@ public class RowContent {
      */
     private static boolean isStartType(SliceItem item) {
         final String type = item.getFormat();
-        return item.hasHint(HINT_TITLE)
-                && ((FORMAT_ACTION.equals(type) && (SliceQuery.find(item, FORMAT_IMAGE) != null))
+        return (FORMAT_ACTION.equals(type) && (SliceQuery.find(item, FORMAT_IMAGE) != null))
                     || FORMAT_IMAGE.equals(type)
-                    || FORMAT_TIMESTAMP.equals(type));
+                    || FORMAT_TIMESTAMP.equals(type);
     }
 }

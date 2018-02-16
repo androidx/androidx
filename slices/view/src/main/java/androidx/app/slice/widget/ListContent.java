@@ -18,6 +18,7 @@ package androidx.app.slice.widget;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
+import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_INT;
@@ -33,6 +34,7 @@ import java.util.List;
 
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
+import androidx.app.slice.SliceUtils;
 import androidx.app.slice.core.SliceQuery;
 
 /**
@@ -67,11 +69,7 @@ public class ListContent {
         reset();
         mColorItem = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
         // Find slice actions
-        SliceItem actionGroup = SliceQuery.find(slice, FORMAT_SLICE, HINT_ACTIONS, null);
-        if (actionGroup != null) {
-            // TODO: actually use the actions
-            mSliceActions = SliceQuery.findAll(actionGroup, FORMAT_ACTION, HINT_ACTIONS, null);
-        }
+        mSliceActions = SliceUtils.getSliceActions(slice);
         // Find header
         mHeaderItem = findHeaderItem(slice);
         if (mHeaderItem != null) {
@@ -135,7 +133,8 @@ public class ListContent {
     @Nullable
     private static SliceItem findHeaderItem(@NonNull Slice slice) {
         // See if header is specified
-        SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null, HINT_LIST_ITEM);
+        String[] nonHints = new String[] {HINT_LIST_ITEM, HINT_SHORTCUT, HINT_ACTIONS};
+        SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null, nonHints);
         if (header != null && isValidHeader(header)) {
             return header;
         }
@@ -143,7 +142,8 @@ public class ListContent {
     }
 
     private static boolean isValidHeader(SliceItem sliceItem) {
-        if (FORMAT_SLICE.equals(sliceItem.getFormat()) && !sliceItem.hasHint(HINT_LIST_ITEM)) {
+        if (FORMAT_SLICE.equals(sliceItem.getFormat()) && !sliceItem.hasHint(HINT_LIST_ITEM)
+                && !sliceItem.hasHint(HINT_ACTIONS)) {
              // Minimum valid header is a slice with text
             SliceItem item = SliceQuery.find(sliceItem, FORMAT_TEXT, (String) null, null);
             return item != null;

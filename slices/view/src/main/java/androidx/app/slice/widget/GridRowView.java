@@ -141,10 +141,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     public void setSlice(Slice slice) {
         resetView();
         mRowIndex = 0;
-        Slice.Builder sb = new Slice.Builder(slice.getUri());
-        sb.addSubSlice(slice);
-        Slice parentSlice = sb.build();
-        mGridContent = new GridContent(parentSlice.getItems().get(0));
+        mGridContent = new GridContent(slice.getItems().get(0));
         populateViews(mGridContent);
     }
 
@@ -162,6 +159,13 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     }
 
     private void populateViews(GridContent gc) {
+        if (gc.getContentIntent() != null) {
+            EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
+                    EventInfo.ROW_TYPE_GRID, mRowIndex);
+            Pair<SliceItem, EventInfo> tagItem = new Pair(gc.getContentIntent(), info);
+            mViewContainer.setTag(tagItem);
+            makeClickable(mViewContainer);
+        }
         mIsAllImages = gc.isAllImages();
         ArrayList<GridContent.CellContent> cells = gc.getGridContent();
         final int max = mIsAllImages ? MAX_IMAGES : MAX_ALL;

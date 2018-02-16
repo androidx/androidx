@@ -34,6 +34,7 @@ import androidx.app.slice.Slice;
 import androidx.app.slice.builders.GridBuilder;
 import androidx.app.slice.builders.ListBuilder;
 import androidx.app.slice.builders.MessagingSliceBuilder;
+import androidx.app.slice.builders.SliceAction;
 import androidx.app.slice.view.test.R;
 
 /**
@@ -97,39 +98,45 @@ public class SliceCreator {
     }
 
     private Slice createWeather(Uri sliceUri) {
-        GridBuilder b = new GridBuilder(getContext(), sliceUri);
-        return b.addCell(new GridBuilder.CellBuilder(b)
+        SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
+                "open weather app"), Icon.createWithResource(getContext(), R.drawable.weather_1),
+                "Weather is happening!");
+        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        GridBuilder gb = new GridBuilder(b);
+        gb.setPrimaryAction(primaryAction);
+        gb.addCell(new GridBuilder.CellBuilder(gb)
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
                         .addText("MON")
                         .addTitleText("69\u00B0"))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_2))
                         .addText("TUE")
                         .addTitleText("71\u00B0"))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_3))
                         .addText("WED")
                         .addTitleText("76\u00B0"))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_4))
                         .addText("THU")
                         .addTitleText("72\u00B0"))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                         .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
                         .addText("FRI")
-                        .addTitleText("68\u00B0"))
-                .build();
+                        .addTitleText("68\u00B0"));
+        return b.addGrid(gb).build();
     }
 
     private Slice createGallery(Uri sliceUri) {
-        GridBuilder b = new GridBuilder(getContext(), sliceUri);
-        return b.addCell(new GridBuilder.CellBuilder(b)
+        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        GridBuilder gb = new GridBuilder(b);
+        return gb.addCell(new GridBuilder.CellBuilder(gb)
                     .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_1)))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                     .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_2)))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                     .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_3)))
-                .addCell(new GridBuilder.CellBuilder(b)
+                .addCell(new GridBuilder.CellBuilder(gb)
                     .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_4)))
                 .build();
     }
@@ -190,12 +197,15 @@ public class SliceCreator {
                 .addRow(new ListBuilder.RowBuilder(lb)
                     .setTitle("Create new note")
                     .setSubtitle("with this note taking app")
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_create),
-                            getBroadcastIntent(ACTION_TOAST, "create note"))
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_voice),
-                            getBroadcastIntent(ACTION_TOAST, "voice note"))
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_camera),
-                            getIntent("android.media.action.IMAGE_CAPTURE")))
+                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_create),
+                            "Create note"))
+                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "voice note"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_voice),
+                            "Voice note"))
+                    .addEndItem(new SliceAction(getIntent("android.media.action.IMAGE_CAPTURE"),
+                            Icon.createWithResource(getContext(), R.drawable.ic_camera),
+                            "Photo note")))
                 .build();
     }
 
@@ -207,22 +217,28 @@ public class SliceCreator {
         homeSubtitle.setSpan(colorSpan, 20, homeSubtitle.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
         SpannableString workSubtitle = new SpannableString("44 miles | 1 hour 45 min | $31.41");
         workSubtitle.setSpan(colorSpan, 27, workSubtitle.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        ListBuilder b = new ListBuilder(getContext(), sliceUri);
-        return b.setColor(0xff0F9D58)
-            .addRow(new ListBuilder.RowBuilder(b)
-                    .setContentIntent(getBroadcastIntent(ACTION_TOAST, "work"))
-                    .setTitle("Work")
-                    .setSubtitle(workSubtitle)
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_work),
-                        getBroadcastIntent(ACTION_TOAST, "work")))
-            .addRow(new ListBuilder.RowBuilder(b)
-                    .setContentIntent(getBroadcastIntent(ACTION_TOAST, "home"))
-                    .setTitle("Home")
-                    .setSubtitle(homeSubtitle)
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_home),
-                        getBroadcastIntent(ACTION_TOAST, "home")))
-            .build();
+        SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "get ride"),
+                Icon.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri);
+        return lb.setColor(0xff0F9D58)
+                .setHeader(new ListBuilder.HeaderBuilder(lb)
+                        .setTitle("Get ride")
+                        .setSubtitle(headerSubtitle)
+                        .setSummarySubtitle("Ride to work in 12 min | Ride home in 1 hour 45 min")
+                        .setPrimaryAction(primaryAction))
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setTitle("Work")
+                        .setSubtitle(workSubtitle)
+                        .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "work"),
+                                Icon.createWithResource(getContext(), R.drawable.ic_work),
+                                "Get ride work")))
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setTitle("Home")
+                        .setSubtitle(homeSubtitle)
+                        .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "home"),
+                                Icon.createWithResource(getContext(), R.drawable.ic_home),
+                                "Get ride home")))
+                .build();
     }
 
     private Slice createCustomToggleSlice(Uri sliceUri) {
@@ -231,9 +247,9 @@ public class SliceCreator {
                 .addRow(new ListBuilder.RowBuilder(b)
                     .setTitle("Custom toggle")
                     .setSubtitle("It can support two states")
-                    .addToggle(getBroadcastIntent(ACTION_TOAST, "star toggled"),
-                            true /* isChecked */,
-                            Icon.createWithResource(getContext(), R.drawable.toggle_star)))
+                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "star toggled"),
+                            Icon.createWithResource(getContext(), R.drawable.toggle_star),
+                            "Toggle star", true /* isChecked */)))
                 .build();
     }
 
@@ -243,12 +259,14 @@ public class SliceCreator {
                 .addRow(new ListBuilder.RowBuilder(lb)
                         .setTitle("2 toggles")
                         .setSubtitle("each supports two states")
-                        .addToggle(getBroadcastIntent(ACTION_TOAST, "first star toggled"),
-                                true /* isChecked */,
-                                Icon.createWithResource(getContext(), R.drawable.toggle_star))
-                        .addToggle(getBroadcastIntent(ACTION_TOAST, "second star toggled"),
-                                false /* isChecked */,
-                                Icon.createWithResource(getContext(), R.drawable.toggle_star)))
+                        .addEndItem(new SliceAction(
+                                getBroadcastIntent(ACTION_TOAST, "first star toggled"),
+                                Icon.createWithResource(getContext(), R.drawable.toggle_star),
+                                "Toggle star", true /* isChecked */))
+                        .addEndItem(new SliceAction(
+                                getBroadcastIntent(ACTION_TOAST, "second star toggled"),
+                                Icon.createWithResource(getContext(), R.drawable.toggle_star),
+                                "Toggle star", false /* isChecked */)))
                 .build();
     }
 
@@ -275,13 +293,16 @@ public class SliceCreator {
         }
         boolean finalWifiEnabled = wifiEnabled;
         ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        SliceAction primaryAction = new SliceAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
+                Icon.createWithResource(getContext(), R.drawable.ic_wifi), "Wi-fi Settings");
         return b.setColor(0xff4285f4)
                 .addRow(new ListBuilder.RowBuilder(b)
                     .setTitle("Wi-fi")
                     .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_wifi))
                     .setSubtitle(state)
-                    .addToggle(getBroadcastIntent(ACTION_WIFI_CHANGED, null), finalWifiEnabled)
-                    .setContentIntent(getIntent(Settings.ACTION_WIFI_SETTINGS)))
+                        .addEndItem(new SliceAction(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
+                                "Toggle wifi", finalWifiEnabled))
+                    .setPrimaryAction(primaryAction))
             .build();
     }
 

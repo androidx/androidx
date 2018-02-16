@@ -24,6 +24,8 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
+import androidx.app.slice.builders.SliceAction;
+
 /**
  * @hide
  */
@@ -48,10 +50,10 @@ public interface ListBuilder {
     void setHeader(TemplateBuilderImpl impl);
 
     /**
-     * Sets the group of actions for this template. These actions may be shown on the template in
-     * large or small formats.
+     * Adds an action to this template. Actions added with this method are grouped together and
+     * may be shown on the template in large or small formats.
      */
-    void setActions(TemplateBuilderImpl impl);
+    void addAction(SliceAction action);
 
     /**
      * Add an input range row to the list builder.
@@ -110,19 +112,9 @@ public interface ListBuilder {
      */
     TemplateBuilderImpl createHeaderBuilder(Uri uri);
     /**
-     * Create a builder that implements {@link ActionBuilder}.
-     */
-    TemplateBuilderImpl createActionBuilder();
-    /**
-     * Create a builder that implements {@link ActionBuilder}.
-     */
-    TemplateBuilderImpl createActionBuilder(Uri uri);
-
-    /**
      * Create a builder that implements {@link InputRangeBuilder}.
      */
     TemplateBuilderImpl createInputRangeBuilder();
-
     /**
      * Create a builder that implements {@link RangeBuilder}.
      */
@@ -196,7 +188,7 @@ public interface ListBuilder {
          * Sets the title item to be a tappable icon. There can only be one title item, this will
          * replace any other title items that may have been set.
          */
-        void setTitleItem(Icon icon, PendingIntent action);
+        void setTitleItem(SliceAction action);
 
         /**
          * Sets the title item to be a tappable icon. There can only be one title item, this will
@@ -206,12 +198,12 @@ public interface ListBuilder {
          * to load this content in the background, in this case the template displays a placeholder
          * until updated.
          */
-        void setTitleItem(Icon icon, PendingIntent action, boolean isLoading);
+        void setTitleItem(SliceAction action, boolean isLoading);
 
         /**
          * Sets the action to be invoked if the user taps on the main content of the template.
          */
-        void setContentIntent(PendingIntent action);
+        void setPrimaryAction(SliceAction action);
 
         /**
          * Sets the title text.
@@ -263,7 +255,7 @@ public interface ListBuilder {
         /**
          * Adds a tappable icon to be displayed at the end of the row.
          */
-        void addEndItem(Icon icon, PendingIntent action);
+        void addEndItem(SliceAction action);
 
         /**
          * Adds a tappable icon to be displayed at the end of the row.
@@ -272,23 +264,7 @@ public interface ListBuilder {
          * to load this content in the background, in this case the template displays a placeholder
          * until updated.
          */
-        void addEndItem(Icon icon, PendingIntent action, boolean isLoading);
-
-        /**
-         * Adds a toggle action to the template with custom icons to represent checked and unchecked
-         * state.
-         */
-        void addToggle(PendingIntent action, boolean isChecked, Icon icon);
-
-        /**
-         * Adds a toggle action to the template with custom icons to represent checked and unchecked
-         * state.
-         * <p>
-         * When set to true, the parameter {@code isLoading} indicates that the app is doing work
-         * to load this content in the background, in this case the template displays a placeholder
-         * until updated.
-         */
-        void addToggle(PendingIntent action, boolean isChecked, Icon icon, boolean isLoading);
+        void addEndItem(SliceAction action, boolean isLoading);
     }
 
 
@@ -317,26 +293,9 @@ public interface ListBuilder {
 
         /**
          * Sets the pending intent to activate when the header is activated.
+         * @param action
          */
-        void setContentIntent(PendingIntent intent);
-    }
-
-    /**
-     * Builder to construct a group of actions.
-     */
-    public interface ActionBuilder {
-
-        /**
-         * Adds an action to this builder.
-         *
-         * @param action the pending intent to send when the action is activated.
-         * @param actionIcon the icon to display for this action.
-         * @param contentDescription the content description to use for accessibility.
-         * @param priority what priority to display this action in, with the lowest priority having
-         *                 the highest ranking.
-         */
-        void addAction(PendingIntent action, Icon actionIcon, CharSequence contentDescription,
-                int priority);
+        void setPrimaryAction(SliceAction action);
     }
 }
 

@@ -221,14 +221,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     }
 
     private void addSlice(Intent intent) {
-        SliceView v = TEST_THEMES
-                ? (SliceView) getLayoutInflater().inflate(R.layout.slice_view, mContainer, false)
-                : new SliceView(getApplicationContext());
-        v.setOnSliceActionListener(this);
+        SliceView v = createSliceView();
         v.setTag(intent);
-        if (mSliceLiveData != null) {
-            mSliceLiveData.removeObservers(this);
-        }
         mContainer.removeAllViews();
         mContainer.addView(v);
         mSliceLiveData = SliceLiveData.fromIntent(this, intent);
@@ -238,15 +232,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
 
     private void addSlice(Uri uri) {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
-            SliceView v = TEST_THEMES
-                    ? (SliceView) getLayoutInflater().inflate(
-                            R.layout.slice_view, mContainer, false)
-                    : new SliceView(getApplicationContext());
-            v.setOnSliceActionListener(this);
+            SliceView v = createSliceView();
             v.setTag(uri);
-            if (mSliceLiveData != null) {
-                mSliceLiveData.removeObservers(this);
-            }
             mContainer.removeAllViews();
             mContainer.addView(v);
             mSliceLiveData = SliceLiveData.fromUri(this, uri);
@@ -291,5 +278,17 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     public void onSliceAction(@NonNull EventInfo info, @NonNull SliceItem item) {
         Log.w(TAG, "onSliceAction, info: " + info);
         Log.w(TAG, "onSliceAction, sliceItem: \n" + item);
+    }
+
+    private SliceView createSliceView() {
+        SliceView v = TEST_THEMES
+                ? (SliceView) getLayoutInflater().inflate(
+                R.layout.slice_view, mContainer, false)
+                : new SliceView(getApplicationContext());
+        v.setOnSliceActionListener(this);
+        if (mSliceLiveData != null) {
+            mSliceLiveData.removeObservers(this);
+        }
+        return v;
     }
 }

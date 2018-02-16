@@ -25,6 +25,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import java.util.List;
+
 import androidx.app.slice.Slice;
 import androidx.app.slice.SliceItem;
 import androidx.app.slice.view.R;
@@ -133,6 +135,13 @@ public abstract class SliceChildView extends FrameLayout {
      */
     public void setSliceItem(SliceItem slice, boolean isHeader, int rowIndex,
             SliceView.OnSliceActionListener observer) {
+        // Do nothing
+    }
+
+    /**
+     * Sets the slice actions for this view.
+     */
+    public void setSliceActions(List<SliceItem> actions) {
         // Do nothing
     }
 }

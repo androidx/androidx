@@ -19,7 +19,6 @@ package androidx.app.slice.builders;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
@@ -30,10 +29,6 @@ import android.support.annotation.RestrictTo;
 
 import java.util.function.Consumer;
 
-import androidx.app.slice.Slice;
-import androidx.app.slice.SliceSpecs;
-import androidx.app.slice.builders.impl.GridBuilderBasicImpl;
-import androidx.app.slice.builders.impl.GridBuilderListV1Impl;
 import androidx.app.slice.builders.impl.TemplateBuilderImpl;
 
 
@@ -51,38 +46,10 @@ public class GridBuilder extends TemplateSliceBuilder {
 
     /**
      * Create a builder which will construct a slice displayed in a grid format.
-     * @param uri Uri to tag for this slice.
-     */
-    public GridBuilder(@NonNull Context context, @NonNull Uri uri) {
-        super(new Slice.Builder(uri), context);
-    }
-
-    /**
-     * Create a builder which will construct a slice displayed in a grid format.
      * @param parent The builder constructing the parent slice.
      */
     public GridBuilder(@NonNull ListBuilder parent) {
         super(parent.getImpl().createGridBuilder());
-    }
-
-    @Override
-    @NonNull
-    public Slice build() {
-        return mImpl.buildIndividual();
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    @Override
-    protected TemplateBuilderImpl selectImpl() {
-        if (checkCompatible(SliceSpecs.GRID)) {
-            return new GridBuilderListV1Impl(getBuilder(), SliceSpecs.GRID);
-        } else if (checkCompatible(SliceSpecs.BASIC)) {
-            return new GridBuilderBasicImpl(getBuilder(), SliceSpecs.GRID);
-        }
-        return null;
     }
 
     @Override
@@ -179,6 +146,14 @@ public class GridBuilder extends TemplateSliceBuilder {
         return this;
     }
 
+    /**
+     * Sets the intent to send when the slice is activated.
+     */
+    @NonNull
+    public GridBuilder setPrimaryAction(@NonNull SliceAction action) {
+        mImpl.setPrimaryAction(action);
+        return this;
+    }
 
     /**
      * @hide
