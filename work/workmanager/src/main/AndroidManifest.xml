@@ -67,5 +67,14 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>
         </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+            android:enabled="@bool/enable_system_alarm_service_default">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

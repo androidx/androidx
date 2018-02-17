@@ -31,10 +31,12 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
+import androidx.work.impl.Scheduler;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.IdGenerator;
@@ -54,6 +56,7 @@ public class CommandHandler implements ExecutionListener {
     static final String ACTION_DELAY_MET = "ACTION_DELAY_MET";
     static final String ACTION_STOP_WORK = "ACTION_STOP_WORK";
     static final String ACTION_CONSTRAINTS_CHANGED = "ACTION_CONSTRAINTS_CHANGED";
+    static final String ACTION_RESCHEDULE = "ACTION_RESCHEDULE";
 
     // keys
     private static final String KEY_WORKSPEC_ID = "KEY_WORKSPEC_ID";
@@ -86,6 +89,12 @@ public class CommandHandler implements ExecutionListener {
     static Intent createConstraintsChangedIntent(@NonNull Context context) {
         Intent intent = new Intent(context, SystemAlarmService.class);
         intent.setAction(ACTION_CONSTRAINTS_CHANGED);
+        return intent;
+    }
+
+    static Intent createRescheduleIntent(@NonNull Context context) {
+        Intent intent = new Intent(context, SystemAlarmService.class);
+        intent.setAction(ACTION_RESCHEDULE);
         return intent;
     }
 
@@ -148,6 +157,8 @@ public class CommandHandler implements ExecutionListener {
 
         if (ACTION_CONSTRAINTS_CHANGED.equals(action)) {
             handleConstraintsChanged(intent, startId, dispatcher);
+        } else if (ACTION_RESCHEDULE.equals(action)) {
+            handleReschedule(intent, startId, dispatcher);
         } else {
             Bundle extras = intent.getExtras();
             if (!hasKeys(extras, KEY_WORKSPEC_ID)) {
@@ -254,6 +265,24 @@ public class CommandHandler implements ExecutionListener {
         ConstraintsCommandHandler changedCommandHandler =
                 new ConstraintsCommandHandler(mContext, startId, dispatcher);
         changedCommandHandler.handleConstraintsChanged();
+    }
+
+    private void handleReschedule(
+            @NonNull Intent intent,
+            int startId,
+            @NonNull SystemAlarmDispatcher dispatcher) {
+
+        Logger.debug(TAG, "Handling reschedule %s, %s", intent, startId);
+        // Get workspec's that are eligible irrespective of their start time.
+        List<WorkSpec> eligibleWorkSpecs = dispatcher.getWorkManager().getWorkDatabase()
+                .workSpecDao()
+                .getSystemAlarmEligibleWorkSpecs(Long.MAX_VALUE);
+
+        // TODO (rahulrav@) Cancel alarms when applicable
+        // Delegate to the WorkManager's schedulers.
+        for (Scheduler scheduler: dispatcher.getWorkManager().getSchedulers()) {
+            scheduler.schedule(eligibleWorkSpecs.toArray(new WorkSpec[0]));
+        }
     }
 
     private void setExactAlarm(@NonNull Intent intent, long triggerAtMillis) {

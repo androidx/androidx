@@ -37,12 +37,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -337,7 +340,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         WorkSpec workSpec = workSpecDao.getWorkSpec(work.getId());
 
-
         assertThat(mLatch.getCount(), is(0L));
         // Assert order of events
         assertThat(intentActions,
@@ -346,6 +348,62 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                         CommandHandler.ACTION_CONSTRAINTS_CHANGED));
 
         assertThat(workSpec.getState(), is(State.SUCCEEDED));
+    }
+
+    @Test
+    public void testReschedule() throws InterruptedException {
+        // Use a mocked scheduler in this test.
+        Scheduler scheduler = mock(Scheduler.class);
+        when(mWorkManager.getSchedulers()).thenReturn(Collections.singletonList(scheduler));
+
+        Work failed = new Work.Builder(TestWorker.class)
+                .withPeriodStartTime(System.currentTimeMillis())
+                .withInitialState(State.FAILED)
+                .build();
+
+        Work succeeded = new Work.Builder(TestWorker.class)
+                .withPeriodStartTime(System.currentTimeMillis())
+                .withInitialState(State.SUCCEEDED)
+                .build();
+
+        Work noConstraints = new Work.Builder(TestWorker.class)
+                .withPeriodStartTime(System.currentTimeMillis())
+                .build();
+
+        Work workWithConstraints = new Work.Builder(TestWorker.class)
+                .withPeriodStartTime(System.currentTimeMillis())
+                .withConstraints(new Constraints.Builder()
+                        .setRequiresCharging(true)
+                        .build())
+                .build();
+
+        insertWork(failed);
+        insertWork(succeeded);
+        insertWork(noConstraints);
+        insertWork(workWithConstraints);
+
+        Intent reschedule = CommandHandler.createRescheduleIntent(mContext);
+        mSpyDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, reschedule, START_ID));
+
+        mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
+        assertThat(mLatch.getCount(), is(0L));
+
+        ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
+        verify(scheduler, times(1))
+                .schedule(captor.capture());
+
+        Set<String> capturedIds = new HashSet<>();
+        List<WorkSpec> workSpecs = captor.getAllValues();
+        for (WorkSpec workSpec : workSpecs) {
+            capturedIds.add(workSpec.getId());
+        }
+
+        assertThat(capturedIds.size(), is(2));
+        assertThat(capturedIds.contains(noConstraints.getId()), is(true));
+        assertThat(capturedIds.contains(workWithConstraints.getId()), is(true));
+        assertThat(capturedIds.contains(failed.getId()), is(false));
+        assertThat(capturedIds.contains(succeeded.getId()), is(false));
     }
 
     private static List<String> intentActionsFor(@NonNull List<Intent> intents) {
