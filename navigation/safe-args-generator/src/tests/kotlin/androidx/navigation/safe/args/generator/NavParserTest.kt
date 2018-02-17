@@ -79,6 +79,10 @@ class NavParserTest {
         assertThat(error, instanceOf(IllegalArgumentException::class.java))
         assertThat(parseIntValue("10"), `is`(IntValue("10")))
         assertThat(parseIntValue("-10"), `is`(IntValue("-10")))
+        assertThat(parseIntValue("0xA"), `is`(IntValue("0xA")))
+        assertThat(parseIntValue("0xFFFFFFFF"), `is`(IntValue("0xFFFFFFFF")))
+        assertThat(errorOf({ parseIntValue("0x1FFFFFFFF") }),
+                instanceOf(IllegalArgumentException::class.java))
     }
 
     private fun errorOf(f: () -> Unit, message: String = ""): Exception {
