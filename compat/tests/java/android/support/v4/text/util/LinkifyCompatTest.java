@@ -832,7 +832,6 @@ public class LinkifyCompatTest {
         verifyAddLinksFails(msg, url, Linkify.MAP_ADDRESSES);
     }
 
-
     private static void verifyAddLinksSucceeds(String msg, String string, int type) {
         String str = "start " + string + " end";
         Spannable spannable = new SpannableString(str);
