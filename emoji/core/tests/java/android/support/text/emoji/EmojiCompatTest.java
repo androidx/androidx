@@ -552,7 +552,7 @@ public class EmojiCompatTest {
         EmojiCompat.reset(config);
 
         final String string = new TestString(EMOJI_SINGLE_CODEPOINT).append(
-                EMOJI_FLAG).toString();
+                EMOJI_SINGLE_CODEPOINT).toString();
         CharSequence processed = EmojiCompat.get().process(string, 0, string.length(),
                 Integer.MAX_VALUE, EmojiCompat.REPLACE_STRATEGY_ALL);
 
