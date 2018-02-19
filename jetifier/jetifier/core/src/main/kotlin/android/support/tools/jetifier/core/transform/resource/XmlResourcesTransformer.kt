@@ -89,7 +89,7 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         }
 
         if (changesDone) {
-            file.data = sb.toString().toByteArray(charset)
+            file.setNewData(sb.toString().toByteArray(charset))
         }
     }
 

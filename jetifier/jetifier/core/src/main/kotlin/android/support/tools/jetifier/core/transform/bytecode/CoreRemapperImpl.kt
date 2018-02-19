@@ -28,7 +28,10 @@ import java.nio.file.Path
 /**
  * Applies mappings defined in [TypesMap] during the remapping process.
  */
-class CoreRemapperImpl(private val context: TransformationContext) : CoreRemapper {
+class CoreRemapperImpl(
+    private val context: TransformationContext,
+    visitor: ClassVisitor
+) : CoreRemapper {
 
     companion object {
         const val TAG = "CoreRemapperImpl"
@@ -36,9 +39,10 @@ class CoreRemapperImpl(private val context: TransformationContext) : CoreRemappe
 
     private val typesMap = context.config.typesMap
 
-    fun createClassRemapper(visitor: ClassVisitor): ClassRemapper {
-        return ClassRemapper(visitor, CustomRemapper(this))
-    }
+    var changesDone = false
+        private set
+
+    val classRemapper = ClassRemapper(visitor, CustomRemapper(this))
 
     override fun rewriteType(type: JavaType): JavaType {
         if (!context.isEligibleForRewrite(type)) {
@@ -47,6 +51,7 @@ class CoreRemapperImpl(private val context: TransformationContext) : CoreRemappe
 
         val result = typesMap.types[type]
         if (result != null) {
+            changesDone = changesDone || result != type
             Log.i(TAG, "  map: %s -> %s", type, result)
             return result
         }
@@ -64,6 +69,7 @@ class CoreRemapperImpl(private val context: TransformationContext) : CoreRemappe
 
         val result = typesMap.types[type]
         if (result != null) {
+            changesDone = changesDone || result != type
             Log.i(TAG, "  map string: %s -> %s", type, result)
             return result.toDotNotation()
         }
@@ -85,6 +91,7 @@ class CoreRemapperImpl(private val context: TransformationContext) : CoreRemappe
 
         val result = rewriteType(type)
         if (result != type) {
+            changesDone = true
             return path.fileSystem.getPath(result.fullName + ".class")
         }
 

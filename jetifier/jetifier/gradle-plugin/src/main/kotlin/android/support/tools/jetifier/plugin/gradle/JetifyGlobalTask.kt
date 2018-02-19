@@ -48,7 +48,7 @@ open class JetifyGlobalTask : DefaultTask() {
 
         const val OUTPUT_DIR_APPENDIX = "jetifier"
 
-        fun resolveTask(project: Project) : JetifyGlobalTask {
+        fun resolveTask(project: Project): JetifyGlobalTask {
             val task = project.tasks.findByName(TASK_NAME) as? JetifyGlobalTask
             if (task != null) {
                 return task
@@ -60,7 +60,6 @@ open class JetifyGlobalTask : DefaultTask() {
     private var configurationsToProcess = mutableListOf<Configuration>()
 
     private val outputDir = File(project.buildDir, OUTPUT_DIR_APPENDIX)
-
 
     override fun getGroup() = GROUP_ID
 
@@ -93,7 +92,7 @@ open class JetifyGlobalTask : DefaultTask() {
                 if (fileDep != null) {
                     fileDep.files.forEach {
                         dependenciesMap
-                            .getOrPut(it, { mutableSetOf<Dependency>() } )
+                            .getOrPut(it, { mutableSetOf<Dependency>() })
                             .add(fileDep)
                     }
                 } else {
@@ -108,7 +107,7 @@ open class JetifyGlobalTask : DefaultTask() {
                     detached.dependencies.add(dep)
                     detached.resolvedConfiguration.resolvedArtifacts.forEach {
                         dependenciesMap
-                            .getOrPut(it.file, { mutableSetOf<Dependency>() } )
+                            .getOrPut(it.file, { mutableSetOf<Dependency>() })
                             .add(dep)
                     }
                 }
@@ -116,21 +115,27 @@ open class JetifyGlobalTask : DefaultTask() {
         }
 
         // Process the files using Jetifier
-        val result = TasksCommon.processFiles(config, dependenciesMap.keys, project.logger, outputDir)
+        val result = TasksCommon.processFiles(config, dependenciesMap.keys, project.logger,
+            outputDir)
 
-        // Apply changes
         configurationsToProcess.forEach { conf ->
-            // Apply that on our set
-            result.filesToRemove.forEach { file ->
-                dependenciesMap[file]!!.forEach {
-                    conf.dependencies.remove(it)
+            // Remove files that we don't need anymore
+            dependenciesMap.keys
+                .toTypedArray()
+                .forEach { file ->
+                    if (!result.contains(file)) {
+                        dependenciesMap[file]!!.forEach {
+                            conf.dependencies.remove(it)
+                        }
+                    }
                 }
-            }
 
-            result.filesToAdd.forEach {
-                project.dependencies.add(conf.name, project.files(it))
+            // Add new generated files
+            result.forEach { file ->
+                if (!dependenciesMap.contains(file)) {
+                    project.dependencies.add(conf.name, project.files(file))
+                }
             }
         }
     }
-
 }

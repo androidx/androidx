@@ -23,12 +23,18 @@ import java.nio.file.Path
 /**
  * Represents a file in the archive that is not an archive.
  */
-class ArchiveFile(relativePath: Path, var data: ByteArray) : ArchiveItem {
+class ArchiveFile(relativePath: Path, data: ByteArray) : ArchiveItem {
 
     override var relativePath = relativePath
         private set
 
     override var fileName: String = relativePath.fileName.toString()
+        private set
+
+    override var wasChanged: Boolean = false
+        private set
+
+    var data: ByteArray = data
         private set
 
     override fun accept(visitor: ArchiveItemVisitor) {
@@ -41,7 +47,16 @@ class ArchiveFile(relativePath: Path, var data: ByteArray) : ArchiveItem {
     }
 
     fun updateRelativePath(newRelativePath: Path) {
-        this.relativePath = newRelativePath
-        this.fileName = relativePath.fileName.toString()
+        if (relativePath != newRelativePath) {
+            wasChanged = true
+        }
+
+        relativePath = newRelativePath
+        fileName = relativePath.fileName.toString()
+    }
+
+    fun setNewData(newData: ByteArray) {
+        data = newData
+        wasChanged = true
     }
 }

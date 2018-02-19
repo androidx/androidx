@@ -17,7 +17,6 @@
 package android.support.tools.jetifier.plugin.gradle
 
 import android.support.tools.jetifier.core.Processor
-import android.support.tools.jetifier.core.TransformationResult
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.utils.Log
 import org.gradle.api.logging.LogLevel
@@ -31,10 +30,12 @@ class TasksCommon {
 
         var configFilePath: Path? = null
 
-        fun processFiles(config: Config,
-                         filesToProcess: Set<File>,
-                         logger: Logger,
-                         outputDir: File): TransformationResult {
+        fun processFiles(
+            config: Config,
+            filesToProcess: Set<File>,
+            logger: Logger,
+            outputDir: File
+        ): Set<File> {
             outputDir.mkdirs()
 
             logger.log(LogLevel.DEBUG, "Jetifier will now process the following files:")
@@ -46,7 +47,11 @@ class TasksCommon {
             Log.logConsumer = JetifierLoggerAdapter(logger)
 
             val processor = Processor.createProcessor(config)
-            return processor.transform(filesToProcess, outputDir.toPath(), true)
+            return processor.transform(
+                filesToProcess,
+                outputDir.toPath(),
+                outputIsDir = true,
+                copyUnmodifiedLibsAlso = false)
         }
 
         fun shouldSkipArtifact(artifactId: String, groupId: String?, config: Config): Boolean {

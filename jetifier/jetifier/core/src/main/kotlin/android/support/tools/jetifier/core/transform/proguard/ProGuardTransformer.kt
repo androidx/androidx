@@ -39,9 +39,14 @@ class ProGuardTransformer internal constructor(context: TransformationContext) :
     }
 
     override fun runTransform(file: ArchiveFile) {
-        val sb = StringBuilder(file.data.toString(StandardCharsets.UTF_8))
-        val result = replacer.applyReplacers(sb.toString())
-        file.data = result.toByteArray()
+        val content = StringBuilder(file.data.toString(StandardCharsets.UTF_8)).toString()
+        val result = replacer.applyReplacers(content)
+
+        if (result == content) {
+            return
+        }
+
+        file.setNewData(result.toByteArray())
     }
 }
 
