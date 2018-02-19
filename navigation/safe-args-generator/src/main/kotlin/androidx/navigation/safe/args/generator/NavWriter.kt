@@ -72,7 +72,7 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
         val bundleName = "__outBundle"
         addStatement("$T $N = new $T()", BUNDLE_CLASSNAME, bundleName, BUNDLE_CLASSNAME)
         args.forEach { (argName, type) ->
-            addStatement("$N.$N($S, $N)", bundleName, type.bundlePutMethod(), argName, argName)
+            addStatement("$N.$N($S, this.$N)", bundleName, type.bundlePutMethod(), argName, argName)
         }
         addStatement("return $N", bundleName)
     }.build()
@@ -179,6 +179,7 @@ internal fun generateArgsJavaFile(destination: Destination): JavaFile {
             .build()
 
     val buildMethod = MethodSpec.methodBuilder("build")
+            .addModifiers(Modifier.PUBLIC)
             .returns(className)
             .addStatement("$T result = new $T()", className, className)
             .addCode(specs.copyProperties("result", "this"))

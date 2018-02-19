@@ -56,10 +56,10 @@ public static class Next implements NavDirections {
 
     public Bundle getArguments() {
         Bundle __outBundle = new Bundle();
-        __outBundle.putString("main", main);
-        __outBundle.putInt("mainInt", mainInt);
-        __outBundle.putString("optional", optional);
-        __outBundle.putInt("optionalInt", optionalInt);
+        __outBundle.putString("main", this.main);
+        __outBundle.putInt("mainInt", this.mainInt);
+        __outBundle.putString("optional", this.optional);
+        __outBundle.putInt("optionalInt", this.optionalInt);
         return __outBundle;
     }
 
