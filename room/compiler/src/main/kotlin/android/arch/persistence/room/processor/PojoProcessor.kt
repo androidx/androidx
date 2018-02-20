@@ -43,6 +43,7 @@ import android.arch.persistence.room.vo.Field
 import android.arch.persistence.room.vo.FieldGetter
 import android.arch.persistence.room.vo.FieldSetter
 import android.arch.persistence.room.vo.Pojo
+import android.arch.persistence.room.vo.PojoMethod
 import android.arch.persistence.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -72,11 +73,12 @@ import javax.lang.model.util.ElementFilter
 /**
  * Processes any class as if it is a Pojo.
  */
-class PojoProcessor(baseContext: Context,
-                    val element: TypeElement,
-                    val bindingScope: FieldProcessor.BindingScope,
-                    val parent: EmbeddedField?,
-                    val referenceStack: LinkedHashSet<Name> = LinkedHashSet())
+class PojoProcessor(
+        baseContext: Context,
+        val element: TypeElement,
+        val bindingScope: FieldProcessor.BindingScope,
+        val parent: EmbeddedField?,
+        val referenceStack: LinkedHashSet<Name> = LinkedHashSet())
     : KotlinMetadataUtils {
     val context = baseContext.fork(element)
 
@@ -184,13 +186,20 @@ class PojoProcessor(baseContext: Context,
                             && !it.hasAnnotation(Ignore::class)
                 }
                 .map { MoreElements.asExecutable(it) }
+                .map {
+                    PojoMethodProcessor(
+                            context = context,
+                            element = it,
+                            owner = declaredType
+                    ).process()
+                }
 
         val getterCandidates = methods.filter {
-            it.parameters.size == 0 && it.returnType.kind != TypeKind.VOID
+            it.element.parameters.size == 0 && it.resolvedType.returnType.kind != TypeKind.VOID
         }
 
         val setterCandidates = methods.filter {
-            it.parameters.size == 1 && it.returnType.kind == TypeKind.VOID
+            it.element.parameters.size == 1 && it.resolvedType.returnType.kind == TypeKind.VOID
         }
 
         // don't try to find a constructor for binding to statement.
@@ -585,18 +594,18 @@ class PojoProcessor(baseContext: Context,
         return referenceRecursionList.joinToString(" -> ")
     }
 
-    private fun assignGetters(fields: List<Field>, getterCandidates: List<ExecutableElement>) {
+    private fun assignGetters(fields: List<Field>, getterCandidates: List<PojoMethod>) {
         fields.forEach { field ->
             assignGetter(field, getterCandidates)
         }
     }
 
-    private fun assignGetter(field: Field, getterCandidates: List<ExecutableElement>) {
+    private fun assignGetter(field: Field, getterCandidates: List<PojoMethod>) {
         val success = chooseAssignment(field = field,
                 candidates = getterCandidates,
                 nameVariations = field.getterNameWithVariations,
                 getType = { method ->
-                    method.returnType
+                    method.resolvedType.returnType
                 },
                 assignFromField = {
                     field.getter = FieldGetter(
@@ -606,8 +615,8 @@ class PojoProcessor(baseContext: Context,
                 },
                 assignFromMethod = { match ->
                     field.getter = FieldGetter(
-                            name = match.simpleName.toString(),
-                            type = match.returnType,
+                            name = match.name,
+                            type = match.resolvedType.returnType,
                             callType = CallType.METHOD)
                 },
                 reportAmbiguity = { matching ->
@@ -617,15 +626,19 @@ class PojoProcessor(baseContext: Context,
         context.checker.check(success, field.element, CANNOT_FIND_GETTER_FOR_FIELD)
     }
 
-    private fun assignSetters(fields: List<Field>, setterCandidates: List<ExecutableElement>,
-                              constructor: Constructor?) {
+    private fun assignSetters(
+            fields: List<Field>,
+            setterCandidates: List<PojoMethod>,
+            constructor: Constructor?) {
         fields.forEach { field ->
             assignSetter(field, setterCandidates, constructor)
         }
     }
 
-    private fun assignSetter(field: Field, setterCandidates: List<ExecutableElement>,
-                             constructor: Constructor?) {
+    private fun assignSetter(
+            field: Field,
+            setterCandidates: List<PojoMethod>,
+            constructor: Constructor?) {
         if (constructor != null && constructor.hasField(field)) {
             field.setter = FieldSetter(field.name, field.type, CallType.CONSTRUCTOR)
             return
@@ -634,7 +647,7 @@ class PojoProcessor(baseContext: Context,
                 candidates = setterCandidates,
                 nameVariations = field.setterNameWithVariations,
                 getType = { method ->
-                    method.parameters.first().asType()
+                    method.resolvedType.parameterTypes.first()
                 },
                 assignFromField = {
                     field.setter = FieldSetter(
@@ -643,9 +656,9 @@ class PojoProcessor(baseContext: Context,
                             callType = CallType.FIELD)
                 },
                 assignFromMethod = { match ->
-                    val paramType = match.parameters.first().asType()
+                    val paramType = match.resolvedType.parameterTypes.first()
                     field.setter = FieldSetter(
-                            name = match.simpleName.toString(),
+                            name = match.name,
                             type = paramType,
                             callType = CallType.METHOD)
                 },
@@ -662,12 +675,15 @@ class PojoProcessor(baseContext: Context,
      * At worst case, it sets to the field as if it is accessible so that the rest of the
      * compilation can continue.
      */
-    private fun chooseAssignment(field: Field, candidates: List<ExecutableElement>,
-                                 nameVariations: List<String>,
-                                 getType: (ExecutableElement) -> TypeMirror,
-                                 assignFromField: () -> Unit,
-                                 assignFromMethod: (ExecutableElement) -> Unit,
-                                 reportAmbiguity: (List<String>) -> Unit): Boolean {
+    private fun chooseAssignment(
+            field: Field,
+            candidates: List<PojoMethod>,
+            nameVariations: List<String>,
+            getType: (PojoMethod) -> TypeMirror,
+            assignFromField: () -> Unit,
+            assignFromMethod: (PojoMethod) -> Unit,
+            reportAmbiguity: (List<String>) -> Unit
+    ): Boolean {
         if (field.element.hasAnyOf(PUBLIC)) {
             assignFromField()
             return true
@@ -677,12 +693,12 @@ class PojoProcessor(baseContext: Context,
         val matching = candidates
                 .filter {
                     // b/69164099
-                    types.isAssignableWithoutVariance(getType(it), field.element.asType())
-                            && (field.nameWithVariations.contains(it.simpleName.toString())
-                            || nameVariations.contains(it.simpleName.toString()))
+                    types.isAssignableWithoutVariance(getType(it), field.type)
+                            && (field.nameWithVariations.contains(it.name)
+                            || nameVariations.contains(it.name))
                 }
                 .groupBy {
-                    if (it.hasAnyOf(PUBLIC)) PUBLIC else PROTECTED
+                    if (it.element.hasAnyOf(PUBLIC)) PUBLIC else PROTECTED
                 }
         if (matching.isEmpty()) {
             // we always assign to avoid NPEs in the rest of the compilation.
@@ -691,8 +707,8 @@ class PojoProcessor(baseContext: Context,
             // if not, compiler will tell, we didn't have any better alternative anyways.
             return !field.element.hasAnyOf(PRIVATE)
         }
-        val match = verifyAndChooseOneFrom(matching[PUBLIC], reportAmbiguity) ?:
-                verifyAndChooseOneFrom(matching[PROTECTED], reportAmbiguity)
+        val match = verifyAndChooseOneFrom(matching[PUBLIC], reportAmbiguity)
+                ?: verifyAndChooseOneFrom(matching[PROTECTED], reportAmbiguity)
         if (match == null) {
             assignFromField()
             return false
@@ -703,14 +719,14 @@ class PojoProcessor(baseContext: Context,
     }
 
     private fun verifyAndChooseOneFrom(
-            candidates: List<ExecutableElement>?,
+            candidates: List<PojoMethod>?,
             reportAmbiguity: (List<String>) -> Unit
-    ): ExecutableElement? {
+    ): PojoMethod? {
         if (candidates == null) {
             return null
         }
         if (candidates.size > 1) {
-            reportAmbiguity(candidates.map { it.simpleName.toString() })
+            reportAmbiguity(candidates.map { it.name })
         }
         return candidates.first()
     }
