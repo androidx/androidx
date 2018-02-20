@@ -250,6 +250,8 @@ public class WorkerWrapper implements Runnable {
     }
 
     private void setSucceededAndNotify() {
+        List<String> unblockedWorkIds = new ArrayList<>();
+
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setState(SUCCEEDED, mWorkSpecId);
@@ -263,7 +265,6 @@ public class WorkerWrapper implements Runnable {
             // Unblock Dependencies and set Period Start Time
             long currentTimeMillis = System.currentTimeMillis();
             List<String> dependentWorkIds = mDependencyDao.getDependentWorkIds(mWorkSpecId);
-            List<String> unblockedWorkIds = new ArrayList<>();
             for (String dependentWorkId : dependentWorkIds) {
                 if (mDependencyDao.hasCompletedAllPrerequisites(dependentWorkId)) {
                     Logger.debug(TAG, "Setting status to enqueued for %s", dependentWorkId);
@@ -273,24 +274,24 @@ public class WorkerWrapper implements Runnable {
                 }
             }
 
-            int unblockedWorkCount = unblockedWorkIds.size();
-            if (unblockedWorkCount > 0) {
-                Logger.debug(TAG,
-                        "Setting status to enqueued for %s Works that were dependent on Work ID %s",
-                        unblockedWorkCount, mWorkSpecId);
-            }
-
             mWorkDatabase.setTransactionSuccessful();
-
-            if (mSchedulers != null) {
-                WorkSpec[] unblockedWorkSpecs = mWorkSpecDao.getWorkSpecs(unblockedWorkIds);
-                for (Scheduler scheduler : mSchedulers) {
-                    scheduler.schedule(unblockedWorkSpecs);
-                }
-            }
         } finally {
             mWorkDatabase.endTransaction();
             notifyListener(true, false);
+        }
+
+        if (mSchedulers != null) {
+            int unblockedWorkCount = unblockedWorkIds.size();
+            if (unblockedWorkCount > 0) {
+                Logger.debug(TAG,
+                        "Setting status to enqueued for %s items that were dependent on %s",
+                        unblockedWorkCount, mWorkSpecId);
+            }
+
+            WorkSpec[] unblockedWorkSpecs = mWorkSpecDao.getWorkSpecs(unblockedWorkIds);
+            for (Scheduler scheduler : mSchedulers) {
+                scheduler.schedule(unblockedWorkSpecs);
+            }
         }
     }
 
