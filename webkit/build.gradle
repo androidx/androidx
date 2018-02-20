@@ -13,20 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: android.support.SupportAndroidLibraryPlugin
+
+import static android.support.dependencies.DependenciesKt.*
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
+
+dependencies {
+    api(project(":support-annotations"))
+    api(project(':support-compat'))
+
+    androidTestImplementation(TEST_RUNNER)
+}
+
+ext {
+    webviewBoundaryInterfacesDir = project(':webview-support-interfaces').projectDir
+}
 
 android {
-    defaultConfig {
-        minSdkVersion 21
-    }
-
     sourceSets {
-        main.manifest.srcFile 'AndroidManifest.xml'
+        // Allow compiling the WebView support library boundary interfaces from this project.
+        main.java.srcDirs += new File(webviewBoundaryInterfacesDir, "src").getAbsolutePath()
     }
 }
 
 supportLibrary {
     name = "WebView Support Library"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "The WebView Support Library is a static library you can add to your Android application in order to use android.webkit APIs that are not available for older platform versions."
+    minSdkVersion = 21
 }

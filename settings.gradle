@@ -149,6 +149,7 @@ apply(from: "include-composite-deps.gradle")
 File externalRoot = new File(rootDir, "../../external")
 
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"))
+includeProject(":webview-support-interfaces", new File(externalRoot, "webview_support_interfaces"))
 
 ///// FLATFOOT START
 
