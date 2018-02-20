@@ -20,9 +20,7 @@ import androidx.work.Worker;
 /**
  * A Test Worker.
  */
-
 public class TestWorker extends Worker {
-
     @Override
     public WorkerResult doWork() {
         int x = 0;

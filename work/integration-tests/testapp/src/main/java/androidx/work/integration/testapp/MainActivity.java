@@ -26,8 +26,10 @@ import android.view.View;
 import android.widget.EditText;
 
 import androidx.work.Constraints;
+import androidx.work.NetworkType;
 import androidx.work.Work;
 import androidx.work.WorkManager;
+import androidx.work.impl.logger.Logger;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
 
@@ -37,22 +39,37 @@ import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesAct
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        findViewById(R.id.enqueue_infinite_work).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WorkManager.getInstance().enqueue(
-                        new Work.Builder(InfiniteWorker.class)
-                                .withConstraints(new Constraints.Builder()
-                                        .setRequiresCharging(true)
-                                        .build())
-                                .build());
-            }
-        });
+        Logger.LOG_LEVEL = Log.VERBOSE;
+
+        findViewById(R.id.enqueue_infinite_work_charging).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        WorkManager.getInstance().enqueue(
+                                new Work.Builder(InfiniteWorker.class)
+                                        .withConstraints(new Constraints.Builder()
+                                                .setRequiresCharging(true)
+                                                .build())
+                                        .build());
+                    }
+                });
+
+        findViewById(R.id.enqueue_infinite_work_network).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        WorkManager.getInstance().enqueue(
+                                new Work.Builder(InfiniteWorker.class)
+                                        .withConstraints(new Constraints.Builder()
+                                                .setRequiredNetworkType(NetworkType.CONNECTED)
+                                                .build())
+                                        .build());
+                    }
+                });
 
         findViewById(R.id.sherlock_holmes).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,13 +95,14 @@ public class MainActivity extends AppCompatActivity {
                 WorkManager.getInstance().enqueue(ToastWorker
                         .create("Image URI Updated!")
                         .withConstraints(new Constraints.Builder()
-                                        .addContentUriTrigger(
-                                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true)
-                                        .build())
+                                .addContentUriTrigger(
+                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true)
+                                .build())
                         .build()
                 );
             }
         });
+
         final EditText delayInMs = findViewById(R.id.delay_in_ms);
         findViewById(R.id.schedule_delay).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +114,13 @@ public class MainActivity extends AppCompatActivity {
                         .create("Delayed Job Ran!")
                         .withInitialDelay(delay)
                         .build());
+            }
+        });
+
+        findViewById(R.id.prune).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WorkManager.getInstance().pruneDatabase();
             }
         });
     }
