@@ -18,20 +18,20 @@ package android.arch.paging;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.recyclerview.extensions.DiffCallback;
-import android.support.v7.recyclerview.extensions.ListAdapterConfig;
-import android.support.v7.recyclerview.extensions.ListAdapterHelper;
+import android.support.v7.recyclerview.extensions.AsyncDifferConfig;
+import android.support.v7.util.AdapterListUpdateCallback;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 
 /**
  * {@link RecyclerView.Adapter RecyclerView.Adapter} base class for presenting paged data from
  * {@link PagedList}s in a {@link RecyclerView}.
  * <p>
- * This class is a convenience wrapper around PagedListAdapterHelper that implements common default
+ * This class is a convenience wrapper around AsyncPagedListDiffer that implements common default
  * behavior for item counting, and listening to PagedList update callbacks.
  * <p>
  * While using a LiveData&lt;PagedList> is an easy way to provide data to the adapter, it isn't
- * required - you can use {@link #setList(PagedList)} when new lists are available.
+ * required - you can use {@link #submitList(PagedList)} when new lists are available.
  * <p>
  * PagedListAdapter listens to PagedList loading callbacks as pages are loaded, and uses DiffUtil on
  * a background thread to compute fine grained updates as new PagedLists are received.
@@ -62,7 +62,7 @@ import android.support.v7.widget.RecyclerView;
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
  *         UserAdapter&lt;User> adapter = new UserAdapter();
- *         viewModel.usersList.observe(this, pagedList -> adapter.setList(pagedList));
+ *         viewModel.usersList.observe(this, pagedList -> adapter.submitList(pagedList));
  *         recyclerView.setAdapter(adapter);
  *     }
  * }
@@ -100,7 +100,7 @@ import android.support.v7.widget.RecyclerView;
  * }</pre>
  *
  * Advanced users that wish for more control over adapter behavior, or to provide a specific base
- * class should refer to {@link PagedListAdapterHelper}, which provides the mapping from paging
+ * class should refer to {@link AsyncPagedListDiffer}, which provides the mapping from paging
  * events to adapter-friendly callbacks.
  *
  * @param <T> Type of the PagedLists this helper will receive.
@@ -108,9 +108,9 @@ import android.support.v7.widget.RecyclerView;
  */
 public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
         extends RecyclerView.Adapter<VH> {
-    private final PagedListAdapterHelper<T> mHelper;
-    private final PagedListAdapterHelper.PagedListListener<T> mListener =
-            new PagedListAdapterHelper.PagedListListener<T>() {
+    private final AsyncPagedListDiffer<T> mHelper;
+    private final AsyncPagedListDiffer.PagedListListener<T> mListener =
+            new AsyncPagedListDiffer.PagedListListener<T>() {
         @Override
         public void onCurrentListChanged(@Nullable PagedList<T> currentList) {
             PagedListAdapter.this.onCurrentListChanged(currentList);
@@ -121,19 +121,20 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      * Creates a PagedListAdapter with default threading and
      * {@link android.support.v7.util.ListUpdateCallback}.
      *
-     * Convenience for {@link #PagedListAdapter(ListAdapterConfig)}, which uses default threading
+     * Convenience for {@link #PagedListAdapter(AsyncDifferConfig)}, which uses default threading
      * behavior.
      *
-     * @param diffCallback The {@link DiffCallback} instance to compare items in the list.
+     * @param diffCallback The {@link DiffUtil.ItemCallback DiffUtil.ItemCallback} instance to
+     *                     compare items in the list.
      */
-    protected PagedListAdapter(@NonNull DiffCallback<T> diffCallback) {
-        mHelper = new PagedListAdapterHelper<>(this, diffCallback);
+    protected PagedListAdapter(@NonNull DiffUtil.ItemCallback<T> diffCallback) {
+        mHelper = new AsyncPagedListDiffer<>(this, diffCallback);
         mHelper.mListener = mListener;
     }
 
     @SuppressWarnings("unused, WeakerAccess")
-    protected PagedListAdapter(@NonNull ListAdapterConfig<T> config) {
-        mHelper = new PagedListAdapterHelper<>(new ListAdapterHelper.AdapterCallback(this), config);
+    protected PagedListAdapter(@NonNull AsyncDifferConfig<T> config) {
+        mHelper = new AsyncPagedListDiffer<>(new AdapterListUpdateCallback(this), config);
         mHelper.mListener = mListener;
     }
 
@@ -145,8 +146,8 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @param pagedList The new list to be displayed.
      */
-    public void setList(PagedList<T> pagedList) {
-        mHelper.setList(pagedList);
+    public void submitList(PagedList<T> pagedList) {
+        mHelper.submitList(pagedList);
     }
 
     @Nullable
@@ -162,9 +163,9 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
     /**
      * Returns the list currently being displayed by the Adapter.
      * <p>
-     * This is not necessarily the most recent list passed to {@link #setList(PagedList)}, because a
-     * diff is computed asynchronously between the new list and the current list before updating the
-     * currentList value.
+     * This is not necessarily the most recent list passed to {@link #submitList(PagedList)},
+     * because a diff is computed asynchronously between the new list and the current list before
+     * updating the currentList value.
      *
      * @return The list currently being displayed.
      */
@@ -176,7 +177,7 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
     /**
      * Called when the current PagedList is updated.
      * <p>
-     * This may be dispatched as part of {@link #setList(PagedList)} if a background diff isn't
+     * This may be dispatched as part of {@link #submitList(PagedList)} if a background diff isn't
      * needed (such as when the first list is passed, or the list is cleared). In either case,
      * PagedListAdapter will simply call
      * {@link #notifyItemRangeInserted(int, int) notifyItemRangeInserted/Removed(0, mPreviousSize)}.

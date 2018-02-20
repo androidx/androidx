@@ -17,7 +17,7 @@
 package android.arch.paging
 
 import android.support.test.filters.SmallTest
-import android.support.v7.recyclerview.extensions.DiffCallback
+import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -97,7 +97,7 @@ class PagedStorageDiffHelperTest {
     }
 
     companion object {
-        private val DIFF_CALLBACK = object : DiffCallback<String>() {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
                 // first char means same item
                 return oldItem[0] == newItem[0]
@@ -111,8 +111,7 @@ class PagedStorageDiffHelperTest {
         private fun validateTwoListDiff(oldList: PagedStorage<String>,
                                         newList: PagedStorage<String>,
                                         validator: (callback: ListUpdateCallback) -> Unit) {
-            val diffResult = PagedStorageDiffHelper.computeDiff(
-                    oldList, newList, DIFF_CALLBACK)
+            val diffResult = PagedStorageDiffHelper.computeDiff(oldList, newList, DIFF_CALLBACK)
 
             val listUpdateCallback = mock(ListUpdateCallback::class.java)
             PagedStorageDiffHelper.dispatchDiff(listUpdateCallback, oldList, newList, diffResult)

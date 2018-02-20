@@ -16,50 +16,21 @@
 
 package android.support.v7.recyclerview.extensions;
 
-import android.arch.paging.PagedListAdapterHelper;
-import android.support.annotation.NonNull;
+import android.arch.paging.AsyncPagedListDiffer;
+import android.support.v7.util.DiffUtil;
 
 /**
- * Callback that informs {@link PagedListAdapterHelper} how to compute list updates when using
+ * Callback that informs {@link AsyncPagedListDiffer} how to compute list updates when using
  * {@link android.support.v7.util.DiffUtil} on a background thread.
  * <p>
  * The AdapterHelper will pass items from different lists to this callback in order to implement
  * the {@link android.support.v7.util.DiffUtil.Callback} it uses to compute differences between
  * lists.
- * <p>
- * Note that this class is likely to move prior to the final release of the Paging library.
  *
  * @param <T> Type of items to compare.
+ *
+ * @deprecated use {@link DiffUtil.ItemCallback DiffUtil.ItemCallback} directly starting in 27.1.0
  */
-public abstract class DiffCallback<T> {
-    /**
-     * Called to decide whether two objects represent the same item.
-     *
-     * @param oldItem The item in the old list.
-     * @param newItem The item in the new list.
-     * @return True if the two items represent the same object or false if they are different.
-     * @see android.support.v7.util.DiffUtil.Callback#areItemsTheSame(int, int)
-     */
-    public abstract boolean areItemsTheSame(@NonNull T oldItem, @NonNull T newItem);
-
-    /**
-     * Called to decide whether two items have the same data. This information is used to detect if
-     * the contents of an item have changed.
-     *
-     * @param oldItem The item in the old list.
-     * @param newItem The item in the new list.
-     * @return True if the contents of the items are the same or false if they are different.
-     * @see android.support.v7.util.DiffUtil.Callback#areContentsTheSame(int, int)
-     */
-    public abstract boolean areContentsTheSame(@NonNull T oldItem, @NonNull T newItem);
-
-    /**
-     * Called to get a change payload between an old and new version of an item.
-     *
-     * @see android.support.v7.util.DiffUtil.Callback#getChangePayload(int, int)
-     */
-    @SuppressWarnings("WeakerAccess")
-    public Object getChangePayload(@NonNull T oldItem, @NonNull T newItem) {
-        return null;
-    }
+@Deprecated
+public abstract class DiffCallback<T> extends DiffUtil.ItemCallback<T> {
 }

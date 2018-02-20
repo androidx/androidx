@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 /**
- * Sample adapter which uses a PagedListAdapterHelper.
+ * Sample adapter which uses a AsyncPagedListDiffer.
  */
 class PagedListCustomerAdapter extends PagedListAdapter<Customer, RecyclerView.ViewHolder> {
     private RecyclerView mRecyclerView;
@@ -78,8 +78,8 @@ class PagedListCustomerAdapter extends PagedListAdapter<Customer, RecyclerView.V
     }
 
     @Override
-    public void setList(PagedList<Customer> pagedList) {
-        super.setList(pagedList);
+    public void submitList(PagedList<Customer> pagedList) {
+        super.submitList(pagedList);
 
         if (pagedList != null) {
             final boolean firstSet = !mSetObserved;
