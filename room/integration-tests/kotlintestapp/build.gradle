@@ -44,8 +44,7 @@ dependencies {
     implementation(project(":persistence:db-framework"))
     implementation(project(":room:runtime"))
     implementation(project(":arch:runtime"))
-
-    implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
+    implementation(project(":lifecycle:extensions"))
     kaptAndroidTest project(":room:compiler")
 
     androidTestImplementation(TEST_RUNNER) {

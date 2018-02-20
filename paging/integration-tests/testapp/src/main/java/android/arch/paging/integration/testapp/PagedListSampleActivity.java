@@ -44,7 +44,7 @@ public class PagedListSampleActivity extends AppCompatActivity {
         viewModel.getLivePagedList().observe(this, new Observer<PagedList<Item>>() {
             @Override
             public void onChanged(@Nullable PagedList<Item> items) {
-                adapter.setList(items);
+                adapter.submitList(items);
             }
         });
         final Button button = findViewById(R.id.button);
