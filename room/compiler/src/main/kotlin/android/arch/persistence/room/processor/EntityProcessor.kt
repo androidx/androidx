@@ -49,7 +49,7 @@ import javax.lang.model.util.SimpleAnnotationValueVisitor6
 
 class EntityProcessor(baseContext: Context,
                       val element: TypeElement,
-                      val referenceStack: LinkedHashSet<Name> = LinkedHashSet<Name>()) {
+                      private val referenceStack: LinkedHashSet<Name> = LinkedHashSet()) {
     val context = baseContext.fork(element)
 
     fun process(): Entity {
