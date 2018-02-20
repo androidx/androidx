@@ -126,7 +126,7 @@ class WorkManagerConfiguration {
 
     @VisibleForTesting
     static ExecutorService createExecutorService() {
-        // TODO(sumir): Make this more intelligent.
-        return Executors.newFixedThreadPool(4);
+        // TODO(sumir): Poll availableProcessors periodically to update this value.
+        return Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 }
