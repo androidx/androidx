@@ -16,6 +16,9 @@
 
 package androidx.work.impl.background.firebase;
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.Job;
@@ -61,7 +64,7 @@ class FirebaseJobConverter {
     }
 
     private void setExecutionTrigger(Job.Builder builder, WorkSpec workSpec) {
-        if (workSpec.getConstraints().hasContentUriTriggers()) {
+        if (Build.VERSION.SDK_INT >= 24 && workSpec.getConstraints().hasContentUriTriggers()) {
             builder.setTrigger(createContentUriTriggers(workSpec));
         } else if (workSpec.isPeriodic()) {
             builder.setTrigger(createPeriodicTrigger(workSpec));
@@ -71,6 +74,7 @@ class FirebaseJobConverter {
         }
     }
 
+    @RequiresApi(24)
     private static JobTrigger.ContentUriTrigger createContentUriTriggers(WorkSpec workSpec) {
         List<ObservedUri> observedUris = new ArrayList<>();
         ContentUriTriggers triggers = workSpec.getConstraints().getContentUriTriggers();

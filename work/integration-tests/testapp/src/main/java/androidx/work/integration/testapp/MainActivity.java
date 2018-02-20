@@ -17,6 +17,7 @@
 package androidx.work.integration.testapp;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -70,6 +71,10 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.image_uri).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (Build.VERSION.SDK_INT < 24) {
+                    return;
+                }
+
                 WorkManager.getInstance().enqueue(ToastWorker
                         .create("Image URI Updated!")
                         .withConstraints(new Constraints.Builder()

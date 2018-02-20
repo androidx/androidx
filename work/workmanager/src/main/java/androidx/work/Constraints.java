@@ -18,7 +18,9 @@ package androidx.work;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 
 /**
  * The constraints that can be applied to one {@link BaseWork}.
@@ -54,7 +56,9 @@ public class Constraints {
         mRequiredNetworkType = builder.mRequiredNetworkType;
         mRequiresBatteryNotLow = builder.mRequiresBatteryNotLow;
         mRequiresStorageNotLow = builder.mRequiresStorageNotLow;
-        mContentUriTriggers = builder.mContentUriTriggers;
+        mContentUriTriggers = (Build.VERSION.SDK_INT >= 24)
+                ? builder.mContentUriTriggers
+                : new ContentUriTriggers();
     }
 
     public @NonNull NetworkType getRequiredNetworkType() {
@@ -109,10 +113,12 @@ public class Constraints {
         mRequiresStorageNotLow = requiresStorageNotLow;
     }
 
+    @RequiresApi(24)
     public void setContentUriTriggers(ContentUriTriggers mContentUriTriggers) {
         this.mContentUriTriggers = mContentUriTriggers;
     }
 
+    @RequiresApi(24)
     public ContentUriTriggers getContentUriTriggers() {
         return mContentUriTriggers;
     }
@@ -120,6 +126,7 @@ public class Constraints {
     /**
      * @return {@code true} if {@link ContentUriTriggers} is not empty
      */
+    @RequiresApi(24)
     public boolean hasContentUriTriggers() {
         return mContentUriTriggers.size() > 0;
     }
@@ -214,7 +221,7 @@ public class Constraints {
 
         /**
          * Specify whether device available storage should not be below critical threshold for
-         * {@link BaseWork} to run. Default is false.
+         * {@link BaseWork} to run. Default is {@code false}.
          *
          * @param requiresStorageNotLow true if available storage should not be below critical
          *                              threshold, false otherwise
@@ -227,12 +234,14 @@ public class Constraints {
 
         /**
          * Specify whether {@link BaseWork} should run when a content {@link android.net.Uri} is
-         * updated
+         * updated.  This method requires API 24 or higher.
+         *
          * @param uri {@link android.net.Uri} to observe
          * @param triggerForDescendants {@code true} if any changes in descendants cause this
          *                              {@link BaseWork} to run
          * @return The current {@link Builder}
          */
+        @RequiresApi(24)
         public Builder addContentUriTrigger(Uri uri, boolean triggerForDescendants) {
             mContentUriTriggers.add(uri, triggerForDescendants);
             return this;

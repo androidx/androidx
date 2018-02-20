@@ -50,6 +50,7 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
@@ -252,7 +253,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(constraints.requiresBatteryNotLow(), is(true));
         assertThat(constraints.requiresStorageNotLow(), is(true));
         assertThat(constraints.getRequiredNetworkType(), is(METERED));
-        assertThat(constraints.getContentUriTriggers(), is(expectedTriggers));
+        if (Build.VERSION.SDK_INT >= 24) {
+            assertThat(constraints.getContentUriTriggers(), is(expectedTriggers));
+        } else {
+            assertThat(constraints.getContentUriTriggers(), is(new ContentUriTriggers()));
+        }
 
         constraints = workSpec1.getConstraints();
         assertThat(constraints, is(notNullValue()));
