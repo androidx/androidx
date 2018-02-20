@@ -50,10 +50,16 @@ data class Dao(
         if (suffix == null) {
             suffix = ""
         }
-        "${typeName.simpleName()}${suffix}_Impl"
+        val path = arrayListOf<String>()
+        var enclosing = element.enclosingElement
+        while (enclosing is TypeElement) {
+            path.add(ClassName.get(enclosing as TypeElement).simpleName())
+            enclosing = enclosing.enclosingElement
+        }
+        path.reversed().joinToString("_") + "${typeName.simpleName()}${suffix}_Impl"
     }
 
-    val implTypeName by lazy {
+    val implTypeName: ClassName by lazy {
         ClassName.get(typeName.packageName(), implClassName)
     }
 }
