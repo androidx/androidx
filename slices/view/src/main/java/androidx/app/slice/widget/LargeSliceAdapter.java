@@ -23,6 +23,8 @@ import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import static androidx.app.slice.widget.SliceView.MODE_LARGE;
+
 import android.annotation.TargetApi;
 import android.app.slice.Slice;
 import android.content.Context;
@@ -149,16 +151,21 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     }
 
     private View inflateForType(int viewType) {
+        View v = new RowView(mContext);
         switch (viewType) {
             case TYPE_GRID:
-                return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_grid, null);
+                v = LayoutInflater.from(mContext).inflate(R.layout.abc_slice_grid, null);
+                break;
             case TYPE_MESSAGE:
-                return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message, null);
+                v = LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message, null);
+                break;
             case TYPE_MESSAGE_LOCAL:
-                return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message_local,
+                v = LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message_local,
                         null);
+                break;
         }
-        return new RowView(mContext);
+        ((SliceChildView) v).setMode(MODE_LARGE);
+        return v;
     }
 
     protected static class SliceWrapper {
