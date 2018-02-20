@@ -169,8 +169,7 @@ public class PagedListView extends FrameLayout {
      */
     public interface DividerVisibilityManager {
         /**
-         * Given an item position, returns whether the divider coming after that item should be
-         * hidden.
+         * Given an item position, returns whether the divider below that item should be hidden.
          *
          * @param position item position inside the adapter.
          * @return true if divider is to be hidden, false if divider should be shown.
@@ -1068,8 +1067,9 @@ public class PagedListView extends FrameLayout {
             super.getItemOffsets(outRect, view, parent, state);
             int position = parent.getChildAdapterPosition(view);
 
-            // Skip offset for last item.
-            if (position == state.getItemCount() - 1) {
+            // Skip offset for last item except for GridLayoutManager.
+            if (position == state.getItemCount() - 1
+                    && !(parent.getLayoutManager() instanceof GridLayoutManager)) {
                 return;
             }
 
@@ -1122,7 +1122,7 @@ public class PagedListView extends FrameLayout {
 
         /** Updates the list divider color which may have changed due to a day night transition. */
         public void updateDividerColor() {
-            mPaint.setColor(mContext.getResources().getColor(R.color.car_list_divider));
+            mPaint.setColor(mContext.getResources().getColor(R.color.car_list_divider, null));
         }
 
         /** Sets {@link DividerVisibilityManager} on the DividerDecoration.*/
@@ -1132,50 +1132,69 @@ public class PagedListView extends FrameLayout {
 
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-            // Draw a divider line between each item. No need to draw the line for the last item.
-            for (int i = 0, childCount = parent.getChildCount(); i < childCount - 1; i++) {
+            boolean usesGridLayoutManager = parent.getLayoutManager() instanceof GridLayoutManager;
+            for (int i = 0; i < parent.getChildCount(); i++) {
                 View container = parent.getChildAt(i);
-
-                // if divider should be hidden for this item, proceeds without drawing it
                 int itemPosition = parent.getChildAdapterPosition(container);
+
                 if (hideDividerForAdapterPosition(itemPosition)) {
                     continue;
                 }
 
-                View nextContainer = parent.getChildAt(i + 1);
-                int spacing = nextContainer.getTop() - container.getBottom();
-
-                View startChild =
-                        mDividerStartId != INVALID_RESOURCE_ID
-                                ? container.findViewById(mDividerStartId)
-                                : container;
-
-                View endChild =
-                        mDividerEndId != INVALID_RESOURCE_ID
-                                ? container.findViewById(mDividerEndId)
-                                : container;
-
-                if (startChild == null || endChild == null) {
+                View nextVerticalContainer;
+                if (usesGridLayoutManager) {
+                    // Find an item in next row to calculate vertical space.
+                    int lastItem = GridLayoutManagerUtils.getLastIndexOnSameRow(i, parent);
+                    nextVerticalContainer = parent.getChildAt(lastItem + 1);
+                } else {
+                    nextVerticalContainer = parent.getChildAt(i + 1);
+                }
+                if (nextVerticalContainer == null) {
+                    // Skip drawing divider for the last row in GridLayoutManager, or the last
+                    // item (presumably in LinearLayoutManager).
                     continue;
                 }
-
-                Rect containerRect = new Rect();
-                container.getGlobalVisibleRect(containerRect);
-
-                Rect startRect = new Rect();
-                startChild.getGlobalVisibleRect(startRect);
-
-                Rect endRect = new Rect();
-                endChild.getGlobalVisibleRect(endRect);
-
-                int left = container.getLeft() + mDividerStartMargin
-                        + (startRect.left - containerRect.left);
-                int right = container.getRight() - (endRect.right - containerRect.right);
-                int bottom = container.getBottom() + spacing / 2 + mDividerHeight / 2;
-                int top = bottom - mDividerHeight;
-
-                c.drawRect(left, top, right, bottom, mPaint);
+                int spacing = nextVerticalContainer.getTop() - container.getBottom();
+                drawDivider(c, container, spacing);
             }
+        }
+
+        /**
+         * Draws a divider under {@code container}.
+         *
+         * @param spacing between {@code container} and next view.
+         */
+        private void drawDivider(Canvas c, View container, int spacing) {
+            View startChild =
+                    mDividerStartId != INVALID_RESOURCE_ID
+                            ? container.findViewById(mDividerStartId)
+                            : container;
+
+            View endChild =
+                    mDividerEndId != INVALID_RESOURCE_ID
+                            ? container.findViewById(mDividerEndId)
+                            : container;
+
+            if (startChild == null || endChild == null) {
+                return;
+            }
+
+            Rect containerRect = new Rect();
+            container.getGlobalVisibleRect(containerRect);
+
+            Rect startRect = new Rect();
+            startChild.getGlobalVisibleRect(startRect);
+
+            Rect endRect = new Rect();
+            endChild.getGlobalVisibleRect(endRect);
+
+            int left = container.getLeft() + mDividerStartMargin
+                    + (startRect.left - containerRect.left);
+            int right = container.getRight() - (endRect.right - containerRect.right);
+            int bottom = container.getBottom() + spacing / 2 + mDividerHeight / 2;
+            int top = bottom - mDividerHeight;
+
+            c.drawRect(left, top, right, bottom, mPaint);
         }
 
         @Override
@@ -1183,16 +1202,14 @@ public class PagedListView extends FrameLayout {
                 RecyclerView.State state) {
             super.getItemOffsets(outRect, view, parent, state);
             int pos = parent.getChildAdapterPosition(view);
-
-            // Skip top offset when there is no divider above.
-            if (pos > 0 && !hideDividerForAdapterPosition(pos - 1)) {
-                outRect.top = mDividerHeight / 2;
+            if (hideDividerForAdapterPosition(pos)) {
+                return;
             }
-
-            // Skip bottom offset when there is no divider below.
-            if (pos < state.getItemCount() - 1 && !hideDividerForAdapterPosition(pos)) {
-                outRect.bottom = mDividerHeight / 2;
-            }
+            // Add an bottom offset to all items that should have divider, even when divider is not
+            // drawn for the bottom item(s).
+            // With GridLayoutManager it's difficult to tell whether a view is in the last row.
+            // This is to keep expected behavior consistent.
+            outRect.bottom = mDividerHeight;
         }
 
         private boolean hideDividerForAdapterPosition(int position) {
