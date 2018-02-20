@@ -16,11 +16,11 @@
 
 package androidx.browser.browseractions;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import android.support.annotation.RestrictTo;
-import android.support.customtabs.R;
+import androidx.annotation.RestrictTo;
+import androidx.browser.R;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 

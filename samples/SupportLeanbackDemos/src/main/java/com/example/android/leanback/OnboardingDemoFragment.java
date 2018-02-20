@@ -18,7 +18,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.graphics.drawable.AnimationDrawable;
-import android.support.v17.leanback.app.OnboardingFragment;
+import androidx.leanback.app.OnboardingFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

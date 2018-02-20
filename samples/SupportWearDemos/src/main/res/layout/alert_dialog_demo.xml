@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<android.support.wear.widget.BoxInsetLayout
+<androidx.wear.widget.BoxInsetLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -41,4 +41,4 @@
             android:text="Show Framework dialog"/>
     </LinearLayout>
 
-</android.support.wear.widget.BoxInsetLayout>
+</androidx.wear.widget.BoxInsetLayout>

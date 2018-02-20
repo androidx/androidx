@@ -15,14 +15,14 @@
      limitations under the License.
 -->
 <transitionSet>
-    <transition class="android.support.transition.TransitionInflaterTest$InflationFade"/>
-    <transition class="android.support.transition.TransitionInflaterTest$InflationChangeBounds"/>
-    <transition class="android.support.transition.TransitionInflaterTest$InflationChangeImageTransform"/>
-    <transition class="android.support.transition.TransitionInflaterTest$InflationChangeTransform"/>
-    <transition class="android.support.transition.TransitionInflaterTest$InflationAutoTransition"/>
-    <transition class="android.support.transition.TransitionInflaterTest$InflationChangeClipBounds"/>
-    <transition class="android.support.transition.TransitionInflaterTest$InflationChangeScroll"/>
-    <transition class="android.support.transition.TransitionInflaterTest$InflationExplode"/>
-    <transition class="android.support.transition.TransitionInflaterTest$InflationSlide"/>
-    <transition class="android.support.transition.TransitionInflaterTest$InflationTransitionSet"/>
+    <transition class="androidx.transition.TransitionInflaterTest$InflationFade"/>
+    <transition class="androidx.transition.TransitionInflaterTest$InflationChangeBounds"/>
+    <transition class="androidx.transition.TransitionInflaterTest$InflationChangeImageTransform"/>
+    <transition class="androidx.transition.TransitionInflaterTest$InflationChangeTransform"/>
+    <transition class="androidx.transition.TransitionInflaterTest$InflationAutoTransition"/>
+    <transition class="androidx.transition.TransitionInflaterTest$InflationChangeClipBounds"/>
+    <transition class="androidx.transition.TransitionInflaterTest$InflationChangeScroll"/>
+    <transition class="androidx.transition.TransitionInflaterTest$InflationExplode"/>
+    <transition class="androidx.transition.TransitionInflaterTest$InflationSlide"/>
+    <transition class="androidx.transition.TransitionInflaterTest$InflationTransitionSet"/>
 </transitionSet>

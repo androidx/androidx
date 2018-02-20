@@ -22,7 +22,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <android.support.v7.widget.AppCompatButton
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/view_autosize_uniform"
         android:layout_width="100dp"
         android:layout_height="200dp"
@@ -32,7 +32,7 @@
         app:autoSizeMaxTextSize="50dp"
         app:autoSizeStepGranularity="1px" />
 
-    <android.support.v7.widget.AppCompatButton
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/view_autosize_uniform_predef_sizes"
         android:layout_width="100dp"
         android:layout_height="200dp"
@@ -40,7 +40,7 @@
         app:autoSizeTextType="uniform"
         app:autoSizePresetSizes="@array/auto_size_predefined_sizes" />
 
-    <android.support.v7.widget.AppCompatButton
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/view_autosize_uniform_predef_sizes_redundant_values"
         android:layout_width="100dp"
         android:layout_height="200dp"
@@ -48,7 +48,7 @@
         app:autoSizeTextType="uniform"
         app:autoSizePresetSizes="@array/auto_size_predefined_sizes_redundant_values" />
 
-    <android.support.v7.widget.AppCompatButton
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/view_text"
         android:layout_width="100dp"
         android:layout_height="200dp"

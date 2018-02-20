@@ -18,7 +18,7 @@ package com.example.android.supportv7.media;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.app.MediaRouteControllerDialog;
+import androidx.mediarouter.app.MediaRouteControllerDialog;
 
 import android.content.Context;
 import android.view.View;
@@ -27,7 +27,7 @@ import com.example.android.supportv7.R;
 
 /**
  * An example MediaRouteControllerDialog for demonstrating
- * {@link android.support.v7.app.MediaRouteControllerDialog#onCreateMediaControlView}.
+ * {@link androidx.mediarouter.app.MediaRouteControllerDialog#onCreateMediaControlView}.
  */
 public class MyMediaRouteControllerDialog extends MediaRouteControllerDialog {
     public MyMediaRouteControllerDialog(Context context) {

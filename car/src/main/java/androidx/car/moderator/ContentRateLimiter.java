@@ -18,9 +18,9 @@ package androidx.car.moderator;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import android.support.annotation.MainThread;
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.util.Preconditions;
+import androidx.annotation.MainThread;
+import androidx.annotation.VisibleForTesting;
+import androidx.core.util.Preconditions;
 import android.util.Log;
 
 /**

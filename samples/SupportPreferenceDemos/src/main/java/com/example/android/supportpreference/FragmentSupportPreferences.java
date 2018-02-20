@@ -19,8 +19,8 @@ package com.example.android.supportpreference;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v14.preference.PreferenceFragment;
-import android.support.v7.preference.PreferenceScreen;
+import androidx.preference.PreferenceFragment;
+import androidx.preference.PreferenceScreen;
 
 /**
  * Demonstration of PreferenceFragment, showing a single fragment in an

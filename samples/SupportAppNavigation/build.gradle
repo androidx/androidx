@@ -19,5 +19,5 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":support-v4"))
+    implementation(project(":core"))
 }

@@ -21,8 +21,8 @@
     <application
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
-        <activity android:name="android.support.v4.widget.CircularProgressDrawableActivity"/>
-        <activity android:name="android.support.v4.widget.SwipeRefreshLayoutActivity"/>
+        <activity android:name="androidx.swiperefreshlayout.widget.CircularProgressDrawableActivity"/>
+        <activity android:name="androidx.swiperefreshlayout.widget.SwipeRefreshLayoutActivity"/>
     </application>
 
 </manifest>

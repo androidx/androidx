@@ -68,7 +68,7 @@
         to the children of this container layout. Otherwise, the animated pressed state will also
         play for the thumb in the AbsSeekBar in addition to the preference's ripple background.
         The background of the SeekBar is also set to null to disable the ripple background -->
-        <android.support.v7.preference.UnPressableLinearLayout
+        <androidx.preference.UnPressableLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@android:id/summary"
@@ -93,7 +93,7 @@
                       android:fontFamily="sans-serif-condensed"
                       android:textColor="@color/lb_preference_item_primary_text_color"
                       android:textSize="@dimen/lb_preference_item_primary_text_size"/>
-        </android.support.v7.preference.UnPressableLinearLayout>
+        </androidx.preference.UnPressableLinearLayout>
 
     </RelativeLayout>
 

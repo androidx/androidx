@@ -27,7 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#f2f2f2">
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:id="@+id/search_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
             app:cardCornerRadius="2dp"
             app:cardBackgroundColor="?android:attr/colorBackground"
             app:cardElevation="2dp">
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/search_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
@@ -51,8 +51,8 @@
                     android:imeOptions="actionSearch|flagNoExtractUi"
                     android:queryHint="content://..."
                     android:searchIcon="@null"/>
-            </android.support.v7.widget.Toolbar>
-        </android.support.v7.widget.CardView>
+            </androidx.appcompat.widget.Toolbar>
+        </androidx.cardview.widget.CardView>
     </FrameLayout>
 
 

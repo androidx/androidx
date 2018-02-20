@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    compile(project(":support-annotations"))
+    compile(project(":annotation"))
     testCompile(JUNIT)
 }
 
@@ -31,7 +31,7 @@ supportLibrary {
     name = "Android Support Library collections"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."
 }

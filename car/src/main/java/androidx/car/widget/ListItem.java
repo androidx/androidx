@@ -1,10 +1,10 @@
 package androidx.car.widget;
 
 import android.car.drivingstate.CarUxRestrictions;
-import android.support.annotation.CallSuper;
-import android.support.annotation.Nullable;
-import android.support.annotation.StyleRes;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 import java.util.ArrayList;

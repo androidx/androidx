@@ -16,11 +16,11 @@
 
 package com.example.android.supportv7.widget;
 
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSnapHelper;
-import android.support.v7.widget.RecyclerView;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.supportv7.R;
 import com.example.android.supportv7.widget.util.ConfigToggle;

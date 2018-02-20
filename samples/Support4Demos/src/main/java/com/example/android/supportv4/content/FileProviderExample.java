@@ -21,7 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.content.FileProvider;
+import androidx.core.content.FileProvider;
 import android.view.View;
 
 import com.example.android.supportv4.R;

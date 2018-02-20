@@ -15,7 +15,7 @@
  */
 
 /**
- * A {@link android.support.v7.widget.RecyclerView RecyclerView} addon library providing
+ * A {@link androidx.recyclerview.widget.RecyclerView RecyclerView} addon library providing
  * support for item selection. The library provides support for both touch
  * and mouse driven selection. Developers retain control over the visual representation,
  * and the policies controlling selection behavior (like which items are eligible
@@ -44,7 +44,7 @@
  * <p>
  * This class provides the selection library code necessary access to information about
  * items associated with {@link android.view.MotionEvent}. This will likely
- * depend on concrete {@link android.support.v7.widget.RecyclerView.ViewHolder
+ * depend on concrete {@link androidx.recyclerview.widget.RecyclerView.ViewHolder
  * RecyclerView.ViewHolder} type employed by your application.
  *
  * <p>
@@ -55,7 +55,7 @@
  * {@link androidx.recyclerview.selection.SelectionTracker SelectionTracker}
  * then notify RecyclerView that the state of the item has changed. This
  * will ultimately cause the value to be rebound by way of
- * {@link android.support.v7.widget.RecyclerView.Adapter#onBindViewHolder
+ * {@link androidx.recyclerview.widget.RecyclerView.Adapter#onBindViewHolder
  *     RecyclerView.Adapter#onBindViewHolder}. The item must then be updated
  *     to reflect the new selection status. Without this
  *     the user will not *see* that the item has been selected.
@@ -72,12 +72,12 @@
  * </ul>
  *
  * <p>
- * <b>Use {@link android.support.v7.view.ActionMode ActionMode} when there is a selection</b>
+ * <b>Use {@link androidx.appcompat.view.ActionMode ActionMode} when there is a selection</b>
  *
  * <p>
  * Register a {@link androidx.recyclerview.selection.SelectionTracker.SelectionObserver}
  * to be notified when selection changes. When a selection is first created, start
- * {@link android.support.v7.view.ActionMode ActionMode} to represent this to the user,
+ * {@link androidx.appcompat.view.ActionMode ActionMode} to represent this to the user,
  * and provide selection specific actions.
  *
  * <p>
