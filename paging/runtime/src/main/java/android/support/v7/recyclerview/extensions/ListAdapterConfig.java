@@ -17,25 +17,35 @@
 package android.support.v7.recyclerview.extensions;
 
 import android.arch.core.executor.ArchTaskExecutor;
+import android.support.v7.util.DiffUtil;
 
 import java.util.concurrent.Executor;
 
 /**
- * Configuration object for {@link ListAdapter}, {@link ListAdapterHelper}, and similar
+ * Configuration object for {@link ListAdapterHelper}, and similar
  * background-thread list diffing adapter logic.
  * <p>
- * At minimum, defines item diffing behavior with a {@link DiffCallback}, used to compute item
- * differences to pass to a RecyclerView adapter.
+ * At minimum, defines item diffing behavior with a {@link DiffUtil.ItemCallback}, used to compute
+ * item differences to pass to a RecyclerView adapter.
  *
- * @param <T> Type of items in the lists, and being compared.
+ * @param <T> List item type being compared by the {@link DiffUtil.ItemCallback}.
+ *
+ * @deprecated use {@link android.support.v7.recyclerview.extensions.AsyncDifferConfig} in the
+ * RecyclerView module, starting in 27.1.0. It can be used with
+ * {@link android.support.v7.recyclerview.extensions.ListAdapter} and
+ * {@link android.support.v7.recyclerview.extensions.AsyncListDiffer} in the recyclerview module, as
+ * well as {@link android.arch.paging.PagedListAdapter} and
+ * {@link android.arch.paging.AsyncPagedListDiffer} in the paging library. It is being moved from
+ * the Paging Library to RecyclerView since it is useful independent of paging.
  */
+@Deprecated
 public final class ListAdapterConfig<T> {
     private final Executor mMainThreadExecutor;
     private final Executor mBackgroundThreadExecutor;
-    private final DiffCallback<T> mDiffCallback;
+    private final DiffUtil.ItemCallback<T> mDiffCallback;
 
     private ListAdapterConfig(Executor mainThreadExecutor, Executor backgroundThreadExecutor,
-            DiffCallback<T> diffCallback) {
+            DiffUtil.ItemCallback<T> diffCallback) {
         mMainThreadExecutor = mainThreadExecutor;
         mBackgroundThreadExecutor = backgroundThreadExecutor;
         mDiffCallback = diffCallback;
@@ -49,31 +59,33 @@ public final class ListAdapterConfig<T> {
         return mBackgroundThreadExecutor;
     }
 
-    public DiffCallback<T> getDiffCallback() {
+    public DiffUtil.ItemCallback<T> getDiffCallback() {
         return mDiffCallback;
     }
 
     /**
      * Builder class for {@link ListAdapterConfig}.
      * <p>
-     * You must at minimum specify a DiffCallback with {@link #setDiffCallback(DiffCallback)}
+     * You must at minimum specify a DiffUtil.ItemCallback with
+     * {@link #setDiffCallback(DiffUtil.ItemCallback)}
      *
      * @param <T>
      */
     public static class Builder<T> {
         private Executor mMainThreadExecutor;
         private Executor mBackgroundThreadExecutor;
-        private DiffCallback<T> mDiffCallback;
+        private DiffUtil.ItemCallback<T> mDiffCallback;
 
         /**
-         * The {@link DiffCallback} to be used while diffing an old list with the updated one.
-         * Must be provided.
+         * The {@link DiffUtil.ItemCallback} to be used while diffing an old list with the updated
+         * one. Must be provided.
          *
-         * @param diffCallback The {@link DiffCallback} instance to compare items in the list.
+         * @param diffCallback The {@link DiffUtil.ItemCallback} instance to compare items in the
+         *                     list.
          * @return this
          */
         @SuppressWarnings("WeakerAccess")
-        public ListAdapterConfig.Builder<T> setDiffCallback(DiffCallback<T> diffCallback) {
+        public ListAdapterConfig.Builder<T> setDiffCallback(DiffUtil.ItemCallback<T> diffCallback) {
             mDiffCallback = diffCallback;
             return this;
         }

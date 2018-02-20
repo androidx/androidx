@@ -17,7 +17,6 @@
 package android.arch.paging;
 
 import android.support.annotation.Nullable;
-import android.support.v7.recyclerview.extensions.DiffCallback;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 
@@ -28,7 +27,7 @@ class PagedStorageDiffHelper {
     static <T> DiffUtil.DiffResult computeDiff(
             final PagedStorage<T> oldList,
             final PagedStorage<T> newList,
-            final DiffCallback<T> diffCallback) {
+            final DiffUtil.ItemCallback<T> diffCallback) {
         final int oldOffset = oldList.computeLeadingNulls();
         final int newOffset = newList.computeLeadingNulls();
 

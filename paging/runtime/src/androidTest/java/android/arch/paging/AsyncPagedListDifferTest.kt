@@ -17,8 +17,8 @@
 package android.arch.paging
 
 import android.support.test.filters.SmallTest
-import android.support.v7.recyclerview.extensions.DiffCallback
-import android.support.v7.recyclerview.extensions.ListAdapterConfig
+import android.support.v7.recyclerview.extensions.AsyncDifferConfig
+import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -36,16 +36,15 @@ import org.mockito.Mockito.verifyZeroInteractions
 
 @SmallTest
 @RunWith(JUnit4::class)
-class PagedListAdapterHelperTest {
+class AsyncPagedListDifferTest {
     private val mMainThread = TestExecutor()
     private val mDiffThread = TestExecutor()
     private val mPageLoadingThread = TestExecutor()
 
     private fun <T> createHelper(listUpdateCallback: ListUpdateCallback,
-                                 diffCallback: DiffCallback<T>): PagedListAdapterHelper<T> {
-        return PagedListAdapterHelper(listUpdateCallback,
-                ListAdapterConfig.Builder<T>()
-                        .setDiffCallback(diffCallback)
+                                 diffCallback: DiffUtil.ItemCallback<T>): AsyncPagedListDiffer<T> {
+        return AsyncPagedListDiffer(listUpdateCallback,
+                AsyncDifferConfig.Builder<T>(diffCallback)
                         .setMainThreadExecutor(mMainThread)
                         .setBackgroundThreadExecutor(mDiffThread)
                         .build())
@@ -73,7 +72,7 @@ class PagedListAdapterHelperTest {
     fun setFullList() {
         val callback = mock(ListUpdateCallback::class.java)
         val helper = createHelper(callback, STRING_DIFF_CALLBACK)
-        helper.setList(StringPagedList(0, 0, "a", "b"))
+        helper.submitList(StringPagedList(0, 0, "a", "b"))
 
         assertEquals(2, helper.itemCount)
         assertEquals("a", helper.getItem(0))
@@ -94,14 +93,14 @@ class PagedListAdapterHelperTest {
     @Test(expected = IndexOutOfBoundsException::class)
     fun getNegative() {
         val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.setList(StringPagedList(0, 0, "a", "b"))
+        helper.submitList(StringPagedList(0, 0, "a", "b"))
         helper.getItem(-1)
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getPastEnd() {
         val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.setList(StringPagedList(0, 0, "a", "b"))
+        helper.submitList(StringPagedList(0, 0, "a", "b"))
         helper.getItem(2)
     }
 
@@ -112,7 +111,7 @@ class PagedListAdapterHelperTest {
 
         assertEquals(0, helper.itemCount)
 
-        helper.setList(StringPagedList(2, 2, "a", "b"))
+        helper.submitList(StringPagedList(2, 2, "a", "b"))
 
         verify(callback).onInserted(0, 6)
         verifyNoMoreInteractions(callback)
@@ -137,7 +136,7 @@ class PagedListAdapterHelperTest {
         val callback = mock(ListUpdateCallback::class.java)
         val helper = createHelper(callback, STRING_DIFF_CALLBACK)
 
-        helper.setList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
+        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
         verify(callback).onInserted(0, ALPHABET_LIST.size)
         verifyNoMoreInteractions(callback)
         drain()
@@ -166,7 +165,7 @@ class PagedListAdapterHelperTest {
         verifyNoMoreInteractions(callback)
 
         // finally, clear
-        helper.setList(null)
+        helper.submitList(null)
         verify(callback).onRemoved(0, 26)
         drain()
         verifyNoMoreInteractions(callback)
@@ -183,7 +182,7 @@ class PagedListAdapterHelperTest {
         val helper = createHelper(callback, STRING_DIFF_CALLBACK)
 
         // initial list missing one item (immediate)
-        helper.setList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 25), 0))
+        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 25), 0))
         verify(callback).onInserted(0, 25)
         verifyNoMoreInteractions(callback)
         assertEquals(helper.itemCount, 25)
@@ -191,7 +190,7 @@ class PagedListAdapterHelperTest {
         verifyNoMoreInteractions(callback)
 
         // pass second list with full data
-        helper.setList(createPagedListFromListAndPos(config, ALPHABET_LIST, 0))
+        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 0))
         verifyNoMoreInteractions(callback)
         drain()
         verify(callback).onInserted(25, 1)
@@ -199,7 +198,7 @@ class PagedListAdapterHelperTest {
         assertEquals(helper.itemCount, 26)
 
         // finally, clear (immediate)
-        helper.setList(null)
+        helper.submitList(null)
         verify(callback).onRemoved(0, 26)
         verifyNoMoreInteractions(callback)
         drain()
@@ -217,7 +216,7 @@ class PagedListAdapterHelperTest {
         val callback = mock(ListUpdateCallback::class.java)
         val helper = createHelper(callback, STRING_DIFF_CALLBACK)
 
-        helper.setList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
+        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
         verify(callback).onInserted(0, ALPHABET_LIST.size)
         verifyNoMoreInteractions(callback)
         drain()
@@ -227,7 +226,7 @@ class PagedListAdapterHelperTest {
 
         // trigger page loading
         helper.getItem(10)
-        helper.setList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
+        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
         verifyNoMoreInteractions(callback)
 
         // drain page fetching, but list became immutable, page will be ignored
@@ -249,7 +248,7 @@ class PagedListAdapterHelperTest {
 
         val expectedCount = intArrayOf(0)
         // provides access to helper, which must be constructed after callback
-        val helperAccessor = arrayOf<PagedListAdapterHelper<*>?>(null)
+        val helperAccessor = arrayOf<AsyncPagedListDiffer<*>?>(null)
 
         val callback = object : ListUpdateCallback {
             override fun onInserted(position: Int, count: Int) {
@@ -279,20 +278,20 @@ class PagedListAdapterHelperTest {
         // in the fast-add case...
         expectedCount[0] = 5
         assertEquals(0, helper.itemCount)
-        helper.setList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 5), 0))
+        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 5), 0))
         assertEquals(5, helper.itemCount)
 
         // in the slow, diff on BG thread case...
         expectedCount[0] = 10
         assertEquals(5, helper.itemCount)
-        helper.setList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 10), 0))
+        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 10), 0))
         drain()
         assertEquals(10, helper.itemCount)
 
         // and in the fast-remove case
         expectedCount[0] = 0
         assertEquals(10, helper.itemCount)
-        helper.setList(null)
+        helper.submitList(null)
         assertEquals(0, helper.itemCount)
     }
 
@@ -316,7 +315,7 @@ class PagedListAdapterHelperTest {
     companion object {
         private val ALPHABET_LIST = List(26) { "" + 'a' + it }
 
-        private val STRING_DIFF_CALLBACK = object : DiffCallback<String>() {
+        private val STRING_DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
                 return oldItem == newItem
             }

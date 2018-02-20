@@ -17,7 +17,7 @@
 package android.arch.paging.integration.testapp;
 
 import android.support.annotation.NonNull;
-import android.support.v7.recyclerview.extensions.DiffCallback;
+import android.support.v7.util.DiffUtil;
 
 /**
  * Sample item.
@@ -45,7 +45,7 @@ class Item {
                 && this.text.equals(item.text);
     }
 
-    static final DiffCallback<Item> DIFF_CALLBACK = new DiffCallback<Item>() {
+    static final DiffUtil.ItemCallback<Item> DIFF_CALLBACK = new DiffUtil.ItemCallback<Item>() {
         @Override
         public boolean areContentsTheSame(@NonNull Item oldItem, @NonNull Item newItem) {
             return oldItem.equals(newItem);
