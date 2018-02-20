@@ -29,6 +29,7 @@ import static androidx.work.NetworkType.UNMETERED;
 import android.content.Context;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -114,6 +115,7 @@ public class FirebaseJobConverterTest extends WorkManagerTest {
 
     @Test
     @SmallTest
+    @SdkSuppress(minSdkVersion = 24)
     public void testConvert_requireContentUriTrigger() {
         final Uri expectedUri = Uri.parse("TEST_URI");
         final ObservedUri expectedObservedUri =
