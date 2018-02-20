@@ -95,14 +95,20 @@ class SystemJobInfoConverter {
         }
 
         if (workSpec.isPeriodic()) {
-            builder.setPeriodic(workSpec.getIntervalDuration(), workSpec.getFlexDuration());
+            if (Build.VERSION.SDK_INT >= 24) {
+                builder.setPeriodic(workSpec.getIntervalDuration(), workSpec.getFlexDuration());
+            } else {
+                Logger.debug(TAG,
+                        "Flex duration is currently not supported before API 24. Ignoring.");
+                builder.setPeriodic(workSpec.getIntervalDuration());
+            }
         } else {
             // Even if a Work has no constraints, setMinimumLatency(0) still needs to be called due
             // to an issue in JobInfo.Builder#build and JobInfo with no constraints. See b/67716867.
             builder.setMinimumLatency(workSpec.getInitialDelay());
         }
 
-        if (constraints.hasContentUriTriggers()) {
+        if (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers()) {
             for (ContentUriTriggers.Trigger trigger : constraints.getContentUriTriggers()) {
                 builder.addTriggerContentUri(convertContentUriTrigger(trigger));
             }
@@ -119,6 +125,7 @@ class SystemJobInfoConverter {
         return builder.build();
     }
 
+    @RequiresApi(24)
     private static JobInfo.TriggerContentUri convertContentUriTrigger(
             ContentUriTriggers.Trigger trigger) {
         int flag = trigger.shouldTriggerForDescendants()
@@ -141,7 +148,10 @@ class SystemJobInfoConverter {
             case UNMETERED:
                 return JobInfo.NETWORK_TYPE_UNMETERED;
             case NOT_ROAMING:
-                return JobInfo.NETWORK_TYPE_NOT_ROAMING;
+                if (Build.VERSION.SDK_INT >= 24) {
+                    return JobInfo.NETWORK_TYPE_NOT_ROAMING;
+                }
+                break;
             case METERED:
                 if (Build.VERSION.SDK_INT >= 26) {
                     return JobInfo.NETWORK_TYPE_METERED;
