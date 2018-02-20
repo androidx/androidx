@@ -56,7 +56,7 @@ import javax.lang.model.type.TypeKind
  */
 class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
     : ClassWriter(dao.typeName) {
-    val declaredDao = MoreTypes.asDeclared(dao.element.asType())
+    private val declaredDao = MoreTypes.asDeclared(dao.element.asType())
 
     companion object {
         // TODO nothing prevents this from conflicting, we should fix.
