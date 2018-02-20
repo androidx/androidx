@@ -29,6 +29,7 @@ FRAMEWORKS_SUPPORT_JAVA_LIBRARIES := \
     android-support-dynamic-animation \
     android-support-exifinterface \
     android-support-fragment \
+    android-support-heifwriter \
     android-support-media-compat \
     android-support-percent \
     android-support-recommendation \

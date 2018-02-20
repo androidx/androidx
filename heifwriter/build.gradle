@@ -1,0 +1,29 @@
+import static android.support.dependencies.DependenciesKt.*
+import android.support.LibraryGroups
+import android.support.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
+
+android {
+    defaultConfig {
+        targetSdkVersion = 'P'
+    }
+}
+
+dependencies {
+    api(project(":support-annotations"))
+
+    androidTestImplementation(TEST_RUNNER)
+}
+
+supportLibrary {
+    name = "Android Support HeifWriter"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.SUPPORT
+    inceptionYear = "2018"
+    minSdkVersion = 'P'
+    description = "Android Support HeifWriter for writing HEIF still images"
+}
