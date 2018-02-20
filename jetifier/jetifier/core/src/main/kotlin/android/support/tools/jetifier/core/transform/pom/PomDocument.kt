@@ -64,7 +64,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
      * Currently it checks that all the dependencies that are going to be rewritten by the given
      * rules satisfy the minimal version requirements defined by the rules.
      */
-    fun validate(rules: List<PomRewriteRule>): Boolean {
+    fun validate(rules: Set<PomRewriteRule>): Boolean {
         if (dependenciesGroup == null) {
             // Nothing to validate as this file has no dependencies section
             return true
@@ -78,7 +78,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
      *
      * Changes are not saved back until requested.
      */
-    fun applyRules(rules: List<PomRewriteRule>) {
+    fun applyRules(rules: Set<PomRewriteRule>) {
         if (dependenciesGroup == null) {
             // Nothing to transform as this file has no dependencies section
             return

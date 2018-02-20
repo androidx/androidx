@@ -325,7 +325,7 @@ class XmlResourcesTransformerTest {
             restrictToPackagePrefixes = prefixes,
             rewriteRules = emptyList(),
             slRules = emptyList(),
-            pomRewriteRules = emptyList(),
+            pomRewriteRules = emptySet(),
             typesMap = typeMap,
             proGuardMap = ProGuardTypesMap.EMPTY,
             packageMap = packageMap

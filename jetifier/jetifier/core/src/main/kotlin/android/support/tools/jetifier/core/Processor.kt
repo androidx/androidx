@@ -24,6 +24,7 @@ import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.transform.Transformer
 import android.support.tools.jetifier.core.transform.bytecode.ByteCodeTransformer
 import android.support.tools.jetifier.core.transform.metainf.MetaInfTransformer
+import android.support.tools.jetifier.core.transform.pom.PomDependency
 import android.support.tools.jetifier.core.transform.pom.PomDocument
 import android.support.tools.jetifier.core.transform.pom.PomScanner
 import android.support.tools.jetifier.core.transform.proguard.ProGuardTransformer
@@ -91,7 +92,7 @@ class Processor private constructor (
                     restrictToPackagePrefixes = listOf(REVERSE_RESTRICT_TO_PACKAGE),
                     rewriteRules = config.rewriteRules,
                     slRules = config.slRules,
-                    pomRewriteRules = emptyList(), // TODO: This will need a new set of rules
+                    pomRewriteRules = emptySet(), // TODO: This will need a new set of rules
                     typesMap = config.typesMap.reverseMapOrDie(),
                     proGuardMap = config.proGuardMap.reverseMapOrDie(),
                     packageMap = config.packageMap.reverse()
@@ -124,7 +125,7 @@ class Processor private constructor (
      * of a single file, only one library can be given as input.
      * @param copyUnmodifiedLibsAlso Whether archives that were not modified should be also copied
      * to the given [outputPath]
-     * @return List of files (existing and generated) that should replace the given [inputLibraries]
+     * @return list of files (existing and generated) that should replace the given [inputLibraries]
      */
     fun transform(inputLibraries: Set<File>,
             outputPath: Path,
@@ -181,6 +182,30 @@ class Processor private constructor (
             .toSet()
 
         return inputLibraries.minus(filesToRemove).plus(generatedLibraries)
+    }
+
+    /**
+     * Maps the given dependency (in form of groupId:artifactId:version) to a new set of
+     * dependencies. Used for mapping of old support library artifacts to jetpack ones.
+     *
+     * @return set of new dependencies. Can be empty which means the given dependency should be
+     * removed without replacement. Returns null in case a mapping was not found which means that
+     * the given artifact was unknown.
+     */
+    fun mapDependency(depNotation: String): Set<String>? {
+        val parts = depNotation.split(":")
+        val inputDependency = PomDependency(
+            groupId = parts[0],
+            artifactId = parts[1],
+            version = parts[2])
+
+        // TODO: We ignore version check for now
+        val resultRule = context.config.pomRewriteRules
+            .firstOrNull { it.matches(inputDependency) } ?: return null
+
+        return resultRule.to
+            .map { it.toStringNotation() }
+            .toSet()
     }
 
     private fun loadLibraries(inputLibraries: Iterable<File>): List<Archive> {

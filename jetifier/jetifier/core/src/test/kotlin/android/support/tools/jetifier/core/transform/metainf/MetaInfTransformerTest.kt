@@ -103,7 +103,7 @@ class MetaInfTransformerTest {
             restrictToPackagePrefixes = emptyList(),
             rewriteRules = emptyList(),
             slRules = emptyList(),
-            pomRewriteRules = emptyList(),
+            pomRewriteRules = emptySet(),
             packageMap = PackageMap.EMPTY,
             typesMap = TypesMap.EMPTY,
             proGuardMap = ProGuardTypesMap.EMPTY

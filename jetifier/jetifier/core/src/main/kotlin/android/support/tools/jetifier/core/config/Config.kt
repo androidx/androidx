@@ -36,13 +36,25 @@ import com.google.gson.annotations.SerializedName
  * rewrite.
  */
 data class Config(
-        val restrictToPackagePrefixes: List<String>,
-        val rewriteRules: List<RewriteRule>,
-        val slRules: List<RewriteRule>,
-        val pomRewriteRules: List<PomRewriteRule>,
-        val typesMap: TypesMap,
-        val proGuardMap: ProGuardTypesMap,
-        val packageMap: PackageMap = PackageMap(PackageMap.DEFAULT_RULES)) {
+    val restrictToPackagePrefixes: List<String>,
+    val rewriteRules: List<RewriteRule>,
+    val slRules: List<RewriteRule>,
+    val pomRewriteRules: Set<PomRewriteRule>,
+    val typesMap: TypesMap,
+    val proGuardMap: ProGuardTypesMap,
+    val packageMap: PackageMap = PackageMap(PackageMap.DEFAULT_RULES)
+) {
+
+    init {
+        // Verify pom rules
+        val testSet = mutableSetOf<String>()
+        pomRewriteRules.forEach {
+            val raw = "${it.from.groupId}:${it.from.artifactId}"
+            if (!testSet.add(raw)) {
+                throw IllegalArgumentException("Artifact '$raw' is defined twice in pom rules!")
+            }
+        }
+    }
 
     companion object {
         /** Path to the default config file located within the jar file. */
@@ -86,15 +98,16 @@ data class Config(
             val mappings: TypesMap.JsonData? = null,
 
             @SerializedName("proGuardMap")
-            val proGuardMap: ProGuardTypesMap.JsonData? = null) {
-
+            val proGuardMap: ProGuardTypesMap.JsonData? = null
+    ) {
         /** Creates instance of [Config] */
         fun toConfig(): Config {
+
             return Config(
                 restrictToPackagePrefixes = restrictToPackages.filterNotNull(),
                 rewriteRules = rules.filterNotNull().map { it.toRule() },
                 slRules = slRules?.filterNotNull()?.map { it.toRule() } ?: listOf(),
-                pomRewriteRules = pomRules.filterNotNull().map { it.toRule() },
+                pomRewriteRules = pomRules.filterNotNull().map { it.toRule() }.toSet(),
                 typesMap = mappings?.toMappings() ?: TypesMap.EMPTY,
                 proGuardMap = proGuardMap?.toMappings() ?: ProGuardTypesMap.EMPTY
             )

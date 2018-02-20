@@ -25,16 +25,35 @@ import com.google.gson.annotations.SerializedName
  * Any dependency that is matched against [from] should be rewritten to list of the dependencies
  * defined in [to].
  */
-data class PomRewriteRule(val from: PomDependency, val to: List<PomDependency>) {
+data class PomRewriteRule(val from: PomDependency, val to: Set<PomDependency>) {
+
+    init {
+        validate(from, checkVersion = false)
+        to.forEach { validate(it, checkVersion = true) }
+    }
 
     companion object {
-        val TAG : String = "PomRule"
+        val TAG: String = "PomRule"
+
+        private fun validate(dep: PomDependency, checkVersion: Boolean) {
+            if (dep.groupId == null || dep.groupId.isEmpty()) {
+                throw IllegalArgumentException("GroupId is missing in the POM rule!")
+            }
+
+            if (dep.artifactId == null || dep.artifactId.isEmpty()) {
+                throw IllegalArgumentException("ArtifactId is missing in the POM rule!")
+            }
+
+            if (checkVersion && (dep.version == null || dep.version!!.isEmpty())) {
+                throw IllegalArgumentException("Version is missing in the POM rule!")
+            }
+        }
     }
 
     /**
      * Validates that the given [input] dependency has a valid version.
      */
-    fun validateVersion(input: PomDependency, document: PomDocument? = null) : Boolean {
+    fun validateVersion(input: PomDependency, document: PomDocument? = null): Boolean {
         if (from.version == null || input.version == null) {
             return true
         }
@@ -59,7 +78,7 @@ data class PomRewriteRule(val from: PomDependency, val to: List<PomDependency>) 
      * Version entry can be actually quite complicated, see the full documentation at:
      * https://maven.apache.org/pom.html#Dependencies
      */
-    private fun areVersionsMatching(ourVersion: String, version: String) : Boolean {
+    private fun areVersionsMatching(ourVersion: String, version: String): Boolean {
         if (version == "latest" || version == "release") {
             return true
         }
@@ -75,29 +94,28 @@ data class PomRewriteRule(val from: PomDependency, val to: List<PomDependency>) 
         return ourVersion == version
     }
 
-    fun matches(input: PomDependency) : Boolean {
+    fun matches(input: PomDependency): Boolean {
         return input.artifactId == from.artifactId && input.groupId == from.groupId
     }
 
     /** Returns JSON data model of this class */
-    fun toJson() : PomRewriteRule.JsonData {
+    fun toJson(): PomRewriteRule.JsonData {
         return PomRewriteRule.JsonData(from, to)
     }
-
 
     /**
      * JSON data model for [PomRewriteRule].
      */
     data class JsonData(
-            @SerializedName("from")
-            val from: PomDependency,
-            @SerializedName("to")
-            val to: List<PomDependency>)  {
+        @SerializedName("from")
+        val from: PomDependency,
+        @SerializedName("to")
+        val to: Set<PomDependency>
+    ) {
 
         /** Creates instance of [PomRewriteRule] */
-        fun toRule() : PomRewriteRule {
-            return PomRewriteRule(from, to.filterNotNull())
+        fun toRule(): PomRewriteRule {
+            return PomRewriteRule(from, to.filterNotNull().toSet())
         }
     }
-
 }

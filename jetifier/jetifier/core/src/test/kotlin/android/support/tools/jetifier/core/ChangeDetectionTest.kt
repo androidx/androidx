@@ -41,7 +41,7 @@ class ChangeDetectionTest {
         restrictToPackagePrefixes = emptyList(),
         rewriteRules = emptyList(),
         slRules = emptyList(),
-        pomRewriteRules = emptyList(),
+        pomRewriteRules = emptySet(),
         typesMap = TypesMap.EMPTY,
         proGuardMap = ProGuardTypesMap.EMPTY,
         packageMap = PackageMap.EMPTY
@@ -55,11 +55,11 @@ class ChangeDetectionTest {
             RewriteRule(from = "(.*)/R(.*)", to = "ignore")
         ),
         slRules = emptyList(),
-        pomRewriteRules = listOf(
+        pomRewriteRules = setOf(
             PomRewriteRule(
                 PomDependency(
                     groupId = "supportGroup", artifactId = "supportArtifact", version = "4.0"),
-                listOf(
+                setOf(
                     PomDependency(
                         groupId = "testGroup", artifactId = "testArtifact", version = "1.0")
                 )
