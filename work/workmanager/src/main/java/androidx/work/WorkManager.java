@@ -17,6 +17,7 @@
 package androidx.work;
 
 import android.arch.lifecycle.LiveData;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
@@ -34,10 +35,13 @@ public abstract class WorkManager {
     /**
      * Retrieves the singleton instance of {@link WorkManager}.
      *
+     * @param context A {@link Context} object for configuration purposes.  Internally, this class
+     *                will call {@link Context#getApplicationContext()}, so you may safely pass in
+     *                any Context without risking a memory leak.
      * @return The singleton instance of {@link WorkManager}
      */
-    public static synchronized WorkManager getInstance() {
-        return WorkManagerImpl.getInstance();
+    public static synchronized WorkManager getInstance(Context context) {
+        return WorkManagerImpl.getInstance(context);
     }
 
     /**

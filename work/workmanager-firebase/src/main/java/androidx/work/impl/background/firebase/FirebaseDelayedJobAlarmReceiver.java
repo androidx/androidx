@@ -40,7 +40,7 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
     public void onReceive(final Context context, Intent intent) {
         final PendingResult pendingResult = goAsync();
         final String workSpecId = intent.getStringExtra(WORKSPEC_ID_KEY);
-        final WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
+        final WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance(context);
         final WorkDatabase database = workManagerImpl.getWorkDatabase();
         new Thread(new Runnable() {
             @Override

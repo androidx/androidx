@@ -67,7 +67,7 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
     }
 
     private void enqueueWork() {
-        WorkManager workManager = WorkManager.getInstance();
+        WorkManager workManager = WorkManager.getInstance(this);
 
         Work textReducingWork = new Work.Builder(TextReducingWorker.class)
                 .withInputMerger(ArrayCreatingInputMerger.class)

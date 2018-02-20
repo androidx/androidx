@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -54,7 +55,8 @@ public class FirebaseJobServiceTest extends WorkManagerTest {
 
     @Before
     public void setUp() {
-        mDatabase = WorkManagerImpl.getInstance().getWorkDatabase();
+        mDatabase = WorkManagerImpl.getInstance(InstrumentationRegistry.getTargetContext())
+                .getWorkDatabase();
         mFirebaseJobService = new FirebaseJobService(); // Bleh.
         mFirebaseJobService.onCreate();
     }
@@ -102,7 +104,8 @@ public class FirebaseJobServiceTest extends WorkManagerTest {
 
         JobParameters mockParams = createMockJobParameters(work.getId());
         assertThat(mFirebaseJobService.onStartJob(mockParams), is(true));
-        WorkManagerImpl.getInstance().cancelWorkForId(work.getId());
+        WorkManagerImpl.getInstance(InstrumentationRegistry.getTargetContext())
+                .cancelWorkForId(work.getId());
         assertThat(mFirebaseJobService.onStopJob(mockParams), is(false));
     }
 
