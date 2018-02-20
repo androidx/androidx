@@ -65,18 +65,27 @@ public class SystemJobService extends JobService implements ExecutionListener {
             return false;
         }
 
-        boolean isPeriodic = extras.getBoolean(SystemJobInfoConverter.EXTRA_IS_PERIODIC, false);
-        if (isPeriodic && params.isOverrideDeadlineExpired()) {
-            Logger.debug(TAG, "Override deadline expired for id %s. Retry requested", workSpecId);
-            jobFinished(params, true);
-            return false;
-        }
-
-        Logger.debug(TAG, "onStartJob for %s", workSpecId);
-
         synchronized (mJobParameters) {
+            if (mJobParameters.containsKey(workSpecId)) {
+                // This condition may happen due to our workaround for an undesired behavior in API
+                // 23.  See the documentation in {@link SystemJobScheduler#schedule}.
+                Logger.debug(TAG,
+                        "Job is already being executed by SystemJobService: %s", workSpecId);
+                return false;
+            }
+
+            boolean isPeriodic = extras.getBoolean(SystemJobInfoConverter.EXTRA_IS_PERIODIC, false);
+            if (isPeriodic && params.isOverrideDeadlineExpired()) {
+                Logger.debug(TAG,
+                        "Override deadline expired for id %s. Retry requested", workSpecId);
+                jobFinished(params, true);
+                return false;
+            }
+
+            Logger.debug(TAG, "onStartJob for %s", workSpecId);
             mJobParameters.put(workSpecId, params);
         }
+
         mWorkManagerImpl.startWork(workSpecId);
         return true;
     }

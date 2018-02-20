@@ -1,0 +1,133 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.work.impl.background.systemjob;
+
+
+import static android.app.job.JobScheduler.RESULT_SUCCESS;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
+
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.os.PersistableBundle;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.work.Work;
+import androidx.work.WorkManagerTest;
+import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.WorkSpec;
+import androidx.work.worker.TestWorker;
+
+@RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
+public class SystemJobSchedulerTest extends WorkManagerTest {
+
+    private static final String TEST_ID = "test";
+
+    private JobScheduler mJobScheduler;
+    private SystemJobScheduler mSystemJobScheduler;
+
+    @Before
+    public void setUp() {
+        mJobScheduler = mock(JobScheduler.class);
+        doReturn(RESULT_SUCCESS).when(mJobScheduler).schedule(any(JobInfo.class));
+
+        List<JobInfo> allJobInfos = new ArrayList<>(2);
+        PersistableBundle extras = new PersistableBundle();
+        extras.putString(EXTRA_WORK_SPEC_ID, TEST_ID);
+        JobInfo mockJobInfo1 = mock(JobInfo.class);
+        doReturn(extras).when(mockJobInfo1).getExtras();
+        JobInfo mockJobInfo2 = mock(JobInfo.class);
+        doReturn(extras).when(mockJobInfo2).getExtras();
+
+        allJobInfos.add(mockJobInfo1);
+        allJobInfos.add(mockJobInfo2);
+        doReturn(allJobInfos).when(mJobScheduler).getAllPendingJobs();
+
+        mSystemJobScheduler =
+                spy(new SystemJobScheduler(mJobScheduler,
+                        new SystemJobInfoConverter(InstrumentationRegistry.getTargetContext())));
+        doNothing().when(mSystemJobScheduler).scheduleInternal(any(WorkSpec.class));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 23)
+    public void testSystemJobScheduler_schedulesTwiceOnApi23() {
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        WorkSpec workSpec1 = getWorkSpec(work1);
+
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        WorkSpec workSpec2 = getWorkSpec(work2);
+
+        mSystemJobScheduler.schedule(workSpec1, workSpec2);
+
+        verify(mSystemJobScheduler, times(2)).scheduleInternal(workSpec1);
+        verify(mSystemJobScheduler, times(2)).scheduleInternal(workSpec2);
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 24)
+    public void testSystemJobScheduler_schedulesOnceAtOrAboveApi24() {
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        WorkSpec workSpec1 = getWorkSpec(work1);
+
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        WorkSpec workSpec2 = getWorkSpec(work2);
+
+        mSystemJobScheduler.schedule(workSpec1, workSpec2);
+
+        verify(mSystemJobScheduler, times(1)).scheduleInternal(workSpec1);
+        verify(mSystemJobScheduler, times(1)).scheduleInternal(workSpec2);
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 23)
+    public void testSystemJobScheduler_cancelsAllOnApi23() {
+        mSystemJobScheduler.cancel(TEST_ID);
+        verify(mJobScheduler, times(2)).cancel(anyInt());
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 24)
+    public void testSystemJobScheduler_cancelsOnceAtOrAboveApi24() {
+        mSystemJobScheduler.cancel(TEST_ID);
+        verify(mJobScheduler, times(1)).cancel(anyInt());
+    }
+}
