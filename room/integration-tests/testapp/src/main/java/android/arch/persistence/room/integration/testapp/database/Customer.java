@@ -19,7 +19,7 @@ package android.arch.persistence.room.integration.testapp.database;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
-import android.support.v7.recyclerview.extensions.DiffCallback;
+import android.support.v7.util.DiffUtil;
 
 /**
  * Sample entity
@@ -96,7 +96,8 @@ public class Customer {
                 + '}';
     }
 
-    public static final DiffCallback<Customer> DIFF_CALLBACK = new DiffCallback<Customer>() {
+    public static final DiffUtil.ItemCallback<Customer> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<Customer>() {
         @Override
         public boolean areContentsTheSame(@NonNull Customer oldItem, @NonNull Customer newItem) {
             return oldItem.equals(newItem);
