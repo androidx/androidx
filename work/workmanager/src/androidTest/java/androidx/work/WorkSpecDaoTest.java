@@ -19,9 +19,6 @@ package androidx.work;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
 
 import static androidx.work.State.SUCCEEDED;
 
@@ -34,77 +31,12 @@ import org.junit.runner.RunWith;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import androidx.work.impl.model.Dependency;
-import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.worker.TestWorker;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkSpecDaoTest extends DatabaseTest {
-
-    @Test
-    @SmallTest
-    public void testPruneLeaves() {
-        Work enqueuedWork = new Work.Builder(TestWorker.class).build();
-        Work finishedPrerequisiteWork1A =
-                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
-        Work finishedPrerequisiteWork1B =
-                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
-        Work finishedPrerequisiteWork2 =
-                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
-        Work finishedFinalWork =
-                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
-
-        insertWork(enqueuedWork);
-        insertWork(finishedPrerequisiteWork1A);
-        insertWork(finishedPrerequisiteWork1B);
-        insertWork(finishedPrerequisiteWork2);
-        insertWork(finishedFinalWork);
-
-        Dependency dependency21A = new Dependency(
-                finishedPrerequisiteWork2.getId(), finishedPrerequisiteWork1A.getId());
-        Dependency dependency21B = new Dependency(
-                finishedPrerequisiteWork2.getId(), finishedPrerequisiteWork1B.getId());
-        Dependency dependencyFinal2 = new Dependency(
-                finishedFinalWork.getId(), finishedPrerequisiteWork2.getId());
-
-        DependencyDao dependencyDao = mDatabase.dependencyDao();
-        dependencyDao.insertDependency(dependency21A);
-        dependencyDao.insertDependency(dependency21B);
-        dependencyDao.insertDependency(dependencyFinal2);
-
-        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        int result = workSpecDao.pruneLeaves();
-        assertThat(result, is(1));
-        assertThat(workSpecDao.getWorkSpec(finishedFinalWork.getId()), is(nullValue()));
-        assertThat(
-                workSpecDao.getWorkSpec(finishedPrerequisiteWork2.getId()), is(not(nullValue())));
-        assertThat(
-                workSpecDao.getWorkSpec(finishedPrerequisiteWork1A.getId()), is(not(nullValue())));
-        assertThat(
-                workSpecDao.getWorkSpec(finishedPrerequisiteWork1B.getId()), is(not(nullValue())));
-        assertThat(workSpecDao.getWorkSpec(enqueuedWork.getId()), is(not(nullValue())));
-
-        result = workSpecDao.pruneLeaves();
-        assertThat(result, is(1));
-        assertThat(workSpecDao.getWorkSpec(finishedPrerequisiteWork2.getId()), is(nullValue()));
-        assertThat(
-                workSpecDao.getWorkSpec(finishedPrerequisiteWork1A.getId()), is(not(nullValue())));
-        assertThat(
-                workSpecDao.getWorkSpec(finishedPrerequisiteWork1B.getId()), is(not(nullValue())));
-        assertThat(workSpecDao.getWorkSpec(enqueuedWork.getId()), is(not(nullValue())));
-
-        result = workSpecDao.pruneLeaves();
-        assertThat(result, is(2));
-        assertThat(workSpecDao.getWorkSpec(finishedPrerequisiteWork1A.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(finishedPrerequisiteWork1B.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(enqueuedWork.getId()), is(not(nullValue())));
-
-        result = workSpecDao.pruneLeaves();
-        assertThat(result, is(0));
-        assertThat(workSpecDao.getWorkSpec(enqueuedWork.getId()), is(not(nullValue())));
-    }
 
     @Test
     @SmallTest

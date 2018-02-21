@@ -41,7 +41,6 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.CancelWorkRunnable;
 import androidx.work.impl.utils.LiveDataUtils;
-import androidx.work.impl.utils.PruneDatabaseRunnable;
 import androidx.work.impl.utils.StartWorkRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -174,11 +173,6 @@ public class WorkManagerImpl extends WorkManager {
     public void cancelAllWorkWithTagSync(@NonNull String tag) {
         assertBackgroundThread("Cannot cancelAllWorkWithTagSync on main thread!");
         new CancelWorkRunnable(this, null, tag).run();
-    }
-
-    @Override
-    public void pruneDatabase() {
-        mTaskExecutor.executeOnBackgroundThread(new PruneDatabaseRunnable(mWorkDatabase));
     }
 
     @Override

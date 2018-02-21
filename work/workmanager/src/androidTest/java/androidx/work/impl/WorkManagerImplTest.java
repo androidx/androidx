@@ -756,47 +756,6 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testPruneDatabase() {
-        Work enqueuedWork = new Work.Builder(TestWorker.class).build();
-        Work finishedPrerequisiteWork1A =
-                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
-        Work finishedPrerequisiteWork1B =
-                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
-        Work finishedPrerequisiteWork2 =
-                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
-        Work finishedFinalWork =
-                new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
-
-        insertWorkSpecAndTags(enqueuedWork);
-        insertWorkSpecAndTags(finishedPrerequisiteWork1A);
-        insertWorkSpecAndTags(finishedPrerequisiteWork1B);
-        insertWorkSpecAndTags(finishedPrerequisiteWork2);
-        insertWorkSpecAndTags(finishedFinalWork);
-
-        Dependency dependency21A = new Dependency(
-                finishedPrerequisiteWork2.getId(), finishedPrerequisiteWork1A.getId());
-        Dependency dependency21B = new Dependency(
-                finishedPrerequisiteWork2.getId(), finishedPrerequisiteWork1B.getId());
-        Dependency dependencyFinal2 = new Dependency(
-                finishedFinalWork.getId(), finishedPrerequisiteWork2.getId());
-
-        DependencyDao dependencyDao = mDatabase.dependencyDao();
-        dependencyDao.insertDependency(dependency21A);
-        dependencyDao.insertDependency(dependency21B);
-        dependencyDao.insertDependency(dependencyFinal2);
-
-        mWorkManagerImpl.pruneDatabase();
-
-        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getWorkSpec(enqueuedWork.getId()), is(not(nullValue())));
-        assertThat(workSpecDao.getWorkSpec(finishedPrerequisiteWork1A.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(finishedPrerequisiteWork1B.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(finishedPrerequisiteWork2.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(finishedFinalWork.getId()), is(nullValue()));
-    }
-
-    @Test
-    @SmallTest
     public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
