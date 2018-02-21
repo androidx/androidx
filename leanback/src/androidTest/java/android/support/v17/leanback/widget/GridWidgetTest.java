@@ -2710,7 +2710,7 @@ public class GridWidgetTest {
         intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
         intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
         mOrientation = BaseGridView.VERTICAL;
-        mNumRows = 1;
+        mNumRows = 2;
         initActivity(intent);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -2725,6 +2725,26 @@ public class GridWidgetTest {
         sendKey(KeyEvent.KEYCODE_DPAD_LEFT);
         waitForScrollIdle(mVerifyLayout);
         assertTrue(mGridView.hasFocus());
+    }
+
+    @Test
+    public void testVerticalGridRtl() throws Throwable {
+        final int numItems = 200;
+
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid_rtl);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 2;
+        initActivity(intent);
+
+        waitForScrollIdle(mVerifyLayout);
+
+        View item0 = mGridView.findViewHolderForAdapterPosition(0).itemView;
+        View item1 = mGridView.findViewHolderForAdapterPosition(1).itemView;
+        assertEquals(mGridView.getWidth() - mGridView.getPaddingRight(), item0.getRight());
+        assertEquals(item0.getLeft(), item1.getRight() + mGridView.getHorizontalSpacing());
     }
 
     @Test
