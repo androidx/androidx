@@ -16,8 +16,12 @@
 
 package android.support.v4.view.accessibility;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeTrue;
 
+import android.os.Build;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -30,17 +34,72 @@ import org.junit.runner.RunWith;
 public class AccessibilityNodeInfoCompatTest {
     @Test
     public void testSetCollectionInfoIsNullable() throws Exception {
-        AccessibilityNodeInfo accessibilityNodeInfo = AccessibilityNodeInfo.obtain();
-        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = AccessibilityNodeInfoCompat.wrap(
-                accessibilityNodeInfo);
+        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
         accessibilityNodeInfoCompat.setCollectionInfo(null);
     }
 
     @Test
     public void testSetCollectionItemInfoIsNullable() throws Exception {
-        AccessibilityNodeInfo accessibilityNodeInfo = AccessibilityNodeInfo.obtain();
-        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = AccessibilityNodeInfoCompat.wrap(
-                accessibilityNodeInfo);
+        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
         accessibilityNodeInfoCompat.setCollectionItemInfo(null);
+    }
+
+    @Test
+    public void testGetSetHintText() {
+        final CharSequence hintText = (Build.VERSION.SDK_INT >= 19) ? "hint text" : null;
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setHintText(hintText);
+        assertThat(nodeCompat.getHintText(), equalTo(hintText));
+    }
+
+    @Test
+    public void testGetSetPaneTitle() {
+        final CharSequence paneTitle = (Build.VERSION.SDK_INT >= 19) ? "pane title" : null;
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setPaneTitle(paneTitle);
+        assertThat(nodeCompat.getPaneTitle(), equalTo(paneTitle));
+    }
+
+    @Test
+    public void testGetSetTooltipText() {
+        final CharSequence tooltipText = (Build.VERSION.SDK_INT >= 19) ? "tooltip" : null;
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setTooltipText(tooltipText);
+        assertThat(nodeCompat.getTooltipText(), equalTo(tooltipText));
+    }
+
+    @Test
+    public void testGetSetShowingHintText() {
+        assumeTrue(Build.VERSION.SDK_INT >= 19);
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setShowingHintText(true);
+        assertThat(nodeCompat.isShowingHintText(), is(true));
+        nodeCompat.setShowingHintText(false);
+        assertThat(nodeCompat.isShowingHintText(), is(false));
+    }
+
+    @Test
+    public void testGetSetScreenReaderFocusable() {
+        assumeTrue(Build.VERSION.SDK_INT >= 19);
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setScreenReaderFocusable(true);
+        assertThat(nodeCompat.isScreenReaderFocusable(), is(true));
+        nodeCompat.setScreenReaderFocusable(false);
+        assertThat(nodeCompat.isScreenReaderFocusable(), is(false));
+    }
+
+    @Test
+    public void testGetSetHeading() {
+        assumeTrue(Build.VERSION.SDK_INT >= 19);
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setHeading(true);
+        assertThat(nodeCompat.isHeading(), is(true));
+        nodeCompat.setHeading(false);
+        assertThat(nodeCompat.isHeading(), is(false));
+    }
+
+    private AccessibilityNodeInfoCompat obtainedWrappedNodeCompat() {
+        AccessibilityNodeInfo accessibilityNodeInfo = AccessibilityNodeInfo.obtain();
+        return AccessibilityNodeInfoCompat.wrap(accessibilityNodeInfo);
     }
 }
