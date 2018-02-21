@@ -129,6 +129,17 @@ public class SystemJobServiceTest extends WorkManagerTest {
         assertThat(mSystemJobService.onStopJob(mockParams), is(false));
     }
 
+    @Test
+    @SmallTest
+    public void testStartJob_ReturnsFalseWithDuplicateJob() {
+        Work work = new Work.Builder(InfiniteTestWorker.class).build();
+        insertWork(work);
+
+        JobParameters mockParams = createMockJobParameters(work.getId());
+        assertThat(mSystemJobService.onStartJob(mockParams), is(true));
+        assertThat(mSystemJobService.onStartJob(mockParams), is(false));
+    }
+
     private JobParameters createMockJobParameters(String id) {
         JobParameters jobParameters = mock(JobParameters.class);
 
