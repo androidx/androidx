@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package android.support.v4;
+package android.support.v4.widget;
 
 import android.app.Activity;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
-import org.junit.Rule;
-import org.junit.runner.RunWith;
+import android.os.Bundle;
+import android.support.compat.test.R;
 
-@RunWith(AndroidJUnit4.class)
-public abstract class BaseInstrumentationTestCase<A extends Activity> {
-    @Rule
-    public final ActivityTestRule<A> mActivityTestRule;
-
-    protected BaseInstrumentationTestCase(Class<A> activityClass) {
-        mActivityTestRule = new ActivityTestRule<A>(activityClass);
+public class ContentLoadingProgressBarActivity extends Activity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.content_loading_progress_bar_activity);
     }
 }
