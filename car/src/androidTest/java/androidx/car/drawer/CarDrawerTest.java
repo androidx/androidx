@@ -26,6 +26,7 @@ import static org.junit.Assume.assumeThat;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
@@ -51,21 +52,25 @@ import androidx.car.widget.PagedListView;
 @MediumTest
 public final class CarDrawerTest {
     @Rule
-    public ActivityTestRule<CarDrawerTestActivity> mActivityRule =
-            new ActivityTestRule<>(CarDrawerTestActivity.class);
+    public ActivityTestRule<CarDrawerTestActivity> mActivityRule;
 
     private CarDrawerTestActivity mActivity;
     private PagedListView mDrawerList;
 
     /** Returns {@code true} if the testing device has the automotive feature flag. */
     private boolean isAutoDevice() {
-        PackageManager packageManager = mActivityRule.getActivity().getPackageManager();
+        PackageManager packageManager = InstrumentationRegistry.getContext().getPackageManager();
         return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
     }
 
     @Before
     public void setUp() {
         Assume.assumeTrue(isAutoDevice());
+
+        // Inflate the activity here rather than initialization because it needs to happen after
+        // the isAutoDevice() check. Otherwise, errors will be thrown about "android.car.Car"
+        // classes not being found.
+        mActivityRule = new ActivityTestRule<>(CarDrawerTestActivity.class);
 
         mActivity = mActivityRule.getActivity();
         try {

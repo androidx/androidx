@@ -17,7 +17,6 @@
 package androidx.car.moderator;
 
 import android.content.Context;
-import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -56,13 +55,16 @@ public class SpeedBumpView extends FrameLayout {
         addView(mSpeedBumpController.getLockoutMessageView());
     }
 
-    /**
-     * Returns the view that is responsible for displaying a message telling the user that they
-     * have been locked out from further interaction.
-     */
-    @VisibleForTesting
-    View getLockOutMessageView() {
-        return mSpeedBumpController.getLockoutMessageView();
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mSpeedBumpController.start();
+    }
+
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mSpeedBumpController.stop();
     }
 
     @Override
