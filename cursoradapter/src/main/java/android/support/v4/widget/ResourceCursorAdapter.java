@@ -18,9 +18,9 @@ package android.support.v4.widget;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.LayoutInflater;
 
 /**
  * Static library support version of the framework's {@link android.widget.ResourceCursorAdapter}.

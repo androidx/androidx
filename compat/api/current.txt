@@ -136,6 +136,12 @@ package android.support.v4.app {
     method public static void setExactAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
   }
 
+  public class AppLaunchChecker {
+    ctor public AppLaunchChecker();
+    method public static boolean hasStartedFromLauncher(android.content.Context);
+    method public static void onActivityCreate(android.app.Activity);
+  }
+
   public final class AppOpsManagerCompat {
     method public static int noteOp(android.content.Context, java.lang.String, int, java.lang.String);
     method public static int noteOpNoThrow(android.content.Context, java.lang.String, int, java.lang.String);
@@ -153,6 +159,35 @@ package android.support.v4.app {
     method public static void putBinder(android.os.Bundle, java.lang.String, android.os.IBinder);
   }
 
+  public class FrameMetricsAggregator {
+    ctor public FrameMetricsAggregator();
+    ctor public FrameMetricsAggregator(int);
+    method public void add(android.app.Activity);
+    method public android.util.SparseIntArray[] getMetrics();
+    method public android.util.SparseIntArray[] remove(android.app.Activity);
+    method public android.util.SparseIntArray[] reset();
+    method public android.util.SparseIntArray[] stop();
+    field public static final int ANIMATION_DURATION = 256; // 0x100
+    field public static final int ANIMATION_INDEX = 8; // 0x8
+    field public static final int COMMAND_DURATION = 32; // 0x20
+    field public static final int COMMAND_INDEX = 5; // 0x5
+    field public static final int DELAY_DURATION = 128; // 0x80
+    field public static final int DELAY_INDEX = 7; // 0x7
+    field public static final int DRAW_DURATION = 8; // 0x8
+    field public static final int DRAW_INDEX = 3; // 0x3
+    field public static final int EVERY_DURATION = 511; // 0x1ff
+    field public static final int INPUT_DURATION = 2; // 0x2
+    field public static final int INPUT_INDEX = 1; // 0x1
+    field public static final int LAYOUT_MEASURE_DURATION = 4; // 0x4
+    field public static final int LAYOUT_MEASURE_INDEX = 2; // 0x2
+    field public static final int SWAP_DURATION = 64; // 0x40
+    field public static final int SWAP_INDEX = 6; // 0x6
+    field public static final int SYNC_DURATION = 16; // 0x10
+    field public static final int SYNC_INDEX = 4; // 0x4
+    field public static final int TOTAL_DURATION = 1; // 0x1
+    field public static final int TOTAL_INDEX = 0; // 0x0
+  }
+
   public abstract class JobIntentService extends android.app.Service {
     ctor public JobIntentService();
     method public static void enqueueWork(android.content.Context, java.lang.Class, int, android.content.Intent);
@@ -162,6 +197,18 @@ package android.support.v4.app {
     method protected abstract void onHandleWork(android.content.Intent);
     method public boolean onStopCurrentWork();
     method public void setInterruptIfStopped(boolean);
+  }
+
+  public final class NavUtils {
+    method public static android.content.Intent getParentActivityIntent(android.app.Activity);
+    method public static android.content.Intent getParentActivityIntent(android.content.Context, java.lang.Class<?>) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public static android.content.Intent getParentActivityIntent(android.content.Context, android.content.ComponentName) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public static java.lang.String getParentActivityName(android.app.Activity);
+    method public static java.lang.String getParentActivityName(android.content.Context, android.content.ComponentName) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public static void navigateUpFromSameTask(android.app.Activity);
+    method public static void navigateUpTo(android.app.Activity, android.content.Intent);
+    method public static boolean shouldUpRecreateTask(android.app.Activity, android.content.Intent);
+    field public static final java.lang.String PARENT_ACTIVITY = "android.support.PARENT_ACTIVITY";
   }
 
   public class NotificationCompat {
@@ -683,6 +730,29 @@ package android.support.v4.app {
     method public abstract void onSharedElementsReady();
   }
 
+  public final class TaskStackBuilder implements java.lang.Iterable {
+    method public android.support.v4.app.TaskStackBuilder addNextIntent(android.content.Intent);
+    method public android.support.v4.app.TaskStackBuilder addNextIntentWithParentStack(android.content.Intent);
+    method public android.support.v4.app.TaskStackBuilder addParentStack(android.app.Activity);
+    method public android.support.v4.app.TaskStackBuilder addParentStack(java.lang.Class<?>);
+    method public android.support.v4.app.TaskStackBuilder addParentStack(android.content.ComponentName);
+    method public static android.support.v4.app.TaskStackBuilder create(android.content.Context);
+    method public android.content.Intent editIntentAt(int);
+    method public static deprecated android.support.v4.app.TaskStackBuilder from(android.content.Context);
+    method public deprecated android.content.Intent getIntent(int);
+    method public int getIntentCount();
+    method public android.content.Intent[] getIntents();
+    method public android.app.PendingIntent getPendingIntent(int, int);
+    method public android.app.PendingIntent getPendingIntent(int, int, android.os.Bundle);
+    method public deprecated java.util.Iterator<android.content.Intent> iterator();
+    method public void startActivities();
+    method public void startActivities(android.os.Bundle);
+  }
+
+  public static abstract interface TaskStackBuilder.SupportParentable {
+    method public abstract android.content.Intent getSupportParentActivityIntent();
+  }
+
 }
 
 package android.support.v4.content {
@@ -711,11 +781,39 @@ package android.support.v4.content {
     method public static void startForegroundService(android.content.Context, android.content.Intent);
   }
 
+  public class FileProvider extends android.content.ContentProvider {
+    ctor public FileProvider();
+    method public int delete(android.net.Uri, java.lang.String, java.lang.String[]);
+    method public java.lang.String getType(android.net.Uri);
+    method public static android.net.Uri getUriForFile(android.content.Context, java.lang.String, java.io.File);
+    method public android.net.Uri insert(android.net.Uri, android.content.ContentValues);
+    method public boolean onCreate();
+    method public android.database.Cursor query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String);
+    method public int update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[]);
+  }
+
   public final class IntentCompat {
     method public static android.content.Intent makeMainSelectorActivity(java.lang.String, java.lang.String);
     field public static final java.lang.String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
     field public static final java.lang.String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
     field public static final java.lang.String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
+  }
+
+  public final class MimeTypeFilter {
+    method public static boolean matches(java.lang.String, java.lang.String);
+    method public static java.lang.String matches(java.lang.String, java.lang.String[]);
+    method public static java.lang.String matches(java.lang.String[], java.lang.String);
+    method public static java.lang.String[] matchesMany(java.lang.String[], java.lang.String);
+  }
+
+  public final class PermissionChecker {
+    method public static int checkCallingOrSelfPermission(android.content.Context, java.lang.String);
+    method public static int checkCallingPermission(android.content.Context, java.lang.String, java.lang.String);
+    method public static int checkPermission(android.content.Context, java.lang.String, int, int, java.lang.String);
+    method public static int checkSelfPermission(android.content.Context, java.lang.String);
+    field public static final int PERMISSION_DENIED = -1; // 0xffffffff
+    field public static final int PERMISSION_DENIED_APP_OP = -2; // 0xfffffffe
+    field public static final int PERMISSION_GRANTED = 0; // 0x0
   }
 
   public final deprecated class SharedPreferencesCompat {
@@ -806,6 +904,29 @@ package android.support.v4.graphics {
     method public static void setHasMipMap(android.graphics.Bitmap, boolean);
   }
 
+  public final class ColorUtils {
+    method public static int HSLToColor(float[]);
+    method public static int LABToColor(double, double, double);
+    method public static void LABToXYZ(double, double, double, double[]);
+    method public static void RGBToHSL(int, int, int, float[]);
+    method public static void RGBToLAB(int, int, int, double[]);
+    method public static void RGBToXYZ(int, int, int, double[]);
+    method public static int XYZToColor(double, double, double);
+    method public static void XYZToLAB(double, double, double, double[]);
+    method public static int blendARGB(int, int, float);
+    method public static void blendHSL(float[], float[], float, float[]);
+    method public static void blendLAB(double[], double[], double, double[]);
+    method public static double calculateContrast(int, int);
+    method public static double calculateLuminance(int);
+    method public static int calculateMinimumAlpha(int, int, float);
+    method public static void colorToHSL(int, float[]);
+    method public static void colorToLAB(int, double[]);
+    method public static void colorToXYZ(int, double[]);
+    method public static int compositeColors(int, int);
+    method public static double distanceEuclidean(double[], double[]);
+    method public static int setAlphaComponent(int, int);
+  }
+
   public final class PaintCompat {
     method public static boolean hasGlyph(android.graphics.Paint, java.lang.String);
   }
@@ -843,6 +964,35 @@ package android.support.v4.graphics.drawable {
     method public static android.support.v4.graphics.drawable.IconCompat createWithData(byte[], int, int);
     method public static android.support.v4.graphics.drawable.IconCompat createWithResource(android.content.Context, int);
     method public android.graphics.drawable.Icon toIcon();
+  }
+
+  public abstract class RoundedBitmapDrawable extends android.graphics.drawable.Drawable {
+    method public void draw(android.graphics.Canvas);
+    method public final android.graphics.Bitmap getBitmap();
+    method public float getCornerRadius();
+    method public int getGravity();
+    method public int getOpacity();
+    method public final android.graphics.Paint getPaint();
+    method public boolean hasAntiAlias();
+    method public boolean hasMipMap();
+    method public boolean isCircular();
+    method public void setAlpha(int);
+    method public void setAntiAlias(boolean);
+    method public void setCircular(boolean);
+    method public void setColorFilter(android.graphics.ColorFilter);
+    method public void setCornerRadius(float);
+    method public void setDither(boolean);
+    method public void setGravity(int);
+    method public void setMipMap(boolean);
+    method public void setTargetDensity(android.graphics.Canvas);
+    method public void setTargetDensity(android.util.DisplayMetrics);
+    method public void setTargetDensity(int);
+  }
+
+  public final class RoundedBitmapDrawableFactory {
+    method public static android.support.v4.graphics.drawable.RoundedBitmapDrawable create(android.content.res.Resources, android.graphics.Bitmap);
+    method public static android.support.v4.graphics.drawable.RoundedBitmapDrawable create(android.content.res.Resources, java.lang.String);
+    method public static android.support.v4.graphics.drawable.RoundedBitmapDrawable create(android.content.res.Resources, java.io.InputStream);
   }
 
 }
@@ -888,6 +1038,16 @@ package android.support.v4.hardware.fingerprint {
     method public javax.crypto.Cipher getCipher();
     method public javax.crypto.Mac getMac();
     method public java.security.Signature getSignature();
+  }
+
+}
+
+package android.support.v4.math {
+
+  public class MathUtils {
+    method public static float clamp(float, float, float);
+    method public static double clamp(double, double, double);
+    method public static int clamp(int, int, int);
   }
 
 }
@@ -2216,12 +2376,48 @@ package android.support.v4.view.animation {
 
 package android.support.v4.widget {
 
+  public abstract class AutoScrollHelper implements android.view.View.OnTouchListener {
+    ctor public AutoScrollHelper(android.view.View);
+    method public abstract boolean canTargetScrollHorizontally(int);
+    method public abstract boolean canTargetScrollVertically(int);
+    method public boolean isEnabled();
+    method public boolean isExclusive();
+    method public boolean onTouch(android.view.View, android.view.MotionEvent);
+    method public abstract void scrollTargetBy(int, int);
+    method public android.support.v4.widget.AutoScrollHelper setActivationDelay(int);
+    method public android.support.v4.widget.AutoScrollHelper setEdgeType(int);
+    method public android.support.v4.widget.AutoScrollHelper setEnabled(boolean);
+    method public android.support.v4.widget.AutoScrollHelper setExclusive(boolean);
+    method public android.support.v4.widget.AutoScrollHelper setMaximumEdges(float, float);
+    method public android.support.v4.widget.AutoScrollHelper setMaximumVelocity(float, float);
+    method public android.support.v4.widget.AutoScrollHelper setMinimumVelocity(float, float);
+    method public android.support.v4.widget.AutoScrollHelper setRampDownDuration(int);
+    method public android.support.v4.widget.AutoScrollHelper setRampUpDuration(int);
+    method public android.support.v4.widget.AutoScrollHelper setRelativeEdges(float, float);
+    method public android.support.v4.widget.AutoScrollHelper setRelativeVelocity(float, float);
+    field public static final int EDGE_TYPE_INSIDE = 0; // 0x0
+    field public static final int EDGE_TYPE_INSIDE_EXTEND = 1; // 0x1
+    field public static final int EDGE_TYPE_OUTSIDE = 2; // 0x2
+    field public static final float NO_MAX = 3.4028235E38f;
+    field public static final float NO_MIN = 0.0f;
+    field public static final float RELATIVE_UNSPECIFIED = 0.0f;
+  }
+
   public final class CompoundButtonCompat {
     method public static android.graphics.drawable.Drawable getButtonDrawable(android.widget.CompoundButton);
     method public static android.content.res.ColorStateList getButtonTintList(android.widget.CompoundButton);
     method public static android.graphics.PorterDuff.Mode getButtonTintMode(android.widget.CompoundButton);
     method public static void setButtonTintList(android.widget.CompoundButton, android.content.res.ColorStateList);
     method public static void setButtonTintMode(android.widget.CompoundButton, android.graphics.PorterDuff.Mode);
+  }
+
+  public class ContentLoadingProgressBar extends android.widget.ProgressBar {
+    ctor public ContentLoadingProgressBar(android.content.Context);
+    ctor public ContentLoadingProgressBar(android.content.Context, android.util.AttributeSet);
+    method public synchronized void hide();
+    method public void onAttachedToWindow();
+    method public void onDetachedFromWindow();
+    method public synchronized void show();
   }
 
   public final class EdgeEffectCompat {
@@ -2247,6 +2443,13 @@ package android.support.v4.widget {
   public final class ListPopupWindowCompat {
     method public static deprecated android.view.View.OnTouchListener createDragToOpenListener(java.lang.Object, android.view.View);
     method public static android.view.View.OnTouchListener createDragToOpenListener(android.widget.ListPopupWindow, android.view.View);
+  }
+
+  public class ListViewAutoScrollHelper extends android.support.v4.widget.AutoScrollHelper {
+    ctor public ListViewAutoScrollHelper(android.widget.ListView);
+    method public boolean canTargetScrollHorizontally(int);
+    method public boolean canTargetScrollVertically(int);
+    method public void scrollTargetBy(int, int);
   }
 
   public final class ListViewCompat {

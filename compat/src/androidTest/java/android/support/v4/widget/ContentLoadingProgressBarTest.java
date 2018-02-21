@@ -18,23 +18,28 @@ package android.support.v4.widget;
 
 import static org.junit.Assert.assertEquals;
 
-import android.support.coreui.test.R;
+import android.support.compat.test.R;
 import android.support.test.filters.LargeTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.testutils.PollingCheck;
-import android.support.v4.BaseInstrumentationTestCase;
 import android.view.View;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Tests for {@link ContentLoadingProgressBar}
  */
-public class ContentLoadingProgressBarTest extends
-        BaseInstrumentationTestCase<ContentLoadingProgressBarActivity> {
+@RunWith(AndroidJUnit4.class)
+public class ContentLoadingProgressBarTest {
+    @Rule
+    public final ActivityTestRule<ContentLoadingProgressBarActivity> mActivityTestRule;
 
     public ContentLoadingProgressBarTest() {
-        super(ContentLoadingProgressBarActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(ContentLoadingProgressBarActivity.class);
     }
 
     private ContentLoadingProgressBar mContentLoadingProgressBar;
