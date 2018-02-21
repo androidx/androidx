@@ -1251,7 +1251,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         int start = 0;
         // Iterate from left to right, which is a different index traversal
         // in RTL flow
-        if ((mFlag & PF_REVERSE_FLOW_PRIMARY) != 0) {
+        if ((mFlag & PF_REVERSE_FLOW_SECONDARY) != 0) {
             for (int i = mNumRows-1; i > rowIndex; i--) {
                 start += getRowSizeSecondary(i) + mSpacingSecondary;
             }
