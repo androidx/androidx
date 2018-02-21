@@ -26,6 +26,7 @@ import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.Px;
 import android.support.v7.cardview.R;
 import android.util.AttributeSet;
 import android.view.View;
@@ -220,7 +221,7 @@ public class CardView extends FrameLayout {
      * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPaddingRight
      * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPaddingBottom
      */
-    public void setContentPadding(int left, int top, int right, int bottom) {
+    public void setContentPadding(@Px int left, @Px int top, @Px int right, @Px int bottom) {
         mContentPadding.set(left, top, right, bottom);
         IMPL.updatePadding(mCardViewDelegate);
     }
@@ -306,6 +307,7 @@ public class CardView extends FrameLayout {
      *
      * @return the inner padding after the Card's left edge
      */
+    @Px
     public int getContentPaddingLeft() {
         return mContentPadding.left;
     }
@@ -315,6 +317,7 @@ public class CardView extends FrameLayout {
      *
      * @return the inner padding before the Card's right edge
      */
+    @Px
     public int getContentPaddingRight() {
         return mContentPadding.right;
     }
@@ -324,6 +327,7 @@ public class CardView extends FrameLayout {
      *
      * @return the inner padding after the Card's top edge
      */
+    @Px
     public int getContentPaddingTop() {
         return mContentPadding.top;
     }
@@ -333,6 +337,7 @@ public class CardView extends FrameLayout {
      *
      * @return the inner padding before the Card's bottom edge
      */
+    @Px
     public int getContentPaddingBottom() {
         return mContentPadding.bottom;
     }
