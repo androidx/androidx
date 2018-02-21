@@ -16,6 +16,8 @@
 
 package androidx.app.slice.render;
 
+import static androidx.app.slice.render.SliceRenderer.SCREENSHOT_DIR;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -51,5 +53,8 @@ public class RenderTest {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
         latch.await(30000, TimeUnit.MILLISECONDS);
+        String path = mContext.getDataDir().toString() + "/" + SCREENSHOT_DIR;
+        InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand(
+                "mv " + path + " " + "/sdcard/");
     }
 }

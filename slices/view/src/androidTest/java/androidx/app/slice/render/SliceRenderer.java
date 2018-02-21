@@ -23,7 +23,6 @@ import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -46,7 +45,7 @@ import androidx.app.slice.widget.SliceView;
 public class SliceRenderer {
 
     private static final String TAG = "SliceRenderer";
-    private static final String SCREENSHOT_DIR = "slice-screenshots";
+    public static final String SCREENSHOT_DIR = "slice-screenshots";
     private static File sScreenshotDirectory;
 
     private final Activity mContext;
@@ -106,9 +105,9 @@ public class SliceRenderer {
     }
 
 
-    private static File getScreenshotDirectory() {
+    private File getScreenshotDirectory() {
         if (sScreenshotDirectory == null) {
-            File storage = Environment.getExternalStorageDirectory();
+            File storage = mContext.getDataDir();
             sScreenshotDirectory = new File(storage, SCREENSHOT_DIR);
             if (!sScreenshotDirectory.exists()) {
                 if (!sScreenshotDirectory.mkdirs()) {
