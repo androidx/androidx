@@ -16,6 +16,8 @@
 
 package android.support.v7.util;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
@@ -84,8 +86,8 @@ public class AsyncListUtil<T> {
      * @param dataCallback Data access callback.
      * @param viewCallback Callback for querying visible item range and update notifications.
      */
-    public AsyncListUtil(Class<T> klass, int tileSize, DataCallback<T> dataCallback,
-                         ViewCallback viewCallback) {
+    public AsyncListUtil(@NonNull Class<T> klass, int tileSize,
+            @NonNull DataCallback<T> dataCallback, @NonNull ViewCallback viewCallback) {
         mTClass = klass;
         mTileSize = tileSize;
         mDataCallback = dataCallback;
@@ -147,6 +149,7 @@ public class AsyncListUtil<T> {
      * @return The data item at the given position or <code>null</code> if it has not been loaded
      *         yet.
      */
+    @Nullable
     public T getItem(int position) {
         if (position < 0 || position >= mItemCount) {
             throw new IndexOutOfBoundsException(position + " is not within 0 and " + mItemCount);
@@ -471,7 +474,7 @@ public class AsyncListUtil<T> {
          *             <code>itemCount</code>.
          */
         @WorkerThread
-        public abstract void fillData(T[] data, int startPosition, int itemCount);
+        public abstract void fillData(@NonNull T[] data, int startPosition, int itemCount);
 
         /**
          * Recycle the objects created in {@link #fillData} if necessary.
@@ -481,7 +484,7 @@ public class AsyncListUtil<T> {
          * @param itemCount The data item count.
          */
         @WorkerThread
-        public void recycleData(T[] data, int itemCount) {
+        public void recycleData(@NonNull T[] data, int itemCount) {
         }
 
         /**
@@ -548,7 +551,7 @@ public class AsyncListUtil<T> {
          * @param outRange The visible item range.
          */
         @UiThread
-        public abstract void getItemRangeInto(int[] outRange);
+        public abstract void getItemRangeInto(@NonNull int[] outRange);
 
         /**
          * Compute a wider range of items that will be loaded for smoother scrolling.
@@ -569,7 +572,7 @@ public class AsyncListUtil<T> {
          * @param scrollHint The scroll direction hint.
          */
         @UiThread
-        public void extendRangeInto(int[] range, int[] outRange, int scrollHint) {
+        public void extendRangeInto(@NonNull int[] range, @NonNull int[] outRange, int scrollHint) {
             final int fullRange = range[1] - range[0] + 1;
             final int halfRange = fullRange / 2;
             outRange[0] = range[0] - (scrollHint == HINT_SCROLL_DESC ? fullRange : halfRange);

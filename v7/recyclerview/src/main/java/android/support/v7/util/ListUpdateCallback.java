@@ -15,6 +15,8 @@
  */
 package android.support.v7.util;
 
+import android.support.annotation.Nullable;
+
 /**
  * An interface that can receive Update operations that are applied to a list.
  * <p>
@@ -51,5 +53,5 @@ public interface ListUpdateCallback {
      * @param position The position of the item which has been updated.
      * @param count    The number of items which has changed.
      */
-    void onChanged(int position, int count, Object payload);
+    void onChanged(int position, int count, @Nullable Object payload);
 }

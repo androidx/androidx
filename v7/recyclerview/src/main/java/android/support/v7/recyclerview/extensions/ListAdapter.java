@@ -17,6 +17,7 @@
 package android.support.v7.recyclerview.extensions;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.util.AdapterListUpdateCallback;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
@@ -117,7 +118,7 @@ public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
      * @param list The new list to be displayed.
      */
     @SuppressWarnings("WeakerAccess")
-    public void submitList(List<T> list) {
+    public void submitList(@Nullable List<T> list) {
         mHelper.submitList(list);
     }
 

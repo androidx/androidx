@@ -15,6 +15,8 @@
  */
 package android.support.v7.util;
 
+import android.support.annotation.NonNull;
+
 /**
  * Wraps a {@link ListUpdateCallback} callback and batches operations that can be merged.
  * <p>
@@ -41,7 +43,7 @@ public class BatchingListUpdateCallback implements ListUpdateCallback {
     int mLastEventCount = -1;
     Object mLastEventPayload = null;
 
-    public BatchingListUpdateCallback(ListUpdateCallback callback) {
+    public BatchingListUpdateCallback(@NonNull ListUpdateCallback callback) {
         mWrapped = callback;
     }
 

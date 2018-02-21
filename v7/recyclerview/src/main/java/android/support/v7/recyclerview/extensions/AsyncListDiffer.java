@@ -189,7 +189,7 @@ public class AsyncListDiffer<T> {
      * @param newList The new List.
      */
     @SuppressWarnings("WeakerAccess")
-    public void submitList(final List<T> newList) {
+    public void submitList(@Nullable final List<T> newList) {
         if (newList == mList) {
             // nothing to do
             return;

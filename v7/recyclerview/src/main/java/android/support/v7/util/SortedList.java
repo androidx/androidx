@@ -87,7 +87,7 @@ public class SortedList<T> {
      * @param klass    The class of the contents of the SortedList.
      * @param callback The callback that controls the behavior of SortedList.
      */
-    public SortedList(Class<T> klass, Callback<T> callback) {
+    public SortedList(@NonNull Class<T> klass, @NonNull Callback<T> callback) {
         this(klass, callback, MIN_CAPACITY);
     }
 
@@ -98,7 +98,7 @@ public class SortedList<T> {
      * @param callback        The callback that controls the behavior of SortedList.
      * @param initialCapacity The initial capacity to hold items.
      */
-    public SortedList(Class<T> klass, Callback<T> callback, int initialCapacity) {
+    public SortedList(@NonNull Class<T> klass, @NonNull Callback<T> callback, int initialCapacity) {
         mTClass = klass;
         mData = (T[]) Array.newInstance(klass, initialCapacity);
         mCallback = callback;
@@ -158,7 +158,7 @@ public class SortedList<T> {
      *                       input array.
      * @see SortedList#addAll(T[] items)
      */
-    public void addAll(T[] items, boolean mayModifyInput) {
+    public void addAll(@NonNull T[] items, boolean mayModifyInput) {
         throwIfInMutationOperation();
         if (items.length == 0) {
             return;
@@ -178,7 +178,7 @@ public class SortedList<T> {
      *
      * @param items Array of items to be added into the list.
      */
-    public void addAll(T... items) {
+    public void addAll(@NonNull T... items) {
         addAll(items, false);
     }
 
@@ -189,7 +189,7 @@ public class SortedList<T> {
      *
      * @param items Collection of items to be added into the list.
      */
-    public void addAll(Collection<T> items) {
+    public void addAll(@NonNull Collection<T> items) {
         T[] copy = (T[]) Array.newInstance(mTClass, items.size());
         addAll(items.toArray(copy), true);
     }

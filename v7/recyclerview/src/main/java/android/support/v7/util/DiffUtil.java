@@ -16,6 +16,7 @@
 
 package android.support.v7.util;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.widget.RecyclerView;
@@ -93,7 +94,8 @@ public class DiffUtil {
      * @return A DiffResult that contains the information about the edit sequence to convert the
      * old list into the new list.
      */
-    public static DiffResult calculateDiff(Callback cb) {
+    @NonNull
+    public static DiffResult calculateDiff(@NonNull Callback cb) {
         return calculateDiff(cb, true);
     }
 
@@ -110,7 +112,8 @@ public class DiffUtil {
      * @return A DiffResult that contains the information about the edit sequence to convert the
      * old list into the new list.
      */
-    public static DiffResult calculateDiff(Callback cb, boolean detectMoves) {
+    @NonNull
+    public static DiffResult calculateDiff(@NonNull Callback cb, boolean detectMoves) {
         final int oldSize = cb.getOldListSize();
         final int newSize = cb.getNewListSize();
 
@@ -727,7 +730,7 @@ public class DiffUtil {
          *                displaying the new list.
          * @see AdapterListUpdateCallback
          */
-        public void dispatchUpdatesTo(final RecyclerView.Adapter adapter) {
+        public void dispatchUpdatesTo(@NonNull final RecyclerView.Adapter adapter) {
             dispatchUpdatesTo(new AdapterListUpdateCallback(adapter));
         }
 
@@ -740,7 +743,7 @@ public class DiffUtil {
          * @param updateCallback The callback to receive the update operations.
          * @see #dispatchUpdatesTo(RecyclerView.Adapter)
          */
-        public void dispatchUpdatesTo(ListUpdateCallback updateCallback) {
+        public void dispatchUpdatesTo(@NonNull ListUpdateCallback updateCallback) {
             final BatchingListUpdateCallback batchingCallback;
             if (updateCallback instanceof BatchingListUpdateCallback) {
                 batchingCallback = (BatchingListUpdateCallback) updateCallback;
