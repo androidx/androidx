@@ -20,19 +20,12 @@ import static androidx.app.slice.widget.SliceLiveData.SUPPORTED_SPECS;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.util.ArrayMap;
-import android.util.Pair;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import androidx.app.slice.compat.SliceProviderCompat;
 import androidx.app.slice.widget.SliceLiveData;
@@ -42,38 +35,10 @@ import androidx.app.slice.widget.SliceLiveData;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class SliceManagerCompat extends SliceManager {
-    private final ArrayMap<Pair<Uri, SliceCallback>, SliceListenerImpl> mListenerLookup =
-            new ArrayMap<>();
-    private final Context mContext;
+class SliceManagerCompat extends SliceManagerBase {
 
     SliceManagerCompat(Context context) {
-        mContext = context;
-    }
-
-    @Override
-    public void registerSliceCallback(@NonNull Uri uri, @NonNull SliceCallback callback) {
-        final Handler h = new Handler(Looper.getMainLooper());
-        registerSliceCallback(uri, new Executor() {
-            @Override
-            public void execute(@NonNull Runnable command) {
-                h.post(command);
-            }
-        }, callback);
-    }
-
-    @Override
-    public void registerSliceCallback(@NonNull Uri uri, @NonNull Executor executor,
-            @NonNull SliceCallback callback) {
-        pinSlice(uri);
-        getListener(uri, callback, new SliceListenerImpl(uri, executor, callback)).startListening();
-    }
-
-    @Override
-    public void unregisterSliceCallback(@NonNull Uri uri, @NonNull SliceCallback callback) {
-        unpinSlice(uri);
-        SliceListenerImpl impl = mListenerLookup.remove(new Pair<>(uri, callback));
-        if (impl != null) impl.stopListening();
+        super(context);
     }
 
     @Override
@@ -101,57 +66,5 @@ class SliceManagerCompat extends SliceManager {
     @Override
     public Slice bindSlice(@NonNull Intent intent) {
         return SliceProviderCompat.bindSlice(mContext, intent, SUPPORTED_SPECS);
-    }
-
-    private SliceListenerImpl getListener(Uri uri, SliceCallback callback,
-            SliceListenerImpl listener) {
-        Pair<Uri, SliceCallback> key = new Pair<>(uri, callback);
-        if (mListenerLookup.containsKey(key)) {
-            mListenerLookup.get(key).stopListening();
-        }
-        mListenerLookup.put(key, listener);
-        return listener;
-    }
-
-    private class SliceListenerImpl {
-
-        private Uri mUri;
-        private final Executor mExecutor;
-        private final SliceCallback mCallback;
-
-        SliceListenerImpl(Uri uri, Executor executor, SliceCallback callback) {
-            mUri = uri;
-            mExecutor = executor;
-            mCallback = callback;
-        }
-
-        void startListening() {
-            mContext.getContentResolver().registerContentObserver(mUri, true, mObserver);
-        }
-
-        void stopListening() {
-            mContext.getContentResolver().unregisterContentObserver(mObserver);
-        }
-
-        private final Runnable mUpdateSlice = new Runnable() {
-            @Override
-            public void run() {
-                final Slice s = Slice.bindSlice(mContext, mUri, SUPPORTED_SPECS);
-                mExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onSliceUpdated(s);
-                    }
-                });
-            }
-        };
-
-        private final ContentObserver mObserver = new ContentObserver(
-                new Handler(Looper.getMainLooper())) {
-            @Override
-            public void onChange(boolean selfChange) {
-                AsyncTask.execute(mUpdateSlice);
-            }
-        };
     }
 }

@@ -41,9 +41,8 @@ import static androidx.app.slice.SliceConvert.unwrap;
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
-import android.content.ContentProvider;
+import android.app.slice.SliceManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
@@ -451,39 +450,7 @@ public final class Slice {
     @TargetApi(28)
     private static Slice callBindSlice(Context context, Uri uri,
             List<SliceSpec> supportedSpecs) {
-        return SliceConvert.wrap(android.app.slice.Slice.bindSlice(
-                context.getContentResolver(), uri, unwrap(supportedSpecs)));
-    }
-
-
-    /**
-     * Turns a slice intent into slice content. Expects an explicit intent. If there is no
-     * {@link ContentProvider} associated with the given intent this will throw
-     * {@link IllegalArgumentException}.
-     *
-     * @hide
-     * @param context The context to use.
-     * @param intent The intent associated with a slice.
-     * @return The Slice provided by the app or null if none is given.
-     * @see Slice
-     * @see SliceProvider#onMapIntentToUri(Intent)
-     * @see Intent
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @SuppressWarnings("NewApi")
-    public static @Nullable Slice bindSlice(Context context, @NonNull Intent intent,
-                List<SliceSpec> supportedSpecs) {
-        if (BuildCompat.isAtLeastP()) {
-            return callBindSlice(context, intent, supportedSpecs);
-        } else {
-            return SliceProviderCompat.bindSlice(context, intent, supportedSpecs);
-        }
-    }
-
-    @TargetApi(28)
-    private static Slice callBindSlice(Context context, Intent intent,
-            List<SliceSpec> supportedSpecs) {
-        return SliceConvert.wrap(android.app.slice.Slice.bindSlice(
-                context, intent, unwrap(supportedSpecs)));
+        return SliceConvert.wrap(context.getSystemService(SliceManager.class)
+                .bindSlice(uri, unwrap(supportedSpecs)));
     }
 }
