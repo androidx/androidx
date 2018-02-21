@@ -42,14 +42,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Logger.LOG_LEVEL = Log.VERBOSE;
 
         findViewById(R.id.enqueue_infinite_work_charging).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        WorkManager.getInstance().enqueue(
+                        WorkManager.getInstance(MainActivity.this).enqueue(
                                 new Work.Builder(InfiniteWorker.class)
                                         .withConstraints(new Constraints.Builder()
                                                 .setRequiresCharging(true)
@@ -62,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        WorkManager.getInstance().enqueue(
+                        WorkManager.getInstance(MainActivity.this).enqueue(
                                 new Work.Builder(InfiniteWorker.class)
                                         .withConstraints(new Constraints.Builder()
                                                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -92,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                WorkManager.getInstance().enqueue(ToastWorker
+                WorkManager.getInstance(MainActivity.this).enqueue(ToastWorker
                         .create("Image URI Updated!")
                         .withConstraints(new Constraints.Builder()
                                 .addContentUriTrigger(
@@ -110,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 String delayString = delayInMs.getText().toString();
                 long delay = Long.parseLong(delayString);
                 Log.d(TAG, "Enqueuing job with delay of " + delay + " ms");
-                WorkManager.getInstance().enqueue(ToastWorker
+                WorkManager.getInstance(MainActivity.this).enqueue(ToastWorker
                         .create("Delayed Job Ran!")
                         .withInitialDelay(delay)
                         .build());
@@ -120,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.prune).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WorkManager.getInstance().pruneDatabase();
+                WorkManager.getInstance(MainActivity.this).pruneDatabase();
             }
         });
     }

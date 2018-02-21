@@ -27,6 +27,7 @@ import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -76,7 +77,8 @@ public class SystemJobServiceTest extends WorkManagerTest {
             }
         });
 
-        mDatabase = WorkManagerImpl.getInstance().getWorkDatabase();
+        mDatabase = WorkManagerImpl.getInstance(InstrumentationRegistry.getTargetContext())
+                .getWorkDatabase();
         mSystemJobService = new SystemJobService(); // Bleh.
         mSystemJobService.onCreate();
     }
@@ -125,7 +127,8 @@ public class SystemJobServiceTest extends WorkManagerTest {
 
         JobParameters mockParams = createMockJobParameters(work.getId());
         assertThat(mSystemJobService.onStartJob(mockParams), is(true));
-        WorkManagerImpl.getInstance().cancelWorkForId(work.getId());
+        WorkManagerImpl.getInstance(InstrumentationRegistry.getTargetContext())
+                .cancelWorkForId(work.getId());
         assertThat(mSystemJobService.onStopJob(mockParams), is(false));
     }
 

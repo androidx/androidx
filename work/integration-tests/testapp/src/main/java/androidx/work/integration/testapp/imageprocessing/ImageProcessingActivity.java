@@ -80,7 +80,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
         findViewById(R.id.clear_all).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WorkManager.getInstance().enqueue(Work.from(ImageCleanupWorker.class));
+                WorkManager.getInstance(ImageProcessingActivity.this)
+                        .enqueue(Work.from(ImageCleanupWorker.class));
             }
         });
     }
@@ -98,7 +99,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
                 setupWork[i] = ImageSetupWorker.createWork(uriString);
                 processingWork[i] = ImageProcessingWorker.createWork(uriString);
             }
-            WorkManager.getInstance()
+            WorkManager.getInstance(this)
                     .beginWith(setupWork)
                     .then(processingWork)
                     .enqueue();
@@ -108,7 +109,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
             String uriString = data.getData().toString();
             Work setupWork = ImageSetupWorker.createWork(uriString);
             Work processingWork = ImageProcessingWorker.createWork(uriString);
-            WorkManager.getInstance()
+            WorkManager.getInstance(this)
                     .beginWith(setupWork)
                     .then(processingWork)
                     .enqueue();

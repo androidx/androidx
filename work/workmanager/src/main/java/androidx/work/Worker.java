@@ -70,7 +70,7 @@ public abstract class Worker {
      *
      * For example, if you had this structure:
      *
-     * {@code WorkManager.getInstance()
+     * {@code WorkManager.getInstance(context)
      *            .enqueueWithDefaults(WorkerA.class, WorkerB.class)
      *            .then(WorkerC.class)
      *            .enqueue()}

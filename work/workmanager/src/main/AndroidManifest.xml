@@ -22,11 +22,6 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application>
-        <provider
-            android:name="androidx.work.impl.WorkManagerInitializer"
-            android:authorities="${applicationId}.workmanager-trojan"
-            android:exported="false"
-            android:multiprocess="true" />
         <service
             android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
             android:exported="false"
