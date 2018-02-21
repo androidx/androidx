@@ -44,7 +44,7 @@ public class WorkStatus {
         return mState;
     }
 
-    public @NonNull Arguments getOutput() {
+    public @NonNull Arguments getOutputArguments() {
         return mOutput;
     }
 

@@ -128,7 +128,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void tearDown() {
         List<String> ids = mDatabase.workSpecDao().getAllWorkSpecIds();
         for (String id : ids) {
-            mWorkManagerImpl.cancelWorkForId(id);
+            mWorkManagerImpl.cancelWorkById(id);
         }
         mDatabase.close();
         ArchTaskExecutor.getInstance().setDelegate(null);
@@ -620,7 +620,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
 
-        mWorkManagerImpl.cancelWorkForId(work0.getId());
+        mWorkManagerImpl.cancelWorkById(work0.getId());
 
         assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work1.getId()), is(not(CANCELLED)));
@@ -641,7 +641,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         DependencyDao dependencyDao = mDatabase.dependencyDao();
         dependencyDao.insertDependency(dependency10);
 
-        mWorkManagerImpl.cancelWorkForId(work0.getId());
+        mWorkManagerImpl.cancelWorkById(work0.getId());
 
         assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
@@ -662,7 +662,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         DependencyDao dependencyDao = mDatabase.dependencyDao();
         dependencyDao.insertDependency(dependency10);
 
-        mWorkManagerImpl.cancelWorkForId(work0.getId());
+        mWorkManagerImpl.cancelWorkById(work0.getId());
 
         assertThat(workSpecDao.getState(work0.getId()), is(SUCCEEDED));
         assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
@@ -750,7 +750,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work.getId()), is(ENQUEUED));
 
-        mWorkManagerImpl.cancelWorkForIdSync(work.getId());
+        mWorkManagerImpl.cancelWorkByIdSync(work.getId());
         assertThat(mWorkManagerImpl.getStatusSync(work.getId()).getState(), is(CANCELLED));
     }
 

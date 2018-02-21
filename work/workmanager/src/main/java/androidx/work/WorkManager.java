@@ -144,7 +144,7 @@ public abstract class WorkManager {
      *
      * @param id The id of the work
      */
-    public abstract void cancelWorkForId(@NonNull String id);
+    public abstract void cancelWorkById(@NonNull String id);
 
     /**
      * Cancels work with the given id in a blocking fashion.  Note that cancellation is dependent
@@ -156,7 +156,7 @@ public abstract class WorkManager {
      * @param id The id of the work
      */
     @WorkerThread
-    public abstract void cancelWorkForIdSync(@NonNull String id);
+    public abstract void cancelWorkByIdSync(@NonNull String id);
 
     /**
      * Cancels all work with the given tag, regardless of the current state of the work.
