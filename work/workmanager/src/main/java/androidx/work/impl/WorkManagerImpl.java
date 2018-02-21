@@ -87,7 +87,7 @@ public class WorkManagerImpl extends WorkManager {
 
         mSchedulers = new ArrayList<>();
         mSchedulers.add(configuration.getBackgroundScheduler());
-        mSchedulers.add(new GreedyScheduler(this));
+        mSchedulers.add(new GreedyScheduler(context, this));
 
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
         mProcessor = new Processor(

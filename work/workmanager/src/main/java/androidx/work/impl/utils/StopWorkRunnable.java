@@ -52,7 +52,8 @@ public class StopWorkRunnable implements Runnable {
                 workSpecDao.setState(State.ENQUEUED, mWorkSpecId);
             }
             boolean isStopped = mWorkManagerImpl.getProcessor().stopWork(mWorkSpecId, true);
-            Logger.debug(TAG, "onStopJob for %s; Processor.stopWork = %s", mWorkSpecId, isStopped);
+            Logger.debug(TAG,
+                    "StopWorkRunnable for %s; Processor.stopWork = %s", mWorkSpecId, isStopped);
             workDatabase.setTransactionSuccessful();
         } finally {
             workDatabase.endTransaction();
