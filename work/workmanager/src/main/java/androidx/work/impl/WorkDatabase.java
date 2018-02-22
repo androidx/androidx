@@ -92,21 +92,24 @@ public abstract class WorkDatabase extends RoomDatabase {
             public void onOpen(@NonNull SupportSQLiteDatabase db) {
                 super.onOpen(db);
                 db.beginTransaction();
-                db.execSQL(CLEANUP_SQL);
+                try {
+                    db.execSQL(CLEANUP_SQL);
 
-                // Delete everything that's finished and older than PRUNE_THRESHOLD_MILLIS.
-                db.execSQL(PRUNE_SQL_PREFIX + getPruneDate(), new Object[0]);
-                // Keep deleting everything that's blocked but has no prerequisites (it had a failed
-                // or cancelled prerequisite that got deleted in the above step).
-                int deletedCount;
-                do {
-                    deletedCount = db.delete("workspec",
-                            BLOCKED_WITHOUT_PREREQUISITES_WHERE_CLAUSE,
-                            null);
-                } while (deletedCount > 0);
+                    // Delete everything that's finished and older than PRUNE_THRESHOLD_MILLIS.
+                    db.execSQL(PRUNE_SQL_PREFIX + getPruneDate(), new Object[0]);
+                    // Keep deleting everything that's blocked but has no prerequisites (it had a
+                    // failed or cancelled prerequisite that got deleted in the above step).
+                    int deletedCount;
+                    do {
+                        deletedCount = db.delete("workspec",
+                                BLOCKED_WITHOUT_PREREQUISITES_WHERE_CLAUSE,
+                                null);
+                    } while (deletedCount > 0);
 
-                db.setTransactionSuccessful();
-                db.endTransaction();
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
             }
         };
     }
