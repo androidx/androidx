@@ -180,13 +180,6 @@ public abstract class WorkManager {
     public abstract void cancelAllWorkWithTagSync(@NonNull String tag);
 
     /**
-     * Prunes the database of all non-pending work.  Any work that has cancelled, failed, or
-     * succeeded that is not part of a pending chain of work will be deleted.  This includes all
-     * outputs stored in the database.
-     */
-    public abstract void pruneDatabase();
-
-    /**
      * Gets the {@link WorkStatus} for a given work id.
      *
      * @param id The id of the work

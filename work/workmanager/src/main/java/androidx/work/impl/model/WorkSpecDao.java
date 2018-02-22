@@ -188,18 +188,4 @@ public interface WorkSpecDao {
             + " AND state!=" + EnumTypeConverters.StateIds.FAILED
             + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
     List<String> getUnfinishedWorkWithTag(@NonNull String tag);
-
-    /**
-     * Deletes all non-pending work from the database that isn't a prerequisite for other work.
-     * Calling this method repeatedly until it returns 0 will allow you to prune all work chains
-     * that are finished.
-     *
-     * @return The number of deleted work items
-     */
-    @Query("DELETE FROM workspec WHERE state IN "
-            + "(" + EnumTypeConverters.StateIds.CANCELLED + ", "
-            + EnumTypeConverters.StateIds.FAILED + ", "
-            + EnumTypeConverters.StateIds.SUCCEEDED + ")"
-            + " AND id NOT IN (SELECT DISTINCT prerequisite_id FROM dependency)")
-    int pruneLeaves();
 }

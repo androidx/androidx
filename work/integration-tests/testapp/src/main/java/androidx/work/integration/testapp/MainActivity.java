@@ -115,12 +115,5 @@ public class MainActivity extends AppCompatActivity {
                         .build());
             }
         });
-
-        findViewById(R.id.prune).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WorkManager.getInstance(MainActivity.this).pruneDatabase();
-            }
-        });
     }
 }
