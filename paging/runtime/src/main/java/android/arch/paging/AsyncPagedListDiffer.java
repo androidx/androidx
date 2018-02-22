@@ -30,15 +30,13 @@ import android.support.v7.widget.RecyclerView;
  * {@link android.support.v7.widget.RecyclerView.Adapter RecyclerView.Adapter}.
  * <p>
  * For simplicity, the {@link PagedListAdapter} wrapper class can often be used instead of the
- * helper directly. This helper class is exposed for complex cases, and where overriding an adapter
+ * differ directly. This diff class is exposed for complex cases, and where overriding an adapter
  * base class to support paging isn't convenient.
  * <p>
- * Both the internal paging of the list as more data is loaded, and updates in the form of new
- * PagedLists.
- * <p>
- * The AsyncPagedListDiffer can be bound to a {@link LiveData} of PagedList and present the data
- * simply for an adapter. It listens to PagedList loading callbacks, and uses DiffUtil on a
- * background thread to compute updates as new PagedLists are received.
+ * When consuming a {@link LiveData} of PagedList, you can observe updates and dispatch them
+ * directly to {@link #submitList(PagedList)}. The AsyncPagedListDiffer then can present this
+ * updating data set simply for an adapter. It listens to PagedList loading callbacks, and uses
+ * DiffUtil on a background thread to compute updates as new PagedLists are received.
  * <p>
  * It provides a simple list-like API with {@link #getItem(int)} and {@link #getItemCount()} for an
  * adapter to acquire and present data objects.
@@ -92,7 +90,8 @@ import android.support.v7.widget.RecyclerView;
  *             holder.clear();
  *         }
  *     }
- *     public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;User>() {
+ *     public static final DiffUtil.ItemCallback&lt;User> DIFF_CALLBACK =
+ *             new DiffUtil.ItemCallback&lt;User>() {
  *          {@literal @}Override
  *          public boolean areItemsTheSame(
  *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
@@ -109,7 +108,7 @@ import android.support.v7.widget.RecyclerView;
  *      }
  * }</pre>
  *
- * @param <T> Type of the PagedLists this helper will receive.
+ * @param <T> Type of the PagedLists this differ will receive.
  */
 public class AsyncPagedListDiffer<T> {
     // updateCallback notifications must only be notified *after* new data and item count are stored
@@ -198,7 +197,7 @@ public class AsyncPagedListDiffer<T> {
     }
 
     /**
-     * Get the number of items currently presented by this AdapterHelper. This value can be directly
+     * Get the number of items currently presented by this Differ. This value can be directly
      * returned to {@link RecyclerView.Adapter#getItemCount()}.
      *
      * @return Number of items being presented.
@@ -213,11 +212,12 @@ public class AsyncPagedListDiffer<T> {
     }
 
     /**
-     * Pass a new PagedList to the AdapterHelper.
+     * Pass a new PagedList to the differ.
      * <p>
      * If a PagedList is already present, a diff will be computed asynchronously on a background
      * thread. When the diff is computed, it will be applied (dispatched to the
-     * {@link ListUpdateCallback}), and the new PagedList will be swapped in.
+     * {@link ListUpdateCallback}), and the new PagedList will be swapped in as the
+     * {@link #getCurrentList() current list}.
      *
      * @param pagedList The new PagedList.
      */
@@ -227,8 +227,8 @@ public class AsyncPagedListDiffer<T> {
                 mIsContiguous = pagedList.isContiguous();
             } else {
                 if (pagedList.isContiguous() != mIsContiguous) {
-                    throw new IllegalArgumentException("AdapterHelper cannot handle both contiguous"
-                            + " and non-contiguous lists.");
+                    throw new IllegalArgumentException("AsyncPagedListDiffer cannot handle both"
+                            + " contiguous and non-contiguous lists.");
                 }
             }
         }
@@ -329,13 +329,13 @@ public class AsyncPagedListDiffer<T> {
     }
 
     /**
-     * Returns the list currently being displayed by the AdapterHelper.
+     * Returns the PagedList currently being displayed by the differ.
      * <p>
      * This is not necessarily the most recent list passed to {@link #submitList(PagedList)},
      * because a diff is computed asynchronously between the new list and the current list before
-     * updating the currentList value.
+     * updating the currentList value. May be null if no PagedList is being presented.
      *
-     * @return The list currently being displayed.
+     * @return The list currently being displayed, may be null.
      */
     @SuppressWarnings("WeakerAccess")
     @Nullable
