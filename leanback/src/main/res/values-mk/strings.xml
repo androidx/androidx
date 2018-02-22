@@ -17,43 +17,43 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"Мени за навигација"</string>
-    <string name="orb_search_action" msgid="5651268540267663887">"Акција на пребарување"</string>
-    <string name="lb_search_bar_hint" msgid="8325490927970116252">"Пребарување"</string>
-    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Зборувајте за да пребарувате"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Пребарувај <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Кажете за да се пребарува <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
-    <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
-    <string name="lb_playback_controls_play" msgid="731953341987346903">"Пушти"</string>
-    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Пауза"</string>
-    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Премотај напред"</string>
-    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"Премотај напред %1$dX"</string>
-    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Премотај назад"</string>
-    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"Премотај назад %1$dX"</string>
-    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Прескокни на следна"</string>
-    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Прескокни на претходна"</string>
-    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Повеќе дејства"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Откажи палец нагоре"</string>
-    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Избери палец нагоре"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Откажи палец надолу"</string>
-    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Избери палец надолу"</string>
-    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Не повторувај ниту една"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Повтори ги сите"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Повтори една"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Овозможи мешање"</string>
-    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Оневозможи мешање"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Овозможи висок квалитет"</string>
-    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Оневозможи висок квалитет"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Овозможи затворено објаснување"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Оневозможи затворено објаснување"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Влези во режимот „Слика во слика“"</string>
-    <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
-    <string name="lb_playback_controls_shown" msgid="6382160135512023238">"Контролите за аудио-визуелните контроли се прикажуваат"</string>
-    <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"Контролите за аудио-визуелните медиуми се скриени, притиснете на подлогата за насока за да ги прикажете"</string>
-    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"Заврши"</string>
-    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"Продолжи"</string>
-    <string name="lb_media_player_error" msgid="3650250994187305396">"Код за грешка на MediaPlayer %1$d дополнително %2$d"</string>
-    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"ЗАПОЧНИ"</string>
-    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"Следно"</string>
+    <string name="lb_navigation_menu_contentDescription" msgid="8126335323963415494">"Мени за навигација"</string>
+    <string name="orb_search_action" msgid="7534843523462177008">"Дејство на пребарување"</string>
+    <string name="lb_search_bar_hint" msgid="4819380969103509861">"Пребарајте"</string>
+    <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"Зборувајте за да пребарувате"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"Пребарувајте <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"Кажете за да се пребарува <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="2721825378927619928">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="6173753802428649303">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="1590369760862605402">"Пушти"</string>
+    <string name="lb_playback_controls_pause" msgid="1769131316742618433">"Паузирај"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8966769845721269304">"Премотај напред"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="801276177839339511">"Премотај напред %1$dX"</string>
+    <string name="lb_playback_controls_rewind" msgid="1412664391757869774">"Премотај наназад"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="8651612807713092781">"Премотај наназад %1$dX"</string>
+    <string name="lb_playback_controls_skip_next" msgid="4877009494447817003">"Прескокни на следна"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="3147124289285911980">"Прескокни на претходна"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2827883329510404797">"Повеќе дејства"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="8332816524260995892">"Отштиклирај палец нагоре"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1038344559734334272">"Штиклирај палец нагоре"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"Отштиклирај палец надолу"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"Штиклирај палец надолу"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"Не повторувај ниедна"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"Повтори ги сите"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"Повтори една"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"Овозможи мешање"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"Оневозможи мешање"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"Овозможи висок квалитет"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"Оневозможи висок квалитет"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="3934392140182327163">"Овозможи затворени титлови"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"Оневозможи затворени титлови"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"Влези во режимот „Слика во слика“"</string>
+    <string name="lb_playback_time_separator" msgid="6549544638083578695">"/"</string>
+    <string name="lb_playback_controls_shown" msgid="7794717158616536936">"Контролите на аудиовизуелните датотеки се прикажани"</string>
+    <string name="lb_playback_controls_hidden" msgid="619396299825306757">"Контролите на аудиовизуелните датотеки се сокриени. Притиснете на навигациските копчиња за да се прикажат"</string>
+    <string name="lb_guidedaction_finish_title" msgid="7747913934287176843">"Готово"</string>
+    <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"Продолжи"</string>
+    <string name="lb_media_player_error" msgid="8748646000835486516">"Код за грешка на MediaPlayer %1$d дополнително %2$d"</string>
+    <string name="lb_onboarding_get_started" msgid="7674487829030291492">"ЗАПОЧНЕТЕ"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="4213611627196077555">"Следно"</string>
 </resources>

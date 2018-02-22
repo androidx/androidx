@@ -17,43 +17,43 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"ម៉ឺនុយរុករក"</string>
-    <string name="orb_search_action" msgid="5651268540267663887">"​ស្វែងរក​សកម្មភាព"</string>
-    <string name="lb_search_bar_hint" msgid="8325490927970116252">"ស្វែងរក"</string>
-    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"និយាយ​​ដើម្បី​ស្វែងរក"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"ស្វែងរក <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"និយាយ​ដើម្បី​ស្វែងរក <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
-    <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
-    <string name="lb_playback_controls_play" msgid="731953341987346903">"ចាក់"</string>
-    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"ផ្អាក"</string>
-    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"បញ្ជូន​បន្ត​រហ័ស"</string>
-    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"ខាទៅមុខ %1$dX"</string>
-    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"ខា​ថយក្រោយ"</string>
-    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"ខាថយក្រោយ %1$dX"</string>
-    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"រំលង​បន្ទាប់"</string>
-    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"រំលង​មុន"</string>
-    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"សកម្មភាព​ច្រើន​ទៀត"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"មិន​ជ្រើស​មេ​​ដៃ​ឡើង​វិញ"</string>
-    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"ជ្រើស​មេ​ដៃ​ឡើង​លើ"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"មិន​ជ្រើស​​មេដៃ​ចុះ​ក្រោម"</string>
-    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"ជ្រើស​​មេ​ដៃ​ចុះក្រោម"</string>
-    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"មិន​ធ្វើ​ឡើង​វិញ​"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"ធ្វើ​ម្ដង​ទៀត​ទាំងអស់"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"ធ្វើ​​ឡើងវិញ​ម្ដង"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"បើក​ការ​​ច្របល់"</string>
-    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"បិទ​ការ​ច្របល់"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"បើក​គុណភាព​ខ្ពស់"</string>
-    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"បិទ​គុណភាព​ខ្ពស់"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"បើក​ការ​ដាក់​ចំណង​ដែល​បាន​បិទ"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"បិទ​ការ​ដាក់​ចំណង​ដែល​បាន​បិទ"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"ចូលមុខងាររូបក្នុងរូប"</string>
-    <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
-    <string name="lb_playback_controls_shown" msgid="6382160135512023238">"ការ​គ្រប់គ្រង​មេឌៀ​ត្រូវ​បាន​បង្ហាញ"</string>
-    <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"ការ​គ្រប់គ្រង​មេឌៀ​ត្រូវ​បាន​លាក់ សូមចុច d-pad ដើម្បី​បង្ហាញ"</string>
-    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"បញ្ចប់"</string>
-    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"បន្ត"</string>
-    <string name="lb_media_player_error" msgid="3650250994187305396">"លេខកូដបញ្ហា MediaPlayer %1$d និង %2$d បន្ថែម"</string>
-    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"ចាប់ផ្ដើម"</string>
-    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"បន្ទាប់"</string>
+    <string name="lb_navigation_menu_contentDescription" msgid="8126335323963415494">"ម៉ឺនុយរុករក"</string>
+    <string name="orb_search_action" msgid="7534843523462177008">"​ស្វែងរក​សកម្មភាព"</string>
+    <string name="lb_search_bar_hint" msgid="4819380969103509861">"ស្វែងរក"</string>
+    <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"និយាយ​​ដើម្បី​ស្វែងរក"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"ស្វែងរក <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"និយាយ​ដើម្បី​ស្វែងរក <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="2721825378927619928">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="6173753802428649303">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="1590369760862605402">"ចាក់"</string>
+    <string name="lb_playback_controls_pause" msgid="1769131316742618433">"ផ្អាក"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8966769845721269304">"ទៅមុខ​រហ័ស"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="801276177839339511">"ទៅមុខ​រហ័ស %1$dX"</string>
+    <string name="lb_playback_controls_rewind" msgid="1412664391757869774">"ខា​ថយ​ក្រោយ"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="8651612807713092781">"ខា​ថយ​ក្រោយ %1$dX"</string>
+    <string name="lb_playback_controls_skip_next" msgid="4877009494447817003">"រំលងទៅ​បន្ទាប់"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="3147124289285911980">"រំលង​ទៅពី​មុន"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2827883329510404797">"សកម្មភាព​ច្រើន​ទៀត"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="8332816524260995892">"ឈប់​ជ្រើស​រើស​ការ​លើក​មេដៃ"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1038344559734334272">"ជ្រើសរើស​ការ​លើកមេ​ដៃ"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"ឈប់​ជ្រើស​រើស​ការឲ្យ​មេដៃ​ចុះ"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"ជ្រើស​រើស​ការឲ្យ​មេ​ដៃ​ចុះ"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"មិន​ចាក់​ឡើង​វិញ​"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"ចាក់​ឡើងវិញ​ទាំងអស់"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"ចាក់​ឡើងវិញ​មួយ"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"បើក​ការ​​ច្របល់"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"បិទ​ការ​ច្របល់"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"បើក​គុណភាព​ខ្ពស់"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"បិទ​គុណភាព​ខ្ពស់"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="3934392140182327163">"បើក​អក្សរ​រត់"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"បិទ​អក្សរ​រត់"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"បញ្ចូល​មុខងារ​រូបក្នុងរូប"</string>
+    <string name="lb_playback_time_separator" msgid="6549544638083578695">"/"</string>
+    <string name="lb_playback_controls_shown" msgid="7794717158616536936">"ការ​គ្រប់គ្រង​មេឌៀ​ត្រូវ​បាន​បង្ហាញ"</string>
+    <string name="lb_playback_controls_hidden" msgid="619396299825306757">"ការ​គ្រប់គ្រង​មេឌៀ​ត្រូវ​បាន​លាក់ សូមចុច d-pad ដើម្បី​បង្ហាញ"</string>
+    <string name="lb_guidedaction_finish_title" msgid="7747913934287176843">"បញ្ចប់"</string>
+    <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"បន្ត"</string>
+    <string name="lb_media_player_error" msgid="8748646000835486516">"លេខកូដ​បញ្ហា​ MediaPlayer %1$d extra %2$d"</string>
+    <string name="lb_onboarding_get_started" msgid="7674487829030291492">"ចាប់ផ្ដើម"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="4213611627196077555">"បន្ទាប់"</string>
 </resources>

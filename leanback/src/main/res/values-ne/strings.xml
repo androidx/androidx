@@ -17,43 +17,43 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"नेभिगेसन मेनु"</string>
-    <string name="orb_search_action" msgid="5651268540267663887">"कार्य खोजी गर्नुहोस्"</string>
-    <string name="lb_search_bar_hint" msgid="8325490927970116252">"खोजी गर्नुहोस्"</string>
-    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"खोजी गर्न बोल्नुहोस्"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> खोज्नुहोस्"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> खोजी गर्न बोल्नुहोस्"</string>
-    <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
-    <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
-    <string name="lb_playback_controls_play" msgid="731953341987346903">"प्ले गर्नुहोस्"</string>
-    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"रोक्नुहोस्"</string>
-    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"फास्ट फर्वार्ड"</string>
-    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"द्रूत फर्वार्ड %1$dX"</string>
-    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"रिवाइन्ड गर्नुहोस्"</string>
-    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"रिवाइन्ड गर्नुहोस् %1$dX"</string>
-    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"अर्को छोड्नुहोस्"</string>
-    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"अघिल्लो छोड्नुहोस्"</string>
-    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"थप कार्यहरू"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"औंठा माथि चयन नगर्नुहोस्"</string>
-    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"औंठा माथि चयन गर्नुहोस्"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"औंठा तल चयन नगर्नुहोस्"</string>
-    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"औंठा तल चयन गर्नुहोस्"</string>
-    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"कुनै पनि नदोहोर्याउनुहोस्"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"सबै दोहोर्याउनुहोस्"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"एउटा दोहोर्याउनुहोस्"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"सफ्फल सक्षम"</string>
-    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"सफ्फल असक्षम"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"उच्च गुणस्तर सक्षम"</string>
-    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"उच्च गुणस्तर असक्षम"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"बन्द क्याप्सनहरु सक्षम"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"बन्द क्याप्सनहरु असक्षम"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"चित्रलाई चित्र मोडमा प्रविष्ट गर्नुहोस्"</string>
-    <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
-    <string name="lb_playback_controls_shown" msgid="6382160135512023238">"मिडियाका नियन्त्रणहरू देखाएइका छन्"</string>
-    <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"मिडियाका नियन्त्रणहरू लुकेका छन्, देखाउनका लागि d-pad लाई थिच्नुहोस्"</string>
-    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"समाप्त गर्नुहोस्"</string>
-    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"जारी राख्नुहोस्"</string>
-    <string name="lb_media_player_error" msgid="3650250994187305396">"MediaPlayer को त्रुटि सम्बन्धी कोड %1$d अतिरिक्त %2$d"</string>
-    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"सुरु गरौँ"</string>
-    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"अर्को"</string>
+    <string name="lb_navigation_menu_contentDescription" msgid="8126335323963415494">"नेभिगेसन मेनु"</string>
+    <string name="orb_search_action" msgid="7534843523462177008">"कारबाही खोज्नुहोस्"</string>
+    <string name="lb_search_bar_hint" msgid="4819380969103509861">"खोज्नुहोस्"</string>
+    <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"खोज्नका लागि बोल्नुहोस्"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> खोज्नुहोस्"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> खोज्नका लागि बोल्नुहोस्"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="2721825378927619928">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="6173753802428649303">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="1590369760862605402">"प्ले गर्नुहोस्"</string>
+    <string name="lb_playback_controls_pause" msgid="1769131316742618433">"पज गर्नुहोस्"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8966769845721269304">"फास्ट फर्वार्ड गर्नुहोस्"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="801276177839339511">"फास्ट फर्वार्ड %1$dX"</string>
+    <string name="lb_playback_controls_rewind" msgid="1412664391757869774">"रिवाइन्ड गर्नुहोस्"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="8651612807713092781">"रिवाइन्ड गर्नुहोस् %1$dX"</string>
+    <string name="lb_playback_controls_skip_next" msgid="4877009494447817003">"अर्कोमा जानुहोस्"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="3147124289285911980">"अघिल्लोमा जानुहोस्"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2827883329510404797">"थप कारबाहीहरू"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="8332816524260995892">"मन परेको जनाउने बटनलाई चयनबाट हटाउनुहोस्"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1038344559734334272">"मन परेको जनाउने बटन चयन गर्नुहोस्"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"मन नपरेको जनाउने बटनलाई चयनबाट हटाउनुहोस्"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"मन नपरेको जनाउने बटन चयन गर्नुहोस्"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"कुनै पनि नदोहोर्‍याउनुहोला"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"सबै दोहोर्‍याउनुहोस्"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"एउटा दोहोर्‍याउनुहोस्"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"मिसाएर प्ले गर्ने सुविधा सक्षम पार्नुहोस्"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"मिसाएर प्ले गर्ने सुविधा असक्षम पार्नुहोस्"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"उच्च गुणस्तरलाई सक्षम पार्नुहोस्"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"उच्च गुणस्तरलाई असक्षम पार्नुहोस्"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="3934392140182327163">"उप शीर्षकहरू देखाउने सुविधालाई सक्षम पार्नुहोस्"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"उप शीर्षकहरू देखाउने सुविधालाई असक्षम पार्नुहोस्"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"तस्बिरभित्र तस्बिर नामक मोडमा प्रविष्ट गर्नुहोस्"</string>
+    <string name="lb_playback_time_separator" msgid="6549544638083578695">"/"</string>
+    <string name="lb_playback_controls_shown" msgid="7794717158616536936">"मिडियाका नियन्त्रणहरू देखाइएका छन्"</string>
+    <string name="lb_playback_controls_hidden" msgid="619396299825306757">"मिडियाका नियन्त्रणहरूलाई लुकाइएको छ, देखाउनका लागि d-pad नामक बटन थिच्नुहोस्"</string>
+    <string name="lb_guidedaction_finish_title" msgid="7747913934287176843">"पूरा गर्नुहोस्"</string>
+    <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"जारी राख्नुहोस्"</string>
+    <string name="lb_media_player_error" msgid="8748646000835486516">"MediaPlayer को त्रुटिको कोड %1$d, यसको अतिरिक्त %2$d"</string>
+    <string name="lb_onboarding_get_started" msgid="7674487829030291492">"सुरु गरौँ"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="4213611627196077555">"अर्को"</string>
 </resources>
