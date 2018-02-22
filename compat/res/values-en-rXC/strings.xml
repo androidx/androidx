@@ -17,5 +17,5 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="status_bar_notification_info_overflow" msgid="7988687684186075107">"၉၉၉+"</string>
+    <string name="status_bar_notification_info_overflow" msgid="7988687684186075107">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‏‏‏‎‏‏‎‏‏‏‎‏‏‎‎‎‎‏‎‏‎‎‎‏‏‏‏‏‎‏‏‏‎‏‎‏‎‏‏‏‎‎‏‎‏‏‏‎‏‏‏‏‏‏‏‎‎‎‏‏‎999+‎‏‎‎‏‎"</string>
 </resources>
