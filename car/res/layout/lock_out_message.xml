@@ -38,7 +38,7 @@ limitations under the License.
         android:id="@+id/lock_out_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/CarBody1"
+        android:textAppearance="@style/TextAppearance.Car.Body1"
         android:layout_alignStart="@id/lock_out_drawable"
         android:layout_alignEnd="@id/lock_out_drawable"
         android:layout_alignTop="@id/lock_out_drawable"
