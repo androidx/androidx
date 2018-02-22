@@ -536,6 +536,7 @@ public final class TextClassification implements Parcelable {
 
         private @Nullable LocaleListCompat mDefaultLocales;
         private @Nullable Calendar mReferenceTime;
+        private @Nullable String mCallingPackageName;
 
         public Options() {}
 
@@ -560,6 +561,17 @@ public final class TextClassification implements Parcelable {
         }
 
         /**
+         * @param packageName name of the package from which the call was made.
+         *
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public Options setCallingPackageName(@Nullable String packageName) {
+            mCallingPackageName = packageName;
+            return this;
+        }
+
+        /**
          * @return ordered list of locale preferences that can be used to disambiguate
          *      the provided text.
          */
@@ -577,6 +589,14 @@ public final class TextClassification implements Parcelable {
             return mReferenceTime;
         }
 
+        /**
+         * @return name of the package from which the call was made.
+         */
+        @Nullable
+        public String getCallingPackageName() {
+            return mCallingPackageName;
+        }
+
         @Override
         public int describeContents() {
             return 0;
@@ -592,6 +612,7 @@ public final class TextClassification implements Parcelable {
             if (mReferenceTime != null) {
                 dest.writeSerializable(mReferenceTime);
             }
+            dest.writeString(mCallingPackageName);
         }
 
         public static final Parcelable.Creator<Options> CREATOR =
@@ -614,6 +635,7 @@ public final class TextClassification implements Parcelable {
             if (in.readInt() > 0) {
                 mReferenceTime = (Calendar) in.readSerializable();
             }
+            mCallingPackageName = in.readString();
         }
     }
 }

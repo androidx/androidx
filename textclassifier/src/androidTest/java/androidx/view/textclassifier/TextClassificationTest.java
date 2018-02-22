@@ -140,11 +140,13 @@ public final class TextClassificationTest {
 
     @Test
     public void testParcelOptions() {
+        final String callingPackageName = "packageName";
         Calendar referenceTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.US);
         referenceTime.setTimeInMillis(946684800000L);  // 2000-01-01 00:00:00
-        TextClassification.Options reference = new TextClassification.Options();
-        reference.setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"));
-        reference.setReferenceTime(referenceTime);
+        TextClassification.Options reference = new TextClassification.Options()
+                .setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"))
+                .setReferenceTime(referenceTime)
+                .setCallingPackageName(callingPackageName);
 
         // Parcel and unparcel.
         final Parcel parcel = Parcel.obtain();
@@ -155,5 +157,6 @@ public final class TextClassificationTest {
 
         assertEquals("en-US,de-DE", result.getDefaultLocales().toLanguageTags());
         assertEquals(referenceTime, result.getReferenceTime());
+        assertEquals(callingPackageName, result.getCallingPackageName());
     }
 }

@@ -62,8 +62,10 @@ public final class TextSelectionTest {
 
     @Test
     public void testParcelOptions() {
-        TextSelection.Options reference = new TextSelection.Options();
-        reference.setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"));
+        final String callingPackageName = "packageName";
+        TextSelection.Options reference = new TextSelection.Options()
+                .setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"))
+                .setCallingPackageName(callingPackageName);
 
         // Parcel and unparcel.
         final Parcel parcel = Parcel.obtain();
@@ -73,5 +75,6 @@ public final class TextSelectionTest {
                 parcel);
 
         assertEquals("en-US,de-DE", result.getDefaultLocales().toLanguageTags());
+        assertEquals(callingPackageName, result.getCallingPackageName());
     }
 }
