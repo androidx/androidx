@@ -25,11 +25,11 @@ OUT_DIR="$ROOT_DIR/out"
 TEMP_LOG="$OUT_DIR/tempLog"
 
 JETIFIER_DIR="$ROOT_DIR/../.."
-BUILD_DIR="$ROOT_DIR/../../../../../../out/host/gradle/frameworks/support/jetifier"
+BUILD_DIR="$ROOT_DIR/../../../../../../out/host/gradle/frameworks/support"
 DEFAULT_CONFIG="$JETIFIER_DIR/core/src/main/resources/default.config"
 GENERATED_CONFIG="$JETIFIER_DIR/core/src/main/resources/default.generated.config"
-PREPROCESSOR_DISTRO_PATH="$BUILD_DIR/preprocessor/build/distributions/preprocessor-1.0.zip"
-PREPROCESSOR_BIN_PATH="$OUT_DIR/preprocessor-1.0/bin/preprocessor"
+PREPROCESSOR_DISTRO_PATH="$BUILD_DIR/jetifier-preprocessor/build/distributions/jetifier-preprocessor.zip"
+PREPROCESSOR_BIN_PATH="$OUT_DIR/jetifier-preprocessor/bin/jetifier-preprocessor"
 SUPPORT_LIBS_BUILD_NUMBER="4560478"
 SUPPORT_LIBS_DOWNLOADED="$OUT_DIR/supportLibs/downloaded"
 SUPPORT_LIBS_UNPACKED="$OUT_DIR/supportLibs/unpacked"
@@ -56,7 +56,7 @@ function printSuccess() {
 
 function buildProjectUsingGradle() {
 	cd $1
-	sh gradlew clean build $2 > $TEMP_LOG --stacktrace
+	sh gradlew :jetifier-preprocessor:clean :jetifier-preprocessor:uploadArchives $2 > $TEMP_LOG --stacktrace
 }
 
 
@@ -90,14 +90,14 @@ function getPreRenamedSupportLib() {
 getPreRenamedSupportLib
 
 printSectionStart "Preparing Jetifier"
-buildProjectUsingGradle $JETIFIER_DIR
+buildProjectUsingGradle $JETIFIER_DIR/../..
 echo "[OK] Clean build done"
 
 unzip $PREPROCESSOR_DISTRO_PATH -d $OUT_DIR > /dev/null
 echo "[OK] Copied & unziped jetifier preprocessor"
 
 printSectionStart "Preprocessing mappings on support libraries"
-sh $PREPROCESSOR_BIN_PATH -i "$SUPPORT_LIBS_UNPACKED" -o "$GENERATED_CONFIG" -c "$DEFAULT_CONFIG" -l verbose || exitAndFail
+sh $PREPROCESSOR_BIN_PATH -i "$SUPPORT_LIBS_UNPACKED" -o "$GENERATED_CONFIG" -c "$DEFAULT_CONFIG" -l verbose || die
 echo "[OK] Done, config generated into $GENERATED_CONFIG"
 
 printSuccess
