@@ -95,7 +95,7 @@ public class WorkContinuationImplTest {
     public void tearDown() {
         List<String> ids = mDatabase.workSpecDao().getAllWorkSpecIds();
         for (String id : ids) {
-            mWorkManagerImpl.cancelWorkForId(id);
+            mWorkManagerImpl.cancelWorkById(id);
         }
         mDatabase.close();
         ArchTaskExecutor.getInstance().setDelegate(null);

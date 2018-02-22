@@ -128,7 +128,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         JobParameters mockParams = createMockJobParameters(work.getId());
         assertThat(mSystemJobService.onStartJob(mockParams), is(true));
         WorkManagerImpl.getInstance(InstrumentationRegistry.getTargetContext())
-                .cancelWorkForId(work.getId());
+                .cancelWorkById(work.getId());
         assertThat(mSystemJobService.onStopJob(mockParams), is(false));
     }
 

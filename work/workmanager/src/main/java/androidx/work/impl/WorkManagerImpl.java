@@ -153,14 +153,14 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public void cancelWorkForId(@NonNull String id) {
+    public void cancelWorkById(@NonNull String id) {
         mTaskExecutor.executeOnBackgroundThread(new CancelWorkRunnable(this, id, null));
     }
 
     @Override
     @WorkerThread
-    public void cancelWorkForIdSync(@NonNull String id) {
-        assertBackgroundThread("Cannot cancelWorkForIdSync on main thread!");
+    public void cancelWorkByIdSync(@NonNull String id) {
+        assertBackgroundThread("Cannot cancelWorkByIdSync on main thread!");
         new CancelWorkRunnable(this, id, null).run();
     }
 
