@@ -105,23 +105,28 @@ public class SliceCreator {
         GridBuilder gb = new GridBuilder(b);
         gb.setPrimaryAction(primaryAction);
         gb.addCell(new GridBuilder.CellBuilder(gb)
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_1),
+                                GridBuilder.SMALL_IMAGE)
                         .addText("MON")
                         .addTitleText("69\u00B0"))
                 .addCell(new GridBuilder.CellBuilder(gb)
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_2))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_2),
+                                GridBuilder.SMALL_IMAGE)
                         .addText("TUE")
                         .addTitleText("71\u00B0"))
                 .addCell(new GridBuilder.CellBuilder(gb)
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_3))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_3),
+                                GridBuilder.SMALL_IMAGE)
                         .addText("WED")
                         .addTitleText("76\u00B0"))
                 .addCell(new GridBuilder.CellBuilder(gb)
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_4))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_4),
+                                GridBuilder.SMALL_IMAGE)
                         .addText("THU")
                         .addTitleText("72\u00B0"))
                 .addCell(new GridBuilder.CellBuilder(gb)
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_1),
+                                GridBuilder.SMALL_IMAGE)
                         .addText("FRI")
                         .addTitleText("68\u00B0"));
         return b.addGrid(gb).build();
@@ -131,13 +136,17 @@ public class SliceCreator {
         ListBuilder b = new ListBuilder(getContext(), sliceUri);
         GridBuilder gb = new GridBuilder(b);
         return gb.addCell(new GridBuilder.CellBuilder(gb)
-                    .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_1)))
+                    .addImage(Icon.createWithResource(getContext(), R.drawable.slices_1),
+                            GridBuilder.LARGE_IMAGE))
                 .addCell(new GridBuilder.CellBuilder(gb)
-                    .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_2)))
+                    .addImage(Icon.createWithResource(getContext(), R.drawable.slices_2),
+                            GridBuilder.LARGE_IMAGE))
                 .addCell(new GridBuilder.CellBuilder(gb)
-                    .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_3)))
+                    .addImage(Icon.createWithResource(getContext(), R.drawable.slices_3),
+                            GridBuilder.LARGE_IMAGE))
                 .addCell(new GridBuilder.CellBuilder(gb)
-                    .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_4)))
+                    .addImage(Icon.createWithResource(getContext(), R.drawable.slices_4),
+                            GridBuilder.LARGE_IMAGE))
                 .build();
     }
 
@@ -152,19 +161,23 @@ public class SliceCreator {
                         .addEndItem(Icon.createWithResource(getContext(), R.drawable.mady)))
                 .addGrid(gb
                         .addCell(new GridBuilder.CellBuilder(gb)
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_call))
+                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_call),
+                                    GridBuilder.ICON_IMAGE)
                             .addText("Call")
                             .setContentIntent(getBroadcastIntent(ACTION_TOAST, "call")))
                         .addCell(new GridBuilder.CellBuilder(gb)
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_text))
+                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_text),
+                                    GridBuilder.ICON_IMAGE)
                             .addText("Text")
                             .setContentIntent(getBroadcastIntent(ACTION_TOAST, "text")))
                         .addCell(new GridBuilder.CellBuilder(gb)
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_video))
+                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_video),
+                                    GridBuilder.ICON_IMAGE)
                             .setContentIntent(getBroadcastIntent(ACTION_TOAST, "video"))
                             .addText("Video"))
                         .addCell(new GridBuilder.CellBuilder(gb)
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_email))
+                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_email),
+                                    GridBuilder.ICON_IMAGE)
                             .addText("Email")
                             .setContentIntent(getBroadcastIntent(ACTION_TOAST, "email"))))
                 .build();

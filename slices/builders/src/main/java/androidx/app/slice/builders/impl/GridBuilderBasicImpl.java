@@ -135,28 +135,14 @@ public class GridBuilderBasicImpl extends TemplateBuilderImpl implements GridBui
          */
         @NonNull
         @Override
-        public void addLargeImage(@NonNull Icon image) {
+        public void addImage(@NonNull Icon image, int imageMode) {
         }
 
         /**
          */
         @NonNull
         @Override
-        public void addLargeImage(@Nullable Icon image, boolean isLoading) {
-        }
-
-        /**
-         */
-        @NonNull
-        @Override
-        public void addImage(@NonNull Icon image) {
-        }
-
-        /**
-         */
-        @NonNull
-        @Override
-        public void addImage(@Nullable Icon image, boolean isLoading) {
+        public void addImage(@Nullable Icon image, int imageMode, boolean isLoading) {
         }
 
         /**

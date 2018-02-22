@@ -58,7 +58,7 @@ public class SampleSliceProvider extends SliceProvider {
 
     public static final String[] URI_PATHS = {"message", "wifi", "note", "ride", "toggle",
             "toggle2", "contact", "gallery", "weather", "reservation", "loadlist", "loadlist2",
-            "loadgrid", "loadgrid2", "inputrange", "range"};
+            "loadgrid", "loadgrid2", "inputrange", "range", "contact2"};
 
     /**
      * @return Uri with the provided path
@@ -101,6 +101,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createTwoCustomToggleSlices(sliceUri);
             case "/contact":
                 return createContact(sliceUri);
+            case "/contact2":
+                return createContact2(sliceUri);
             case "/gallery":
                 return createGallery(sliceUri);
             case "/weather":
@@ -130,23 +132,28 @@ public class SampleSliceProvider extends SliceProvider {
         return new ListBuilder(getContext(), sliceUri).addGrid(gb -> gb
                 .setPrimaryAction(primaryAction)
                 .addCell(cb -> cb
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_1),
+                                GridBuilder.SMALL_IMAGE)
                         .addText("MON")
                         .addTitleText("69\u00B0"))
                 .addCell(cb -> cb
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_2))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_2),
+                                GridBuilder.SMALL_IMAGE)
                         .addText("TUE")
                         .addTitleText("71\u00B0"))
                 .addCell(cb -> cb
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_3))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_3),
+                                GridBuilder.SMALL_IMAGE)
                         .addText("WED")
                         .addTitleText("76\u00B0"))
                 .addCell(cb -> cb
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_4))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_4),
+                                GridBuilder.SMALL_IMAGE)
                         .addText("THU")
                         .addTitleText("72\u00B0"))
                 .addCell(cb -> cb
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.weather_1))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_1),
+                                GridBuilder.SMALL_IMAGE)
                         .addText("FRI")
                         .addTitleText("68\u00B0")))
                 .build();
@@ -168,13 +175,60 @@ public class SampleSliceProvider extends SliceProvider {
                         "Share photo album"))
                 .addGrid(b -> b
                     .addCell(cb -> cb
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_1)))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_1),
+                            GridBuilder.LARGE_IMAGE))
                     .addCell(cb -> cb
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_2)))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_2),
+                                GridBuilder.LARGE_IMAGE))
                     .addCell(cb -> cb
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_3)))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_3),
+                                GridBuilder.LARGE_IMAGE))
                     .addCell(cb -> cb
-                        .addLargeImage(Icon.createWithResource(getContext(), R.drawable.slices_4))))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_4),
+                                GridBuilder.LARGE_IMAGE))
+                    .addCell(cb -> cb
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_2),
+                                GridBuilder.LARGE_IMAGE))
+                    .addCell(cb -> cb
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_3),
+                                GridBuilder.LARGE_IMAGE))
+                    .addCell(cb -> cb
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_4),
+                                GridBuilder.LARGE_IMAGE)))
+                .build();
+    }
+
+
+    private Slice createContact2(Uri sliceUri) {
+        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(b);
+        GridBuilder gb = new GridBuilder(b);
+        return b.setColor(0xff3949ab)
+                .addRow(rb
+                        .setTitle("Mady Pitza")
+                        .setSubtitle("Frequently contacted contact")
+                        .addEndItem(Icon.createWithResource(getContext(), R.drawable.mady)))
+                .addGrid(gb
+                        .addCell(new GridBuilder.CellBuilder(gb)
+                                .addImage(Icon.createWithResource(getContext(), R.drawable.ic_call),
+                                        GridBuilder.ICON_IMAGE)
+                                .addText("Call")
+                                .setContentIntent(getBroadcastIntent(ACTION_TOAST, "call")))
+                        .addCell(new GridBuilder.CellBuilder(gb)
+                                .addImage(Icon.createWithResource(getContext(), R.drawable.ic_text),
+                                        GridBuilder.ICON_IMAGE)
+                                .addText("Text")
+                                .setContentIntent(getBroadcastIntent(ACTION_TOAST, "text")))
+                        .addCell(new GridBuilder.CellBuilder(gb)
+                                .addImage(Icon.createWithResource(getContext(),
+                                        R.drawable.ic_video), GridBuilder.ICON_IMAGE)
+                                .setContentIntent(getBroadcastIntent(ACTION_TOAST, "video"))
+                                .addText("Video"))
+                        .addCell(new GridBuilder.CellBuilder(gb)
+                                .addImage(Icon.createWithResource(getContext(),
+                                        R.drawable.ic_email), GridBuilder.ICON_IMAGE)
+                                .addText("Email")
+                                .setContentIntent(getBroadcastIntent(ACTION_TOAST, "email"))))
                 .build();
     }
 
@@ -264,8 +318,8 @@ public class SampleSliceProvider extends SliceProvider {
                         "Contact host"))
                 .addGrid(b -> b
                     .addCell(cb -> cb
-                        .addLargeImage(
-                                Icon.createWithResource(getContext(), R.drawable.reservation))))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.reservation),
+                            GridBuilder.LARGE_IMAGE)))
                 .addGrid(b -> b
                     .addCell(cb -> cb
                         .addTitleText("Check In")
@@ -479,7 +533,8 @@ public class SampleSliceProvider extends SliceProvider {
 
     private GridBuilder.CellBuilder createCell(GridBuilder.CellBuilder cb, String text1,
             String text2, Icon icon, boolean isLoading) {
-        return cb.addText(text1, isLoading).addText(text2, isLoading).addImage(icon, isLoading);
+        return cb.addText(text1, isLoading).addText(text2, isLoading).addImage(icon,
+                GridBuilder.SMALL_IMAGE, isLoading);
     }
 
     private PendingIntent getIntent(String action) {
