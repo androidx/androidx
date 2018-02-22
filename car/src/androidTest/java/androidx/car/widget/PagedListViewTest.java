@@ -47,6 +47,7 @@ import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -82,6 +83,10 @@ public final class PagedListViewTest {
      * Actual value does not matter.
      */
     private static final int ITEMS_PER_PAGE = 5;
+
+    // For tests using GridLayoutManager - assuming each item takes one span, this is essentially
+    // number of items per row.
+    private static final int SPAN_COUNT = 5;
 
     @Rule
     public ActivityTestRule<PagedListViewTestActivity> mActivityRule =
@@ -482,6 +487,33 @@ public final class PagedListViewTest {
         mPagedListView.setScrollBarContainerWidth(scrollBarContainerWidth);
 
         onView(withId(R.id.paged_scroll_view)).check(matches(withWidth(scrollBarContainerWidth)));
+    }
+
+    @Test
+    public void testTopOffsetInGridLayoutManager() throws Throwable {
+        int topOffset = mActivity.getResources().getDimensionPixelSize(R.dimen.car_padding_5);
+
+        // Need enough items to fill the first row.
+        setUpPagedListView(SPAN_COUNT * 3);
+        mActivityRule.runOnUiThread(() -> {
+            mPagedListView.setListContentTopOffset(topOffset);
+            mPagedListView.getRecyclerView().setLayoutManager(
+                    new GridLayoutManager(mActivity, SPAN_COUNT));
+            // Verify only items in first row have top offset. Setting no item spacing to avoid
+            // additional offset.
+            mPagedListView.setItemSpacing(0);
+        });
+        // Wait for paged list view to layout by using espresso to scroll to a position.
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+
+        for (int i = 0; i < SPAN_COUNT; i++) {
+            assertThat(mPagedListView.getRecyclerView().getChildAt(i).getTop(),
+                    is(equalTo(topOffset)));
+
+            // i + SPAN_COUNT uses items in second row.
+            assertThat(mPagedListView.getRecyclerView().getChildAt(i + SPAN_COUNT).getTop(),
+                    is(equalTo(mPagedListView.getRecyclerView().getChildAt(i).getBottom())));
+        }
     }
 
     private static String itemText(int index) {
