@@ -35,7 +35,7 @@ limitations under the License.
         android:layout_gravity="center_vertical"
         android:layout_marginBottom="@dimen/car_text_vertical_margin"
         android:maxLines="1"
-        style="@style/CarBody1" />
+        style="@style/TextAppearance.Car.Body1" />
     <ImageView
         android:id="@+id/end_icon"
         android:layout_width="@dimen/car_drawer_list_item_end_icon_size"

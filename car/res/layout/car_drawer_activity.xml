@@ -51,6 +51,6 @@ limitations under the License.
             android:layout_height="@dimen/car_app_bar_height"
             android:layout_gravity="center_vertical"
             android:minHeight="@dimen/car_app_bar_height"
-            style="@style/CarToolbarTheme" />
+            style="@style/Widget.Car.Toolbar" />
     </android.support.design.widget.AppBarLayout>
 </android.support.design.widget.CoordinatorLayout>
