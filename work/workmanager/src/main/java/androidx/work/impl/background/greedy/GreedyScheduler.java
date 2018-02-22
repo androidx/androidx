@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.work.State;
+import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
@@ -40,13 +41,13 @@ import androidx.work.impl.model.WorkSpec;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class GreedyScheduler implements Scheduler, WorkConstraintsCallback {
+public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, ExecutionListener {
 
     private static final String TAG = "GreedyScheduler";
 
     private WorkManagerImpl mWorkManagerImpl;
     private WorkConstraintsTracker mWorkConstraintsTracker;
-    private List<WorkSpec> mWorkSpecsToProcess = new ArrayList<>();
+    private List<WorkSpec> mConstrainedWorkSpecs = new ArrayList<>();
 
     public GreedyScheduler(Context context, WorkManagerImpl workManagerImpl) {
         mWorkManagerImpl = workManagerImpl;
@@ -57,24 +58,29 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback {
     public GreedyScheduler(WorkManagerImpl workManagerImpl,
             WorkConstraintsTracker workConstraintsTracker) {
         mWorkManagerImpl = workManagerImpl;
+        mWorkManagerImpl.getProcessor().addExecutionListener(this);
         mWorkConstraintsTracker = workConstraintsTracker;
     }
 
     @Override
     public synchronized void schedule(WorkSpec... workSpecs) {
-        int originalSize = mWorkSpecsToProcess.size();
+        int originalSize = mConstrainedWorkSpecs.size();
 
         for (WorkSpec workSpec : workSpecs) {
             if (workSpec.getState() == State.ENQUEUED
                     && !workSpec.isPeriodic()
                     && workSpec.getInitialDelay() == 0L) {
-                mWorkSpecsToProcess.add(workSpec);
-                mWorkManagerImpl.startWork(workSpec.getId());
+                if (workSpec.hasConstraints()) {
+                    Logger.debug(TAG, "Starting tracking for %s", workSpec.getId());
+                    mConstrainedWorkSpecs.add(workSpec);
+                } else {
+                    mWorkManagerImpl.startWork(workSpec.getId());
+                }
             }
         }
 
-        if (originalSize != mWorkSpecsToProcess.size()) {
-            mWorkConstraintsTracker.replace(mWorkSpecsToProcess);
+        if (originalSize != mConstrainedWorkSpecs.size()) {
+            mWorkConstraintsTracker.replace(mConstrainedWorkSpecs);
         }
     }
 
@@ -82,6 +88,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback {
     public synchronized void cancel(@NonNull String workSpecId) {
         Logger.debug(TAG, "Cancelling work ID %s", workSpecId);
         mWorkManagerImpl.stopWork(workSpecId);
+        removeConstraintTrackingFor(workSpecId);
     }
 
     @Override
@@ -97,6 +104,24 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback {
         for (String workSpecId : workSpecIds) {
             Logger.debug(TAG, "Constraints not met: Cancelling work ID %s", workSpecId);
             mWorkManagerImpl.stopWork(workSpecId);
+        }
+    }
+
+    @Override
+    public synchronized void onExecuted(@NonNull String workSpecId,
+            boolean isSuccessful,
+            boolean needsReschedule) {
+        removeConstraintTrackingFor(workSpecId);
+    }
+
+    private synchronized void removeConstraintTrackingFor(@NonNull String workSpecId) {
+        for (int i = 0, size = mConstrainedWorkSpecs.size(); i < size; ++i) {
+            if (mConstrainedWorkSpecs.get(i).getId().equals(workSpecId)) {
+                Logger.debug(TAG, "Stopping tracking for %s", workSpecId);
+                mConstrainedWorkSpecs.remove(i);
+                mWorkConstraintsTracker.replace(mConstrainedWorkSpecs);
+                break;
+            }
         }
     }
 }
