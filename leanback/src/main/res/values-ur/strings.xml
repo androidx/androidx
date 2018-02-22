@@ -17,43 +17,43 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"نیویگیشن مینو"</string>
-    <string name="orb_search_action" msgid="5651268540267663887">"تلاش کی کارروائی"</string>
-    <string name="lb_search_bar_hint" msgid="8325490927970116252">"تلاش کریں"</string>
-    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"تلاش کرنے کیلئے بولیں"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> تلاش کریں"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> تلاش کرنے کیلئے بولیں"</string>
-    <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
-    <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
-    <string name="lb_playback_controls_play" msgid="731953341987346903">"چلائیں"</string>
-    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"موقوف کریں"</string>
-    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"تیزی سے فارورڈ کریں"</string>
-    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"‏تیزی سے فارورڈ کریں ‎%1$dX‎"</string>
-    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"ریوائینڈ کریں"</string>
-    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"‏ریوائنڈ کریں ‎%1$dX‎"</string>
-    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"اگلے پر جائیں"</string>
-    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"پچھلے پر جائیں"</string>
-    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"مزید کارروائیاں"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"اوپر کی طرف والے انگوٹھے کے نشان کو غیر منتخب کریں"</string>
-    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"اوپر کی طرف والے انگوٹھے کے نشان کو منتخب کریں"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"نیچے کی طرف والے انگوٹھے کے نشان کو غیر منتخب کریں"</string>
-    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"نیچے کی طرف والے انگوٹھے کے نشان کو منتخب کریں"</string>
-    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"کسی کو نہ دہرائیں"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"سبھی کو دہرائیں"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"ایک کو دہرائیں"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"شفل کو فعال کریں"</string>
-    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"شفل کو غیر فعال کریں"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"اعلی معیار کو فعال کریں"</string>
-    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"اعلی معیار کو غیر فعال کریں"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"سب ٹائٹلز کو فعال کریں"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"سب ٹائٹلز کو غیر فعال کریں"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"\'تصویر میں تصویر موڈ\' میں داخل ہوں"</string>
-    <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
-    <string name="lb_playback_controls_shown" msgid="6382160135512023238">"میڈیا کنٹرولز عیاں ہیں"</string>
-    <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"‏میڈیا کنٹرولز مخفی ہیں، شو کرنے کیلئے d-pad دبائیں"</string>
-    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"مکمل کریں"</string>
-    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"جاری رکھیں"</string>
-    <string name="lb_media_player_error" msgid="3650250994187305396">"‏میڈیا پلیئر کی خرابی کا کوڈ %1$d اضافی %2$d"</string>
-    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"شروع کریں"</string>
-    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"اگلا"</string>
+    <string name="lb_navigation_menu_contentDescription" msgid="8126335323963415494">"نیویگیشن مینو"</string>
+    <string name="orb_search_action" msgid="7534843523462177008">"تلاش کی کارروائی"</string>
+    <string name="lb_search_bar_hint" msgid="4819380969103509861">"تلاش کریں"</string>
+    <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"تلاش کرنے کیلئے بولیں"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> تلاش کریں"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> تلاش کرنے کیلئے بولیں"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="2721825378927619928">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="6173753802428649303">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="1590369760862605402">"چلائیں"</string>
+    <string name="lb_playback_controls_pause" msgid="1769131316742618433">"موقوف کریں"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8966769845721269304">"تیزی سے فارورڈ کریں"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="801276177839339511">"‏تیزی سے فارورڈ کریں ‎%1$dX‎"</string>
+    <string name="lb_playback_controls_rewind" msgid="1412664391757869774">"ریوائینڈ کریں"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="8651612807713092781">"‏ریوائینڈ کریں ‎%1$dX‎"</string>
+    <string name="lb_playback_controls_skip_next" msgid="4877009494447817003">"اگلے پر جائیں"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="3147124289285911980">"پچھلے پر جائیں"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2827883329510404797">"مزید کارروائیاں"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="8332816524260995892">"اوپر کی طرف والے انگوٹھے کے نشان کو غیر منتخب کریں"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1038344559734334272">"اوپر کی طرف والے انگوٹھے کے نشان کو منتخب کریں"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"نیچے کی طرف والے انگوٹھے کے نشان کو غیر منتخب کریں"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"نیچے کی طرف والے انگوٹھے کے نشان کو منتخب کریں"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"کسی کو نہ دہرائیں"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"سبھی کو دہرائیں"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"ایک کو دہرائیں"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"شفل فعال کریں"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"شفل غیر فعال کریں"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"اعلی معیار فعال کریں"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"اعلی معیار غیر فعال کریں"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="3934392140182327163">"سب ٹائٹلز فعال کریں"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"سب ٹائٹلز غیر فعال کریں"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"\'تصویر میں تصویر موڈ\' میں داخل ہوں"</string>
+    <string name="lb_playback_time_separator" msgid="6549544638083578695">"/"</string>
+    <string name="lb_playback_controls_shown" msgid="7794717158616536936">"میڈیا کنٹرولز عیاں ہیں"</string>
+    <string name="lb_playback_controls_hidden" msgid="619396299825306757">"‏میڈیا کنٹرولز مخفی ہیں، دکھانے کیلئے d-pad دبائیں"</string>
+    <string name="lb_guidedaction_finish_title" msgid="7747913934287176843">"مکمل کریں"</string>
+    <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"جاری رکھیں"</string>
+    <string name="lb_media_player_error" msgid="8748646000835486516">"‏MediaPlayer کی خرابی کا کوڈ %1$d اضافی %2$d"</string>
+    <string name="lb_onboarding_get_started" msgid="7674487829030291492">"شروع کریں"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="4213611627196077555">"آگے"</string>
 </resources>

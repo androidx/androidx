@@ -17,43 +17,43 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"Навигация мәзірі"</string>
-    <string name="orb_search_action" msgid="5651268540267663887">"Іздеу әрекеті"</string>
-    <string name="lb_search_bar_hint" msgid="8325490927970116252">"Іздеу"</string>
-    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Іздеу үшін сөйлеу"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> іздеу"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> іздеу үшін сөйлеңіз"</string>
-    <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
-    <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
-    <string name="lb_playback_controls_play" msgid="731953341987346903">"Ойнату"</string>
-    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Кідірту"</string>
-    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Алға айналдыру"</string>
-    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"%1$dX алға айналдыру"</string>
-    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Кері айналдыру"</string>
-    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"%1$dX кері айналдыру"</string>
-    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Келесіге өту"</string>
-    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Алдыңғыға өту"</string>
-    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Қосымша әрекеттер"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Саусақты жоғары қаратудан таңдауды алу"</string>
-    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Саусақты жоғары қаратуды таңдау"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Саусақты төмен қаратудан таңдауды алу"</string>
-    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Саусақты төмен қаратуды таңдау"</string>
-    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Ешқайсысын қайталамау"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Барлығын қайталау"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Біреуін қайталау"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Кездейсоқ ойнатуды қосу"</string>
-    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Кездейсоқ ойнатуды өшіру"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Жоғары сапаны қосу"</string>
-    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Жоғары сапаны өшіру"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Жасырын титрлерді қосу"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Жасырын титрлерді өшіру"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Сурет ішіндегі сурет режиміне кіру"</string>
-    <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
-    <string name="lb_playback_controls_shown" msgid="6382160135512023238">"Мультимедияны басқару элементтері көрсетілген"</string>
-    <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"Мультимедияны басқару элементтері жасырын, оларды көрсету үшін d-тақтасын басыңыз"</string>
-    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"Аяқтау"</string>
-    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"Жалғастыру"</string>
-    <string name="lb_media_player_error" msgid="3650250994187305396">"MediaPlayer қате коды %1$d, қосымша %2$d"</string>
-    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"ІСКЕ КІРІСУ"</string>
-    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"Келесі"</string>
+    <string name="lb_navigation_menu_contentDescription" msgid="8126335323963415494">"Навигация мәзірі"</string>
+    <string name="orb_search_action" msgid="7534843523462177008">"Іздеу әрекеті"</string>
+    <string name="lb_search_bar_hint" msgid="4819380969103509861">"Іздеу"</string>
+    <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"Іздеу үшін сөйлеңіз"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> іздеу"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> іздеу үшін сөйлеңіз"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="2721825378927619928">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="6173753802428649303">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="1590369760862605402">"Ойнату"</string>
+    <string name="lb_playback_controls_pause" msgid="1769131316742618433">"Кідірту"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8966769845721269304">"Алға айналдыру"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="801276177839339511">"%1$dX алға айналдыру"</string>
+    <string name="lb_playback_controls_rewind" msgid="1412664391757869774">"Артқа айналдыру"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="8651612807713092781">"%1$dX артқа айналдыру"</string>
+    <string name="lb_playback_controls_skip_next" msgid="4877009494447817003">"Келесіге өту"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="3147124289285911980">"Алдыңғыға өту"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2827883329510404797">"Қосымша әрекеттер"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="8332816524260995892">"\"Ұнайды\" белгісін алу"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1038344559734334272">"\"Ұнайды\" белгісін қою"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"\"Ұнамайды\" белгісін алу"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"\"Ұнамайды\" белгісін қою"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"Ешқайсысын қайталамау"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"Барлығын қайталау"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"Біреуін қайталау"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"Еркін ойнатуды қосу"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"Еркін ойнатуды өшіру"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"Жоғары сапаны қосу"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"Жоғары сапаны өшіру"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="3934392140182327163">"Субтитрлерді қосу"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"Cубтитрлерді өшіру"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"\"Сурет ішіндегі сурет\" режиміне кіру"</string>
+    <string name="lb_playback_time_separator" msgid="6549544638083578695">"/"</string>
+    <string name="lb_playback_controls_shown" msgid="7794717158616536936">"Мультимедианы басқару элементтері көрсетілген"</string>
+    <string name="lb_playback_controls_hidden" msgid="619396299825306757">"Мультимедианы басқару элементтері жасырылған, оларды көрсету үшін бағыт пернесін басыңыз"</string>
+    <string name="lb_guidedaction_finish_title" msgid="7747913934287176843">"Аяқтау"</string>
+    <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"Жалғастыру"</string>
+    <string name="lb_media_player_error" msgid="8748646000835486516">"MediaPlayer қате коды: %1$d, қосымша: %2$d"</string>
+    <string name="lb_onboarding_get_started" msgid="7674487829030291492">"БАСТАУ"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="4213611627196077555">"Келесі"</string>
 </resources>
