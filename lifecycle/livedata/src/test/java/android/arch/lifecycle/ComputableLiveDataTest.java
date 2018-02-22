@@ -98,9 +98,14 @@ public class ComputableLiveDataTest {
             };
             final ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
             //noinspection unchecked
-            Observer<Integer> observer = mock(Observer.class);
-            computable.getLiveData().observeForever(observer);
-            verify(observer, never()).onChanged(anyInt());
+            final Observer<Integer> observer = mock(Observer.class);
+            executor.postToMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    computable.getLiveData().observeForever(observer);
+                    verify(observer, never()).onChanged(anyInt());
+                }
+            });
             // wait for first compute call
             assertThat(computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS), is(true));
             // re-invalidate while in compute

@@ -26,10 +26,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.arch.core.executor.ArchTaskExecutor;
+import android.arch.core.executor.testing.InstantTaskExecutorRule;
 import android.arch.lifecycle.util.InstantTaskExecutor;
 import android.support.annotation.Nullable;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -37,6 +39,9 @@ import org.junit.runners.JUnit4;
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
 public class MediatorLiveDataTest {
+
+    @Rule
+    public InstantTaskExecutorRule mInstantTaskExecutorRule = new InstantTaskExecutorRule();
 
     private LifecycleOwner mOwner;
     private LifecycleRegistry mRegistry;

@@ -116,8 +116,8 @@ public class LiveDataOnSaveInstanceStateTest {
         mActivityTestRule.runOnUiThread(() -> mutableLiveData.setValue(0));
 
         TestUtils.waitTillResumed(lifecycleOwner, mActivityTestRule);
-
-        mutableLiveData.observe(lifecycleOwner, atomicInteger::set);
+        mActivityTestRule.runOnUiThread(() ->
+                mutableLiveData.observe(lifecycleOwner, atomicInteger::set));
 
         final FragmentActivity dialogActivity = launchDialog();
 
@@ -143,7 +143,8 @@ public class LiveDataOnSaveInstanceStateTest {
 
         TestUtils.waitTillResumed(lifecycleOwner, mActivityTestRule);
 
-        mutableLiveData.observe(lifecycleOwner, atomicInteger::set);
+        mActivityTestRule.runOnUiThread(() ->
+                mutableLiveData.observe(lifecycleOwner, atomicInteger::set));
 
         // Launch the NavigationDialogActivity, partially obscuring the activity, and wait for the
         // lifecycleOwner to hit onPause (or enter the STARTED state).  On API 24 and above, this

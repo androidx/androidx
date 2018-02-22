@@ -163,6 +163,7 @@ public abstract class LiveData<T> {
      */
     @MainThread
     public void observe(@NonNull LifecycleOwner owner, @NonNull Observer<T> observer) {
+        assertMainThread("observe");
         if (owner.getLifecycle().getCurrentState() == DESTROYED) {
             // ignore
             return;
@@ -195,6 +196,7 @@ public abstract class LiveData<T> {
      */
     @MainThread
     public void observeForever(@NonNull Observer<T> observer) {
+        assertMainThread("observeForever");
         AlwaysActiveObserver wrapper = new AlwaysActiveObserver(observer);
         ObserverWrapper existing = mObservers.putIfAbsent(observer, wrapper);
         if (existing != null && existing instanceof LiveData.LifecycleBoundObserver) {

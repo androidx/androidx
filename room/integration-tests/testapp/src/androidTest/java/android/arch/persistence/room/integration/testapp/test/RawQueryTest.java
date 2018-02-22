@@ -29,6 +29,7 @@ import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
 import android.arch.persistence.room.integration.testapp.vo.UserAndPet;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -71,9 +72,10 @@ public class RawQueryTest extends TestDatabaseTest {
 
     @Test
     public void entity_liveData() throws TimeoutException, InterruptedException {
-        LiveData<User> liveData = mRawDao.getUserLiveData("SELECT * FROM User WHERE mId = 3");
-        liveData.observeForever(user -> {
-        });
+        final LiveData<User> liveData = mRawDao.getUserLiveData("SELECT * FROM User WHERE mId = 3");
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> liveData.observeForever(user -> { }));
+
         drain();
         assertThat(liveData.getValue(), is(nullValue()));
         User user = TestUtil.createUser(3);
