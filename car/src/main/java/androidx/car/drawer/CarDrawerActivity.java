@@ -60,8 +60,8 @@ import androidx.car.widget.ClickThroughToolbar;
  * CarDrawerAdapter for the next level to
  * {@link CarDrawerController#pushAdapter(CarDrawerAdapter)}.
  *
- * <p>Any Activity's based on this class need to set their theme to CarDrawerActivityTheme or a
- * derivative.
+ * <p>Any Activity's based on this class need to set their theme to
+ * {@code Theme.Car.Light.NoActionBar.Drawer} or a derivative.
  */
 public class CarDrawerActivity extends AppCompatActivity {
     private static final int ANIMATION_DURATION_MS = 100;
