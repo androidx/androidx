@@ -2060,6 +2060,7 @@ package android.support.v4.view.accessibility {
     method public int getDrawingOrder();
     method public java.lang.CharSequence getError();
     method public android.os.Bundle getExtras();
+    method public java.lang.CharSequence getHintText();
     method public deprecated java.lang.Object getInfo();
     method public int getInputType();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getLabelFor();
@@ -2068,12 +2069,14 @@ package android.support.v4.view.accessibility {
     method public int getMaxTextLength();
     method public int getMovementGranularities();
     method public java.lang.CharSequence getPackageName();
+    method public java.lang.CharSequence getPaneTitle();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getParent();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat getRangeInfo();
     method public java.lang.CharSequence getRoleDescription();
     method public java.lang.CharSequence getText();
     method public int getTextSelectionEnd();
     method public int getTextSelectionStart();
+    method public java.lang.CharSequence getTooltipText();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getTraversalAfter();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getTraversalBefore();
     method public java.lang.String getViewIdResourceName();
@@ -2090,12 +2093,15 @@ package android.support.v4.view.accessibility {
     method public boolean isEnabled();
     method public boolean isFocusable();
     method public boolean isFocused();
+    method public boolean isHeading();
     method public boolean isImportantForAccessibility();
     method public boolean isLongClickable();
     method public boolean isMultiLine();
     method public boolean isPassword();
+    method public boolean isScreenReaderFocusable();
     method public boolean isScrollable();
     method public boolean isSelected();
+    method public boolean isShowingHintText();
     method public boolean isVisibleToUser();
     method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat obtain(android.view.View);
     method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat obtain(android.view.View, int);
@@ -2128,6 +2134,8 @@ package android.support.v4.view.accessibility {
     method public void setError(java.lang.CharSequence);
     method public void setFocusable(boolean);
     method public void setFocused(boolean);
+    method public void setHeading(boolean);
+    method public void setHintText(java.lang.CharSequence);
     method public void setImportantForAccessibility(boolean);
     method public void setInputType(int);
     method public void setLabelFor(android.view.View);
@@ -2140,17 +2148,21 @@ package android.support.v4.view.accessibility {
     method public void setMovementGranularities(int);
     method public void setMultiLine(boolean);
     method public void setPackageName(java.lang.CharSequence);
+    method public void setPaneTitle(java.lang.CharSequence);
     method public void setParent(android.view.View);
     method public void setParent(android.view.View, int);
     method public void setPassword(boolean);
     method public void setRangeInfo(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat);
     method public void setRoleDescription(java.lang.CharSequence);
+    method public void setScreenReaderFocusable(boolean);
     method public void setScrollable(boolean);
     method public void setSelected(boolean);
+    method public void setShowingHintText(boolean);
     method public void setSource(android.view.View);
     method public void setSource(android.view.View, int);
     method public void setText(java.lang.CharSequence);
     method public void setTextSelection(int, int);
+    method public void setTooltipText(java.lang.CharSequence);
     method public void setTraversalAfter(android.view.View);
     method public void setTraversalAfter(android.view.View, int);
     method public void setTraversalBefore(android.view.View);
@@ -2164,6 +2176,8 @@ package android.support.v4.view.accessibility {
     field public static final java.lang.String ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN = "ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN";
     field public static final java.lang.String ACTION_ARGUMENT_HTML_ELEMENT_STRING = "ACTION_ARGUMENT_HTML_ELEMENT_STRING";
     field public static final java.lang.String ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT = "ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT";
+    field public static final java.lang.String ACTION_ARGUMENT_MOVE_WINDOW_X = "ACTION_ARGUMENT_MOVE_WINDOW_X";
+    field public static final java.lang.String ACTION_ARGUMENT_MOVE_WINDOW_Y = "ACTION_ARGUMENT_MOVE_WINDOW_Y";
     field public static final java.lang.String ACTION_ARGUMENT_PROGRESS_VALUE = "android.view.accessibility.action.ARGUMENT_PROGRESS_VALUE";
     field public static final java.lang.String ACTION_ARGUMENT_ROW_INT = "android.view.accessibility.action.ARGUMENT_ROW_INT";
     field public static final java.lang.String ACTION_ARGUMENT_SELECTION_END_INT = "ACTION_ARGUMENT_SELECTION_END_INT";
@@ -2215,7 +2229,9 @@ package android.support.v4.view.accessibility {
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_DISMISS;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_EXPAND;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_FOCUS;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_HIDE_TOOLTIP;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_LONG_CLICK;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_MOVE_WINDOW;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_NEXT_AT_MOVEMENT_GRANULARITY;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_NEXT_HTML_ELEMENT;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PASTE;
@@ -2233,6 +2249,7 @@ package android.support.v4.view.accessibility {
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SET_SELECTION;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SET_TEXT;
     field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SHOW_ON_SCREEN;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SHOW_TOOLTIP;
   }
 
   public static class AccessibilityNodeInfoCompat.CollectionInfoCompat {

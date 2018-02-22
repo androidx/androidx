@@ -25,6 +25,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.view.ViewCompat;
 import android.text.InputType;
 import android.view.View;
@@ -38,6 +39,7 @@ import java.util.List;
  * Helper for accessing {@link android.view.accessibility.AccessibilityNodeInfo} in a backwards
  * compatible fashion.
  */
+@SuppressWarnings("NewApi")
 public class AccessibilityNodeInfoCompat {
 
     public static class AccessibilityActionCompat {
@@ -414,6 +416,32 @@ public class AccessibilityNodeInfoCompat {
         public static final AccessibilityActionCompat ACTION_SET_PROGRESS =
                 new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 24
                         ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_PROGRESS : null);
+
+        /**
+         * Action to move a window to a new location.
+         * <p>
+         * <strong>Arguments:</strong>
+         * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVE_WINDOW_X}
+         * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVE_WINDOW_Y}
+         */
+        public static final AccessibilityActionCompat ACTION_MOVE_WINDOW =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 26
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_MOVE_WINDOW : null);
+
+        /**
+         * Action to show a tooltip.
+         */
+        public static final AccessibilityActionCompat ACTION_SHOW_TOOLTIP =
+                new AccessibilityActionCompat(BuildCompat.isAtLeastP()
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_TOOLTIP : null);
+
+        /**
+         * Action to hide a tooltip. A node should expose this action only for views that are
+         * currently showing a tooltip.
+         */
+        public static final AccessibilityActionCompat ACTION_HIDE_TOOLTIP =
+                new AccessibilityActionCompat(BuildCompat.isAtLeastP()
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_HIDE_TOOLTIP : null);
 
         final Object mAction;
 
@@ -829,6 +857,24 @@ public class AccessibilityNodeInfoCompat {
     private static final String ROLE_DESCRIPTION_KEY =
             "AccessibilityNodeInfo.roleDescription";
 
+    private static final String PANE_TITLE_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.PANE_TITLE_KEY";
+
+    private static final String TOOLTIP_TEXT_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.TOOLTIP_TEXT_KEY";
+
+    private static final String HINT_TEXT_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.HINT_TEXT_KEY";
+
+    private static final String BOOLEAN_PROPERTY_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.BOOLEAN_PROPERTY_KEY";
+
+    // These don't line up with the internal framework constants, since they are independent
+    // and we might as well get all 32 bits of utility here.
+    private static final int BOOLEAN_PROPERTY_SCREEN_READER_FOCUSABLE = 0x00000001;
+    private static final int BOOLEAN_PROPERTY_IS_HEADING = 0x00000002;
+    private static final int BOOLEAN_PROPERTY_IS_SHOWING_HINT = 0x00000004;
+
     private final AccessibilityNodeInfo mInfo;
 
     /**
@@ -1172,6 +1218,34 @@ public class AccessibilityNodeInfoCompat {
      */
     public static final String ACTION_ARGUMENT_PROGRESS_VALUE =
             "android.view.accessibility.action.ARGUMENT_PROGRESS_VALUE";
+
+    /**
+     * Argument for specifying the x coordinate to which to move a window.
+     * <p>
+     * <strong>Type:</strong> int<br>
+     * <strong>Actions:</strong>
+     * <ul>
+     *     <li>{@link AccessibilityActionCompat#ACTION_MOVE_WINDOW}</li>
+     * </ul>
+     *
+     * @see AccessibilityActionCompat#ACTION_MOVE_WINDOW
+     */
+    public static final String ACTION_ARGUMENT_MOVE_WINDOW_X =
+            "ACTION_ARGUMENT_MOVE_WINDOW_X";
+
+    /**
+     * Argument for specifying the y coordinate to which to move a window.
+     * <p>
+     * <strong>Type:</strong> int<br>
+     * <strong>Actions:</strong>
+     * <ul>
+     *     <li>{@link AccessibilityActionCompat#ACTION_MOVE_WINDOW}</li>
+     * </ul>
+     *
+     * @see AccessibilityActionCompat#ACTION_MOVE_WINDOW
+     */
+    public static final String ACTION_ARGUMENT_MOVE_WINDOW_Y =
+            "ACTION_ARGUMENT_MOVE_WINDOW_Y";
 
     // Focus types
 
@@ -2491,6 +2565,42 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the hint text of this node. Only applies to nodes where text can be entered.
+     *
+     * @return The hint text.
+     */
+    public @Nullable CharSequence getHintText() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return mInfo.getHintText();
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getExtras().getCharSequence(HINT_TEXT_KEY);
+        }
+        return null;
+    }
+
+    /**
+     * Sets the hint text of this node. Only applies to nodes where text can be entered.
+     * <p>This method has no effect below API 19</p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param hintText The hint text for this mode.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setHintText(@Nullable CharSequence hintText) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            mInfo.setHintText(hintText);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.getExtras().putCharSequence(HINT_TEXT_KEY, hintText);
+        }
+    }
+
+
+    /**
      * Sets the error text of this node.
      * <p>
      *   <strong>Note:</strong> Cannot be called from an
@@ -3058,6 +3168,173 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the tooltip text of this node.
+     *
+     * @return The tooltip text.
+     */
+    @Nullable
+    public CharSequence getTooltipText() {
+        if (BuildCompat.isAtLeastP()) {
+            return mInfo.getTooltipText();
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getExtras().getCharSequence(TOOLTIP_TEXT_KEY);
+        }
+        return null;
+    }
+
+    /**
+     * Sets the tooltip text of this node.
+     * <p>This method has no effect below API 19</p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param tooltipText The tooltip text.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setTooltipText(@Nullable CharSequence tooltipText) {
+        if (BuildCompat.isAtLeastP()) {
+            mInfo.setTooltipText(tooltipText);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.getExtras().putCharSequence(TOOLTIP_TEXT_KEY, tooltipText);
+        }
+    }
+
+    /**
+     * If this node represents a visually distinct region of the screen that may update separately
+     * from the rest of the window, it is considered a pane. Set the pane title to indicate that
+     * the node is a pane, and to provide a title for it.
+     * <p>This method has no effect below API 19</p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     * @param paneTitle The title of the window represented by this node.
+     */
+    public void setPaneTitle(@Nullable CharSequence paneTitle) {
+        if (BuildCompat.isAtLeastP()) {
+            mInfo.setPaneTitle(paneTitle);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.getExtras().putCharSequence(PANE_TITLE_KEY, paneTitle);
+        }
+    }
+
+    /**
+     * Get the title of the pane represented by this node.
+     *
+     * @return The title of the pane represented by this node, or {@code null} if this node does
+     *         not represent a pane.
+     */
+    public @Nullable CharSequence getPaneTitle() {
+        if (BuildCompat.isAtLeastP()) {
+            return mInfo.getPaneTitle();
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getExtras().getCharSequence(PANE_TITLE_KEY);
+        }
+        return null;
+    }
+
+    /**
+     * Returns whether the node is explicitly marked as a focusable unit by a screen reader. Note
+     * that {@code false} indicates that it is not explicitly marked, not that the node is not
+     * a focusable unit. Screen readers should generally use other signals, such as
+     * {@link #isFocusable()}, or the presence of text in a node, to determine what should receive
+     * focus.
+     *
+     * @return {@code true} if the node is specifically marked as a focusable unit for screen
+     *         readers, {@code false} otherwise.
+     */
+    public boolean isScreenReaderFocusable() {
+        if (BuildCompat.isAtLeastP()) {
+            return mInfo.isScreenReaderFocusable();
+        }
+        return getBooleanProperty(BOOLEAN_PROPERTY_SCREEN_READER_FOCUSABLE);
+    }
+
+    /**
+     * Sets whether the node should be considered a focusable unit by a screen reader.
+     * <p>This method has no effect below API 19</p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param screenReaderFocusable {@code true} if the node is a focusable unit for screen readers,
+     *                              {@code false} otherwise.
+     */
+    public void setScreenReaderFocusable(boolean screenReaderFocusable) {
+        if (BuildCompat.isAtLeastP()) {
+            mInfo.setScreenReaderFocusable(screenReaderFocusable);
+        } else {
+            setBooleanProperty(BOOLEAN_PROPERTY_SCREEN_READER_FOCUSABLE, screenReaderFocusable);
+        }
+    }
+
+    /**
+     * Returns whether the node's text represents a hint for the user to enter text. It should only
+     * be {@code true} if the node has editable text.
+     *
+     * @return {@code true} if the text in the node represents a hint to the user, {@code false}
+     * otherwise.
+     */
+    public boolean isShowingHintText() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return mInfo.isShowingHintText();
+        }
+        return getBooleanProperty(BOOLEAN_PROPERTY_IS_SHOWING_HINT);
+    }
+
+    /**
+     * Sets whether the node's text represents a hint for the user to enter text. It should only
+     * be {@code true} if the node has editable text.
+     * <p>This method has no effect below API 19</p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param showingHintText {@code true} if the text in the node represents a hint to the user,
+     * {@code false} otherwise.
+     */
+    public void setShowingHintText(boolean showingHintText) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            mInfo.setShowingHintText(showingHintText);
+        } else {
+            setBooleanProperty(BOOLEAN_PROPERTY_IS_SHOWING_HINT, showingHintText);
+        }
+    }
+
+    /**
+     * Returns whether node represents a heading.
+     *
+     * @return {@code true} if the node is a heading, {@code false} otherwise.
+     */
+    public boolean isHeading() {
+        return getBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING);
+    }
+
+    /**
+     * Sets whether the node represents a heading.
+     * <p>This method has no effect below API 19</p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param isHeading {@code true} if the node is a heading, {@code false} otherwise.
+     */
+    public void setHeading(boolean isHeading) {
+        setBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING, isHeading);
+    }
+
+    /**
      * Refreshes this info with the latest state of the view it represents.
      * <p>
      * <strong>Note:</strong> If this method returns false this info is obsolete
@@ -3185,6 +3462,22 @@ public class AccessibilityNodeInfoCompat {
         builder.append("]");
 
         return builder.toString();
+    }
+
+    private void setBooleanProperty(int property, boolean value) {
+        Bundle extras = getExtras();
+        if (extras != null) {
+            int booleanProperties = extras.getInt(BOOLEAN_PROPERTY_KEY, 0);
+            booleanProperties &= ~property;
+            booleanProperties |= (value) ? property : 0;
+            extras.putInt(BOOLEAN_PROPERTY_KEY, booleanProperties);
+        }
+    }
+
+    private boolean getBooleanProperty(int property) {
+        Bundle extras = getExtras();
+        if (extras == null) return false;
+        return (extras.getInt(BOOLEAN_PROPERTY_KEY, 0) & property) == property;
     }
 
     private static String getActionSymbolicName(int action) {
