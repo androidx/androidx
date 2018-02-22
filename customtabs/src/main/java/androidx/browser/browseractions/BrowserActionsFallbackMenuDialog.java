@@ -38,7 +38,7 @@ class BrowserActionsFallbackMenuDialog extends Dialog {
     private final View mContentView;
 
     BrowserActionsFallbackMenuDialog(Context context, View contentView) {
-        super(context, android.support.v7.appcompat.R.style.Theme_AppCompat_Light_Dialog);
+        super(context, android.support.customtabs.R.style.Theme_AppCompat_Light_Dialog);
         mContentView = contentView;
     }
 
