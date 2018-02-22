@@ -27,8 +27,8 @@ import android.support.v7.widget.RecyclerView;
  * {@link RecyclerView.Adapter RecyclerView.Adapter} base class for presenting paged data from
  * {@link PagedList}s in a {@link RecyclerView}.
  * <p>
- * This class is a convenience wrapper around AsyncPagedListDiffer that implements common default
- * behavior for item counting, and listening to PagedList update callbacks.
+ * This class is a convenience wrapper around {@link AsyncPagedListDiffer} that implements common
+ * default behavior for item counting, and listening to PagedList update callbacks.
  * <p>
  * While using a LiveData&lt;PagedList> is an easy way to provide data to the adapter, it isn't
  * required - you can use {@link #submitList(PagedList)} when new lists are available.
@@ -82,7 +82,8 @@ import android.support.v7.widget.RecyclerView;
  *             holder.clear();
  *         }
  *     }
- *     public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;User>() {
+ *     public static final DiffUtil.ItemCallback&lt;User> DIFF_CALLBACK =
+ *             new DiffUtil.ItemCallback&lt;User>() {
  *         {@literal @}Override
  *         public boolean areItemsTheSame(
  *                 {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
@@ -103,12 +104,12 @@ import android.support.v7.widget.RecyclerView;
  * class should refer to {@link AsyncPagedListDiffer}, which provides the mapping from paging
  * events to adapter-friendly callbacks.
  *
- * @param <T> Type of the PagedLists this helper will receive.
+ * @param <T> Type of the PagedLists this Adapter will receive.
  * @param <VH> A class that extends ViewHolder that will be used by the adapter.
  */
 public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
         extends RecyclerView.Adapter<VH> {
-    private final AsyncPagedListDiffer<T> mHelper;
+    private final AsyncPagedListDiffer<T> mDiffer;
     private final AsyncPagedListDiffer.PagedListListener<T> mListener =
             new AsyncPagedListDiffer.PagedListListener<T>() {
         @Override
@@ -128,14 +129,14 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      *                     compare items in the list.
      */
     protected PagedListAdapter(@NonNull DiffUtil.ItemCallback<T> diffCallback) {
-        mHelper = new AsyncPagedListDiffer<>(this, diffCallback);
-        mHelper.mListener = mListener;
+        mDiffer = new AsyncPagedListDiffer<>(this, diffCallback);
+        mDiffer.mListener = mListener;
     }
 
     @SuppressWarnings("unused, WeakerAccess")
     protected PagedListAdapter(@NonNull AsyncDifferConfig<T> config) {
-        mHelper = new AsyncPagedListDiffer<>(new AdapterListUpdateCallback(this), config);
-        mHelper.mListener = mListener;
+        mDiffer = new AsyncPagedListDiffer<>(new AdapterListUpdateCallback(this), config);
+        mDiffer.mListener = mListener;
     }
 
     /**
@@ -147,31 +148,31 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      * @param pagedList The new list to be displayed.
      */
     public void submitList(PagedList<T> pagedList) {
-        mHelper.submitList(pagedList);
+        mDiffer.submitList(pagedList);
     }
 
     @Nullable
     protected T getItem(int position) {
-        return mHelper.getItem(position);
+        return mDiffer.getItem(position);
     }
 
     @Override
     public int getItemCount() {
-        return mHelper.getItemCount();
+        return mDiffer.getItemCount();
     }
 
     /**
-     * Returns the list currently being displayed by the Adapter.
+     * Returns the PagedList currently being displayed by the Adapter.
      * <p>
      * This is not necessarily the most recent list passed to {@link #submitList(PagedList)},
      * because a diff is computed asynchronously between the new list and the current list before
-     * updating the currentList value.
+     * updating the currentList value. May be null if no PagedList is being presented.
      *
      * @return The list currently being displayed.
      */
     @Nullable
     public PagedList<T> getCurrentList() {
-        return mHelper.getCurrentList();
+        return mDiffer.getCurrentList();
     }
 
     /**
