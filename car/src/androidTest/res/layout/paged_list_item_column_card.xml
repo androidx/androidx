@@ -17,19 +17,14 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
+    android:layout_height="wrap_content">
     <androidx.car.widget.ColumnCardView
         android:id="@+id/column_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
         <TextView
             android:id="@+id/text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-
     </androidx.car.widget.ColumnCardView>
-
 </FrameLayout>
