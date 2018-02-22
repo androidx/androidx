@@ -14,18 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <!-- A Theme that activities should use to have correct arrow styling. -->
-    <style name="CarDrawerActivityTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
-    </style>
-
-    <!-- The styling for the action bar. -->
-    <style name="CarToolbarTheme">
-        <item name="titleTextAppearance">@style/CarTitle.Light</item>
-        <item name="contentInsetStart">@dimen/car_keyline_1</item>
-        <item name="contentInsetEnd">@dimen/car_keyline_1</item>
-    </style>
-
     <!-- Styles for Car Dialogs -->
     <style name="Theme.Car.Light.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:background">@color/car_card</item>
@@ -33,20 +21,21 @@ limitations under the License.
     </style>
 
     <!-- Base style for the Car -->
-    <style name="Theme.Car.NoActionBar" parent="Theme.AppCompat.NoActionBar">
+    <style name="Theme.Car.Light.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:colorAccent">@color/car_accent</item>
         <item name="android:colorButtonNormal">@color/car_accent</item>
         <item name="android:buttonStyle">@style/Widget.Car.Button</item>
-        <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored
-        </item>
+        <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="android:alertDialogTheme">@style/Theme.Car.Light.Dialog.Alert</item>
-        <item name="android:progressBarStyleHorizontal">
-            @style/Widget.Car.ProgressBar.Horizontal
-        </item>
+        <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal</item>
         <item name="android:textColorHint">@color/car_body2</item>
         <item name="android:editTextStyle">@style/Widget.Car.EditText</item>
         <item name="android:editTextColor">@color/car_body1</item>
         <item name="android:colorControlNormal">@color/car_body2</item>
-        <item name="android:colorControlHighlight">?android:attr/colorAccent</item>
+    </style>
+
+    <!-- A Theme for activities that have a drawer affordance. -->
+    <style name="Theme.Car.Light.NoActionBar.Drawer">
+        <item name="drawerArrowStyle">@style/Widget.Car.DrawerArrowToggle</item>
     </style>
 </resources>
