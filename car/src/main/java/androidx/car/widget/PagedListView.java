@@ -36,6 +36,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.UiThread;
 import android.support.annotation.VisibleForTesting;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -1215,9 +1216,13 @@ public class PagedListView extends FrameLayout {
                 RecyclerView.State state) {
             super.getItemOffsets(outRect, view, parent, state);
             int position = parent.getChildAdapterPosition(view);
-
-            // Only set the offset for the first item.
-            if (position == 0) {
+            if (parent.getLayoutManager() instanceof GridLayoutManager
+                    && position < GridLayoutManagerUtils.getFirstRowItemCount(parent)) {
+                // For GridLayoutManager, top offset should be set for all items in the first row.
+                // Otherwise the top items will be visually uneven.
+                outRect.top = mTopOffset;
+            } else if (position == 0) {
+                 // Only set the offset for the first item.
                 outRect.top = mTopOffset;
             }
         }
