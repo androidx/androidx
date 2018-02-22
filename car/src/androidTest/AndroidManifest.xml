@@ -20,7 +20,7 @@
 
     <application android:supportsRtl="true">
         <activity android:name="androidx.car.drawer.CarDrawerTestActivity"
-                  android:theme="@style/CarDrawerActivityTheme" />
+                  android:theme="@style/Theme.Car.Light.NoActionBar.Drawer" />
         <activity android:name="androidx.car.widget.ColumnCardViewTestActivity"/>
         <activity android:name="androidx.car.widget.PagedListViewSavedStateActivity"/>
         <activity android:name="androidx.car.widget.PagedListViewTestActivity"/>

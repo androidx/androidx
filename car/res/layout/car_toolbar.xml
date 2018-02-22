@@ -22,5 +22,5 @@ limitations under the License.
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        style="@style/CarToolbarTheme" />
+        style="@style/Widget.Car.Toolbar" />
 </FrameLayout>
