@@ -22,7 +22,11 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +34,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
@@ -83,6 +88,7 @@ public class ViewPager2 extends ViewGroup {
 
     private void initialize(Context context) {
         mRecyclerView = new RecyclerView(context);
+        mRecyclerView.setId(ViewCompat.generateViewId());
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         // TODO(b/69103581): add support for vertical layout
@@ -97,6 +103,73 @@ public class ViewPager2 extends ViewGroup {
         new PagerSnapHelper().attachToRecyclerView(mRecyclerView);
 
         attachViewToParent(mRecyclerView, 0, mRecyclerView.getLayoutParams());
+    }
+
+    @Nullable
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        SavedState ss = new SavedState(superState);
+        ss.mRecyclerViewId = mRecyclerView.getId();
+        return ss;
+    }
+
+    @Override
+    protected void dispatchRestoreInstanceState(SparseArray<Parcelable> container) {
+        // RecyclerView changed an id, so we need to reflect that in the saved state
+        Parcelable state = container.get(getId());
+        if (state instanceof SavedState) {
+            final int previousRvId = ((SavedState) state).mRecyclerViewId;
+            final int currentRvId = mRecyclerView.getId();
+            container.put(currentRvId, container.get(previousRvId));
+            container.remove(previousRvId);
+        }
+
+        super.dispatchRestoreInstanceState(container);
+    }
+
+    static class SavedState extends BaseSavedState {
+        int mRecyclerViewId;
+
+        @RequiresApi(21)
+        SavedState(Parcel source, ClassLoader loader) {
+            super(source, loader);
+            mRecyclerViewId = source.readInt();
+        }
+
+        SavedState(Parcel source) {
+            super(source);
+            mRecyclerViewId = source.readInt();
+        }
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(mRecyclerViewId);
+        }
+
+        static final Creator<SavedState> CREATOR = new ClassLoaderCreator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel source, ClassLoader loader) {
+                return Build.VERSION.SDK_INT >= 21
+                        ? new SavedState(source, loader)
+                        : new SavedState(source);
+            }
+
+            @Override
+            public SavedState createFromParcel(Parcel source) {
+                return createFromParcel(source, null);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 
     /**
