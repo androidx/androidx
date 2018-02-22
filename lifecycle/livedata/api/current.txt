@@ -2,7 +2,7 @@ package android.arch.lifecycle {
 
   public class MediatorLiveData<T> extends android.arch.lifecycle.MutableLiveData {
     ctor public MediatorLiveData();
-    method public <S> void addSource(android.arch.lifecycle.LiveData<S>, android.arch.lifecycle.Observer<S>);
+    method public <S> void addSource(android.arch.lifecycle.LiveData<S>, android.arch.lifecycle.Observer<? super S>);
     method public <S> void removeSource(android.arch.lifecycle.LiveData<S>);
   }
 
