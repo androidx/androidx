@@ -47,7 +47,7 @@ class ClassFilesMoveTest {
                 RewriteRule("android/support/v7/preference/R(.*)", "ignore"),
                 RewriteRule("android/support/v4/(.*)", "ignore")
             ),
-            pomRewriteRules = emptyList(),
+            pomRewriteRules = emptySet(),
             typesMap = TypesMap(mapOf(
                 "android/support/v7/preference/Preference"
                     to "androidx/support/preference/Preference",

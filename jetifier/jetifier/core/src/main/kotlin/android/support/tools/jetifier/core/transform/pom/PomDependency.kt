@@ -27,10 +27,10 @@ import org.jdom2.Element
  */
 data class PomDependency(
         @SerializedName("groupId")
-        val groupId: String? = null,
+        val groupId: String?,
 
         @SerializedName("artifactId")
-        val artifactId: String? = null,
+        val artifactId: String?,
 
         @SerializedName("version")
         var version: String? = null,
@@ -55,15 +55,15 @@ data class PomDependency(
         /**
          * Creates a new [PomDependency] from the given XML [Element].
          */
-        fun fromXmlElement(node: Element, properties: Map<String, String>) : PomDependency {
-            var groupId : String? = null
-            var artifactId : String? = null
-            var version : String? = null
-            var classifier : String? = null
-            var type : String? = null
-            var scope : String? = null
-            var systemPath : String? = null
-            var optional : String? = null
+        fun fromXmlElement(node: Element, properties: Map<String, String>): PomDependency {
+            var groupId: String? = null
+            var artifactId: String? = null
+            var version: String? = null
+            var classifier: String? = null
+            var type: String? = null
+            var scope: String? = null
+            var systemPath: String? = null
+            var optional: String? = null
 
             for (childNode in node.children) {
                 when (childNode.name) {
@@ -88,7 +88,6 @@ data class PomDependency(
                     systemPath = systemPath,
                     optional = optional)
         }
-
     }
 
     init {
@@ -100,7 +99,7 @@ data class PomDependency(
     /**
      * Whether this dependency should be skipped from the rewriting process
      */
-    fun shouldSkipRewrite() : Boolean {
+    fun shouldSkipRewrite(): Boolean {
         return scope != null && scope.toLowerCase() == "test"
     }
 
@@ -108,7 +107,7 @@ data class PomDependency(
      * Returns a new dependency created by taking all the items from the [input] dependency and then
      * overwriting these with all of its non-null items.
      */
-    fun rewrite(input: PomDependency) : PomDependency {
+    fun rewrite(input: PomDependency): PomDependency {
         return PomDependency(
             groupId = groupId ?: input.groupId,
             artifactId = artifactId ?: input.artifactId,
@@ -124,7 +123,7 @@ data class PomDependency(
     /**
      * Transforms the current data into XML '<dependency>' node.
      */
-    fun toXmlElement(document: Document) : Element {
+    fun toXmlElement(document: Document): Element {
         val node = Element("dependency")
         node.namespace = document.rootElement.namespace
 
@@ -138,5 +137,12 @@ data class PomDependency(
         XmlUtils.addStringNodeToNode(node, "optional", optional)
 
         return node
+    }
+
+    /**
+     * Returns the dependency in format "groupId:artifactId:version".
+     */
+    fun toStringNotation(): String {
+        return "$groupId:$artifactId:$version"
     }
 }

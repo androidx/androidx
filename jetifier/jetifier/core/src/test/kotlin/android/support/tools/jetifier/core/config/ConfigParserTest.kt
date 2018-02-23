@@ -23,34 +23,34 @@ class ConfigParserTest {
 
     @Test fun parseConfig_validInput() {
         val confStr =
-                "{\n" +
-                "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
-                "    # Sample comment \n" +
-                "    rules: [\n" +
-                "        {\n" +
-                "            from: \"android/support/v14/preferences/(.*)\",\n" +
-                "            to: \"android/jetpack/prefs/main/{0}\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            from: \"android/support/v14/preferences/(.*)\",\n" +
-                "            to: \"android/jetpack/prefs/main/{0}\",\n" +
-                "            fieldSelectors: [\"dialog_(.*)\"]\n" +
-                "        }\n" +
-                "    ],\n" +
-                "    pomRules: [\n" +
-                "        {\n" +
-                "            from: {groupId: \"g\", artifactId: \"a\", version: \"1.0\"},\n" +
-                "            to: [\n" +
-                "                {groupId: \"g\", artifactId: \"a\", version: \"2.0\"} \n" +
-                "            ]\n" +
-                "        }\n" +
-                "    ],\n" +
-                "   proGuardMap: {\n" +
-                "       rules: {\n" +
-                "           \"android/support/**\": \"androidx/**\"\n" +
-                "       }\n" +
-                "    }" +
-                "}"
+            "{\n" +
+            "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+            "    # Sample comment \n" +
+            "    rules: [\n" +
+            "        {\n" +
+            "            from: \"android/support/v14/preferences/(.*)\",\n" +
+            "            to: \"android/jetpack/prefs/main/{0}\"\n" +
+            "        },\n" +
+            "        {\n" +
+            "            from: \"android/support/v14/preferences/(.*)\",\n" +
+            "            to: \"android/jetpack/prefs/main/{0}\",\n" +
+            "            fieldSelectors: [\"dialog_(.*)\"]\n" +
+            "        }\n" +
+            "    ],\n" +
+            "    pomRules: [\n" +
+            "        {\n" +
+            "            from: {groupId: \"g\", artifactId: \"a\", version: \"1.0\"},\n" +
+            "            to: [\n" +
+            "                {groupId: \"g\", artifactId: \"a\", version: \"2.0\"} \n" +
+            "            ]\n" +
+            "        }\n" +
+            "    ],\n" +
+            "   proGuardMap: {\n" +
+            "       rules: {\n" +
+            "           \"android/support/**\": \"androidx/**\"\n" +
+            "       }\n" +
+            "    }" +
+            "}"
 
         val config = ConfigParser.parseFromString(confStr)
 
@@ -59,5 +59,76 @@ class ConfigParserTest {
         Truth.assertThat(config.rewriteRules.size).isEqualTo(2)
         Truth.assertThat(config.proGuardMap.rules.size).isEqualTo(1)
     }
-}
 
+    @Test(expected = IllegalArgumentException::class)
+    fun parseConfig_pomMissingGroup_shouldFail() {
+        val confStr =
+            "{\n" +
+            "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+            "    rules: [\n" +
+            "    ],\n" +
+            "    pomRules: [\n" +
+            "        {\n" +
+            "            from: {artifactId: \"a\", version: \"1.0\"},\n" +
+            "            to: []\n" +
+            "        }\n" +
+            "    ]\n" +
+            "}"
+        ConfigParser.parseFromString(confStr)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun parseConfig_pomMissingArtifact_shouldFail() {
+        val confStr =
+            "{\n" +
+            "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+            "    rules: [\n" +
+            "    ],\n" +
+            "    pomRules: [\n" +
+            "        {\n" +
+            "            from: {groupId: \"g\", version: \"1.0\"},\n" +
+            "            to: []\n" +
+            "        }\n" +
+            "    ]\n" +
+            "}"
+        ConfigParser.parseFromString(confStr)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun parseConfig_pomMissingVersion_shouldFail() {
+        val confStr =
+            "{\n" +
+            "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+            "    rules: [\n" +
+            "    ],\n" +
+            "    pomRules: [\n" +
+            "        {\n" +
+            "            from: {artifactId: \"a\", groupId: \"g\"},\n" +
+            "            to: [{artifactId: \"a\", groupId: \"g\"}]\n" +
+            "        }\n" +
+            "    ]\n" +
+            "}"
+        ConfigParser.parseFromString(confStr)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun parseConfig_duplicity_shouldFail() {
+        val confStr =
+            "{\n" +
+                "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+                "    rules: [\n" +
+                "    ],\n" +
+                "    pomRules: [\n" +
+                "        {\n" +
+                "            from: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"},\n" +
+                "            to: []\n" +
+                "        },\n" +
+                "        {\n" +
+                "            from: {artifactId: \"a\", groupId: \"g\", version: \"2.0\"},\n" +
+                "            to: []\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}"
+        ConfigParser.parseFromString(confStr)
+    }
+}

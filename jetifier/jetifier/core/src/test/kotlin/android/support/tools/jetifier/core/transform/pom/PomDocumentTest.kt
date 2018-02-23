@@ -37,7 +37,7 @@ class PomDocumentTest {
             "      <optional>true</optional>\n" +
             "    </dependency>\n" +
             "  </dependencies>",
-            rules = listOf()
+            rules = emptySet()
         )
     }
 
@@ -65,12 +65,12 @@ class PomDocumentTest {
             "      <systemPath>test/test</systemPath>\n" +
             "    </dependency>\n" +
             "  </dependencies>",
-            rules = listOf(
+            rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
                         version =  "4.0"),
-                    listOf(
+                    setOf(
                         PomDependency(
                             groupId = "testGroup", artifactId = "testArtifact",
                             version = "1.0")
@@ -91,12 +91,12 @@ class PomDocumentTest {
             "      <scope>test</scope>\n" +
             "    </dependency>\n" +
             "  </dependencies>",
-            rules = listOf(
+            rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
                         version =  "4.0"),
-                    listOf(
+                    setOf(
                         PomDependency(
                             groupId = "testGroup", artifactId = "testArtifact",
                             version = "1.0")
@@ -116,12 +116,12 @@ class PomDocumentTest {
             "      <version>4.0</version>\n" +
             "    </dependency>\n" +
             "  </dependencies>",
-            rules = listOf(
+            rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact2",
                         version =  "4.0"),
-                    listOf(
+                    setOf(
                         PomDependency(
                             groupId = "testGroup", artifactId = "testArtifact",
                             version = "1.0")
@@ -163,12 +163,12 @@ class PomDocumentTest {
             "      <type>compile</type>\n" +
             "    </dependency>\n" +
             "  </dependencies>",
-            rules = listOf(
+            rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
                         version =  "4.0"),
-                    listOf(
+                    setOf(
                         PomDependency(
                             groupId = "testGroup", artifactId = "testArtifact",
                             version = "1.0")
@@ -201,12 +201,12 @@ class PomDocumentTest {
             "      <version>2.0</version>\n" +
             "    </dependency>\n" +
             "  </dependencies>",
-            rules = listOf(
+            rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
                         version =  "4.0"),
-                    listOf(
+                    setOf(
                         PomDependency(
                             groupId = "testGroup", artifactId = "testArtifact",
                             version = "1.0"),
@@ -246,12 +246,12 @@ class PomDocumentTest {
             "      <version>2.0</version>\n" +
             "    </dependency>\n" +
             "  </dependencies>",
-            rules = listOf(
+            rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
                         version =  "4.0"),
-                    listOf(
+                    setOf(
                         PomDependency(
                             groupId = "testGroup", artifactId = "testArtifact",
                             version = "1.0"),
@@ -264,7 +264,7 @@ class PomDocumentTest {
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact2",
                         version =  "4.0"),
-                    listOf(
+                    setOf(
                         PomDependency(
                             groupId = "testGroup", artifactId = "testArtifact",
                             version = "1.0"),
@@ -304,12 +304,12 @@ class PomDocumentTest {
             "      <optional>true</optional>\n" +
             "    </dependency>\n" +
             "  </dependencies>",
-            rules = listOf(
+            rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
                         version =  "4.0"),
-                    listOf(
+                    setOf(
                         PomDependency(
                             groupId = "testGroup", artifactId = "testArtifact",
                             version = "1.0")
@@ -357,11 +357,11 @@ class PomDocumentTest {
     }
 
 
-    private fun testRewriteToTheSame(givenAndExpectedXml: String, rules: List<PomRewriteRule>) {
+    private fun testRewriteToTheSame(givenAndExpectedXml: String, rules: Set<PomRewriteRule>) {
         testRewrite(givenAndExpectedXml, givenAndExpectedXml, rules)
     }
 
-    private fun testRewrite(givenXml: String, expectedXml : String, rules: List<PomRewriteRule>) {
+    private fun testRewrite(givenXml: String, expectedXml : String, rules: Set<PomRewriteRule>) {
         val given =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +

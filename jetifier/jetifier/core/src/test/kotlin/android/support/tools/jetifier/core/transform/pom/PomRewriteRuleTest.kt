@@ -21,7 +21,8 @@ import org.junit.Test
 
 class PomRewriteRuleTest {
 
-    @Test fun versions_nullInRule_match() {
+    @Test(expected = IllegalArgumentException::class)
+    fun versions_nullInRule_match() {
         testVersionsMatch(
             ruleVersion = null,
             pomVersion = "27.0.0"
@@ -35,7 +36,8 @@ class PomRewriteRuleTest {
         )
     }
 
-    @Test fun versions_nullBoth_match() {
+    @Test(expected = IllegalArgumentException::class)
+    fun versions_nullBoth_match() {
         testVersionsMatch(
             ruleVersion = null,
             pomVersion = null
@@ -120,19 +122,19 @@ class PomRewriteRuleTest {
     }
 
     private fun testVersionsMatch(ruleVersion: String?, pomVersion: String?) {
-        val from = PomDependency(version = ruleVersion)
-        val pom = PomDependency(version = pomVersion)
+        val from = PomDependency(groupId = "g", artifactId = "a", version = ruleVersion)
+        val pom = PomDependency(groupId = "g", artifactId = "a", version = pomVersion)
 
-        val rule = PomRewriteRule(from, listOf(from))
+        val rule = PomRewriteRule(from, setOf(from))
 
         Truth.assertThat(rule.validateVersion(pom)).isTrue()
     }
 
     private fun testVersionsDoNotMatch(ruleVersion: String?, pomVersion: String?) {
-        val from = PomDependency(version = ruleVersion)
-        val pom = PomDependency(version = pomVersion)
+        val from = PomDependency(groupId = "g", artifactId = "a", version = ruleVersion)
+        val pom = PomDependency(groupId = "g", artifactId = "a", version = pomVersion)
 
-        val rule = PomRewriteRule(from, listOf(from))
+        val rule = PomRewriteRule(from, setOf(from))
 
         Truth.assertThat(rule.validateVersion(pom)).isFalse()
     }
