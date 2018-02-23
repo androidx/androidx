@@ -90,7 +90,8 @@ class PositionalDataSourceTest {
         val dataSource: PositionalDataSource<Int> = ListDataSource((0..99).toList())
         val testExecutor = TestExecutor()
         val pagedList = ContiguousPagedList(dataSource.wrapAsContiguousWithoutPlaceholders(),
-                testExecutor, testExecutor, null, config, 15)
+                testExecutor, testExecutor, null, config, 15,
+                ContiguousPagedList.LAST_LOAD_UNSPECIFIED)
 
         assertEquals((10..19).toList(), pagedList)
 
@@ -135,7 +136,8 @@ class PositionalDataSourceTest {
             TiledPagedList(dataSource, FailExecutor(), FailExecutor(), null, config, 0)
         } else {
             ContiguousPagedList(dataSource.wrapAsContiguousWithoutPlaceholders(),
-                    FailExecutor(), FailExecutor(), null, config, null)
+                    FailExecutor(), FailExecutor(), null, config, null,
+                    ContiguousPagedList.LAST_LOAD_UNSPECIFIED)
         }
     }
 
