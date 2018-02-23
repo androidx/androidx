@@ -19,6 +19,7 @@ package android.arch.persistence.room.writer
 import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.N
 import android.arch.persistence.room.ext.RoomTypeNames
+import android.arch.persistence.room.ext.S
 import android.arch.persistence.room.ext.SupportDbTypeNames
 import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.solver.CodeGenScope
@@ -28,6 +29,7 @@ import com.google.auto.common.MoreElements
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import stripNonJava
 import javax.lang.model.element.Modifier
@@ -47,9 +49,36 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             superclass(database.typeName)
             addMethod(createCreateOpenHelper())
             addMethod(createCreateInvalidationTracker())
+            addMethod(createClearAllTables())
         }
         addDaoImpls(builder)
         return builder
+    }
+
+    private fun createClearAllTables(): MethodSpec {
+        val scope = CodeGenScope(this)
+        return MethodSpec.methodBuilder("clearAllTables").apply {
+            val dbVar = scope.getTmpVar("_db")
+            addStatement("final $T $L = super.getOpenHelper().getWritableDatabase()",
+                    SupportDbTypeNames.DB, dbVar)
+            addAnnotation(Override::class.java)
+            addModifiers(PUBLIC)
+            returns(TypeName.VOID)
+            beginControlFlow("try").apply {
+                addStatement("super.beginTransaction()")
+                if (database.enableForeignKeys) {
+                    addStatement("$L.execSQL($S)", dbVar, "PRAGMA defer_foreign_keys = TRUE")
+                }
+                database.entities.forEach {
+                    addStatement("$L.execSQL($S)", dbVar, "DELETE FROM `${it.tableName}`")
+                }
+                addStatement("super.setTransactionSuccessful()")
+            }
+            nextControlFlow("finally").apply {
+                addStatement("super.endTransaction()")
+            }
+            endControlFlow()
+        }.build()
     }
 
     private fun createCreateInvalidationTracker(): MethodSpec {

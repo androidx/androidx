@@ -92,6 +92,18 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
     }
 
     @Override
+    public void clearAllTables() {
+        final SupportSQLiteDatabase _db = super.getOpenHelper().getWritableDatabase();
+        try {
+            super.beginTransaction();
+            _db.execSQL("DELETE FROM `User`");
+            super.setTransactionSuccessful();
+        } finally {
+            super.endTransaction();
+        }
+    }
+
+    @Override
     ComplexDao getComplexDao() {
         if (_complexDao != null) {
             return _complexDao;
