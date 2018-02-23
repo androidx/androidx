@@ -159,9 +159,7 @@ public abstract class SliceManager {
      * @see Slice
      * @see SliceProvider#onMapIntentToUri(Intent)
      * @see Intent
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public abstract @Nullable Uri mapIntentToUri(@NonNull Intent intent);
 
     /**

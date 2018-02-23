@@ -4,6 +4,7 @@ package androidx.app.slice {
     method public abstract androidx.app.slice.Slice bindSlice(android.net.Uri);
     method public abstract androidx.app.slice.Slice bindSlice(android.content.Intent);
     method public static androidx.app.slice.SliceManager getInstance(android.content.Context);
+    method public abstract android.net.Uri mapIntentToUri(android.content.Intent);
     method public abstract void pinSlice(android.net.Uri);
     method public abstract void registerSliceCallback(android.net.Uri, androidx.app.slice.SliceManager.SliceCallback);
     method public abstract void registerSliceCallback(android.net.Uri, java.util.concurrent.Executor, androidx.app.slice.SliceManager.SliceCallback);
