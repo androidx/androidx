@@ -61,14 +61,14 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.support.viewpager.test.R;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.EspressoKey;
 import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
-import android.support.v4.BaseInstrumentationTestCase;
+import android.support.test.rule.ActivityTestRule;
 import android.support.v4.testutils.TestUtilsMatchers;
+import android.support.viewpager.test.R;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -81,6 +81,7 @@ import android.widget.TextView;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -95,7 +96,10 @@ import java.util.List;
  * Testing logic that does depend on the specific pager title implementation is pushed into the
  * extending classes in <code>assertStripInteraction()</code> method.
  */
-public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrumentationTestCase<T> {
+public abstract class BaseViewPagerTest<T extends Activity> {
+    @Rule
+    public final ActivityTestRule<T> mActivityTestRule;
+
     private static final int DIRECTION_LEFT = -1;
     private static final int DIRECTION_RIGHT = 1;
     protected ViewPager mViewPager;
@@ -247,7 +251,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     public BaseViewPagerTest(Class<T> activityClass) {
-        super(activityClass);
+        mActivityTestRule = new ActivityTestRule<T>(activityClass);
     }
 
     @Before
