@@ -35,4 +35,8 @@ public class BuilderTest_TestDatabase_Impl extends BuilderTest.TestDatabase {
     protected InvalidationTracker createInvalidationTracker() {
         return null;
     }
+
+    @Override
+    public void clearAllTables() {
+    }
 }
