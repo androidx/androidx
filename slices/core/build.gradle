@@ -36,7 +36,7 @@ supportLibrary {
     name = "Common utilities for slices"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SLICES
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "The slices core library provides utilities for the slices view and provider libraries"
     minSdkVersion = 24

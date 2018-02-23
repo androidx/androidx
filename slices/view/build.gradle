@@ -41,7 +41,7 @@ supportLibrary {
     name = "Slice views"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SLICES
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "A library that handles rendering of slice content into supported templates"
     minSdkVersion = 24
