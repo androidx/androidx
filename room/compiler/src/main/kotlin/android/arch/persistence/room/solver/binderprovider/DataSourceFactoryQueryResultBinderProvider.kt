@@ -19,10 +19,11 @@ package android.arch.persistence.room.solver.binderprovider
 import android.arch.persistence.room.ext.PagingTypeNames
 import android.arch.persistence.room.parser.ParsedQuery
 import android.arch.persistence.room.processor.Context
+import android.arch.persistence.room.processor.ProcessorErrors
 import android.arch.persistence.room.solver.QueryResultBinderProvider
-import android.arch.persistence.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import android.arch.persistence.room.solver.query.result.ListQueryResultAdapter
 import android.arch.persistence.room.solver.query.result.LivePagedListQueryResultBinder
+import android.arch.persistence.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
@@ -34,6 +35,9 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
     }
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+        if (query.tables.isEmpty()) {
+            context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+        }
         val typeArg = declared.typeArguments[1]
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
