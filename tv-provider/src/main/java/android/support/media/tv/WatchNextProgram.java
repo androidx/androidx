@@ -19,13 +19,9 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.media.tv.TvContentRating;  // For javadoc gen of super class
 import android.os.Build;
 import android.support.annotation.IntDef;
 import android.support.annotation.RestrictTo;
-import android.support.media.tv.TvContractCompat.PreviewPrograms;  // For javadoc gen of super class
-import android.support.media.tv.TvContractCompat.Programs;  // For javadoc gen of super class
-import android.support.media.tv.TvContractCompat.Programs.Genres;  // For javadoc gen of super class
 import android.support.media.tv.TvContractCompat.WatchNextPrograms;
 
 import java.lang.annotation.Retention;

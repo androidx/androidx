@@ -77,7 +77,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The ID for the program.
-     * @see BaseTvColumns#_ID
+     * @see android.support.media.tv.TvContractCompat.BaseTvColumns#_ID
      */
     public long getId() {
         Long l = mValues.getAsLong(BaseTvColumns._ID);
@@ -86,7 +86,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The package name for the program.
-     * @see BaseTvColumns#COLUMN_PACKAGE_NAME
+     * @see android.support.media.tv.TvContractCompat.BaseTvColumns#COLUMN_PACKAGE_NAME
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -96,7 +96,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The title for the program.
-     * @see Programs#COLUMN_TITLE
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_TITLE
      */
     public String getTitle() {
         return mValues.getAsString(Programs.COLUMN_TITLE);
@@ -104,7 +104,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The episode title for the program.
-     * @see Programs#COLUMN_EPISODE_TITLE
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_EPISODE_TITLE
      */
     public String getEpisodeTitle() {
         return mValues.getAsString(Programs.COLUMN_EPISODE_TITLE);
@@ -112,7 +112,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The season display number for the program.
-     * @see Programs#COLUMN_SEASON_DISPLAY_NUMBER
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_SEASON_DISPLAY_NUMBER
      */
     public String getSeasonNumber() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -124,7 +124,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The episode display number for the program.
-     * @see Programs#COLUMN_EPISODE_DISPLAY_NUMBER
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_EPISODE_DISPLAY_NUMBER
      */
     public String getEpisodeNumber() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -136,7 +136,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The short description for the program.
-     * @see Programs#COLUMN_SHORT_DESCRIPTION
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_SHORT_DESCRIPTION
      */
     public String getDescription() {
         return mValues.getAsString(Programs.COLUMN_SHORT_DESCRIPTION);
@@ -144,7 +144,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The long description for the program.
-     * @see Programs#COLUMN_LONG_DESCRIPTION
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_LONG_DESCRIPTION
      */
     public String getLongDescription() {
         return mValues.getAsString(Programs.COLUMN_LONG_DESCRIPTION);
@@ -152,7 +152,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The video width for the program.
-     * @see Programs#COLUMN_VIDEO_WIDTH
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_VIDEO_WIDTH
      */
     public int getVideoWidth() {
         Integer i = mValues.getAsInteger(Programs.COLUMN_VIDEO_WIDTH);
@@ -161,7 +161,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The video height for the program.
-     * @see Programs#COLUMN_VIDEO_HEIGHT
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_VIDEO_HEIGHT
      */
     public int getVideoHeight() {
         Integer i = mValues.getAsInteger(Programs.COLUMN_VIDEO_HEIGHT);
@@ -170,7 +170,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The canonical genre for the program.
-     * @see Programs#COLUMN_CANONICAL_GENRE
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_CANONICAL_GENRE
      */
     public @Genre String[] getCanonicalGenres() {
         return Programs.Genres.decode(mValues.getAsString(Programs.COLUMN_CANONICAL_GENRE));
@@ -178,7 +178,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The content rating for the program.
-     * @see Programs#COLUMN_CONTENT_RATING
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_CONTENT_RATING
      */
     public TvContentRating[] getContentRatings() {
         return TvContractUtils.stringToContentRatings(mValues.getAsString(
@@ -187,7 +187,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The poster art URI for the program.
-     * @see Programs#COLUMN_POSTER_ART_URI
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_POSTER_ART_URI
      */
     public Uri getPosterArtUri() {
         String uri = mValues.getAsString(Programs.COLUMN_POSTER_ART_URI);
@@ -196,7 +196,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The thumbnail URI for the program.
-     * @see Programs#COLUMN_THUMBNAIL_URI
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_THUMBNAIL_URI
      */
     public Uri getThumbnailUri() {
         String uri = mValues.getAsString(Programs.COLUMN_POSTER_ART_URI);
@@ -205,7 +205,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The internal provider data for the program.
-     * @see Programs#COLUMN_INTERNAL_PROVIDER_DATA
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_INTERNAL_PROVIDER_DATA
      */
     public byte[] getInternalProviderDataByteArray() {
         return mValues.getAsByteArray(Programs.COLUMN_INTERNAL_PROVIDER_DATA);
@@ -213,7 +213,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The audio languages for the program.
-     * @see Programs#COLUMN_AUDIO_LANGUAGE
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_AUDIO_LANGUAGE
      */
     public String[] getAudioLanguages() {
         return TvContractUtils.stringToAudioLanguages(mValues.getAsString(
@@ -222,7 +222,7 @@ public abstract class BaseProgram {
 
     /**
      * @return Whether the program is searchable or not.
-     * @see Programs#COLUMN_SEARCHABLE
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_SEARCHABLE
      */
     public boolean isSearchable() {
         Integer i = mValues.getAsInteger(Programs.COLUMN_SEARCHABLE);
@@ -231,7 +231,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The first internal provider flag for the program.
-     * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG1
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_INTERNAL_PROVIDER_FLAG1
      */
     public Long getInternalProviderFlag1() {
         return mValues.getAsLong(Programs.COLUMN_INTERNAL_PROVIDER_FLAG1);
@@ -239,7 +239,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The second internal provider flag for the program.
-     * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG2
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_INTERNAL_PROVIDER_FLAG2
      */
     public Long getInternalProviderFlag2() {
         return mValues.getAsLong(Programs.COLUMN_INTERNAL_PROVIDER_FLAG2);
@@ -247,7 +247,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The third internal provider flag for the program.
-     * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG3
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_INTERNAL_PROVIDER_FLAG3
      */
     public Long getInternalProviderFlag3() {
         return mValues.getAsLong(Programs.COLUMN_INTERNAL_PROVIDER_FLAG3);
@@ -255,7 +255,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The forth internal provider flag for the program.
-     * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG4
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_INTERNAL_PROVIDER_FLAG4
      */
     public Long getInternalProviderFlag4() {
         return mValues.getAsLong(Programs.COLUMN_INTERNAL_PROVIDER_FLAG4);
@@ -263,7 +263,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The season title for the program.
-     * @see Programs#COLUMN_SEASON_TITLE
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_SEASON_TITLE
      */
     public String getSeasonTitle() {
         return mValues.getAsString(Programs.COLUMN_SEASON_TITLE);
@@ -271,7 +271,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The review rating style for the program.
-     * @see Programs#COLUMN_REVIEW_RATING_STYLE
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_REVIEW_RATING_STYLE
      */
     public @ReviewRatingStyle int getReviewRatingStyle() {
         Integer i = mValues.getAsInteger(Programs.COLUMN_REVIEW_RATING_STYLE);
@@ -280,7 +280,7 @@ public abstract class BaseProgram {
 
     /**
      * @return The review rating for the program.
-     * @see Programs#COLUMN_REVIEW_RATING
+     * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_REVIEW_RATING
      */
     public String getReviewRating() {
         return mValues.getAsString(Programs.COLUMN_REVIEW_RATING);
@@ -542,7 +542,7 @@ public abstract class BaseProgram {
          *
          * @param programId The ID for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see BaseTvColumns#_ID
+         * @see android.support.media.tv.TvContractCompat.BaseTvColumns#_ID
          */
         public T setId(long programId) {
             mValues.put(BaseTvColumns._ID, programId);
@@ -554,7 +554,7 @@ public abstract class BaseProgram {
          *
          * @param packageName The package name for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see BaseTvColumns#COLUMN_PACKAGE_NAME
+         * @see android.support.media.tv.TvContractCompat.BaseTvColumns#COLUMN_PACKAGE_NAME
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
@@ -568,7 +568,7 @@ public abstract class BaseProgram {
          *
          * @param title The title for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_TITLE
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_TITLE
          */
         public T setTitle(String title) {
             mValues.put(Programs.COLUMN_TITLE, title);
@@ -580,7 +580,7 @@ public abstract class BaseProgram {
          *
          * @param episodeTitle The episode title for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_EPISODE_TITLE
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_EPISODE_TITLE
          */
         public T setEpisodeTitle(String episodeTitle) {
             mValues.put(Programs.COLUMN_EPISODE_TITLE, episodeTitle);
@@ -592,7 +592,7 @@ public abstract class BaseProgram {
          *
          * @param seasonNumber The season display number for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_SEASON_DISPLAY_NUMBER
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_SEASON_DISPLAY_NUMBER
          */
         public T setSeasonNumber(int seasonNumber) {
             setSeasonNumber(String.valueOf(seasonNumber), seasonNumber);
@@ -603,11 +603,12 @@ public abstract class BaseProgram {
          * Sets the season number for this episode for a series.
          *
          * @param seasonNumber The season display number for the program.
-         * @param numericalSeasonNumber An integer value for {@link Programs#COLUMN_SEASON_NUMBER}
-         *                              which will be used for API Level 23 and below.
+         * @param numericalSeasonNumber An integer value for
+         * {@link android.support.media.tv.TvContractCompat.Programs#COLUMN_SEASON_NUMBER}
+         * which will be used for API Level 23 and below.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_SEASON_DISPLAY_NUMBER
-         * @see Programs#COLUMN_SEASON_NUMBER
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_SEASON_DISPLAY_NUMBER
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_SEASON_NUMBER
          */
         public T setSeasonNumber(String seasonNumber, int numericalSeasonNumber) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -623,7 +624,7 @@ public abstract class BaseProgram {
          *
          * @param episodeNumber The value of episode display number for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_EPISODE_DISPLAY_NUMBER
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_EPISODE_DISPLAY_NUMBER
          */
         public T setEpisodeNumber(int episodeNumber) {
             setEpisodeNumber(String.valueOf(episodeNumber), episodeNumber);
@@ -634,11 +635,12 @@ public abstract class BaseProgram {
          * Sets the episode number in a season for this episode for a series.
          *
          * @param episodeNumber The value of episode display number for the program.
-         * @param numericalEpisodeNumber An integer value for {@link Programs#COLUMN_EPISODE_NUMBER}
-         *                               which will be used for API Level 23 and below.
+         * @param numericalEpisodeNumber An integer value for
+         * {@link android.support.media.tv.TvContractCompat.Programs#COLUMN_EPISODE_NUMBER}
+         * which will be used for API Level 23 and below.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_EPISODE_DISPLAY_NUMBER
-         * @see Programs#COLUMN_EPISODE_NUMBER
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_EPISODE_DISPLAY_NUMBER
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_EPISODE_NUMBER
          */
         public T setEpisodeNumber(String episodeNumber, int numericalEpisodeNumber) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -655,7 +657,7 @@ public abstract class BaseProgram {
          *
          * @param description The short description for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_SHORT_DESCRIPTION
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_SHORT_DESCRIPTION
          */
         public T setDescription(String description) {
             mValues.put(Programs.COLUMN_SHORT_DESCRIPTION, description);
@@ -667,7 +669,7 @@ public abstract class BaseProgram {
          *
          * @param longDescription The long description for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_LONG_DESCRIPTION
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_LONG_DESCRIPTION
          */
         public T setLongDescription(String longDescription) {
             mValues.put(Programs.COLUMN_LONG_DESCRIPTION, longDescription);
@@ -679,7 +681,7 @@ public abstract class BaseProgram {
          *
          * @param width The video width for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_VIDEO_WIDTH
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_VIDEO_WIDTH
          */
         public T setVideoWidth(int width) {
             mValues.put(Programs.COLUMN_VIDEO_WIDTH, width);
@@ -691,7 +693,7 @@ public abstract class BaseProgram {
          *
          * @param height The video height for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_VIDEO_HEIGHT
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_VIDEO_HEIGHT
          */
         public T setVideoHeight(int height) {
             mValues.put(Programs.COLUMN_VIDEO_HEIGHT, height);
@@ -701,10 +703,11 @@ public abstract class BaseProgram {
         /**
          * Sets the content ratings for this program.
          *
-         * @param contentRatings An array of {@link TvContentRating} that apply to this program
-         *                       which will be flattened to a String to store in a database.
+         * @param contentRatings An array of {@link android.media.tv.TvContentRating} that apply to
+         *                       this program  which will be flattened to a String to store in
+         *                       a database.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_CONTENT_RATING
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_CONTENT_RATING
          */
         public T setContentRatings(TvContentRating[] contentRatings) {
             mValues.put(Programs.COLUMN_CONTENT_RATING,
@@ -717,7 +720,7 @@ public abstract class BaseProgram {
          *
          * @param posterArtUri The poster art URI for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_POSTER_ART_URI
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_POSTER_ART_URI
          */
         public T setPosterArtUri(Uri posterArtUri) {
             mValues.put(Programs.COLUMN_POSTER_ART_URI,
@@ -730,7 +733,7 @@ public abstract class BaseProgram {
          *
          * @param thumbnailUri The thumbnail URI for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_THUMBNAIL_URI
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_THUMBNAIL_URI
          */
         public T setThumbnailUri(Uri thumbnailUri) {
             mValues.put(Programs.COLUMN_THUMBNAIL_URI,
@@ -741,10 +744,11 @@ public abstract class BaseProgram {
         /**
          * Sets the genres of the program.
          *
-         * @param genres An array of {@link Programs.Genres} that apply to the program which will be
-         *               flattened to a String to store in a database.
+         * @param genres An array of
+         * {@link android.support.media.tv.TvContractCompat.Programs.Genres}
+         * that apply to the program which will be flattened to a String to store in a database.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_CANONICAL_GENRE
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_CANONICAL_GENRE
          */
         public T setCanonicalGenres(@Genre String[] genres) {
             mValues.put(Programs.COLUMN_CANONICAL_GENRE, Programs.Genres.encode(genres));
@@ -756,7 +760,7 @@ public abstract class BaseProgram {
          *
          * @param data The internal provider data for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_INTERNAL_PROVIDER_DATA
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_INTERNAL_PROVIDER_DATA
          */
         public T setInternalProviderData(byte[] data) {
             mValues.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA, data);
@@ -781,7 +785,7 @@ public abstract class BaseProgram {
          *
          * @param searchable Whether the program is searchable or not.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_SEARCHABLE
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_SEARCHABLE
          */
         public T setSearchable(boolean searchable) {
             mValues.put(Programs.COLUMN_SEARCHABLE, searchable ? IS_SEARCHABLE : 0);
@@ -793,7 +797,7 @@ public abstract class BaseProgram {
          *
          * @param flag The first internal provider flag for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG1
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_INTERNAL_PROVIDER_FLAG1
          */
         public T setInternalProviderFlag1(long flag) {
             mValues.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG1, flag);
@@ -805,7 +809,7 @@ public abstract class BaseProgram {
          *
          * @param flag The second internal provider flag for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG2
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_INTERNAL_PROVIDER_FLAG2
          */
         public T setInternalProviderFlag2(long flag) {
             mValues.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG2, flag);
@@ -817,7 +821,7 @@ public abstract class BaseProgram {
          *
          * @param flag The third internal provider flag for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG3
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_INTERNAL_PROVIDER_FLAG3
          */
         public T setInternalProviderFlag3(long flag) {
             mValues.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG3, flag);
@@ -829,7 +833,7 @@ public abstract class BaseProgram {
          *
          * @param flag The forth internal provider flag for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG4
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_INTERNAL_PROVIDER_FLAG4
          */
         public T setInternalProviderFlag4(long flag) {
             mValues.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG4, flag);
@@ -842,10 +846,11 @@ public abstract class BaseProgram {
          * @param reviewRatingStyle The reviewing rating style for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          *
-         * @see Programs#COLUMN_REVIEW_RATING_STYLE
-         * @see Programs#REVIEW_RATING_STYLE_STARS
-         * @see Programs#REVIEW_RATING_STYLE_THUMBS_UP_DOWN
-         * @see Programs#REVIEW_RATING_STYLE_PERCENTAGE
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_REVIEW_RATING_STYLE
+         * @see android.support.media.tv.TvContractCompat.Programs#REVIEW_RATING_STYLE_STARS
+         * @see android.support.media.tv.TvContractCompat
+         * .Programs#REVIEW_RATING_STYLE_THUMBS_UP_DOWN
+         * @see android.support.media.tv.TvContractCompat.Programs#REVIEW_RATING_STYLE_PERCENTAGE
          */
         public T setReviewRatingStyle(@ReviewRatingStyle int reviewRatingStyle) {
             mValues.put(ProgramColumns.COLUMN_REVIEW_RATING_STYLE, reviewRatingStyle);
@@ -865,11 +870,12 @@ public abstract class BaseProgram {
          * @param reviewRating The value of the review rating for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          *
-         * @see Programs#COLUMN_REVIEW_RATING
-         * @see Programs#COLUMN_REVIEW_RATING_STYLE
-         * @see Programs#REVIEW_RATING_STYLE_STARS
-         * @see Programs#REVIEW_RATING_STYLE_THUMBS_UP_DOWN
-         * @see Programs#REVIEW_RATING_STYLE_PERCENTAGE
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_REVIEW_RATING
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_REVIEW_RATING_STYLE
+         * @see android.support.media.tv.TvContractCompat.Programs#REVIEW_RATING_STYLE_STARS
+         * @see android.support.media.tv.TvContractCompat
+         * .Programs#REVIEW_RATING_STYLE_THUMBS_UP_DOWN
+         * @see android.support.media.tv.TvContractCompat.Programs#REVIEW_RATING_STYLE_PERCENTAGE
          */
         public T setReviewRating(String reviewRating) {
             mValues.put(ProgramColumns.COLUMN_REVIEW_RATING, reviewRating);
@@ -881,7 +887,7 @@ public abstract class BaseProgram {
          *
          * @param seasonTitle The season title for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see Programs#COLUMN_SEASON_TITLE
+         * @see android.support.media.tv.TvContractCompat.Programs#COLUMN_SEASON_TITLE
          */
         public T setSeasonTitle(String seasonTitle) {
             mValues.put(ProgramColumns.COLUMN_SEASON_TITLE, seasonTitle);
