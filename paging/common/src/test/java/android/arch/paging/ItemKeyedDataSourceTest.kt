@@ -288,7 +288,8 @@ class ItemKeyedDataSourceTest {
                 PagedList.Config.Builder()
                         .setPageSize(10)
                         .build(),
-                "")
+                "",
+                ContiguousPagedList.LAST_LOAD_UNSPECIFIED)
     }
 
     @Test
