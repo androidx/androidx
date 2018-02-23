@@ -138,7 +138,7 @@ public class FadeTest extends BaseTest {
         verify(listenerOut, timeout(3000)).onTransitionPause(any(Transition.class));
         verify(listenerIn, timeout(3000)).onTransitionStart(any(Transition.class));
         assertThat(valuesOut[1], allOf(greaterThan(0f), lessThan(1f)));
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 19 && fadeOut.mInitialAlpha >= 0) {
             // These won't match on API levels 18 and below due to lack of Animator pause.
             assertEquals(valuesOut[1], valuesIn[0], 0.01f);
         }
@@ -174,7 +174,7 @@ public class FadeTest extends BaseTest {
         verify(listenerIn, timeout(3000)).onTransitionPause(any(Transition.class));
         verify(listenerOut, timeout(3000)).onTransitionStart(any(Transition.class));
         assertThat(valuesIn[1], allOf(greaterThan(0f), lessThan(1f)));
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 19 && fadeIn.mInitialAlpha >= 0) {
             // These won't match on API levels 18 and below due to lack of Animator pause.
             assertEquals(valuesIn[1], valuesOut[0], 0.01f);
         }
