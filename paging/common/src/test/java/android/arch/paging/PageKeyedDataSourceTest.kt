@@ -59,7 +59,8 @@ class PageKeyedDataSourceTest {
         // validate paging entire ItemDataSource results in full, correctly ordered data
         val pagedList = ContiguousPagedList<String, Item>(ItemDataSource(),
                 mMainThread, mBackgroundThread,
-                null, PagedList.Config.Builder().setPageSize(100).build(), null)
+                null, PagedList.Config.Builder().setPageSize(100).build(), null,
+                ContiguousPagedList.LAST_LOAD_UNSPECIFIED)
 
         // validate initial load
         assertEquals(PAGE_MAP[INIT_KEY]!!.data, pagedList)
@@ -107,7 +108,8 @@ class PageKeyedDataSourceTest {
                 PagedList.Config.Builder()
                         .setPageSize(10)
                         .build(),
-                "")
+                "",
+                ContiguousPagedList.LAST_LOAD_UNSPECIFIED)
     }
 
     @Test
