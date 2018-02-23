@@ -54,7 +54,9 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
         mAnalyzeButton.setOnClickListener(v -> enqueueWork());
 
         mProgressBar = findViewById(R.id.progress);
+        mProgressBar.setVisibility(View.GONE);
         mResultsView = findViewById(R.id.results);
+        mResultsView.setVisibility(View.GONE);
 
         TestDatabase.getInstance(this).getWordCountDao().getWordCounts().observe(
                 this,
@@ -92,6 +94,7 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
                             && status.getState() != FAILED);
                     mProgressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
                     mResultsView.setVisibility(loading ? View.GONE : View.VISIBLE);
+                    mAnalyzeButton.setEnabled(!loading);
                 }
         );
     }
