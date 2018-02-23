@@ -143,7 +143,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The internal provider ID for the program.
-     * @see PreviewPrograms#COLUMN_INTERNAL_PROVIDER_ID
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERNAL_PROVIDER_ID
      */
     public String getInternalProviderId() {
         return mValues.getAsString(PreviewPrograms.COLUMN_INTERNAL_PROVIDER_ID);
@@ -151,7 +151,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The preview video URI for the program.
-     * @see PreviewPrograms#COLUMN_PREVIEW_VIDEO_URI
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_PREVIEW_VIDEO_URI
      */
     public Uri getPreviewVideoUri() {
         String uri = mValues.getAsString(PreviewPrograms.COLUMN_PREVIEW_VIDEO_URI);
@@ -160,7 +160,8 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The last playback position of the program in millis.
-     * @see PreviewPrograms#COLUMN_LAST_PLAYBACK_POSITION_MILLIS
+     * @see android.support.media.tv.TvContractCompat
+     * .PreviewPrograms#COLUMN_LAST_PLAYBACK_POSITION_MILLIS
      */
     public int getLastPlaybackPositionMillis() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_LAST_PLAYBACK_POSITION_MILLIS);
@@ -169,7 +170,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The duration of the program in millis.
-     * @see PreviewPrograms#COLUMN_DURATION_MILLIS
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_DURATION_MILLIS
      */
     public int getDurationMillis() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_DURATION_MILLIS);
@@ -178,7 +179,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The intent URI which is launched when the program is selected.
-     * @see PreviewPrograms#COLUMN_INTENT_URI
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTENT_URI
      */
     public Uri getIntentUri() {
         String uri = mValues.getAsString(PreviewPrograms.COLUMN_INTENT_URI);
@@ -187,7 +188,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The intent which is launched when the program is selected.
-     * @see PreviewPrograms#COLUMN_INTENT_URI
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTENT_URI
      */
     public Intent getIntent() throws URISyntaxException {
         String uri = mValues.getAsString(PreviewPrograms.COLUMN_INTENT_URI);
@@ -196,7 +197,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return Whether the program is transient or not.
-     * @see PreviewPrograms#COLUMN_TRANSIENT
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_TRANSIENT
      */
     public boolean isTransient() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_TRANSIENT);
@@ -205,7 +206,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The type of the program.
-     * @see PreviewPrograms#COLUMN_TYPE
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_TYPE
      */
     public @Type int getType() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_TYPE);
@@ -214,8 +215,8 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The poster art aspect ratio for the program.
-     * @see PreviewPrograms#COLUMN_POSTER_ART_ASPECT_RATIO
-     * @see PreviewPrograms#COLUMN_POSTER_ART_URI
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_POSTER_ART_ASPECT_RATIO
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_POSTER_ART_URI
      */
     public @AspectRatio int getPosterArtAspectRatio() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_POSTER_ART_ASPECT_RATIO);
@@ -224,8 +225,8 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The thumbnail aspect ratio for the program.
-     * @see PreviewPrograms#COLUMN_THUMBNAIL_ASPECT_RATIO
-     * @see PreviewPrograms#COLUMN_THUMBNAIL_URI
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_THUMBNAIL_ASPECT_RATIO
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_THUMBNAIL_URI
      */
     public @AspectRatio int getThumbnailAspectRatio() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_THUMBNAIL_ASPECT_RATIO);
@@ -234,7 +235,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The logo URI for the program.
-     * @see PreviewPrograms#COLUMN_LOGO_URI
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_LOGO_URI
      */
     public Uri getLogoUri() {
         String uri = mValues.getAsString(PreviewPrograms.COLUMN_LOGO_URI);
@@ -243,7 +244,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The availability of the program.
-     * @see PreviewPrograms#COLUMN_AVAILABILITY
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_AVAILABILITY
      */
     public @Availability int getAvailability() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_AVAILABILITY);
@@ -252,7 +253,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The starting price of the program.
-     * @see PreviewPrograms#COLUMN_STARTING_PRICE
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_STARTING_PRICE
      */
     public String getStartingPrice() {
         return mValues.getAsString(PreviewPrograms.COLUMN_STARTING_PRICE);
@@ -260,7 +261,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The offer price of the program.
-     * @see PreviewPrograms#COLUMN_OFFER_PRICE
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_OFFER_PRICE
      */
     public String getOfferPrice() {
         return mValues.getAsString(PreviewPrograms.COLUMN_OFFER_PRICE);
@@ -268,7 +269,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The release date of the program.
-     * @see PreviewPrograms#COLUMN_RELEASE_DATE
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_RELEASE_DATE
      */
     public String getReleaseDate() {
         return mValues.getAsString(PreviewPrograms.COLUMN_RELEASE_DATE);
@@ -276,7 +277,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The item count for the program.
-     * @see PreviewPrograms#COLUMN_ITEM_COUNT
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_ITEM_COUNT
      */
     public int getItemCount() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_ITEM_COUNT);
@@ -285,7 +286,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return Whether the program is live or not.
-     * @see PreviewPrograms#COLUMN_LIVE
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_LIVE
      */
     public boolean isLive() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_LIVE);
@@ -294,7 +295,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The interaction type for the program.
-     * @see PreviewPrograms#COLUMN_INTERACTION_TYPE
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_TYPE
      */
     public @InteractionType int getInteractionType() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_INTERACTION_TYPE);
@@ -303,7 +304,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The interaction count for the program.
-     * @see PreviewPrograms#COLUMN_INTERACTION_COUNT
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_COUNT
      */
     public long getInteractionCount() {
         Long l = mValues.getAsLong(PreviewPrograms.COLUMN_INTERACTION_COUNT);
@@ -312,7 +313,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The author for the program.
-     * @see PreviewPrograms#COLUMN_AUTHOR
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_AUTHOR
      */
     public String getAuthor() {
         return mValues.getAsString(PreviewPrograms.COLUMN_AUTHOR);
@@ -320,7 +321,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return Whether the program is browsable or not.
-     * @see PreviewPrograms#COLUMN_BROWSABLE;
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_BROWSABLE
      */
     public boolean isBrowsable() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_BROWSABLE);
@@ -329,7 +330,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The content ID for the program.
-     * @see PreviewPrograms#COLUMN_CONTENT_ID
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_CONTENT_ID
      */
     public String getContentId() {
         return mValues.getAsString(PreviewPrograms.COLUMN_CONTENT_ID);
@@ -337,8 +338,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The logo content description for the program.
-     * @see PreviewPrograms#COLUMN_LOGO_CONTENT_DESCRIPTION
-     * @see PreviewPrograms#COLUMN_LOGO_URI
+     * @see android.support.media.tv.TvContractCompat
+     * .PreviewPrograms#COLUMN_LOGO_CONTENT_DESCRIPTION
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_LOGO_URI
      */
     public String getLogoContentDescription() {
         return mValues.getAsString(PreviewPrograms.COLUMN_LOGO_CONTENT_DESCRIPTION);
@@ -346,7 +348,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The genre for the program.
-     * @see PreviewPrograms#COLUMN_GENRE
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_GENRE
      */
     public String getGenre() {
         return mValues.getAsString(PreviewPrograms.COLUMN_GENRE);
@@ -354,7 +356,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The start time for the program.
-     * @see PreviewPrograms#COLUMN_START_TIME_UTC_MILLIS
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_START_TIME_UTC_MILLIS
      */
     public long getStartTimeUtcMillis() {
         Long l = mValues.getAsLong(PreviewPrograms.COLUMN_START_TIME_UTC_MILLIS);
@@ -363,7 +365,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The end time for the program.
-     * @see PreviewPrograms#COLUMN_END_TIME_UTC_MILLIS
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_END_TIME_UTC_MILLIS
      */
     public long getEndTimeUtcMillis() {
         Long l = mValues.getAsLong(PreviewPrograms.COLUMN_END_TIME_UTC_MILLIS);
@@ -372,7 +374,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The preview audio URI for the program.
-     * @see PreviewPrograms#COLUMN_PREVIEW_AUDIO_URI
+     * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_PREVIEW_AUDIO_URI
      */
     public Uri getPreviewAudioUri() {
         String uri = mValues.getAsString(PreviewPrograms.COLUMN_PREVIEW_AUDIO_URI);
@@ -628,7 +630,8 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param externalId The internal provider ID for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_INTERNAL_PROVIDER_ID
+         * @see android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#COLUMN_INTERNAL_PROVIDER_ID
          */
         public T setInternalProviderId(String externalId) {
             mValues.put(PreviewPrograms.COLUMN_INTERNAL_PROVIDER_ID, externalId);
@@ -640,7 +643,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param previewVideoUri The preview video URI for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_PREVIEW_VIDEO_URI
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_PREVIEW_VIDEO_URI
          */
         public T setPreviewVideoUri(Uri previewVideoUri) {
             mValues.put(PreviewPrograms.COLUMN_PREVIEW_VIDEO_URI,
@@ -653,7 +656,8 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param position The last playback posirion for the program in millis.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_LAST_PLAYBACK_POSITION_MILLIS
+         * @see android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#COLUMN_LAST_PLAYBACK_POSITION_MILLIS
          */
         public T setLastPlaybackPositionMillis(int position) {
             mValues.put(PreviewPrograms.COLUMN_LAST_PLAYBACK_POSITION_MILLIS, position);
@@ -665,7 +669,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param duration The duration the program in millis.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_DURATION_MILLIS
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_DURATION_MILLIS
          */
         public T setDurationMillis(int duration) {
             mValues.put(PreviewPrograms.COLUMN_DURATION_MILLIS, duration);
@@ -677,7 +681,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param intentUri The intent URI for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_INTENT_URI
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTENT_URI
          */
         public T setIntentUri(Uri intentUri) {
             mValues.put(PreviewPrograms.COLUMN_INTENT_URI,
@@ -700,7 +704,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param transientValue Whether the program is transient or not.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_TRANSIENT
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_TRANSIENT
          */
         public T setTransient(boolean transientValue) {
             mValues.put(PreviewPrograms.COLUMN_TRANSIENT, transientValue ? IS_TRANSIENT : 0);
@@ -711,23 +715,23 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * Sets the type of this program content.
          *
          * <p>The value should match one of the followings:
-         * {@link PreviewPrograms#TYPE_MOVIE},
-         * {@link PreviewPrograms#TYPE_TV_SERIES},
-         * {@link PreviewPrograms#TYPE_TV_SEASON},
-         * {@link PreviewPrograms#TYPE_TV_EPISODE},
-         * {@link PreviewPrograms#TYPE_CLIP},
-         * {@link PreviewPrograms#TYPE_EVENT},
-         * {@link PreviewPrograms#TYPE_CHANNEL},
-         * {@link PreviewPrograms#TYPE_TRACK},
-         * {@link PreviewPrograms#TYPE_ALBUM},
-         * {@link PreviewPrograms#TYPE_ARTIST},
-         * {@link PreviewPrograms#TYPE_PLAYLIST},
-         * {@link PreviewPrograms#TYPE_STATION}, and
-         * {@link PreviewPrograms#TYPE_GAME}.
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_MOVIE},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_TV_SERIES},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_TV_SEASON},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_TV_EPISODE},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_CLIP},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_EVENT},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_CHANNEL},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_TRACK},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_ALBUM},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_ARTIST},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_PLAYLIST},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_STATION}, and
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#TYPE_GAME}.
          *
          * @param type The type of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_TYPE
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_TYPE
          */
         public T setType(@Type int type) {
             mValues.put(PreviewPrograms.COLUMN_TYPE, type);
@@ -738,17 +742,19 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * Sets the aspect ratio of the poster art for this TV program.
          *
          * <p>The value should match one of the followings:
-         * {@link PreviewPrograms#ASPECT_RATIO_16_9},
-         * {@link PreviewPrograms#ASPECT_RATIO_3_2},
-         * {@link PreviewPrograms#ASPECT_RATIO_4_3},
-         * {@link PreviewPrograms#ASPECT_RATIO_1_1},
-         * {@link PreviewPrograms#ASPECT_RATIO_2_3}, and
-         * {@link PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}.
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_16_9},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_3_2},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_4_3},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_1_1},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_2_3}, and
+         * {@link android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}.
          *
          * @param ratio The poster art aspect ratio for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_POSTER_ART_ASPECT_RATIO
-         * @see PreviewPrograms#COLUMN_POSTER_ART_URI
+         * @see android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#COLUMN_POSTER_ART_ASPECT_RATIO
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_POSTER_ART_URI
          */
         public T setPosterArtAspectRatio(@AspectRatio int ratio) {
             mValues.put(PreviewPrograms.COLUMN_POSTER_ART_ASPECT_RATIO, ratio);
@@ -759,16 +765,18 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * Sets the aspect ratio of the thumbnail for this TV program.
          *
          * <p>The value should match one of the followings:
-         * {@link PreviewPrograms#ASPECT_RATIO_16_9},
-         * {@link PreviewPrograms#ASPECT_RATIO_3_2},
-         * {@link PreviewPrograms#ASPECT_RATIO_4_3},
-         * {@link PreviewPrograms#ASPECT_RATIO_1_1},
-         * {@link PreviewPrograms#ASPECT_RATIO_2_3}, and
-         * {@link PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}.
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_16_9},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_3_2},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_4_3},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_1_1},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_2_3}, and
+         * {@link android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}.
          *
          * @param ratio The thumbnail aspect ratio of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_THUMBNAIL_ASPECT_RATIO
+         * @see android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#COLUMN_THUMBNAIL_ASPECT_RATIO
          */
         public T setThumbnailAspectRatio(@AspectRatio int ratio) {
             mValues.put(PreviewPrograms.COLUMN_THUMBNAIL_ASPECT_RATIO, ratio);
@@ -780,7 +788,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param logoUri The logo URI for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_LOGO_URI
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_LOGO_URI
          */
         public T setLogoUri(Uri logoUri) {
             mValues.put(PreviewPrograms.COLUMN_LOGO_URI,
@@ -792,15 +800,20 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * Sets the availability of this TV program.
          *
          * <p>The value should match one of the followings:
-         * {@link PreviewPrograms#AVAILABILITY_AVAILABLE},
-         * {@link PreviewPrograms#AVAILABILITY_FREE_WITH_SUBSCRIPTION},
-         * {@link PreviewPrograms#AVAILABILITY_PAID_CONTENT},
-         * {@link PreviewPrograms#AVAILABILITY_PURCHASED}, and
-         * {@link PreviewPrograms#AVAILABILITY_FREE}.
+         * {@link android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#AVAILABILITY_AVAILABLE},
+         * {@link android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#AVAILABILITY_FREE_WITH_SUBSCRIPTION},
+         * {@link android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#AVAILABILITY_PAID_CONTENT},
+         * {@link android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#AVAILABILITY_PURCHASED}, and
+         * {@link android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#AVAILABILITY_FREE}.
          *
          * @param availability The availability of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_AVAILABILITY
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_AVAILABILITY
          */
         public T setAvailability(@Availability int availability) {
             mValues.put(PreviewPrograms.COLUMN_AVAILABILITY, availability);
@@ -812,7 +825,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param price The starting price of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_STARTING_PRICE
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_STARTING_PRICE
          */
         public T setStartingPrice(String price) {
             mValues.put(PreviewPrograms.COLUMN_STARTING_PRICE, price);
@@ -824,7 +837,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param price The offer price of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_OFFER_PRICE
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_OFFER_PRICE
          */
         public T setOfferPrice(String price) {
             mValues.put(PreviewPrograms.COLUMN_OFFER_PRICE, price);
@@ -839,7 +852,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param releaseDate The release date of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_RELEASE_DATE
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_RELEASE_DATE
          */
         public T setReleaseDate(String releaseDate) {
             mValues.put(PreviewPrograms.COLUMN_RELEASE_DATE, releaseDate);
@@ -851,7 +864,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param releaseDate The release date of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_RELEASE_DATE
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_RELEASE_DATE
          */
         public T setReleaseDate(Date releaseDate) {
             mValues.put(PreviewPrograms.COLUMN_RELEASE_DATE, sFormat.format(releaseDate));
@@ -863,7 +876,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param itemCount The item count for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_ITEM_COUNT
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_ITEM_COUNT
          */
         public T setItemCount(int itemCount) {
             mValues.put(PreviewPrograms.COLUMN_ITEM_COUNT, itemCount);
@@ -875,7 +888,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param live Whether the program is live or not.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_LIVE
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_LIVE
          */
         public T setLive(boolean live) {
             mValues.put(PreviewPrograms.COLUMN_LIVE, live ? IS_LIVE : 0);
@@ -886,17 +899,22 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * Sets the type of interaction for this TV program.
          *
          * <p> The value should match one of the followings:
-         * {@link PreviewPrograms#INTERACTION_TYPE_LISTENS},
-         * {@link PreviewPrograms#INTERACTION_TYPE_FOLLOWERS},
-         * {@link PreviewPrograms#INTERACTION_TYPE_FANS},
-         * {@link PreviewPrograms#INTERACTION_TYPE_LIKES},
-         * {@link PreviewPrograms#INTERACTION_TYPE_THUMBS},
-         * {@link PreviewPrograms#INTERACTION_TYPE_VIEWS}, and
-         * {@link PreviewPrograms#INTERACTION_TYPE_VIEWERS}.
+         * {@link android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#INTERACTION_TYPE_LISTENS},
+         * {@link android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#INTERACTION_TYPE_FOLLOWERS},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#INTERACTION_TYPE_FANS},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#INTERACTION_TYPE_LIKES},
+         * {@link android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#INTERACTION_TYPE_THUMBS},
+         * {@link android.support.media.tv.TvContractCompat.PreviewPrograms#INTERACTION_TYPE_VIEWS},
+         * and
+         * {@link android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#INTERACTION_TYPE_VIEWERS}.
          *
          * @param interactionType The interaction type of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_INTERACTION_TYPE
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_TYPE
          */
         public T setInteractionType(@InteractionType int interactionType) {
             mValues.put(PreviewPrograms.COLUMN_INTERACTION_TYPE, interactionType);
@@ -908,7 +926,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param interactionCount The interaction count for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_INTERACTION_COUNT
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_COUNT
          */
         public T setInteractionCount(long interactionCount) {
             mValues.put(PreviewPrograms.COLUMN_INTERACTION_COUNT, interactionCount);
@@ -920,7 +938,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param author The author of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_AUTHOR
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_AUTHOR
          */
         public T setAuthor(String author) {
             mValues.put(PreviewPrograms.COLUMN_AUTHOR, author);
@@ -932,7 +950,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param browsable Whether the program is browsable or not.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_BROWSABLE
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_BROWSABLE
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
@@ -946,7 +964,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param contentId The content ID for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_CONTENT_ID
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_CONTENT_ID
          */
         public T setContentId(String contentId) {
             mValues.put(PreviewPrograms.COLUMN_CONTENT_ID, contentId);
@@ -959,8 +977,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * @param logoContentDescription The content description for the logo displayed in the
          *                               program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_LOGO_CONTENT_DESCRIPTION
-         * @see PreviewPrograms#COLUMN_LOGO_URI
+         * @see android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#COLUMN_LOGO_CONTENT_DESCRIPTION
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_LOGO_URI
          */
         public T setLogoContentDescription(String logoContentDescription) {
             mValues.put(PreviewPrograms.COLUMN_LOGO_CONTENT_DESCRIPTION, logoContentDescription);
@@ -972,7 +991,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param genre The genre for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_GENRE
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_GENRE
          */
         public T setGenre(String genre) {
             mValues.put(PreviewPrograms.COLUMN_GENRE, genre);
@@ -984,7 +1003,8 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param startTime The start time for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_START_TIME_UTC_MILLIS
+         * @see android.support.media.tv.TvContractCompat
+         * .PreviewPrograms#COLUMN_START_TIME_UTC_MILLIS
          */
         public T setStartTimeUtcMillis(long startTime) {
             mValues.put(PreviewPrograms.COLUMN_START_TIME_UTC_MILLIS, startTime);
@@ -996,7 +1016,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param endTime The end time for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_END_TIME_UTC_MILLIS
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_END_TIME_UTC_MILLIS
          */
         public T setEndTimeUtcMillis(long endTime) {
             mValues.put(PreviewPrograms.COLUMN_END_TIME_UTC_MILLIS, endTime);
@@ -1008,7 +1028,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param previewAudioUri The preview audio URI for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_PREVIEW_AUDIO_URI
+         * @see android.support.media.tv.TvContractCompat.PreviewPrograms#COLUMN_PREVIEW_AUDIO_URI
          */
         public T setPreviewAudioUri(Uri previewAudioUri) {
             mValues.put(PreviewPrograms.COLUMN_PREVIEW_AUDIO_URI,
