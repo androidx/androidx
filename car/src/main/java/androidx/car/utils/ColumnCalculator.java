@@ -18,6 +18,7 @@ package androidx.car.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.Px;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
@@ -105,6 +106,7 @@ public class ColumnCalculator {
      *
      * @return The width of a single column in pixels.
      */
+    @Px
     public int getColumnWidth() {
         return mColumnWidth;
     }
@@ -124,6 +126,7 @@ public class ColumnCalculator {
      *
      * @return The size of a single gutter in pixels.
      */
+    @Px
     public int getGutterSize() {
         return mGutterSize;
     }
@@ -135,6 +138,7 @@ public class ColumnCalculator {
      *
      * @return The size in pixels for a given column span.
      */
+    @Px
     public int getSizeForColumnSpan(int columnSpan) {
         int gutterSpan = columnSpan - 1;
         return columnSpan * mColumnWidth + gutterSpan * mGutterSize;

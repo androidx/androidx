@@ -23,6 +23,7 @@ import android.os.AsyncTask;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.Px;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
@@ -731,7 +732,7 @@ public final class Palette {
          * @param bottom The bottom of the rectangle used for the region.
          */
         @NonNull
-        public Builder setRegion(int left, int top, int right, int bottom) {
+        public Builder setRegion(@Px int left, @Px int top, @Px int right, @Px int bottom) {
             if (mBitmap != null) {
                 if (mRegion == null) mRegion = new Rect();
                 // Set the Rect to be initially the whole Bitmap

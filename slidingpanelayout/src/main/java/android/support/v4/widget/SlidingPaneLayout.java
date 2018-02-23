@@ -32,6 +32,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.Px;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.AbsSavedState;
@@ -277,7 +278,7 @@ public class SlidingPaneLayout extends ViewGroup {
      *
      * @param parallaxBy Distance to parallax by in pixels
      */
-    public void setParallaxDistance(int parallaxBy) {
+    public void setParallaxDistance(@Px int parallaxBy) {
         mParallaxBy = parallaxBy;
         requestLayout();
     }
@@ -287,6 +288,7 @@ public class SlidingPaneLayout extends ViewGroup {
      *
      * @see #setParallaxDistance(int)
      */
+    @Px
     public int getParallaxDistance() {
         return mParallaxBy;
     }
