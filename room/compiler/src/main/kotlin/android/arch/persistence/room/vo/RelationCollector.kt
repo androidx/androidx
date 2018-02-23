@@ -186,8 +186,12 @@ data class RelationCollector(val relation: Relation,
                 }
                 val resultInfo = parsedQuery.resultInfo
 
-                val queryParam = QueryParameter(RelationCollectorMethodWriter.KEY_SET_VARIABLE,
-                        keySet, context.typeAdapterStore.findQueryParameterAdapter(keySet))
+                val queryParam = QueryParameter(
+                        name = RelationCollectorMethodWriter.KEY_SET_VARIABLE,
+                        sqlName = RelationCollectorMethodWriter.KEY_SET_VARIABLE,
+                        type = keySet,
+                        queryParamAdapter =
+                                context.typeAdapterStore.findQueryParameterAdapter(keySet))
                 val queryWriter = QueryWriter(
                         parameters = listOf(queryParam),
                         sectionToParamMapping = listOf(Pair(parsedQuery.bindSections.first(),
