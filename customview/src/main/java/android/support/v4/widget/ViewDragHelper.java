@@ -20,6 +20,7 @@ package android.support.v4.widget;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.Px;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -169,8 +170,8 @@ public class ViewDragHelper {
          * @param dx Change in X position from the last call
          * @param dy Change in Y position from the last call
          */
-        public void onViewPositionChanged(@NonNull View changedView, int left, int top, int dx,
-                int dy) {
+        public void onViewPositionChanged(@NonNull View changedView, int left, int top, @Px int dx,
+                @Px int dy) {
         }
 
         /**
@@ -452,6 +453,7 @@ public class ViewDragHelper {
      * @return The size of an edge in pixels
      * @see #setEdgeTrackingEnabled(int)
      */
+    @Px
     public int getEdgeSize() {
         return mEdgeSize;
     }
@@ -495,6 +497,7 @@ public class ViewDragHelper {
     /**
      * @return The minimum distance in pixels that the user must travel to initiate a drag
      */
+    @Px
     public int getTouchSlop() {
         return mTouchSlop;
     }
