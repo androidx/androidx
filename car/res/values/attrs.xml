@@ -54,7 +54,9 @@ limitations under the License.
              within this value. If this value is not explicitly set, the scrollbar centers itself
              within the car_margin value. -->
         <attr name="scrollBarContainerWidth" format="dimension" />
-        <!-- Whether or not to show a diving line between each item of the list. -->
+        <!-- Whether or not to show a vertical diving line between each item of the list. Divider
+             after the last item (LinearLayoutManager) or row (GridLayoutManager) will not be shown
+             but there will be an offset for divider space. -->
         <attr name="showPagedListViewDivider" format="boolean" />
         <!-- An optional id that specifies a child View whose starting edge will be used to
              determine the start position of the dividing line. -->
@@ -68,7 +70,8 @@ limitations under the License.
         <!-- The width of the margin on the right side of the list.
              Deprecated: use gutter instead. If gutter is specified, this value is ignored.-->
         <attr name="listEndMargin" format="dimension" />
-        <!-- An optional spacing between items in the list -->
+        <!-- An optional vertical spacing between items in the list. In GridLayoutManager items in
+             the last row would still have spacing at bottom. -->
         <attr name="itemSpacing" format="dimension" />
         <!-- The icon to be used for the up button of the scroll bar. -->
         <attr name="upButtonIcon" format="reference" />
