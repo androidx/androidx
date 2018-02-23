@@ -122,7 +122,7 @@ class FirebaseJobConverter {
         Constraints constraints = workSpec.getConstraints();
         List<Integer> mConstraints = new ArrayList<>();
 
-        if (constraints.requiresDeviceIdle()) {
+        if (Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle()) {
             mConstraints.add(Constraint.DEVICE_IDLE);
         }
 

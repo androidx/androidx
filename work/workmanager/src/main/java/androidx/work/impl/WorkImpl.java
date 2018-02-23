@@ -16,6 +16,7 @@
 
 package androidx.work.impl;
 
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
@@ -139,7 +140,8 @@ public class WorkImpl extends Work implements InternalWorkImpl {
 
         @Override
         public WorkImpl build() {
-            if (mBackoffCriteriaSet && mWorkSpec.getConstraints().requiresDeviceIdle()) {
+            if (mBackoffCriteriaSet && Build.VERSION.SDK_INT >= 23
+                    && mWorkSpec.getConstraints().requiresDeviceIdle()) {
                 throw new IllegalArgumentException(
                         "Cannot set backoff criteria on an idle mode job");
             }

@@ -54,6 +54,7 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -220,6 +221,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
+    @SdkSuppress(minSdkVersion = 23)
     public void testEnqueue_insertWorkConstraints() {
         Uri testUri1 = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         Uri testUri2 = MediaStore.Images.Media.INTERNAL_CONTENT_URI;

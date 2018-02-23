@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.support.annotation.NonNull;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -43,6 +44,7 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.worker.TestWorker;
 
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 23)
 public class ConstraintControllerTest extends WorkManagerTest {
     private TestDeviceIdleConstraintController mTestIdleController;
     private ConstraintTracker<Boolean> mMockTracker = mock(ConstraintTracker.class);
