@@ -16,7 +16,7 @@
 
 package androidx.car.widget;
 
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -116,8 +116,8 @@ public final class DividerVisibilityManagerTest {
             }
         });
         for (int i = 0; i < itemCount - 1; i++) {
-            assertThat(views[i + 1].getTop() - views[i].getBottom(),
-                    is(equalTo(2 * (dividerHeight / 2))));
+            assertThat((double) views[i + 1].getTop() - views[i].getBottom(),
+                    is(closeTo(2 * (dividerHeight / 2), 1.0f)));
         }
 
 
@@ -138,7 +138,7 @@ public final class DividerVisibilityManagerTest {
             if (dvm.shouldHideDivider(i)) {
                 assertEquals(distance, 0);
             } else {
-                assertEquals(distance, 2 * (dividerHeight / 2));
+                assertThat((double) distance, is(closeTo(2 * (dividerHeight / 2), 1.0f)));
             }
         }
     }

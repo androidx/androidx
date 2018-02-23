@@ -18,6 +18,7 @@ package androidx.car.widget;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 /**
  * Utility class that helps navigating in GridLayoutManager.
@@ -47,5 +48,48 @@ class GridLayoutManagerUtils {
         // pos will be either the first item in second row, or item count when items not fill
         // the first row.
         return pos;
+    }
+
+    /**
+     * Returns the span index of an item.
+     */
+    public static int getSpanIndex(View item) {
+        GridLayoutManager.LayoutParams layoutParams =
+                ((GridLayoutManager.LayoutParams) item.getLayoutParams());
+        return layoutParams.getSpanIndex();
+    }
+
+    /**
+     * Returns the span size of an item. {@code item} must be already laid out.
+     */
+    public static int getSpanSize(View item) {
+        GridLayoutManager.LayoutParams layoutParams =
+                ((GridLayoutManager.LayoutParams) item.getLayoutParams());
+        return layoutParams.getSpanSize();
+    }
+
+    /**
+     * Returns the index of the last item that is on the same row as {@code index}.
+     *
+     * @param index index of child {@code View} in {@code parent}.
+     * @param parent {@link RecyclerView} that contains the View {@code index} points to.
+     */
+    public static int getLastIndexOnSameRow(int index, RecyclerView parent) {
+        int spanCount = ((GridLayoutManager) parent.getLayoutManager()).getSpanCount();
+        int spanSum = GridLayoutManagerUtils.getSpanIndex(parent.getChildAt(index));
+        for (int i = index; i < parent.getChildCount(); i++) {
+            spanSum += GridLayoutManagerUtils.getSpanSize(parent.getChildAt(i));
+            if (spanSum > spanCount) {
+                // We have reached next row.
+
+                // Implicit constraint by grid layout manager:
+                // Initial spanSum + spanSize would not exceed spanCount, so it's safe to
+                // subtract 1.
+                return i - 1;
+            }
+        }
+        // Still have not reached row end. Assuming the list only scrolls vertically, we are at
+        // the last row.
+        return parent.getChildCount() - 1;
     }
 }
