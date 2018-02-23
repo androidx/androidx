@@ -67,4 +67,10 @@ class SliceManagerCompat extends SliceManagerBase {
     public Slice bindSlice(@NonNull Intent intent) {
         return SliceProviderCompat.bindSlice(mContext, intent, SUPPORTED_SPECS);
     }
+
+    @Nullable
+    @Override
+    public Uri mapIntentToUri(@NonNull Intent intent) {
+        return SliceProviderCompat.mapIntentToUri(mContext, intent);
+    }
 }
