@@ -160,10 +160,14 @@ public abstract class PagedList<T> extends AbstractList<T> {
             @NonNull Config config,
             @Nullable K key) {
         if (dataSource.isContiguous() || !config.enablePlaceholders) {
+            int lastLoad = ContiguousPagedList.LAST_LOAD_UNSPECIFIED;
             if (!dataSource.isContiguous()) {
                 //noinspection unchecked
                 dataSource = (DataSource<K, T>) ((PositionalDataSource<T>) dataSource)
                         .wrapAsContiguousWithoutPlaceholders();
+                if (key != null) {
+                    lastLoad = (int) key;
+                }
             }
             ContiguousDataSource<K, T> contigDataSource = (ContiguousDataSource<K, T>) dataSource;
             return new ContiguousPagedList<>(contigDataSource,
@@ -171,7 +175,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
                     backgroundThreadExecutor,
                     boundaryCallback,
                     config,
-                    key);
+                    key,
+                    lastLoad);
         } else {
             return new TiledPagedList<>((PositionalDataSource<T>) dataSource,
                     mainThreadExecutor,
