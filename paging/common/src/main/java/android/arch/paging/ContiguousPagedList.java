@@ -53,7 +53,12 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
             if (resultType == PageResult.INIT) {
                 mStorage.init(pageResult.leadingNulls, page, pageResult.trailingNulls,
                         pageResult.positionOffset, ContiguousPagedList.this);
-                mLastLoad = pageResult.leadingNulls + pageResult.positionOffset + page.size() / 2;
+                if (mLastLoad == LAST_LOAD_UNSPECIFIED) {
+                    // Because the ContiguousPagedList wasn't initialized with a last load position,
+                    // initialize it to the middle of the initial load
+                    mLastLoad =
+                            pageResult.leadingNulls + pageResult.positionOffset + page.size() / 2;
+                }
             } else if (resultType == PageResult.APPEND) {
                 mStorage.appendPage(page, ContiguousPagedList.this);
             } else if (resultType == PageResult.PREPEND) {
@@ -76,16 +81,20 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         }
     };
 
+    static final int LAST_LOAD_UNSPECIFIED = -1;
+
     ContiguousPagedList(
             @NonNull ContiguousDataSource<K, V> dataSource,
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
             @Nullable BoundaryCallback<V> boundaryCallback,
             @NonNull Config config,
-            final @Nullable K key) {
+            final @Nullable K key,
+            int lastLoad) {
         super(new PagedStorage<V>(), mainThreadExecutor, backgroundThreadExecutor,
                 boundaryCallback, config);
         mDataSource = dataSource;
+        mLastLoad = lastLoad;
 
         if (mDataSource.isInvalid()) {
             detach();
