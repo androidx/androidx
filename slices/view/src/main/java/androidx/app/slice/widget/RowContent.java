@@ -30,8 +30,10 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.app.slice.core.SliceHints.SUBTYPE_RANGE;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ import java.util.List;
 
 import androidx.app.slice.SliceItem;
 import androidx.app.slice.core.SliceQuery;
+import androidx.app.slice.view.R;
 
 /**
  * Extracts information required to present content in a row format from a slice.
@@ -57,9 +60,14 @@ public class RowContent {
     private boolean mEndItemsContainAction;
     private SliceItem mRange;
     private boolean mIsHeader;
+    private int mLineCount = 0;
+    private int mMaxHeight;
+    private int mMinHeight;
 
-    public RowContent(SliceItem rowSlice, boolean isHeader) {
+    public RowContent(Context context, SliceItem rowSlice, boolean isHeader) {
         populate(rowSlice, isHeader);
+        mMaxHeight = context.getResources().getDimensionPixelSize(R.dimen.abc_slice_row_max_height);
+        mMinHeight = context.getResources().getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
     }
 
     /**
@@ -72,12 +80,13 @@ public class RowContent {
         mSubtitleItem = null;
         mEndItems.clear();
         mIsHeader = false;
+        mLineCount = 0;
     }
 
     /**
      * @return whether this row has content that is valid to display.
      */
-    public boolean populate(SliceItem rowSlice, boolean isHeader) {
+    private boolean populate(SliceItem rowSlice, boolean isHeader) {
         reset();
         mIsHeader = isHeader;
         if (!isValidRow(rowSlice)) {
@@ -130,6 +139,12 @@ public class RowContent {
                 } else {
                     endItems.add(item);
                 }
+            }
+            if (hasText(mTitleItem)) {
+                mLineCount++;
+            }
+            if (hasText(mSubtitleItem)) {
+                mLineCount++;
             }
             // Special rules for end items: only one timestamp, can't be mixture of icons / actions
             boolean hasTimestamp = mStartItem != null
@@ -209,6 +224,33 @@ public class RowContent {
      */
     public boolean endItemsContainAction() {
         return mEndItemsContainAction;
+    }
+
+    /**
+     * @return the number of lines of text contained in this row.
+     */
+    public int getLineCount() {
+        return mLineCount;
+    }
+
+    /**
+     * @return the height to display a row at when it is used as a small template.
+     */
+    public int getSmallHeight() {
+        return mMaxHeight;
+    }
+
+    /**
+     * @return the height the content in this template requires to be displayed.
+     */
+    public int getActualHeight() {
+        return isValid()
+                ? (getLineCount() > 1 || mIsHeader) ? mMaxHeight : mMinHeight
+                : 0;
+    }
+
+    private static boolean hasText(SliceItem textSlice) {
+        return textSlice != null && !TextUtils.isEmpty(textSlice.getText());
     }
 
     /**

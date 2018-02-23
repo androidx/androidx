@@ -27,6 +27,9 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
+import android.app.slice.Slice;
+import android.content.Context;
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -35,7 +38,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.app.slice.SliceItem;
+import androidx.app.slice.builders.GridBuilder;
 import androidx.app.slice.core.SliceQuery;
+import androidx.app.slice.view.R;
 
 /**
  * Extracts information required to present content in a grid format from a slice.
@@ -50,9 +55,25 @@ public class GridContent {
     private ArrayList<CellContent> mGridContent = new ArrayList<>();
     private int mMaxCellLineCount;
     private boolean mHasImage;
+    private @GridBuilder.ImageMode int mLargestImageMode;
 
-    public GridContent(SliceItem gridItem) {
+    private int mBigPicMinHeight;
+    private int mBigPicMaxHeight;
+    private int mAllImagesHeight;
+    private int mImageTextHeight;
+    private int mMaxHeight;
+    private int mMinHeight;
+
+    public GridContent(Context context, SliceItem gridItem) {
         populate(gridItem);
+
+        Resources res = context.getResources();
+        mBigPicMinHeight = res.getDimensionPixelSize(R.dimen.abc_slice_big_pic_min_height);
+        mBigPicMaxHeight = res.getDimensionPixelSize(R.dimen.abc_slice_big_pic_max_height);
+        mAllImagesHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_image_only_height);
+        mImageTextHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_image_text_height);
+        mMinHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_min_height);
+        mMaxHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_max_height);
     }
 
     private void reset() {
@@ -60,12 +81,13 @@ public class GridContent {
         mMaxCellLineCount = 0;
         mHasImage = false;
         mGridContent.clear();
+        mLargestImageMode = 0;
     }
 
     /**
      * @return whether this grid has content that is valid to display.
      */
-    public boolean populate(SliceItem gridItem) {
+    private boolean populate(SliceItem gridItem) {
         reset();
         mColorItem = SliceQuery.findSubtype(gridItem, FORMAT_INT, SUBTYPE_COLOR);
         String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};
@@ -99,6 +121,7 @@ public class GridContent {
             }
             mMaxCellLineCount = Math.max(mMaxCellLineCount, cc.getTextCount());
             mHasImage |= cc.hasImage();
+            mLargestImageMode = Math.max(mLargestImageMode, cc.getImageMode());
         }
     }
 
@@ -166,6 +189,37 @@ public class GridContent {
     }
 
     /**
+     * @return the height to display a grid row at when it is used as a small template.
+     */
+    public int getSmallHeight() {
+        return getHeight(true /* isSmall */);
+    }
+
+    /**
+     * @return the height the content in this template requires to be displayed.
+     */
+    public int getActualHeight() {
+        return getHeight(false /* isSmall */);
+    }
+
+    private int getHeight(boolean isSmall) {
+        if (!isValid()) {
+            return 0;
+        }
+        if (mAllImages) {
+            return mGridContent.size() == 1
+                    ? isSmall ? mBigPicMinHeight : mBigPicMaxHeight
+                    : mLargestImageMode == GridBuilder.ICON_IMAGE ? mMinHeight : mAllImagesHeight;
+        } else {
+            boolean twoLines = getMaxCellLineCount() > 1;
+            boolean hasImage = hasImage();
+            return (twoLines && !isSmall)
+                    ? hasImage ? mMaxHeight : mMinHeight
+                    : mLargestImageMode == GridBuilder.ICON_IMAGE ? mMinHeight : mImageTextHeight;
+        }
+    }
+
+    /**
      * Extracts information required to present content in a cell.
      * @hide
      */
@@ -175,6 +229,7 @@ public class GridContent {
         private ArrayList<SliceItem> mCellItems = new ArrayList<>();
         private int mTextCount;
         private boolean mHasImage;
+        private int mImageMode = -1;
 
         public CellContent(SliceItem cellItem) {
             populate(cellItem);
@@ -207,6 +262,13 @@ public class GridContent {
                         mTextCount++;
                         mCellItems.add(item);
                     } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
+                        if (item.hasHint(Slice.HINT_NO_TINT)) {
+                            mImageMode = item.hasHint(Slice.HINT_LARGE)
+                                    ? GridBuilder.LARGE_IMAGE
+                                    : GridBuilder.SMALL_IMAGE;
+                        } else {
+                            mImageMode = GridBuilder.ICON_IMAGE;
+                        }
                         imageCount++;
                         mHasImage = true;
                         mCellItems.add(item);
@@ -268,6 +330,13 @@ public class GridContent {
          */
         public boolean hasImage() {
             return mHasImage;
+        }
+
+        /**
+         * @return the mode of the image.
+         */
+        public int getImageMode() {
+            return mImageMode;
         }
     }
 }

@@ -114,13 +114,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
      */
     public static final int MODE_SHORTCUT    = 3;
 
-    /**
-     * Will select the type of slice binding based on size of the View. TODO: Put in some info about
-     * that selection.
-     */
-    private static final int MODE_AUTO = 0;
-
-    private int mMode = MODE_AUTO;
+    private int mMode = MODE_LARGE;
     private Slice mCurrentSlice;
     private SliceChildView mCurrentView;
     private List<SliceItem> mActions;
@@ -130,6 +124,8 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     private boolean mIsScrollable = true;
 
     private final int mShortcutSize;
+    private final int mMinLargeHeight;
+
     private AttributeSet mAttrs;
     private int mThemeTintColor = -1;
 
@@ -161,44 +157,73 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         mActionRow = new ActionRow(getContext(), true);
         mActionRow.setBackground(new ColorDrawable(0xffeeeeee));
         mCurrentView = new LargeTemplateView(getContext());
+        mCurrentView.setMode(getMode());
         addView(mCurrentView.getView(), getChildLp(mCurrentView.getView()));
         addView(mActionRow, getChildLp(mActionRow));
         mShortcutSize = getContext().getResources()
                 .getDimensionPixelSize(R.dimen.abc_slice_shortcut_size);
+        mMinLargeHeight = getResources().getDimensionPixelSize(R.dimen.abc_slice_large_height);
+    }
+
+    private int getHeightForMode() {
+        int mode = getMode();
+        if (mode == MODE_SHORTCUT) {
+            return mShortcutSize;
+        }
+        return mode == MODE_LARGE
+                ? mCurrentView.getActualHeight()
+                : mCurrentView.getSmallHeight();
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int childWidth = MeasureSpec.getSize(widthMeasureSpec);
-        int childHeight = MeasureSpec.getSize(heightMeasureSpec);
         if (MODE_SHORTCUT == mMode) {
-            // TODO: consider scaling the shortcut to fit
+            // TODO: consider scaling the shortcut to fit if too small
             childWidth = mShortcutSize;
             width = mShortcutSize;
         }
+
+        final int actionHeight = mActionRow.getVisibility() != View.GONE
+                ? mActionRow.getMeasuredHeight()
+                : 0;
+        final int sliceHeight = getHeightForMode() + actionHeight;
+        final int heightAvailable = MeasureSpec.getSize(heightMeasureSpec);
+        final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int height = heightAvailable;
+        if (heightAvailable >= sliceHeight) {
+            // Available space is larger than the slice
+            if (heightMode == MeasureSpec.AT_MOST || heightMode == MeasureSpec.UNSPECIFIED) {
+                height = sliceHeight;
+            }
+        } else {
+            // Not enough space available for slice in current mode
+            if (getMode() == MODE_LARGE && heightAvailable >= mMinLargeHeight + actionHeight) {
+                // It's just a slice with scrolling content; cap it to height available.
+                height = heightAvailable;
+            } else if (getMode() == MODE_SHORTCUT) {
+                // TODO: consider scaling the shortcut to fit if too small
+                height = mShortcutSize;
+            }
+        }
+        heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+
+        // Measure the children without the padding
         final int left = getPaddingLeft();
         final int top = getPaddingTop();
         final int right = getPaddingRight();
         final int bot = getPaddingBottom();
-
-        // Measure the children without the padding
+        int childHeight = MeasureSpec.getSize(heightMeasureSpec);
         childWidth -= left + right;
         childHeight -= top + bot;
         int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY);
         int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY);
         measureChildren(childWidthMeasureSpec, childHeightMeasureSpec);
 
-        // Figure out parent height
-        int actionHeight = mActionRow.getVisibility() != View.GONE
-                ? mActionRow.getMeasuredHeight()
-                : 0;
-        int currViewHeight = mCurrentView.getView().getMeasuredHeight() + top + bot;
-        int newHeightSpec = MeasureSpec.makeMeasureSpec(currViewHeight + actionHeight,
-                MeasureSpec.EXACTLY);
         // Figure out parent width
         width += left + right;
-        setMeasuredDimension(width, newHeightSpec);
+        setMeasuredDimension(width, heightMeasureSpec);
     }
 
     @Override
@@ -334,9 +359,6 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
      * @return the mode this view is presenting in.
      */
     public @SliceMode int getMode() {
-        if (mMode == MODE_AUTO) {
-            return MODE_LARGE;
-        }
         return mMode;
     }
 
@@ -375,7 +397,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
             mCurrentView.resetView();
             return;
         }
-        ListContent lc = new ListContent(mCurrentSlice);
+        ListContent lc = new ListContent(getContext(), mCurrentSlice);
         if (!lc.isValid()) {
             mCurrentView.resetView();
             mCurrentView.setVisibility(View.GONE);
@@ -397,7 +419,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
             }
             addView(mCurrentView.getView(), getChildLp(mCurrentView.getView()));
             addView(mActionRow, getChildLp(mActionRow));
-            mCurrentView.setMode(mMode);
+            mCurrentView.setMode(mode);
         }
         // Scrolling
         if (mode == MODE_LARGE && (mCurrentView instanceof LargeTemplateView)) {
@@ -451,7 +473,8 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         if (child instanceof ShortcutView) {
             return new LayoutParams(mShortcutSize, mShortcutSize);
         } else {
-            return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+            return new LayoutParams(LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT);
         }
     }
 
@@ -462,8 +485,6 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static String modeToString(@SliceMode int mode) {
         switch(mode) {
-            case MODE_AUTO:
-                return "MODE AUTO";
             case MODE_SHORTCUT:
                 return "MODE SHORTCUT";
             case MODE_SMALL:

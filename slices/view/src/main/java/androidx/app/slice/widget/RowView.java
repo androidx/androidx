@@ -109,6 +109,19 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
     }
+
+
+    @Override
+    public int getSmallHeight() {
+        // RowView is in small format when it is the header of a list and displays at max height.
+        return mRowContent != null && mRowContent.isValid() ? mRowContent.getSmallHeight() : 0;
+    }
+
+    @Override
+    public int getActualHeight() {
+        return mRowContent != null && mRowContent.isValid() ? mRowContent.getActualHeight() : 0;
+    }
+
     @Override
     public void setTint(@ColorInt int tintColor) {
         super.setTint(tintColor);
@@ -126,6 +139,13 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int height = getMode() == MODE_SMALL ? getSmallHeight() : getActualHeight();
+        heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
     /**
      * This is called when RowView is being used as a component in a large template.
      */
@@ -136,7 +156,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mRowIndex = index;
         mIsHeader = isHeader;
         mHeaderActions = null;
-        mRowContent = new RowContent(slice, mIsHeader);
+        mRowContent = new RowContent(getContext(), slice, mIsHeader);
         populateViews();
     }
 
@@ -148,8 +168,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mRowIndex = 0;
         mIsHeader = true;
         mHeaderActions = null;
-        ListContent lc = new ListContent(slice);
-        mRowContent = new RowContent(lc.getHeaderItem(), true /* isHeader */);
+        ListContent lc = new ListContent(getContext(), slice);
+        mRowContent = new RowContent(getContext(), lc.getHeaderItem(), true /* isHeader */);
         populateViews();
     }
 
