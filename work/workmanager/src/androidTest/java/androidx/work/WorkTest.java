@@ -19,6 +19,7 @@ package androidx.work;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -66,6 +67,7 @@ public class WorkTest extends WorkManagerTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testBuild_backoffAndIdleMode_throwsIllegalArgumentException() {
         mThrown.expect(IllegalArgumentException.class);
         Constraints constraints = new Constraints.Builder()

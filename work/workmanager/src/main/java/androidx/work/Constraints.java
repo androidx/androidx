@@ -52,7 +52,7 @@ public class Constraints {
 
     private Constraints(Builder builder) {
         mRequiresCharging = builder.mRequiresCharging;
-        mRequiresDeviceIdle = builder.mRequiresDeviceIdle;
+        mRequiresDeviceIdle = Build.VERSION.SDK_INT >= 23 && builder.mRequiresDeviceIdle;
         mRequiredNetworkType = builder.mRequiredNetworkType;
         mRequiresBatteryNotLow = builder.mRequiresBatteryNotLow;
         mRequiresStorageNotLow = builder.mRequiresStorageNotLow;
@@ -83,10 +83,12 @@ public class Constraints {
     /**
      * @return If the constraints require device idle.
      */
+    @RequiresApi(23)
     public boolean requiresDeviceIdle() {
         return mRequiresDeviceIdle;
     }
 
+    @RequiresApi(23)
     public void setRequiresDeviceIdle(boolean requiresDeviceIdle) {
         mRequiresDeviceIdle = requiresDeviceIdle;
     }
@@ -189,6 +191,7 @@ public class Constraints {
          * @param requiresDeviceIdle true if device must be idle, false otherwise
          * @return current builder
          */
+        @RequiresApi(23)
         public Builder setRequiresDeviceIdle(boolean requiresDeviceIdle) {
             this.mRequiresDeviceIdle = requiresDeviceIdle;
             return this;

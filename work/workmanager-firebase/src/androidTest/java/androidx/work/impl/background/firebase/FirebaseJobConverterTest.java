@@ -167,6 +167,7 @@ public class FirebaseJobConverterTest extends WorkManagerTest {
 
     @Test
     @SmallTest
+    @SdkSuppress(minSdkVersion = 23)
     public void testConvert_requiresDeviceIdle() {
         WorkSpec workSpec = getWorkSpec(new Work.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
