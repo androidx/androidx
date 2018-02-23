@@ -16,6 +16,7 @@
 
 package android.support.tools.jetifier.standalone
 
+import android.support.tools.jetifier.core.FileMapping
 import android.support.tools.jetifier.core.Processor
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.config.ConfigParser
@@ -27,7 +28,6 @@ import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 import org.apache.commons.cli.ParseException
 import java.io.File
-import java.nio.file.Path
 import java.nio.file.Paths
 
 class Main {
@@ -91,16 +91,16 @@ class Main {
                     "Cannot specify -outputfile when multiple input libraries are given")
         }
 
-        var outputIsDir = false
-        fun chooseOutputPath(): Path {
-            if (outputFile == null) {
-                outputIsDir = true
-                return Paths.get(outputDir)
-            } else {
-                return Paths.get(outputFile)
+        val fileMappings = mutableSetOf<FileMapping>()
+        if (outputFile != null) {
+            fileMappings.add(FileMapping(inputLibraries.first(),
+                    File(outputFile)))
+        } else {
+            inputLibraries.forEach {
+                val newFileName = File(Paths.get(outputDir).toString(), it.name)
+                fileMappings.add(FileMapping(it, newFileName))
             }
         }
-        val outputPath = chooseOutputPath()
 
         val config: Config?
         if (cmd.hasOption(OPTION_CONFIG.opt)) {
@@ -122,7 +122,7 @@ class Main {
             config = config,
             reversedMode = isReversed,
             rewritingSupportLib = rewriteSupportLib)
-        processor.transform(inputLibraries, outputPath, outputIsDir)
+        processor.transform(fileMappings)
     }
 
     private fun parseCmdLine(args: Array<String>): CommandLine? {

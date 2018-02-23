@@ -24,13 +24,14 @@ ROOT_DIR=$(dirname $(readlink -f $0))
 OUT_DIR="$ROOT_DIR/out"
 TEMP_LOG="$OUT_DIR/tempLog"
 
+CHECKOUT_DIR="$ROOT_DIR/../../../../../.."
 JETIFIER_DIR="$ROOT_DIR/../.."
 BUILD_DIR="$ROOT_DIR/../../../../../../out/host/gradle/frameworks/support"
 DEFAULT_CONFIG="$JETIFIER_DIR/core/src/main/resources/default.config"
 GENERATED_CONFIG="$JETIFIER_DIR/core/src/main/resources/default.generated.config"
 PREPROCESSOR_DISTRO_PATH="$BUILD_DIR/jetifier-preprocessor/build/distributions/jetifier-preprocessor.zip"
 PREPROCESSOR_BIN_PATH="$OUT_DIR/jetifier-preprocessor/bin/jetifier-preprocessor"
-SUPPORT_LIBS_BUILD_NUMBER="4560478"
+SUPPORT_LIBS_BUILD_NUMBER="4628895"
 SUPPORT_LIBS_DOWNLOADED="$OUT_DIR/supportLibs/downloaded"
 SUPPORT_LIBS_UNPACKED="$OUT_DIR/supportLibs/unpacked"
 
@@ -86,6 +87,8 @@ function getPreRenamedSupportLib() {
 
 	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/support-lib-${SUPPORT_LIBS_BUILD_NUMBER}.zip" -d "$SUPPORT_LIBS_UNPACKED"
 	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/arch-${SUPPORT_LIBS_BUILD_NUMBER}.zip" -d "$SUPPORT_LIBS_UNPACKED"
+	cp "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/design/27.1.0/design-27.1.0.aar" "$SUPPORT_LIBS_UNPACKED/design-27.1.0.aar"
+	find "$SUPPORT_LIBS_UNPACKED" -type f -name "jetifier*" -exec rm -f {} \;
 }
 getPreRenamedSupportLib
 
