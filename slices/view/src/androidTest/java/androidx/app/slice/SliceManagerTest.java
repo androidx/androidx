@@ -46,6 +46,7 @@ import org.mockito.stubbing.Answer;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import androidx.app.slice.render.SliceRenderActivity;
 import androidx.app.slice.widget.SliceLiveData;
 
 @RunWith(AndroidJUnit4.class)
@@ -146,6 +147,15 @@ public class SliceManagerTest {
         verify(mSliceProvider).onSlicePinned(eq(uri));
 
         assertEquals(SliceLiveData.SUPPORTED_SPECS, mManager.getPinnedSpecs(uri));
+    }
+
+    @Test
+    public void testMapIntentToUri() {
+        Uri expected = Uri.parse("content://androidx.app.slice.view.test/render");
+        Slice s = new Slice.Builder(expected).build();
+        when(mSliceProvider.onBindSlice(eq(expected))).thenReturn(s);
+        Uri uri = mManager.mapIntentToUri(new Intent(mContext, SliceRenderActivity.class));
+        assertEquals(expected, uri);
     }
 
     public static class TestSliceProvider extends SliceProvider {

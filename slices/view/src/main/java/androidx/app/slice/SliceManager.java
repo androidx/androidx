@@ -150,6 +150,21 @@ public abstract class SliceManager {
     public abstract @Nullable Slice bindSlice(@NonNull Intent intent);
 
     /**
+     * Turns a slice intent into a slice uri. Expects an explicit intent. If there is no
+     * {@link android.content.ContentProvider} associated with the given intent this will throw
+     * {@link IllegalArgumentException}.
+     *
+     * @param intent The intent associated with a slice.
+     * @return The Slice Uri provided by the app or null if none is given.
+     * @see Slice
+     * @see SliceProvider#onMapIntentToUri(Intent)
+     * @see Intent
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public abstract @Nullable Uri mapIntentToUri(@NonNull Intent intent);
+
+    /**
      * Class that listens to changes in {@link Slice}s.
      */
     public interface SliceCallback {

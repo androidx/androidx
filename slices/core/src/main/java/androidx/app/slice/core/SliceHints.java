@@ -45,4 +45,13 @@ public class SliceHints {
      * Key to retrieve an extra added to an intent when the value of an input range has changed.
      */
     public static final String EXTRA_RANGE_VALUE = "android.app.slice.extra.RANGE_VALUE";
+
+    /**
+     * The meta-data key that allows an activity to easily be linked directly to a slice.
+     * <p>
+     * An activity can be statically linked to a slice uri by including a meta-data item
+     * for this key that contains a valid slice uri for the same application declaring
+     * the activity.
+     */
+    public static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
 }

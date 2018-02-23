@@ -18,7 +18,6 @@ package androidx.app.slice.compat;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.SliceProvider.SLICE_TYPE;
 
-import android.Manifest.permission;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.ContentProvider;
@@ -44,6 +43,7 @@ import android.os.StrictMode.ThreadPolicy;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.RestrictTo.Scope;
+import android.support.v4.util.Preconditions;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -54,6 +54,7 @@ import androidx.app.slice.Slice;
 import androidx.app.slice.SliceProvider;
 import androidx.app.slice.SliceSpec;
 import androidx.app.slice.core.R;
+import androidx.app.slice.core.SliceHints;
 
 /**
  * @hide
@@ -69,6 +70,7 @@ public class SliceProviderCompat extends ContentProvider {
     public static final String METHOD_PIN = "pin_slice";
     public static final String METHOD_UNPIN = "unpin_slice";
     public static final String METHOD_GET_PINNED_SPECS = "get_specs";
+    public static final String METHOD_MAP_ONLY_INTENT = "map_only";
 
     public static final String EXTRA_INTENT = "slice_intent";
     public static final String EXTRA_SLICE = "slice";
@@ -156,8 +158,8 @@ public class SliceProviderCompat extends ContentProvider {
         if (method.equals(METHOD_SLICE)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
             if (Binder.getCallingUid() != Process.myUid()) {
-                getContext().enforceUriPermission(uri, permission.BIND_SLICE,
-                        permission.BIND_SLICE, Binder.getCallingPid(), Binder.getCallingUid(),
+                getContext().enforceUriPermission(uri, Binder.getCallingPid(),
+                        Binder.getCallingUid(),
                         Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                         "Slice binding requires the permission BIND_SLICE");
             }
@@ -168,10 +170,6 @@ public class SliceProviderCompat extends ContentProvider {
             b.putParcelable(EXTRA_SLICE, s.toBundle());
             return b;
         } else if (method.equals(METHOD_MAP_INTENT)) {
-            if (Binder.getCallingUid() != Process.myUid()) {
-                getContext().enforceCallingPermission(permission.BIND_SLICE,
-                        "Slice binding requires the permission BIND_SLICE");
-            }
             Intent intent = extras.getParcelable(EXTRA_INTENT);
             Uri uri = mSliceProvider.onMapIntentToUri(intent);
             Bundle b = new Bundle();
@@ -182,6 +180,12 @@ public class SliceProviderCompat extends ContentProvider {
             } else {
                 b.putParcelable(EXTRA_SLICE, null);
             }
+            return b;
+        } else if (method.equals(METHOD_MAP_INTENT)) {
+            Intent intent = extras.getParcelable(EXTRA_INTENT);
+            Uri uri = mSliceProvider.onMapIntentToUri(intent);
+            Bundle b = new Bundle();
+            b.putParcelable(EXTRA_SLICE, uri);
             return b;
         } else if (method.equals(METHOD_PIN)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
@@ -522,6 +526,56 @@ public class SliceProviderCompat extends ContentProvider {
             return null;
         } finally {
             provider.close();
+        }
+    }
+
+    /**
+     * Compat version of {@link android.app.slice.SliceManager#mapIntentToUri}.
+     */
+    public static Uri mapIntentToUri(Context context, Intent intent) {
+        Preconditions.checkNotNull(intent, "intent");
+        Preconditions.checkArgument(intent.getComponent() != null || intent.getPackage() != null,
+                String.format("Slice intent must be explicit %s", intent));
+        ContentResolver resolver = context.getContentResolver();
+
+        // Check if the intent has data for the slice uri on it and use that
+        final Uri intentData = intent.getData();
+        if (intentData != null && SLICE_TYPE.equals(resolver.getType(intentData))) {
+            return intentData;
+        }
+        // Otherwise ask the app
+        List<ResolveInfo> providers =
+                context.getPackageManager().queryIntentContentProviders(intent, 0);
+        if (providers == null || providers.isEmpty()) {
+            // There are no providers, see if this activity has a direct link.
+            ResolveInfo resolve = context.getPackageManager().resolveActivity(intent,
+                    PackageManager.GET_META_DATA);
+            if (resolve != null && resolve.activityInfo != null
+                    && resolve.activityInfo.metaData != null
+                    && resolve.activityInfo.metaData.containsKey(SliceHints.SLICE_METADATA_KEY)) {
+                return Uri.parse(
+                        resolve.activityInfo.metaData.getString(SliceHints.SLICE_METADATA_KEY));
+            }
+            return null;
+        }
+        String authority = providers.get(0).providerInfo.authority;
+        Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
+                .authority(authority).build();
+        try (ContentProviderClient provider = resolver.acquireContentProviderClient(uri)) {
+            if (provider == null) {
+                throw new IllegalArgumentException("Unknown URI " + uri);
+            }
+            Bundle extras = new Bundle();
+            extras.putParcelable(EXTRA_INTENT, intent);
+            final Bundle res = provider.call(METHOD_MAP_ONLY_INTENT, null, extras);
+            if (res == null) {
+                return null;
+            }
+            return res.getParcelable(EXTRA_SLICE);
+        } catch (RemoteException e) {
+            // Arbitrary and not worth documenting, as Activity
+            // Manager will kill this process shortly anyway.
+            return null;
         }
     }
 }
