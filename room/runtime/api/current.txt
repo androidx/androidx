@@ -34,6 +34,7 @@ package android.arch.persistence.room {
   public abstract class RoomDatabase {
     ctor public RoomDatabase();
     method public void beginTransaction();
+    method public abstract void clearAllTables();
     method public void close();
     method public android.arch.persistence.db.SupportSQLiteStatement compileStatement(java.lang.String);
     method protected abstract android.arch.persistence.room.InvalidationTracker createInvalidationTracker();
