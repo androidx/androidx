@@ -21,6 +21,7 @@ import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -31,7 +32,6 @@ import static androidx.slice.widget.SliceView.MODE_SMALL;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
@@ -165,9 +165,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
             makeClickable(mViewContainer);
         }
         ArrayList<GridContent.CellContent> cells = gc.getGridContent();
+        boolean hasSeeMore = gc.getSeeMoreItem() != null;
         for (int i = 0; i < cells.size(); i++) {
             if (mViewContainer.getChildCount() >= MAX_CELLS) {
-                // TODO -- use item if it exists
+                if (hasSeeMore) {
+                    addSeeMoreCount(cells.size() - MAX_CELLS);
+                }
                 break;
             }
             addCell(cells.get(i), i, Math.min(cells.size(), MAX_CELLS));
@@ -175,22 +178,45 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     }
 
     private void addSeeMoreCount(int numExtra) {
-        View last = getChildAt(getChildCount() - 1);
-        FrameLayout frame = new FrameLayout(getContext());
-        frame.setLayoutParams(last.getLayoutParams());
+        // Remove last element
+        View last = mViewContainer.getChildAt(mViewContainer.getChildCount() - 1);
+        mViewContainer.removeView(last);
 
-        removeView(last);
-        frame.addView(last, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+        SliceItem seeMoreItem = mGridContent.getSeeMoreItem();
+        int index = mViewContainer.getChildCount();
+        int total = MAX_CELLS;
+        if ((FORMAT_SLICE.equals(seeMoreItem.getFormat())
+                || FORMAT_ACTION.equals(seeMoreItem.getFormat()))
+                && seeMoreItem.getSlice().getItems().size() > 0) {
+            // It's a custom see more cell, add it
+            addCell(new GridContent.CellContent(seeMoreItem), index, total);
+            return;
+        }
 
-        TextView v = new TextView(getContext());
-        v.setTextColor(Color.WHITE);
-        v.setBackgroundColor(0x4d000000);
-        v.setText(getResources().getString(R.string.abc_slice_more_content, numExtra));
-        v.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-        v.setGravity(Gravity.CENTER);
-        frame.addView(v, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+        // Default see more, create it
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        TextView extraText;
+        ViewGroup seeMoreView;
+        if (mGridContent.isAllImages()) {
+            seeMoreView = (FrameLayout) inflater.inflate(R.layout.abc_slice_grid_see_more_overlay,
+                    mViewContainer, false);
+            seeMoreView.addView(last, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+            extraText = seeMoreView.findViewById(R.id.text_see_more_count);
+        } else {
+            seeMoreView = (LinearLayout) inflater.inflate(
+                    R.layout.abc_slice_grid_see_more, mViewContainer, false);
+            extraText = seeMoreView.findViewById(R.id.text_see_more_count);
+        }
+        mViewContainer.addView(seeMoreView, new LinearLayout.LayoutParams(0, MATCH_PARENT, 1));
+        extraText.setText(getResources().getString(R.string.abc_slice_more_content, numExtra));
 
-        mViewContainer.addView(frame);
+        // Make it clickable
+        EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_BUTTON,
+                EventInfo.ROW_TYPE_GRID, mRowIndex);
+        info.setPosition(EventInfo.POSITION_CELL, index, total);
+        Pair<SliceItem, EventInfo> tagItem = new Pair<>(seeMoreItem, info);
+        seeMoreView.setTag(tagItem);
+        makeClickable(seeMoreView);
     }
 
     /**
@@ -257,6 +283,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
                 MarginLayoutParams lp =
                         (LinearLayout.MarginLayoutParams) cellContainer.getLayoutParams();
                 lp.setMarginEnd(mGutter);
+                cellContainer.setLayoutParams(lp);
             }
             if (contentIntentItem != null) {
                 EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_BUTTON,
@@ -312,7 +339,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
 
     private void makeClickable(View layout) {
         layout.setOnClickListener(this);
-        layout.setBackground(SliceViewUtil.getDrawable(getContext(),
+        layout.setForeground(SliceViewUtil.getDrawable(getContext(),
                 android.R.attr.selectableItemBackground));
     }
 

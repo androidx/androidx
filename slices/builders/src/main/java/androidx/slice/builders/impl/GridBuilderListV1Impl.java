@@ -95,7 +95,7 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
      */
     @Override
     public void addCell(TemplateBuilderImpl builder) {
-        getBuilder().addSubSlice(builder.build());
+        getBuilder().addSubSlice(builder.getBuilder().addHints(HINT_LIST_ITEM).build());
     }
 
 
@@ -230,11 +230,11 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
         public Slice build() {
             if (mContentIntent != null) {
                 return new Slice.Builder(getBuilder())
-                        .addHints(HINT_HORIZONTAL, HINT_LIST_ITEM)
+                        .addHints(HINT_HORIZONTAL)
                         .addAction(mContentIntent, getBuilder().build(), null)
                         .build();
             }
-            return getBuilder().addHints(HINT_HORIZONTAL, HINT_LIST_ITEM).build();
+            return getBuilder().addHints(HINT_HORIZONTAL).build();
         }
     }
 }
