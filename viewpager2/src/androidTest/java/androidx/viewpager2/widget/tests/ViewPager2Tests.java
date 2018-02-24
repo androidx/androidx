@@ -43,6 +43,8 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.util.Preconditions;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -84,6 +86,12 @@ public class ViewPager2Tests {
             Color.parseColor("#BBB30CE8"),
             Color.parseColor("#BBFF00D0")};
 
+    /** mean of injecting different adapters into {@link TestActivity#onCreate(Bundle)} */
+    static AdapterStrategy sAdapterStrategy;
+    interface AdapterStrategy {
+        void setAdapter(ViewPager2 viewPager);
+    }
+
     @Rule
     public final ActivityTestRule<TestActivity> mActivityTestRule;
     @Rule
@@ -95,13 +103,14 @@ public class ViewPager2Tests {
     private CountDownLatch mStableAfterSwipe;
 
     public ViewPager2Tests() {
-        mActivityTestRule = new ActivityTestRule<>(TestActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(TestActivity.class, true, false);
     }
 
-    @Before
-    public void setUp() {
-        mViewPager = mActivityTestRule.getActivity().findViewById(R.id.view_pager);
+    private void setUpActivity(AdapterStrategy adapterStrategy) {
+        sAdapterStrategy = Preconditions.checkNotNull(adapterStrategy);
+        mActivityTestRule.launchActivity(null);
 
+        mViewPager = mActivityTestRule.getActivity().findViewById(R.id.view_pager);
         mViewPager.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -111,6 +120,11 @@ public class ViewPager2Tests {
                 }
             }
         });
+    }
+
+    @Before
+    public void setUp() {
+        sAdapterStrategy = null;
 
         final long seed = RANDOM.nextLong();
         RANDOM.setSeed(seed);
@@ -334,10 +348,11 @@ public class ViewPager2Tests {
             expectedValues[i] = i;
         }
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        setUpActivity(new AdapterStrategy() {
             @Override
-            public void run() {
-                mViewPager.setAdapter(mActivityTestRule.getActivity().getSupportFragmentManager(),
+            public void setAdapter(ViewPager2 viewPager) {
+                viewPager.setAdapter(
+                        ((FragmentActivity) viewPager.getContext()).getSupportFragmentManager(),
                         new ViewPager2.FragmentProvider() {
                             @Override
                             public Fragment getItem(final int position) {
@@ -439,23 +454,17 @@ public class ViewPager2Tests {
     public void viewAdapter_rendersAndHandlesSwiping() throws Throwable {
         final int totalPages = 8;
 
-        if (Build.VERSION.SDK_INT < 16) { // TODO(b/71500143): remove temporary workaround
-            RecyclerView mRecyclerView = (RecyclerView) mViewPager.getChildAt(0);
-            mRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
-        }
-
-        onView(withId(mViewPager.getId())).check(matches(isDisplayed()));
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        setUpActivity(new AdapterStrategy() {
             @Override
-            public void run() {
-                mViewPager.setAdapter(
+            public void setAdapter(final ViewPager2 viewPager) {
+                viewPager.setAdapter(
                         new Adapter<ViewHolder>() {
                             @NonNull
                             @Override
                             public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                                     int viewType) {
                                 return new ViewHolder(
-                                        mActivityTestRule.getActivity().getLayoutInflater().inflate(
+                                        LayoutInflater.from(viewPager.getContext()).inflate(
                                                 R.layout.item_test_layout, parent, false)) {
                                 };
                             }
@@ -473,6 +482,13 @@ public class ViewPager2Tests {
                         });
             }
         });
+
+        if (Build.VERSION.SDK_INT < 16) { // TODO(b/71500143): remove temporary workaround
+            RecyclerView mRecyclerView = (RecyclerView) mViewPager.getChildAt(0);
+            mRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
+        }
+
+        onView(withId(mViewPager.getId())).check(matches(isDisplayed()));
 
         List<Integer> pageSequence = Arrays.asList(0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 6, 5, 4, 3, 2,
                 1, 0, 0, 0);
