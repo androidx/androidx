@@ -97,8 +97,6 @@ public class ViewPager2Tests {
     @Rule
     public ExpectedException mExpectedException = ExpectedException.none();
 
-    private ViewPager2 mViewPager;
-
     // allows to wait until swipe operation is finished (Smooth Scroller done)
     private CountDownLatch mStableAfterSwipe;
 
@@ -110,8 +108,8 @@ public class ViewPager2Tests {
         sAdapterStrategy = Preconditions.checkNotNull(adapterStrategy);
         mActivityTestRule.launchActivity(null);
 
-        mViewPager = mActivityTestRule.getActivity().findViewById(R.id.view_pager);
-        mViewPager.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        ViewPager2 viewPager = mActivityTestRule.getActivity().findViewById(R.id.view_pager);
+        viewPager.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 // coming to idle from another state (dragging or setting) means we're stable now
@@ -120,6 +118,13 @@ public class ViewPager2Tests {
                 }
             }
         });
+
+        if (Build.VERSION.SDK_INT < 16) { // TODO(b/71500143): remove temporary workaround
+            RecyclerView mRecyclerView = (RecyclerView) viewPager.getChildAt(0);
+            mRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
+        }
+
+        onView(withId(viewPager.getId())).check(matches(isDisplayed()));
     }
 
     @Before
@@ -483,12 +488,6 @@ public class ViewPager2Tests {
             }
         });
 
-        if (Build.VERSION.SDK_INT < 16) { // TODO(b/71500143): remove temporary workaround
-            RecyclerView mRecyclerView = (RecyclerView) mViewPager.getChildAt(0);
-            mRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
-        }
-
-        onView(withId(mViewPager.getId())).check(matches(isDisplayed()));
 
         List<Integer> pageSequence = Arrays.asList(0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7, 6, 5, 4, 3, 2,
                 1, 0, 0, 0);
