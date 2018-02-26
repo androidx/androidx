@@ -35,4 +35,12 @@ public interface SupportSQLiteQuery {
      * @param statement The compiled statement
      */
     void bindTo(SupportSQLiteProgram statement);
+
+    /**
+     * Returns the number of arguments in this query. This is equal to the number of placeholders
+     * in the query string. See: https://www.sqlite.org/c3ref/bind_blob.html for details.
+     *
+     * @return The number of arguments in the query.
+     */
+    int getArgCount();
 }

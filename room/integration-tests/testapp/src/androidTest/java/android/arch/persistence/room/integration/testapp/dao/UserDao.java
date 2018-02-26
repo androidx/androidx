@@ -18,11 +18,13 @@ package android.arch.persistence.room.integration.testapp.dao;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.paging.DataSource;
+import android.arch.persistence.db.SupportSQLiteQuery;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.RawQuery;
 import android.arch.persistence.room.Transaction;
 import android.arch.persistence.room.Update;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
@@ -193,6 +195,10 @@ public abstract class UserDao {
 
     @Query("SELECT * FROM user where mAge > :age")
     public abstract DataSource.Factory<Integer, User> loadPagedByAge(int age);
+
+    @RawQuery(observedEntities = User.class)
+    public abstract DataSource.Factory<Integer, User> loadPagedByAgeWithObserver(
+            SupportSQLiteQuery query);
 
     // TODO: switch to PositionalDataSource once Room supports it
     @Query("SELECT * FROM user ORDER BY mAge DESC")

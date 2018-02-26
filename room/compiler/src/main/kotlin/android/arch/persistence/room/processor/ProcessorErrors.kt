@@ -146,9 +146,10 @@ object ProcessorErrors {
             " queries."
 
     val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE = "Observable query return type (LiveData, Flowable" +
-            " etc) can only be used with SELECT queries that directly or indirectly (via" +
-            " @Relation, for example) access at least one table. For @RawQuery, you should" +
-            " specify the list of tables to be observed via the observedEntities field."
+            ", DataSource, DataSourceFactory etc) can only be used with SELECT queries that" +
+            " directly or indirectly (via @Relation, for example) access at least one table. For" +
+            " @RawQuery, you should specify the list of tables to be observed via the" +
+            " observedEntities field."
 
     val RECURSIVE_REFERENCE_DETECTED = "Recursive referencing through @Embedded and/or @Relation " +
             "detected: %s"

@@ -21,6 +21,7 @@ import android.arch.persistence.room.PrimaryKey
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Relation
 import android.arch.persistence.room.ext.LifecyclesTypeNames
+import android.arch.persistence.room.ext.PagingTypeNames
 import android.arch.persistence.room.ext.ReactiveStreamsTypeNames
 import android.arch.persistence.room.ext.RoomRxJava2TypeNames
 import android.arch.persistence.room.ext.RxJava2TypeNames
@@ -87,6 +88,11 @@ object COMMON {
 
     val DATA_SOURCE_FACTORY by lazy {
         loadJavaCode("common/input/DataSource.java", "android.arch.paging.DataSource")
+    }
+
+    val POSITIONAL_DATA_SOURCE by lazy {
+        loadJavaCode("common/input/PositionalDataSource.java",
+                PagingTypeNames.POSITIONAL_DATA_SOURCE.toString())
     }
 }
 fun testCodeGenScope(): CodeGenScope {

@@ -17,6 +17,7 @@
 package android.arch.persistence.room.paging;
 
 import android.arch.paging.PositionalDataSource;
+import android.arch.persistence.db.SupportSQLiteQuery;
 import android.arch.persistence.room.InvalidationTracker;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.RoomSQLiteQuery;
@@ -51,6 +52,11 @@ public abstract class LimitOffsetDataSource<T> extends PositionalDataSource<T> {
     @SuppressWarnings("FieldCanBeLocal")
     private final InvalidationTracker.Observer mObserver;
     private final boolean mInTransaction;
+
+    protected LimitOffsetDataSource(RoomDatabase db, SupportSQLiteQuery query,
+            boolean inTransaction, String... tables) {
+        this(db, RoomSQLiteQuery.copyFrom(query), inTransaction, tables);
+    }
 
     protected LimitOffsetDataSource(RoomDatabase db, RoomSQLiteQuery query,
             boolean inTransaction, String... tables) {

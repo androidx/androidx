@@ -39,6 +39,9 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
     }
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+        if (query.tables.isEmpty()) {
+            context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+        }
         val typeArg = declared.typeArguments.last()
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
