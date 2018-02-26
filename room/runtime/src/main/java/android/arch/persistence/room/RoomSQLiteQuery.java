@@ -79,6 +79,55 @@ public class RoomSQLiteQuery implements SupportSQLiteQuery, SupportSQLiteProgram
     static final TreeMap<Integer, RoomSQLiteQuery> sQueryPool = new TreeMap<>();
 
     /**
+     * Copies the given SupportSQLiteQuery and converts it into RoomSQLiteQuery.
+     *
+     * @param supportSQLiteQuery The query to copy from
+     * @return A new query copied from the provided one.
+     */
+    public static RoomSQLiteQuery copyFrom(SupportSQLiteQuery supportSQLiteQuery) {
+        final RoomSQLiteQuery query = RoomSQLiteQuery.acquire(
+                supportSQLiteQuery.getSql(),
+                supportSQLiteQuery.getArgCount());
+        supportSQLiteQuery.bindTo(new SupportSQLiteProgram() {
+            @Override
+            public void bindNull(int index) {
+                query.bindNull(index);
+            }
+
+            @Override
+            public void bindLong(int index, long value) {
+                query.bindLong(index, value);
+            }
+
+            @Override
+            public void bindDouble(int index, double value) {
+                query.bindDouble(index, value);
+            }
+
+            @Override
+            public void bindString(int index, String value) {
+                query.bindString(index, value);
+            }
+
+            @Override
+            public void bindBlob(int index, byte[] value) {
+                query.bindBlob(index, value);
+            }
+
+            @Override
+            public void clearBindings() {
+                query.clearBindings();
+            }
+
+            @Override
+            public void close() {
+                // ignored.
+            }
+        });
+        return query;
+    }
+
+    /**
      * Returns a new RoomSQLiteQuery that can accept the given number of arguments and holds the
      * given query.
      *
@@ -152,6 +201,7 @@ public class RoomSQLiteQuery implements SupportSQLiteQuery, SupportSQLiteProgram
         return mQuery;
     }
 
+    @Override
     public int getArgCount() {
         return mArgCount;
     }

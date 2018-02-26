@@ -30,6 +30,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
+import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.room.integration.testapp.test.TestDatabaseTest;
 import android.arch.persistence.room.integration.testapp.test.TestUtil;
 import android.arch.persistence.room.integration.testapp.vo.User;
@@ -41,7 +42,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +69,23 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
                 .build());
     }
 
-    private void validateUsersAsPagedList(LivePagedListFactory factory)
+    @Test
+    public void getUsersAsPagedList_ViaRawQuery_WithObservable()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        SimpleSQLiteQuery query = new SimpleSQLiteQuery(
+                "SELECT * FROM user where mAge > ?",
+                new Object[]{3});
+        validateUsersAsPagedList(() -> new LivePagedListBuilder<>(
+                mUserDao.loadPagedByAgeWithObserver(query),
+                new PagedList.Config.Builder()
+                        .setPageSize(10)
+                        .setPrefetchDistance(1)
+                        .setInitialLoadSizeHint(10).build())
+                .build());
+    }
+
+    private void validateUsersAsPagedList(
+            LivePagedListFactory factory)
             throws InterruptedException, ExecutionException, TimeoutException {
         mDatabase.beginTransaction();
         try {
@@ -135,13 +151,10 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
 
     private void observe(final LiveData liveData, final LifecycleOwner provider,
             final Observer observer) throws ExecutionException, InterruptedException {
-        FutureTask<Void> futureTask = new FutureTask<>(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                //noinspection unchecked
-                liveData.observe(provider, observer);
-                return null;
-            }
+        FutureTask<Void> futureTask = new FutureTask<>(() -> {
+            //noinspection unchecked
+            liveData.observe(provider, observer);
+            return null;
         });
         ArchTaskExecutor.getInstance().executeOnMainThread(futureTask);
         futureTask.get();
@@ -167,6 +180,7 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
 
     private static class PagedListObserver<T> implements Observer<PagedList<T>> {
         private PagedList<T> mList;
+
         void reset() {
             mList = null;
         }
