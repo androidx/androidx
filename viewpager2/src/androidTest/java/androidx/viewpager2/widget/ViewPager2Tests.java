@@ -28,8 +28,8 @@ import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 
 import android.content.Context;
@@ -38,6 +38,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.ViewActions;
@@ -96,6 +97,7 @@ public class ViewPager2Tests {
 
     /** mean of injecting different adapters into {@link TestActivity#onCreate(Bundle)} */
     static AdapterStrategy sAdapterStrategy;
+
     interface AdapterStrategy {
         void setAdapter(ViewPager2 viewPager);
     }
@@ -225,6 +227,12 @@ public class ViewPager2Tests {
     }
 
     @Test
+    public void fragmentAdapter_activityRecreation() throws Throwable {
+        testFragmentLifecycle(7, Arrays.asList(1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0),
+                PageMutator.NO_OP, new HashSet<>(Arrays.asList(3, 5, 7)));
+    }
+
+    @Test
     public void fragmentAdapter_random() throws Throwable {
         final int totalPages = 8; // increase when stress testing locally
         final int sequenceLength = 20; // increase when stress testing locally
@@ -245,7 +253,8 @@ public class ViewPager2Tests {
         Log.i(getClass().getName(),
                 String.format("Testing with a sequence [%s]", TextUtils.join(", ", pageSequence)));
 
-        testFragmentLifecycle(totalPages, pageSequence, pageMutator);
+        testFragmentLifecycle(totalPages, pageSequence, pageMutator,
+                Collections.<Integer>emptySet());
     }
 
     @NonNull
@@ -335,10 +344,11 @@ public class ViewPager2Tests {
         };
     }
 
-    /** @see this#testFragmentLifecycle(int, List, PageMutator) */
+    /** @see this#testFragmentLifecycle(int, List, PageMutator, Set) */
     private void testFragmentLifecycle(final int totalPages, List<Integer> pageSequence)
             throws Throwable {
-        testFragmentLifecycle(totalPages, pageSequence, PageMutator.NO_OP);
+        testFragmentLifecycle(totalPages, pageSequence, PageMutator.NO_OP,
+                Collections.<Integer>emptySet());
     }
 
     /**
@@ -350,7 +360,7 @@ public class ViewPager2Tests {
      * </ul>
      */
     private void testFragmentLifecycle(final int totalPages, List<Integer> pageSequence,
-            final PageMutator pageMutator) throws Throwable {
+            final PageMutator pageMutator, Set<Integer> activityRecreateSteps) throws Throwable {
         final AtomicInteger attachCount = new AtomicInteger(0);
         final AtomicInteger destroyCount = new AtomicInteger(0);
         final boolean[] wasEverAttached = new boolean[totalPages];
@@ -404,7 +414,12 @@ public class ViewPager2Tests {
 
         final AtomicInteger currentPage = new AtomicInteger(0);
         verifyCurrentPage(expectedValues[currentPage.get()]);
+        int stepCounter = 0;
         for (int nextPage : pageSequence) {
+            if (activityRecreateSteps.contains(stepCounter++)) {
+                FragmentActivityUtils.recreateActivity(mActivityTestRule,
+                        mActivityTestRule.getActivity());
+            }
             swipe(currentPage.get(), nextPage, totalPages);
             currentPage.set(nextPage);
             verifyCurrentPage(expectedValues[currentPage.get()]);
@@ -485,14 +500,14 @@ public class ViewPager2Tests {
     @Test
     public void saveState_parcelWriteRestore() throws Throwable {
         // given
-        ViewPager2 viewPager = new ViewPager2(InstrumentationRegistry.getContext());
-        assertThat(viewPager.getChildAt(0), instanceOf(RecyclerView.class));
-        final int recyclerViewId = viewPager.getChildAt(0).getId();
+        Bundle superState = createIntBundle(42);
+        ViewPager2.SavedState state = new ViewPager2.SavedState(superState);
+        state.mRecyclerViewId = 700;
+        state.mAdapterState = new Parcelable[]{createIntBundle(1), createIntBundle(2),
+                createIntBundle(3)};
 
         // when
         Parcel parcel = Parcel.obtain();
-        ViewPager2.SavedState state = (ViewPager2.SavedState) viewPager.onSaveInstanceState();
-        //noinspection ConstantConditions
         state.writeToParcel(parcel, 0);
         final String parcelSuffix = UUID.randomUUID().toString();
         parcel.writeString(parcelSuffix); // to verify parcel boundaries
@@ -504,9 +519,18 @@ public class ViewPager2Tests {
         assertThat("Parcel reading should not go out of bounds", parcel.readString(),
                 equalTo(parcelSuffix));
         assertThat("All of the parcel should be read", parcel.dataAvail(), equalTo(0));
-        assertThat("Previous RecyclerView id is restored from parcel",
-                recreatedState.mRecyclerViewId,
-                equalTo(recyclerViewId));
+        assertThat(recreatedState.mRecyclerViewId, equalTo(700));
+        assertThat(recreatedState.mAdapterState, arrayWithSize(3));
+        assertThat((int) ((Bundle) recreatedState.getSuperState()).get("key"), equalTo(42));
+        assertThat((int) ((Bundle) recreatedState.mAdapterState[0]).get("key"), equalTo(1));
+        assertThat((int) ((Bundle) recreatedState.mAdapterState[1]).get("key"), equalTo(2));
+        assertThat((int) ((Bundle) recreatedState.mAdapterState[2]).get("key"), equalTo(3));
+    }
+
+    private Bundle createIntBundle(int value) {
+        Bundle bundle = new Bundle(1);
+        bundle.putInt("key", value);
+        return bundle;
     }
 
     private void testViewAdapter(final int totalPages, List<Integer> pageSequence,
