@@ -46,7 +46,7 @@
     <!-- Button to disconnect from a media route.  [CHAR LIMIT=30] -->
     <string name="mr_controller_disconnect">Disconnect</string>
 
-    <!-- Button to stop playback and disconnect from a media route. [CHAR LIMIT=30] -->
+    <!-- Button to stop playback and disconnect from a media route. [CHAR LIMIT=32] -->
     <string name="mr_controller_stop_casting">Stop casting</string>
 
     <!-- Content description for accessibility (not shown on the screen): dialog close button. [CHAR LIMIT=NONE] -->
