@@ -5,6 +5,7 @@ package android.arch.persistence.db {
     ctor public SimpleSQLiteQuery(java.lang.String);
     method public static void bind(android.arch.persistence.db.SupportSQLiteProgram, java.lang.Object[]);
     method public void bindTo(android.arch.persistence.db.SupportSQLiteProgram);
+    method public int getArgCount();
     method public java.lang.String getSql();
   }
 
@@ -96,6 +97,7 @@ package android.arch.persistence.db {
 
   public abstract interface SupportSQLiteQuery {
     method public abstract void bindTo(android.arch.persistence.db.SupportSQLiteProgram);
+    method public abstract int getArgCount();
     method public abstract java.lang.String getSql();
   }
 

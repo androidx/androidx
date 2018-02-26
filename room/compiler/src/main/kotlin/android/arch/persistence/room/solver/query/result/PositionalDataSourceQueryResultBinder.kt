@@ -42,8 +42,11 @@ class PositionalDataSourceQueryResultBinder(
                                   dbField: FieldSpec,
                                   inTransaction: Boolean,
                                   scope: CodeGenScope) {
-        val tableNamesList = tableNames.joinToString(",") { "\"$it\"" }
-        val spec = TypeSpec.anonymousClassBuilder("$N, $L, $L, $L",
+        // first comma for table names comes from the string since it might be empty in which case
+        // we don't need a comma. If list is empty, this prevents generating bad code (it is still
+        // an error to have empty list but that is already reported while item is processed)
+        val tableNamesList = tableNames.joinToString { ",\"$it\"" }
+        val spec = TypeSpec.anonymousClassBuilder("$N, $L, $L $L",
                 dbField, roomSQLiteQueryVar, inTransaction, tableNamesList).apply {
             superclass(typeName)
             addMethod(createConvertRowsMethod(scope))
