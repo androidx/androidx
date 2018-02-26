@@ -22,9 +22,8 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
-import android.arch.lifecycle.Observer;
 import android.arch.persistence.room.integration.testapp.vo.FunnyNamedEntity;
-import android.support.annotation.Nullable;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -71,12 +70,9 @@ public class FunnyNamedDaoTest extends TestDatabaseTest {
     @Test
     public void observe() throws TimeoutException, InterruptedException {
         final FunnyNamedEntity[] item = new FunnyNamedEntity[1];
-        mFunnyNamedDao.observableOne(2).observeForever(new Observer<FunnyNamedEntity>() {
-            @Override
-            public void onChanged(@Nullable FunnyNamedEntity funnyNamedEntity) {
-                item[0] = funnyNamedEntity;
-            }
-        });
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mFunnyNamedDao.observableOne(2).observeForever(
+                        funnyNamedEntity -> item[0] = funnyNamedEntity));
 
         FunnyNamedEntity entity = new FunnyNamedEntity(1, "a");
         mFunnyNamedDao.insert(entity);
