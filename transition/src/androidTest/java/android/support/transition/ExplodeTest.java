@@ -16,8 +16,11 @@
 
 package android.support.transition;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -70,8 +73,8 @@ public class ExplodeTest extends BaseTransitionTest {
         verifyTranslation(greenSquare, false, true);
         verifyTranslation(blueSquare, false, false);
         verifyTranslation(yellowSquare, true, false);
-        assertTrue(redStartX > redSquare.getTranslationX()); // moving left
-        assertTrue(redStartY > redSquare.getTranslationY()); // moving up
+        assertThat(redStartX, is(greaterThan(redSquare.getTranslationX()))); // moving left
+        assertThat(redStartY, is(greaterThan(redSquare.getTranslationY()))); // moving up
         waitForEnd();
 
         verifyNoTranslation(redSquare);
@@ -127,8 +130,8 @@ public class ExplodeTest extends BaseTransitionTest {
         verifyTranslation(greenSquare, false, true);
         verifyTranslation(blueSquare, false, false);
         verifyTranslation(yellowSquare, true, false);
-        assertTrue(redStartX < redSquare.getTranslationX()); // moving right
-        assertTrue(redStartY < redSquare.getTranslationY()); // moving down
+        assertThat(redStartX, is(lessThan(redSquare.getTranslationX()))); // moving right
+        assertThat(redStartY, is(lessThan(redSquare.getTranslationY()))); // moving down
         waitForEnd();
 
         verifyNoTranslation(redSquare);
@@ -146,15 +149,15 @@ public class ExplodeTest extends BaseTransitionTest {
         float translationY = view.getTranslationY();
 
         if (goLeft) {
-            assertTrue(translationX < 0);
+            assertThat(translationX, is(lessThan(0.f)));
         } else {
-            assertTrue(translationX > 0);
+            assertThat(translationX, is(greaterThan(0.f)));
         }
 
         if (goUp) {
-            assertTrue(translationY < 0);
+            assertThat(translationY, is(lessThan(0.f)));
         } else {
-            assertTrue(translationY > 0);
+            assertThat(translationY, is(greaterThan(0.f)));
         }
     }
 
