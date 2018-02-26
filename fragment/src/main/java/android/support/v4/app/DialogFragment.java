@@ -320,7 +320,8 @@ public class DialogFragment extends Fragment
     }
 
     @Override
-    public LayoutInflater onGetLayoutInflater(Bundle savedInstanceState) {
+    @NonNull
+    public LayoutInflater onGetLayoutInflater(@Nullable Bundle savedInstanceState) {
         if (!mShowsDialog) {
             return super.onGetLayoutInflater(savedInstanceState);
         }
@@ -375,7 +376,7 @@ public class DialogFragment extends Fragment
      * @return Return a new Dialog instance to be displayed by the Fragment.
      */
     @NonNull
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         return new Dialog(getActivity(), getTheme());
     }
 
@@ -395,7 +396,7 @@ public class DialogFragment extends Fragment
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         if (!mShowsDialog) {
@@ -436,7 +437,7 @@ public class DialogFragment extends Fragment
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mDialog != null) {
             Bundle dialogState = mDialog.onSaveInstanceState();
