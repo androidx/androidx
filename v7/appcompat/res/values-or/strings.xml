@@ -20,8 +20,7 @@
     <string name="abc_action_bar_home_description" msgid="4600421777120114993">"ହୋମ୍ ପେଜ୍‍କୁ ନେଭିଗେଟ୍ କରନ୍ତୁ"</string>
     <string name="abc_action_bar_up_description" msgid="1594238315039666878">"ଉପରକୁ ନେଭିଗେଟ୍ କରନ୍ତୁ"</string>
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"ଅଧିକ ବିକଳ୍ପ"</string>
-    <!-- no translation found for abc_toolbar_collapse_description (1603543279005712093) -->
-    <skip />
+    <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"ଛୋଟ କରନ୍ତୁ"</string>
     <string name="abc_searchview_description_search" msgid="8264924765203268293">"ସର୍ଚ୍ଚ କରନ୍ତୁ"</string>
     <string name="abc_search_hint" msgid="7723749260725869598">"ସର୍ଚ୍ଚ…"</string>
     <string name="abc_searchview_description_query" msgid="2550479030709304392">"ସର୍ଚ୍ଚ କ୍ୱେରୀ"</string>
