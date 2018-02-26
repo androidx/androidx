@@ -129,11 +129,13 @@ public final class TextLinksTest {
                 TextClassifier.ENTITY_PRESET_NONE);
         entityConfig.includeEntities("a", "b", "c");
         entityConfig.excludeEntities("b");
-        TextLinks.Options reference = new TextLinks.Options();
-        reference.setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"));
-        reference.setEntityConfig(entityConfig);
-        reference.setApplyStrategy(TextLinks.APPLY_STRATEGY_REPLACE);
-        reference.setSpanFactory(new CustomSpanFactory());
+        final String callingPackageName = "packageName";
+        TextLinks.Options reference = new TextLinks.Options()
+                .setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"))
+                .setEntityConfig(entityConfig)
+                .setApplyStrategy(TextLinks.APPLY_STRATEGY_REPLACE)
+                .setSpanFactory(new CustomSpanFactory())
+                .setCallingPackageName(callingPackageName);
 
         final Parcel parcel = Parcel.obtain();
         reference.writeToParcel(parcel, reference.describeContents());
@@ -144,6 +146,7 @@ public final class TextLinksTest {
         assertEquals(Arrays.asList("a", "c"), result.getEntityConfig().getEntities(mClassifier));
         assertEquals(TextLinks.APPLY_STRATEGY_REPLACE, result.getApplyStrategy());
         assertEquals(null, result.getSpanFactory());
+        assertEquals(callingPackageName, result.getCallingPackageName());
     }
 
     @Test

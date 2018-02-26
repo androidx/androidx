@@ -35,6 +35,7 @@ package androidx.view.textclassifier {
   public static final class TextClassification.Options implements android.os.Parcelable {
     ctor public TextClassification.Options();
     method public int describeContents();
+    method public java.lang.String getCallingPackageName();
     method public android.support.v4.os.LocaleListCompat getDefaultLocales();
     method public java.util.Calendar getReferenceTime();
     method public androidx.view.textclassifier.TextClassification.Options setDefaultLocales(android.support.v4.os.LocaleListCompat);
@@ -78,6 +79,7 @@ package androidx.view.textclassifier {
     ctor public TextLinks.Options();
     method public int describeContents();
     method public int getApplyStrategy();
+    method public java.lang.String getCallingPackageName();
     method public android.support.v4.os.LocaleListCompat getDefaultLocales();
     method public androidx.view.textclassifier.TextClassifier.EntityConfig getEntityConfig();
     method public androidx.view.textclassifier.TextLinks.SpanFactory getSpanFactory();
@@ -128,6 +130,7 @@ package androidx.view.textclassifier {
   public static final class TextSelection.Options implements android.os.Parcelable {
     ctor public TextSelection.Options();
     method public int describeContents();
+    method public java.lang.String getCallingPackageName();
     method public android.support.v4.os.LocaleListCompat getDefaultLocales();
     method public androidx.view.textclassifier.TextSelection.Options setDefaultLocales(android.support.v4.os.LocaleListCompat);
     method public void writeToParcel(android.os.Parcel, int);

@@ -22,6 +22,7 @@ import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.os.LocaleListCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Preconditions;
@@ -208,6 +209,7 @@ public final class TextSelection implements Parcelable {
     public static final class Options implements Parcelable {
 
         private @Nullable LocaleListCompat mDefaultLocales;
+        private @Nullable String mCallingPackageName;
 
         public Options() {}
 
@@ -222,12 +224,31 @@ public final class TextSelection implements Parcelable {
         }
 
         /**
+         * @param packageName name of the package from which the call was made.
+         *
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public Options setCallingPackageName(@Nullable String packageName) {
+            mCallingPackageName = packageName;
+            return this;
+        }
+
+        /**
          * @return ordered list of locale preferences that can be used to disambiguate
          *      the provided text.
          */
         @Nullable
         public LocaleListCompat getDefaultLocales() {
             return mDefaultLocales;
+        }
+
+        /**
+         * @return name of the package from which the call was made.
+         */
+        @Nullable
+        public String getCallingPackageName() {
+            return mCallingPackageName;
         }
 
         @Override
@@ -241,6 +262,7 @@ public final class TextSelection implements Parcelable {
             if (mDefaultLocales != null) {
                 dest.writeString(mDefaultLocales.toLanguageTags());
             }
+            dest.writeString(mCallingPackageName);
         }
 
         public static final Parcelable.Creator<Options> CREATOR =
@@ -260,6 +282,7 @@ public final class TextSelection implements Parcelable {
             if (in.readInt() > 0) {
                 mDefaultLocales = LocaleListCompat.forLanguageTags(in.readString());
             }
+            mCallingPackageName = in.readString();
         }
     }
 }
