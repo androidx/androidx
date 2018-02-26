@@ -239,7 +239,7 @@ public class WindowDecorActionBar extends ActionBar implements
             return ((Toolbar) view).getWrapper();
         } else {
             throw new IllegalStateException("Can't make a decor toolbar out of " +
-                    view != null ? view.getClass().getSimpleName() : "null");
+                    (view != null ? view.getClass().getSimpleName() : "null"));
         }
     }
 

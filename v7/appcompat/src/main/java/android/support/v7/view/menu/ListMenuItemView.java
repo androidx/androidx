@@ -196,9 +196,8 @@ public class ListMenuItemView extends LinearLayout
         if (checkable) {
             compoundButton.setChecked(mItemData.isChecked());
 
-            final int newVisibility = checkable ? VISIBLE : GONE;
-            if (compoundButton.getVisibility() != newVisibility) {
-                compoundButton.setVisibility(newVisibility);
+            if (compoundButton.getVisibility() != VISIBLE) {
+                compoundButton.setVisibility(VISIBLE);
             }
 
             // Make sure the other compound button isn't visible
