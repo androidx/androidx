@@ -159,6 +159,7 @@ public class InvalidationTracker {
             } finally {
                 database.endTransaction();
             }
+            syncTriggers(database);
             mCleanupStatement = database.compileStatement(CLEANUP_SQL);
             mInitialized = true;
         }
@@ -219,6 +220,7 @@ public class InvalidationTracker {
      *
      * @param observer The observer which listens the database for changes.
      */
+    @WorkerThread
     public void addObserver(@NonNull Observer observer) {
         final String[] tableNames = observer.mTables;
         int[] tableIds = new int[tableNames.length];
@@ -240,7 +242,7 @@ public class InvalidationTracker {
             currentObserver = mObserverMap.putIfAbsent(observer, wrapper);
         }
         if (currentObserver == null && mObservedTableTracker.onAdded(tableIds)) {
-            ArchTaskExecutor.getInstance().executeOnDiskIO(mSyncTriggers);
+            syncTriggers();
         }
     }
 
@@ -265,64 +267,16 @@ public class InvalidationTracker {
      * @param observer The observer to remove.
      */
     @SuppressWarnings("WeakerAccess")
+    @WorkerThread
     public void removeObserver(@NonNull final Observer observer) {
         ObserverWrapper wrapper;
         synchronized (mObserverMap) {
             wrapper = mObserverMap.remove(observer);
         }
         if (wrapper != null && mObservedTableTracker.onRemoved(wrapper.mTableIds)) {
-            ArchTaskExecutor.getInstance().executeOnDiskIO(mSyncTriggers);
+            syncTriggers();
         }
     }
-
-    private Runnable mSyncTriggers = new Runnable() {
-        @Override
-        public void run() {
-            if (mDatabase.inTransaction()) {
-                // we won't run this inside another transaction.
-                return;
-            }
-            if (!ensureInitialization()) {
-                return;
-            }
-            try {
-                // This method runs in a while loop because while changes are synced to db, another
-                // runnable may be skipped. If we cause it to skip, we need to do its work.
-                while (true) {
-                    // there is a potential race condition where another mSyncTriggers runnable
-                    // can start running right after we get the tables list to sync.
-                    final int[] tablesToSync = mObservedTableTracker.getTablesToSync();
-                    if (tablesToSync == null) {
-                        return;
-                    }
-                    final int limit = tablesToSync.length;
-                    final SupportSQLiteDatabase writableDatabase = mDatabase.getOpenHelper()
-                            .getWritableDatabase();
-                    try {
-                        writableDatabase.beginTransaction();
-                        for (int tableId = 0; tableId < limit; tableId++) {
-                            switch (tablesToSync[tableId]) {
-                                case ObservedTableTracker.ADD:
-                                    startTrackingTable(writableDatabase, tableId);
-                                    break;
-                                case ObservedTableTracker.REMOVE:
-                                    stopTrackingTable(writableDatabase, tableId);
-                                    break;
-                            }
-                        }
-                        writableDatabase.setTransactionSuccessful();
-                    } finally {
-                        writableDatabase.endTransaction();
-                    }
-                    mObservedTableTracker.onSyncCompleted();
-                }
-            } catch (IllegalStateException | SQLiteException exception) {
-                // may happen if db is closed. just log.
-                Log.e(Room.LOG_TAG, "Cannot run invalidation tracker. Is the db closed?",
-                        exception);
-            }
-        }
-    };
 
     private boolean ensureInitialization() {
         if (!mDatabase.isOpen()) {
@@ -444,6 +398,53 @@ public class InvalidationTracker {
         mRefreshRunnable.run();
     }
 
+    void syncTriggers(SupportSQLiteDatabase database) {
+        if (database.inTransaction()) {
+            // we won't run this inside another transaction.
+            return;
+        }
+        try {
+            // This method runs in a while loop because while changes are synced to db, another
+            // runnable may be skipped. If we cause it to skip, we need to do its work.
+            while (true) {
+                Lock closeLock = mDatabase.getCloseLock();
+                closeLock.lock();
+                try {
+                    // there is a potential race condition where another mSyncTriggers runnable
+                    // can start running right after we get the tables list to sync.
+                    final int[] tablesToSync = mObservedTableTracker.getTablesToSync();
+                    if (tablesToSync == null) {
+                        return;
+                    }
+                    final int limit = tablesToSync.length;
+                    try {
+                        database.beginTransaction();
+                        for (int tableId = 0; tableId < limit; tableId++) {
+                            switch (tablesToSync[tableId]) {
+                                case ObservedTableTracker.ADD:
+                                    startTrackingTable(database, tableId);
+                                    break;
+                                case ObservedTableTracker.REMOVE:
+                                    stopTrackingTable(database, tableId);
+                                    break;
+                            }
+                        }
+                        database.setTransactionSuccessful();
+                    } finally {
+                        database.endTransaction();
+                    }
+                    mObservedTableTracker.onSyncCompleted();
+                } finally {
+                    closeLock.unlock();
+                }
+            }
+        } catch (IllegalStateException | SQLiteException exception) {
+            // may happen if db is closed. just log.
+            Log.e(Room.LOG_TAG, "Cannot run invalidation tracker. Is the db closed?",
+                    exception);
+        }
+    }
+
     /**
      * Called by RoomDatabase before each beginTransaction call.
      * <p>
@@ -453,7 +454,10 @@ public class InvalidationTracker {
      * This api should eventually be public.
      */
     void syncTriggers() {
-        mSyncTriggers.run();
+        if (!mDatabase.isOpen()) {
+            return;
+        }
+        syncTriggers(mDatabase.getOpenHelper().getWritableDatabase());
     }
 
     /**

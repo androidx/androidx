@@ -116,6 +116,10 @@ public abstract class UserDao {
     @Query("select * from user where mId = :id")
     public abstract LiveData<User> liveUserById(int id);
 
+    @Transaction
+    @Query("select * from user where mId = :id")
+    public abstract LiveData<User> liveUserByIdInTransaction(int id);
+
     @Query("select * from user where mName LIKE '%' || :name || '%' ORDER BY mId DESC")
     public abstract LiveData<List<User>> liveUsersListByName(String name);
 
