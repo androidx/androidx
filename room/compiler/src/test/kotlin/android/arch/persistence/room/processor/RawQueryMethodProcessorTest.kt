@@ -24,6 +24,7 @@ import android.arch.persistence.room.PrimaryKey
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.RawQuery
 import android.arch.persistence.room.ext.CommonTypeNames
+import android.arch.persistence.room.ext.PagingTypeNames
 import android.arch.persistence.room.ext.SupportDbTypeNames
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.typeName
@@ -123,6 +124,42 @@ class RawQueryMethodProcessorTest {
     }
 
     @Test
+    fun observableWithoutEntities_dataSourceFactory() {
+        singleQueryMethod(
+                """
+                @RawQuery
+                abstract public ${PagingTypeNames.DATA_SOURCE_FACTORY}<Integer, User> getOne();
+                """) { _, _ ->
+            // do nothing
+        }.failsToCompile()
+                .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+    }
+
+    @Test
+    fun observableWithoutEntities_positionalDataSource() {
+        singleQueryMethod(
+                """
+                @RawQuery
+                abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE}<User> getOne();
+                """) { _, _ ->
+            // do nothing
+        }.failsToCompile()
+                .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+    }
+
+    @Test
+    fun positionalDataSource() {
+        singleQueryMethod(
+                """
+                @RawQuery(observedEntities = {User.class})
+                abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE}<User> getOne(
+                        SupportSQLiteQuery query);
+                """) { _, _ ->
+            // do nothing
+        }.compilesWithoutError()
+    }
+
+    @Test
     fun pojo() {
         val pojo: TypeName = ClassName.get("foo.bar.MyClass", "MyPojo")
         singleQueryMethod(
@@ -204,10 +241,11 @@ class RawQueryMethodProcessorTest {
                         DAO_PREFIX
                                 + input.joinToString("\n")
                                 + DAO_SUFFIX
-                ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER))
+                ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER,
+                        COMMON.DATA_SOURCE_FACTORY, COMMON.POSITIONAL_DATA_SOURCE))
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(Query::class, Dao::class, ColumnInfo::class,
-                                Entity::class, PrimaryKey::class, RawQueryMethod::class)
+                                Entity::class, PrimaryKey::class, RawQuery::class)
                         .nextRunHandler { invocation ->
                             val (owner, methods) = invocation.roundEnv
                                     .getElementsAnnotatedWith(Dao::class.java)

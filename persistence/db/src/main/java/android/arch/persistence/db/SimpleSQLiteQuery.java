@@ -54,6 +54,11 @@ public final class SimpleSQLiteQuery implements SupportSQLiteQuery {
         bind(statement, mBindArgs);
     }
 
+    @Override
+    public int getArgCount() {
+        return mBindArgs.length;
+    }
+
     /**
      * Binds the given arguments into the given sqlite statement.
      *
