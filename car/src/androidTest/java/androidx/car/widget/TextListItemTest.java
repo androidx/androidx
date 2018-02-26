@@ -730,6 +730,29 @@ public class TextListItemTest {
     }
 
     @Test
+    public void testNoCarriedOverOnClickListener() throws Throwable {
+        boolean[] clicked = new boolean[] {false};
+        TextListItem item0 = new TextListItem(mActivity);
+        item0.setOnClickListener(v -> clicked[0] = true);
+
+        setupPagedListView(Arrays.asList(item0));
+
+        onView(withId(R.id.recycler_view)).perform(actionOnItemAtPosition(0, click()));
+        assertTrue(clicked[0]);
+
+        // item1 does not have onClickListener.
+        TextListItem item1 = new TextListItem(mActivity);
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        // Manually rebind the view holder.
+        mActivityRule.runOnUiThread(() -> item1.bind(viewHolder));
+
+        // Reset for testing.
+        clicked[0] = false;
+        onView(withId(R.id.recycler_view)).perform(actionOnItemAtPosition(0, click()));
+        assertFalse(clicked[0]);
+    }
+
+    @Test
     public void testUpdateItem() throws Throwable {
         TextListItem item = new TextListItem(mActivity);
         setupPagedListView(Arrays.asList(item));
