@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# FragmentTransitionSupport is instantiated in support-fragment via reflection.
--keep public class android.support.transition.FragmentTransitionSupport {
-}
-
 # Keep a field in transition that is used to keep a reference to weakly-referenced object
 -keepclassmembers class android.support.transition.ChangeBounds$* extends android.animation.AnimatorListenerAdapter {
   android.support.transition.ChangeBounds$ViewBounds mViewBounds;
