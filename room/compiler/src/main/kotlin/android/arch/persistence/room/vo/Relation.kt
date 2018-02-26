@@ -44,8 +44,8 @@ class Relation(
     }
 
     private fun createSelect(resultFields: Set<String>): String {
-        return "SELECT ${resultFields.joinToString(",")}" +
+        return "SELECT ${resultFields.joinToString(",") {"`$it`"}}" +
                 " FROM `${entity.tableName}`" +
-                " WHERE ${entityField.columnName} IN (:args)"
+                " WHERE `${entityField.columnName}` IN (:args)"
     }
 }
