@@ -243,8 +243,9 @@ public abstract class RoomDatabase {
      */
     public void beginTransaction() {
         assertNotMainThread();
-        mInvalidationTracker.syncTriggers();
-        mOpenHelper.getWritableDatabase().beginTransaction();
+        SupportSQLiteDatabase database = mOpenHelper.getWritableDatabase();
+        mInvalidationTracker.syncTriggers(database);
+        database.beginTransaction();
     }
 
     /**
