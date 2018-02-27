@@ -520,7 +520,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
         }
 
         @Override
-        public void complyWithUxRestrictions(CarUxRestrictions restrictions) {
+        void complyWithUxRestrictions(CarUxRestrictions restrictions) {
             CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
         }
 

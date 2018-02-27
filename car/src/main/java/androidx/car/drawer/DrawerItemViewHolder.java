@@ -95,7 +95,7 @@ public class DrawerItemViewHolder extends RecyclerView.ViewHolder {
      *
      * @param restrictions current car UX restrictions.
      */
-    public void complyWithUxRestrictions(CarUxRestrictions restrictions) {
+    void complyWithUxRestrictions(CarUxRestrictions restrictions) {
         CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
     }
 }
