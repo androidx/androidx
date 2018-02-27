@@ -125,13 +125,10 @@ public class InvalidationTrackerTest {
     public void addRemoveObserver() throws Exception {
         InvalidationTracker.Observer observer = new LatchObserver(1, "a");
         mTracker.addObserver(observer);
-        drainTasks();
         assertThat(mTracker.mObserverMap.size(), is(1));
         mTracker.removeObserver(new LatchObserver(1, "a"));
-        drainTasks();
         assertThat(mTracker.mObserverMap.size(), is(1));
         mTracker.removeObserver(observer);
-        drainTasks();
         assertThat(mTracker.mObserverMap.size(), is(0));
     }
 
@@ -241,9 +238,9 @@ public class InvalidationTrackerTest {
 
     @Test
     public void closedDb() {
+        doReturn(false).when(mRoomDatabase).isOpen();
         doThrow(new IllegalStateException("foo")).when(mOpenHelper).getWritableDatabase();
         mTracker.addObserver(new LatchObserver(1, "a", "b"));
-        mTracker.syncTriggers();
         mTracker.mRefreshRunnable.run();
     }
 

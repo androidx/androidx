@@ -17,10 +17,12 @@
 package android.arch.persistence.room.integration.testapp.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -39,6 +41,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
@@ -125,7 +128,18 @@ public class WriteAheadLoggingTest {
         LiveData<User> user1 = dao.liveUserById(1);
         Observer<User> observer = startObserver(user1);
         dao.insert(TestUtil.createUser(1));
-        verify(observer, timeout(30000).atLeastOnce())
+        verify(observer, timeout(3000).atLeastOnce())
+                .onChanged(argThat(user -> user != null && user.getId() == 1));
+        stopObserver(user1, observer);
+    }
+
+    @Test
+    public void observeLiveDataWithTransaction() {
+        UserDao dao = mDatabase.getUserDao();
+        LiveData<User> user1 = dao.liveUserByIdInTransaction(1);
+        Observer<User> observer = startObserver(user1);
+        dao.insert(TestUtil.createUser(1));
+        verify(observer, timeout(3000).atLeastOnce())
                 .onChanged(argThat(user -> user != null && user.getId() == 1));
         stopObserver(user1, observer);
     }
@@ -159,15 +173,12 @@ public class WriteAheadLoggingTest {
         final UserDao dao = mDatabase.getUserDao();
         final User user1 = TestUtil.createUser(1);
         dao.insert(user1);
-        Future<Boolean> future;
         try {
             mDatabase.beginTransaction();
             dao.delete(user1);
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            future = executor.submit(() -> {
-                assertThat(dao.load(1), is(equalTo(user1)));
-                return true;
-            });
+            Future<?> future = executor.submit(() ->
+                    assertThat(dao.load(1), is(equalTo(user1))));
             future.get();
             mDatabase.setTransactionSuccessful();
         } finally {
@@ -177,21 +188,52 @@ public class WriteAheadLoggingTest {
     }
 
     @Test
+    @LargeTest
+    public void observeInvalidationInBackground() throws InterruptedException, ExecutionException {
+        final UserDao dao = mDatabase.getUserDao();
+        final User user1 = TestUtil.createUser(1);
+        final CountDownLatch observerRegistered = new CountDownLatch(1);
+        final CountDownLatch onInvalidatedCalled = new CountDownLatch(1);
+        dao.insert(user1);
+        Future future;
+        try {
+            mDatabase.beginTransaction();
+            dao.delete(user1);
+            future = Executors.newSingleThreadExecutor().submit(() -> {
+                // Adding this observer will be blocked by the surrounding transaction.
+                mDatabase.getInvalidationTracker().addObserver(
+                        new InvalidationTracker.Observer("User") {
+                            @Override
+                            public void onInvalidated(@NonNull Set<String> tables) {
+                                onInvalidatedCalled.countDown(); // This should not happen
+                            }
+                        });
+                observerRegistered.countDown();
+            });
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            assertThat(observerRegistered.getCount(), is(1L));
+            mDatabase.endTransaction();
+        }
+        assertThat(dao.count(), is(0));
+        assertThat(observerRegistered.await(3000, TimeUnit.MILLISECONDS), is(true));
+        future.get();
+        assertThat(onInvalidatedCalled.await(500, TimeUnit.MILLISECONDS), is(false));
+    }
+
+    @Test
     public void invalidation() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         mDatabase.getInvalidationTracker().addObserver(new InvalidationTracker.Observer("User") {
             @Override
             public void onInvalidated(@NonNull Set<String> tables) {
+                assertThat(tables, hasSize(1));
+                assertThat(tables, hasItem("User"));
                 latch.countDown();
             }
         });
         mDatabase.getUserDao().insert(TestUtil.createUser(1));
-        latch.await(3000, TimeUnit.MILLISECONDS);
-        for (int i = 0; i < 10; i++) {
-            // This can (occasionally) detect if there is an recursive loop in InvalidationTracker
-            // invalidating itself by running its refresh query in a transaction.
-            assertThat(mDatabase.inTransaction(), is(false));
-        }
+        assertThat(latch.await(3000, TimeUnit.MILLISECONDS), is(true));
     }
 
     private static <T> Observer<T> startObserver(LiveData<T> liveData) {
