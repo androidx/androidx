@@ -39,6 +39,8 @@ import android.print.PrintDocumentInfo;
 import android.print.PrintManager;
 import android.print.pdf.PrintedPdfDocument;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
@@ -136,9 +138,11 @@ public final class PrintHelper {
 
         int getOrientation();
 
-        void printBitmap(String jobName, Bitmap bitmap, OnPrintFinishCallback callback);
+        void printBitmap(@NonNull String jobName, @NonNull Bitmap bitmap,
+                @Nullable OnPrintFinishCallback callback);
 
-        void printBitmap(String jobName, Uri imageFile, OnPrintFinishCallback callback)
+        void printBitmap(@NonNull String jobName, @NonNull Uri imageFile,
+                @Nullable OnPrintFinishCallback callback)
                 throws FileNotFoundException;
     }
 
@@ -885,7 +889,7 @@ public final class PrintHelper {
      *
      * @param context A context for accessing system resources.
      */
-    public PrintHelper(Context context) {
+    public PrintHelper(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
             mImpl = new PrintHelperApi24(context);
         } else if (Build.VERSION.SDK_INT >= 23) {
@@ -975,7 +979,7 @@ public final class PrintHelper {
      * @param jobName The print job name.
      * @param bitmap  The bitmap to print.
      */
-    public void printBitmap(String jobName, Bitmap bitmap) {
+    public void printBitmap(@NonNull String jobName, @NonNull Bitmap bitmap) {
         mImpl.printBitmap(jobName, bitmap, null);
     }
 
@@ -986,7 +990,8 @@ public final class PrintHelper {
      * @param bitmap  The bitmap to print.
      * @param callback Optional callback to observe when printing is finished.
      */
-    public void printBitmap(String jobName, Bitmap bitmap, OnPrintFinishCallback callback) {
+    public void printBitmap(@NonNull String jobName, @NonNull Bitmap bitmap,
+            @Nullable OnPrintFinishCallback callback) {
         mImpl.printBitmap(jobName, bitmap, callback);
     }
 
@@ -999,7 +1004,8 @@ public final class PrintHelper {
      * @param imageFile The <code>Uri</code> pointing to an image to print.
      * @throws FileNotFoundException if <code>Uri</code> is not pointing to a valid image.
      */
-    public void printBitmap(String jobName, Uri imageFile) throws FileNotFoundException {
+    public void printBitmap(@NonNull String jobName, @NonNull Uri imageFile)
+            throws FileNotFoundException {
         mImpl.printBitmap(jobName, imageFile, null);
     }
 
@@ -1013,7 +1019,8 @@ public final class PrintHelper {
      * @throws FileNotFoundException if <code>Uri</code> is not pointing to a valid image.
      * @param callback Optional callback to observe when printing is finished.
      */
-    public void printBitmap(String jobName, Uri imageFile, OnPrintFinishCallback callback)
+    public void printBitmap(@NonNull String jobName, @NonNull Uri imageFile,
+            @Nullable OnPrintFinishCallback callback)
             throws FileNotFoundException {
         mImpl.printBitmap(jobName, imageFile, callback);
     }
