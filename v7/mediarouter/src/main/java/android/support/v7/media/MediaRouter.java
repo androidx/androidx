@@ -1632,14 +1632,19 @@ public final class MediaRouter {
                 if (descriptor != null) {
                     List<String> groupMemberIds = descriptor.getGroupMemberIds();
                     List<RouteInfo> routes = new ArrayList<>();
-                    changed = groupMemberIds.size() != mRoutes.size();
-                    for (String groupMemberId : groupMemberIds) {
-                        String uniqueId = sGlobal.getUniqueId(getProvider(), groupMemberId);
-                        RouteInfo groupMember = sGlobal.getRoute(uniqueId);
-                        if (groupMember != null) {
-                            routes.add(groupMember);
-                            if (!changed && !mRoutes.contains(groupMember)) {
-                                changed = true;
+                    if (groupMemberIds == null) {
+                        Log.w(TAG, "groupMemberIds shouldn't be null.");
+                        changed = true;
+                    } else {
+                        changed = groupMemberIds.size() != mRoutes.size();
+                        for (String groupMemberId : groupMemberIds) {
+                            String uniqueId = sGlobal.getUniqueId(getProvider(), groupMemberId);
+                            RouteInfo groupMember = sGlobal.getRoute(uniqueId);
+                            if (groupMember != null) {
+                                routes.add(groupMember);
+                                if (!changed && !mRoutes.contains(groupMember)) {
+                                    changed = true;
+                                }
                             }
                         }
                     }
@@ -2289,10 +2294,10 @@ public final class MediaRouter {
                             final MediaRouteDescriptor routeDescriptor = routeDescriptors.get(i);
                             final String id = routeDescriptor.getId();
                             final int sourceIndex = provider.findRouteByDescriptorId(id);
+                            boolean isGroup = routeDescriptor.getGroupMemberIds() != null;
                             if (sourceIndex < 0) {
                                 // 1. Add the route to the list.
                                 String uniqueId = assignRouteUniqueId(provider, id);
-                                boolean isGroup = routeDescriptor.getGroupMemberIds() != null;
                                 RouteInfo route = isGroup ? new RouteGroup(provider, id, uniqueId) :
                                         new RouteInfo(provider, id, uniqueId);
                                 provider.mRoutes.add(targetIndex++, route);
@@ -2313,15 +2318,22 @@ public final class MediaRouter {
                                 Log.w(TAG, "Ignoring route descriptor with duplicate id: "
                                         + routeDescriptor);
                             } else {
-                                // 1. Reorder the route within the list.
                                 RouteInfo route = provider.mRoutes.get(sourceIndex);
+                                // 1. Replace route if a group route becomes a normal route
+                                // or vice versa.
+                                if ((route instanceof RouteGroup) != isGroup) {
+                                    route = isGroup ? new RouteGroup(provider, id, route.getId()) :
+                                            new RouteInfo(provider, id, route.getId());
+                                    provider.mRoutes.set(sourceIndex, route);
+                                }
+                                // 2. Reorder the route within the list.
                                 Collections.swap(provider.mRoutes,
                                         sourceIndex, targetIndex++);
-                                // 2. Update the route's contents.
+                                // 3. Update the route's contents.
                                 if (route instanceof RouteGroup) {
                                     updatedGroups.add(new Pair<>(route, routeDescriptor));
                                 } else {
-                                    // 3. Notify clients about changes.
+                                    // 4. Notify clients about changes.
                                     if (updateRouteDescriptorAndNotify(route, routeDescriptor)
                                             != 0) {
                                         if (route == mSelectedRoute) {
