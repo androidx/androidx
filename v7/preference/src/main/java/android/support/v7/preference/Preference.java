@@ -323,6 +323,9 @@ public class Preference implements Comparable<Preference> {
         mIconSpaceReserved = TypedArrayUtils.getBoolean(a, R.styleable.Preference_iconSpaceReserved,
                 R.styleable.Preference_android_iconSpaceReserved, false);
 
+        mVisible = TypedArrayUtils.getBoolean(a, R.styleable.Preference_isPreferenceVisible,
+                R.styleable.Preference_isPreferenceVisible, true);
+
         a.recycle();
     }
 
@@ -871,6 +874,8 @@ public class Preference implements Comparable<Preference> {
      * {@link PreferenceFragmentCompat#findPreference(CharSequence)}.
      *
      * @param visible Set false if this preference should be hidden from the list.
+     *
+     * @attr ref R.styleable#Preference_isPreferenceVisible
      */
     public final void setVisible(boolean visible) {
         if (mVisible != visible) {
