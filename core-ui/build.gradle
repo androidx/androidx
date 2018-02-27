@@ -24,7 +24,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_support)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation project(':support-testutils'), {
+    androidTestImplementation project(':internal-testutils'), {
         exclude group: 'com.android.support', module: 'support-core-ui'
     }
 

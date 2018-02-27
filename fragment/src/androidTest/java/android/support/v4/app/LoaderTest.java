@@ -32,8 +32,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.testutils.FragmentActivityUtils;
-import android.support.testutils.RecreatedActivity;
 import android.support.v4.app.test.LoaderActivity;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -45,6 +43,9 @@ import org.junit.runner.RunWith;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import androidx.testutils.FragmentActivityUtils;
+import androidx.testutils.RecreatedActivity;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest

@@ -16,8 +16,9 @@
 
 package android.support.v4.app.test;
 
-import android.support.testutils.RecreatedActivity;
 import android.support.v4.app.Fragment;
+
+import androidx.testutils.RecreatedActivity;
 
 public class NonConfigOnStopActivity extends RecreatedActivity {
     @Override

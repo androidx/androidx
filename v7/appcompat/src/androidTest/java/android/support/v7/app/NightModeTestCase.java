@@ -30,8 +30,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.testutils.AppCompatActivityUtils;
-import android.support.testutils.RecreatedAppCompatActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.appcompat.test.R;
 
@@ -42,6 +40,9 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import androidx.testutils.AppCompatActivityUtils;
+import androidx.testutils.RecreatedAppCompatActivity;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)

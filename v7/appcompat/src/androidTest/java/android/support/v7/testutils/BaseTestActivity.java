@@ -19,7 +19,6 @@ package android.support.v7.testutils;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.testutils.RecreatedAppCompatActivity;
 import android.support.v7.app.AppCompatCallback;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.view.ActionMode;
@@ -27,6 +26,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+
+import androidx.testutils.RecreatedAppCompatActivity;
 
 public abstract class BaseTestActivity extends RecreatedAppCompatActivity {
 

@@ -30,7 +30,6 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.Suppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.testutils.PollingCheck;
 import android.support.text.emoji.test.R;
 import android.support.text.emoji.util.KeyboardUtil;
 import android.support.text.emoji.util.TestString;
@@ -43,6 +42,8 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import androidx.testutils.PollingCheck;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)

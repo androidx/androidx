@@ -18,8 +18,9 @@ package android.support.design.widget;
 
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.testutils.RecreatedActivity;
 import android.view.WindowManager;
+
+import androidx.testutils.RecreatedActivity;
 
 abstract class BaseTestActivity extends RecreatedActivity {
 

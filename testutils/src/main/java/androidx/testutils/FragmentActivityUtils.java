@@ -13,33 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.support.testutils;
+package androidx.testutils;
 
 import static org.junit.Assert.assertTrue;
 
+import android.app.Activity;
 import android.os.Looper;
 import android.support.test.rule.ActivityTestRule;
+import android.support.v4.app.FragmentActivity;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Utility methods for testing AppCompat activities.
+ * Utility methods for testing fragment activities.
  */
-public class AppCompatActivityUtils {
+public class FragmentActivityUtils {
     private static final Runnable DO_NOTHING = new Runnable() {
         @Override
         public void run() {
         }
     };
 
-    /**
-     * Waits for the execution of the provided activity test rule.
-     *
-     * @param rule Activity test rule to wait for.
-     */
-    public static void waitForExecution(
-            final ActivityTestRule<? extends RecreatedAppCompatActivity> rule) {
+    private static void waitForExecution(final ActivityTestRule<? extends FragmentActivity> rule) {
         // Wait for two cycles. When starting a postponed transition, it will post to
         // the UI thread and then the execution will be added onto the queue after that.
         // The two-cycle wait makes sure fragments have the opportunity to complete both
@@ -52,8 +48,8 @@ public class AppCompatActivityUtils {
         }
     }
 
-    private static void runOnUiThreadRethrow(
-            ActivityTestRule<? extends RecreatedAppCompatActivity> rule, Runnable r) {
+    private static void runOnUiThreadRethrow(ActivityTestRule<? extends Activity> rule,
+            Runnable r) {
         if (Looper.getMainLooper() == Looper.myLooper()) {
             r.run();
         } else {
@@ -66,16 +62,16 @@ public class AppCompatActivityUtils {
     }
 
     /**
-     * Restarts the RecreatedAppCompatActivity and waits for the new activity to be resumed.
+     * Restarts the RecreatedActivity and waits for the new activity to be resumed.
      *
-     * @return The newly-restarted RecreatedAppCompatActivity
+     * @return The newly-restarted Activity
      */
-    public static <T extends RecreatedAppCompatActivity> T recreateActivity(
-            ActivityTestRule<? extends RecreatedAppCompatActivity> rule, final T activity)
+    public static <T extends RecreatedActivity> T recreateActivity(
+            ActivityTestRule<? extends RecreatedActivity> rule, final T activity)
             throws InterruptedException {
         // Now switch the orientation
-        RecreatedAppCompatActivity.sResumed = new CountDownLatch(1);
-        RecreatedAppCompatActivity.sDestroyed = new CountDownLatch(1);
+        RecreatedActivity.sResumed = new CountDownLatch(1);
+        RecreatedActivity.sDestroyed = new CountDownLatch(1);
 
         runOnUiThreadRethrow(rule, new Runnable() {
             @Override
@@ -83,13 +79,13 @@ public class AppCompatActivityUtils {
                 activity.recreate();
             }
         });
-        assertTrue(RecreatedAppCompatActivity.sResumed.await(1, TimeUnit.SECONDS));
-        assertTrue(RecreatedAppCompatActivity.sDestroyed.await(1, TimeUnit.SECONDS));
-        T newActivity = (T) RecreatedAppCompatActivity.sActivity;
+        assertTrue(RecreatedActivity.sResumed.await(1, TimeUnit.SECONDS));
+        assertTrue(RecreatedActivity.sDestroyed.await(1, TimeUnit.SECONDS));
+        T newActivity = (T) RecreatedActivity.sActivity;
 
         waitForExecution(rule);
 
-        RecreatedAppCompatActivity.clearState();
+        RecreatedActivity.clearState();
         return newActivity;
     }
 }
