@@ -16,8 +16,11 @@
 
 package androidx.car.utils;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 import android.text.InputFilter;
 import android.widget.TextView;
 
@@ -29,7 +32,10 @@ import androidx.car.R;
 
 /**
  * Utility class that helps {@code View}s comply with {@link CarUxRestrictions}.
+ *
+ * @hide
  */
+@RestrictTo(LIBRARY_GROUP)
 public class CarUxRestrictionsUtils {
 
     private CarUxRestrictionsUtils() {};
