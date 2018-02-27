@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import static android.support.dependencies.DependenciesKt.*
+import static androidx.build.dependencies.DependenciesKt.*
 
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
