@@ -221,6 +221,6 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
          *
          * @param restrictions current car UX restrictions.
          */
-        public abstract void complyWithUxRestrictions(CarUxRestrictions restrictions);
+        abstract void complyWithUxRestrictions(CarUxRestrictions restrictions);
     }
 }
