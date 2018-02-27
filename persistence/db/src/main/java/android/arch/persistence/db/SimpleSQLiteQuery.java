@@ -96,6 +96,8 @@ public final class SimpleSQLiteQuery implements SupportSQLiteQuery {
             statement.bindLong(index, (Byte) arg);
         } else if (arg instanceof String) {
             statement.bindString(index, (String) arg);
+        } else if (arg instanceof Boolean) {
+            statement.bindLong(index, ((Boolean) arg) ? 1 : 0);
         } else {
             throw new IllegalArgumentException("Cannot bind " + arg + " at index " + index
                     + " Supported types: null, byte[], float, double, long, int, short, byte,"
