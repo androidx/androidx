@@ -30,7 +30,9 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -49,6 +51,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -134,6 +137,20 @@ public final class PagedListViewTest {
                 mPagedListView.setMaxPages(PagedListView.ItemCap.UNLIMITED);
                 mPagedListView.setAdapter(
                         new TestAdapter(itemCount, mPagedListView.getMeasuredHeight()));
+            });
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            throw new RuntimeException(throwable);
+        }
+    }
+
+    /** Sets up {@link #mPagedListView} with given items. */
+    private void setupPagedListView(List<ListItem> items) {
+        try {
+            mActivityRule.runOnUiThread(() -> {
+                mPagedListView.setMaxPages(PagedListView.ItemCap.UNLIMITED);
+                mPagedListView.setAdapter(new ListItemAdapter(mActivity,
+                        new ListItemProvider.ListProvider(items)));
             });
         } catch (Throwable throwable) {
             throwable.printStackTrace();
@@ -514,6 +531,124 @@ public final class PagedListViewTest {
             assertThat(mPagedListView.getRecyclerView().getChildAt(i + SPAN_COUNT).getTop(),
                     is(equalTo(mPagedListView.getRecyclerView().getChildAt(i).getBottom())));
         }
+    }
+
+    @Test
+    public void testPageDownScrollsOverLongItem() throws Throwable {
+        // Verifies that page down button gradually steps over item longer than parent size.
+        TextListItem item;
+        List<ListItem> items = new ArrayList<>();
+
+        // Need enough items on both ends of long item so long item is not immediately shown.
+        int fillerItemCount = ITEMS_PER_PAGE * 6;
+        for (int i = 0; i < fillerItemCount; i++) {
+            item = new TextListItem(mActivity);
+            item.setTitle("title " + i);
+            items.add(item);
+        }
+
+        int longItemPos = fillerItemCount / 2;
+        item = new TextListItem(mActivity);
+        item.setBody(mActivity.getResources().getString(R.string.longer_than_screen_size));
+        items.add(longItemPos, item);
+
+        setupPagedListView(items);
+
+        OrientationHelper orientationHelper = OrientationHelper.createVerticalHelper(
+                mPagedListView.getRecyclerView().getLayoutManager());
+
+        // Scroll to a position where long item is partially visible.
+        // Scrolling from top, scrollToPosition() either aligns the pos-1 item to bottom,
+        // or scrolls to the center of long item. So we hack a bit by scrolling the distance of one
+        // item height over pos-1 item.
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(longItemPos - 1));
+        // Scroll by the height of an item so the long item is partially visible.
+        mActivityRule.runOnUiThread(() -> mPagedListView.getRecyclerView().scrollBy(0,
+                mPagedListView.getRecyclerView().getChildAt(0).getHeight()));
+
+        // Verify long item is partially shown.
+        View longItem = findLongItem();
+        assertThat(orientationHelper.getDecoratedStart(longItem),
+                is(greaterThan(mPagedListView.getRecyclerView().getTop())));
+
+        onView(withId(R.id.page_down)).perform(click());
+
+        // Verify long item is snapped to top.
+        assertThat(orientationHelper.getDecoratedStart(longItem), is(equalTo(0)));
+        assertThat(orientationHelper.getDecoratedEnd(longItem),
+                is(greaterThan(mPagedListView.getBottom())));
+
+        // Set a limit to avoid test stuck in non-moving state.
+        int limit = 10;
+        for (int pageCount = 0; pageCount < limit
+                && orientationHelper.getDecoratedEnd(longItem)
+                > mPagedListView.getRecyclerView().getBottom();
+                pageCount++) {
+            onView(withId(R.id.page_down)).perform(click());
+        }
+        // Verify long item end is aligned to bottom.
+        assertThat(orientationHelper.getDecoratedEnd(longItem),
+                is(equalTo(mPagedListView.getHeight())));
+    }
+
+    @Test
+    public void testPageUpScrollsOverLongItem() throws Throwable {
+        // Verifies that page down button gradually steps over item longer than parent size.
+        TextListItem item;
+        List<ListItem> items = new ArrayList<>();
+
+        // Need enough items on both ends of long item so long item is not immediately shown.
+        int fillerItemCount = ITEMS_PER_PAGE * 6;
+        for (int i = 0; i < fillerItemCount; i++) {
+            item = new TextListItem(mActivity);
+            item.setTitle("title " + i);
+            items.add(item);
+        }
+
+        int longItemPos = fillerItemCount / 2;
+        item = new TextListItem(mActivity);
+        item.setBody(mActivity.getResources().getString(R.string.longer_than_screen_size));
+        items.add(longItemPos, item);
+
+        setupPagedListView(items);
+
+        OrientationHelper orientationHelper = OrientationHelper.createVerticalHelper(
+                mPagedListView.getRecyclerView().getLayoutManager());
+
+        // Scroll to a position where long item is partially shown.
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(longItemPos + 1));
+
+        // Verify long item is partially shown.
+        View longItem = findLongItem();
+        assertThat(orientationHelper.getDecoratedEnd(longItem),
+                is(greaterThan(mPagedListView.getRecyclerView().getTop())));
+
+        onView(withId(R.id.page_up)).perform(click());
+
+        // Verify long item is snapped to bottom.
+        assertThat(orientationHelper.getDecoratedEnd(longItem),
+                is(equalTo(mPagedListView.getHeight())));
+        assertThat(orientationHelper.getDecoratedStart(longItem), is(lessThan(0)));
+
+        // Set a limit to avoid test stuck in non-moving state.
+        int limit = 10;
+        for (int pageCount = 0; pageCount < limit
+                && orientationHelper.getDecoratedStart(longItem) < 0;
+                pageCount++) {
+            onView(withId(R.id.page_up)).perform(click());
+        }
+        // Verify long item top is aligned to top.
+        assertThat(orientationHelper.getDecoratedStart(longItem), is(equalTo(0)));
+    }
+
+    private View findLongItem() {
+        for (int i = 0; i < mPagedListView.getRecyclerView().getChildCount(); i++) {
+            View item = mPagedListView.getRecyclerView().getChildAt(i);
+            if (item.getHeight() > mPagedListView.getHeight()) {
+                return item;
+            }
+        }
+        return null;
     }
 
     private static String itemText(int index) {
