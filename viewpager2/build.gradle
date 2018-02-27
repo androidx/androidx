@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":support-core-utils"))
+    api(project(":support-fragment"))
     api(project(":recyclerview-v7"))
 
     androidTestImplementation(TEST_RUNNER)

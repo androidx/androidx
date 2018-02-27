@@ -19,15 +19,21 @@ package com.example.androidx.widget.viewpager2.cards;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 
+import android.os.Bundle;
+
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Playing card
  */
 public class Card {
+    private static final String ARGS_BUNDLE = Card.class.getName() + ":Bundle";
+
     private static final Set<Character> SUITS = unmodifiableSet(new LinkedHashSet<>(
-            asList('♦', /* diamonds*/ '♣', /*, clubs*/ '♥', /* hearts*/ '♠' /*spades*/)));
+            asList('♣' /* clubs*/, '♦' /* diamonds*/, '♥' /* hearts*/, '♠' /*spades*/)));
     private static final Set<Character> VALUES = unmodifiableSet(new LinkedHashSet<>(
             asList('2', '3', '4', '5', '6', '7', '8', '9', '⒑', 'J', 'Q', 'K', 'A')));
 
@@ -39,12 +45,25 @@ public class Card {
         this.mValue = checkValidValue(value, VALUES);
     }
 
-    public char getSuit() {
+    char getSuit() {
         return mSuit;
     }
 
-    public String getCornerLabel() {
+    String getCornerLabel() {
         return mValue + "\n" + mSuit;
+    }
+
+    /** Use in conjunction with {@link Card#fromBundle(Bundle)} */
+    public Bundle toBundle() {
+        Bundle args = new Bundle(1);
+        args.putCharArray(ARGS_BUNDLE, new char[]{mSuit, mValue});
+        return args;
+    }
+
+    /** Use in conjunction with {@link Card#toBundle()} */
+    public static Card fromBundle(Bundle bundle) {
+        char[] spec = bundle.getCharArray(ARGS_BUNDLE);
+        return new Card(spec[0], spec[1]);
     }
 
     private static char checkValidValue(char value, Set<Character> allowed) {
@@ -52,5 +71,21 @@ public class Card {
             return value;
         }
         throw new IllegalArgumentException("Illegal argument: " + value);
+    }
+
+    /**
+     * Creates a deck of all allowed cards
+     */
+    public static List<Card> createDeck52() {
+        List<Card> result = new ArrayList<>(52);
+        for (Character suit : SUITS) {
+            for (Character value : VALUES) {
+                result.add(new Card(suit, value));
+            }
+        }
+        if (result.size() != 52) {
+            throw new IllegalStateException();
+        }
+        return result;
     }
 }

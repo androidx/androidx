@@ -16,12 +16,12 @@
 
 package androidx.widget.viewpager2.tests;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
 import androidx.widget.viewpager2.test.R;
 
-public class TestActivity extends Activity {
+public class TestActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
