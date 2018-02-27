@@ -23,6 +23,9 @@ import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.PreviewPrograms;
 
+import java.util.Objects;
+import java.util.Set;
+
 /**
  * A convenience class to access {@link PreviewPrograms} entries in the system content
  * provider.
@@ -108,6 +111,23 @@ public final class PreviewProgram extends BasePreviewProgram {
         return mValues.equals(((PreviewProgram) other).mValues);
     }
 
+    /**
+     * Indicates whether some other PreviewProgram has any set attribute that is different from
+     * this PreviewProgram's respective attributes. An attribute is considered "set" if its key
+     * is present in the ContentValues vector.
+     */
+    public boolean hasAnyUpdatedValues(PreviewProgram update) {
+        Set<String> updateKeys = update.mValues.keySet();
+        for (String key : updateKeys) {
+            Object updateValue = update.mValues.get(key);
+            Object currValue = mValues.get(key);
+            if (!Objects.deepEquals(updateValue, currValue)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "PreviewProgram{" + mValues.toString() + "}";
@@ -164,7 +184,7 @@ public final class PreviewProgram extends BasePreviewProgram {
     }
 
     private static String[] getProjection() {
-        String[] oColumns = new String[] {
+        String[] oColumns = new String[]{
                 PreviewPrograms.COLUMN_CHANNEL_ID,
                 PreviewPrograms.COLUMN_WEIGHT,
         };
@@ -184,6 +204,7 @@ public final class PreviewProgram extends BasePreviewProgram {
 
         /**
          * Creates a new Builder object with values copied from another Program.
+         *
          * @param other The Program you're copying from.
          */
         public Builder(PreviewProgram other) {

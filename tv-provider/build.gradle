@@ -12,6 +12,7 @@ dependencies {
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
+    androidTestImplementation(MOCKITO_CORE)
 }
 
 supportLibrary {
