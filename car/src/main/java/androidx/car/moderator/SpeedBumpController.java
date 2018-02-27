@@ -245,8 +245,17 @@ class SpeedBumpController {
             try {
                 mCarUxRestrictionsManager = (CarUxRestrictionsManager)
                         mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
+
+                // Use explicit class definition instead of lambda. Using lambda makes compiler to
+                // desugar, which will lead to failure due to class definition not being available
+                // to dependencies at compile time (e.g. sample apk).
                 mCarUxRestrictionsManager.registerListener(
-                        SpeedBumpController.this::updateUnlimitedModeEnabled);
+                        new CarUxRestrictionsManager.onUxRestrictionsChangedListener() {
+                            @Override
+                            public void onUxRestrictionsChanged(CarUxRestrictions uxRestrictions) {
+                                updateUnlimitedModeEnabled(uxRestrictions);
+                            }
+                        });
 
                 updateUnlimitedModeEnabled(
                         mCarUxRestrictionsManager.getCurrentCarUxRestrictions());

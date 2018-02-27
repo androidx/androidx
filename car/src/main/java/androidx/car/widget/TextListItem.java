@@ -762,7 +762,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
          * @param restrictions current car UX restrictions.
          */
         @Override
-        public void complyWithUxRestrictions(CarUxRestrictions restrictions) {
+        void complyWithUxRestrictions(CarUxRestrictions restrictions) {
             CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getBody());
         }
 
