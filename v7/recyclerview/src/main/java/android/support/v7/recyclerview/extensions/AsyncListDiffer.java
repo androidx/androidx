@@ -240,6 +240,13 @@ public class AsyncListDiffer<T> {
                         return mConfig.getDiffCallback().areContentsTheSame(
                                 oldList.get(oldItemPosition), newList.get(newItemPosition));
                     }
+
+                    @Nullable
+                    @Override
+                    public Object getChangePayload(int oldItemPosition, int newItemPosition) {
+                        return mConfig.getDiffCallback().getChangePayload(
+                                oldList.get(oldItemPosition), newList.get(newItemPosition));
+                    }
                 });
 
                 mConfig.getMainThreadExecutor().execute(new Runnable() {
