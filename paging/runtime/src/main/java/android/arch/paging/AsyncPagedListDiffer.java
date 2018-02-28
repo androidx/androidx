@@ -63,7 +63,7 @@ import android.support.v7.widget.RecyclerView;
  *         super.onCreate(savedState);
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
- *         final UserAdapter&lt;User> adapter = new UserAdapter();
+ *         final UserAdapter adapter = new UserAdapter();
  *         viewModel.usersList.observe(this, pagedList -> adapter.submitList(pagedList));
  *         recyclerView.setAdapter(adapter);
  *     }
