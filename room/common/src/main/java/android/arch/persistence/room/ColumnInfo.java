@@ -17,6 +17,7 @@
 package android.arch.persistence.room;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.RequiresApi;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -146,12 +147,14 @@ public @interface ColumnInfo {
      *
      * @see #collate()
      */
+    @RequiresApi(21)
     int LOCALIZED = 5;
     /**
      * Collation sequence that uses Unicode Collation Algorithm.
      *
      * @see #collate()
      */
+    @RequiresApi(21)
     int UNICODE = 6;
 
     @IntDef({UNSPECIFIED, BINARY, NOCASE, RTRIM, LOCALIZED, UNICODE})
