@@ -36,8 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Objects;
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class DaoNameConflictTest {
@@ -89,14 +87,17 @@ public class DaoNameConflictTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Item1 item1 = (Item1) o;
-            return id == item1.id
-                    && Objects.equals(name, item1.name);
+
+            //noinspection SimplifiableIfStatement
+            if (id != item1.id) return false;
+            return name != null ? name.equals(item1.name) : item1.name == null;
         }
 
         @Override
         public int hashCode() {
-
-            return Objects.hash(id, name);
+            int result = id;
+            result = 31 * result + (name != null ? name.hashCode() : 0);
+            return result;
         }
     }
 
@@ -124,14 +125,17 @@ public class DaoNameConflictTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Item2 item2 = (Item2) o;
-            return id == item2.id
-                    && Objects.equals(name, item2.name);
+
+            //noinspection SimplifiableIfStatement
+            if (id != item2.id) return false;
+            return name != null ? name.equals(item2.name) : item2.name == null;
         }
 
         @Override
         public int hashCode() {
-
-            return Objects.hash(id, name);
+            int result = id;
+            result = 31 * result + (name != null ? name.hashCode() : 0);
+            return result;
         }
     }
 
