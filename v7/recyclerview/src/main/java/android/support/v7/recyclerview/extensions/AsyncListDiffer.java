@@ -198,19 +198,23 @@ public class AsyncListDiffer<T> {
         // incrementing generation means any currently-running diffs are discarded when they finish
         final int runGeneration = ++mMaxScheduledGeneration;
 
+        // fast simple remove all
         if (newList == null) {
             //noinspection ConstantConditions
-            mUpdateCallback.onRemoved(0, mList.size());
+            int countRemoved = mList.size();
             mList = null;
             mReadOnlyList = Collections.emptyList();
+            // notify last, after list is updated
+            mUpdateCallback.onRemoved(0, countRemoved);
             return;
         }
 
+        // fast simple first insert
         if (mList == null) {
-            // fast simple first insert
-            mUpdateCallback.onInserted(0, newList.size());
             mList = newList;
             mReadOnlyList = Collections.unmodifiableList(newList);
+            // notify last, after list is updated
+            mUpdateCallback.onInserted(0, newList.size());
             return;
         }
 
@@ -262,8 +266,9 @@ public class AsyncListDiffer<T> {
     }
 
     private void latchList(@NonNull List<T> newList, @NonNull DiffUtil.DiffResult diffResult) {
-        diffResult.dispatchUpdatesTo(mUpdateCallback);
         mList = newList;
+        // notify last, after list is updated
         mReadOnlyList = Collections.unmodifiableList(newList);
+        diffResult.dispatchUpdatesTo(mUpdateCallback);
     }
 }
