@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.widget;
+package androidx.viewpager2.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 

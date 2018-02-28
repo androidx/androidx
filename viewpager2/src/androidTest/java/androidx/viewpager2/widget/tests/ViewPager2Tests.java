@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.widget.viewpager2.tests;
+package androidx.viewpager2.widget.tests;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -70,8 +70,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import androidx.widget.ViewPager2;
-import androidx.widget.viewpager2.test.R;
+import androidx.viewpager2.test.R;
+import androidx.viewpager2.widget.ViewPager2;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -269,7 +269,7 @@ public class ViewPager2Tests {
 
     /**
      * Test added when caught a bug: after the last swipe: ArrayIndexOutOfBoundsException: length=5;
-     * index=-1 at androidx.widget.viewpager2.tests.ViewPager2Tests$PageFragment.onCreateView
+     * index=-1 at androidx.viewpager2.widget.tests.ViewPager2Tests$PageFragment.onCreateView
      * <p>
      * Bug was caused by always saving states of unattached fragments as null (even if there was a
      * valid previously saved state)

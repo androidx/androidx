@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.widget.viewpager2.tests;
+package androidx.viewpager2.widget.tests;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-import androidx.widget.viewpager2.test.R;
+import androidx.viewpager2.test.R;
 
 public class TestActivity extends FragmentActivity {
     @Override

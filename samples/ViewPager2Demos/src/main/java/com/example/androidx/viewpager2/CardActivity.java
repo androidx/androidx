@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.widget.viewpager2;
+package com.example.androidx.viewpager2;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -24,12 +24,12 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
-import com.example.androidx.widget.viewpager2.cards.Card;
-import com.example.androidx.widget.viewpager2.cards.CardView;
+import com.example.androidx.viewpager2.cards.Card;
+import com.example.androidx.viewpager2.cards.CardView;
 
 import java.util.List;
 
-import androidx.widget.ViewPager2;
+import androidx.viewpager2.widget.ViewPager2;
 
 /**
  * Shows how to use {@link ViewPager2#setAdapter(RecyclerView.Adapter)}

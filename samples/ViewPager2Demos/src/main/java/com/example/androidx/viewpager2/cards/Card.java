@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.widget.viewpager2.cards;
+package com.example.androidx.viewpager2.cards;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
