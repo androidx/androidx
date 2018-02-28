@@ -127,7 +127,7 @@ includeProject(":viewpager2-demos", new File(samplesRoot, "ViewPager2Demos"))
 //
 /////////////////////////////
 
-includeProject(":support-testutils", "testutils")
+includeProject(":internal-testutils", "testutils")
 
 /////////////////////////////
 //

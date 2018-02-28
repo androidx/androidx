@@ -39,7 +39,6 @@ import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.testutils.PollingCheck;
 import android.view.View;
 
 import org.junit.Before;
@@ -49,6 +48,8 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import androidx.testutils.PollingCheck;
 
 /**
  * Tests SwipeRefreshLayout widget.

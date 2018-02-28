@@ -14,7 +14,7 @@ dependencies {
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(project(":support-testutils"))
+    androidTestImplementation(project(":internal-testutils"))
 }
 
 supportLibrary {

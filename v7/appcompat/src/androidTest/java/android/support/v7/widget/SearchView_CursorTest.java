@@ -36,7 +36,6 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.testutils.PollingCheck;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.appcompat.test.R;
@@ -49,6 +48,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import androidx.testutils.PollingCheck;
 
 /**
  * Test {@link SearchView} with {@link Cursor}-backed suggestions adapter.

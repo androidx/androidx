@@ -56,7 +56,6 @@ import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.testutils.PollingCheck;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.test.R;
 import android.text.TextUtils;
@@ -79,6 +78,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import androidx.testutils.PollingCheck;
 
 @RunWith(AndroidJUnit4.class)
 public class PopupMenuTest {

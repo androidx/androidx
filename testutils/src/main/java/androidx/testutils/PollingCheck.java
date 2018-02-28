@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.testutils;
+package androidx.testutils;
 
 import org.junit.Assert;
 

@@ -26,7 +26,6 @@ import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.rule.ServiceTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.testutils.PollingCheck;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,6 +33,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeoutException;
+
+import androidx.testutils.PollingCheck;
 
 /**
  * Tests for {@link PostMessageServiceConnection} with no {@link CustomTabsService} component.

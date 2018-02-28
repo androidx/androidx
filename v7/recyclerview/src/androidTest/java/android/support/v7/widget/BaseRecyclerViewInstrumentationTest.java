@@ -36,7 +36,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
-import android.support.testutils.PollingCheck;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.recyclerview.test.R;
 import android.util.Log;
@@ -63,6 +62,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import androidx.testutils.PollingCheck;
+
 abstract public class BaseRecyclerViewInstrumentationTest {
 
     private static final String TAG = "RecyclerViewTest";
@@ -80,7 +81,8 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     Thread mInstrumentationThread;
 
     @Rule
-    public ActivityTestRule<TestActivity> mActivityRule = new ActivityTestRule(TestActivity.class);
+    public ActivityTestRule<TestActivity> mActivityRule =
+            new ActivityTestRule<>(TestActivity.class);
 
     public BaseRecyclerViewInstrumentationTest() {
         this(false);

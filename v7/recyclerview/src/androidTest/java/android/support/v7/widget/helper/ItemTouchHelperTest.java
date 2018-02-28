@@ -32,7 +32,6 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.testutils.PollingCheck;
 import android.support.v4.util.Pair;
 import android.support.v7.util.TouchUtils;
 import android.support.v7.widget.BaseRecyclerViewInstrumentationTest;
@@ -46,6 +45,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.testutils.PollingCheck;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
