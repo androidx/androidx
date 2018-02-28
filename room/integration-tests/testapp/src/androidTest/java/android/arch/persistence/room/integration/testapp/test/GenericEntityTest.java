@@ -37,8 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Objects;
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class GenericEntityTest {
@@ -98,14 +96,16 @@ public class GenericEntityTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Item<?, ?> item = (Item<?, ?>) o;
-            return Objects.equals(id, item.id)
-                    && Objects.equals(mField, item.mField);
+            //noinspection SimplifiableIfStatement
+            if (!id.equals(item.id)) return false;
+            return mField != null ? mField.equals(item.mField) : item.mField == null;
         }
 
         @Override
         public int hashCode() {
-
-            return Objects.hash(id, mField);
+            int result = id.hashCode();
+            result = 31 * result + (mField != null ? mField.hashCode() : 0);
+            return result;
         }
     }
 
@@ -128,14 +128,16 @@ public class GenericEntityTest {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            EntityItem item = (EntityItem) o;
-            return Objects.equals(name, item.name);
+            if (!super.equals(o)) return false;
+            EntityItem that = (EntityItem) o;
+            return name != null ? name.equals(that.name) : that.name == null;
         }
 
         @Override
         public int hashCode() {
-
-            return Objects.hash(name);
+            int result = super.hashCode();
+            result = 31 * result + (name != null ? name.hashCode() : 0);
+            return result;
         }
     }
 

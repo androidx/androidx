@@ -44,7 +44,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
-import java.util.Objects;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -88,13 +87,16 @@ public class RelationWithReservedKeywordTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Category category = (Category) o;
-            return id == category.id
-                    && Objects.equals(name, category.name);
+            //noinspection SimplifiableIfStatement
+            if (id != category.id) return false;
+            return name != null ? name.equals(category.name) : category.name == null;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, name);
+            int result = (int) (id ^ (id >>> 32));
+            result = 31 * result + (name != null ? name.hashCode() : 0);
+            return result;
         }
     }
 
@@ -161,14 +163,18 @@ public class RelationWithReservedKeywordTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Topic topic = (Topic) o;
-            return id == topic.id
-                    && categoryId == topic.categoryId
-                    && Objects.equals(to, topic.to);
+            if (id != topic.id) return false;
+            //noinspection SimplifiableIfStatement
+            if (categoryId != topic.categoryId) return false;
+            return to != null ? to.equals(topic.to) : topic.to == null;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, categoryId, to);
+            int result = (int) (id ^ (id >>> 32));
+            result = 31 * result + (int) (categoryId ^ (categoryId >>> 32));
+            result = 31 * result + (to != null ? to.hashCode() : 0);
+            return result;
         }
     }
 }
