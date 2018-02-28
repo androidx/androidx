@@ -26,7 +26,7 @@ dependencies {
     implementation(project(":slices-core"))
     implementation(project(":slices-builders"))
     implementation(project(":recyclerview-v7"))
-    api(ARCH_LIFECYCLE_EXTENSIONS, libs.exclude_annotations_transitive)
+    api(ARCH_LIFECYCLE_LIVEDATA_CORE, libs.exclude_annotations_transitive)
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
