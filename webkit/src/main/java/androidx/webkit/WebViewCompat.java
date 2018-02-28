@@ -25,7 +25,9 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresFeature;
 import androidx.core.os.BuildCompat;
+import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 import androidx.webkit.internal.WebViewProviderAdapter;
 import androidx.webkit.internal.WebViewProviderFactoryAdapter;
@@ -104,13 +106,22 @@ public class WebViewCompat {
      * {@link android.webkit.WebSettings#setOffscreenPreRaster} for more details and do consider its
      * caveats.
      *
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#VISUAL_STATE_CALLBACK}.
+     *
      * @param requestId An id that will be returned in the callback to allow callers to match
      *                  requests with callbacks.
      * @param callback  The callback to be invoked.
      */
+    @SuppressWarnings("NewApi")
+    @RequiresFeature(name = WebViewFeature.VISUAL_STATE_CALLBACK,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void postVisualStateCallback(@NonNull WebView webview, long requestId,
             @NonNull final VisualStateCallback callback) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        WebViewFeatureInternal webViewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.VISUAL_STATE_CALLBACK);
+        if (webViewFeature.isSupportedByFramework()) {
             webview.postVisualStateCallback(requestId,
                     new android.webkit.WebView.VisualStateCallback() {
                         @Override
@@ -118,10 +129,11 @@ public class WebViewCompat {
                             callback.onComplete(l);
                         }
                     });
-        } else {
-            // TODO(gsennton): guard with if WebViewApk.hasFeature(POSTVISUALSTATECALLBACK)
+        } else if (webViewFeature.isSupportedByWebView()) {
             checkThread(webview);
             getProvider(webview).insertVisualStateCallback(requestId, callback);
+        } else {
+            WebViewFeatureInternal.throwUnsupportedOperationException("postVisualStateCallback");
         }
     }
 
