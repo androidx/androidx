@@ -22,6 +22,7 @@ import android.support.v7.util.ListUpdateCallback
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -59,7 +60,7 @@ class AsyncListDifferTest {
     private val mMainThread = TestExecutor()
     private val mBackgroundThread = TestExecutor()
 
-    private fun <T> createHelper(listUpdateCallback: ListUpdateCallback,
+    private fun <T> createDiffer(listUpdateCallback: ListUpdateCallback,
             diffCallback: DiffUtil.ItemCallback<T>): AsyncListDiffer<T> {
         return AsyncListDiffer(listUpdateCallback,
                 AsyncDifferConfig.Builder<T>(diffCallback)
@@ -71,71 +72,71 @@ class AsyncListDifferTest {
     @Test
     fun initialState() {
         val callback = mock(ListUpdateCallback::class.java)
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
-        assertEquals(0, helper.currentList.size)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        assertEquals(0, differ.currentList.size)
         verifyZeroInteractions(callback)
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getEmpty() {
-        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.currentList[0]
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        differ.currentList[0]
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getNegative() {
-        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.submitList(listOf("a", "b"))
-        helper.currentList[-1]
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        differ.submitList(listOf("a", "b"))
+        differ.currentList[-1]
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getPastEnd() {
-        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.submitList(listOf("a", "b"))
-        helper.currentList[2]
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        differ.submitList(listOf("a", "b"))
+        differ.currentList[2]
     }
 
     fun getCurrentList() {
-        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
 
         // null is emptyList
-        assertSame(emptyList<String>(), helper.currentList)
+        assertSame(emptyList<String>(), differ.currentList)
 
         // other list is wrapped
         val list = listOf("a", "b")
-        helper.submitList(list)
-        assertEquals(list, helper.currentList)
-        assertNotSame(list, helper.currentList)
+        differ.submitList(list)
+        assertEquals(list, differ.currentList)
+        assertNotSame(list, differ.currentList)
 
         // null again, empty again
-        helper.submitList(null)
-        assertSame(emptyList<String>(), helper.currentList)
+        differ.submitList(null)
+        assertSame(emptyList<String>(), differ.currentList)
     }
 
     @Test(expected = UnsupportedOperationException::class)
     fun mutateCurrentListEmpty() {
-        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.currentList[0] = ""
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        differ.currentList[0] = ""
     }
 
     @Test(expected = UnsupportedOperationException::class)
     fun mutateCurrentListNonEmpty() {
-        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.submitList(listOf("a"))
-        helper.currentList[0] = ""
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        differ.submitList(listOf("a"))
+        differ.currentList[0] = ""
     }
 
     @Test
     fun submitListSimple() {
         val callback = mock(ListUpdateCallback::class.java)
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
 
-        helper.submitList(listOf("a", "b"))
+        differ.submitList(listOf("a", "b"))
 
-        assertEquals(2, helper.currentList.size)
-        assertEquals("a", helper.currentList[0])
-        assertEquals("b", helper.currentList[1])
+        assertEquals(2, differ.currentList.size)
+        assertEquals("a", differ.currentList[0])
+        assertEquals("b", differ.currentList[1])
 
         verify(callback).onInserted(0, 2)
         verifyNoMoreInteractions(callback)
@@ -146,24 +147,24 @@ class AsyncListDifferTest {
     @Test
     fun submitListUpdate() {
         val callback = mock(ListUpdateCallback::class.java)
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
 
         // initial list (immediate)
-        helper.submitList(listOf("a", "b"))
+        differ.submitList(listOf("a", "b"))
         verify(callback).onInserted(0, 2)
         verifyNoMoreInteractions(callback)
         drain()
         verifyNoMoreInteractions(callback)
 
         // update (deferred)
-        helper.submitList(listOf("a", "b", "c"))
+        differ.submitList(listOf("a", "b", "c"))
         verifyNoMoreInteractions(callback)
         drain()
         verify(callback).onInserted(2, 1)
         verifyNoMoreInteractions(callback)
 
         // clear (immediate)
-        helper.submitList(null)
+        differ.submitList(null)
         verify(callback).onRemoved(0, 3)
         verifyNoMoreInteractions(callback)
         drain()
@@ -173,15 +174,15 @@ class AsyncListDifferTest {
     @Test
     fun singleChangePayload() {
         val callback = mock(ListUpdateCallback::class.java)
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
 
-        helper.submitList(listOf("a", "b"))
+        differ.submitList(listOf("a", "b"))
         verify(callback).onInserted(0, 2)
         verifyNoMoreInteractions(callback)
         drain()
         verifyNoMoreInteractions(callback)
 
-        helper.submitList(listOf("a", "beta"))
+        differ.submitList(listOf("a", "beta"))
         verifyNoMoreInteractions(callback)
         drain()
         verify(callback).onChanged(1, 1, "eta")
@@ -191,20 +192,70 @@ class AsyncListDifferTest {
     @Test
     fun multiChangePayload() {
         val callback = mock(ListUpdateCallback::class.java)
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
 
-        helper.submitList(listOf("a", "b"))
+        differ.submitList(listOf("a", "b"))
         verify(callback).onInserted(0, 2)
         verifyNoMoreInteractions(callback)
         drain()
         verifyNoMoreInteractions(callback)
 
-        helper.submitList(listOf("alpha", "beta"))
+        differ.submitList(listOf("alpha", "beta"))
         verifyNoMoreInteractions(callback)
         drain()
         verify(callback).onChanged(1, 1, "eta")
         verify(callback).onChanged(0, 1, "lpha")
         verifyNoMoreInteractions(callback)
+    }
+
+    @Test
+    fun listUpdatedBeforeListUpdateCallbacks() {
+        // verify that itemCount is updated in the differ before dispatching ListUpdateCallbacks
+
+        val expectedCount = intArrayOf(0)
+        // provides access to differ, which must be constructed after callback
+        val differAccessor = arrayOf<AsyncListDiffer<*>?>(null)
+
+        val callback = object : ListUpdateCallback {
+
+            override fun onInserted(position: Int, count: Int) {
+                assertEquals(expectedCount[0], differAccessor[0]!!.currentList.size)
+            }
+
+            override fun onRemoved(position: Int, count: Int) {
+                assertEquals(expectedCount[0], differAccessor[0]!!.currentList.size)
+            }
+
+            override fun onMoved(fromPosition: Int, toPosition: Int) {
+                fail("not expected")
+            }
+
+            override fun onChanged(position: Int, count: Int, payload: Any?) {
+                fail("not expected")
+            }
+        }
+
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        differAccessor[0] = differ
+
+        // in the fast-add case...
+        expectedCount[0] = 3
+        assertEquals(0, differ.currentList.size)
+        differ.submitList(listOf("a", "b", "c"))
+        assertEquals(3, differ.currentList.size)
+
+        // in the slow, diff on BG thread case...
+        expectedCount[0] = 6
+        assertEquals(3, differ.currentList.size)
+        differ.submitList(listOf("a", "b", "c", "d", "e", "f"))
+        drain()
+        assertEquals(6, differ.currentList.size)
+
+        // and in the fast-remove case
+        expectedCount[0] = 0
+        assertEquals(6, differ.currentList.size)
+        differ.submitList(null)
+        assertEquals(0, differ.currentList.size)
     }
 
     private fun drain() {
