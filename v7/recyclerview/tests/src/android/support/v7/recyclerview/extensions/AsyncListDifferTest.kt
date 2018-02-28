@@ -170,6 +170,43 @@ class AsyncListDifferTest {
         verifyNoMoreInteractions(callback)
     }
 
+    @Test
+    fun singleChangePayload() {
+        val callback = mock(ListUpdateCallback::class.java)
+        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+
+        helper.submitList(listOf("a", "b"))
+        verify(callback).onInserted(0, 2)
+        verifyNoMoreInteractions(callback)
+        drain()
+        verifyNoMoreInteractions(callback)
+
+        helper.submitList(listOf("a", "beta"))
+        verifyNoMoreInteractions(callback)
+        drain()
+        verify(callback).onChanged(1, 1, "eta")
+        verifyNoMoreInteractions(callback)
+    }
+
+    @Test
+    fun multiChangePayload() {
+        val callback = mock(ListUpdateCallback::class.java)
+        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+
+        helper.submitList(listOf("a", "b"))
+        verify(callback).onInserted(0, 2)
+        verifyNoMoreInteractions(callback)
+        drain()
+        verifyNoMoreInteractions(callback)
+
+        helper.submitList(listOf("alpha", "beta"))
+        verifyNoMoreInteractions(callback)
+        drain()
+        verify(callback).onChanged(1, 1, "eta")
+        verify(callback).onChanged(0, 1, "lpha")
+        verifyNoMoreInteractions(callback)
+    }
+
     private fun drain() {
         var executed: Boolean
         do {
@@ -181,11 +218,20 @@ class AsyncListDifferTest {
     companion object {
         private val STRING_DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-                return oldItem == newItem
+                // items are the same if first char is the same
+                return oldItem[0] == newItem[0]
             }
 
             override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
                 return oldItem == newItem
+            }
+
+            override fun getChangePayload(oldItem: String, newItem: String): Any? {
+                if (newItem.startsWith(oldItem)) {
+                    // new string is appended, return added portion on the end
+                    return newItem.subSequence(oldItem.length, newItem.length)
+                }
+                return null
             }
         }
 
