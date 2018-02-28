@@ -90,7 +90,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
 
         final String[] from = new String[]{"uri"};
         final int[] to = new int[]{android.R.id.text1};
-        mAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1,
+        mAdapter = new SimpleCursorAdapter(this, R.layout.simple_list_item_1,
                 null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         mSearchView.setSuggestionsAdapter(mAdapter);
         mSearchView.setIconifiedByDefault(false);

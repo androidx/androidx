@@ -69,6 +69,8 @@
             android:layout_margin="8dp"
             android:orientation="vertical"
             android:background="?android:attr/colorBackground"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:elevation="10dp" />
     </ScrollView>
 
