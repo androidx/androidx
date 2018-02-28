@@ -18,12 +18,6 @@ package androidx.heifwriter;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 
-import static androidx.heifwriter.HeifWriter.INPUT_MODE_BITMAP;
-import static androidx.heifwriter.HeifWriter.INPUT_MODE_BUFFER;
-import static androidx.heifwriter.HeifWriter.INPUT_MODE_SURFACE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.media.MediaExtractor;
@@ -34,12 +28,12 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
-import androidx.heifwriter.test.R;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
@@ -54,6 +48,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_BITMAP;
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_BUFFER;
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_SURFACE;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.heifwriter.test.R;
 
 /**
  * Test {@link HeifWriter}.
@@ -555,8 +557,12 @@ public class HeifWriterTest {
             MediaFormat format = extractor.getTrackFormat(0);
             int gridWidth = format.getInteger(MediaFormat.KEY_GRID_WIDTH);
             int gridHeight = format.getInteger(MediaFormat.KEY_GRID_HEIGHT);
-            assertEquals("Wrong grid width", 512, gridWidth);
-            assertEquals("Wrong grid height", 512, gridHeight);
+            int gridRows = format.getInteger(MediaFormat.KEY_GRID_ROWS);
+            int gridCols = format.getInteger(MediaFormat.KEY_GRID_COLS);
+            assertTrue("Wrong grid width or cols",
+                    ((width + gridWidth - 1) / gridWidth) == gridCols);
+            assertTrue("Wrong grid height or rows",
+                    ((height + gridHeight - 1) / gridHeight) == gridRows);
             extractor.release();
         }
     }
