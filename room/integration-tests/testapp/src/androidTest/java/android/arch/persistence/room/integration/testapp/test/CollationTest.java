@@ -27,6 +27,7 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -83,6 +84,7 @@ public class CollationTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 21)
     public void localized_asUnicode() {
         initDao(Locale.getDefault());
         List<CollateEntity> result = mDao.sortedByLocalizedAsUnicode();
@@ -101,6 +103,7 @@ public class CollationTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 21)
     public void unicode() {
         initDao(Locale.getDefault());
         List<CollateEntity> result = mDao.sortedByUnicode();
