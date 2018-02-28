@@ -48,7 +48,7 @@ public class SliceCreator {
             "com.example.androidx.slice.action.TOAST";
     public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
 
-    public static final String[] URI_PATHS = {"message", "wifi", "note", "ride", "toggle",
+    public static final String[] URI_PATHS = {"message", "wifi", "wifi2", "note", "ride", "toggle",
             "toggle2", "contact", "gallery", "weather"};
 
     private final Context mContext;
@@ -78,7 +78,9 @@ public class SliceCreator {
             case "/message":
                 return createMessagingSlice(sliceUri);
             case "/wifi":
-                return createWifiSlice(sliceUri);
+                return createWifiSlice(sliceUri, false /* customSeeMore */);
+            case "/wifi2":
+                return createWifiSlice(sliceUri, true /* customSeeMore */);
             case "/note":
                 return createNoteSlice(sliceUri);
             case "/ride":
@@ -283,7 +285,7 @@ public class SliceCreator {
                 .build();
     }
 
-    private Slice createWifiSlice(Uri sliceUri) {
+    private Slice createWifiSlice(Uri sliceUri, boolean customSeeMore) {
         // Get wifi state
         WifiManager wifiManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
         int wifiState = wifiManager.getWifiState();
@@ -305,18 +307,46 @@ public class SliceCreator {
                 break;
         }
         boolean finalWifiEnabled = wifiEnabled;
-        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri);
         SliceAction primaryAction = new SliceAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
                 Icon.createWithResource(getContext(), R.drawable.ic_wifi), "Wi-fi Settings");
-        return b.setColor(0xff4285f4)
-                .addRow(new ListBuilder.RowBuilder(b)
-                    .setTitle("Wi-fi")
-                    .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_wifi))
-                    .setSubtitle(state)
-                        .addEndItem(new SliceAction(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
-                                "Toggle wifi", finalWifiEnabled))
-                    .setPrimaryAction(primaryAction))
-            .build();
+        lb.setColor(0xff4285f4);
+        lb.addRow(new ListBuilder.RowBuilder(lb)
+                .setTitle("Wi-fi")
+                .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_wifi))
+                .setSubtitle(state)
+                .addEndItem(new SliceAction(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
+                        "Toggle wifi", finalWifiEnabled))
+                .setPrimaryAction(primaryAction));
+
+        // Add fake wifi networks
+        int[] wifiIcons = new int[] {R.drawable.ic_wifi_full, R.drawable.ic_wifi_low,
+                R.drawable.ic_wifi_fair};
+        for (int i = 0; i < 10; i++) {
+            final int iconId = wifiIcons[i % wifiIcons.length];
+            Icon icon = Icon.createWithResource(getContext(), iconId);
+            final String networkName = "Network" + i;
+            ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb);
+            rb.setTitleItem(icon)
+                    .setTitle("Network" + networkName);
+            boolean locked = i % 3 == 0;
+            if (locked) {
+                rb.addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_lock));
+            }
+            String message = locked ? "Open wifi password dialog" : "Connect to " + networkName;
+            rb.setPrimaryAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, message), icon,
+                    message));
+            lb.addRow(rb);
+        }
+        if (customSeeMore) {
+            lb.addSeeMoreRow(new ListBuilder.RowBuilder(lb)
+                    .setTitle("See all available networks")
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_right_caret))
+                    .setPrimaryAction(primaryAction));
+        } else {
+            lb.addSeeMoreAction(primaryAction.getAction());
+        }
+        return lb.build();
     }
 
     private PendingIntent getIntent(String action) {

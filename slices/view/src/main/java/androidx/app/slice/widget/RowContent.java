@@ -17,6 +17,7 @@
 package androidx.app.slice.widget;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
@@ -31,6 +32,7 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static androidx.app.slice.core.SliceHints.SUBTYPE_RANGE;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
@@ -52,6 +54,7 @@ public class RowContent {
     private static final String TAG = "RowContent";
 
     private SliceItem mPrimaryAction;
+    private SliceItem mRowSlice;
     private SliceItem mStartItem;
     private SliceItem mTitleItem;
     private SliceItem mSubtitleItem;
@@ -75,6 +78,7 @@ public class RowContent {
      */
     public void reset() {
         mPrimaryAction = null;
+        mRowSlice = null;
         mStartItem = null;
         mTitleItem = null;
         mSubtitleItem = null;
@@ -89,6 +93,7 @@ public class RowContent {
     private boolean populate(SliceItem rowSlice, boolean isHeader) {
         reset();
         mIsHeader = isHeader;
+        mRowSlice = rowSlice;
         if (!isValidRow(rowSlice)) {
             Log.w(TAG, "Provided SliceItem is invalid for RowContent");
             return false;
@@ -173,6 +178,14 @@ public class RowContent {
     }
 
     /**
+     * @return the {@link SliceItem} used to populate this row.
+     */
+    @NonNull
+    public SliceItem getSlice() {
+        return mRowSlice;
+    }
+
+    /**
      * @return the {@link SliceItem} representing the range in the row; can be null.
      */
     @Nullable
@@ -181,30 +194,32 @@ public class RowContent {
     }
 
     /**
-     * @return whether this row has content that is valid to display.
+     * @return the {@link SliceItem} used for the main intent for this row; can be null.
      */
-    public boolean isValid() {
-        return mStartItem != null
-                || mTitleItem != null
-                || mSubtitleItem != null
-                || mEndItems.size() > 0;
-    }
-
     @Nullable
     public SliceItem getPrimaryAction() {
         return mPrimaryAction;
     }
 
+    /**
+     * @return the {@link SliceItem} to display at the start of this row; can be null.
+     */
     @Nullable
     public SliceItem getStartItem() {
         return mIsHeader ? null : mStartItem;
     }
 
+    /**
+     * @return the {@link SliceItem} representing the title text for this row; can be null.
+     */
     @Nullable
     public SliceItem getTitleItem() {
         return mTitleItem;
     }
 
+    /**
+     * @return the {@link SliceItem} representing the subtitle text for this row; can be null.
+     */
     @Nullable
     public SliceItem getSubtitleItem() {
         return mSubtitleItem;
@@ -215,6 +230,9 @@ public class RowContent {
         return mSummaryItem == null ? mSubtitleItem : mSummaryItem;
     }
 
+    /**
+     * @return the list of {@link SliceItem} that can be shown as items at the end of the row.
+     */
     public ArrayList<SliceItem> getEndItems() {
         return mEndItems;
     }
@@ -254,6 +272,26 @@ public class RowContent {
     }
 
     /**
+     * @return whether this row content represents a default see more item.
+     */
+    public boolean isDefaultSeeMore() {
+        return FORMAT_ACTION.equals(mRowSlice.getFormat())
+                && mRowSlice.getSlice().hasHint(HINT_SEE_MORE)
+                && mRowSlice.getSlice().getItems().isEmpty();
+    }
+
+    /**
+     * @return whether this row has content that is valid to display.
+     */
+    public boolean isValid() {
+        return mStartItem != null
+                || mTitleItem != null
+                || mSubtitleItem != null
+                || mEndItems.size() > 0
+                || isDefaultSeeMore();
+    }
+
+    /**
      * @return whether this is a valid item to use to populate a row of content.
      */
     private static boolean isValidRow(SliceItem rowSlice) {
@@ -270,10 +308,18 @@ public class RowContent {
                     return true;
                 }
             }
+            // Special case: default see more just has an action but no other items
+            if (rowSlice.hasHint(HINT_SEE_MORE) && rowItems.isEmpty()) {
+                return true;
+            }
         }
         return false;
     }
 
+    /**
+     * @return list of {@link SliceItem}s that are valid to display in a row according
+     * to {@link #isValidRowContent(SliceItem, SliceItem)}.
+     */
     private static ArrayList<SliceItem> filterInvalidItems(SliceItem rowSlice) {
         ArrayList<SliceItem> filteredList = new ArrayList<>();
         for (SliceItem i : rowSlice.getSlice().getItems()) {

@@ -127,7 +127,13 @@ public class SliceRenderer {
         }
         mDoneLatch = new CountDownLatch(SliceCreator.URI_PATHS.length);
         for (String slice : SliceCreator.URI_PATHS) {
-            doRender(slice, new File(output, String.format("%s.png", slice)));
+            doRender(slice, new File(output, String.format("%s.png", slice)),
+                    true /* scrollable */);
+            if (slice.equals("wifi") || slice.equals("wifi2")) {
+                // Test scrolling
+                doRender(slice, new File(output, String.format("%s-no-scroll.png", slice)),
+                        false /* scrollable */);
+            }
         }
         Log.d(TAG, "Wrote render to " + output.getAbsolutePath());
         mContext.runOnUiThread(new Runnable() {
@@ -142,7 +148,7 @@ public class SliceRenderer {
         }
     }
 
-    private void doRender(final String slice, final File file) {
+    private void doRender(final String slice, final File file, final boolean scrollable) {
         Log.d(TAG, "Rendering " + slice + " to " + file.getAbsolutePath());
 
         final Slice s = mSliceCreator.onBindSlice(SliceCreator.getUri(slice, mContext));
@@ -154,6 +160,7 @@ public class SliceRenderer {
                 mSV1.setSlice(s);
                 mSV2.setSlice(s);
                 mSV3.setSlice(s);
+                mSV3.setScrollable(scrollable);
                 mSV1.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                     @Override
                     public void onLayoutChange(View v, int left, int top, int right, int bottom,
