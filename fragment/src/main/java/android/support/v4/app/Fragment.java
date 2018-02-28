@@ -302,7 +302,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Thrown by {@link Fragment#instantiate(Context, String, Bundle)} when
      * there is an instantiation failure.
      */
-    static public class InstantiationException extends RuntimeException {
+    @SuppressWarnings("JavaLangClash")
+    public static class InstantiationException extends RuntimeException {
         public InstantiationException(String msg, Exception cause) {
             super(msg, cause);
         }
