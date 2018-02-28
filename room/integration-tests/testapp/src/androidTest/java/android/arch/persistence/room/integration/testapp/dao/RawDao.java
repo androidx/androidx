@@ -51,6 +51,8 @@ public interface RawDao {
     List<UserAndPet> getUserAndPetList(String query);
     @RawQuery(observedEntities = User.class)
     LiveData<User> getUserLiveData(String query);
+    @RawQuery(observedEntities = User.class)
+    LiveData<User> getUserLiveData(SupportSQLiteQuery query);
     @RawQuery
     UserNameAndBirthday getUserAndBirthday(String query);
     class UserNameAndBirthday {
