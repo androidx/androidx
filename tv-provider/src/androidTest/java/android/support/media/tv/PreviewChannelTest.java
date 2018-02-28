@@ -65,6 +65,9 @@ public class PreviewChannelTest extends TestCase {
 
     @After
     public void tearDown() {
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
         ContentResolver resolver = mContext.getContentResolver();
         resolver.delete(Channels.CONTENT_URI, null, null);
         mContext = null;
