@@ -55,7 +55,8 @@ public class EventInfo {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
-            ACTION_TYPE_TOGGLE, ACTION_TYPE_BUTTON, ACTION_TYPE_SLIDER, ACTION_TYPE_CONTENT
+            ACTION_TYPE_TOGGLE, ACTION_TYPE_BUTTON, ACTION_TYPE_SLIDER, ACTION_TYPE_CONTENT,
+            ACTION_TYPE_SEE_MORE
     })
     public @interface SliceActionType{}
 
@@ -78,6 +79,10 @@ public class EventInfo {
      * Indicates the event was a tap on the entire row.
      */
     public static final int ACTION_TYPE_CONTENT = 3;
+    /**
+     * Indicates the event was a tap on a see more button.
+     */
+    public static final int ACTION_TYPE_SEE_MORE = 4;
 
     /**
      * @hide
@@ -243,6 +248,8 @@ public class EventInfo {
                 return "SLIDER";
             case ACTION_TYPE_CONTENT:
                 return "CONTENT";
+            case ACTION_TYPE_SEE_MORE:
+                return "SEE MORE";
             default:
                 return "unknown action: " + action;
         }

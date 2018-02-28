@@ -44,6 +44,7 @@ package androidx.app.slice.widget {
     method public void setPosition(int, int, int);
     field public static final int ACTION_TYPE_BUTTON = 1; // 0x1
     field public static final int ACTION_TYPE_CONTENT = 3; // 0x3
+    field public static final int ACTION_TYPE_SEE_MORE = 4; // 0x4
     field public static final int ACTION_TYPE_SLIDER = 2; // 0x2
     field public static final int ACTION_TYPE_TOGGLE = 0; // 0x0
     field public static final int POSITION_CELL = 2; // 0x2
