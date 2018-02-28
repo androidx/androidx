@@ -32,8 +32,6 @@ import static androidx.slice.widget.SliceView.MODE_SMALL;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
-import androidx.annotation.ColorInt;
-import androidx.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
@@ -52,6 +50,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
@@ -211,7 +211,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         extraText.setText(getResources().getString(R.string.abc_slice_more_content, numExtra));
 
         // Make it clickable
-        EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_BUTTON,
+        EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_SEE_MORE,
                 EventInfo.ROW_TYPE_GRID, mRowIndex);
         info.setPosition(EventInfo.POSITION_CELL, index, total);
         Pair<SliceItem, EventInfo> tagItem = new Pair<>(seeMoreItem, info);
