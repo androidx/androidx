@@ -17,7 +17,6 @@
 package androidx.webkit;
 
 import android.support.test.InstrumentationRegistry;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 public class WebViewOnUiThread {
@@ -51,36 +50,7 @@ public class WebViewOnUiThread {
         });
     }
 
-    public WebSettings getSettings() {
-        return getValue(new ValueGetter<WebSettings>() {
-            @Override
-            public WebSettings capture() {
-                return mWebView.getSettings();
-            }
-        });
-    }
-
     public WebView getWebViewOnCurrentThread() {
         return mWebView;
-    }
-
-    private <T> T getValue(ValueGetter<T> getter) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(getter);
-        return getter.getValue();
-    }
-
-    private abstract class ValueGetter<T> implements Runnable {
-        private T mValue;
-
-        @Override
-        public void run() {
-            mValue = capture();
-        }
-
-        protected abstract T capture();
-
-        public T getValue() {
-            return mValue;
-        }
     }
 }
