@@ -16,8 +16,7 @@
 
 package android.arch.persistence.room.verifier
 
-import collect
-import columnNames
+import android.arch.persistence.room.parser.Collate
 import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.testing.TestInvocation
@@ -29,13 +28,15 @@ import android.arch.persistence.room.vo.Field
 import android.arch.persistence.room.vo.FieldGetter
 import android.arch.persistence.room.vo.FieldSetter
 import android.arch.persistence.room.vo.PrimaryKey
+import collect
+import columnNames
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import simpleRun
@@ -48,8 +49,8 @@ import javax.lang.model.type.PrimitiveType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
-@RunWith(JUnit4::class)
-class DatabaseVerifierTest {
+@RunWith(Parameterized::class)
+class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
     @Test
     fun testSimpleDatabase() {
         simpleRun { invocation ->
@@ -65,7 +66,7 @@ class DatabaseVerifierTest {
         }.compilesWithoutError()
     }
 
-    fun createVerifier(invocation: TestInvocation): DatabaseVerifier {
+    private fun createVerifier(invocation: TestInvocation): DatabaseVerifier {
         return DatabaseVerifier.create(invocation.context, mock(Element::class.java),
                 userDb(invocation.context).entities)!!
     }
@@ -162,6 +163,28 @@ class DatabaseVerifierTest {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun testCollate() {
+        validQueryTest("SELECT id, name FROM user ORDER BY name COLLATE LOCALIZED ASC") {
+            assertThat(it, `is`(
+                    QueryResultInfo(listOf(
+                            // unfortunately, we don't get this information
+                            ColumnInfo("id", SQLTypeAffinity.INTEGER),
+                            ColumnInfo("name", SQLTypeAffinity.TEXT)
+                    ))))
+        }
+    }
+
+    @Test
+    fun testCollateBasQuery() {
+        simpleRun { invocation ->
+            val verifier = createVerifier(invocation)
+            val (_, error) = verifier.analyze(
+                    "SELECT id, name FROM user ORDER BY name COLLATE LOCALIZEDASC")
+            assertThat(error, notNullValue())
+        }.compilesWithoutError()
+    }
+
     private fun validQueryTest(sql: String, cb: (QueryResultInfo) -> Unit) {
         simpleRun { invocation ->
             val verifier = createVerifier(invocation)
@@ -211,7 +234,12 @@ class DatabaseVerifierTest {
                 name = name,
                 type = type,
                 columnName = name,
-                affinity = affinity
+                affinity = affinity,
+                collate = if (useLocalizedCollation && affinity == SQLTypeAffinity.TEXT) {
+                    Collate.LOCALIZED
+                } else {
+                    null
+                }
         )
         assignGetterSetter(f, name, type)
         return f
@@ -235,5 +263,11 @@ class DatabaseVerifierTest {
                 .filter { it.second > 0 }
                 .sortedBy { it.second }
                 .map { it.first }
+    }
+
+    companion object {
+        @Parameterized.Parameters(name = "useLocalizedCollation={0}")
+        @JvmStatic
+        fun params() = arrayListOf(true, false)
     }
 }
