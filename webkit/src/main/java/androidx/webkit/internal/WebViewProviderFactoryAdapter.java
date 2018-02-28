@@ -21,6 +21,7 @@ import android.webkit.WebView;
 import org.chromium.support_lib_boundary.BoundaryInterfaceReflectionUtil;
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface;
+import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
 
 /**
  * Adapter for WebViewProviderFactoryBoundaryInterface providing static WebView functionality
@@ -41,5 +42,15 @@ public class WebViewProviderFactoryAdapter {
     public WebViewProviderBoundaryInterface createWebView(WebView webview) {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebViewProviderBoundaryInterface.class, mImpl.createWebView(webview));
+    }
+
+    /**
+     * Adapter method for creating a new support library version of
+     * {@link androidx.webkit.internal.WebkitToCompatConverter}, which converts android.webkit
+     * classes into their corresponding support library classes.
+     */
+    public WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter() {
+        return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                WebkitToCompatConverterBoundaryInterface.class, mImpl.getWebkitToCompatConverter());
     }
 }
