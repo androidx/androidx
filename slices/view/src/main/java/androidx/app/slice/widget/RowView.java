@@ -471,6 +471,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                 try {
+                    if (mObserver != null) {
+                        EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_SEE_MORE,
+                                EventInfo.ROW_TYPE_LIST, mRowIndex);
+                        mObserver.onSliceAction(info, mRowContent.getSlice());
+                    }
                     mRowContent.getSlice().getAction().send();
                 } catch (CanceledException e) {
                     Log.w(TAG, "PendingIntent for slice cannot be sent", e);
