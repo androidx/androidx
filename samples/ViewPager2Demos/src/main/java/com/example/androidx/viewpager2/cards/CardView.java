@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.example.androidx.widget.viewpager2.cards;
+package com.example.androidx.viewpager2.cards;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.androidx.widget.viewpager2.R;
+import com.example.androidx.viewpager2.R;
 
 /** Inflates and populates a {@link View} representing a {@link Card} */
 public class CardView {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.widget.viewpager2;
+package com.example.androidx.viewpager2;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -45,7 +45,7 @@ public class BrowseActivity extends ListActivity {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        String path = intent.getStringExtra("com.example.androidx.widget.viewpager2");
+        String path = intent.getStringExtra("com.example.androidx.viewpager2");
 
         if (path == null) {
             path = "";
@@ -131,7 +131,7 @@ public class BrowseActivity extends ListActivity {
     protected Intent browseIntent(String path) {
         Intent result = new Intent();
         result.setClass(this, BrowseActivity.class);
-        result.putExtra("com.example.androidx.widget.viewpager2", path);
+        result.putExtra("com.example.androidx.viewpager2", path);
         return result;
     }
 

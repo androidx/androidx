@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<androidx.widget.ViewPager2
+<androidx.viewpager2.widget.ViewPager2
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/view_pager"
     android:layout_width="match_parent"

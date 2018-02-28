@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.widget.viewpager2;
+package com.example.androidx.viewpager2;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -28,13 +28,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.androidx.widget.viewpager2.cards.Card;
-import com.example.androidx.widget.viewpager2.cards.CardView;
+import com.example.androidx.viewpager2.cards.Card;
+import com.example.androidx.viewpager2.cards.CardView;
 
 import java.util.List;
 
-import androidx.widget.ViewPager2;
-import androidx.widget.ViewPager2.FragmentProvider;
+import androidx.viewpager2.widget.ViewPager2;
+import androidx.viewpager2.widget.ViewPager2.FragmentProvider;
 
 /**
  * Shows how to use {@link ViewPager2#setAdapter(FragmentManager, FragmentProvider, int)}
