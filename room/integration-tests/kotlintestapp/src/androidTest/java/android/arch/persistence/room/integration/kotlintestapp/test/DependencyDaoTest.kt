@@ -15,23 +15,96 @@
  */
 package android.arch.persistence.room.integration.kotlintestapp.test
 
+import android.arch.persistence.room.integration.kotlintestapp.dao.DependencyDao
 import android.arch.persistence.room.integration.kotlintestapp.vo.DataClassFromDependency
+import android.arch.persistence.room.integration.kotlintestapp.vo.EmbeddedFromDependency
+import android.arch.persistence.room.integration.kotlintestapp.vo.PojoFromDependency
+import android.os.Build
+import android.support.test.filters.SdkSuppress
 import android.support.test.runner.AndroidJUnit4
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class DependencyDaoTest : TestDatabaseTest() {
+    lateinit var dao: DependencyDao
+    @Before
+    fun init() {
+        dao = database.dependencyDao()
+    }
+
     @Test
     fun insertAndGet() {
-        val dao = database.dependencyDao()
-        val data = DataClassFromDependency(
+        val data = insertSample(3)
+        assertThat(dao.selectAll(), `is`(listOf(data)))
+    }
+
+    @Test
+    fun insertAndGetByQuery() {
+        val data = insertSample(3)
+        assertThat(dao.findById(3), `is`(data))
+        assertThat(dao.findById(5), `is`(nullValue()))
+    }
+
+    @Test
+    fun insertAndGetByQuery_embedded() {
+        val data = insertSample(3)
+        assertThat(dao.findEmbedded(3), `is`(EmbeddedFromDependency(data)))
+        assertThat(dao.findEmbedded(5), `is`(nullValue()))
+    }
+
+    @Test
+    fun insertAndGetByQuery_pojo() {
+        val data = insertSample(3)
+        assertThat(dao.findPojo(3), `is`(PojoFromDependency(
+                id = data.id,
+                name = data.name)))
+        assertThat(dao.findPojo(5), `is`(nullValue()))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Test
+    fun getRelation() {
+        val foo1 = DataClassFromDependency(
                 id = 3,
                 name = "foo"
         )
+        val foo2 = DataClassFromDependency(
+                id = 4,
+                name = "foo"
+        )
+        val bar = DataClassFromDependency(
+                id = 5,
+                name = "bar"
+        )
+        dao.insert(foo1, foo2, bar)
+        val fooList = dao.relation("foo")
+        assertThat(fooList.sharedName, `is`("foo"))
+        assertThat(fooList, `is`(notNullValue()))
+        assertThat(fooList.dataItems, `is`(listOf(foo1, foo2)))
+
+        val barList = dao.relation("bar")
+        assertThat(barList.sharedName, `is`("bar"))
+        assertThat(barList, `is`(notNullValue()))
+        assertThat(barList.dataItems, `is`(listOf(bar)))
+
+        val bazList = dao.relation("baz")
+        assertThat(bazList.sharedName, `is`("baz"))
+        assertThat(bazList, `is`(notNullValue()))
+        assertThat(bazList.dataItems, `is`(emptyList()))
+    }
+
+    private fun insertSample(id: Int): DataClassFromDependency {
+        val data = DataClassFromDependency(
+                id = id,
+                name = "foo"
+        )
         dao.insert(data)
-        assertThat(dao.selectAll(), `is`(listOf(data)))
+        return data
     }
 }

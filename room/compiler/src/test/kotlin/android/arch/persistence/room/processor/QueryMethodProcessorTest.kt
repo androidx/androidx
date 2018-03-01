@@ -119,6 +119,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(parsedQuery.parameters.size, `is`(1))
             val param = parsedQuery.parameters.first()
             assertThat(param.name, `is`("x"))
+            assertThat(param.sqlName, `is`("x"))
             assertThat(param.type,
                     `is`(invocation.processingEnv.typeUtils.getPrimitiveType(INT) as TypeMirror))
         }.compilesWithoutError()
@@ -136,6 +137,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(parsedQuery.parameters.size, `is`(1))
             val param = parsedQuery.parameters.first()
             assertThat(param.name, `is`("ids"))
+            assertThat(param.sqlName, `is`("ids"))
             val types = invocation.processingEnv.typeUtils
             assertThat(param.type,
                     `is`(types.getArrayType(types.getPrimitiveType(INT)) as TypeMirror))
@@ -294,8 +296,10 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     fun testLiveDataWithWithClause() {
         singleQueryMethod(
                 """
-                @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1, (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable, User")
-                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${CommonTypeNames.LIST}<Integer>> getFactorialLiveData();
+                @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1,"
+                + " (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable, User")
+                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${CommonTypeNames.LIST}<Integer>>
+                getFactorialLiveData();
                 """) { parsedQuery, _ ->
             assertThat(parsedQuery.query.tables, hasItem(Table("User", "User")))
             assertThat(parsedQuery.query.tables,
@@ -320,8 +324,10 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     fun testLiveDataWithWithClauseAndNothingToObserve() {
         singleQueryMethod(
                 """
-                @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1, (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable")
-                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${CommonTypeNames.LIST}<Integer>> getFactorialLiveData();
+                @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1,"
+                + " (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable")
+                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${CommonTypeNames.LIST}<Integer>>
+                getFactorialLiveData();
                 """) { _, _ ->
             // do nothing
         }.failsToCompile()
@@ -590,7 +596,10 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                                 unusedFields = listOf(createField("nameX"),
                                         createField("lastNameX")),
                                 allColumns = listOf("name", "lastName"),
-                                allFields = listOf(createField("nameX"), createField("lastNameX"))
+                                allFields = listOf(
+                                        createField("nameX"),
+                                        createField("lastNameX")
+                                )
                         )
                 )
     }
