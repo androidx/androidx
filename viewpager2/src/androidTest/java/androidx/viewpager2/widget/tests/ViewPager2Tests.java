@@ -488,26 +488,25 @@ public class ViewPager2Tests {
     private void verifyView(int pageNumber) {
         onView(allOf(withId(R.id.text_view), isDisplayed())).check(
                 matches(allOf(withText(String.valueOf(pageNumber)),
-                        new BackgroundColorMatcher(pageNumber))));
+                        new BackgroundColorMatcher(getColor(pageNumber)))));
     }
 
     private static class BackgroundColorMatcher extends BaseMatcher<View> {
-        private final int mPageNumber;
+        private final int mColor;
 
-        BackgroundColorMatcher(int pageNumber) {
-            mPageNumber = pageNumber;
+        BackgroundColorMatcher(int color) {
+            mColor = color;
         }
 
         @Override
         public void describeTo(Description description) {
-            description.appendText("should have background color: ").appendValue(
-                    getColor(mPageNumber));
+            description.appendText("should have background color: ").appendValue(mColor);
         }
 
         @Override
         public boolean matches(Object item) {
             ColorDrawable background = (ColorDrawable) ((View) item).getBackground();
-            return background.getColor() == getColor(mPageNumber);
+            return background.getColor() == mColor;
         }
     }
 
