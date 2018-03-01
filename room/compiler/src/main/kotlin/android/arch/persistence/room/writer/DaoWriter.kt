@@ -293,7 +293,13 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
                 }
                 queryParam?.isSupportQuery() == true -> {
                     shouldReleaseQuery = false
-                    roomSQLiteQueryVar = queryParam.paramName
+                    roomSQLiteQueryVar = scope.getTmpVar("_internalQuery")
+                    // move it to a final variable so that the generated code can use it inside
+                    // callback blocks in java 7
+                    addStatement("final $T $L = $N",
+                            queryParam.type,
+                            roomSQLiteQueryVar,
+                            queryParam.paramName)
                 }
                 else -> {
                     // try to generate compiling code. we would've already reported this error
