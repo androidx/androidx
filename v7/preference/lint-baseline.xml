@@ -3,39 +3,6 @@
 
     <issue
         id="NewApi"
-        message="`@android:id/icon_frame` requires API level 24 (current min is 14)"
-        errorLine1="        android:id=&quot;@android:id/icon_frame&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout-v7/expand_button.xml"
-            line="31"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`?android:attr/textAppearanceListItemSecondary` requires API level 21 (current min is 14)"
-        errorLine1="            android:textAppearance=&quot;?android:attr/textAppearanceListItemSecondary&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout-v7/expand_button.xml"
-            line="69"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Using theme references in XML drawables requires API level 21 (current min is 14)"
-        errorLine1="        android:tint=&quot;?android:attr/colorAccent&quot;>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/drawable/ic_arrow_down_24dp.xml"
-            line="22"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="`@android:id/list_container` requires API level 24 (current min is 14)"
         errorLine1="        android:id=&quot;@android:id/list_container&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -53,17 +20,6 @@
         <location
             file="res/layout/preference_dropdown.xml"
             line="29"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="Suspicious0dp"
-        message="Suspicious size: this will make the view invisible, should be used with `layout_weight`"
-        errorLine1="        android:layout_width=&quot;0dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout-v11/preference_dropdown.xml"
-            line="30"
             column="9"/>
     </issue>
 

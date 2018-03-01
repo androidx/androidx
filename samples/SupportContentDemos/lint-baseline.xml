@@ -35,17 +35,6 @@
     </issue>
 
     <issue
-        id="WrongConstant"
-        message="Must be one of: BaseTransientBottomBar.LENGTH_INDEFINITE, BaseTransientBottomBar.LENGTH_SHORT, BaseTransientBottomBar.LENGTH_LONG or value must be ≥ 1 (was 0)"
-        errorLine1="                msg, Snackbar.LENGTH_LONG)"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="143"
-            column="22"/>
-    </issue>
-
-    <issue
         id="AllowBackup"
         message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
         errorLine1="    &lt;application"
