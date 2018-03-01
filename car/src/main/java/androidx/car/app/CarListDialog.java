@@ -137,6 +137,7 @@ public class CarListDialog extends Dialog {
 
     private void initializeList() {
         mList = getWindow().findViewById(R.id.list);
+        mList.setMaxPages(PagedListView.UNLIMITED_PAGES);
         mList.setAdapter(mAdapter);
 
         // Ensure that when the list is scrolled, the scrollbar updates to reflect the new position.
