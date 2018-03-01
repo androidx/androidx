@@ -235,14 +235,45 @@ public class AsyncListDiffer<T> {
 
                     @Override
                     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                        return mConfig.getDiffCallback().areItemsTheSame(
-                                oldList.get(oldItemPosition), newList.get(newItemPosition));
+                        T oldItem = oldList.get(oldItemPosition);
+                        T newItem = newList.get(newItemPosition);
+                        if (oldItem != null && newItem != null) {
+                            return mConfig.getDiffCallback().areItemsTheSame(oldItem, newItem);
+                        }
+                        // If both items are null we consider them the same.
+                        return oldItem == null && newItem == null;
                     }
 
                     @Override
                     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                        return mConfig.getDiffCallback().areContentsTheSame(
-                                oldList.get(oldItemPosition), newList.get(newItemPosition));
+                        T oldItem = oldList.get(oldItemPosition);
+                        T newItem = newList.get(newItemPosition);
+                        if (oldItem != null && newItem != null) {
+                            return mConfig.getDiffCallback().areContentsTheSame(oldItem, newItem);
+                        }
+                        if (oldItem == null && newItem == null) {
+                            return true;
+                        }
+                        // There is an implementation bug if we reach this point. Per the docs, this
+                        // method should only be invoked when areItemsTheSame returns true. That
+                        // only occurs when both items are non-null or both are null and both of
+                        // those cases are handled above.
+                        throw new AssertionError();
+                    }
+
+                    @Nullable
+                    @Override
+                    public Object getChangePayload(int oldItemPosition, int newItemPosition) {
+                        T oldItem = oldList.get(oldItemPosition);
+                        T newItem = newList.get(newItemPosition);
+                        if (oldItem != null && newItem != null) {
+                            return mConfig.getDiffCallback().getChangePayload(oldItem, newItem);
+                        }
+                        // There is an implementation bug if we reach this point. Per the docs, this
+                        // method should only be invoked when areItemsTheSame returns true AND
+                        // areContentsTheSame returns false. That only occurs when both items are
+                        // non-null which is the only case handled above.
+                        throw new AssertionError();
                     }
 
                     @Nullable
