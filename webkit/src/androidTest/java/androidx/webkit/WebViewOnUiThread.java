@@ -19,6 +19,7 @@ package androidx.webkit;
 import android.support.test.InstrumentationRegistry;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class WebViewOnUiThread {
     private WebView mWebView;
@@ -37,6 +38,15 @@ public class WebViewOnUiThread {
             @Override
             public void run() {
                 mWebView.loadUrl(url);
+            }
+        });
+    }
+
+    public void setWebViewClient(final WebViewClient webviewClient) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.setWebViewClient(webviewClient);
             }
         });
     }

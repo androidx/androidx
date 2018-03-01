@@ -19,6 +19,7 @@ package androidx.webkit.internal;
 import android.webkit.WebView;
 
 import org.chromium.support_lib_boundary.BoundaryInterfaceReflectionUtil;
+import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
@@ -52,5 +53,14 @@ public class WebViewProviderFactoryAdapter {
     public WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter() {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebkitToCompatConverterBoundaryInterface.class, mImpl.getWebkitToCompatConverter());
+    }
+
+    /**
+     * Adapter method for fetching the support library class representing
+     * {@link android.webkit.WebViewFactoryProvider#Statics}.
+     */
+    public StaticsBoundaryInterface getStatics() {
+        return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                StaticsBoundaryInterface.class, mImpl.getStatics());
     }
 }
