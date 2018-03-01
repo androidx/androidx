@@ -20,6 +20,7 @@ import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.Relation
+import android.arch.persistence.room.ext.KotlinMetadataProcessor
 import android.arch.persistence.room.ext.getAllFieldsIncludingPrivateSupers
 import android.arch.persistence.room.ext.getAnnotationValue
 import android.arch.persistence.room.ext.getAsString
@@ -49,11 +50,7 @@ import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import me.eugeniomarletti.kotlin.metadata.KotlinClassMetadata
-import me.eugeniomarletti.kotlin.metadata.KotlinMetadataUtils
-import me.eugeniomarletti.kotlin.metadata.jvm.getJvmConstructorSignature
 import me.eugeniomarletti.kotlin.metadata.kotlinMetadata
-import org.jetbrains.kotlin.serialization.ProtoBuf
-import org.jetbrains.kotlin.serialization.deserialization.NameResolver
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.ABSTRACT
@@ -79,7 +76,7 @@ class PojoProcessor(
         val bindingScope: FieldProcessor.BindingScope,
         val parent: EmbeddedField?,
         val referenceStack: LinkedHashSet<Name> = LinkedHashSet())
-    : KotlinMetadataUtils {
+    : KotlinMetadataProcessor {
     val context = baseContext.fork(element)
 
     // for KotlinMetadataUtils
@@ -92,7 +89,7 @@ class PojoProcessor(
             element.kotlinMetadata
         } catch (throwable: Throwable) {
             context.logger.d(element, "failed to read get kotlin metadata from %s", element)
-        }
+        } as? KotlinClassMetadata
     }
 
     companion object {
@@ -245,24 +242,7 @@ class PojoProcessor(
         if (paramNames.isEmpty()) {
             return emptyList()
         }
-        (kotlinMetadata as? KotlinClassMetadata)?.let {
-            try {
-                val kotlinParams = it
-                        .findConstructor(method)
-                        ?.tryGetParameterNames(it.data.nameResolver)
-                if (kotlinParams != null) {
-                    return kotlinParams
-                }
-            } catch (throwable: Throwable) {
-                context.logger.d(
-                        method,
-                        "Cannot read kotlin metadata, falling back to jvm signature. %s",
-                        throwable.message as Any)
-            }
-        }
-        // either it is java or something went wrong w/ kotlin metadata. default to whatever
-        // we can read.
-        return paramNames
+        return kotlinMetadata?.getParameterNames(method) ?: paramNames
     }
 
     private fun chooseConstructor(
@@ -729,40 +709,6 @@ class PojoProcessor(
             reportAmbiguity(candidates.map { it.name })
         }
         return candidates.first()
-    }
-
-    /**
-     * Finds the kotlin meteadata for a constructor.
-     */
-    private fun KotlinClassMetadata.findConstructor(
-            executableElement: ExecutableElement
-    ): ProtoBuf.Constructor? {
-        val (nameResolver, classProto) = data
-        val jvmSignature = executableElement.jvmMethodSignature
-        // find constructor
-        return classProto.constructorList.singleOrNull {
-            it.getJvmConstructorSignature(nameResolver, classProto.typeTable) == jvmSignature
-        }
-    }
-
-    /**
-     * Tries to get the parameter names of a kotlin method
-     */
-    private fun ProtoBuf.Constructor.tryGetParameterNames(
-            nameResolver: NameResolver
-    ): List<String>? {
-        return valueParameterList.map {
-            if (it.hasName()) {
-                nameResolver.getName(it.name)
-                        .asString()
-                        .replace("`", "")
-                        .removeSuffix("?")
-                        .trim()
-            } else {
-                // early return bad parameter
-                return null
-            }
-        }
     }
 
     private data class FailedConstructor(
