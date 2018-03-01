@@ -61,7 +61,7 @@ public abstract class LiveData<T> {
     static final int START_VERSION = -1;
     private static final Object NOT_SET = new Object();
 
-    private SafeIterableMap<Observer<T>, ObserverWrapper> mObservers =
+    private SafeIterableMap<Observer<? super T>, ObserverWrapper> mObservers =
             new SafeIterableMap<>();
 
     // how many observers are in active state
@@ -121,7 +121,7 @@ public abstract class LiveData<T> {
                 considerNotify(initiator);
                 initiator = null;
             } else {
-                for (Iterator<Map.Entry<Observer<T>, ObserverWrapper>> iterator =
+                for (Iterator<Map.Entry<Observer<? super T>, ObserverWrapper>> iterator =
                         mObservers.iteratorWithAdditions(); iterator.hasNext(); ) {
                     considerNotify(iterator.next().getValue());
                     if (mDispatchInvalidated) {
@@ -162,7 +162,7 @@ public abstract class LiveData<T> {
      * @param observer The observer that will receive the events
      */
     @MainThread
-    public void observe(@NonNull LifecycleOwner owner, @NonNull Observer<T> observer) {
+    public void observe(@NonNull LifecycleOwner owner, @NonNull Observer<? super T> observer) {
         assertMainThread("observe");
         if (owner.getLifecycle().getCurrentState() == DESTROYED) {
             // ignore
@@ -195,7 +195,7 @@ public abstract class LiveData<T> {
      * @param observer The observer that will receive the events
      */
     @MainThread
-    public void observeForever(@NonNull Observer<T> observer) {
+    public void observeForever(@NonNull Observer<? super T> observer) {
         assertMainThread("observeForever");
         AlwaysActiveObserver wrapper = new AlwaysActiveObserver(observer);
         ObserverWrapper existing = mObservers.putIfAbsent(observer, wrapper);
@@ -215,7 +215,7 @@ public abstract class LiveData<T> {
      * @param observer The Observer to receive events.
      */
     @MainThread
-    public void removeObserver(@NonNull final Observer<T> observer) {
+    public void removeObserver(@NonNull final Observer<? super T> observer) {
         assertMainThread("removeObserver");
         ObserverWrapper removed = mObservers.remove(observer);
         if (removed == null) {
@@ -234,7 +234,7 @@ public abstract class LiveData<T> {
     @MainThread
     public void removeObservers(@NonNull final LifecycleOwner owner) {
         assertMainThread("removeObservers");
-        for (Map.Entry<Observer<T>, ObserverWrapper> entry : mObservers) {
+        for (Map.Entry<Observer<? super T>, ObserverWrapper> entry : mObservers) {
             if (entry.getValue().isAttachedTo(owner)) {
                 removeObserver(entry.getKey());
             }
@@ -351,7 +351,7 @@ public abstract class LiveData<T> {
     class LifecycleBoundObserver extends ObserverWrapper implements GenericLifecycleObserver {
         @NonNull final LifecycleOwner mOwner;
 
-        LifecycleBoundObserver(@NonNull LifecycleOwner owner, Observer<T> observer) {
+        LifecycleBoundObserver(@NonNull LifecycleOwner owner, Observer<? super T> observer) {
             super(observer);
             mOwner = owner;
         }
@@ -382,11 +382,11 @@ public abstract class LiveData<T> {
     }
 
     private abstract class ObserverWrapper {
-        final Observer<T> mObserver;
+        final Observer<? super T> mObserver;
         boolean mActive;
         int mLastVersion = START_VERSION;
 
-        ObserverWrapper(Observer<T> observer) {
+        ObserverWrapper(Observer<? super T> observer) {
             mObserver = observer;
         }
 
@@ -422,7 +422,7 @@ public abstract class LiveData<T> {
 
     private class AlwaysActiveObserver extends ObserverWrapper {
 
-        AlwaysActiveObserver(Observer<T> observer) {
+        AlwaysActiveObserver(Observer<? super T> observer) {
             super(observer);
         }
 
