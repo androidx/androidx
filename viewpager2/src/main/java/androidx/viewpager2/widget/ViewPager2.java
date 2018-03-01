@@ -113,7 +113,8 @@ public class ViewPager2 extends ViewGroup {
                 VH viewHolder = mAdapter.onCreateViewHolder(parent, viewType);
 
                 LayoutParams layoutParams = viewHolder.itemView.getLayoutParams();
-                if ((layoutParams.width | layoutParams.height) != LayoutParams.MATCH_PARENT) {
+                if (layoutParams.width != LayoutParams.MATCH_PARENT
+                        || layoutParams.height != LayoutParams.MATCH_PARENT) {
                     // TODO(b/70666614): decide if throw an exception or wrap in FrameLayout
                     // ourselves; consider accepting exact size equal to parent's exact size
                     throw new IllegalStateException(String.format(
