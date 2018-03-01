@@ -21,9 +21,11 @@ import com.google.auto.common.MoreTypes
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 
-class QueryParameterProcessor(baseContext: Context,
-                              val containing: DeclaredType,
-                              val element: VariableElement) {
+class QueryParameterProcessor(
+        baseContext: Context,
+        val containing: DeclaredType,
+        val element: VariableElement,
+        private val sqlName: String? = null) {
     val context = baseContext.fork(element)
     fun process(): QueryParameter {
         val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
@@ -34,7 +36,9 @@ class QueryParameterProcessor(baseContext: Context,
         val name = element.simpleName.toString()
         context.checker.check(!name.startsWith("_"), element,
                 ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
-        return QueryParameter(name = name,
+        return QueryParameter(
+                name = name,
+                sqlName = sqlName ?: name,
                 type = asMember,
                 queryParamAdapter = parameterAdapter)
     }

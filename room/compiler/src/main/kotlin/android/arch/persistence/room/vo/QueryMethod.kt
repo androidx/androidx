@@ -38,7 +38,7 @@ data class QueryMethod(val element: ExecutableElement, val query: ParsedQuery, v
             } else if (it.text.startsWith(":")) {
                 val subName = it.text.substring(1)
                 Pair(it, parameters.firstOrNull {
-                    it.name == subName
+                    it.sqlName == subName
                 })
             } else {
                 Pair(it, null)

@@ -19,6 +19,7 @@ package android.arch.persistence.room.processor
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.SkipQueryVerification
 import android.arch.persistence.room.Transaction
+import android.arch.persistence.room.ext.KotlinMetadataProcessor
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.parser.ParsedQuery
 import android.arch.persistence.room.parser.QueryType
@@ -34,15 +35,32 @@ import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
+import me.eugeniomarletti.kotlin.metadata.KotlinClassMetadata
+import me.eugeniomarletti.kotlin.metadata.kotlinMetadata
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 
-class QueryMethodProcessor(baseContext: Context,
-                           val containing: DeclaredType,
-                           val executableElement: ExecutableElement,
-                           val dbVerifier: DatabaseVerifier? = null) {
+class QueryMethodProcessor(
+        baseContext: Context,
+        val containing: DeclaredType,
+        val executableElement: ExecutableElement,
+        val dbVerifier: DatabaseVerifier? = null
+) : KotlinMetadataProcessor {
     val context = baseContext.fork(executableElement)
+
+    // for kotlin metadata
+    override val processingEnv: ProcessingEnvironment
+        get() = context.processingEnv
+
+    private val classMetadata =
+            try {
+                containing.asElement().kotlinMetadata
+            } catch (throwable: Throwable) {
+                context.logger.d(executableElement,
+                        "failed to read get kotlin metadata from %s", executableElement)
+            } as? KotlinClassMetadata
 
     fun process(): QueryMethod {
         val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
@@ -109,17 +127,22 @@ class QueryMethodProcessor(baseContext: Context,
                 }
             }
         }
+        val kotlinParameterNames = classMetadata?.getParameterNames(executableElement)
 
+        val parameters = executableElement.parameters
+                .mapIndexed { index, variableElement ->
+                    QueryParameterProcessor(
+                            baseContext = context,
+                            containing = containing,
+                            element = variableElement,
+                            sqlName = kotlinParameterNames?.getOrNull(index)).process()
+                }
         val queryMethod = QueryMethod(
                 element = executableElement,
                 query = query,
                 name = executableElement.simpleName.toString(),
                 returnType = executableType.returnType,
-                parameters = executableElement.parameters
-                        .map { QueryParameterProcessor(
-                                baseContext = context,
-                                containing = containing,
-                                element = it).process() },
+                parameters = parameters,
                 inTransaction = inTransaction,
                 queryResultBinder = resultBinder)
 
@@ -133,7 +156,7 @@ class QueryMethodProcessor(baseContext: Context,
 
         val unused = queryMethod.parameters.filterNot { param ->
             queryMethod.sectionToParamMapping.any { it.second == param }
-        }.map(QueryParameter::name)
+        }.map(QueryParameter::sqlName)
 
         if (unused.isNotEmpty()) {
             context.logger.e(executableElement, ProcessorErrors.unusedQueryMethodParameter(unused))
