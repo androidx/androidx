@@ -68,6 +68,14 @@ class Entity(
         }
     }
 
+    fun shouldBeDeletedAfter(other: Entity): Boolean {
+        return foreignKeys.any {
+            it.parentTable == other.tableName
+                    && ((!it.deferred && it.onDelete == ForeignKeyAction.NO_ACTION)
+                    || it.onDelete == ForeignKeyAction.RESTRICT)
+        }
+    }
+
     fun toBundle(): EntityBundle = EntityBundle(
             tableName,
             createTableQuery(BundleUtil.TABLE_NAME_PLACEHOLDER),
