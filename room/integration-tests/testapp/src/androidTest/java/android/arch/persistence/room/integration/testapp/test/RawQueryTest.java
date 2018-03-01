@@ -23,6 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.db.SimpleSQLiteQuery;
+import android.arch.persistence.db.SupportSQLiteQuery;
 import android.arch.persistence.room.integration.testapp.dao.RawDao;
 import android.arch.persistence.room.integration.testapp.vo.NameAndLastName;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
@@ -71,11 +72,23 @@ public class RawQueryTest extends TestDatabaseTest {
     }
 
     @Test
-    public void entity_liveData() throws TimeoutException, InterruptedException {
-        final LiveData<User> liveData = mRawDao.getUserLiveData("SELECT * FROM User WHERE mId = 3");
+    public void entity_liveData_string() throws TimeoutException, InterruptedException {
+        SupportSQLiteQuery query = new SimpleSQLiteQuery(
+                "SELECT * FROM User WHERE mId = ?",
+                new Object[]{3}
+        );
+        liveDataTest(mRawDao.getUserLiveData(query));
+    }
+
+    @Test
+    public void entity_liveData_supportQuery() throws TimeoutException, InterruptedException {
+        liveDataTest(mRawDao.getUserLiveData("SELECT * FROM User WHERE mId = 3"));
+    }
+
+    private void liveDataTest(
+            final LiveData<User> liveData) throws TimeoutException, InterruptedException {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 () -> liveData.observeForever(user -> { }));
-
         drain();
         assertThat(liveData.getValue(), is(nullValue()));
         User user = TestUtil.createUser(3);
@@ -138,7 +151,7 @@ public class RawQueryTest extends TestDatabaseTest {
         NameAndLastName result =
                 mRawDao.getUserNameAndLastName(new SimpleSQLiteQuery(
                         "SELECT * FROM User WHERE mId = ?",
-                        new Object[] {3}
+                        new Object[]{3}
                 ));
         assertThat(result, is(new NameAndLastName(user.getName(), user.getLastName())));
     }
