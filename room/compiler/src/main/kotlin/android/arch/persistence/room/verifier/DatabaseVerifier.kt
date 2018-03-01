@@ -26,6 +26,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 import java.util.UUID
+import java.util.regex.Pattern
 import javax.lang.model.element.Element
 
 /**
@@ -36,6 +37,17 @@ class DatabaseVerifier private constructor(
         val connection: Connection, val context: Context, val entities: List<Entity>) {
     companion object {
         private const val CONNECTION_URL = "jdbc:sqlite::memory:"
+        /**
+         * Taken from:
+         * https://github.com/robolectric/robolectric/blob/master/shadows/framework/
+         * src/main/java/org/robolectric/shadows/ShadowSQLiteConnection.java#L94
+         *
+         * This is actually not accurate because it might swap anything since it does not parse
+         * SQL. That being said, for the verification purposes, it does not matter and clearly
+         * much easier than parsing and rebuilding the query.
+         */
+        private val COLLATE_LOCALIZED_UNICODE_PATTERN = Pattern.compile(
+                "\\s+COLLATE\\s+(LOCALIZED|UNICODE)", Pattern.CASE_INSENSITIVE)
 
         init {
             // see: https://github.com/xerial/sqlite-jdbc/issues/97
@@ -84,18 +96,21 @@ class DatabaseVerifier private constructor(
     init {
         entities.forEach { entity ->
             val stmt = connection.createStatement()
-            stmt.executeUpdate(entity.createTableQuery)
+            stmt.executeUpdate(stripLocalizeCollations(entity.createTableQuery))
         }
     }
 
     fun analyze(sql: String): QueryResultInfo {
         return try {
-            val stmt = connection.prepareStatement(sql)
+            val stmt = connection.prepareStatement(stripLocalizeCollations(sql))
             QueryResultInfo(stmt.columnInfo())
         } catch (ex: SQLException) {
             QueryResultInfo(emptyList(), ex)
         }
     }
+
+    private fun stripLocalizeCollations(sql: String) =
+        COLLATE_LOCALIZED_UNICODE_PATTERN.matcher(sql).replaceAll(" COLLATE NOCASE")
 
     fun closeConnection(context: Context) {
         if (!connection.isClosed) {
