@@ -109,6 +109,7 @@ object LifecyclesTypeNames {
 object AndroidTypeNames {
     val CURSOR: ClassName = ClassName.get("android.database", "Cursor")
     val ARRAY_MAP: ClassName = ClassName.get("android.support.v4.util", "ArrayMap")
+    val BUILD: ClassName = ClassName.get("android.os", "Build")
 }
 
 object CommonTypeNames {

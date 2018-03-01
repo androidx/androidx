@@ -16,6 +16,7 @@
 
 package android.arch.persistence.room.writer
 
+import android.arch.persistence.room.ext.AndroidTypeNames
 import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.N
 import android.arch.persistence.room.ext.RoomTypeNames
@@ -61,21 +62,41 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             val dbVar = scope.getTmpVar("_db")
             addStatement("final $T $L = super.getOpenHelper().getWritableDatabase()",
                     SupportDbTypeNames.DB, dbVar)
+            val deferVar = scope.getTmpVar("_supportsDeferForeignKeys")
+            if (database.enableForeignKeys) {
+                addStatement("boolean $L = $L.VERSION.SDK_INT >= $L.VERSION_CODES.LOLLIPOP",
+                        deferVar, AndroidTypeNames.BUILD, AndroidTypeNames.BUILD)
+            }
             addAnnotation(Override::class.java)
             addModifiers(PUBLIC)
             returns(TypeName.VOID)
             beginControlFlow("try").apply {
+                if (database.enableForeignKeys) {
+                    beginControlFlow("if (!$L)", deferVar).apply {
+                        addStatement("$L.execSQL($S)", dbVar, "PRAGMA foreign_keys = FALSE")
+                    }
+                    endControlFlow()
+                }
                 addStatement("super.beginTransaction()")
                 if (database.enableForeignKeys) {
-                    addStatement("$L.execSQL($S)", dbVar, "PRAGMA defer_foreign_keys = TRUE")
+                    beginControlFlow("if ($L)", deferVar).apply {
+                        addStatement("$L.execSQL($S)", dbVar, "PRAGMA defer_foreign_keys = TRUE")
+                    }
+                    endControlFlow()
                 }
-                database.entities.forEach {
+                database.entities.sortedWith(EntityDeleteComparator()).forEach {
                     addStatement("$L.execSQL($S)", dbVar, "DELETE FROM `${it.tableName}`")
                 }
                 addStatement("super.setTransactionSuccessful()")
             }
             nextControlFlow("finally").apply {
                 addStatement("super.endTransaction()")
+                if (database.enableForeignKeys) {
+                    beginControlFlow("if (!$L)", deferVar).apply {
+                        addStatement("$L.execSQL($S)", dbVar, "PRAGMA foreign_keys = TRUE")
+                    }
+                    endControlFlow()
+                }
             }
             endControlFlow()
         }.build()
