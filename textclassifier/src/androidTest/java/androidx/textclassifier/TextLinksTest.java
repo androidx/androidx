@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.view.textclassifier;
+package androidx.textclassifier;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
