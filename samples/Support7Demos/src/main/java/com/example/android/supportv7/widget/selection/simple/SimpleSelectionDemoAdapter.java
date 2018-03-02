@@ -29,8 +29,8 @@ import android.widget.LinearLayout;
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
 
-import androidx.widget.recyclerview.selection.ItemKeyProvider;
-import androidx.widget.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.recyclerview.selection.SelectionTracker;
 
 final class SimpleSelectionDemoAdapter extends RecyclerView.Adapter<DemoHolder> {
 
