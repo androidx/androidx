@@ -16,14 +16,109 @@
 
 package android.support.v4.content;
 
+import static android.content.Context.ACCESSIBILITY_SERVICE;
+import static android.content.Context.ACCOUNT_SERVICE;
+import static android.content.Context.ACTIVITY_SERVICE;
+import static android.content.Context.ALARM_SERVICE;
+import static android.content.Context.APPWIDGET_SERVICE;
+import static android.content.Context.APP_OPS_SERVICE;
+import static android.content.Context.AUDIO_SERVICE;
+import static android.content.Context.BATTERY_SERVICE;
+import static android.content.Context.BLUETOOTH_SERVICE;
+import static android.content.Context.CAMERA_SERVICE;
+import static android.content.Context.CAPTIONING_SERVICE;
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.content.Context.CONNECTIVITY_SERVICE;
+import static android.content.Context.CONSUMER_IR_SERVICE;
+import static android.content.Context.DEVICE_POLICY_SERVICE;
+import static android.content.Context.DISPLAY_SERVICE;
+import static android.content.Context.DOWNLOAD_SERVICE;
+import static android.content.Context.DROPBOX_SERVICE;
+import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.content.Context.INPUT_SERVICE;
+import static android.content.Context.JOB_SCHEDULER_SERVICE;
+import static android.content.Context.KEYGUARD_SERVICE;
+import static android.content.Context.LAUNCHER_APPS_SERVICE;
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static android.content.Context.LOCATION_SERVICE;
+import static android.content.Context.MEDIA_PROJECTION_SERVICE;
+import static android.content.Context.MEDIA_ROUTER_SERVICE;
+import static android.content.Context.MEDIA_SESSION_SERVICE;
+import static android.content.Context.NFC_SERVICE;
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.content.Context.NSD_SERVICE;
+import static android.content.Context.POWER_SERVICE;
+import static android.content.Context.PRINT_SERVICE;
+import static android.content.Context.RESTRICTIONS_SERVICE;
+import static android.content.Context.SEARCH_SERVICE;
+import static android.content.Context.SENSOR_SERVICE;
+import static android.content.Context.STORAGE_SERVICE;
+import static android.content.Context.TELECOM_SERVICE;
+import static android.content.Context.TELEPHONY_SERVICE;
+import static android.content.Context.TELEPHONY_SUBSCRIPTION_SERVICE;
+import static android.content.Context.TEXT_SERVICES_MANAGER_SERVICE;
+import static android.content.Context.TV_INPUT_SERVICE;
+import static android.content.Context.UI_MODE_SERVICE;
+import static android.content.Context.USAGE_STATS_SERVICE;
+import static android.content.Context.USB_SERVICE;
+import static android.content.Context.USER_SERVICE;
+import static android.content.Context.VIBRATOR_SERVICE;
+import static android.content.Context.WALLPAPER_SERVICE;
+import static android.content.Context.WIFI_P2P_SERVICE;
+import static android.content.Context.WIFI_SERVICE;
+import static android.content.Context.WINDOW_SERVICE;
+
+import android.accessibilityservice.AccessibilityService;
+import android.accounts.AccountManager;
+import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.AppOpsManager;
+import android.app.DownloadManager;
+import android.app.KeyguardManager;
+import android.app.NotificationManager;
+import android.app.SearchManager;
+import android.app.UiModeManager;
+import android.app.WallpaperManager;
+import android.app.admin.DevicePolicyManager;
+import android.app.job.JobScheduler;
+import android.app.usage.UsageStatsManager;
+import android.appwidget.AppWidgetManager;
+import android.bluetooth.BluetoothManager;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.RestrictionsManager;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.LauncherApps;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
+import android.hardware.ConsumerIrManager;
+import android.hardware.SensorManager;
+import android.hardware.camera2.CameraManager;
+import android.hardware.display.DisplayManager;
+import android.hardware.input.InputManager;
+import android.hardware.usb.UsbManager;
+import android.location.LocationManager;
+import android.media.AudioManager;
+import android.media.MediaRouter;
+import android.media.projection.MediaProjectionManager;
+import android.media.session.MediaSessionManager;
+import android.media.tv.TvInputManager;
+import android.net.ConnectivityManager;
+import android.net.nsd.NsdManager;
+import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.nfc.NfcManager;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.DropBoxManager;
+import android.os.PowerManager;
 import android.os.Process;
+import android.os.UserManager;
+import android.os.Vibrator;
+import android.os.storage.StorageManager;
+import android.print.PrintManager;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
@@ -31,10 +126,19 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.os.EnvironmentCompat;
+import android.telecom.TelecomManager;
+import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.WindowManager;
+import android.view.accessibility.CaptioningManager;
+import android.view.inputmethod.InputMethodManager;
+import android.view.textservice.TextServicesManager;
 
 import java.io.File;
+import java.util.HashMap;
 
 /**
  * Helper for accessing features in {@link android.content.Context}.
@@ -571,6 +675,115 @@ public class ContextCompat {
         } else {
             // Pre-O behavior.
             context.startService(intent);
+        }
+    }
+
+    /**
+     * Return the handle to a system-level service by class.
+     *
+     * @param context Context to retrieve service from.
+     * @param serviceClass The class of the desired service.
+     * @return The service or null if the class is not a supported system service.
+     *
+     * @see Context#getSystemService(Class)
+     */
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public static <T> T getSystemService(@NonNull Context context, @NonNull Class<T> serviceClass) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            return context.getSystemService(serviceClass);
+        }
+
+        String serviceName = getSystemServiceName(context, serviceClass);
+        return serviceName != null ? (T) context.getSystemService(serviceName) : null;
+    }
+
+    /**
+     * Gets the name of the system-level service that is represented by the specified class.
+     *
+     * @param context Context to retrieve service name from.
+     * @param serviceClass The class of the desired service.
+     * @return The service name or null if the class is not a supported system service.
+     *
+     * @see Context#getSystemServiceName(Class)
+     */
+    @Nullable
+    public static String getSystemServiceName(@NonNull Context context,
+            @NonNull Class<?> serviceClass) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            return context.getSystemServiceName(serviceClass);
+        }
+        return LegacyServiceMapHolder.SERVICES.get(serviceClass);
+    }
+
+    /** Nested class provides lazy initialization only when needed. */
+    private static final class LegacyServiceMapHolder {
+        static final HashMap<Class<?>, String> SERVICES = new HashMap<>();
+
+        static {
+            if (Build.VERSION.SDK_INT > 22) {
+                SERVICES.put(SubscriptionManager.class, TELEPHONY_SUBSCRIPTION_SERVICE);
+                SERVICES.put(UsageStatsManager.class, USAGE_STATS_SERVICE);
+            }
+            if (Build.VERSION.SDK_INT > 21) {
+                SERVICES.put(AppWidgetManager.class, APPWIDGET_SERVICE);
+                SERVICES.put(BatteryManager.class, BATTERY_SERVICE);
+                SERVICES.put(CameraManager.class, CAMERA_SERVICE);
+                SERVICES.put(JobScheduler.class, JOB_SCHEDULER_SERVICE);
+                SERVICES.put(LauncherApps.class, LAUNCHER_APPS_SERVICE);
+                SERVICES.put(MediaProjectionManager.class, MEDIA_PROJECTION_SERVICE);
+                SERVICES.put(MediaSessionManager.class, MEDIA_SESSION_SERVICE);
+                SERVICES.put(RestrictionsManager.class, RESTRICTIONS_SERVICE);
+                SERVICES.put(TelecomManager.class, TELECOM_SERVICE);
+                SERVICES.put(TvInputManager.class, TV_INPUT_SERVICE);
+            }
+            if (Build.VERSION.SDK_INT > 19) {
+                SERVICES.put(AppOpsManager.class, APP_OPS_SERVICE);
+                SERVICES.put(CaptioningManager.class, CAPTIONING_SERVICE);
+                SERVICES.put(ConsumerIrManager.class, CONSUMER_IR_SERVICE);
+                SERVICES.put(PrintManager.class, PRINT_SERVICE);
+            }
+            if (Build.VERSION.SDK_INT > 18) {
+                SERVICES.put(BluetoothManager.class, BLUETOOTH_SERVICE);
+            }
+            if (Build.VERSION.SDK_INT > 17) {
+                SERVICES.put(DisplayManager.class, DISPLAY_SERVICE);
+                SERVICES.put(UserManager.class, USER_SERVICE);
+            }
+            if (Build.VERSION.SDK_INT > 16) {
+                SERVICES.put(InputManager.class, INPUT_SERVICE);
+                SERVICES.put(MediaRouter.class, MEDIA_ROUTER_SERVICE);
+                SERVICES.put(NsdManager.class, NSD_SERVICE);
+            }
+            SERVICES.put(AccessibilityService.class, ACCESSIBILITY_SERVICE);
+            SERVICES.put(AccountManager.class, ACCOUNT_SERVICE);
+            SERVICES.put(ActivityManager.class, ACTIVITY_SERVICE);
+            SERVICES.put(AlarmManager.class, ALARM_SERVICE);
+            SERVICES.put(AudioManager.class, AUDIO_SERVICE);
+            SERVICES.put(ClipboardManager.class, CLIPBOARD_SERVICE);
+            SERVICES.put(ConnectivityManager.class, CONNECTIVITY_SERVICE);
+            SERVICES.put(DevicePolicyManager.class, DEVICE_POLICY_SERVICE);
+            SERVICES.put(DownloadManager.class, DOWNLOAD_SERVICE);
+            SERVICES.put(DropBoxManager.class, DROPBOX_SERVICE);
+            SERVICES.put(InputMethodManager.class, INPUT_METHOD_SERVICE);
+            SERVICES.put(KeyguardManager.class, KEYGUARD_SERVICE);
+            SERVICES.put(LayoutInflater.class, LAYOUT_INFLATER_SERVICE);
+            SERVICES.put(LocationManager.class, LOCATION_SERVICE);
+            SERVICES.put(NfcManager.class, NFC_SERVICE);
+            SERVICES.put(NotificationManager.class, NOTIFICATION_SERVICE);
+            SERVICES.put(PowerManager.class, POWER_SERVICE);
+            SERVICES.put(SearchManager.class, SEARCH_SERVICE);
+            SERVICES.put(SensorManager.class, SENSOR_SERVICE);
+            SERVICES.put(StorageManager.class, STORAGE_SERVICE);
+            SERVICES.put(TelephonyManager.class, TELEPHONY_SERVICE);
+            SERVICES.put(TextServicesManager.class, TEXT_SERVICES_MANAGER_SERVICE);
+            SERVICES.put(UiModeManager.class, UI_MODE_SERVICE);
+            SERVICES.put(UsbManager.class, USB_SERVICE);
+            SERVICES.put(Vibrator.class, VIBRATOR_SERVICE);
+            SERVICES.put(WallpaperManager.class, WALLPAPER_SERVICE);
+            SERVICES.put(WifiP2pManager.class, WIFI_P2P_SERVICE);
+            SERVICES.put(WifiManager.class, WIFI_SERVICE);
+            SERVICES.put(WindowManager.class, WINDOW_SERVICE);
         }
     }
 }
