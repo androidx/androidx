@@ -8,7 +8,7 @@ plugins {
 
 android {
     defaultConfig {
-        targetSdkVersion = 'P'
+        targetSdkVersion 'P'
     }
 }
 

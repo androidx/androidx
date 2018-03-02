@@ -15,7 +15,7 @@
    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.media.heifwriter.test">
+          package="androidx.heifwriter.test">
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 </manifest>

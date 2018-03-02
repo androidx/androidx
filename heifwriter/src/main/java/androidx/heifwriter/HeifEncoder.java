@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.heifwriter;
+package androidx.heifwriter;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;

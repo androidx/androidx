@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.media.heifwriter;
+package androidx.heifwriter;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 
-import static androidx.media.heifwriter.HeifWriter.INPUT_MODE_BITMAP;
-import static androidx.media.heifwriter.HeifWriter.INPUT_MODE_BUFFER;
-import static androidx.media.heifwriter.HeifWriter.INPUT_MODE_SURFACE;
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_BITMAP;
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_BUFFER;
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_SURFACE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -39,7 +39,7 @@ import android.support.annotation.Nullable;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
-import androidx.media.heifwriter.test.R;
+import androidx.heifwriter.test.R;
 
 import org.junit.After;
 import org.junit.Before;
