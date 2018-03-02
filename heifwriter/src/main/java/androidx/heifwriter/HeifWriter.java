@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.heifwriter;
+package androidx.heifwriter;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -252,7 +252,11 @@ public final class HeifWriter implements AutoCloseable {
      */
     public void addYuvBuffer(int format, @NonNull byte[] data) {
         checkStartedAndMode(INPUT_MODE_BUFFER);
-        mHeifEncoder.addYuvBuffer(format, data);
+        synchronized (this) {
+            if (mHeifEncoder != null) {
+                mHeifEncoder.addYuvBuffer(format, data);
+            }
+        }
     }
 
     /**
@@ -284,7 +288,11 @@ public final class HeifWriter implements AutoCloseable {
      */
     public void setInputEndOfStreamTimestamp(long timestampNs) {
         checkStartedAndMode(INPUT_MODE_SURFACE);
-        mHeifEncoder.setEndOfInputStreamTimestamp(timestampNs);
+        synchronized (this) {
+            if (mHeifEncoder != null) {
+                mHeifEncoder.setEndOfInputStreamTimestamp(timestampNs);
+            }
+        }
     }
 
     /**
@@ -295,7 +303,11 @@ public final class HeifWriter implements AutoCloseable {
      */
     public void addBitmap(@NonNull Bitmap bitmap) {
         checkStartedAndMode(INPUT_MODE_BITMAP);
-        mHeifEncoder.addBitmap(bitmap);
+        synchronized (this) {
+            if (mHeifEncoder != null) {
+                mHeifEncoder.addBitmap(bitmap);
+            }
+        }
     }
 
     /**
@@ -318,7 +330,11 @@ public final class HeifWriter implements AutoCloseable {
      */
     public void stop(long timeoutMs) throws Exception {
         checkStarted(true);
-        mHeifEncoder.stopAsync();
+        synchronized (this) {
+            if (mHeifEncoder != null) {
+                mHeifEncoder.stopAsync();
+            }
+        }
         mResultWaiter.waitForResult(timeoutMs);
     }
 
@@ -354,7 +370,9 @@ public final class HeifWriter implements AutoCloseable {
 
         if (mHeifEncoder != null) {
             mHeifEncoder.close();
-            mHeifEncoder = null;
+            synchronized (this) {
+                mHeifEncoder = null;
+            }
         }
     }
 

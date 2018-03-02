@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.heifwriter;
+package androidx.heifwriter;
 
 import android.support.annotation.IntDef;
 import android.opengl.GLES11Ext;

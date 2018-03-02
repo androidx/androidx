@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.heifwriter;
+package androidx.heifwriter;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -303,27 +303,33 @@ public final class HeifEncoder implements AutoCloseable,
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-        mEncoderEglSurface.makeCurrent();
+        synchronized (this) {
+            if (mEncoderEglSurface == null) {
+                return;
+            }
 
-        surfaceTexture.updateTexImage();
-        surfaceTexture.getTransformMatrix(mTmpMatrix);
+            mEncoderEglSurface.makeCurrent();
 
-        long timestampNs = surfaceTexture.getTimestamp();
+            surfaceTexture.updateTexImage();
+            surfaceTexture.getTransformMatrix(mTmpMatrix);
 
-        if (DEBUG) Log.d(TAG, "onFrameAvailable: timestampUs " + (timestampNs / 1000));
+            long timestampNs = surfaceTexture.getTimestamp();
 
-        boolean takeFrame = mEOSTracker.updateLastInputAndEncoderTime(timestampNs,
-                computePresentationTime(mInputIndex + mNumTiles - 1));
+            if (DEBUG) Log.d(TAG, "onFrameAvailable: timestampUs " + (timestampNs / 1000));
 
-        if (takeFrame) {
-            copyTilesGL(mTmpMatrix);
+            boolean takeFrame = mEOSTracker.updateLastInputAndEncoderTime(timestampNs,
+                    computePresentationTime(mInputIndex + mNumTiles - 1));
+
+            if (takeFrame) {
+                copyTilesGL(mTmpMatrix);
+            }
+
+            surfaceTexture.releaseTexImage();
+
+            // make uncurrent since the onFrameAvailable could be called on arbituray thread.
+            // making the context current on a different thread will cause error.
+            mEncoderEglSurface.makeUnCurrent();
         }
-
-        surfaceTexture.releaseTexImage();
-
-        // make uncurrent since the onFrameAvailable could be called on arbituray thread.
-        // making the context current on a different thread will cause error.
-        mEncoderEglSurface.makeUnCurrent();
     }
 
     /**
@@ -398,7 +404,13 @@ public final class HeifEncoder implements AutoCloseable,
                 computePresentationTime(mInputIndex),
                 computePresentationTime(mInputIndex + mNumTiles - 1));
 
-        if (takeFrame) {
+        if (!takeFrame) return;
+
+        synchronized (this) {
+            if (mEncoderEglSurface == null) {
+                return;
+            }
+
             mEncoderEglSurface.makeCurrent();
 
             // load the bitmap to texture
@@ -610,6 +622,7 @@ public final class HeifEncoder implements AutoCloseable,
     private void stopInternal() {
         if (DEBUG) Log.d(TAG, "stopInternal");
 
+        // after start, mEncoder is only accessed on handler, so no need to sync
         if (mEncoder != null) {
             mEncoder.stop();
             mEncoder.release();
@@ -622,20 +635,24 @@ public final class HeifEncoder implements AutoCloseable,
             mEmptyBuffers.notifyAll();
         }
 
-        if (mRectBlt != null) {
-            mRectBlt.release(false);
-            mRectBlt = null;
-        }
-        if (mEncoderEglSurface != null)  {
-            // Note that this frees mEncoderSurface too. If mEncoderEglSurface is not
-            // there, client is responsible to release the input surface it got from us,
-            // we don't release mEncoderSurface here.
-            mEncoderEglSurface.release();
-            mEncoderEglSurface = null;
-        }
-        if (mInputTexture != null) {
-            mInputTexture.release();
-            mInputTexture = null;
+        synchronized(this) {
+            if (mRectBlt != null) {
+                mRectBlt.release(false);
+                mRectBlt = null;
+            }
+
+            if (mEncoderEglSurface != null) {
+                // Note that this frees mEncoderSurface too. If mEncoderEglSurface is not
+                // there, client is responsible to release the input surface it got from us,
+                // we don't release mEncoderSurface here.
+                mEncoderEglSurface.release();
+                mEncoderEglSurface = null;
+            }
+
+            if (mInputTexture != null) {
+                mInputTexture.release();
+                mInputTexture = null;
+            }
         }
     }
 
@@ -732,7 +749,14 @@ public final class HeifEncoder implements AutoCloseable,
         private void doSignalEOSLocked() {
             if (DEBUG_EOS) Log.d(TAG, "doSignalEOSLocked");
 
-            mEncoder.signalEndOfInputStream();
+            mHandler.post(new Runnable() {
+                @Override public void run() {
+                    if (mEncoder != null) {
+                        mEncoder.signalEndOfInputStream();
+                    }
+                }
+            });
+
             mSignaled = true;
         }
     }
@@ -822,6 +846,12 @@ public final class HeifEncoder implements AutoCloseable,
 
     @Override
     public void close() {
+        // unblock the addBuffer() if we're tearing down before EOS is sent.
+        synchronized (mEmptyBuffers) {
+            mInputEOS = true;
+            mEmptyBuffers.notifyAll();
+        }
+
         mHandler.postAtFrontOfQueue(new Runnable() {
             @Override
             public void run() {
