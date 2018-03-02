@@ -1,0 +1,12 @@
+package androidx.webkit {
+
+  public class WebViewCompat {
+    method public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
+  }
+
+  public static abstract interface WebViewCompat.VisualStateCallback {
+    method public abstract void onComplete(long);
+  }
+
+}
+

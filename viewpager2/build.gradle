@@ -38,6 +38,7 @@ android {
 
 supportLibrary {
     name = "AndroidX Widget ViewPager2"
+    publish = false
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
