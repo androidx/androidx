@@ -150,7 +150,7 @@ class AsyncListDifferTest {
         val callback = mock(ListUpdateCallback::class.java)
         // Note: by virtue of being written in Kotlin, the item callback includes explicit null
         // checks on its parameters which assert that it is not invoked with a null value.
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+        val helper = createDiffer(callback, STRING_DIFF_CALLBACK)
 
         helper.submitList(listOf("a", "b"))
         drain()
