@@ -19,12 +19,12 @@ package androidx.car.app;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.TouchDelegate;
 import android.view.View;
@@ -59,7 +59,7 @@ public class CarAlertDialog extends Dialog {
     private ButtonPanelTouchDelegate mButtonPanelTouchDelegate;
 
     private CarAlertDialog(Context context, DialogData data) {
-        super(context);
+        super(context, getDialogTheme(context));
         mData = data;
 
         Resources res = context.getResources();
@@ -82,12 +82,7 @@ public class CarAlertDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Window window = getWindow();
-        window.setContentView(R.layout.car_alert_dialog);
-
-        // By default, the decor background is white. Set this to be transparent so that
-        // the dialog can have rounded corners and will show the background.
-        window.getDecorView().setBackgroundColor(Color.TRANSPARENT);
+        getWindow().setContentView(R.layout.car_alert_dialog);
 
         initializeViews();
         initializeDialogWithData();
@@ -314,6 +309,16 @@ public class CarAlertDialog extends Dialog {
 
             return result;
         }
+    }
+
+    /**
+     * Returns the style that has been assigned to {@code carDialogTheme} in the
+     * current theme that is inflating this dialog.
+     */
+    private static int getDialogTheme(Context context) {
+        TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.carDialogTheme, outValue, true);
+        return outValue.resourceId;
     }
 
     /**

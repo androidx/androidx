@@ -67,6 +67,8 @@ limitations under the License.
         <!-- A starting margin before the drawing of the dividing line. This margin will be an
              offset from the view specified by "alignDividerStartTo" if given. -->
         <attr name="dividerStartMargin" format="dimension" />
+        <!-- The color of the list divider. -->
+        <attr name="listDividerColor" format="color" />
         <!-- The width of the margin on the right side of the list.
              Deprecated: use gutter instead. If gutter is specified, this value is ignored.-->
         <attr name="listEndMargin" format="dimension" />
@@ -80,6 +82,32 @@ limitations under the License.
         <!-- The amount of space before the first item in the list view. This space is
              scrollable with the contents of the list. -->
         <attr name="listContentTopOffset" format="reference" />
+        <!-- Specifies how the PagedListView should respond to day/night mode events. The values
+             here should match the DayNightStyle @interface. See that class for more
+             information. -->
+        <attr name="dayNightStyle" format="enum">
+            <!-- Automatically changes colors for day/night, assuming the content is light during
+                 the day and dark during the night. This is the default behavior. -->
+            <enum name="auto" value="0" />
+            <!-- Automatically changes colors for day/night, with the colors being inverted from
+                 "auto". -->
+            <enum name="auto_inverse" value="1" />
+            <!-- Fixes the colors to be light colored.  -->
+            <enum name="force_night" value="2" />
+            <!-- Fixes the colors to be dark colored.  -->
+            <enum name="force_day" value="3" />
+        </attr>
+    </declare-styleable>
+
+    <!-- The configuration for modifying the ListItem. These ListItems are only intended to be used
+         within a PagedListView. -->
+    <declare-styleable name="ListItem">
+        <!-- The background color of each ListItem. -->
+        <attr name="listItemBackgroundColor" format="color"/>
+        <!-- The TextAppearance of the title text in the ListItem. -->
+        <attr name="listItemTitleTextAppearance" format="reference"/>
+        <!-- The TextAppearance of the body text in the ListItem. -->
+        <attr name="listItemBodyTextAppearance" format="reference"/>
     </declare-styleable>
 
     <!-- The attributes for customizing the appearance of the hamburger and back arrow in the
@@ -108,5 +136,59 @@ limitations under the License.
         <!-- Whether or not clicks on this toolbar will pass through to an underlying view. This
              value is false by default. -->
         <attr name="clickThrough" format="boolean"/>
+    </declare-styleable>
+
+    <!-- Attributes specifically related to modifying car themes. -->
+    <declare-styleable name="CarTheme">
+        <!-- ================== -->
+        <!-- Theming Attributes -->
+        <!-- ================== -->
+        <eat-comment />
+
+        <!-- Attribute for specifying the styling of dialogs within a car theme. Note: this is
+             different from the style that is applied to framework/AppCompat dialogs. This will
+             only affect the styling of dialogs provided by the car support library. -->
+        <attr name="carDialogTheme" format="reference"/>
+
+        <!-- An attribute for specifying a style that modifies the look of a PagedListView. -->
+        <attr name="pagedListViewStyle" format="reference"/>
+
+        <!-- An attribute for specifying a style that modifies the look of ListItems. -->
+        <attr name="listItemStyle" format="reference"/>
+
+        <!-- ================= -->
+        <!-- Dialog Attributes -->
+        <!-- ================= -->
+        <eat-comment />
+
+        <!-- The background color of a dialog. -->
+        <attr name="dialogBackgroundColor" format="color"/>
+
+        <!-- The style of the title text in a CarAlertDialog. -->
+        <attr name="dialogTitleStyle" format="reference"/>
+        <!-- The style of the body text in a CarAlertDialog or the list items in a CarListDialog. -->
+        <attr name="dialogBodyStyle" format="reference"/>
+        <!-- The style of the action buttons in a CarAlertDialog. -->
+        <attr name="dialogButtonStyle" format="reference"/>
+        <!-- A theme for the styling of the list in a CarListDialog. -->
+        <attr name="dialogListTheme" format="reference"/>
+
+        <!-- ================= -->
+        <!-- Drawer Attributes -->
+        <!-- ================= -->
+        <eat-comment />
+
+        <!-- The background color of the drawer. -->
+        <attr name="drawerBackgroundColor" format="color"/>
+        <!-- The color of the header text and arrow in the drawer when it is open. -->
+        <attr name="drawerOpenHeaderColor" format="color"/>
+        <!-- The color of the header text and arrow in the drawer when it is closed. -->
+        <attr name="drawerClosedHeaderColor" format="color"/>
+        <!-- The TextAppearance of each item's title text in the drawer list. -->
+        <attr name="drawerItemTitleTextAppearance" format="reference"/>
+        <!-- The TextAppearance of each item's body text in the drawer list. -->
+        <attr name="drawerItemBodyTextAppearance" format="reference"/>
+        <!-- The styling of the list in the drawer. -->
+        <attr name="drawerListStyle" format="reference"/>
     </declare-styleable>
 </resources>

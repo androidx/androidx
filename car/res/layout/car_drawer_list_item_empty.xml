@@ -41,5 +41,5 @@ limitations under the License.
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:gravity="center"
-        style="@style/TextAppearance.Car.Body1" />
+        android:textAppearance="?attr/drawerItemTitleTextAppearance" />
 </LinearLayout>
