@@ -31,12 +31,12 @@ import android.widget.Toast;
 
 import com.example.android.supportv7.R;
 
-import androidx.widget.recyclerview.selection.ItemDetailsLookup.ItemDetails;
-import androidx.widget.recyclerview.selection.ItemKeyProvider;
-import androidx.widget.recyclerview.selection.SelectionPredicates;
-import androidx.widget.recyclerview.selection.SelectionTracker;
-import androidx.widget.recyclerview.selection.SelectionTracker.SelectionObserver;
-import androidx.widget.recyclerview.selection.StorageStrategy;
+import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.recyclerview.selection.SelectionPredicates;
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
+import androidx.recyclerview.selection.StorageStrategy;
 
 /**
  * ContentPager demo activity.
@@ -178,7 +178,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     }
 
     private static final class FocusDelegate extends
-            androidx.widget.recyclerview.selection.FocusDelegate<Uri> {
+            androidx.recyclerview.selection.FocusDelegate<Uri> {
 
         private final Context mContext;
 
@@ -208,7 +208,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     }
 
     private static final class OnItemActivatedListener implements
-            androidx.widget.recyclerview.selection.OnItemActivatedListener<Uri> {
+            androidx.recyclerview.selection.OnItemActivatedListener<Uri> {
 
         private final Context mContext;
 
@@ -224,7 +224,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     }
 
     private static final class OnContextClickListener implements
-            androidx.widget.recyclerview.selection.OnContextClickListener {
+            androidx.recyclerview.selection.OnContextClickListener {
 
         private final Context mContext;
 
@@ -240,7 +240,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     };
 
     private static final class OnDragInitiatedListener implements
-            androidx.widget.recyclerview.selection.OnDragInitiatedListener {
+            androidx.recyclerview.selection.OnDragInitiatedListener {
 
         private final Context mContext;
 
