@@ -90,7 +90,7 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * The content of this view.
      */
-    private final LinearLayoutCompat mActivityChooserContent;
+    private final View mActivityChooserContent;
 
     /**
      * Stores the background drawable to allow hiding and latter showing.
