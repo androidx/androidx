@@ -24,7 +24,7 @@ import android.widget.TextView;
 
 import com.example.android.supportv7.R;
 
-import androidx.widget.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 
 final class DemoHolder extends RecyclerView.ViewHolder {
 
