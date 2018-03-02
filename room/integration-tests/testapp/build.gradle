@@ -45,7 +45,7 @@ dependencies {
     implementation(project(":lifecycle:runtime"))
     implementation(project(":lifecycle:common"))
     implementation(project(":room:rxjava2"))
-    implementation(project(":paging:runtime"))
+    implementation(project(":paging:runtime"), libs.exclude_paging_transitive)
 
     implementation(SUPPORT_RECYCLERVIEW_27, libs.support_exclude_config)
     implementation(SUPPORT_APPCOMPAT_27, libs.support_exclude_config)
