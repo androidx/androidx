@@ -369,6 +369,10 @@ public class DiffUtil {
          * Called to check whether two objects represent the same item.
          * <p>
          * For example, if your items have unique ids, this method should check their id equality.
+         * <p>
+         * Note: {@code null} items in the list are assumed to be the same as another {@code null}
+         * item and are assumed to not be the same as a non-{@code null} item. This callback will
+         * not be invoked for either of those cases.
          *
          * @param oldItem The item in the old list.
          * @param newItem The item in the new list.
@@ -376,7 +380,7 @@ public class DiffUtil {
          *
          * @see Callback#areItemsTheSame(int, int)
          */
-        public abstract boolean areItemsTheSame(T oldItem, T newItem);
+        public abstract boolean areItemsTheSame(@NonNull T oldItem, @NonNull T newItem);
 
         /**
          * Called to check whether two items have the same data.
@@ -392,6 +396,9 @@ public class DiffUtil {
          * <p>
          * This method is called only if {@link #areItemsTheSame(T, T)} returns {@code true} for
          * these items.
+         * <p>
+         * Note: Two {@code null} items are assumed to represent the same contents. This callback
+         * will not be invoked for this case.
          *
          * @param oldItem The item in the old list.
          * @param newItem The item in the new list.
@@ -399,7 +406,7 @@ public class DiffUtil {
          *
          * @see Callback#areContentsTheSame(int, int)
          */
-        public abstract boolean areContentsTheSame(T oldItem, T newItem);
+        public abstract boolean areContentsTheSame(@NonNull T oldItem, @NonNull T newItem);
 
         /**
          * When {@link #areItemsTheSame(T, T)} returns {@code true} for two items and
@@ -416,7 +423,8 @@ public class DiffUtil {
          * @see Callback#getChangePayload(int, int)
          */
         @SuppressWarnings({"WeakerAccess", "unused"})
-        public Object getChangePayload(T oldItem, T newItem) {
+        @Nullable
+        public Object getChangePayload(@NonNull T oldItem, @NonNull T newItem) {
             return null;
         }
     }

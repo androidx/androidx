@@ -97,6 +97,7 @@ class AsyncListDifferTest {
         differ.currentList[2]
     }
 
+    @Test
     fun getCurrentList() {
         val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
 
@@ -141,6 +142,30 @@ class AsyncListDifferTest {
         verify(callback).onInserted(0, 2)
         verifyNoMoreInteractions(callback)
         drain()
+        verifyNoMoreInteractions(callback)
+    }
+
+    @Test
+    fun nullsSkipCallback() {
+        val callback = mock(ListUpdateCallback::class.java)
+        // Note: by virtue of being written in Kotlin, the item callback includes explicit null
+        // checks on its parameters which assert that it is not invoked with a null value.
+        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+
+        helper.submitList(listOf("a", "b"))
+        drain()
+        verify(callback).onInserted(0, 2)
+
+        helper.submitList(listOf("a", null))
+        drain()
+        verify(callback).onRemoved(1, 1)
+        verify(callback).onInserted(1, 1)
+
+        helper.submitList(listOf("b", null))
+        drain()
+        verify(callback).onRemoved(0, 1)
+        verify(callback).onInserted(0, 1)
+
         verifyNoMoreInteractions(callback)
     }
 
