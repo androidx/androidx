@@ -18,7 +18,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="com.example.androidx.slice.demos">
 
-    <uses-sdk tools:overrideLibrary="androidx.app.slice.view, androidx.app.slice.builders, androidx.app.slice.core" />
+    <uses-sdk tools:overrideLibrary="androidx.slice.view, androidx.slice.builders, androidx.slice.core" />
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.BIND_SLICE" />
