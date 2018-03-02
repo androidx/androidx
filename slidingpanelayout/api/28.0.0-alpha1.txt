@@ -1,0 +1,54 @@
+package android.support.v4.widget {
+
+  public class SlidingPaneLayout extends android.view.ViewGroup {
+    ctor public SlidingPaneLayout(android.content.Context);
+    ctor public SlidingPaneLayout(android.content.Context, android.util.AttributeSet);
+    ctor public SlidingPaneLayout(android.content.Context, android.util.AttributeSet, int);
+    method protected boolean canScroll(android.view.View, boolean, int, int, int);
+    method public deprecated boolean canSlide();
+    method public boolean closePane();
+    method public int getCoveredFadeColor();
+    method public int getParallaxDistance();
+    method public int getSliderFadeColor();
+    method public boolean isOpen();
+    method public boolean isSlideable();
+    method public boolean openPane();
+    method public void setCoveredFadeColor(int);
+    method public void setPanelSlideListener(android.support.v4.widget.SlidingPaneLayout.PanelSlideListener);
+    method public void setParallaxDistance(int);
+    method public deprecated void setShadowDrawable(android.graphics.drawable.Drawable);
+    method public void setShadowDrawableLeft(android.graphics.drawable.Drawable);
+    method public void setShadowDrawableRight(android.graphics.drawable.Drawable);
+    method public deprecated void setShadowResource(int);
+    method public void setShadowResourceLeft(int);
+    method public void setShadowResourceRight(int);
+    method public void setSliderFadeColor(int);
+    method public deprecated void smoothSlideClosed();
+    method public deprecated void smoothSlideOpen();
+  }
+
+  public static class SlidingPaneLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+    ctor public SlidingPaneLayout.LayoutParams();
+    ctor public SlidingPaneLayout.LayoutParams(int, int);
+    ctor public SlidingPaneLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
+    ctor public SlidingPaneLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
+    ctor public SlidingPaneLayout.LayoutParams(android.support.v4.widget.SlidingPaneLayout.LayoutParams);
+    ctor public SlidingPaneLayout.LayoutParams(android.content.Context, android.util.AttributeSet);
+    field public float weight;
+  }
+
+  public static abstract interface SlidingPaneLayout.PanelSlideListener {
+    method public abstract void onPanelClosed(android.view.View);
+    method public abstract void onPanelOpened(android.view.View);
+    method public abstract void onPanelSlide(android.view.View, float);
+  }
+
+  public static class SlidingPaneLayout.SimplePanelSlideListener implements android.support.v4.widget.SlidingPaneLayout.PanelSlideListener {
+    ctor public SlidingPaneLayout.SimplePanelSlideListener();
+    method public void onPanelClosed(android.view.View);
+    method public void onPanelOpened(android.view.View);
+    method public void onPanelSlide(android.view.View, float);
+  }
+
+}
+
