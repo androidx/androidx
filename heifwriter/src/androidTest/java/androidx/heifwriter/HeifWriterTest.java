@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.media.heifwriter;
+package androidx.heifwriter;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 
-import static androidx.media.heifwriter.HeifWriter.INPUT_MODE_BITMAP;
-import static androidx.media.heifwriter.HeifWriter.INPUT_MODE_BUFFER;
-import static androidx.media.heifwriter.HeifWriter.INPUT_MODE_SURFACE;
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_BITMAP;
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_BUFFER;
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_SURFACE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -39,7 +39,7 @@ import android.support.annotation.Nullable;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
-import androidx.media.heifwriter.test.R;
+import androidx.heifwriter.test.R;
 
 import org.junit.After;
 import org.junit.Before;
@@ -124,93 +124,107 @@ public class HeifWriterTest {
     @Test
     @LargeTest
     public void testInputBuffer_NoGrid_NoHandler() throws Throwable {
-        doTest(new TestConfig(INPUT_MODE_BUFFER, false, false));
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BUFFER, false, false);
+        doTestForVariousNumberImages(builder);
     }
 
     @Test
     @LargeTest
     public void testInputBuffer_Grid_NoHandler() throws Throwable {
-        doTest(new TestConfig(INPUT_MODE_BUFFER, true, false));
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BUFFER, true, false);
+        doTestForVariousNumberImages(builder);
     }
 
     @Test
     @LargeTest
     public void testInputBuffer_NoGrid_Handler() throws Throwable {
-        doTest(new TestConfig(INPUT_MODE_BUFFER, false, true));
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BUFFER, false, true);
+        doTestForVariousNumberImages(builder);
     }
 
     @Test
     @LargeTest
     public void testInputBuffer_Grid_Handler() throws Throwable {
-        doTest(new TestConfig(INPUT_MODE_BUFFER, true, true));
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BUFFER, true, true);
+        doTestForVariousNumberImages(builder);
     }
 
     @Test
     @LargeTest
     public void testInputSurface_NoGrid_NoHandler() throws Throwable {
-        doTest(new TestConfig(INPUT_MODE_SURFACE, false, false));
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_SURFACE, false, false);
+        doTestForVariousNumberImages(builder);
     }
 
     @Test
     @LargeTest
     public void testInputSurface_Grid_NoHandler() throws Throwable {
-        doTest(new TestConfig(INPUT_MODE_SURFACE, true, false));
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_SURFACE, true, false);
+        doTestForVariousNumberImages(builder);
     }
 
     @Test
     @LargeTest
     public void testInputSurface_NoGrid_Handler() throws Throwable {
-        doTest(new TestConfig(INPUT_MODE_SURFACE, false, true));
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_SURFACE, false, true);
+        doTestForVariousNumberImages(builder);
     }
 
     @Test
     @LargeTest
     public void testInputSurface_Grid_Handler() throws Throwable {
-        doTest(new TestConfig(INPUT_MODE_SURFACE, true, true));
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_SURFACE, true, true);
+        doTestForVariousNumberImages(builder);
     }
 
     @Test
     @LargeTest
     public void testInputBitmap_NoGrid_NoHandler() throws Throwable {
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BITMAP, false, false);
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
             String inputPath = new File(Environment.getExternalStorageDirectory(),
                     IMAGE_FILENAMES[i]).getAbsolutePath();
-            doTest(new TestConfig(
-                    INPUT_MODE_BITMAP, false, false, inputPath));
+            doTestForVariousNumberImages(builder.setInputPath(inputPath));
         }
     }
 
     @Test
     @LargeTest
     public void testInputBitmap_Grid_NoHandler() throws Throwable {
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BITMAP, true, false);
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
             String inputPath = new File(Environment.getExternalStorageDirectory(),
                     IMAGE_FILENAMES[i]).getAbsolutePath();
-            doTest(new TestConfig(
-                    INPUT_MODE_BITMAP, true, false, inputPath));
+            doTestForVariousNumberImages(builder.setInputPath(inputPath));
         }
     }
 
     @Test
     @LargeTest
     public void testInputBitmap_NoGrid_Handler() throws Throwable {
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BITMAP, false, true);
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
             String inputPath = new File(Environment.getExternalStorageDirectory(),
                     IMAGE_FILENAMES[i]).getAbsolutePath();
-            doTest(new TestConfig(
-                    INPUT_MODE_BITMAP, false, true, inputPath));
+            doTestForVariousNumberImages(builder.setInputPath(inputPath));
         }
     }
 
     @Test
     @LargeTest
     public void testInputBitmap_Grid_Handler() throws Throwable {
+        TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BITMAP, true, true);
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
             String inputPath = new File(Environment.getExternalStorageDirectory(),
                     IMAGE_FILENAMES[i]).getAbsolutePath();
-            doTest(new TestConfig(
-                    INPUT_MODE_BITMAP, true, true, inputPath));
+            doTestForVariousNumberImages(builder.setInputPath(inputPath));
         }
+    }
+
+    private void doTestForVariousNumberImages(TestConfig.Builder builder) throws Exception {
+        doTest(builder.setNumImages(4).build());
+        doTest(builder.setNumImages(1).build());
+        doTest(builder.setNumImages(8).build());
     }
 
     private void closeQuietly(Closeable closeable) {
@@ -236,65 +250,113 @@ public class HeifWriterTest {
     }
 
     private static class TestConfig {
-        int inputMode;
-        boolean useGrid;
-        boolean useHandler;
-        int numImages;
-        int width;
-        int height;
-        int quality;
-        String inputPath;
-        String outputPath;
-        Bitmap[] bitmaps;
+        final int inputMode;
+        final boolean useGrid;
+        final boolean useHandler;
+        final int maxNumImages;
+        final int numImages;
+        final int width;
+        final int height;
+        final int quality;
+        final String inputPath;
+        final String outputPath;
+        final Bitmap[] bitmaps;
 
-        TestConfig(int _inputMode, boolean _useGrids, boolean _useHandler) {
-            this(_inputMode, _useGrids, _useHandler, null);
-        }
-
-        TestConfig(int _inputMode, boolean _useGrids, boolean _useHandler, String _inputPath) {
+        TestConfig(int _inputMode, boolean _useGrid, boolean _useHandler,
+                   int _maxNumImage, int _numImages, int _width, int _height, int _quality,
+                   String _inputPath, String _outputPath, Bitmap[] _bitmaps) {
             inputMode = _inputMode;
-            useGrid = _useGrids;
+            useGrid = _useGrid;
             useHandler = _useHandler;
-            numImages = 4;
-            width = 1920;
-            height = 1080;
-            quality = 100;
-            inputPath = (inputMode == INPUT_MODE_BITMAP) ? _inputPath : null;
-            outputPath = new File(Environment.getExternalStorageDirectory(),
-                    OUTPUT_FILENAME).getAbsolutePath();;
-
-            cleanupStaleOutputs();
-            loadBitmapInputs();
+            maxNumImages = _maxNumImage;
+            numImages = _numImages;
+            width = _width;
+            height = _height;
+            quality = _quality;
+            inputPath = _inputPath;
+            outputPath = _outputPath;
+            bitmaps = _bitmaps;
         }
 
-        private void loadBitmapInputs() {
-            if (inputMode != INPUT_MODE_BITMAP) {
-                return;
-            }
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(inputPath);
-            String hasImage = retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_HAS_IMAGE);
-            if (!"yes".equals(hasImage)) {
-                throw new IllegalArgumentException("no bitmap found!");
-            }
-            width = Integer.parseInt(retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH));
-            height = Integer.parseInt(retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT));
-            numImages = Math.min(numImages, Integer.parseInt(retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_IMAGE_COUNT)));
-            bitmaps = new Bitmap[numImages];
-            for (int i = 0; i < bitmaps.length; i++) {
-                bitmaps[i] = retriever.getImageAtIndex(i);
-            }
-            retriever.release();
-        }
+        static class Builder {
+            final int inputMode;
+            final boolean useGrid;
+            final boolean useHandler;
+            int maxNumImages;
+            int numImages;
+            int width;
+            int height;
+            int quality;
+            String inputPath;
+            final String outputPath;
+            Bitmap[] bitmaps;
 
-        private void cleanupStaleOutputs() {
-            File outputFile = new File(outputPath);
-            if (outputFile.exists()) {
-                outputFile.delete();
+            boolean numImagesSetExplicitly;
+
+
+            Builder(int _inputMode, boolean _useGrids, boolean _useHandler) {
+                inputMode = _inputMode;
+                useGrid = _useGrids;
+                useHandler = _useHandler;
+                maxNumImages = numImages = 4;
+                width = 1920;
+                height = 1080;
+                quality = 100;
+                outputPath = new File(Environment.getExternalStorageDirectory(),
+                        OUTPUT_FILENAME).getAbsolutePath();
+            }
+
+            Builder setInputPath(String _inputPath) {
+                inputPath = (inputMode == INPUT_MODE_BITMAP) ? _inputPath : null;
+                return this;
+            }
+
+            Builder setNumImages(int _numImages) {
+                numImagesSetExplicitly = true;
+                numImages = _numImages;
+                return this;
+            }
+
+            private void loadBitmapInputs() {
+                if (inputMode != INPUT_MODE_BITMAP) {
+                    return;
+                }
+                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                retriever.setDataSource(inputPath);
+                String hasImage = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_HAS_IMAGE);
+                if (!"yes".equals(hasImage)) {
+                    throw new IllegalArgumentException("no bitmap found!");
+                }
+                width = Integer.parseInt(retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH));
+                height = Integer.parseInt(retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT));
+                maxNumImages = Math.min(maxNumImages, Integer.parseInt(retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_IMAGE_COUNT)));
+                if (!numImagesSetExplicitly) {
+                    numImages = maxNumImages;
+                }
+                bitmaps = new Bitmap[maxNumImages];
+                for (int i = 0; i < bitmaps.length; i++) {
+                    bitmaps[i] = retriever.getImageAtIndex(i);
+                }
+                retriever.release();
+            }
+
+            private void cleanupStaleOutputs() {
+                File outputFile = new File(outputPath);
+                if (outputFile.exists()) {
+                    outputFile.delete();
+                }
+            }
+
+            TestConfig build() {
+                cleanupStaleOutputs();
+                loadBitmapInputs();
+
+                return new TestConfig(inputMode, useGrid, useHandler, maxNumImages, numImages,
+                        width, height, quality, inputPath, outputPath, bitmaps);
             }
         }
 
@@ -304,6 +366,7 @@ public class HeifWriterTest {
                     ": inputMode " + inputMode +
                     ", useGrid " + useGrid +
                     ", useHandler " + useHandler +
+                    ", maxNumImages " + maxNumImages +
                     ", numImages " + numImages +
                     ", width " + width +
                     ", height " + height +
@@ -313,7 +376,7 @@ public class HeifWriterTest {
         }
     }
 
-    private void doTest(TestConfig testConfig) {
+    private void doTest(TestConfig testConfig) throws Exception {
         int width = testConfig.width;
         int height = testConfig.height;
         int numImages = testConfig.numImages;
@@ -325,10 +388,12 @@ public class HeifWriterTest {
         try {
             if (DEBUG) Log.d(TAG, "started: " + testConfig);
 
-            heifWriter = new HeifWriter(testConfig.outputPath,
-                    width, height, testConfig.useGrid, testConfig.quality,
-                    numImages, numImages - 1
-                    , testConfig.inputMode,
+            heifWriter = new HeifWriter(testConfig.outputPath, width, height,
+                    testConfig.useGrid,
+                    testConfig.quality,
+                    testConfig.maxNumImages,
+                    testConfig.maxNumImages - 1,
+                    testConfig.inputMode,
                     testConfig.useHandler ? mHandler : null);
 
             if (testConfig.inputMode == INPUT_MODE_SURFACE) {
@@ -381,10 +446,9 @@ public class HeifWriterTest {
             }
 
             heifWriter.stop(3000);
-            verifyResult(testConfig.outputPath, width, height, testConfig.useGrid, numImages);
+            verifyResult(testConfig.outputPath, width, height, testConfig.useGrid,
+                    Math.min(numImages, testConfig.maxNumImages));
             if (DEBUG) Log.d(TAG, "finished: PASS");
-        } catch (Exception e) {
-            fail("finished: FAIL " + e.toString());
         } finally {
             try {
                 if (outputStream != null) {

@@ -1,4 +1,4 @@
-package androidx.media.heifwriter {
+package androidx.heifwriter {
 
   public final class HeifWriter implements java.lang.AutoCloseable {
     ctor public HeifWriter(java.lang.String, int, int, boolean, int, int, int, int, android.os.Handler) throws java.io.IOException;
