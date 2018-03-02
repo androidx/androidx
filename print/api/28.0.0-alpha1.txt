@@ -1,0 +1,29 @@
+package android.support.v4.print {
+
+  public final class PrintHelper {
+    ctor public PrintHelper(android.content.Context);
+    method public int getColorMode();
+    method public int getOrientation();
+    method public int getScaleMode();
+    method public void printBitmap(java.lang.String, android.graphics.Bitmap);
+    method public void printBitmap(java.lang.String, android.graphics.Bitmap, android.support.v4.print.PrintHelper.OnPrintFinishCallback);
+    method public void printBitmap(java.lang.String, android.net.Uri) throws java.io.FileNotFoundException;
+    method public void printBitmap(java.lang.String, android.net.Uri, android.support.v4.print.PrintHelper.OnPrintFinishCallback) throws java.io.FileNotFoundException;
+    method public void setColorMode(int);
+    method public void setOrientation(int);
+    method public void setScaleMode(int);
+    method public static boolean systemSupportsPrint();
+    field public static final int COLOR_MODE_COLOR = 2; // 0x2
+    field public static final int COLOR_MODE_MONOCHROME = 1; // 0x1
+    field public static final int ORIENTATION_LANDSCAPE = 1; // 0x1
+    field public static final int ORIENTATION_PORTRAIT = 2; // 0x2
+    field public static final int SCALE_MODE_FILL = 2; // 0x2
+    field public static final int SCALE_MODE_FIT = 1; // 0x1
+  }
+
+  public static abstract interface PrintHelper.OnPrintFinishCallback {
+    method public abstract void onFinish();
+  }
+
+}
+

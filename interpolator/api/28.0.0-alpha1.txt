@@ -1,0 +1,16 @@
+package android.support.v4.view.animation {
+
+  public class FastOutLinearInInterpolator implements android.view.animation.Interpolator {
+    ctor public FastOutLinearInInterpolator();
+  }
+
+  public class FastOutSlowInInterpolator implements android.view.animation.Interpolator {
+    ctor public FastOutSlowInInterpolator();
+  }
+
+  public class LinearOutSlowInInterpolator implements android.view.animation.Interpolator {
+    ctor public LinearOutSlowInInterpolator();
+  }
+
+}
+
