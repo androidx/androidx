@@ -15,22 +15,32 @@
  */
 package android.support.v4.content;
 
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.compat.test.R;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.ThemedYellowActivity;
 import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @SmallTest
 public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowActivity> {
@@ -43,6 +53,71 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     @Before
     public void setup() {
         mContext = mActivityTestRule.getActivity();
+    }
+
+    @Test
+    public void getSystemServiceName() {
+        String serviceName = ContextCompat.getSystemServiceName(mContext, LayoutInflater.class);
+        assertEquals(LAYOUT_INFLATER_SERVICE, serviceName);
+    }
+
+    @Test
+    public void getSystemServiceNameUnknown() {
+        assertNull(ContextCompat.getSystemServiceName(mContext, String.class));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void getSystemServiceNameCallsRealMethodOn23() {
+        // We explicitly test for platform delegation on API 23+ because the compat implementation
+        // only handles pre-23 service types.
+
+        final AtomicBoolean called = new AtomicBoolean();
+        Context c = new ContextWrapper(mContext) {
+            @Override
+            public String getSystemServiceName(Class<?> serviceClass) {
+                called.set(true);
+                return super.getSystemServiceName(serviceClass);
+            }
+        };
+
+        String serviceName = ContextCompat.getSystemServiceName(c, LayoutInflater.class);
+        assertEquals(LAYOUT_INFLATER_SERVICE, serviceName);
+        assertTrue(called.get());
+    }
+
+    @Test
+    public void getSystemService() {
+        LayoutInflater inflater = ContextCompat.getSystemService(mContext, LayoutInflater.class);
+        assertNotNull(inflater);
+    }
+
+    @Test
+    public void getSystemServiceUnknown() {
+        assertNull(ContextCompat.getSystemService(mContext, String.class));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void getSystemServiceCallsRealMethodOn23() {
+        // We explicitly test for platform delegation on API 23+ because the compat implementation
+        // only handles pre-23 service types.
+
+        final AtomicBoolean called = new AtomicBoolean();
+        Context c = new ContextWrapper(mContext) {
+            // Note: we're still checking the name lookup here because the non-name method is
+            // final. It delegates to this function, however, which, while an implementation detail,
+            // is the only way (at present) to validate behavior.
+            @Override
+            public String getSystemServiceName(Class<?> serviceClass) {
+                called.set(true);
+                return super.getSystemServiceName(serviceClass);
+            }
+        };
+
+        LayoutInflater inflater = ContextCompat.getSystemService(c, LayoutInflater.class);
+        assertNotNull(inflater);
+        assertTrue(called.get());
     }
 
     @Test

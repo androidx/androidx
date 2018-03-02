@@ -774,6 +774,8 @@ package android.support.v4.content {
     method public static java.io.File[] getExternalFilesDirs(android.content.Context, java.lang.String);
     method public static java.io.File getNoBackupFilesDir(android.content.Context);
     method public static java.io.File[] getObbDirs(android.content.Context);
+    method public static <T> T getSystemService(android.content.Context, java.lang.Class<T>);
+    method public static java.lang.String getSystemServiceName(android.content.Context, java.lang.Class<?>);
     method public static boolean isDeviceProtectedStorage(android.content.Context);
     method public static boolean startActivities(android.content.Context, android.content.Intent[]);
     method public static boolean startActivities(android.content.Context, android.content.Intent[], android.os.Bundle);
