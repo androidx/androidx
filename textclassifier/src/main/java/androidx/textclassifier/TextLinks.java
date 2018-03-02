@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.view.textclassifier;
+package androidx.textclassifier;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import androidx.view.textclassifier.TextClassifier.EntityType;
+import androidx.textclassifier.TextClassifier.EntityType;
 
 /**
  * A collection of links, representing subsequences of text and the entity types (phone number,
