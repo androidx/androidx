@@ -1116,7 +1116,7 @@ public class FragmentLifecycleTest {
         fm.executePendingTransactions();
         Pair<Parcelable, FragmentManagerNonConfig> savedState =
                 FragmentTestUtil.destroy(mActivityRule, fc);
-        assertNull(savedState.second.getFragments());
+        assertNull(savedState.second);
     }
 
     /**

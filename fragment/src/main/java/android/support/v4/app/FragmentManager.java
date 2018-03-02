@@ -1812,16 +1812,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         mCurState = newState;
 
         if (mActive != null) {
-            boolean loadersRunning = false;
 
             // Must add them in the proper order. mActive fragments may be out of order
             final int numAdded = mAdded.size();
             for (int i = 0; i < numAdded; i++) {
                 Fragment f = mAdded.get(i);
                 moveFragmentToExpectedState(f);
-                if (f.mHost != null) {
-                    loadersRunning |= LoaderManager.getInstance(f).hasRunningLoaders();
-                }
             }
 
             // Now iterate through all active fragments. These will include those that are removed
@@ -1831,15 +1827,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 Fragment f = mActive.valueAt(i);
                 if (f != null && (f.mRemoving || f.mDetached) && !f.mIsNewlyAdded) {
                     moveFragmentToExpectedState(f);
-                    if (f.mHost != null) {
-                        loadersRunning |= LoaderManager.getInstance(f).hasRunningLoaders();
-                    }
                 }
             }
 
-            if (!loadersRunning) {
-                startPendingDeferredFragments();
-            }
+            startPendingDeferredFragments();
 
             if (mNeedMenuInvalidate && mHost != null && mCurState == Fragment.RESUMED) {
                 mHost.onSupportInvalidateOptionsMenu();
@@ -2692,17 +2683,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     void doPendingDeferredStart() {
         if (mHavePendingDeferredStart) {
-            boolean loadersRunning = false;
-            for (int i = 0; i < mActive.size(); i++) {
-                Fragment f = mActive.valueAt(i);
-                if (f != null && f.mHost != null) {
-                    loadersRunning |= LoaderManager.getInstance(f).hasRunningLoaders();
-                }
-            }
-            if (!loadersRunning) {
-                mHavePendingDeferredStart = false;
-                startPendingDeferredFragments();
-            }
+            mHavePendingDeferredStart = false;
+            startPendingDeferredFragments();
         }
     }
 
