@@ -26,7 +26,7 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
-class LivePagedListQueryResultBinder(
+class DataSourceFactoryQueryResultBinder(
         val positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder)
     : QueryResultBinder(positionalDataSourceQueryResultBinder.listAdapter) {
     @Suppress("HasPlatformType")

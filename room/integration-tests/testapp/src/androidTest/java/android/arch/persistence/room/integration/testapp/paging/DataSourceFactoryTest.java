@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
@@ -28,12 +29,15 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
 import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.room.integration.testapp.test.TestDatabaseTest;
 import android.arch.persistence.room.integration.testapp.test.TestUtil;
+import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.User;
+import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
 import android.support.annotation.Nullable;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -42,6 +46,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -158,6 +164,39 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
         });
         ArchTaskExecutor.getInstance().executeOnMainThread(futureTask);
         futureTask.get();
+    }
+
+    @Test
+    public void withRelation() throws ExecutionException, InterruptedException, TimeoutException {
+        // verify DataSourceFactory can be created from a multi table join
+        DataSource.Factory<Integer, UserAndAllPets> factory =
+                mUserPetDao.dataSourceFactoryMultiTable();
+        LiveData<PagedList<UserAndAllPets>> liveData =
+                new LivePagedListBuilder<>(mUserPetDao.dataSourceFactoryMultiTable(), 10).build();
+        assertNotNull(factory.create());
+
+        PagedListObserver<UserAndAllPets> observer = new PagedListObserver<>();
+        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
+        observe(liveData, lifecycleOwner, observer);
+        drain();
+        assertThat(observer.get(), is(Collections.emptyList()));
+
+        observer.reset();
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        drain();
+        final UserAndAllPets noPets = observer.get().get(0);
+        assertThat(noPets.user, is(user));
+
+        observer.reset();
+        Pet[] pets = TestUtil.createPetsForUser(3, 1, 2);
+        mPetDao.insertAll(pets);
+
+        drain();
+        final UserAndAllPets withPets = observer.get().get(0);
+        assertThat(withPets.user, is(user));
+        assertThat(withPets.pets, is(Arrays.asList(pets)));
     }
 
     static class TestLifecycleOwner implements LifecycleOwner {

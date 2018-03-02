@@ -46,7 +46,9 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
         }
-        return PositionalDataSourceQueryResultBinder(listAdapter, query.tables.map { it.name })
+        val tableNames = ((listAdapter?.accessedTableNames() ?: emptyList())
+                + query.tables.map { it.name }).toSet()
+        return PositionalDataSourceQueryResultBinder(listAdapter, tableNames)
     }
 
     override fun matches(declared: DeclaredType): Boolean {
