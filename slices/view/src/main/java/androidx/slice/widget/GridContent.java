@@ -27,6 +27,10 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
+import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
+import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
+import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
+
 import android.app.slice.Slice;
 import android.content.Context;
 import android.content.res.Resources;
@@ -38,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.slice.SliceItem;
-import androidx.slice.builders.GridBuilder;
+import androidx.slice.builders.ListBuilder;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -55,7 +59,7 @@ public class GridContent {
     private ArrayList<CellContent> mGridContent = new ArrayList<>();
     private int mMaxCellLineCount;
     private boolean mHasImage;
-    private @GridBuilder.ImageMode int mLargestImageMode;
+    private @ListBuilder.ImageMode int mLargestImageMode;
 
     private int mBigPicMinHeight;
     private int mBigPicMaxHeight;
@@ -209,13 +213,13 @@ public class GridContent {
         if (mAllImages) {
             return mGridContent.size() == 1
                     ? isSmall ? mBigPicMinHeight : mBigPicMaxHeight
-                    : mLargestImageMode == GridBuilder.ICON_IMAGE ? mMinHeight : mAllImagesHeight;
+                    : mLargestImageMode == ICON_IMAGE ? mMinHeight : mAllImagesHeight;
         } else {
             boolean twoLines = getMaxCellLineCount() > 1;
             boolean hasImage = hasImage();
             return (twoLines && !isSmall)
                     ? hasImage ? mMaxHeight : mMinHeight
-                    : mLargestImageMode == GridBuilder.ICON_IMAGE ? mMinHeight : mImageTextHeight;
+                    : mLargestImageMode == ICON_IMAGE ? mMinHeight : mImageTextHeight;
         }
     }
 
@@ -264,10 +268,10 @@ public class GridContent {
                     } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
                         if (item.hasHint(Slice.HINT_NO_TINT)) {
                             mImageMode = item.hasHint(Slice.HINT_LARGE)
-                                    ? GridBuilder.LARGE_IMAGE
-                                    : GridBuilder.SMALL_IMAGE;
+                                    ? LARGE_IMAGE
+                                    : SMALL_IMAGE;
                         } else {
-                            mImageMode = GridBuilder.ICON_IMAGE;
+                            mImageMode = ICON_IMAGE;
                         }
                         imageCount++;
                         mHasImage = true;

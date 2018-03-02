@@ -94,12 +94,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private boolean mIsHeader;
     private List<SliceItem> mHeaderActions;
 
+    private int mImageSize;
     private int mIconSize;
     private int mPadding;
 
     public RowView(Context context) {
         super(context);
         mIconSize = getContext().getResources().getDimensionPixelSize(R.dimen.abc_slice_icon_size);
+        mImageSize = getContext().getResources().getDimensionPixelSize(
+                R.dimen.abc_slice_small_image_size);
         mPadding = getContext().getResources().getDimensionPixelSize(R.dimen.abc_slice_padding);
         inflate(context, R.layout.abc_slice_small_template, this);
 
@@ -426,13 +429,17 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (image != null) {
             ImageView iv = new ImageView(getContext());
             iv.setImageIcon(image.getIcon());
-            if (color != -1 && !sliceItem.hasHint(HINT_NO_TINT)) {
-                iv.setColorFilter(color);
+            int size = mImageSize;
+            if (!image.hasHint(HINT_NO_TINT)) {
+                if (color != -1) {
+                    iv.setColorFilter(color);
+                }
+                size = mIconSize;
             }
             container.addView(iv);
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
-            lp.width = mIconSize;
-            lp.height = mIconSize;
+            lp.width = size;
+            lp.height = size;
             lp.setMarginStart(padding);
             addedView = iv;
         } else if (timeStamp != null) {

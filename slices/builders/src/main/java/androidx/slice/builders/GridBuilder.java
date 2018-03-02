@@ -22,7 +22,6 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -46,25 +45,25 @@ public class GridBuilder extends TemplateSliceBuilder {
     private boolean mHasSeeMore;
 
     /**
-     * @hide
+     * Indicates that an image should be presented as an icon and it can be tinted.
+     *
+     * @deprecated use {@link ListBuilder#ICON_IMAGE}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({
-            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE
-    })
-    public @interface ImageMode{}
-
-    /**
-     * Indicates that an image presented in the grid is a icon and it can be tinted.
-     */
+    @Deprecated
     public static final int ICON_IMAGE = 0;
     /**
-     * Indicates that an image presented in the grid should be displayed in a small format.
+     * Indicates that an image should be presented in a smaller size and it shouldn't be tinted.
+     *
+     * @deprecated use {@link ListBuilder#SMALL_IMAGE}
      */
+    @Deprecated
     public static final int SMALL_IMAGE = 1;
     /**
-     * Indicates that an image presented in the grid should be displayed in a large format.
+     * Indicates that an image presented in a larger size and it shouldn't be tinted.
+     *
+     * @deprecated use {@link ListBuilder#LARGE_IMAGE}
      */
+    @Deprecated
     public static final int LARGE_IMAGE = 2;
 
     /**
@@ -288,7 +287,7 @@ public class GridBuilder extends TemplateSliceBuilder {
         @NonNull
         @Deprecated
         public CellBuilder addLargeImage(@NonNull Icon image) {
-            return addImage(image, LARGE_IMAGE, false /* isLoading */);
+            return addImage(image, ListBuilder.LARGE_IMAGE, false /* isLoading */);
         }
 
         /**
@@ -304,7 +303,7 @@ public class GridBuilder extends TemplateSliceBuilder {
         @NonNull
         @Deprecated
         public CellBuilder addLargeImage(@Nullable Icon image, boolean isLoading) {
-            return addImage(image, LARGE_IMAGE, isLoading);
+            return addImage(image, ListBuilder.LARGE_IMAGE, isLoading);
         }
 
         /**
@@ -316,7 +315,7 @@ public class GridBuilder extends TemplateSliceBuilder {
         @NonNull
         @Deprecated
         public CellBuilder addImage(@NonNull Icon image) {
-            return addImage(image, SMALL_IMAGE, false /* isLoading */);
+            return addImage(image, ListBuilder.SMALL_IMAGE, false /* isLoading */);
         }
 
         /**
@@ -332,7 +331,7 @@ public class GridBuilder extends TemplateSliceBuilder {
         @NonNull
         @Deprecated
         public CellBuilder addImage(@Nullable Icon image, boolean isLoading) {
-            return addImage(image, SMALL_IMAGE, isLoading);
+            return addImage(image, ListBuilder.SMALL_IMAGE, isLoading);
         }
 
         /**
@@ -342,12 +341,12 @@ public class GridBuilder extends TemplateSliceBuilder {
          * @param image the image to display in the cell.
          * @param imageMode the mode that image should be displayed in.
          *
-         * @see #ICON_IMAGE
-         * @see #SMALL_IMAGE
-         * @see #LARGE_IMAGE
+         * @see ListBuilder#ICON_IMAGE
+         * @see ListBuilder#SMALL_IMAGE
+         * @see ListBuilder#LARGE_IMAGE
          */
         @NonNull
-        public CellBuilder addImage(@NonNull Icon image, @ImageMode int imageMode) {
+        public CellBuilder addImage(@NonNull Icon image, @ListBuilder.ImageMode int imageMode) {
             return addImage(image, imageMode, false /* isLoading */);
         }
 
@@ -363,12 +362,12 @@ public class GridBuilder extends TemplateSliceBuilder {
          * @param isLoading indicates whether the app is doing work to load the added content in the
          *                  background or not.
          *
-         * @see #ICON_IMAGE
-         * @see #SMALL_IMAGE
-         * @see #LARGE_IMAGE
+         * @see ListBuilder#ICON_IMAGE
+         * @see ListBuilder#SMALL_IMAGE
+         * @see ListBuilder#LARGE_IMAGE
          */
         @NonNull
-        public CellBuilder addImage(@Nullable Icon image, @ImageMode int imageMode,
+        public CellBuilder addImage(@Nullable Icon image, @ListBuilder.ImageMode int imageMode,
                 boolean isLoading) {
             mImpl.addImage(image, imageMode, isLoading);
             return this;

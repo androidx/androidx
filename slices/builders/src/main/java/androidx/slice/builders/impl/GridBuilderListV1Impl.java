@@ -26,8 +26,8 @@ import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
-import static androidx.slice.builders.GridBuilder.ICON_IMAGE;
-import static androidx.slice.builders.GridBuilder.LARGE_IMAGE;
+import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
+import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
