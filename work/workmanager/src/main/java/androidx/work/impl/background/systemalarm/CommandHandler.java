@@ -16,14 +16,8 @@
 
 package androidx.work.impl.background.systemalarm;
 
-import static android.app.AlarmManager.RTC_WAKEUP;
-import static android.app.PendingIntent.FLAG_ONE_SHOT;
-
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,11 +29,9 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.work.impl.ExecutionListener;
-import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.utils.IdGenerator;
 
 /**
  * The command handler used by {@link SystemAlarmDispatcher}.
@@ -100,15 +92,11 @@ public class CommandHandler implements ExecutionListener {
 
     // members
     private final Context mContext;
-    private final IdGenerator mIdGenerator;
-    private final AlarmManager mAlarmManager;
     private final Map<String, ExecutionListener> mPendingDelayMet;
     private final Object mLock;
 
     CommandHandler(@NonNull Context context) {
         mContext = context;
-        mIdGenerator = new IdGenerator(mContext);
-        mAlarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         mPendingDelayMet = new HashMap<>();
         mLock = new Object();
     }
@@ -202,13 +190,16 @@ public class CommandHandler implements ExecutionListener {
                         new SystemAlarmDispatcher.AddRunnable(dispatcher, delayMet, startId));
             } else {
                 Logger.debug(TAG, "Setting up Alarms for %s", workSpecId);
-                // TODO (rahulrav@) Schedule alarm with an id only if one does not already exist.
-                setExactAlarm(delayMet, triggerAt);
+                Alarms.setAlarm(mContext, dispatcher.getWorkManager(), workSpecId, triggerAt);
             }
         } else {
             // Schedule an alarm irrespective of whether all constraints matched.
             Logger.debug(TAG, "Opportunistically setting an alarm for %s", workSpecId);
-            setExactAlarm(delayMet, workSpec.calculateNextRunTime());
+            Alarms.setAlarm(
+                    mContext,
+                    dispatcher.getWorkManager(),
+                    workSpecId,
+                    triggerAt);
 
             // Schedule an update for constraint proxies
             // This in turn sets enables us to track changes in constraints
@@ -244,12 +235,9 @@ public class CommandHandler implements ExecutionListener {
         Bundle extras = intent.getExtras();
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
         Logger.debug(TAG, "Handing stopWork work for %s", workSpecId);
-        // TODO(rahulrav@) Cancel alarm when necessary.
-        Processor processor = dispatcher.getProcessor();
 
-        // Request background processor to stopWork the worker
-        // TODO(rahulrav@) Call WorkManagerImpl#stopWork() here.
-        processor.stopWork(workSpecId, true);
+        dispatcher.getWorkManager().stopWork(workSpecId);
+        Alarms.cancelAlarm(mContext, dispatcher.getWorkManager(), workSpecId);
 
         // Notify dispatcher, so it can clean up.
         dispatcher.onExecuted(workSpecId, false, false /* never reschedule */);
@@ -278,21 +266,9 @@ public class CommandHandler implements ExecutionListener {
                 .workSpecDao()
                 .getSystemAlarmEligibleWorkSpecs(Long.MAX_VALUE);
 
-        // TODO (rahulrav@) Cancel alarms when applicable
         // Delegate to the WorkManager's schedulers.
         for (Scheduler scheduler: dispatcher.getWorkManager().getSchedulers()) {
             scheduler.schedule(eligibleWorkSpecs.toArray(new WorkSpec[0]));
-        }
-    }
-
-    private void setExactAlarm(@NonNull Intent intent, long triggerAtMillis) {
-        int alarmId = mIdGenerator.nextAlarmManagerId();
-        PendingIntent pendingIntent = PendingIntent.getService(
-                mContext, alarmId, intent, FLAG_ONE_SHOT);
-        if (Build.VERSION.SDK_INT >= 19) {
-            mAlarmManager.setExact(RTC_WAKEUP, triggerAtMillis, pendingIntent);
-        } else {
-            mAlarmManager.set(RTC_WAKEUP, triggerAtMillis, pendingIntent);
         }
     }
 

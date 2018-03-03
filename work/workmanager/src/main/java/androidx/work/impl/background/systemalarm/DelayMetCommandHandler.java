@@ -78,7 +78,12 @@ public class DelayMetCommandHandler implements
     @Override
     public void onAllConstraintsMet(@NonNull List<String> ignored) {
         Logger.debug(TAG, "onAllConstraintsMet for %s", mWorkSpecId);
-        // constraints met, schedule execution
+        // Constraints met, schedule execution
+
+        // Not using WorkManagerImpl#startWork() here because we need to know if the processor
+        // actually enqueued the work here.
+        // TODO(rahulrav@) Once WorkManagerImpl provides a callback for acknowledging if
+        // work was enqueued, call WorkManagerImpl#startWork().
         boolean isEnqueued = mDispatcher.getProcessor().startWork(mWorkSpecId);
 
         if (isEnqueued) {
@@ -114,7 +119,6 @@ public class DelayMetCommandHandler implements
 
     @Override
     public void onTimeLimitExceeded(@NonNull String workSpecId) {
-        //TODO (rahulrav@) Check if we need to re-schedule
         Logger.debug(TAG, "Exceeded time limits on execution for %s", workSpecId);
         stopWork();
     }

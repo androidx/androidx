@@ -84,14 +84,10 @@ class ConstraintsCommandHandler {
         for (WorkSpec workSpec : mEligibleWorkSpecs) {
             String workSpecId = workSpec.getId();
             Intent intent = CommandHandler.createDelayMetIntent(mContext, workSpecId);
-            Logger.debug(TAG, "Creating a delay_met command for workspec with id (%s)", workSpecId);
+            Logger.debug(TAG, "Creating a delay_met command for workSpec with id (%s)", workSpecId);
             mDispatcher.postOnMainThread(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, mStartId));
         }
-
-        // TODO(rahulrav@) Also take a look at the WorkSpec's that don't have any constraints
-        // and schedule alarms for them. Especially useful in the context of BOOT_COMPLETED.
-
         mWorkConstraintsTracker.reset();
     }
 }

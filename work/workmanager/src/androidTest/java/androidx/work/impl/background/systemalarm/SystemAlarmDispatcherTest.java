@@ -194,7 +194,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         assertThat(mLatch.getCount(), is(0L));
         verify(mSpyProcessor, times(1)).startWork(workSpecId);
-        verify(mSpyProcessor, times(1)).stopWork(workSpecId, true);
+        verify(mWorkManager, times(1)).stopWork(workSpecId);
     }
 
     @Test
@@ -206,8 +206,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         insertWork(work);
         String workSpecId = work.getId();
 
-        when(mSpyProcessor.isCancelled(workSpecId)).thenReturn(true);
-
         final Intent scheduleWork = CommandHandler.createScheduleWorkIntent(mContext, workSpecId);
         final Intent stopWork = CommandHandler.createStopWorkIntent(mContext, workSpecId);
 
@@ -217,12 +215,11 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mSpyDispatcher.postOnMainThread(
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, stopWork, START_ID));
 
-
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
 
         assertThat(mLatch.getCount(), is(0L));
         verify(mSpyProcessor, times(1)).startWork(workSpecId);
-        verify(mSpyProcessor, times(1)).stopWork(workSpecId, true);
+        verify(mWorkManager, times(1)).stopWork(workSpecId);
     }
 
     @Test

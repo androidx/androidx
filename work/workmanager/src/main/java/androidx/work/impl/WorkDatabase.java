@@ -36,6 +36,8 @@ import java.util.concurrent.TimeUnit;
 
 import androidx.work.Arguments;
 import androidx.work.ContentUriTriggers;
+import androidx.work.impl.model.AlarmInfo;
+import androidx.work.impl.model.AlarmInfoDao;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.EnumTypeConverters;
@@ -51,7 +53,7 @@ import androidx.work.impl.model.WorkTagDao;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 // TODO (rahulrav@) Figure out if / how we export the Room Schema
-@Database(entities = {Dependency.class, WorkSpec.class, WorkTag.class},
+@Database(entities = {Dependency.class, WorkSpec.class, WorkTag.class, AlarmInfo.class},
         version = 1, exportSchema = false)
 @TypeConverters(value = {Arguments.class, ContentUriTriggers.class, EnumTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
@@ -132,4 +134,9 @@ public abstract class WorkDatabase extends RoomDatabase {
      * @return The Data Access Object for {@link WorkTag}s.
      */
     public abstract WorkTagDao workTagDao();
+
+    /**
+     * @return The Data Access Object for {@link AlarmInfo}s.
+     */
+    public abstract AlarmInfoDao alarmInfoDao();
 }
