@@ -30,7 +30,7 @@
         android:id="@+id/paged_scroll_view"
         android:layout_width="@dimen/car_margin"
         android:layout_height="match_parent"
-        android:paddingBottom="@dimen/car_scroll_bar_padding"
-        android:paddingTop="@dimen/car_scroll_bar_padding"
+        android:paddingBottom="@dimen/car_padding_4"
+        android:paddingTop="@dimen/car_padding_4"
         android:visibility="invisible" />
 </FrameLayout>
