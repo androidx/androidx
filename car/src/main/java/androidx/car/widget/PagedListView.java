@@ -19,7 +19,6 @@ package androidx.car.widget;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -105,12 +104,12 @@ public class PagedListView extends FrameLayout {
     private static final String TAG = "PagedListView";
     private static final int INVALID_RESOURCE_ID = -1;
 
-    private final RecyclerView mRecyclerView;
-    private final PagedSnapHelper mSnapHelper;
+    private RecyclerView mRecyclerView;
+    private PagedSnapHelper mSnapHelper;
     private final Handler mHandler = new Handler();
-    private final boolean mScrollBarEnabled;
+    private boolean mScrollBarEnabled;
     @VisibleForTesting
-    final PagedScrollBarView mScrollBarView;
+    PagedScrollBarView mScrollBarView;
 
     private int mRowsPerPage = -1;
     private RecyclerView.Adapter<? extends RecyclerView.ViewHolder> mAdapter;
@@ -223,28 +222,32 @@ public class PagedListView extends FrameLayout {
         void setPositionOffset(int positionOffset);
     }
 
+    public PagedListView(Context context) {
+        super(context);
+        init(context, null /* attrs */);
+    }
+
     public PagedListView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0 /*defStyleAttrs*/, 0 /*defStyleRes*/);
+        super(context, attrs);
+        init(context, attrs);
     }
 
     public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs) {
-        this(context, attrs, defStyleAttrs, 0 /*defStyleRes*/);
+        super(context, attrs, defStyleAttrs);
+        init(context, attrs);
     }
 
     public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {
-        this(context, attrs, defStyleAttrs, defStyleRes, 0);
+        super(context, attrs, defStyleAttrs, defStyleRes);
+        init(context, attrs);
     }
 
-    public PagedListView(
-            Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes, int layoutId) {
-        super(context, attrs, defStyleAttrs, defStyleRes);
-        if (layoutId == 0) {
-            layoutId = R.layout.car_paged_recycler_view;
-        }
-        LayoutInflater.from(context).inflate(layoutId, this /*root*/, true /*attachToRoot*/);
+    private void init(Context context, AttributeSet attrs) {
+        LayoutInflater.from(context).inflate(R.layout.car_paged_recycler_view,
+                this /* root */, true /* attachToRoot */);
 
         TypedArray a = context.obtainStyledAttributes(
-                attrs, R.styleable.PagedListView, defStyleAttrs, defStyleRes);
+                attrs, R.styleable.PagedListView, R.attr.pagedListViewStyle, 0 /* defStyleRes */);
         mRecyclerView = findViewById(R.id.recycler_view);
 
         mMaxPages = getDefaultMaxPages();
@@ -284,8 +287,11 @@ public class PagedListView extends FrameLayout {
             int dividerEndId = a.getResourceId(
                     R.styleable.PagedListView_alignDividerEndTo, INVALID_RESOURCE_ID);
 
+            int listDividerColor = a.getResourceId(R.styleable.PagedListView_listDividerColor,
+                    R.color.car_list_divider);
+
             mRecyclerView.addItemDecoration(new DividerDecoration(context, dividerStartMargin,
-                    dividerStartId, dividerEndId));
+                    dividerStartId, dividerEndId, listDividerColor));
         }
 
         int itemSpacing = a.getDimensionPixelSize(R.styleable.PagedListView_itemSpacing, 0);
@@ -352,7 +358,14 @@ public class PagedListView extends FrameLayout {
             setScrollBarContainerWidth(scrollBarContainerWidth);
         }
 
-        setDayNightStyle(DayNightStyle.AUTO);
+        if (a.hasValue(R.styleable.PagedListView_dayNightStyle)) {
+            @DayNightStyle int dayNightStyle =
+                    a.getInt(R.styleable.PagedListView_dayNightStyle, DayNightStyle.AUTO);
+            setDayNightStyle(dayNightStyle);
+        } else {
+            setDayNightStyle(DayNightStyle.AUTO);
+        }
+
         a.recycle();
     }
 
@@ -1095,6 +1108,7 @@ public class PagedListView extends FrameLayout {
         private final int mDividerStartMargin;
         @IdRes private final int mDividerStartId;
         @IdRes private final int mDividerEndId;
+        @ColorRes private final int mListDividerColor;
         private DividerVisibilityManager mVisibilityManager;
 
         /**
@@ -1108,21 +1122,23 @@ public class PagedListView extends FrameLayout {
          *     container view of each child will be used.
          */
         private DividerDecoration(Context context, int dividerStartMargin,
-                @IdRes int dividerStartId, @IdRes int dividerEndId) {
+                @IdRes int dividerStartId, @IdRes int dividerEndId,
+                @ColorRes int listDividerColor) {
             mContext = context;
             mDividerStartMargin = dividerStartMargin;
             mDividerStartId = dividerStartId;
             mDividerEndId = dividerEndId;
+            mListDividerColor = listDividerColor;
 
-            Resources res = context.getResources();
             mPaint = new Paint();
-            mPaint.setColor(res.getColor(R.color.car_list_divider));
-            mDividerHeight = res.getDimensionPixelSize(R.dimen.car_list_divider_height);
+            mPaint.setColor(mContext.getColor(listDividerColor));
+            mDividerHeight = mContext.getResources().getDimensionPixelSize(
+                R.dimen.car_list_divider_height);
         }
 
         /** Updates the list divider color which may have changed due to a day night transition. */
         public void updateDividerColor() {
-            mPaint.setColor(mContext.getResources().getColor(R.color.car_list_divider, null));
+            mPaint.setColor(mContext.getColor(mListDividerColor));
         }
 
         /** Sets {@link DividerVisibilityManager} on the DividerDecoration.*/

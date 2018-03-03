@@ -19,12 +19,12 @@ package androidx.car.app;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -76,7 +76,7 @@ public class CarListDialog extends Dialog {
             };
 
     private CarListDialog(Context context, String[] items, OnClickListener listener) {
-        super(context);
+        super(context, getDialogTheme(context));
         mOnClickListener = listener;
         initializeAdapter(items);
     }
@@ -105,10 +105,6 @@ public class CarListDialog extends Dialog {
 
         Window window = getWindow();
         window.setContentView(R.layout.car_list_dialog);
-
-        // By default, the decor background is white. Set this to be transparent so that
-        // the dialog can have rounded corners and will show the background.
-        window.getDecorView().setBackgroundColor(Color.TRANSPARENT);
 
         // Ensure that the dialog takes up the entire window. This is needed because the scrollbar
         // needs to be drawn off the dialog.
@@ -256,6 +252,16 @@ public class CarListDialog extends Dialog {
                 false /* animate */);
 
         getWindow().getDecorView().invalidate();
+    }
+
+    /**
+     * Returns the style that has been assigned to {@code carDialogTheme} in the
+     * current theme that is inflating this dialog.
+     */
+    private static int getDialogTheme(Context context) {
+        TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.carDialogTheme, outValue, true);
+        return outValue.resourceId;
     }
 
     /**
