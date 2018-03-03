@@ -32,10 +32,12 @@
     <color name="car_tint_inverse">@color/car_tint_dark</color>
 
     <color name="car_card">@color/car_card_dark</color>
+    <color name="car_card_inverse">@color/car_card_light</color>
     <color name="car_card_ripple_background">@color/car_card_ripple_background_light</color>
     <color name="car_card_ripple_background_inverse">@color/car_card_ripple_background_dark</color>
 
     <color name="car_list_divider">@color/car_list_divider_light</color>
+    <color name="car_list_divider_inverse">@color/car_list_divider_dark</color>
     <color name="car_scrollbar_thumb">@color/car_scrollbar_thumb_light</color>
     <color name="car_scrollbar_thumb_inverse">@color/car_scrollbar_thumb_dark</color>
 

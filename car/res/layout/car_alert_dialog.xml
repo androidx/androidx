@@ -23,7 +23,7 @@ limitations under the License.
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:elevation="@dimen/car_dialog_elevation"
-    app:cardBackgroundColor="@color/car_card"
+    app:cardBackgroundColor="?attr/dialogBackgroundColor"
     app:cardCornerRadius="@dimen/car_radius_3">
 
     <LinearLayout
@@ -40,18 +40,16 @@ limitations under the License.
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/car_dialog_header_height"
-            android:textAppearance="@style/TextAppearance.Car.Title2"
             android:gravity="center_vertical|start"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:visibility="gone" />
+            android:visibility="gone"
+            style="?attr/dialogTitleStyle" />
 
         <TextView
             android:id="@+id/body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.Car.Body2"
-            android:visibility="gone" />
+            android:visibility="gone"
+            style="?attr/dialogBodyStyle" />
 
         <LinearLayout
             android:id="@+id/button_panel"
@@ -70,7 +68,7 @@ limitations under the License.
                 android:padding="0dp"
                 android:textColor="@color/car_accent"
                 android:visibility="gone"
-                style="@style/Widget.Car.Button.Borderless.Colored" />
+                style="?attr/dialogButtonStyle" />
 
             <Button
                 android:id="@+id/negative_button"
@@ -79,7 +77,7 @@ limitations under the License.
                 android:padding="0dp"
                 android:textColor="@color/car_accent"
                 android:visibility="gone"
-                style="@style/Widget.Car.Button.Borderless.Colored" />
+                style="?attr/dialogButtonStyle" />
         </LinearLayout>
     </LinearLayout>
 </androidx.car.widget.ColumnCardView>
