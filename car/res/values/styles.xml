@@ -14,6 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
+    <!-- =============== -->
+    <!-- TextAppearances -->
+    <!-- =============== -->
+    <eat-comment />
+
+    <!-- Base namespace for all TextAppearances. -->
     <style name="TextAppearance.Car" parent="TextAppearance.AppCompat" />
 
     <!-- The styling for title text. The color of this text changes based on day/night mode. -->
@@ -126,6 +132,16 @@ limitations under the License.
         <item name="android:textColor">@color/car_body2</item>
     </style>
 
+    <!-- Body2 text that is permanently a light color. -->
+    <style name="TextAppearance.Car.Body2.Light">
+        <item name="android:textColor">@color/car_body2_light</item>
+    </style>
+
+    <!-- Body2 text that is permanently a dark color. -->
+    <style name="TextAppearance.Car.Body2.Dark">
+        <item name="android:textColor">@color/car_body2_dark</item>
+    </style>
+
     <!-- A smaller styling for body text. The color of this text changes based on the day/night
          mode. -->
     <style name="TextAppearance.Car.Body3">
@@ -144,6 +160,11 @@ limitations under the License.
 
     <!-- Styles for TextInputLayout hints. -->
     <style name="TextAppearance.Car.Hint" parent="TextAppearance.Car.Body2" />
+
+    <!-- ======= -->
+    <!-- Widgets -->
+    <!-- ======= -->
+    <eat-comment />
 
     <!-- The styling for the action bar. -->
     <style name="Widget.Car.Toolbar" parent="Widget.AppCompat.Toolbar">
@@ -186,6 +207,14 @@ limitations under the License.
         <item name="android:textColor">@drawable/car_borderless_button_text_color</item>
     </style>
 
+    <style name="Widget.Car.Button.Borderless.Colored.Light">
+        <item name="android:textColor">@drawable/car_borderless_button_text_color</item>
+    </style>
+
+    <style name="Widget.Car.Button.Borderless.Colored.Dark">
+        <item name="android:textColor">@drawable/car_borderless_button_text_color</item>
+    </style>
+
     <!-- Style for the progress bars. -->
     <style name="Widget.Car.ProgressBar.Horizontal" parent="Widget.AppCompat.ProgressBar.Horizontal">
         <item name="android:minHeight">@dimen/car_progress_bar_height</item>
@@ -210,4 +239,104 @@ limitations under the License.
         <item name="android:background">@color/car_list_divider</item>
     </style>
 
+    <!-- ============= -->
+    <!-- List Themes -->
+    <!-- ============= -->
+    <eat-comment />
+
+    <!-- The default styling for a PagedListView. -->
+    <style name="Widget.Car.List" parent="android:Widget">
+        <item name="dayNightStyle">auto</item>
+        <item name="listDividerColor">@color/car_list_divider</item>
+    </style>
+
+    <!-- A styling for the PagedListView that has inverted colors for day/night. -->
+    <style name="Widget.Car.List.Inverse">
+        <item name="dayNightStyle">auto_inverse</item>
+        <item name="listDividerColor">@color/car_list_divider_inverse</item>
+    </style>
+
+    <!-- A styling for the PagedListView that is fixed to a light color. -->
+    <style name="Widget.Car.Light.List" parent="Widget.Car.List">
+        <item name="dayNightStyle">force_night</item>
+    </style>
+
+    <!-- A styling for the PagedListView that is fixed to a light color and has dividers that are
+         also fixed to a light color. -->
+    <style name="Widget.Car.Light.List.LightDivider">
+        <item name="listDividerColor">@color/car_list_divider_light</item>
+    </style>
+
+    <!-- A styling for the PagedListView that is fixed to a dark color. -->
+    <style name="Widget.Car.Dark.List" parent="Widget.Car.List">
+        <item name="dayNightStyle">force_day</item>
+    </style>
+
+    <!-- A styling for the PagedListView that is fixed to a dark color and has dividers that are
+         also fixed to a dark color. -->
+    <style name="Widget.Car.Dark.List.LightDivider">
+        <item name="listDividerColor">@color/car_list_divider_light</item>
+    </style>
+
+    <!-- ============= -->
+    <!-- ListItem Themes -->
+    <!-- ============= -->
+    <eat-comment />
+
+    <!-- A styling for ListItems that has dark text on a light-colored background. This style
+         will automatically switch to darker colors during night mode. -->
+    <style name="Widget.Car.ListItem" parent="android:Widget">
+        <item name="listItemBackgroundColor">@color/car_card</item>
+        <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
+        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
+    </style>
+
+    <!-- A styling for ListItems that has light text on a dark-colored background. This style
+         will remain dark in night mode. -->
+    <style name="Widget.Car.ListItem.Dark">
+        <item name="listItemBackgroundColor">@color/car_card_dark</item>
+        <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
+        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
+    </style>
+
+    <!-- ============= -->
+    <!-- Dialog Themes -->
+    <!-- ============= -->
+    <eat-comment />
+
+    <!-- Base namespace for dialog styles. -->
+    <style name="Widget.Car.Dialog" parent="android:Widget" />
+
+    <!-- The title text for a dialog. -->
+    <style name="Widget.Car.Dialog.Title">
+        <item name="android:maxLines">1</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Title2</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textAlignment">viewStart</item>
+    </style>
+
+    <!-- Title text for a dialog that is fixed in a light color. -->
+    <style name="Widget.Car.Dialog.Title.Light">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Title2.Light</item>
+    </style>
+
+    <!-- Title text for a dialog that is fixed in a dark color. -->
+    <style name="Widget.Car.Dialog.Title.Dark">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Title2.Dark</item>
+    </style>
+
+    <!-- The body text for a dialog. -->
+    <style name="Widget.Car.Dialog.Body">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body2</item>
+    </style>
+
+    <!-- Body text for a dialog that is fixed in a light color. -->
+    <style name="Widget.Car.Dialog.Body.Light">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body2.Light</item>
+    </style>
+
+    <!-- Body text for a dialog that is fixed in a dark color. -->
+    <style name="Widget.Car.Dialog.Body.Dark">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body2.Dark</item>
+    </style>
 </resources>
