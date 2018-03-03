@@ -34,12 +34,12 @@ import android.text.style.ForegroundColorSpan;
 
 import java.util.Calendar;
 
-import androidx.app.slice.Slice;
-import androidx.app.slice.SliceProvider;
-import androidx.app.slice.builders.GridBuilder;
-import androidx.app.slice.builders.ListBuilder;
-import androidx.app.slice.builders.MessagingSliceBuilder;
-import androidx.app.slice.builders.SliceAction;
+import androidx.slice.Slice;
+import androidx.slice.SliceProvider;
+import androidx.slice.builders.GridBuilder;
+import androidx.slice.builders.ListBuilder;
+import androidx.slice.builders.MessagingSliceBuilder;
+import androidx.slice.builders.SliceAction;
 
 /**
  * Examples of using slice template builders.

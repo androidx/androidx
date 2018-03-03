@@ -25,7 +25,7 @@
 
     <FrameLayout android:layout_width="wrap_content"
                  android:layout_height="wrap_content">
-        <androidx.app.slice.widget.SliceView
+        <androidx.slice.widget.SliceView
             android:id="@+id/sv1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -34,7 +34,7 @@
     <FrameLayout android:layout_width="400dp"
                  android:layout_height="wrap_content"
                  android:layout_marginStart="20dp">
-        <androidx.app.slice.widget.SliceView
+        <androidx.slice.widget.SliceView
             android:id="@+id/sv2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
     <FrameLayout android:layout_width="400dp"
                  android:layout_height="wrap_content"
                  android:layout_marginStart="20dp">
-        <androidx.app.slice.widget.SliceView
+        <androidx.slice.widget.SliceView
             android:id="@+id/sv3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
