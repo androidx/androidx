@@ -1,13 +1,17 @@
 package androidx.car.widget;
 
 import android.car.drivingstate.CarUxRestrictions;
+import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
+import android.support.annotation.StyleRes;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+
+import androidx.car.R;
 
 /**
  * Definition of items that can be inserted into {@link ListItemAdapter}.
@@ -27,6 +31,9 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
     // Stores ViewBinders to revert customization. Does not guarantee to 1:1 match ViewBinders
     // in mCustomerBinders.
     private final List<ViewBinder<VH>> mCustomBinderCleanUps = new ArrayList<>();
+
+    @StyleRes private int mTitleTextAppearance = R.style.TextAppearance_Car_Body1;
+    @StyleRes private int mBodyTextAppearance = R.style.TextAppearance_Car_Body2;
 
     /**
      * Classes that extends {@code ListItem} should register its view type in
@@ -58,6 +65,31 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
             binder.bind(viewHolder);
         }
     }
+
+    /** Sets the title text appearance from the specified style resource. */
+    @CallSuper
+    void setTitleTextAppearance(@StyleRes int titleTextAppearance) {
+        mTitleTextAppearance = titleTextAppearance;
+    }
+
+    /** Sets the body text appearance from the specified style resource. */
+    @CallSuper
+    void setBodyTextAppearance(@StyleRes int bodyTextAppearance) {
+        mBodyTextAppearance = bodyTextAppearance;
+    }
+
+    /** Returns the text appearance that should be used for title text. */
+    @StyleRes
+    final int getTitleTextAppearance() {
+        return mTitleTextAppearance;
+    }
+
+    /** Returns the text appearance that should be used for body text. */
+    @StyleRes
+    final int getBodyTextAppearance() {
+        return mBodyTextAppearance;
+    }
+
 
     /**
      * Marks this item as dirty so {@link #resolveDirtyState()} is required in next bind() call.
