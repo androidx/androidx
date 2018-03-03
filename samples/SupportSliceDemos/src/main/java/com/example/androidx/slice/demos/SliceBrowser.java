@@ -49,11 +49,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import androidx.app.slice.Slice;
-import androidx.app.slice.SliceItem;
-import androidx.app.slice.widget.EventInfo;
-import androidx.app.slice.widget.SliceLiveData;
-import androidx.app.slice.widget.SliceView;
+import androidx.slice.Slice;
+import androidx.slice.SliceItem;
+import androidx.slice.widget.EventInfo;
+import androidx.slice.widget.SliceLiveData;
+import androidx.slice.widget.SliceView;
 
 /**
  * Example use of SliceView. Uses a search bar to select/auto-complete a slice uri which is

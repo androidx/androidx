@@ -14,11 +14,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<androidx.app.slice.widget.GridRowView
+<androidx.slice.widget.GridRowView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical"
     android:background="?android:attr/activatedBackgroundIndicator"
     android:clipToPadding="false">
-</androidx.app.slice.widget.GridRowView>
+</androidx.slice.widget.GridRowView>

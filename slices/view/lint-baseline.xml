@@ -7,7 +7,7 @@
         errorLine1="                            if (android.os.Build.VERSION.SDK_INT"
         errorLine2="                                ^">
         <location
-            file="src/main/java/androidx/app/slice/SliceXml.java"
+            file="src/main/java/androidx/slice/SliceXml.java"
             line="122"
             column="33"/>
     </issue>
@@ -18,7 +18,7 @@
         errorLine1="                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/app/slice/SliceXml.java"
+            file="src/main/java/androidx/slice/SliceXml.java"
             line="212"
             column="25"/>
     </issue>
