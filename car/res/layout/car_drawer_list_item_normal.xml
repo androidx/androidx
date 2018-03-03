@@ -40,14 +40,14 @@ limitations under the License.
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/car_text_vertical_margin"
             android:maxLines="1"
-            style="@style/TextAppearance.Car.Body1" />
+            android:textAppearance="?attr/drawerItemTitleTextAppearance" />
         <TextView
             android:id="@+id/text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            style="@style/TextAppearance.Car.Body2" />
+            android:textAppearance="?attr/drawerItemBodyTextAppearance" />
     </LinearLayout>
     <ImageView
         android:id="@+id/end_icon"

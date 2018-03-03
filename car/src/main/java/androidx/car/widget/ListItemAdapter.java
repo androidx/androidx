@@ -24,19 +24,25 @@ import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.IntDef;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.annotation.StyleRes;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.function.Function;
 
 import androidx.car.R;
@@ -81,7 +87,12 @@ public class ListItemAdapter extends
         public static final int PANEL = 2;
     }
 
-    private int mBackgroundStyle;
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+        BackgroundStyle.NONE,
+        BackgroundStyle.CARD,
+        BackgroundStyle.PANEL })
+    private @interface ListBackgroundStyle {}
 
     static final int LIST_ITEM_TYPE_TEXT = 1;
     static final int LIST_ITEM_TYPE_SEEKBAR = 2;
@@ -90,43 +101,37 @@ public class ListItemAdapter extends
     private final SparseArray<Function<View, ListItem.ViewHolder>> mViewHolderCreator =
             new SparseArray<>();
 
+    @ListBackgroundStyle private int mBackgroundStyle;
+    @StyleRes private int mListItemStyle;
+    @StyleRes private int mListItemTitleTextAppearance;
+    @StyleRes private int mListItemBodyTextAppearance;
+
     private final Car mCar;
     @Nullable private CarUxRestrictionsManager mCarUxRestrictionsManager;
     private CarUxRestrictions mCurrentUxRestrictions;
-    // Keep onUxRestrictionsChangedListener an internal var to avoid exposing APIs from android.car.
-    // Otherwise car sample apk will fail at compile time due to not having access to the stubs.
-    private CarUxRestrictionsManager.onUxRestrictionsChangedListener mUxrChangeListener =
-            new CarUxRestrictionsManager.onUxRestrictionsChangedListener() {
-        @Override
-        public void onUxRestrictionsChanged(CarUxRestrictions carUxRestrictions) {
-            mCurrentUxRestrictions = carUxRestrictions;
-            notifyDataSetChanged();
-        }
-    };
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            try {
-                mCarUxRestrictionsManager = (CarUxRestrictionsManager)
-                        mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
-                mCarUxRestrictionsManager.registerListener(mUxrChangeListener);
-                mUxrChangeListener.onUxRestrictionsChanged(
-                        mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
-            } catch (CarNotConnectedException e) {
-                e.printStackTrace();
-            }
-        }
 
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            try {
-                mCarUxRestrictionsManager.unregisterListener();
-                mCarUxRestrictionsManager = null;
-            } catch (CarNotConnectedException e) {
-                e.printStackTrace();
-            }
-        }
-    };
+    private Context mContext;
+    private final ListItemProvider mItemProvider;
+
+    private int mMaxItems = PagedListView.ItemCap.UNLIMITED;
+
+    public ListItemAdapter(Context context, ListItemProvider itemProvider) {
+        this(context, itemProvider, BackgroundStyle.NONE);
+    }
+
+    public ListItemAdapter(Context context, ListItemProvider itemProvider,
+            @ListBackgroundStyle int backgroundStyle) {
+        mContext = context;
+        mItemProvider = itemProvider;
+        mBackgroundStyle = backgroundStyle;
+
+        registerListItemViewType(LIST_ITEM_TYPE_TEXT,
+                R.layout.car_list_item_text_content, TextListItem::createViewHolder);
+        registerListItemViewType(LIST_ITEM_TYPE_SEEKBAR,
+                R.layout.car_list_item_seekbar_content, SeekbarListItem::createViewHolder);
+
+        mCar = Car.createCar(context, mServiceConnection);
+    }
 
     /**
      * Enables support for {@link CarUxRestrictions}.
@@ -174,27 +179,22 @@ public class ListItemAdapter extends
         mViewHolderLayoutResIds.put(viewType, layoutResId);
     }
 
-    private final Context mContext;
-    private final ListItemProvider mItemProvider;
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        // When attached to the RecyclerView, update the Context so that this ListItemAdapter can
+        // retrieve theme information off that view.
+        mContext = recyclerView.getContext();
+        mListItemStyle = getListItemStyle(mContext);
 
-    private int mMaxItems = PagedListView.ItemCap.UNLIMITED;
-
-    public ListItemAdapter(Context context, ListItemProvider itemProvider) {
-        this(context, itemProvider, BackgroundStyle.NONE);
-    }
-
-    public ListItemAdapter(Context context, ListItemProvider itemProvider,
-            int backgroundStyle) {
-        mContext = context;
-        mItemProvider = itemProvider;
-        mBackgroundStyle = backgroundStyle;
-
-        registerListItemViewType(LIST_ITEM_TYPE_TEXT,
-                R.layout.car_list_item_text_content, TextListItem::createViewHolder);
-        registerListItemViewType(LIST_ITEM_TYPE_SEEKBAR,
-                R.layout.car_list_item_seekbar_content, SeekbarListItem::createViewHolder);
-
-        mCar = Car.createCar(context, mServiceConnection);
+        TypedArray a = mContext.obtainStyledAttributes(mListItemStyle, R.styleable.ListItem);
+        mListItemTitleTextAppearance = a.getResourceId(
+                R.styleable.ListItem_listItemTitleTextAppearance,
+                R.style.TextAppearance_Car_Body1);
+        mListItemBodyTextAppearance = a.getResourceId(
+                R.styleable.ListItem_listItemBodyTextAppearance,
+                R.style.TextAppearance_Car_Body2);
+        a.recycle();
     }
 
     @Override
@@ -216,6 +216,8 @@ public class ListItemAdapter extends
      * Creates a view with background set by {@link BackgroundStyle}.
      */
     private ViewGroup createListItemContainer() {
+        TypedArray a = mContext.obtainStyledAttributes(mListItemStyle, R.styleable.ListItem);
+
         ViewGroup container;
         switch (mBackgroundStyle) {
             case BackgroundStyle.NONE:
@@ -223,7 +225,9 @@ public class ListItemAdapter extends
                 FrameLayout frameLayout = new FrameLayout(mContext);
                 frameLayout.setLayoutParams(new RecyclerView.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                frameLayout.setBackgroundColor(mContext.getColor(R.color.car_card));
+                frameLayout.setBackgroundColor(a.getColor(
+                        R.styleable.ListItem_listItemBackgroundColor,
+                        R.color.car_card));
 
                 container = frameLayout;
                 break;
@@ -235,14 +239,18 @@ public class ListItemAdapter extends
                         R.dimen.car_padding_3);
                 card.setLayoutParams(cardLayoutParams);
                 card.setRadius(mContext.getResources().getDimensionPixelSize(R.dimen.car_radius_1));
-                card.setCardBackgroundColor(mContext.getColor(R.color.car_card));
+                card.setCardBackgroundColor(a.getColor(
+                        R.styleable.ListItem_listItemBackgroundColor,
+                        R.color.car_card));
 
                 container = card;
                 break;
             default:
                 throw new IllegalArgumentException("Unknown background style. "
-                        + "Expected constants in class ListItemAdapter.BackgroundStyle.");
+                    + "Expected constants in class ListItemAdapter.BackgroundStyle.");
         }
+
+        a.recycle();
         return container;
     }
 
@@ -254,6 +262,9 @@ public class ListItemAdapter extends
     @Override
     public void onBindViewHolder(ListItem.ViewHolder holder, int position) {
         ListItem item = mItemProvider.get(position);
+        item.setTitleTextAppearance(mListItemTitleTextAppearance);
+        item.setBodyTextAppearance(mListItemBodyTextAppearance);
+
         item.bind(holder);
 
         if (mBackgroundStyle == BackgroundStyle.PANEL) {
@@ -288,4 +299,49 @@ public class ListItemAdapter extends
                 && mItemProvider.get(position).shouldHideDivider();
     }
 
+    // Keep onUxRestrictionsChangedListener an internal var to avoid exposing APIs from android.car.
+    // Otherwise car sample apk will fail at compile time due to not having access to the stubs.
+    private CarUxRestrictionsManager.onUxRestrictionsChangedListener mUxrChangeListener =
+            new CarUxRestrictionsManager.onUxRestrictionsChangedListener() {
+            @Override
+            public void onUxRestrictionsChanged(CarUxRestrictions carUxRestrictions) {
+                mCurrentUxRestrictions = carUxRestrictions;
+                notifyDataSetChanged();
+            }
+        };
+
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            try {
+                mCarUxRestrictionsManager = (CarUxRestrictionsManager)
+                        mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
+                mCarUxRestrictionsManager.registerListener(mUxrChangeListener);
+                mUxrChangeListener.onUxRestrictionsChanged(
+                        mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
+            } catch (CarNotConnectedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            try {
+                mCarUxRestrictionsManager.unregisterListener();
+                mCarUxRestrictionsManager = null;
+            } catch (CarNotConnectedException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    /**
+     * Returns the style that has been assigned to {@code listItemStyle} in the
+     * current theme that is inflating this {@code ListItemAdapter}.
+     */
+    private static int getListItemStyle(Context context) {
+        TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.listItemStyle, outValue, true);
+        return outValue.resourceId;
+    }
 }
