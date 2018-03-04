@@ -18,9 +18,9 @@ package android.support.v4.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.support.v4.os.BuildCompat;
 import android.util.TypedValue;
 
 /**
@@ -35,7 +35,7 @@ public interface AutoSizeableTextView {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    boolean PLATFORM_SUPPORTS_AUTOSIZE = BuildCompat.isAtLeastOMR1();
+    boolean PLATFORM_SUPPORTS_AUTOSIZE = Build.VERSION.SDK_INT >= 27;
 
     /**
      * Specify whether this widget should automatically scale the text to try to perfectly fit

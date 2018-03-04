@@ -32,7 +32,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
-import android.support.v4.os.BuildCompat;
 import android.text.Editable;
 import android.util.Log;
 import android.util.TypedValue;
@@ -537,7 +536,7 @@ public final class TextViewCompat {
     static final TextViewCompatBaseImpl IMPL;
 
     static {
-        if (BuildCompat.isAtLeastOMR1()) {
+        if (Build.VERSION.SDK_INT >= 27) {
             IMPL = new TextViewCompatApi27Impl();
         } else if (Build.VERSION.SDK_INT >= 26) {
             IMPL = new TextViewCompatApi26Impl();
