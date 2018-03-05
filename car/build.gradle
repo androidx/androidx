@@ -9,7 +9,7 @@ plugins {
 dependencies {
     api project(':appcompat-v7')
     api project(':cardview-v7')
-    api("com.android.support:design:28.0.0-alpha1") {
+    api("com.android.support:design-widget:28.0.0-alpha1") {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'com.android.support', module: 'support-compat'
         exclude group: 'com.android.support', module: 'support-core-ui'
