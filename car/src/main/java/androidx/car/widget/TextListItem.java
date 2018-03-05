@@ -356,8 +356,8 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
         if (mIsBodyPrimary) {
             mBinders.add(vh -> {
-                vh.getTitle().setTextAppearance(getTitleTextAppearance());
-                vh.getBody().setTextAppearance(getBodyTextAppearance());
+                vh.getTitle().setTextAppearance(getBodyTextAppearance());
+                vh.getBody().setTextAppearance(getTitleTextAppearance());
             });
         } else {
             mBinders.add(vh -> {
