@@ -199,15 +199,15 @@ public class ViewPager2Tests {
 
     @Test
     public void fragmentAdapter_random() throws Throwable {
-        final int totalPages = 10;
-        final int sequenceLength = 50;
+        final int totalPages = 8; // increase when stress testing locally
+        final int sequenceLength = 20; // increase when stress testing locally
         testFragmentLifecycle_random(totalPages, sequenceLength, PageMutator.NO_OP);
     }
 
     @Test
     public void fragmentAdapter_random_withMutations() throws Throwable {
-        final int totalPages = 10;
-        final int sequenceLength = 50;
+        final int totalPages = 8; // increase when stress testing locally
+        final int sequenceLength = 20; // increase when stress testing locally
         testFragmentLifecycle_random(totalPages, sequenceLength, PageMutator.RANDOM);
     }
 
