@@ -19,6 +19,13 @@ package androidx.webkit;
 import android.os.Build;
 import android.webkit.WebSettings;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.WebSettingsAdapter;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 
@@ -102,10 +109,25 @@ public class WebSettingsCompat {
     }
 
     /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(flag = true, value = {
+            WebSettings.MENU_ITEM_NONE,
+            WebSettings.MENU_ITEM_SHARE,
+            WebSettings.MENU_ITEM_WEB_SEARCH,
+            WebSettings.MENU_ITEM_PROCESS_TEXT
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
+    public @interface MenuItemFlags {}
+
+    /**
      * Disables the action mode menu items according to {@code menuItems} flag.
      * @param menuItems an integer field flag for the menu items to be disabled.
      */
-    public static void setDisabledActionModeMenuItems(WebSettings webSettings, int menuItems) {
+    public static void setDisabledActionModeMenuItems(WebSettings webSettings,
+            @MenuItemFlags int menuItems) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             webSettings.setDisabledActionModeMenuItems(menuItems);
         } else {
@@ -119,7 +141,7 @@ public class WebSettingsCompat {
      *
      * @return all the disabled menu item flags combined with bitwise OR.
      */
-    public static int getDisabledActionModeMenuItems(WebSettings webSettings) {
+    public static @MenuItemFlags int getDisabledActionModeMenuItems(WebSettings webSettings) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return webSettings.getDisabledActionModeMenuItems();
         } else {
