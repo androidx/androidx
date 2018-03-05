@@ -21,9 +21,13 @@
     <application android:supportsRtl="true">
         <activity android:name="androidx.car.drawer.CarDrawerTestActivity"
                   android:theme="@style/Theme.Car.Light.NoActionBar.Drawer" />
-        <activity android:name="androidx.car.widget.ColumnCardViewTestActivity"/>
-        <activity android:name="androidx.car.widget.PagedListViewSavedStateActivity"/>
-        <activity android:name="androidx.car.widget.PagedListViewTestActivity"/>
-        <activity android:name="androidx.car.widget.DividerVisibilityManagerTestActivity"/>
+        <activity android:name="androidx.car.widget.ColumnCardViewTestActivity"
+                  android:theme="@style/Theme.Car.Light.NoActionBar" />
+        <activity android:name="androidx.car.widget.PagedListViewSavedStateActivity"
+                  android:theme="@style/Theme.Car.Light.NoActionBar" />
+        <activity android:name="androidx.car.widget.PagedListViewTestActivity"
+                  android:theme="@style/Theme.Car.Light.NoActionBar" />
+        <activity android:name="androidx.car.widget.DividerVisibilityManagerTestActivity"
+                  android:theme="@style/Theme.Car.Light.NoActionBar" />
     </application>
 </manifest>
