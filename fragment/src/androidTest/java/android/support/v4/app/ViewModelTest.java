@@ -18,6 +18,7 @@ package android.support.v4.app;
 
 import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
 import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -169,6 +170,39 @@ public class ViewModelTest {
                         try {
                             assertThat(activity.activityModel.mCleared, is(true));
                             assertThat(activity.defaultActivityModel.mCleared, is(true));
+                        } finally {
+                            latch.countDown();
+                        }
+                    }
+                });
+            }
+        };
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.getLifecycle().addObserver(observer);
+            }
+        });
+        activity.finish();
+        assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS), is(true));
+    }
+
+    @Test
+    public void testFragmentOnClearedWhenFinished() throws Throwable {
+        final ViewModelActivity activity = mActivityRule.getActivity();
+        final ViewModelFragment fragment = getFragment(activity,
+                ViewModelActivity.FRAGMENT_TAG_1);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final LifecycleObserver observer = new LifecycleObserver() {
+            @SuppressWarnings("unused")
+            @OnLifecycleEvent(ON_DESTROY)
+            void onDestroy() {
+                activity.getWindow().getDecorView().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            assertThat(fragment.fragmentModel.mCleared, is(true));
                         } finally {
                             latch.countDown();
                         }

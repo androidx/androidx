@@ -1642,7 +1642,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onDestroy() {
         mCalled = true;
-        if (mViewModelStore != null && !mHost.mFragmentManager.isStateSaved()) {
+        // Use mStateSaved instead of isStateSaved() since we're past onStop()
+        if (mViewModelStore != null && !mHost.mFragmentManager.mStateSaved) {
             mViewModelStore.clear();
         }
     }
