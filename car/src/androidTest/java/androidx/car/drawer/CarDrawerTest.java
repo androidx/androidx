@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assume.assumeThat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
@@ -32,6 +33,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,8 +53,14 @@ import androidx.car.widget.PagedListView;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public final class CarDrawerTest {
+    // Note that launchActivity is passed "false" here because we only want to create the
+    // Activity after we checked that the test is being run on an auto device. Otherwise, this will
+    // cause an error due to classes not being found.
     @Rule
-    public ActivityTestRule<CarDrawerTestActivity> mActivityRule;
+    public ActivityTestRule<CarDrawerTestActivity> mActivityRule = new ActivityTestRule<>(
+            CarDrawerTestActivity.class,
+            false /* initialTouchMode */,
+            false /* launchActivity */);
 
     private CarDrawerTestActivity mActivity;
     private PagedListView mDrawerList;
@@ -67,19 +75,21 @@ public final class CarDrawerTest {
     public void setUp() {
         Assume.assumeTrue(isAutoDevice());
 
-        // Inflate the activity here rather than initialization because it needs to happen after
-        // the isAutoDevice() check. Otherwise, errors will be thrown about "android.car.Car"
-        // classes not being found.
-        mActivityRule = new ActivityTestRule<>(CarDrawerTestActivity.class);
-
+        // Retrieve the activity after the isAutoDevice() check because this class depends on
+        // car-related classes (android.car.Car). These classes will not be available on non-auto
+        // devices.
+        mActivityRule.launchActivity(new Intent());
         mActivity = mActivityRule.getActivity();
-        try {
-            mActivityRule.runOnUiThread(() -> {
-                mDrawerList = mActivity.findViewById(R.id.drawer_list);
-            });
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-            throw new RuntimeException(throwable);
+
+        mDrawerList = mActivity.findViewById(R.id.drawer_list);
+    }
+
+    @After
+    public void tearDown() {
+        // The Activity is only launched if the test was run on an auto device. If it's been
+        // launched, then explicitly finish it here since it was also explicitly launched.
+        if (isAutoDevice()) {
+            mActivityRule.finishActivity();
         }
     }
 
