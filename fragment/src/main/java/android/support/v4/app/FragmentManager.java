@@ -677,6 +677,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     boolean mNeedMenuInvalidate;
     boolean mStateSaved;
+    boolean mStopped;
     boolean mDestroyed;
     String mNoTransactionsBecause;
     boolean mHavePendingDeferredStart;
@@ -1081,6 +1082,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
         writer.print(prefix); writer.print("  mCurState="); writer.print(mCurState);
                 writer.print(" mStateSaved="); writer.print(mStateSaved);
+                writer.print(" mStopped="); writer.print(mStopped);
                 writer.print(" mDestroyed="); writer.println(mDestroyed);
         if (mNeedMenuInvalidate) {
             writer.print(prefix); writer.print("  mNeedMenuInvalidate=");
@@ -2042,7 +2044,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     private void checkStateLoss() {
-        if (mStateSaved) {
+        if (isStateSaved()) {
             throw new IllegalStateException(
                     "Can not perform this action after onSaveInstanceState");
         }
@@ -2054,7 +2056,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     @Override
     public boolean isStateSaved() {
-        return mStateSaved;
+        // See saveAllState() for the explanation of this.  We do this for
+        // all platform versions, to keep our behavior more consistent between
+        // them.
+        return mStateSaved || mStopped;
     }
 
     /**
@@ -3168,6 +3173,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     public void noteStateNotSaved() {
         mSavedNonConfig = null;
         mStateSaved = false;
+        mStopped = false;
         final int addedCount = mAdded.size();
         for (int i = 0; i < addedCount; i++) {
             Fragment fragment = mAdded.get(i);
@@ -3179,21 +3185,25 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     public void dispatchCreate() {
         mStateSaved = false;
+        mStopped = false;
         dispatchStateChange(Fragment.CREATED);
     }
 
     public void dispatchActivityCreated() {
         mStateSaved = false;
+        mStopped = false;
         dispatchStateChange(Fragment.ACTIVITY_CREATED);
     }
 
     public void dispatchStart() {
         mStateSaved = false;
+        mStopped = false;
         dispatchStateChange(Fragment.STARTED);
     }
 
     public void dispatchResume() {
         mStateSaved = false;
+        mStopped = false;
         dispatchStateChange(Fragment.RESUMED);
     }
 
@@ -3202,11 +3212,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     public void dispatchStop() {
-        // See saveAllState() for the explanation of this.  We do this for
-        // all platform versions, to keep our behavior more consistent between
-        // them.
-        mStateSaved = true;
-
+        mStopped = true;
         dispatchStateChange(Fragment.STOPPED);
     }
 
