@@ -32,7 +32,6 @@ import android.support.tools.jetifier.core.transform.resource.XmlResourcesTransf
 import android.support.tools.jetifier.core.utils.Log
 import java.io.File
 import java.io.FileNotFoundException
-import java.nio.file.Path
 
 /**
  * The main entry point to the library. Extracts any given archive recursively and runs all
@@ -50,7 +49,10 @@ class Processor private constructor (
         /**
          * Value of "restrictToPackagePrefixes" config for reversed jetification.
          */
-        private const val REVERSE_RESTRICT_TO_PACKAGE = "androidx"
+        private val REVERSE_RESTRICT_TO_PACKAGE = listOf(
+            "androidx/",
+            "com/google/android/material/"
+        )
 
         /**
          * Transformers to be used when refactoring general libraries.
@@ -89,7 +91,7 @@ class Processor private constructor (
 
             if (reversedMode) {
                 newConfig = Config(
-                    restrictToPackagePrefixes = listOf(REVERSE_RESTRICT_TO_PACKAGE),
+                    restrictToPackagePrefixes = REVERSE_RESTRICT_TO_PACKAGE,
                     rewriteRules = config.rewriteRules,
                     slRules = config.slRules,
                     pomRewriteRules = emptySet(), // TODO: This will need a new set of rules
@@ -120,27 +122,19 @@ class Processor private constructor (
      * - [XmlResourcesTransformer] for java native code
      * - [ProGuardTransformer] for PorGuard files
      *
-     * @param outputPath Path where to save the generated library / libraries.
-     * @param outputIsDir Whether the [outputPath] represents a single file or a directory. In case
-     * of a single file, only one library can be given as input.
+     * @param input Files to process together with a path where they should be saved to.
      * @param copyUnmodifiedLibsAlso Whether archives that were not modified should be also copied
-     * to the given [outputPath]
-     * @return list of files (existing and generated) that should replace the given [inputLibraries]
+     * to their target path.
+     * @return list of files (existing and generated) that should replace the given [input] files.
      */
-    fun transform(inputLibraries: Set<File>,
-            outputPath: Path,
-            outputIsDir: Boolean,
-            copyUnmodifiedLibsAlso: Boolean = true
-    ): Set<File> {
-        // 0) Validate arguments
-        if (!outputIsDir && inputLibraries.size > 1) {
-            throw IllegalArgumentException("Cannot process more than 1 library (" + inputLibraries +
-                    ") when it is requested tha the destination (" + outputPath +
-                    ") be made a file")
+    fun transform(input: Set<FileMapping>, copyUnmodifiedLibsAlso: Boolean = true): Set<File> {
+        val inputLibraries = input.map { it.from }.toSet()
+        if (inputLibraries.size != input.size) {
+            throw IllegalArgumentException("Input files are duplicated!")
         }
 
         // 1) Extract and load all libraries
-        val libraries = loadLibraries(inputLibraries)
+        val libraries = loadLibraries(input)
 
         // 2) Search for POM files
         val pomFiles = scanPomFiles(libraries)
@@ -150,7 +144,7 @@ class Processor private constructor (
 
         if (context.errorsTotal() > 0) {
             throw IllegalArgumentException("There were ${context.errorsTotal()}" +
-                " errors found during the remapping. Check the logs for more details.")
+                    " errors found during the remapping. Check the logs for more details.")
         }
 
         // TODO: Here we might need to modify the POM files if they point at a library that we have
@@ -161,15 +155,11 @@ class Processor private constructor (
 
         // 5) Repackage the libraries back to archive files
         val generatedLibraries = libraries
-            .filter { copyUnmodifiedLibsAlso || it.wasChanged }
-            .map {
-                if (outputIsDir) {
-                    it.writeSelfToDir(outputPath)
-                } else {
-                    it.writeSelfToFile(outputPath)
+                .filter { copyUnmodifiedLibsAlso || it.wasChanged }
+                .map {
+                    it.writeSelf()
                 }
-            }
-            .toSet()
+                .toSet()
 
         if (copyUnmodifiedLibsAlso) {
             return generatedLibraries
@@ -177,9 +167,9 @@ class Processor private constructor (
 
         // 6) Create a set of files that should be removed (because they've been changed).
         val filesToRemove = libraries
-            .filter { it.wasChanged }
-            .map { it.relativePath.toFile() }
-            .toSet()
+                .filter { it.wasChanged }
+                .map { it.relativePath.toFile() }
+                .toSet()
 
         return inputLibraries.minus(filesToRemove).plus(generatedLibraries)
     }
@@ -208,14 +198,16 @@ class Processor private constructor (
             .toSet()
     }
 
-    private fun loadLibraries(inputLibraries: Iterable<File>): List<Archive> {
+    private fun loadLibraries(inputLibraries: Iterable<FileMapping>): List<Archive> {
         val libraries = mutableListOf<Archive>()
         for (library in inputLibraries) {
-            if (!library.canRead()) {
+            if (!library.from.canRead()) {
                 throw FileNotFoundException("Cannot open a library at '$library'")
             }
 
-            libraries.add(Archive.Builder.extract(library))
+            val archive = Archive.Builder.extract(library.from)
+            archive.setTargetPath(library.to.toPath())
+            libraries.add(archive)
         }
         return libraries.toList()
     }

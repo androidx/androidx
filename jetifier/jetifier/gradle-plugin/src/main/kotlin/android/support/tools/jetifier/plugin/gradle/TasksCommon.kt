@@ -16,6 +16,7 @@
 
 package android.support.tools.jetifier.plugin.gradle
 
+import android.support.tools.jetifier.core.FileMapping
 import android.support.tools.jetifier.core.Processor
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.utils.Log
@@ -31,16 +32,13 @@ class TasksCommon {
         var configFilePath: Path? = null
 
         fun processFiles(
-            config: Config,
-            filesToProcess: Set<File>,
-            logger: Logger,
-            outputDir: File
+                config: Config,
+                filesToProcess: Set<FileMapping>,
+                logger: Logger
         ): Set<File> {
-            outputDir.mkdirs()
-
             logger.log(LogLevel.DEBUG, "Jetifier will now process the following files:")
             filesToProcess.forEach {
-                logger.log(LogLevel.DEBUG, it.absolutePath)
+                logger.log(LogLevel.DEBUG, it.from.absolutePath)
             }
 
             // Hook to the gradle logger
@@ -48,10 +46,8 @@ class TasksCommon {
 
             val processor = Processor.createProcessor(config)
             return processor.transform(
-                filesToProcess,
-                outputDir.toPath(),
-                outputIsDir = true,
-                copyUnmodifiedLibsAlso = false)
+                    filesToProcess,
+                    copyUnmodifiedLibsAlso = false)
         }
 
         fun shouldSkipArtifact(artifactId: String, groupId: String?, config: Config): Boolean {
