@@ -43,6 +43,15 @@ public class PagedSnapHelper extends LinearSnapHelper {
      */
     private static final float VIEW_VISIBLE_THRESHOLD = 0.5f;
 
+    /**
+     * When a View is longer than containing RecyclerView, the percentage of the end of this View
+     * that needs to be completely visible to prevent the rest of views to be a viable snap target.
+     *
+     * <p>In other words, if a longer-than-screen View takes more than threshold screen space on its
+     * end, do not snap to any View.
+     */
+    private static final float LONG_ITEM_END_VISIBLE_THRESHOLD = 0.3f;
+
     private final PagedSmoothScroller mSmoothScroller;
     private RecyclerView mRecyclerView;
 
@@ -78,7 +87,12 @@ public class PagedSnapHelper extends LinearSnapHelper {
      *
      * @param layoutManager The current {@link RecyclerView.LayoutManager} for the attached
      *                      RecyclerView.
-     * @return The View closest to the start of the RecyclerView.
+     * @return The View closest to the start of the RecyclerView. Returns {@code null}when:
+     * <ul>
+     *     <li>there is no item; or
+     *     <li>no visible item can fully fit in the containing RecyclerView; or
+     *     <li>an item longer than containing RecyclerView is about to scroll out.
+     * </ul>
      */
     @Override
     @Nullable
@@ -94,6 +108,20 @@ public class PagedSnapHelper extends LinearSnapHelper {
         if (childCount == 1) {
             View firstChild = layoutManager.getChildAt(0);
             return isValidSnapView(firstChild, orientationHelper) ? firstChild : null;
+        }
+
+        // If the top child view is longer than the RecyclerView (long item), and it's not yet
+        // scrolled out - meaning the screen it takes up is more than threshold,
+        // do not snap to any view.
+        // This way avoids next View snapping to top "pushes" out the end of a long item.
+        View firstChild = mRecyclerView.getChildAt(0);
+        if (firstChild.getHeight() > mRecyclerView.getHeight()
+                // Long item start is scrolled past screen;
+                && orientationHelper.getDecoratedStart(firstChild) < 0
+                // and it takes up more than threshold screen size.
+                && orientationHelper.getDecoratedEnd(firstChild) > (
+                        mRecyclerView.getHeight() * LONG_ITEM_END_VISIBLE_THRESHOLD)) {
+            return null;
         }
 
         View lastVisibleChild = layoutManager.getChildAt(childCount - 1);
@@ -145,25 +173,18 @@ public class PagedSnapHelper extends LinearSnapHelper {
 
     /**
      * Returns whether or not the given View is a valid snapping view. A view is considered valid
-     * for snapping if:
-     *
-     * <ol>
-     *     <li>It can fit entirely within the height of the RecyclerView it is contained within.
-     *     <li>Or the start of the view is not above the start of the RecyclerView.
-     * </ol>
+     * for snapping if it can fit entirely within the height of the RecyclerView it is contained
+     * within.
      *
      * <p>If the view is larger than the RecyclerView, then it might not want to be snapped to
-     * to allow the user to scroll and see the rest of the View. Likewise, if the start of the
-     * view is above the start of the RecyclerView, it implies that the user has already scrolled
-     * past it and might want to see the rest of it. Thus, the view should not be snapped to.
+     * to allow the user to scroll and see the rest of the View.
      *
      * @param view The view to determine the snapping potential.
      * @param helper The {@link OrientationHelper} associated with the current RecyclerView.
      * @return {@code true} if the given view is a valid snapping view; {@code false} otherwise.
      */
     private boolean isValidSnapView(View view, OrientationHelper helper) {
-        return helper.getDecoratedMeasurement(view) <= helper.getLayoutManager().getHeight()
-                || helper.getDecoratedStart(view) >= 0;
+        return helper.getDecoratedMeasurement(view) <= helper.getLayoutManager().getHeight();
     }
 
     /**
