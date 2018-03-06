@@ -110,7 +110,8 @@ class LoaderManagerImpl extends LoaderManager {
                 // Removing and re-adding the observer ensures that the
                 // observer is called again, even if they had already
                 // received the current data
-                removeObserver(observer);
+                // Use super.removeObserver to avoid nulling out mLifecycleOwner & mObserver
+                super.removeObserver(observer);
                 observe(lifecycleOwner, observer);
             }
         }
