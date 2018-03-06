@@ -24,10 +24,12 @@ import android.arch.persistence.room.PrimaryKey
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.ext.CommonTypeNames
 import android.arch.persistence.room.ext.LifecyclesTypeNames
+import android.arch.persistence.room.ext.PagingTypeNames
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.parser.Table
 import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER
+import android.arch.persistence.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import android.arch.persistence.room.solver.query.result.LiveDataQueryResultBinder
 import android.arch.persistence.room.solver.query.result.PojoRowAdapter
 import android.arch.persistence.room.solver.query.result.SingleEntityQueryResultAdapter
@@ -56,6 +58,7 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -451,6 +454,48 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     }
 
     @Test
+    fun testDataSourceFactoryQuery() {
+        singleQueryMethod(
+                """
+                @Query("select name from user")
+                abstract ${PagingTypeNames.DATA_SOURCE_FACTORY}<Integer, String>
+                nameDataSourceFactory();
+                """
+        ) { parsedQuery, _ ->
+            assertThat(parsedQuery.returnType.typeName(),
+                    `is`(ParameterizedTypeName.get(PagingTypeNames.DATA_SOURCE_FACTORY,
+                            Integer::class.typeName(), String::class.typeName()) as TypeName))
+            assertThat(parsedQuery.queryResultBinder,
+                    instanceOf(DataSourceFactoryQueryResultBinder::class.java))
+            val tableNames =
+                    (parsedQuery.queryResultBinder as DataSourceFactoryQueryResultBinder)
+                            .positionalDataSourceQueryResultBinder.tableNames
+            assertEquals(setOf("user"), tableNames)
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testMultiTableDataSourceFactoryQuery() {
+        singleQueryMethod(
+                """
+                @Query("select name from User u LEFT OUTER JOIN Book b ON u.uid == b.uid")
+                abstract ${PagingTypeNames.DATA_SOURCE_FACTORY}<Integer, String>
+                nameDataSourceFactory();
+                """
+        ) { parsedQuery, _ ->
+            assertThat(parsedQuery.returnType.typeName(),
+                    `is`(ParameterizedTypeName.get(PagingTypeNames.DATA_SOURCE_FACTORY,
+                            Integer::class.typeName(), String::class.typeName()) as TypeName))
+            assertThat(parsedQuery.queryResultBinder,
+                    instanceOf(DataSourceFactoryQueryResultBinder::class.java))
+            val tableNames =
+                    (parsedQuery.queryResultBinder as DataSourceFactoryQueryResultBinder)
+                            .positionalDataSourceQueryResultBinder.tableNames
+            assertEquals(setOf("User", "Book"), tableNames)
+        }.compilesWithoutError()
+    }
+
+    @Test
     fun query_detectTransaction_delete() {
         singleQueryMethod(
                 """
@@ -737,7 +782,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-                ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER))
+                ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK))
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(Query::class, Dao::class, ColumnInfo::class,
                                 Entity::class, PrimaryKey::class)
