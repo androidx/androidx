@@ -42,6 +42,8 @@ limitations under the License.
             android:layout_height="wrap_content"
             android:theme="?attr/dialogListTheme"
             app:gutter="none"
+            app:dividerStartMargin="@dimen/car_keyline_1"
+            app:dividerEndMargin="@dimen/car_keyline_1"
             app:showPagedListViewDivider="true"
             app:scrollBarEnabled="false" />
     </androidx.car.widget.ColumnCardView>
