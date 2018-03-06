@@ -63,7 +63,7 @@ public class SliceRenderer {
         mParent = new ViewGroup(mContext) {
             @Override
             protected void onLayout(boolean changed, int l, int t, int r, int b) {
-                int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 900,
+                int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1000,
                         mContext.getResources().getDisplayMetrics());
                 int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300,
                         mContext.getResources().getDisplayMetrics());
