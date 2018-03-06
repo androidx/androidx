@@ -93,6 +93,9 @@ public class WorkSpec {
     @ColumnInfo(name = "period_start_time")
     long mPeriodStartTime;
 
+    @ColumnInfo(name = "minimum_retention_duration")
+    long mMinimumRetentionDuration;
+
     public WorkSpec(@NonNull String id) {
         mId = id;
     }
@@ -273,6 +276,14 @@ public class WorkSpec {
         mPeriodStartTime = periodStartTime;
     }
 
+    public long getMinimumRetentionDuration() {
+        return mMinimumRetentionDuration;
+    }
+
+    public void setMinimumRetentionDuration(long minimumRetentionDuration) {
+        mMinimumRetentionDuration = minimumRetentionDuration;
+    }
+
     /**
      * Calculates the UTC time at which this {@link WorkSpec} should be allowed to run.
      * This method accounts for work that is backed off or periodic.
@@ -331,6 +342,7 @@ public class WorkSpec {
         if (mRunAttemptCount != workSpec.mRunAttemptCount) return false;
         if (mBackoffDelayDuration != workSpec.mBackoffDelayDuration) return false;
         if (mPeriodStartTime != workSpec.mPeriodStartTime) return false;
+        if (mMinimumRetentionDuration != workSpec.mMinimumRetentionDuration) return false;
         if (!mId.equals(workSpec.mId)) return false;
         if (mState != workSpec.mState) return false;
         if (!mWorkerClassName.equals(workSpec.mWorkerClassName)) return false;
@@ -361,6 +373,8 @@ public class WorkSpec {
         result = 31 * result + mBackoffPolicy.hashCode();
         result = 31 * result + (int) (mBackoffDelayDuration ^ (mBackoffDelayDuration >>> 32));
         result = 31 * result + (int) (mPeriodStartTime ^ (mPeriodStartTime >>> 32));
+        result = 31 * result + (int) (mMinimumRetentionDuration ^ (mMinimumRetentionDuration
+                >>> 32));
         return result;
     }
 

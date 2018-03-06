@@ -127,6 +127,12 @@ public abstract class Work implements BaseWork {
         }
 
         @Override
+        public Builder keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
+            mInternalBuilder.keepResultsForAtLeast(duration, timeUnit);
+            return this;
+        }
+
+        @Override
         public Work build() {
             return mInternalBuilder.build();
         }

@@ -134,6 +134,12 @@ public abstract class PeriodicWork implements BaseWork {
         }
 
         @Override
+        public Builder keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
+            mInternalBuilder.keepResultsForAtLeast(duration, timeUnit);
+            return this;
+        }
+
+        @Override
         public PeriodicWork build() {
             return mInternalBuilder.build();
         }

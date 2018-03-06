@@ -31,6 +31,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.Arguments;
@@ -60,8 +61,21 @@ public abstract class WorkDatabase extends RoomDatabase {
     private static final String DB_NAME = "androidx.work.workmanager.work";
     private static final String CLEANUP_SQL = "UPDATE workspec SET state=" + ENQUEUED
             + " WHERE state=" + RUNNING;
-    private static final String PRUNE_SQL_PREFIX = "DELETE FROM workspec WHERE state IN ("
-            + SUCCEEDED + ", " + FAILED + ", " + CANCELLED + ") AND period_start_time < ";
+
+    private static final String COMPLETED_STATES =
+            "(" + SUCCEEDED + ", " + FAILED + ", " + CANCELLED + ")";
+
+    // Delete rows in the workspec table that...
+    private static final String PRUNE_SQL_FORMAT = "DELETE FROM workspec WHERE "
+            // are completed...
+            + "state IN " + COMPLETED_STATES + " AND "
+            // and the minimum retention time has expired...
+            + "(period_start_time + minimum_retention_duration) < %d AND"
+            // and all dependents are completed.
+            + "(SELECT COUNT(*)=0 FROM dependency WHERE "
+            + "    prerequisite_id=id AND "
+            + "    work_spec_id NOT IN "
+            + "        (SELECT id FROM workspec WHERE state IN " + COMPLETED_STATES + "))";
 
     private static final long PRUNE_THRESHOLD_MILLIS = TimeUnit.DAYS.toMillis(7);
 
@@ -93,8 +107,9 @@ public abstract class WorkDatabase extends RoomDatabase {
                 try {
                     db.execSQL(CLEANUP_SQL);
 
-                    // Delete everything that's finished and older than PRUNE_THRESHOLD_MILLIS.
-                    db.execSQL(PRUNE_SQL_PREFIX + getPruneDate(), new Object[0]);
+                    // Prune everything that is completed, has an expired retention time, and has no
+                    // active dependents:
+                    db.execSQL(getPruneSQL());
 
                     db.setTransactionSuccessful();
                 } finally {
@@ -102,6 +117,10 @@ public abstract class WorkDatabase extends RoomDatabase {
                 }
             }
         };
+    }
+
+    private static String getPruneSQL() {
+        return String.format(Locale.getDefault(), PRUNE_SQL_FORMAT, getPruneDate());
     }
 
     static long getPruneDate() {

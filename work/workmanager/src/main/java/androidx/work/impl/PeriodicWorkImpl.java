@@ -143,8 +143,15 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
         }
 
         @Override
+        public Builder keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
+            mWorkSpec.setMinimumRetentionDuration(timeUnit.toMillis(duration));
+            return this;
+        }
+
+        @Override
         public PeriodicWorkImpl build() {
-            if (mBackoffCriteriaSet && Build.VERSION.SDK_INT >= 23
+            if (mBackoffCriteriaSet
+                    && Build.VERSION.SDK_INT >= 23
                     && mWorkSpec.getConstraints().requiresDeviceIdle()) {
                 throw new IllegalArgumentException(
                         "Cannot set backoff criteria on an idle mode job");

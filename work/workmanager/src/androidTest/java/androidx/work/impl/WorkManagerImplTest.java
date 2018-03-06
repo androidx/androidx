@@ -216,7 +216,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         Work work2 = new Work.Builder(TestWorker.class).build();
         workContinuation.then(work2).enqueue();
-        assertThat(workSpecDao.getState(work2.getId()), is(ENQUEUED));
+        assertThat(workSpecDao.getState(work2.getId()), is(not(BLOCKED)));
     }
 
     @Test
@@ -795,6 +795,44 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(work2.getId()), is(not(nullValue())));
+    }
+
+    @Test
+    @SmallTest
+    public void testGenerateCleanupCallback_doesNotDeleteOldFinishedWorkWithActiveDependents() {
+        Work work0 = new Work.Builder(TestWorker.class)
+                .withInitialState(SUCCEEDED)
+                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
+                .build();
+        Work work1 = new Work.Builder(TestWorker.class)
+                .withInitialState(SUCCEEDED)
+                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
+                .build();
+        Work work2 = new Work.Builder(TestWorker.class)
+                .withInitialState(ENQUEUED)
+                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
+                .build();
+
+        insertWorkSpecAndTags(work0);
+        insertWorkSpecAndTags(work1);
+        insertWorkSpecAndTags(work2);
+
+        // Dependency graph: 0 -> 1 -> 2
+
+        Dependency dependency10 = new Dependency(work1.getId(), work0.getId());
+        Dependency dependency21 = new Dependency(work2.getId(), work1.getId());
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
+        dependencyDao.insertDependency(dependency10);
+        dependencyDao.insertDependency(dependency21);
+
+        SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
+        SupportSQLiteDatabase db = openHelper.getWritableDatabase();
+        WorkDatabase.generateCleanupCallback().onOpen(db);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(work0.getId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(work1.getId()), is(not(nullValue())));
         assertThat(workSpecDao.getWorkSpec(work2.getId()), is(not(nullValue())));
     }
 

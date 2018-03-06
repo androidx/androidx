@@ -98,6 +98,24 @@ public interface BaseWork {
         B addTag(@NonNull String tag);
 
         /**
+         * Specifies that the results of this work should be kept for at least the specified amount
+         * of time.  After this time has elapsed, the results may be pruned at the discretion of
+         * WorkManager when there are no pending dependent jobs.
+         *
+         * When the results of a work are pruned, it becomes impossible to query for its
+         * {@link WorkStatus}.
+         *
+         * Specifying a long duration here may adversely affect performance in terms of app storage
+         * and database query time.
+         *
+         * @param duration The minimum duration of time (in {@code timeUnit} units) to keep the
+         *                 results of this work
+         * @param timeUnit The unit of time for {@code duration}
+         * @return The current {@link Builder}
+         */
+        B keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit);
+
+        /**
          * Builds this work object.
          *
          * @return The concrete implementation of the work associated with this builder
