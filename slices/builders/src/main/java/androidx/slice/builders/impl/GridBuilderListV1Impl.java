@@ -24,20 +24,21 @@ import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.builders.SliceAction;
 
@@ -123,6 +124,13 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
     @Override
     public void setPrimaryAction(SliceAction action) {
         mPrimaryAction = action;
+    }
+
+    /**
+     */
+    @Override
+    public void setContentDescription(CharSequence description) {
+        getBuilder().addText(description, SUBTYPE_CONTENT_DESCRIPTION);
     }
 
     /**
@@ -213,6 +221,13 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
         @Override
         public void setContentIntent(@NonNull PendingIntent intent) {
             mContentIntent = intent;
+        }
+
+        /**
+         */
+        @Override
+        public void setContentDescription(CharSequence description) {
+            getBuilder().addText(description, SUBTYPE_CONTENT_DESCRIPTION);
         }
 
         /**
