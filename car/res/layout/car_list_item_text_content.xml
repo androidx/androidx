@@ -88,8 +88,6 @@
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
-        android:background="@color/car_card"
-        android:foreground="@drawable/car_card_ripple_background"
         style="?android:attr/borderlessButtonStyle"/>
     <View
         android:id="@+id/action1_divider"
@@ -107,7 +105,5 @@
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
-        android:background="@color/car_card"
-        android:foreground="@drawable/car_card_ripple_background"
         style="?android:attr/borderlessButtonStyle"/>
 </RelativeLayout>
