@@ -16,11 +16,11 @@
 
 package androidx.car.utils;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 import android.text.InputFilter;
 import android.widget.TextView;
 

@@ -16,12 +16,12 @@
  */
 package com.example.android.leanback;
 
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v17.leanback.widget.BrowseFrameLayout;
-import android.support.v17.leanback.widget.TitleHelper;
-import android.support.v17.leanback.widget.TitleView;
+import androidx.leanback.widget.BrowseFrameLayout;
+import androidx.leanback.widget.TitleHelper;
+import androidx.leanback.widget.TitleView;
 import android.view.View;
 
 public class RowsSupportActivity extends FragmentActivity

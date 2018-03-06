@@ -14,4 +14,4 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<transition class="android.support.transition.TransitionInflaterTest$CustomTransition"/>
+<transition class="androidx.transition.TransitionInflaterTest$CustomTransition"/>

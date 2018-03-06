@@ -4,12 +4,13 @@ import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("androidx.tools.jetifier")
 }
 
 dependencies {
-    api project(':appcompat-v7')
-    api project(':cardview-v7')
-    api("com.android.support:design-widget:28.0.0-alpha1") {
+    api project(':appcompat')
+    api project(':cardview')
+    api "com.android.support:design-widget:28.0.0-alpha1", {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'com.android.support', module: 'support-compat'
         exclude group: 'com.android.support', module: 'support-core-ui'
@@ -20,13 +21,13 @@ dependencies {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
         exclude group: 'com.android.support', module: 'cardview-v7'
     }
-    api project(':support-annotations')
-    api project(':support-v4')
-    api project(':recyclerview-v7')
+    api project(':annotation')
+    api project(':legacy-support-v4')
+    api project(':recyclerview')
 
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_support)
+    androidTestImplementation jetifier.process(TEST_RUNNER, libs.exclude_support)
+    androidTestImplementation jetifier.process(ESPRESSO_CORE, libs.exclude_support)
+    androidTestImplementation jetifier.process(ESPRESSO_CONTRIB, libs.exclude_support)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 

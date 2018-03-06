@@ -40,14 +40,14 @@
         app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_6_items_end"
         style="@style/WsVerticalGuideStyle" />
 
-    <android.support.wear.widget.CircledImageView
+    <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_0"
         app:layout_constraintTop_toTopOf="@id/ws_nav_drawer_guide_top"
         app:layout_constraintStart_toStartOf="@id/ws_nav_drawer_guide_start"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
-    <android.support.wear.widget.CircledImageView
+    <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_1"
         app:layout_constraintTop_toTopOf="@id/ws_nav_drawer_guide_top"
         app:layout_constraintStart_toStartOf="parent"
@@ -55,21 +55,21 @@
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
-    <android.support.wear.widget.CircledImageView
+    <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_2"
         app:layout_constraintTop_toTopOf="@id/ws_nav_drawer_guide_top"
         app:layout_constraintEnd_toEndOf="@id/ws_nav_drawer_guide_end"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
-    <android.support.wear.widget.CircledImageView
+    <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_3"
         app:layout_constraintBottom_toBottomOf="@id/ws_nav_drawer_guide_bottom"
         app:layout_constraintStart_toStartOf="@id/ws_nav_drawer_guide_start"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
-    <android.support.wear.widget.CircledImageView
+    <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_4"
         app:layout_constraintBottom_toBottomOf="@id/ws_nav_drawer_guide_bottom"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,7 +77,7 @@
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
-    <android.support.wear.widget.CircledImageView
+    <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_5"
         app:layout_constraintBottom_toBottomOf="@id/ws_nav_drawer_guide_bottom"
         app:layout_constraintEnd_toEndOf="@id/ws_nav_drawer_guide_end"

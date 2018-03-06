@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatSpinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_tinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatSpinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_tinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -42,20 +42,20 @@
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatSpinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_untinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/planets_array" />
 
-        <android.support.v7.widget.AppCompatSpinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_untinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/planets_array"
             android:background="@drawable/test_background_green" />
 
-        <android.support.v7.widget.AppCompatSpinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_magenta_themed_popup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -64,7 +64,7 @@
             app:backgroundTintMode="src_in"
             app:popupTheme="@style/MagentaSpinnerPopupTheme" />
 
-        <android.support.v7.widget.AppCompatSpinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_unthemed_popup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatSpinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/view_ocean_themed_popup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

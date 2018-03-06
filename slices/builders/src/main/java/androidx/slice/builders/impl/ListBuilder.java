@@ -16,14 +16,14 @@
 
 package androidx.slice.builders.impl;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import androidx.slice.builders.SliceAction;
 

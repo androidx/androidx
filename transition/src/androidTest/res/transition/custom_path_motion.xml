@@ -15,5 +15,5 @@
      limitations under the License.
 -->
 <changeBounds>
-    <pathMotion class="android.support.transition.TransitionInflaterTest$CustomPathMotion"/>
+    <pathMotion class="androidx.transition.TransitionInflaterTest$CustomPathMotion"/>
 </changeBounds>

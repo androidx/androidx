@@ -19,7 +19,7 @@
     other nested scrolling containers or have other nested scrolling containers
     placed into it.
 -->
-<android.support.v4.widget.NestedScrollView
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearance"
             android:text="@string/nested_scroll_long_text" />
-        <android.support.v4.widget.NestedScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:padding="16dp">
@@ -42,11 +42,11 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearance"
                 android:text="@string/nested_scroll_long_text" />
-        </android.support.v4.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearance"
             android:text="@string/nested_scroll_long_text" />
     </LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+</androidx.core.widget.NestedScrollView>

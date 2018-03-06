@@ -31,31 +31,31 @@
     <application
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
-        <activity android:name="android.support.v4.widget.ListViewTestActivity"/>
+        <activity android:name="androidx.core.widget.ListViewTestActivity"/>
 
-        <activity android:name="android.support.v4.widget.TextViewTestActivity"/>
+        <activity android:name="androidx.core.widget.TextViewTestActivity"/>
 
-        <activity android:name="android.support.v4.view.VpaActivity"/>
+        <activity android:name="androidx.core.view.VpaActivity"/>
 
         <activity
             android:name="android.support.v4.ThemedYellowActivity"
             android:theme="@style/YellowTheme"/>
 
-        <activity android:name="android.support.v4.view.ViewCompatActivity"/>
+        <activity android:name="androidx.core.view.ViewCompatActivity"/>
 
-        <activity android:name="android.support.v4.app.TestSupportActivity"
+        <activity android:name="androidx.core.app.TestSupportActivity"
                   android:icon="@drawable/test_drawable_blue"/>
 
-        <activity android:name="android.support.v13.view.DragStartHelperTestActivity"/>
+        <activity android:name="androidx.core.view.DragStartHelperTestActivity"/>
 
-        <activity android:name="android.support.v4.widget.ContentLoadingProgressBarActivity"/>
+        <activity android:name="androidx.core.widget.ContentLoadingProgressBarActivity"/>
 
-        <activity android:name="android.support.v4.widget.TextViewTestActivity"/>
-        <activity android:name="android.support.v4.app.FrameMetricsActivity"/>
-        <activity android:name="android.support.v4.app.FrameMetricsSubActivity"/>
+        <activity android:name="androidx.core.widget.TextViewTestActivity"/>
+        <activity android:name="androidx.core.app.FrameMetricsActivity"/>
+        <activity android:name="androidx.core.app.FrameMetricsSubActivity"/>
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="moocow"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -64,12 +64,12 @@
                 android:resource="@xml/paths"/>
         </provider>
 
-        <provider android:name="android.support.v4.provider.MockFontProvider"
+        <provider android:name="androidx.core.provider.MockFontProvider"
                   android:authorities="android.support.provider.fonts.font"
                   android:exported="false"
                   android:multiprocess="true"/>
 
-        <service android:name="android.support.v4.app.JobIntentServiceTest$TargetService"
+        <service android:name="androidx.core.app.JobIntentServiceTest$TargetService"
                  android:permission="android.permission.BIND_JOB_SERVICE"/>
 
     </application>

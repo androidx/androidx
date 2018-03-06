@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":support-v4"))
+    implementation(project(":legacy-support-v4"))
 }

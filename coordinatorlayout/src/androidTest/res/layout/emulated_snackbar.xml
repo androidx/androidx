@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<android.support.design.custom.CustomBar
+<androidx.coordinatorlayout.custom.CustomBar
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/bar"
     android:layout_width="match_parent"

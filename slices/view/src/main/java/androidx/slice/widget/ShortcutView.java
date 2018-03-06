@@ -39,7 +39,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 import android.widget.ImageView;
 
 import androidx.slice.Slice;

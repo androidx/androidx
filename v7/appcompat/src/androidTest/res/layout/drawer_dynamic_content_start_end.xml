@@ -15,7 +15,7 @@
 -->
 
 <!-- Drawer content with one start drawer and one end drawer -->
-<android.support.v7.custom.CustomDrawerLayout
+<androidx.appcompat.custom.CustomDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
@@ -44,5 +44,5 @@
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:background="#444" />
-</android.support.v7.custom.CustomDrawerLayout>
+</androidx.appcompat.custom.CustomDrawerLayout>
 

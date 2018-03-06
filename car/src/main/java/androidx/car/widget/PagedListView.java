@@ -16,7 +16,7 @@
 
 package androidx.car.widget;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -27,17 +27,17 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.support.annotation.ColorRes;
-import android.support.annotation.IdRes;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.UiThread;
-import android.support.annotation.VisibleForTesting;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.ColorRes;
+import androidx.annotation.IdRes;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -49,7 +49,7 @@ import android.widget.FrameLayout;
 import androidx.car.R;
 
 /**
- * View that wraps a {@link android.support.v7.widget.RecyclerView} and a scroll bar that has
+ * View that wraps a {@link RecyclerView} and a scroll bar that has
  * page up and down arrows. Interaction with this view is similar to a {@code RecyclerView} as it
  * takes the same adapter.
  *
@@ -132,11 +132,11 @@ public class PagedListView extends FrameLayout {
     private int mGutterSize;
 
     /**
-     * Interface for a {@link android.support.v7.widget.RecyclerView.Adapter} to cap the number of
+     * Interface for a {@link RecyclerView.Adapter} to cap the number of
      * items.
      *
      * <p>NOTE: it is still up to the adapter to use maxItems in {@link
-     * android.support.v7.widget.RecyclerView.Adapter#getItemCount()}.
+     * RecyclerView.Adapter#getItemCount()}.
      *
      * <p>the recommended way would be with:
      *
@@ -210,7 +210,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Interface for a {@link android.support.v7.widget.RecyclerView.Adapter} to set the position
+     * Interface for a {@link RecyclerView.Adapter} to set the position
      * offset for the adapter to load the data.
      *
      * <p>For example in the adapter, if the positionOffset is 20, then for position 0 it will show
@@ -604,7 +604,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Adds an {@link android.support.v7.widget.RecyclerView.ItemDecoration} to this PagedListView.
+     * Adds an {@link RecyclerView.ItemDecoration} to this PagedListView.
      *
      * @param decor The decoration to add.
      * @see RecyclerView#addItemDecoration(RecyclerView.ItemDecoration)
@@ -614,7 +614,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Removes the given {@link android.support.v7.widget.RecyclerView.ItemDecoration} from this
+     * Removes the given {@link RecyclerView.ItemDecoration} from this
      * PagedListView.
      *
      * <p>The decoration will function the same as the item decoration for a {@link RecyclerView}.
@@ -672,7 +672,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Adds an {@link android.support.v7.widget.RecyclerView.OnItemTouchListener} to this
+     * Adds an {@link RecyclerView.OnItemTouchListener} to this
      * PagedListView.
      *
      * <p>The listener will function the same as the listener for a regular {@link RecyclerView}.
@@ -685,7 +685,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Removes the given {@link android.support.v7.widget.RecyclerView.OnItemTouchListener} from
+     * Removes the given {@link RecyclerView.OnItemTouchListener} from
      * the PagedListView.
      *
      * @param touchListener The touch listener to remove.
@@ -1066,7 +1066,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * A {@link android.support.v7.widget.RecyclerView.ItemDecoration} that will add spacing
+     * A {@link RecyclerView.ItemDecoration} that will add spacing
      * between each item in the RecyclerView that it is added to.
      */
     private static class ItemSpacingDecoration extends RecyclerView.ItemDecoration {
@@ -1100,7 +1100,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * A {@link android.support.v7.widget.RecyclerView.ItemDecoration} that will draw a dividing
+     * A {@link RecyclerView.ItemDecoration} that will draw a dividing
      * line between each item in the RecyclerView that it is added to.
      */
     private static class DividerDecoration extends RecyclerView.ItemDecoration {
@@ -1239,7 +1239,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * A {@link android.support.v7.widget.RecyclerView.ItemDecoration} that will add a top offset
+     * A {@link RecyclerView.ItemDecoration} that will add a top offset
      * to the first item in the RecyclerView it is added to.
      */
     private static class TopOffsetDecoration extends RecyclerView.ItemDecoration {

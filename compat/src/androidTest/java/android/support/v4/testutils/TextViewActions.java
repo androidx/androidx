@@ -17,13 +17,13 @@
 package android.support.v4.testutils;
 
 import android.graphics.drawable.Drawable;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.annotation.StyleRes;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.annotation.StyleRes;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
-import android.support.v4.widget.TextViewCompat;
+import androidx.core.widget.TextViewCompat;
 import android.view.View;
 import android.widget.TextView;
 import org.hamcrest.Matcher;

@@ -16,11 +16,11 @@
 package com.example.android.supportv7.util;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.util.SortedList;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.util.SortedListAdapterCallback;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.SortedList;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SortedListAdapterCallback;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;

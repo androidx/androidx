@@ -22,8 +22,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.support.v17.leanback.app.BackgroundManager;
-import android.support.v4.content.ContextCompat;
+import androidx.leanback.app.BackgroundManager;
+import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 

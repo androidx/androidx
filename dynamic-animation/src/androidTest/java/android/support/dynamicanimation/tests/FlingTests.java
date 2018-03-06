@@ -24,11 +24,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import android.support.animation.DynamicAnimation;
-import android.support.animation.FlingAnimation;
-import android.support.animation.FloatPropertyCompat;
-import android.support.animation.FloatValueHolder;
-import android.support.dynamicanimation.test.R;
+import androidx.dynamicanimation.animation.DynamicAnimation;
+import androidx.dynamicanimation.animation.FlingAnimation;
+import androidx.dynamicanimation.animation.FloatPropertyCompat;
+import androidx.dynamicanimation.animation.FloatValueHolder;
+import androidx.dynamicanimation.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;

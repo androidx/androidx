@@ -17,11 +17,11 @@
 package com.example.android.support.transition.widget;
 
 import android.os.Bundle;
-import android.support.transition.ArcMotion;
-import android.support.transition.ChangeBounds;
-import android.support.transition.Transition;
-import android.support.transition.TransitionManager;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import androidx.transition.ArcMotion;
+import androidx.transition.ChangeBounds;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;

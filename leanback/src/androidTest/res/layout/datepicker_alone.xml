@@ -19,7 +19,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <android.support.v17.leanback.widget.picker.DatePicker
+    <androidx.leanback.widget.picker.DatePicker
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/date_picker"
         android:importantForAccessibility="yes"
