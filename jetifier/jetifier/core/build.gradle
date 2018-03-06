@@ -35,7 +35,7 @@ dependencies {
 
 supportLibrary {
     name = "Android Jetifier Core"
-    publish = true
+    publish = false
     mavenVersion = LibraryVersions.JETIFIER
     mavenGroup = LibraryGroups.JETIFIER
     generateDocs = false
