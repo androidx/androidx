@@ -21,7 +21,7 @@
     android:layout_height="match_parent">
 
     <android.support.text.emoji.widget.EmojiExtractEditText
-        android:id="@+id/android:inputExtractEditText"
+        android:id="@android:id/inputExtractEditText"
         android:layout_width="0px"
         android:layout_height="match_parent"
         android:layout_weight="1"
