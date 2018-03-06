@@ -17,8 +17,8 @@
 package com.example.android.support.text.emoji;
 
 import android.os.Bundle;
-import android.support.text.emoji.EmojiCompat;
-import android.support.v4.app.Fragment;
+import androidx.emoji.text.EmojiCompat;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

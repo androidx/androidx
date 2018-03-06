@@ -15,7 +15,7 @@
  */
 package android.support.v4.media;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -23,16 +23,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.StringDef;
-import android.support.v4.media.session.MediaControllerCompat.TransportControls;
-import android.support.v4.util.ArrayMap;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.StringDef;
+import androidx.media.session.MediaControllerCompat.TransportControls;
+import androidx.collection.ArrayMap;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
+
+import androidx.media.MediaBrowserCompat;
 
 /**
  * Contains metadata about an item, such as the title, artist, etc.

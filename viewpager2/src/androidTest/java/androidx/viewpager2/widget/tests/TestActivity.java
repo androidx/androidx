@@ -17,7 +17,7 @@
 package androidx.viewpager2.widget.tests;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 
 import androidx.viewpager2.test.R;
 import androidx.viewpager2.widget.ViewPager2;

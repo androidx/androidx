@@ -29,7 +29,7 @@
             android:id="@+id/background"
             style="?attr/playbackMediaItemRowStyle">
 
-        <android.support.v17.leanback.widget.MediaRowFocusView
+        <androidx.leanback.widget.MediaRowFocusView
                 android:id="@+id/mediaRowSelector"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"

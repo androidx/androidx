@@ -1,23 +1,23 @@
 plugins {
     id("SupportAndroidTestAppPlugin")
+    id("androidx.tools.jetifier")
 }
 
 dependencies {
-    implementation("com.android.support:design:28.0.0-alpha1") {
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'com.android.support', module: 'support-compat'
-        exclude group: 'com.android.support', module: 'support-core-ui'
-        exclude group: 'com.android.support', module: 'support-core-utils'
-        exclude group: 'com.android.support', module: 'support-fragment'
-        exclude group: 'com.android.support', module: 'transition'
-        exclude group: 'com.android.support', module: 'appcompat-v7'
-        exclude group: 'com.android.support', module: 'recyclerview-v7'
-        exclude group: 'com.android.support', module: 'cardview-v7'
+    api "com.android.temp.support:design:28.0.0-alpha1", {
+        exclude group: 'androidx.annotation'
+        exclude group: 'androidx.core'
+        exclude group: 'androidx.legacy'
+        exclude group: 'androidx.fragment'
+        exclude group: 'androidx.transition'
+        exclude group: 'androidx.appcompat'
+        exclude group: 'androidx.recyclerview'
+        exclude group: 'androidx.cardview'
     }
     implementation(project(":transition"))
-    implementation(project(":recyclerview-v7"))
-    implementation(project(":appcompat-v7"))
-    implementation(project(":cardview-v7"))
+    implementation(project(":recyclerview"))
+    implementation(project(":appcompat"))
+    implementation(project(":cardview"))
 }
 
 android {

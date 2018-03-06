@@ -21,7 +21,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.widget.SlidingPaneLayout;
+import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;

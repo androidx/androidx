@@ -23,7 +23,7 @@
     android:layout_weight="1"
     android:layout_height="match_parent">
 
-    <android.support.v17.leanback.widget.NonOverlappingView
+    <androidx.leanback.widget.NonOverlappingView
         android:id="@+id/guidedactions_list_background"
         android:transitionName="guidedactions_list_background"
         android:layout_width="match_parent"
@@ -33,17 +33,17 @@
 
     <!-- special relativelayout will assign guidedactions_sub_list's topMargin using percentage
          defined by theme attribute guidedStepKeyline -->
-    <android.support.v17.leanback.widget.GuidedActionsRelativeLayout
+    <androidx.leanback.widget.GuidedActionsRelativeLayout
         android:id="@+id/guidedactions_content"
         android:transitionName="guidedactions_content"
         android:transitionGroup="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <android.support.v17.leanback.widget.VerticalGridView
+        <androidx.leanback.widget.VerticalGridView
             android:transitionGroup="true"
             android:id="@+id/guidedactions_list"
             style="?attr/guidedActionsListStyle" />
-        <android.support.v17.leanback.widget.NonOverlappingView
+        <androidx.leanback.widget.NonOverlappingView
             android:id="@+id/guidedactions_sub_list_background"
             android:transitionName="guidedactions_sub_list_background"
             android:layout_width="match_parent"
@@ -54,7 +54,7 @@
             android:layout_alignRight="@+id/guidedactions_sub_list"
             android:visibility="gone"
             android:background="?attr/guidedActionsBackgroundDark" />
-        <android.support.v17.leanback.widget.VerticalGridView
+        <androidx.leanback.widget.VerticalGridView
             android:transitionGroup="true"
             android:id="@+id/guidedactions_sub_list"
             android:layout_width="match_parent"
@@ -63,6 +63,6 @@
             style="?attr/guidedSubActionsListStyle"
             android:visibility="invisible" />
 
-    </android.support.v17.leanback.widget.GuidedActionsRelativeLayout>
+    </androidx.leanback.widget.GuidedActionsRelativeLayout>
 
 </RelativeLayout>

@@ -18,8 +18,8 @@ package com.example.android.leanback;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.support.v17.leanback.widget.PlaybackSeekDataProvider;
-import android.support.v4.util.LruCache;
+import androidx.leanback.widget.PlaybackSeekDataProvider;
+import androidx.collection.LruCache;
 import android.util.Log;
 import android.util.SparseArray;
 

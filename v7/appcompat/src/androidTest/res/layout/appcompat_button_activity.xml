@@ -25,28 +25,28 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             style="@style/TextStyleAllCapsOn"
             android:id="@+id/button_caps1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text1" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             style="@style/TextStyleAllCapsOff"
             android:id="@+id/button_caps2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_app_allcaps_false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             app:textAllCaps="false"/>
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/view_tinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/view_tinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -63,33 +63,33 @@
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/view_untinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/view_untinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             android:background="@drawable/test_background_green" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_colored_untinted"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             style="@style/Widget.AppCompat.Button.Colored"/>
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_untinted"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"/>
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_fontresource"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

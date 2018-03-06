@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 
-<transition class="android.support.v17.leanback.transition.FadeAndShortSlide"
+<transition class="androidx.leanback.transition.FadeAndShortSlide"
       xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       android:interpolator="@android:interpolator/fast_out_linear_in"

@@ -15,11 +15,11 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.v7.gridlayout.test">
+          package="androidx.gridlayout.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
-        <activity android:name="android.support.v7.widget.GridLayoutTestActivity"/>
+        <activity android:name="androidx.gridlayout.widget.GridLayoutTestActivity"/>
     </application>
 
 </manifest>

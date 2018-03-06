@@ -19,15 +19,15 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.support.v17.leanback.widget.Action;
-import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
+import androidx.leanback.widget.Action;
+import androidx.leanback.widget.ArrayObjectAdapter;
+import androidx.leanback.widget.PlaybackControlsRow;
+import androidx.leanback.widget.SparseArrayObjectAdapter;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
-abstract class PlaybackControlGlue extends android.support.v17.leanback.media.PlaybackControlGlue {
+abstract class PlaybackControlGlue extends androidx.leanback.media.PlaybackControlGlue {
     /**
      * Change the location of the thumbs up/down controls
      */

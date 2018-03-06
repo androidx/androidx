@@ -29,7 +29,7 @@ import android.content.Context;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.util.Preconditions;
+import androidx.core.util.Preconditions;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;

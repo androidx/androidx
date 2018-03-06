@@ -31,7 +31,7 @@
             android:focusable="true"
             android:background="?android:attr/selectableItemBackground"
         />
-        <android.support.v17.leanback.widget.picker.DatePicker
+        <androidx.leanback.widget.picker.DatePicker
             android:id="@+id/date_picker"
             android:importantForAccessibility="yes"
             android:focusable="true"

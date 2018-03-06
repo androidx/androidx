@@ -16,22 +16,22 @@ package com.example.android.leanback;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.HeaderItem;
-import android.support.v17.leanback.widget.ListRow;
-import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.OnItemViewClickedListener;
-import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.RowPresenter;
-import android.support.v4.content.res.ResourcesCompat;
+import androidx.leanback.widget.ArrayObjectAdapter;
+import androidx.leanback.widget.HeaderItem;
+import androidx.leanback.widget.ListRow;
+import androidx.leanback.widget.ListRowPresenter;
+import androidx.leanback.widget.OnItemViewClickedListener;
+import androidx.leanback.widget.Presenter;
+import androidx.leanback.widget.Row;
+import androidx.leanback.widget.RowPresenter;
+import androidx.core.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.View;
 
 import java.util.Random;
 
 public class BrowseAnimationFragment extends
-        android.support.v17.leanback.app.BrowseFragment {
+        androidx.leanback.app.BrowseFragment {
     private static final String TAG = "leanback.BrowseAnimationFragment";
 
     private static final int NUM_ROWS = 10;
