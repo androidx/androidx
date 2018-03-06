@@ -159,6 +159,8 @@ public class SliceViewUtil {
             Icon icon, boolean isLarge, ViewGroup parent) {
         ImageView v = new ImageView(context);
         v.setImageIcon(icon);
+        v.setScaleType(isLarge ? ImageView.ScaleType.CENTER_CROP
+                : ImageView.ScaleType.CENTER_INSIDE);
         parent.addView(v);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) v.getLayoutParams();
         if (isLarge) {

@@ -25,6 +25,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.ColorInt;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -60,6 +61,28 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     private boolean mHasSeeMore;
     private androidx.slice.builders.impl.ListBuilder mImpl;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE
+    })
+    public @interface ImageMode{}
+
+    /**
+     * Indicates that an image should be presented as an icon and it can be tinted.
+     */
+    public static final int ICON_IMAGE = 0;
+    /**
+     * Indicates that an image should be presented in a smaller size and it shouldn't be tinted.
+     */
+    public static final int SMALL_IMAGE = 1;
+    /**
+     * Indicates that an image presented in a larger size and it shouldn't be tinted.
+     */
+    public static final int LARGE_IMAGE = 2;
 
     /**
      * Create a builder which will construct a slice that will display rows of content.
@@ -473,11 +496,13 @@ public class ListBuilder extends TemplateSliceBuilder {
         /**
          * Sets the title item to be the provided icon. There can only be one title item, this
          * will replace any other title items that may have been set.
+         *
+         * @deprecated use ListBuilder{@link #setTitleItem(Icon, int)} instead.
          */
+        @Deprecated
         @NonNull
         public RowBuilder setTitleItem(@NonNull Icon icon) {
-            mImpl.setTitleItem(icon);
-            return this;
+            return setTitleItem(icon, ICON_IMAGE);
         }
 
         /**
@@ -489,10 +514,51 @@ public class ListBuilder extends TemplateSliceBuilder {
          * </p>
          * @param isLoading indicates whether the app is doing work to load the added content in the
          *                  background or not.
+         *
+         * @deprecated use ListBuilder{@link #setTitleItem(Icon, int, boolean)} instead.
          */
+        @Deprecated
         @NonNull
         public RowBuilder setTitleItem(@Nullable Icon icon, boolean isLoading) {
-            mImpl.setTitleItem(icon, isLoading);
+            return setTitleItem(icon, ICON_IMAGE, isLoading);
+        }
+
+        /**
+         * Sets the title item to be the provided icon. There can only be one title item, this
+         * will replace any other title items that may have been set.
+         *
+         * @param icon the image to display.
+         * @param imageMode the mode that image should be displayed in.
+         *
+         * @see #ICON_IMAGE
+         * @see #SMALL_IMAGE
+         * @see #LARGE_IMAGE
+         */
+        public RowBuilder setTitleItem(@NonNull Icon icon, @ImageMode int imageMode) {
+            mImpl.setTitleItem(icon, imageMode, false /* isLoading */);
+            return this;
+        }
+
+        /**
+         * Sets the title item to be the provided icon. There can only be one title item, this
+         * will replace any other title items that may have been set.
+         * <p>
+         * When set to true, the parameter {@code isLoading} indicates that the app is doing work
+         * to load this content in the background, in this case the template displays a placeholder
+         * until updated.
+         *
+         * @param icon the image to display.
+         * @param imageMode the mode that image should be displayed in.
+         * @param isLoading whether this content is being loaded in the background.
+         *
+         * @see #ICON_IMAGE
+         * @see #SMALL_IMAGE
+         * @see #LARGE_IMAGE
+         */
+        @NonNull
+        public RowBuilder setTitleItem(@Nullable Icon icon, @ImageMode int imageMode,
+                boolean isLoading) {
+            mImpl.setTitleItem(icon, imageMode, isLoading /* isLoading */);
             return this;
         }
 
@@ -596,10 +662,13 @@ public class ListBuilder extends TemplateSliceBuilder {
          * Adds an icon to be displayed at the end of the row. A mixture of icons and actions
          * is not permitted. If an action has already been added this will throw
          * {@link IllegalArgumentException}.
+         *
+         * @deprecated use ListBuilder{@link #addEndItem(Icon, int)} instead.
          */
+        @Deprecated
         @NonNull
         public RowBuilder addEndItem(@NonNull Icon icon) {
-            return addEndItem(icon, false /* isLoading */);
+            return addEndItem(icon, ICON_IMAGE, false /* isLoading */);
         }
 
         /**
@@ -612,15 +681,54 @@ public class ListBuilder extends TemplateSliceBuilder {
          * </p>
          * @param isLoading indicates whether the app is doing work to load the added content in the
          *                  background or not.
+         *
+         * @deprecated use ListBuilder{@link #addEndItem(Icon, int, boolean)} instead.
          */
+        @Deprecated
         @NonNull
         public RowBuilder addEndItem(@NonNull Icon icon, boolean isLoading) {
+            return addEndItem(icon, ICON_IMAGE, isLoading);
+        }
+
+        /**
+         * Adds an icon to be displayed at the end of the row.
+         *
+         * @param icon the image to display.
+         * @param imageMode the mode that image should be displayed in.
+         *
+         * @see #ICON_IMAGE
+         * @see #SMALL_IMAGE
+         * @see #LARGE_IMAGE
+         */
+        @NonNull
+        public RowBuilder addEndItem(@NonNull Icon icon, @ImageMode int imageMode) {
+            return addEndItem(icon, imageMode, false /* isLoading */);
+        }
+
+        /**
+         * Adds an icon to be displayed at the end of the row.
+         * <p>
+         * When set to true, the parameter {@code isLoading} indicates that the app is doing work
+         * to load this content in the background, in this case the template displays a placeholder
+         * until updated.
+         *
+         * @param icon the image to display.
+         * @param imageMode the mode that image should be displayed in.
+         * @param isLoading whether this content is being loaded in the background.
+         *
+         * @see #ICON_IMAGE
+         * @see #SMALL_IMAGE
+         * @see #LARGE_IMAGE
+         */
+        @NonNull
+        public RowBuilder addEndItem(@Nullable Icon icon, @ImageMode int imageMode,
+                boolean isLoading) {
             if (mHasEndActionOrToggle) {
                 throw new IllegalArgumentException("Trying to add an icon to end items when an"
                         + "action has already been added. End items cannot have a mixture of "
                         + "actions and icons.");
             }
-            mImpl.addEndItem(icon, isLoading);
+            mImpl.addEndItem(icon, imageMode, isLoading);
             mHasEndImage = true;
             return this;
         }

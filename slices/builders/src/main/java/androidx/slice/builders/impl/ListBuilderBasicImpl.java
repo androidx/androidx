@@ -165,20 +165,6 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         /**
          */
         @Override
-        public void addEndItem(Icon icon) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void addEndItem(Icon icon, boolean isLoading) {
-
-        }
-
-        /**
-         */
-        @Override
         public void addEndItem(SliceAction action) {
 
         }
@@ -200,13 +186,14 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         /**
          */
         @Override
-        public void setTitleItem(Icon icon) {
+        public void setTitleItem(Icon icon, int imageMode) {
+
         }
 
         /**
          */
         @Override
-        public void setTitleItem(Icon icon, boolean isLoading) {
+        public void setTitleItem(Icon icon, int imageMode, boolean isLoading) {
 
         }
 
@@ -260,6 +247,20 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
          */
         @Override
         public void addEndItem(long timeStamp) {
+
+        }
+
+        /**
+         */
+        @Override
+        public void addEndItem(Icon icon, int imageMode) {
+
+        }
+
+        /**
+         */
+        @Override
+        public void addEndItem(Icon icon, int imageMode, boolean isLoading) {
 
         }
 
