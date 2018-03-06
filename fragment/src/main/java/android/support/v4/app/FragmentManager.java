@@ -4044,7 +4044,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             boolean more = super.getTransformation(currentTime, t);
             if (!more) {
                 mEnded = true;
-                mParent.post(this);
+                OneShotPreDrawListener.add(mParent, this);
             }
             return true;
         }
@@ -4058,7 +4058,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             boolean more = super.getTransformation(currentTime, outTransformation, scale);
             if (!more) {
                 mEnded = true;
-                mParent.post(this);
+                OneShotPreDrawListener.add(mParent, this);
             }
             return true;
         }
