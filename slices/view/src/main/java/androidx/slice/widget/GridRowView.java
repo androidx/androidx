@@ -28,7 +28,6 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
@@ -52,8 +51,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
@@ -64,7 +61,6 @@ import androidx.slice.view.R;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@TargetApi(24)
 public class GridRowView extends SliceChildView implements View.OnClickListener {
 
     private static final String TAG = "GridView";
@@ -219,12 +215,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         // In small format we display one text item and prefer titles
         if (!singleItem && getMode() == MODE_SMALL) {
             // Get all our text items
-            textItems = cellItems.stream().filter(new Predicate<SliceItem>() {
-                @Override
-                public boolean test(SliceItem s) {
-                    return FORMAT_TEXT.equals(s.getFormat());
+            textItems = new ArrayList<>();
+            for (SliceItem cellItem : cellItems) {
+                if (FORMAT_TEXT.equals(cellItem.getFormat())) {
+                    textItems.add(cellItem);
                 }
-            }).collect(Collectors.<SliceItem>toList());
+            }
             // If we have more than 1 remove non-titles
             Iterator<SliceItem> iterator = textItems.iterator();
             while (textItems.size() > 1) {

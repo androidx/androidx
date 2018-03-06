@@ -19,7 +19,6 @@ package androidx.slice.core;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 
-import android.annotation.TargetApi;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
@@ -41,8 +40,6 @@ import androidx.slice.SliceItem;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-// TODO: Not expect 24.
-@TargetApi(24)
 public class SliceQuery {
 
     /**

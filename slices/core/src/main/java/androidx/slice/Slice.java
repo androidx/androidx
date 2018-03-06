@@ -38,7 +38,6 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.SliceConvert.unwrap;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.app.slice.SliceManager;
@@ -49,6 +48,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.RestrictTo.Scope;
 import android.support.annotation.StringDef;
@@ -437,7 +437,7 @@ public final class Slice {
      * @see Slice
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @SuppressWarnings("NewApi")
+    @SuppressWarnings("NewApi") // Lint doesn't understand BuildCompat.
     @Nullable
     public static Slice bindSlice(Context context, @NonNull Uri uri,
             List<SliceSpec> supportedSpecs) {
@@ -448,7 +448,7 @@ public final class Slice {
         }
     }
 
-    @TargetApi(28)
+    @RequiresApi(28)
     private static Slice callBindSlice(Context context, Uri uri,
             List<SliceSpec> supportedSpecs) {
         return SliceConvert.wrap(context.getSystemService(SliceManager.class)
