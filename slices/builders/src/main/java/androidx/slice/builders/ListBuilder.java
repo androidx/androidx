@@ -268,6 +268,7 @@ public class ListBuilder extends TemplateSliceBuilder {
     /**
      * Add an input range row to the list builder.
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     public ListBuilder addInputRange(@NonNull Consumer<InputRangeBuilder> c) {
         InputRangeBuilder inputRangeBuilder = new InputRangeBuilder(this);
@@ -287,6 +288,7 @@ public class ListBuilder extends TemplateSliceBuilder {
     /**
      * Add a range row to the list builder.
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     public ListBuilder addRange(@NonNull Consumer<RangeBuilder> c) {
         RangeBuilder rangeBuilder = new RangeBuilder(this);

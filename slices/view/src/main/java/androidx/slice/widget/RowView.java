@@ -31,7 +31,6 @@ import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
 import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
@@ -67,7 +66,6 @@ import androidx.slice.view.R;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@TargetApi(23)
 public class RowView extends SliceChildView implements View.OnClickListener {
 
     private static final String TAG = "RowView";
