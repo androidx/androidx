@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.dynamicanimation.test">
+          package="android.support.animation.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">

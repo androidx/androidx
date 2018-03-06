@@ -8,7 +8,7 @@
     android:layout_width="0dip"
     android:layout_height="match_parent"
     >
-    <androidx.leanback.widget.VerticalGridViewEx
+    <android.support.v17.leanback.widget.VerticalGridViewEx
       android:id="@+id/gridview"
       android:layout_width="match_parent"
       android:layout_height="match_parent"

@@ -16,15 +16,15 @@
 
 package androidx.recyclerview.selection;
 
-import static androidx.core.util.Preconditions.checkArgument;
+import static android.support.v4.util.Preconditions.checkArgument;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
@@ -88,7 +88,7 @@ public abstract class SelectionTracker<K> {
      * This value is included in the payload when SelectionTracker notifies RecyclerView
      * of changes to selection. Look for this value in the {@code payload}
      * Object argument supplied to
-     * {@link RecyclerView.Adapter#onBindViewHolder
+     * {@link android.support.v7.widget.RecyclerView.Adapter#onBindViewHolder
      *     Adapter#onBindViewHolder}.
      * If present the call is occurring in response to a selection state change.
      * This would be a good opportunity to animate changes between unselected and selected state.

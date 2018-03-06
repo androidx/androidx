@@ -20,7 +20,7 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.Rating;
 import android.os.Parcel;
-import androidx.annotation.RequiresApi;
+import android.support.annotation.RequiresApi;
 
 import java.util.Set;
 

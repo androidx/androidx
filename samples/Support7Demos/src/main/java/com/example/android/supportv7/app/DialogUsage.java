@@ -18,8 +18,8 @@ package com.example.android.supportv7.app;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -77,7 +77,7 @@ public class DialogUsage extends AppCompatActivity {
     }
 
     /**
-     * A simple {@link androidx.appcompat.app.AppCompatDialog} implementation which
+     * A simple {@link android.support.v7.app.AppCompatDialog} implementation which
      * inflates some items into it's options menu, and shows a toast when one is selected.
      */
     private class MenuDialog extends AppCompatDialog {

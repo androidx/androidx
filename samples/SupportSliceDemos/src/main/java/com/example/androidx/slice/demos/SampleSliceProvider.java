@@ -31,7 +31,7 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;

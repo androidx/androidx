@@ -29,7 +29,7 @@
         android:id="@+id/icon_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <androidx.preference.internal.PreferenceImageView
+        <android.support.v7.internal.widget.PreferenceImageView
             android:id="@android:id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

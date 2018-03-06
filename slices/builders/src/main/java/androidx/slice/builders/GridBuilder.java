@@ -16,16 +16,16 @@
 
 package androidx.slice.builders;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
 
 import java.util.function.Consumer;
 

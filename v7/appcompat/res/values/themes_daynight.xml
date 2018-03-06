@@ -28,7 +28,7 @@
     <style name="Theme.AppCompat.DayNight.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar" />
 
     <!-- AppCompat theme (day/night vesion) for dialog windows and activities,
-         which is used by the {@candroidx.appcompat.app.app.Dialog} class. This changes
+         which is used by the {@code android.support.v7.app.Dialog} class. This changes
          the window to be floating (not fill the entire screen), and puts a
          frame around its contents. You can set this theme on an activity if
          you would like to make an activity that looks like a Dialog. -->
@@ -44,7 +44,7 @@
     <style name="Theme.AppCompat.DayNight.DialogWhenLarge" parent="Theme.AppCompat.Light.DialogWhenLarge" />
 
     <!-- AppCompat user theme for alert dialog windows, which is used by the
-         {@candroidx.appcompat.app.app.AlertDialog} class. -->
+         {@code android.support.v7.app.AlertDialog} class. -->
     <style name="Theme.AppCompat.DayNight.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert" />
 
 </resources>

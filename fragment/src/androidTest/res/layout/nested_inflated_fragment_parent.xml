@@ -18,7 +18,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical">
-    <fragment android:name="androidx.fragment.app.NestedInflatedFragmentTest$InflatedChildFragment"
+    <fragment android:name="android.support.v4.app.NestedInflatedFragmentTest$InflatedChildFragment"
               android:id="@+id/child_fragment"
               android:layout_width="match_parent"
               android:layout_height="match_parent" />

@@ -23,8 +23,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
-    api(project(":core"))
+    api(project(":support-annotations"))
+    api(project(":support-compat"))
 
     androidTestImplementation(JUNIT)
     androidTestImplementation(TEST_RUNNER)
@@ -35,7 +35,7 @@ supportLibrary {
     name = "Android Support Content"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.CONTENTPAGING
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "Library providing support for paging across content exposed via a ContentProvider. Use of this library allows a client to avoid expensive interprocess \"cursor window swaps\" on the UI thread."
 }

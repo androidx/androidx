@@ -17,7 +17,7 @@
 package com.example.android.support.transition.widget;
 
 import android.os.Bundle;
-import androidx.transition.TransitionManager;
+import android.support.transition.TransitionManager;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;

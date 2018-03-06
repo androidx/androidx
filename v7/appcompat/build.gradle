@@ -7,22 +7,18 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
-
-    api(project(":core"))
-    api(project(":collection"))
-    api(project(":cursoradapter"))
-    api(project(":legacy-support-core-utils"))
-    api(project(":fragment"))
-    api(project(":vectordrawable"))
-    api(project(":vectordrawable-animated"))
+    api(project(":support-annotations"))
+    api(project(":support-core-utils"))
+    api(project(":support-fragment"))
+    api(project(":support-vector-drawable"))
+    api(project(":animated-vector-drawable"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation project(':internal-testutils'), {
-        exclude group: 'androidx.appcompat', module: 'appcompat'
+        exclude group: 'com.android.support', module: 'appcompat-v7'
     }
 }
 
@@ -50,7 +46,7 @@ supportLibrary {
     name = "Android AppCompat Library v7"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.APPCOMPAT
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
 }

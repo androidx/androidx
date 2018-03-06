@@ -19,7 +19,7 @@ package com.example.android.supportv7.widget;
 import com.example.android.supportv7.R;
 import com.example.android.supportv7.widget.util.ConfigToggle;
 
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 
 public class StaggeredGridLayoutManagerActivity
         extends BaseLayoutManagerActivity<StaggeredGridLayoutManager> {

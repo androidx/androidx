@@ -19,11 +19,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <androidx.viewpager.widget.ViewPager
+    <android.support.v4.view.ViewPager
         android:id="@+id/ws_navigation_drawer_view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-    <androidx.wear.widget.drawer.PageIndicatorView
+    <android.support.wear.widget.drawer.PageIndicatorView
         android:id="@+id/ws_navigation_drawer_page_indicator"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/ws_peek_view_icon_size"

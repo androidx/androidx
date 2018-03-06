@@ -17,7 +17,7 @@
 package com.example.android.supportv7.widget.selection.fancy;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
+import android.support.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;

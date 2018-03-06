@@ -18,7 +18,7 @@ package com.example.android.supportv4.view;
 
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
-import androidx.core.view.ViewCompat;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.FrameLayout;

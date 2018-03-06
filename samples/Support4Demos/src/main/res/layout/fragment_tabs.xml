@@ -19,7 +19,7 @@
 -->
 
 <!-- BEGIN_INCLUDE(complete) -->
-<androidx.fragment.app.FragmentTabHost
+<android.support.v4.app.FragmentTabHost
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/tabhost"
     android:layout_width="match_parent"
@@ -50,5 +50,5 @@
             android:layout_weight="1"/>
 
     </LinearLayout>
-</androidx.fragment.app.FragmentTabHost>
+</android.support.v4.app.FragmentTabHost>
 <!-- END_INCLUDE(complete) -->

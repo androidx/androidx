@@ -19,12 +19,12 @@ package com.example.android.supportv7.media;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
+import android.support.annotation.RequiresApi;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import androidx.mediarouter.media.MediaControlIntent;
-import androidx.mediarouter.media.MediaRouter.RouteInfo;
+import android.support.v7.media.MediaControlIntent;
+import android.support.v7.media.MediaRouter.RouteInfo;
 import android.util.Log;
 
 /**

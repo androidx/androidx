@@ -23,9 +23,9 @@ import android.content.IntentFilter;
 import android.content.pm.ProviderInfo;
 import android.database.ContentObserver;
 import android.net.Uri;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
+import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
+import android.support.v4.os.BuildCompat;
 
 import java.util.List;
 

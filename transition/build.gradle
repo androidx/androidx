@@ -7,16 +7,16 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
-    api(project(":core"))
-    compileOnly project(':fragment')
+    api(project(":support-annotations"))
+    api(project(":support-compat"))
+    compileOnly project(':support-fragment')
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(project(":legacy-support-v4"))
-    androidTestImplementation(project(":appcompat"))
+    androidTestImplementation(project(":support-v4"))
+    androidTestImplementation(project(":appcompat-v7"))
 }
 
 android {
@@ -33,7 +33,7 @@ supportLibrary {
     name = "Android Transition Support Library"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.TRANSITION
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2016"
     description = "Android Transition Support Library"
 }

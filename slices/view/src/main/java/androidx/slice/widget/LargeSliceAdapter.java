@@ -27,8 +27,8 @@ import static androidx.slice.widget.SliceView.MODE_LARGE;
 
 import android.app.slice.Slice;
 import android.content.Context;
-import androidx.annotation.RestrictTo;
-import androidx.recyclerview.widget.RecyclerView;
+import android.support.annotation.RestrictTo;
+import android.support.v7.widget.RecyclerView;
 import android.util.ArrayMap;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;

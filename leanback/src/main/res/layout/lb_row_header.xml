@@ -21,7 +21,7 @@
         android:orientation="vertical"
         xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <androidx.leanback.widget.RowHeaderView
+    <android.support.v17.leanback.widget.RowHeaderView
             android:id="@+id/row_header"
             android:importantForAccessibility="no"
             android:layout_width="wrap_content"

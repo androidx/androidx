@@ -20,7 +20,7 @@ import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.MultiAutoCompleteTextView;

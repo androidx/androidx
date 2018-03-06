@@ -16,11 +16,11 @@
 
 package androidx.recyclerview.selection;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Point;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 /**
  * Provides support for auto-scrolling a view.

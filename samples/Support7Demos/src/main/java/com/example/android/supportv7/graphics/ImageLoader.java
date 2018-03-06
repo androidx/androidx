@@ -19,8 +19,8 @@ package com.example.android.supportv7.graphics;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
-import androidx.core.graphics.BitmapCompat;
-import androidx.collection.LruCache;
+import android.support.v4.graphics.BitmapCompat;
+import android.support.v4.util.LruCache;
 import android.widget.ImageView;
 
 /**
@@ -84,7 +84,7 @@ class ImageLoader {
 
     /**
      * A simple cache implementation for {@link android.graphics.Bitmap} instances which uses
-     * {@link androidx.collection.LruCache}.
+     * {@link android.support.v4.util.LruCache}.
      */
     private static class BitmapCache extends LruCache<Long, Bitmap> {
         BitmapCache(int maxSize) {

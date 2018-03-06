@@ -19,8 +19,8 @@ package com.example.android.supportv4.app;
 import com.example.android.supportv4.R;
 
 import android.os.Bundle;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTabHost;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTabHost;
 
 public class FragmentNestingTabsSupport extends FragmentActivity {
     private FragmentTabHost mTabHost;

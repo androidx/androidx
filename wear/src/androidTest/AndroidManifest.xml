@@ -15,19 +15,19 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.wear.test">
+          package="android.support.wear.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application android:supportsRtl="true">
-        <activity android:name="androidx.wear.widget.LayoutTestActivity">
+        <activity android:name="android.support.wear.widget.LayoutTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="androidx.wear.widget.SwipeDismissFrameLayoutTestActivity"
+        <activity android:name="android.support.wear.widget.SwipeDismissFrameLayoutTestActivity"
                   android:theme="@style/AppThemeNoSwipe">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -35,42 +35,42 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.widget.WearableRecyclerViewTestActivity">
+        <activity android:name="android.support.wear.widget.WearableRecyclerViewTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.widget.drawer.DrawerTestActivity">
+        <activity android:name="android.support.wear.widget.drawer.DrawerTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.ambient.AmbientModeTestActivity">
+        <activity android:name="android.support.wear.ambient.AmbientModeTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.ambient.AmbientModeResumeTestActivity">
+        <activity android:name="android.support.wear.ambient.AmbientModeResumeTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.ambient.AmbientModeSupportTestActivity">
+        <activity android:name="android.support.wear.ambient.AmbientModeSupportTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.ambient.AmbientModeSupportResumeTestActivity">
+        <activity android:name="android.support.wear.ambient.AmbientModeSupportResumeTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

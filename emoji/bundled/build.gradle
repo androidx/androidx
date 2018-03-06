@@ -16,14 +16,14 @@ android {
 }
 
 dependencies {
-    api(project(":emoji"))
+    api(project(":support-emoji"))
 }
 
 supportLibrary {
     name = "Android Emoji Compat"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.EMOJI
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "Library bundled with assets to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
 

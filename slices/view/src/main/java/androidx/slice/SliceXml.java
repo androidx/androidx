@@ -25,7 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import androidx.annotation.RestrictTo;
+import android.support.annotation.RestrictTo;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;

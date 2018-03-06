@@ -7,9 +7,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":media"))
-    api(project(":appcompat"))
-    api(project(":palette"))
+    api(project(":support-media-compat"))
+    api(project(":appcompat-v7"))
+    api(project(":palette-v7"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
@@ -31,7 +31,7 @@ supportLibrary {
     name = "Android MediaRouter Support Library"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.MEDIAROUTER
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"
 }

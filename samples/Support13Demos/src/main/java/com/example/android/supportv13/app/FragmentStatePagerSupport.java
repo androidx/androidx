@@ -19,8 +19,8 @@ package com.example.android.supportv13.app;
 import com.example.android.supportv13.Cheeses;
 import com.example.android.supportv13.R;
 
-import androidx.legacy.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 
 import android.os.Bundle;
 import android.app.Activity;

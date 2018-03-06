@@ -7,8 +7,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
-    api(project(":core"))
+    api(project(":support-annotations"))
+    api(project(":support-compat"))
     api(project(":interpolator"))
 
     androidTestImplementation(JUNIT)
@@ -19,7 +19,7 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation project(':internal-testutils'), {
-        exclude group: 'androidx.swiperefreshlayout', module: 'swiperefreshlayout'
+        exclude group: 'com.android.support', module: 'swiperefreshlayout'
     }
 }
 
@@ -27,7 +27,7 @@ supportLibrary {
     name = "Android Support Library Custom View"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SWIPEREFRESHLAYOUT
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2018"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
 }

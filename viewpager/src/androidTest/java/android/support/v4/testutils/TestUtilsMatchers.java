@@ -19,9 +19,9 @@ package android.support.v4.testutils;
 import static org.junit.Assert.fail;
 
 import android.graphics.drawable.Drawable;
-import androidx.annotation.ColorInt;
+import android.support.annotation.ColorInt;
 import android.support.test.espresso.matcher.BoundedMatcher;
-import androidx.core.view.ViewCompat;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;

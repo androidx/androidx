@@ -17,9 +17,9 @@
 package com.example.android.support.transition.widget;
 
 import android.os.Bundle;
-import androidx.annotation.LayoutRes;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import android.support.annotation.LayoutRes;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 import com.example.android.support.transition.R;
 

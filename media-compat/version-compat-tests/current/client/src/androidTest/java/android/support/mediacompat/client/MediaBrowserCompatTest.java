@@ -67,14 +67,14 @@ import static org.junit.Assert.fail;
 import android.content.ComponentName;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 import android.support.mediacompat.testlib.util.PollingCheck;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.media.MediaBrowserCompat;
-import androidx.media.MediaBrowserCompat.MediaItem;
-import androidx.media.MediaBrowserServiceCompat;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
@@ -91,7 +91,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test {@link MediaBrowserCompat}.
+ * Test {@link android.support.v4.media.MediaBrowserCompat}.
  */
 @RunWith(AndroidJUnit4.class)
 public class MediaBrowserCompatTest {

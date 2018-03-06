@@ -16,17 +16,17 @@
 package android.support.v4.media.session;
 
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import androidx.annotation.IntDef;
-import androidx.annotation.LongDef;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import android.support.annotation.IntDef;
+import android.support.annotation.LongDef;
+import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 
@@ -34,8 +34,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.media.session.MediaControllerCompat;
 
 /**
  * Playback state for a {@link MediaSessionCompat}. This includes a state like

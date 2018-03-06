@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import android.graphics.Point;
-import androidx.annotation.Nullable;
+import android.support.annotation.Nullable;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 

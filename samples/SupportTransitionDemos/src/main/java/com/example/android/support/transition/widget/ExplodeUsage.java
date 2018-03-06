@@ -18,10 +18,10 @@ package com.example.android.support.transition.widget;
 
 import android.graphics.Rect;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.transition.Explode;
-import androidx.transition.Transition;
-import androidx.transition.TransitionManager;
+import android.support.annotation.NonNull;
+import android.support.transition.Explode;
+import android.support.transition.Transition;
+import android.support.transition.TransitionManager;
 import android.view.View;
 import android.widget.FrameLayout;
 

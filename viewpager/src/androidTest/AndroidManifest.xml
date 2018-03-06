@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.viewpager.test">
+          package="android.support.viewpager.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <uses-permission android:name="android.permission.VIBRATE"/>
@@ -27,11 +27,11 @@
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
 
-        <activity android:name="androidx.viewpager.widget.ViewPagerWithTitleStripActivity"/>
+        <activity android:name="android.support.v4.view.ViewPagerWithTitleStripActivity"/>
 
-        <activity android:name="androidx.viewpager.widget.ViewPagerWithTabStripActivity"/>
+        <activity android:name="android.support.v4.view.ViewPagerWithTabStripActivity"/>
 
-        <activity android:name="androidx.viewpager.widget.ViewPagerTest$ViewPagerActivity"/>
+        <activity android:name="android.support.v4.view.ViewPagerTest$ViewPagerActivity"/>
 
     </application>
 

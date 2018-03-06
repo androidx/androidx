@@ -21,7 +21,7 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation(project(":media"))
+    androidTestImplementation(project(":support-media-compat"))
     androidTestImplementation(project(":support-media-compat-test-lib"))
 
     androidTestImplementation(TEST_RUNNER)

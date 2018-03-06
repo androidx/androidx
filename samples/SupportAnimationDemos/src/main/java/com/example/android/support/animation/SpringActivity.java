@@ -18,8 +18,8 @@ package com.example.android.support.animation;
 
 import android.app.Activity;
 import android.os.Bundle;
-import androidx.dynamicanimation.animation.DynamicAnimation;
-import androidx.dynamicanimation.animation.SpringAnimation;
+import android.support.animation.DynamicAnimation;
+import android.support.animation.SpringAnimation;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;

@@ -15,17 +15,17 @@
      limitations under the License.
 -->
 
-<androidx.appcompat.widget.ButtonBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                           android:id="@+id/buttonPanel"
-                                           android:layout_width="match_parent"
-                                           android:layout_height="wrap_content"
-                                           android:gravity="bottom"
-                                           android:layoutDirection="locale"
-                                           android:orientation="horizontal"
-                                           android:paddingBottom="4dp"
-                                           android:paddingLeft="12dp"
-                                           android:paddingRight="12dp"
-                                           android:paddingTop="4dp">
+<android.support.v7.widget.ButtonBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/buttonPanel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="bottom"
+    android:layoutDirection="locale"
+    android:orientation="horizontal"
+    android:paddingBottom="4dp"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp"
+    android:paddingTop="4dp">
 
     <Button
         android:id="@android:id/button3"
@@ -48,4 +48,4 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"/>
 
-</androidx.appcompat.widget.ButtonBarLayout>
+</android.support.v7.widget.ButtonBarLayout>

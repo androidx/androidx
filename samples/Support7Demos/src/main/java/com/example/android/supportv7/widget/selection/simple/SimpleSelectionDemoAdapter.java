@@ -16,10 +16,10 @@
 
 package com.example.android.supportv7.widget.selection.simple;
 
-import static androidx.core.util.Preconditions.checkArgument;
+import static android.support.v4.util.Preconditions.checkArgument;
 
 import android.content.Context;
-import androidx.recyclerview.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;

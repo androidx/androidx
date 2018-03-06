@@ -19,7 +19,7 @@ import com.example.android.supportv13.R;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import androidx.legacy.app.FragmentTabHost;
+import android.support.v13.app.FragmentTabHost;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

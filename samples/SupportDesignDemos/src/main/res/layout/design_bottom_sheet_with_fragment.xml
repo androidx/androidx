@@ -14,7 +14,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<android.support.design.widget.CoordinatorLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
@@ -33,7 +33,7 @@
                 android:padding="16dp"
                 style="@style/TextAppearance.AppCompat.Headline"/>
 
-        <androidx.recyclerview.widget.RecyclerView
+        <android.support.v7.widget.RecyclerView
                 android:id="@+id/list1"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -49,4 +49,4 @@
             app:layout_behavior="@string/bottom_sheet_behavior"
             app:behavior_peekHeight="@dimen/bottom_sheet_peek_height"/>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</android.support.design.widget.CoordinatorLayout>

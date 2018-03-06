@@ -27,7 +27,7 @@
         android:layout_centerHorizontal="true"
         android:text="@string/popup_menu_button" />
 
-    <androidx.appcompat.widget.SwitchCompat
+    <android.support.v7.widget.SwitchCompat
         android:id="@+id/elevation_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
         android:checked="true"
         android:text="@string/popup_default_elevation" />
 
-    <androidx.appcompat.widget.SwitchCompat
+    <android.support.v7.widget.SwitchCompat
         android:id="@+id/dividers_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

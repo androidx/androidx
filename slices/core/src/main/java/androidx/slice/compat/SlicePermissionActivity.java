@@ -26,7 +26,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.RestrictTo;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 import android.widget.TextView;
 

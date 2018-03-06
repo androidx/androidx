@@ -19,9 +19,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":vectordrawable"))
-    implementation(project(":vectordrawable-animated"))
-    implementation(project(":appcompat"))
+    implementation(project(":support-vector-drawable"))
+    implementation(project(":animated-vector-drawable"))
+    implementation(project(":appcompat-v7"))
 }
 
 android {

@@ -16,16 +16,16 @@
 
 package androidx.recyclerview.selection;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 
 /**
  * The Selection library calls {@link #getItemDetails(MotionEvent)} when it needs
  * access to information about the area and/or {@link ItemDetails} under a {@link MotionEvent}.
  * Your implementation must negotiate
- * {@link RecyclerView.ViewHolder ViewHolder} lookup with the
+ * {@link android.support.v7.widget.RecyclerView.ViewHolder ViewHolder} lookup with the
  * corresponding RecyclerView instance, and the subsequent conversion of the ViewHolder
  * instance to an {@link ItemDetails} instance.
  *

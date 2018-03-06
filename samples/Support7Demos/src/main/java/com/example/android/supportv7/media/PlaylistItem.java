@@ -19,7 +19,7 @@ package com.example.android.supportv7.media;
 import android.app.PendingIntent;
 import android.net.Uri;
 import android.os.SystemClock;
-import androidx.mediarouter.media.MediaItemStatus;
+import android.support.v7.media.MediaItemStatus;
 
 /**
  * PlaylistItem helps keep track of the current status of an media item.

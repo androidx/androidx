@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":dynamicanimation"))
+    implementation(project(":support-dynamic-animation"))
 }

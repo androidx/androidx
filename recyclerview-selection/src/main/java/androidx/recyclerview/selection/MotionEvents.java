@@ -17,7 +17,7 @@
 package androidx.recyclerview.selection;
 
 import android.graphics.Point;
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 

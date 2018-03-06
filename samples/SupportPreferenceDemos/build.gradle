@@ -3,9 +3,10 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":appcompat"))
-    implementation(project(":recyclerview"))
-    implementation(project(":preference"))
-    implementation(project(":leanback"))
-    implementation(project(":leanback-preference"))
+    implementation(project(":appcompat-v7"))
+    implementation(project(":recyclerview-v7"))
+    implementation(project(":preference-v7"))
+    implementation(project(":preference-v14"))
+    implementation(project(":leanback-v17"))
+    implementation(project(":preference-leanback-v17"))
 }

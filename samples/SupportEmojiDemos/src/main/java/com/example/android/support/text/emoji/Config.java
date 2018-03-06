@@ -18,12 +18,12 @@ package com.example.android.support.text.emoji;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.text.FontRequestEmojiCompatConfig;
-import androidx.emoji.bundled.BundledEmojiCompatConfig;
-import androidx.core.provider.FontRequest;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.text.emoji.EmojiCompat;
+import android.support.text.emoji.FontRequestEmojiCompatConfig;
+import android.support.text.emoji.bundled.BundledEmojiCompatConfig;
+import android.support.v4.provider.FontRequest;
 import android.util.Log;
 
 import java.util.HashSet;

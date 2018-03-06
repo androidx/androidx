@@ -35,8 +35,8 @@ for w in cls:
         line = line.replace('IS_FRAMEWORK_FRAGMENT = false', 'IS_FRAMEWORK_FRAGMENT = true');
         for w2 in cls:
             line = line.replace('{}SupportFragment'.format(w2), '{}Fragment'.format(w2))
-        line = line.replace('androidx.fragment.app.FragmentActivity', 'android.app.Activity')
-        line = line.replace('androidx.fragment.app.Fragment', 'android.app.Fragment')
+        line = line.replace('android.support.v4.app.FragmentActivity', 'android.app.Activity')
+        line = line.replace('android.support.v4.app.Fragment', 'android.app.Fragment')
         line = line.replace('activity.getSupportFragmentManager()', 'activity.getFragmentManager()')
         line = line.replace('FragmentActivity activity', 'Activity activity')
         line = line.replace('(FragmentActivity', '(Activity')
@@ -58,7 +58,7 @@ file = open('src/android/support/v17/leanback/app/VideoSupportFragmentGlueHost.j
 content = "// CHECKSTYLE:OFF Generated code\n"
 content = content + "/* This file is auto-generated from VideoSupportFragmentGlueHost.java.  DO NOT MODIFY. */\n\n"
 for line in file:
-    line = line.replace('androidx.fragment.app.Fragment', 'android.app.Fragment')
+    line = line.replace('android.support.v4.app.Fragment', 'android.app.Fragment')
     line = line.replace('VideoSupportFragment', 'VideoFragment')
     line = line.replace('PlaybackSupportFragment', 'PlaybackFragment')
     content = content + line
@@ -78,7 +78,7 @@ content = content + "/* This file is auto-generated from {}PlaybackSupportFragme
 for line in file:
     line = line.replace('VideoSupportFragment', 'VideoFragment')
     line = line.replace('PlaybackSupportFragment', 'PlaybackFragment')
-    line = line.replace('androidx.fragment.app.Fragment', 'android.app.Fragment')
+    line = line.replace('android.support.v4.app.Fragment', 'android.app.Fragment')
     content = content + line
 file.close()
 # add deprecated tag to class
@@ -97,7 +97,7 @@ for line in file:
     line = line.replace('VideoSupportFragment', 'VideoFragment')
     line = line.replace('DetailsSupportFragment', 'DetailsFragment')
     line = line.replace('RowsSupportFragment', 'RowsFragment')
-    line = line.replace('androidx.fragment.app.Fragment', 'android.app.Fragment')
+    line = line.replace('android.support.v4.app.Fragment', 'android.app.Fragment')
     line = line.replace('mFragment.getContext()', 'FragmentUtil.getContext(mFragment)')
     content = content + line
 file.close()

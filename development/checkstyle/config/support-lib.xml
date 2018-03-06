@@ -34,7 +34,7 @@
         <module name="com.android.support.checkstyle.MismatchedAnnotationCheck">
             <property name="severity" value="error" />
             <property name="tag" value="hide" />
-            <property name="annotation" value="androidx.annotation.RestrictTo" />
+            <property name="annotation" value="android.support.annotation.RestrictTo" />
             <property name="messageKey" value="annotation.missing.hide" />
             <message key="annotation.missing.hide" value="Must include both @RestrictTo annotation and @hide Javadoc tag."/>
         </module>

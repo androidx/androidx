@@ -21,8 +21,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":fragment"))
-    api(project(":appcompat"))
+    api(project(":support-fragment"))
+    api(project(":appcompat-v7"))
 
     implementation(TEST_RUNNER)
     implementation(ESPRESSO_CORE)

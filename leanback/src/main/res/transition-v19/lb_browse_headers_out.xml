@@ -18,7 +18,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:duration="@integer/lb_browse_headers_transition_duration" >
     <changeBounds />
-    <transition class="androidx.leanback.Scale" >
+    <transition class="android.support.v17.leanback.Scale" >
         <targets>
             <target android:targetId="@id/container_list" />
         </targets>

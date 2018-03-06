@@ -17,7 +17,7 @@ limitations under the License.
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/car_app_bar_height">
-    <androidx.appcompat.widget.Toolbar
+    <android.support.v7.widget.Toolbar
         android:id="@+id/car_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

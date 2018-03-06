@@ -15,12 +15,12 @@
      limitations under the License.
 -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-<androidx.leanback.widget.NonOverlappingLinearLayout
+<android.support.v17.leanback.widget.NonOverlappingLinearLayout
     android:id="@+id/lb_row_container_header_dock"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     style="?attr/rowHeaderDockStyle"
     android:clipToPadding="false">
-</androidx.leanback.widget.NonOverlappingLinearLayout>
+</android.support.v17.leanback.widget.NonOverlappingLinearLayout>
 </merge>

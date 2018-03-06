@@ -14,14 +14,14 @@
   ~ limitations under the License.
   -->
 
-<androidx.wear.widget.SwipeDismissFrameLayout
+<android.support.wear.widget.SwipeDismissFrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#333333"
     android:id="@+id/swipe_dismiss_root" >
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -29,4 +29,4 @@
         android:paddingTop="80dp"
         android:id="@+id/recycler_container"/>
 
-</androidx.wear.widget.SwipeDismissFrameLayout>
+</android.support.wear.widget.SwipeDismissFrameLayout>

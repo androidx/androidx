@@ -16,9 +16,9 @@
 package androidx.slice;
 
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.core.util.ObjectsCompat;
+import android.support.annotation.RestrictTo;
+import android.support.annotation.RestrictTo.Scope;
+import android.support.v4.util.ObjectsCompat;
 
 import java.lang.reflect.Array;
 

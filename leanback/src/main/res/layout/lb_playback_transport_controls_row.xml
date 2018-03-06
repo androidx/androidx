@@ -58,7 +58,7 @@
                 android:clipToPadding="false"
                 android:gravity="bottom" />
         </LinearLayout>
-        <androidx.leanback.widget.ThumbsBar
+        <android.support.v17.leanback.widget.ThumbsBar
             android:id="@+id/thumbs_row"
             android:orientation="horizontal"
             android:visibility="invisible"
@@ -68,7 +68,7 @@
             android:layout_marginBottom="@dimen/lb_playback_transport_thumbs_bottom_margin" />
     </FrameLayout>
 
-    <androidx.leanback.widget.PlaybackTransportRowView
+    <android.support.v17.leanback.widget.PlaybackTransportRowView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/transport_row"
@@ -85,7 +85,7 @@
             android:layout_marginLeft="@dimen/lb_playback_transport_controlbar_margin_start"
         />
 
-        <androidx.leanback.widget.SeekBar
+        <android.support.v17.leanback.widget.SeekBar
             android:id="@+id/playback_progress"
             android:layout_width="match_parent"
             android:layout_height="@dimen/lb_playback_transport_progressbar_height"
@@ -135,5 +135,5 @@
         </RelativeLayout>
 
 
-    </androidx.leanback.widget.PlaybackTransportRowView>
+    </android.support.v17.leanback.widget.PlaybackTransportRowView>
 </LinearLayout>

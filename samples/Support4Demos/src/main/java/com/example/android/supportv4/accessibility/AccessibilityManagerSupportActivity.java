@@ -21,7 +21,7 @@ import android.app.Activity;
 import android.app.Service;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
+import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.TextView;
 import android.widget.Toast;

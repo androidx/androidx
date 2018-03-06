@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 <!-- Layout for an action item displayed in the 2 pane actions fragment. -->
-<androidx.leanback.widget.GuidedActionItemContainer
+<android.support.v17.leanback.widget.GuidedActionItemContainer
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     style="?attr/guidedActionItemContainerStyle" >
@@ -31,10 +31,10 @@
         android:layout_gravity="center_vertical"
         style="?attr/guidedActionItemTitleStyle" />
 
-    <androidx.leanback.widget.picker.DatePicker
+    <android.support.v17.leanback.widget.picker.DatePicker
         android:id="@+id/guidedactions_activator_item"
         android:importantForAccessibility="yes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-</androidx.leanback.widget.GuidedActionItemContainer>
+</android.support.v17.leanback.widget.GuidedActionItemContainer>

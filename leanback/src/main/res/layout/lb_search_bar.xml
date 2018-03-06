@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-    <androidx.leanback.widget.SpeechOrbView
+    <android.support.v17.leanback.widget.SpeechOrbView
             android:id="@+id/lb_search_bar_speech_orb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -25,7 +25,7 @@
             android:focusableInTouchMode="true"
             >
         <requestFocus/>
-    </androidx.leanback.widget.SpeechOrbView>
+    </android.support.v17.leanback.widget.SpeechOrbView>
 
     <RelativeLayout
             android:id="@+id/lb_search_bar_items"
@@ -50,7 +50,7 @@
                 android:visibility="gone"
                 style="?attr/browseTitleIconStyle"/>
 
-        <androidx.leanback.widget.SearchEditText
+        <android.support.v17.leanback.widget.SearchEditText
                     android:id="@+id/lb_search_text_editor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

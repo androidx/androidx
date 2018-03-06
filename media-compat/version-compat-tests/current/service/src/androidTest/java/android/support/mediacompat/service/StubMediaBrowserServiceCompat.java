@@ -33,9 +33,9 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.SEARCH_Q
 import static org.junit.Assert.assertNull;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.media.MediaBrowserCompat.MediaItem;
-import androidx.media.MediaBrowserServiceCompat;
+import android.support.annotation.NonNull;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -45,7 +45,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Stub implementation of {@link MediaBrowserServiceCompat}.
+ * Stub implementation of {@link android.support.v4.media.MediaBrowserServiceCompat}.
  */
 public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
 

@@ -17,10 +17,10 @@
 package com.example.android.support.transition.widget;
 
 import android.os.Bundle;
-import androidx.transition.ChangeImageTransform;
-import androidx.transition.ChangeTransform;
-import androidx.transition.TransitionManager;
-import androidx.transition.TransitionSet;
+import android.support.transition.ChangeImageTransform;
+import android.support.transition.ChangeTransform;
+import android.support.transition.TransitionManager;
+import android.support.transition.TransitionSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;

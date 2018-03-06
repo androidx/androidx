@@ -18,10 +18,10 @@ package androidx.textclassifier;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.IntDef;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.StringDef;
-import androidx.collection.ArraySet;
+import android.support.annotation.IntDef;
+import android.support.annotation.RestrictTo;
+import android.support.annotation.StringDef;
+import android.support.v4.util.ArraySet;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

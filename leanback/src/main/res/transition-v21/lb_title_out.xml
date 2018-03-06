@@ -17,7 +17,7 @@
 <transition
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:lb="http://schemas.android.com/apk/res-auto"
-    class="androidx.leanback.transition.SlideKitkat"
+    class="android.support.v17.leanback.transition.SlideKitkat"
     android:interpolator="@anim/lb_decelerator_2"
     lb:lb_slideEdge="top" >
     <targets>

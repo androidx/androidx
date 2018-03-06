@@ -13,7 +13,7 @@
  */
 package com.example.android.leanback;
 
-import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
+import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
 
 public class DetailsDescriptionPresenter extends AbstractDetailsDescriptionPresenter {
 

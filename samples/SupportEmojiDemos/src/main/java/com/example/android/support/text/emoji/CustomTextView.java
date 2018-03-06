@@ -17,9 +17,9 @@
 package com.example.android.support.text.emoji;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.emoji.widget.EmojiTextViewHelper;
-import androidx.appcompat.widget.AppCompatTextView;
+import android.support.annotation.Nullable;
+import android.support.text.emoji.widget.EmojiTextViewHelper;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.InputFilter;
 import android.util.AttributeSet;
 

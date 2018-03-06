@@ -43,7 +43,7 @@ public class BrowseActivity extends ListActivity {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        String path = intent.getStringExtra("com.example.androidx.dynamicanimation.animation");
+        String path = intent.getStringExtra("com.example.android.support.animation");
 
         if (path == null) {
             path = "";
@@ -129,7 +129,7 @@ public class BrowseActivity extends ListActivity {
     protected Intent browseIntent(String path) {
         Intent result = new Intent();
         result.setClass(this, BrowseActivity.class);
-        result.putExtra("com.example.androidx.dynamicanimation.animation", path);
+        result.putExtra("com.example.android.support.animation", path);
         return result;
     }
 

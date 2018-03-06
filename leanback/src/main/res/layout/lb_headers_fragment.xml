@@ -23,7 +23,7 @@
     android:paddingEnd="@dimen/lb_browse_header_padding_end"
     android:elevation="@dimen/lb_browse_headers_z"
     >
-    <androidx.leanback.widget.VerticalGridView
+    <android.support.v17.leanback.widget.VerticalGridView
         android:id="@+id/browse_headers"
         android:layout_width="@dimen/lb_browse_headers_width"
         android:layout_height="match_parent"

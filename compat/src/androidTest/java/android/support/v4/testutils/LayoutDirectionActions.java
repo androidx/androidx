@@ -18,7 +18,7 @@ package android.support.v4.testutils;
 
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
-import androidx.core.view.ViewCompat;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
 import org.hamcrest.Matcher;
 

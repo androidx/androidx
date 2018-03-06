@@ -20,27 +20,27 @@
               android:layout_width="fill_parent"
               android:layout_height="fill_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/clipToPaddingNo"
             android:layout_width="fill_parent"
             app:layoutManager="LinearLayoutManager"
             android:clipToPadding="false"
             android:layout_height="100dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/clipToPaddingUndefined"
             android:layout_width="fill_parent"
             app:layoutManager="LinearLayoutManager"
             android:layout_height="100dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/clipToPaddingYes"
             android:layout_width="fill_parent"
             app:layoutManager="LinearLayoutManager"
             android:clipToPadding="true"
             android:layout_height="100dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="fill_parent"
             android:layout_height="100dp"
@@ -49,7 +49,7 @@
             app:spanCount="3"
             app:reverseLayout="true"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView2"
             android:layout_width="fill_parent"
             android:layout_height="100dp"
@@ -57,47 +57,47 @@
             android:orientation="vertical"
             app:stackFromEnd="true"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView3"
             android:layout_width="fill_parent"
             android:layout_height="100dp"
             app:layoutManager=".CustomLayoutManager$LayoutManager"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView4"
             android:layout_width="fill_parent"
             android:layout_height="100dp"
             app:layoutManager=".PrivateLayoutManager"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView5"
             android:layout_width="fill_parent"
             android:layout_height="100dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView6"
             android:layout_width="fill_parent"
             android:layout_height="100dp"
             android:nestedScrollingEnabled="false"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/focusability_undefined"
             android:layout_width="fill_parent"
             android:layout_height="100dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/focusability_after"
             android:layout_width="fill_parent"
             android:layout_height="100dp"
             android:descendantFocusability="afterDescendants"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/focusability_before"
             android:layout_width="fill_parent"
             android:layout_height="100dp"
             android:descendantFocusability="beforeDescendants"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
             android:id="@+id/focusability_block"
             android:layout_width="fill_parent"
             android:layout_height="100dp"

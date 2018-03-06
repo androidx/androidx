@@ -23,24 +23,24 @@
     android:layout_weight="?attr/guidedButtonActionsWidthWeight"
     android:layout_height="match_parent">
 
-    <androidx.leanback.widget.NonOverlappingView
+    <android.support.v17.leanback.widget.NonOverlappingView
         android:id="@+id/guidedactions_list_background2"
         android:transitionName="guidedactions_list_background2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/guidedActionsBackgroundDark" />
 
-    <androidx.leanback.widget.NonOverlappingFrameLayout
+    <android.support.v17.leanback.widget.NonOverlappingFrameLayout
         android:id="@+id/guidedactions_content2"
         android:transitionName="guidedactions_content2"
         android:transitionGroup="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <androidx.leanback.widget.VerticalGridView
+        <android.support.v17.leanback.widget.VerticalGridView
             android:transitionGroup="true"
             android:id="@+id/guidedactions_list2"
             style="?attr/guidedButtonActionsListStyle" />
 
-    </androidx.leanback.widget.NonOverlappingFrameLayout>
+    </android.support.v17.leanback.widget.NonOverlappingFrameLayout>
 
 </RelativeLayout>

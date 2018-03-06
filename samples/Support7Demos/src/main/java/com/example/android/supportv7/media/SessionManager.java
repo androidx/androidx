@@ -18,8 +18,8 @@ package com.example.android.supportv7.media;
 
 import android.app.PendingIntent;
 import android.net.Uri;
-import androidx.mediarouter.media.MediaItemStatus;
-import androidx.mediarouter.media.MediaSessionStatus;
+import android.support.v7.media.MediaItemStatus;
+import android.support.v7.media.MediaSessionStatus;
 import android.util.Log;
 
 import java.util.List;

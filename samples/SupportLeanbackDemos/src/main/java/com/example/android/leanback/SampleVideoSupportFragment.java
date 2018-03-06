@@ -18,15 +18,15 @@ package com.example.android.leanback;
 
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.leanback.app.VideoSupportFragmentGlueHost;
-import androidx.leanback.media.MediaPlayerAdapter;
-import androidx.leanback.media.PlaybackGlue;
-import androidx.leanback.media.PlaybackTransportControlGlue;
-import androidx.leanback.widget.PlaybackControlsRow;
+import android.support.v17.leanback.app.VideoSupportFragmentGlueHost;
+import android.support.v17.leanback.media.MediaPlayerAdapter;
+import android.support.v17.leanback.media.PlaybackGlue;
+import android.support.v17.leanback.media.PlaybackTransportControlGlue;
+import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v4.media.session.MediaSessionCompat;
 
 /**
- * Fragment demonstrating the use of {@link androidx.leanback.app.VideoSupportFragment} to
+ * Fragment demonstrating the use of {@link android.support.v17.leanback.app.VideoSupportFragment} to
  * render video with playback controls. And demonstrates video seeking with thumbnails.
  *
  * Generate 1 frame per second thumbnail bitmaps and put on sdcard:
@@ -47,7 +47,7 @@ import android.support.v4.media.session.MediaSessionCompat;
  * <li>switch MediaSource</li>
  * <li>switch PlaybackGlue</li>
  */
-public class SampleVideoSupportFragment extends androidx.leanback.app.VideoSupportFragment {
+public class SampleVideoSupportFragment extends android.support.v17.leanback.app.VideoSupportFragment {
 
     // Media Session Token
     private static final String MEDIA_SESSION_COMPAT_TOKEN = "media session support video";

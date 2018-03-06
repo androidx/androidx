@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":percentlayout"))
+    implementation(project(":percent"))
 }

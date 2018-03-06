@@ -19,7 +19,7 @@ package androidx.slice.render;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
+import android.support.annotation.Nullable;
 
 public class SliceRenderActivity extends Activity {
     public static final String ACTION_RENDER_DONE = "androidx.slice.render.RENDER_DONE";

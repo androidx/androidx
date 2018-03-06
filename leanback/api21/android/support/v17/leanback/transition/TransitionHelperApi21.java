@@ -1,0 +1,145 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package android.support.v17.leanback.transition;
+
+import android.R;
+import android.content.Context;
+import android.graphics.Rect;
+import android.support.annotation.RequiresApi;
+import android.transition.ChangeTransform;
+import android.transition.Transition;
+import android.transition.TransitionManager;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.animation.AnimationUtils;
+
+@RequiresApi(21)
+final class TransitionHelperApi21 {
+
+    TransitionHelperApi21() {
+    }
+
+    public static void setEnterTransition(android.app.Fragment fragment, Object transition) {
+        fragment.setEnterTransition((Transition)transition);
+    }
+
+    public static void setExitTransition(android.app.Fragment fragment, Object transition) {
+       fragment.setExitTransition((Transition)transition);
+    }
+
+    public static void setSharedElementEnterTransition(android.app.Fragment fragment,
+            Object transition) {
+        fragment.setSharedElementEnterTransition((Transition)transition);
+     }
+
+    public static void addSharedElement(android.app.FragmentTransaction ft,
+            View view, String transitionName) {
+        ft.addSharedElement(view, transitionName);
+    }
+
+    public static Object getSharedElementEnterTransition(Window window) {
+        return window.getSharedElementEnterTransition();
+    }
+
+    public static void setSharedElementEnterTransition(Window window, Object transition) {
+        window.setSharedElementEnterTransition((Transition) transition);
+    }
+
+    public static Object getSharedElementReturnTransition(Window window) {
+        return window.getSharedElementReturnTransition();
+    }
+
+    public static void setSharedElementReturnTransition(Window window, Object transition) {
+        window.setSharedElementReturnTransition((Transition) transition);
+    }
+
+    public static Object getSharedElementExitTransition(Window window) {
+        return window.getSharedElementExitTransition();
+    }
+
+    public static Object getSharedElementReenterTransition(Window window) {
+        return window.getSharedElementReenterTransition();
+    }
+
+    public static Object getEnterTransition(Window window) {
+        return window.getEnterTransition();
+    }
+
+    public static void setEnterTransition(Window window, Object transition) {
+        window.setEnterTransition((Transition) transition);
+    }
+
+    public static Object getReturnTransition(Window window) {
+        return window.getReturnTransition();
+    }
+
+    public static void setReturnTransition(Window window, Object transition) {
+        window.setReturnTransition((Transition) transition);
+    }
+
+    public static Object getExitTransition(Window window) {
+        return window.getExitTransition();
+    }
+
+    public static Object getReenterTransition(Window window) {
+        return window.getReenterTransition();
+    }
+
+    public static Object createScale() {
+        return new ChangeTransform();
+    }
+
+    public static Object createDefaultInterpolator(Context context) {
+        return AnimationUtils.loadInterpolator(context, R.interpolator.fast_out_linear_in);
+    }
+
+    public static Object createChangeTransform() {
+        return new ChangeTransform();
+    }
+
+    public static Object createFadeAndShortSlide(int edge) {
+        return new FadeAndShortSlide(edge);
+    }
+
+    public static Object createFadeAndShortSlide(int edge, float distance) {
+        FadeAndShortSlide slide = new FadeAndShortSlide(edge);
+        slide.setDistance(distance);
+        return slide;
+    }
+
+    public static void beginDelayedTransition(ViewGroup sceneRoot, Object transitionObject) {
+        Transition transition = (Transition) transitionObject;
+        TransitionManager.beginDelayedTransition(sceneRoot, transition);
+    }
+
+    public static void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
+        viewGroup.setTransitionGroup(transitionGroup);
+    }
+
+    public static void setEpicenterCallback(Object transitionObject,
+            final TransitionEpicenterCallback callback) {
+        Transition transition = (Transition) transitionObject;
+        if (callback == null) {
+            transition.setEpicenterCallback(null);
+        } else {
+            transition.setEpicenterCallback(new Transition.EpicenterCallback() {
+                @Override
+                public Rect onGetEpicenter(Transition transition) {
+                    return callback.onGetEpicenter(transition);
+                }
+            });
+        }
+    }
+}

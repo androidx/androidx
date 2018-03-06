@@ -38,20 +38,20 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_small"/>
 
-            <androidx.emoji.widget.EmojiTextView
+            <android.support.text.emoji.widget.EmojiTextView
                 android:id="@+id/emoji_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_small"/>
 
-            <androidx.emoji.widget.EmojiAppCompatEditText
+            <android.support.text.emoji.widget.EmojiAppCompatEditText
                 android:id="@+id/emoji_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_small"
                 android:textSize="@dimen/text_size"/>
 
-            <androidx.emoji.widget.EmojiAppCompatButton
+            <android.support.text.emoji.widget.EmojiAppCompatButton
                 android:id="@+id/emoji_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/text_size"/>
 
-            <androidx.emoji.widget.EmojiAppCompatButton
+            <android.support.text.emoji.widget.EmojiAppCompatButton
                 android:id="@+id/emoji_list_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

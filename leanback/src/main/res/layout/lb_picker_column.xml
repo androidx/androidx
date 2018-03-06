@@ -14,14 +14,14 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<androidx.leanback.widget.VerticalGridView xmlns:android="http://schemas.android.com/apk/res/android"
-                                           xmlns:lb="http://schemas.android.com/apk/res-auto"
-                                           android:id="@+id/column"
-                                           android:layout_width="wrap_content"
-                                           android:layout_height="@dimen/picker_item_height"
-                                           android:importantForAccessibility="no"
-                                           android:verticalSpacing="@dimen/picker_item_spacing"
-                                           lb:columnWidth="wrap_content"
-                                           android:clipToPadding="false"
-                                           android:paddingStart="@dimen/picker_column_horizontal_padding"
-                                           android:paddingEnd="@dimen/picker_column_horizontal_padding" />
+<android.support.v17.leanback.widget.VerticalGridView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:lb="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/column"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/picker_item_height"
+    android:importantForAccessibility="no"
+    android:verticalSpacing="@dimen/picker_item_spacing"
+    lb:columnWidth="wrap_content"
+    android:clipToPadding="false"
+    android:paddingStart="@dimen/picker_column_horizontal_padding"
+    android:paddingEnd="@dimen/picker_column_horizontal_padding" />

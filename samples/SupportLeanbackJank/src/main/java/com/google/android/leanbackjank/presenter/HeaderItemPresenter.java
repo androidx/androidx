@@ -18,11 +18,11 @@ package com.google.android.leanbackjank.presenter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.leanback.widget.HeaderItem;
-import androidx.leanback.widget.ListRow;
-import androidx.leanback.widget.Presenter;
-import androidx.leanback.widget.RowHeaderPresenter;
-import androidx.core.content.res.ResourcesCompat;
+import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.RowHeaderPresenter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

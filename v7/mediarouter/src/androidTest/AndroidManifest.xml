@@ -20,11 +20,11 @@
 
     <application android:supportsRtl="true">
         <activity
-            android:name="androidx.mediarouter.app.MediaRouteChooserDialogTestActivity"
+            android:name="android.support.v7.app.MediaRouteChooserDialogTestActivity"
             android:label="MediaRouteChooserDialogTestActivity"
             android:theme="@style/Theme.AppCompat" />
 
-        <receiver android:name="androidx.media.session.MediaButtonReceiver">
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
             </intent-filter>

@@ -26,7 +26,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
+import android.support.v7.widget.RecyclerView.OnScrollListener;
 
 import org.junit.After;
 import org.junit.Test;

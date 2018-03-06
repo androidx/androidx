@@ -15,14 +15,14 @@
   ~ limitations under the License.
   -->
 
-<androidx.wear.widget.drawer.WearableDrawerLayout
+<android.support.wear.widget.drawer.WearableDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.wear.widget.drawer.WearableActionDrawerView
+    <android.support.wear.widget.drawer.WearableActionDrawerView
         android:id="@+id/action_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -30,4 +30,4 @@
         app:drawerTitle="Action Drawer Title"
         app:actionMenu="@menu/action_drawer" />
 
-</androidx.wear.widget.drawer.WearableDrawerLayout>
+</android.support.wear.widget.drawer.WearableDrawerLayout>

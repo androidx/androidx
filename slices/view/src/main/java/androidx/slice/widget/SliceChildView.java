@@ -18,9 +18,9 @@ package androidx.slice.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;

@@ -31,7 +31,7 @@
     <!-- Since dialog's top layout mr_expandable_area is clickable, it propagates pressed state
          to its non-clickable children. Specify android:clickable="true" to prevent volume slider
          from having false pressed state. -->
-    <androidx.mediarouter.app.MediaRouteVolumeSlider
+    <android.support.v7.app.MediaRouteVolumeSlider
             android:id="@+id/mr_volume_slider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
             android:layout_weight="1"
             android:clickable="true"
             android:contentDescription="@string/mr_controller_volume_slider" />
-    <androidx.mediarouter.app.MediaRouteExpandCollapseButton
+    <android.support.v7.app.MediaRouteExpandCollapseButton
             android:id="@+id/mr_group_expand_collapse"
             android:layout_width="48dp"
             android:layout_height="48dp"

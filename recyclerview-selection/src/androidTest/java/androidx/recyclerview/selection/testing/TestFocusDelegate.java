@@ -18,7 +18,7 @@ package androidx.recyclerview.selection.testing;
 
 import static org.junit.Assert.assertEquals;
 
-import androidx.recyclerview.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView;
 
 import androidx.recyclerview.selection.FocusDelegate;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;

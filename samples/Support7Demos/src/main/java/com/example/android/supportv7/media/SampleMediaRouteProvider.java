@@ -27,12 +27,12 @@ import android.media.AudioManager;
 import android.media.MediaRouter;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.mediarouter.media.MediaControlIntent;
-import androidx.mediarouter.media.MediaRouteDescriptor;
-import androidx.mediarouter.media.MediaRouteProvider;
-import androidx.mediarouter.media.MediaRouteProviderDescriptor;
-import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
-import androidx.mediarouter.media.MediaSessionStatus;
+import android.support.v7.media.MediaControlIntent;
+import android.support.v7.media.MediaRouteDescriptor;
+import android.support.v7.media.MediaRouteProvider;
+import android.support.v7.media.MediaRouteProviderDescriptor;
+import android.support.v7.media.MediaRouter.ControlRequestCallback;
+import android.support.v7.media.MediaSessionStatus;
 import android.util.Log;
 
 import com.example.android.supportv7.R;

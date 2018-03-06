@@ -6,14 +6,14 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api(project(":support-annotations"))
 }
 
 supportLibrary {
     name = "Android Support Recommendation"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.RECOMMENDATION
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2015"
     description = "Android Support Recommendation"
     minSdkVersion = 21

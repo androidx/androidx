@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api(project(":support-annotations"))
 
     androidTestImplementation(TEST_RUNNER)
 }
@@ -16,7 +16,7 @@ supportLibrary {
     name = "Android Support ExifInterface"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.EXIFINTERFACE
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2016"
     description = "Android Support ExifInterface"
 }

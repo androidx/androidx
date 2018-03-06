@@ -17,9 +17,9 @@
 package com.google.android.leanbackjank.presenter;
 
 import android.net.Uri;
-import androidx.leanback.widget.ImageCardView;
-import androidx.leanback.widget.Presenter;
-import androidx.core.content.res.ResourcesCompat;
+import android.support.v17.leanback.widget.ImageCardView;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;

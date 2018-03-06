@@ -18,8 +18,8 @@ package com.example.android.supportv4.app;
 
 import com.example.android.supportv4.R;
 
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

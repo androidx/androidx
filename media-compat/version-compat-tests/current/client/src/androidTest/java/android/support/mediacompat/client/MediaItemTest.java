@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Parcel;
 import android.support.test.filters.SmallTest;
-import androidx.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 
 import org.junit.Test;

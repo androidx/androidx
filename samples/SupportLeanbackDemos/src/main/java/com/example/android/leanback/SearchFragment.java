@@ -8,27 +8,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.Nullable;
-import androidx.leanback.widget.ArrayObjectAdapter;
-import androidx.leanback.widget.DiffCallback;
-import androidx.leanback.widget.HeaderItem;
-import androidx.leanback.widget.ImageCardView;
-import androidx.leanback.widget.ListRow;
-import androidx.leanback.widget.ListRowPresenter;
-import androidx.leanback.widget.ObjectAdapter;
-import androidx.leanback.widget.OnItemViewClickedListener;
-import androidx.leanback.widget.Presenter;
-import androidx.leanback.widget.Row;
-import androidx.leanback.widget.RowPresenter;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.res.ResourcesCompat;
+import android.support.annotation.Nullable;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.DiffCallback;
+import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ImageCardView;
+import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.ObjectAdapter;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
 
-public class SearchFragment extends androidx.leanback.app.SearchFragment
-        implements androidx.leanback.app.SearchFragment.SearchResultProvider {
+public class SearchFragment extends android.support.v17.leanback.app.SearchFragment
+        implements android.support.v17.leanback.app.SearchFragment.SearchResultProvider {
     private static final String TAG = "leanback.SearchFragment";
     private static final int NUM_ROWS = 3;
     private static final int SEARCH_DELAY_MS = 1000;

@@ -21,12 +21,12 @@
 
 <resources>
     <!-- Attributes that can be used with any member view of
-        {@landroidx.wearwear.widget.BoxInsetLayout}.
+        {@link android.support.wear.widget.BoxInsetLayout}.
         These attributes are specified with the rest of a view's normal attributes
         (such as {@link android.R.attr#background}, but will be parsed by the view's parent and
         ignored by the child.
         <p>The values defined here correspond to the base layout attribute
-        class {@landroidx.wearwear.widget.BoxInsetLayout.LayoutParams}. -->
+        class {@link android.support.wear.widget.BoxInsetLayout.LayoutParams}. -->
     <declare-styleable name="BoxInsetLayout_Layout">
         <!-- The types of insets this view can force on its children. The view will respect the
              defined values of other child attributes such as ones provided by
@@ -49,7 +49,7 @@
     </declare-styleable>
 
     <!-- Attributes that can be used with any
-        {@landroidx.wearwear.widget.WearableRecyclerView}.
+        {@link android.support.wear.widget.WearableRecyclerView}.
         These attributes relate to the circular scrolling gesture of the view. -->
     <declare-styleable name="WearableRecyclerView">
         <!-- Taps within this radius and the radius of the screen are considered close enough to the

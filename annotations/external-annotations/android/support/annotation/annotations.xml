@@ -1,0 +1,12 @@
+<root>
+    <item name="android.support.annotation.VisibleForTesting int otherwise()">
+        <annotation name="android.support.annotation.IntDef">
+            <val name="value" val="{android.support.annotation.VisibleForTesting.PRIVATE, android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE, android.support.annotation.VisibleForTesting.PROTECTED, android.support.annotation.VisibleForTesting.NONE}" />
+        </annotation>
+    </item>
+    <item name="android.support.annotation.Dimension int unit()">
+        <annotation name="android.support.annotation.IntDef">
+            <val name="value" val="{android.support.annotation.Dimension.DP, android.support.annotation.Dimension.PX, android.support.annotation.Dimension.SP}" />
+        </annotation>
+    </item>
+</root>

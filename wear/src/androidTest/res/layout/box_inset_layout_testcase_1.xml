@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                     xmlns:app="http://schemas.android.com/apk/res-auto"
-                                     android:layout_width="match_parent"
-                                     android:layout_height="match_parent"
-                                     android:id="@+id/box">
+<android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/box">
 
     <FrameLayout
         android:id="@+id/child1"
@@ -18,4 +18,4 @@
             android:text="Test Case 1"/>
     </FrameLayout>
 
-</androidx.wear.widget.BoxInsetLayout>
+</android.support.wear.widget.BoxInsetLayout>

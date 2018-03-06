@@ -20,7 +20,7 @@
              android:layout_height="match_parent"
              xmlns:app="http://schemas.android.com/apk/res-auto"
              android:orientation="vertical">
-    <androidx.wear.widget.CircularProgressLayout
+    <android.support.wear.widget.CircularProgressLayout
         android:id="@+id/circular_progress_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,5 +31,5 @@
             android:id="@+id/child_view"
             android:layout_width="40dp"
             android:layout_height="40dp"/>
-    </androidx.wear.widget.CircularProgressLayout>
+    </android.support.wear.widget.CircularProgressLayout>
 </FrameLayout >

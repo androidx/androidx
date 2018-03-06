@@ -20,10 +20,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.SystemClock;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.collection.ArraySet;
-import androidx.core.util.ObjectsCompat;
+import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
+import android.support.v4.util.ArraySet;
+import android.support.v4.util.ObjectsCompat;
 import android.text.TextUtils;
 
 import java.util.ArrayList;

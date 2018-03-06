@@ -18,7 +18,7 @@ package com.example.androidx.car;
 
 import android.app.Activity;
 import android.os.Bundle;
-import androidx.recyclerview.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

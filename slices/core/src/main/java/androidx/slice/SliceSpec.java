@@ -17,8 +17,8 @@
 package androidx.slice;
 
 import android.net.Uri;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 /**
  * Class describing the structure of the data contained within a slice.

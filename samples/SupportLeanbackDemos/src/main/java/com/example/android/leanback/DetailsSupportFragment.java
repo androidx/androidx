@@ -20,29 +20,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.leanback.widget.Action;
-import androidx.leanback.widget.ArrayObjectAdapter;
-import androidx.leanback.widget.ClassPresenterSelector;
-import androidx.leanback.widget.DetailsOverviewRow;
-import androidx.leanback.widget.DetailsOverviewRowPresenter;
-import androidx.leanback.widget.HeaderItem;
-import androidx.leanback.widget.ImageCardView;
-import androidx.leanback.widget.ListRow;
-import androidx.leanback.widget.ListRowPresenter;
-import androidx.leanback.widget.OnActionClickedListener;
-import androidx.leanback.widget.OnItemViewClickedListener;
-import androidx.leanback.widget.OnItemViewSelectedListener;
-import androidx.leanback.widget.Presenter;
-import androidx.leanback.widget.Row;
-import androidx.leanback.widget.RowPresenter;
-import androidx.leanback.widget.SparseArrayObjectAdapter;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.res.ResourcesCompat;
+import android.support.v17.leanback.widget.Action;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.ClassPresenterSelector;
+import android.support.v17.leanback.widget.DetailsOverviewRow;
+import android.support.v17.leanback.widget.DetailsOverviewRowPresenter;
+import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ImageCardView;
+import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.OnActionClickedListener;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-public class DetailsSupportFragment extends androidx.leanback.app.DetailsSupportFragment {
+public class DetailsSupportFragment extends android.support.v17.leanback.app.DetailsSupportFragment {
     private static final String TAG = "leanback.DetailsSupportFragment";
     private static final String ITEM = "item";
 

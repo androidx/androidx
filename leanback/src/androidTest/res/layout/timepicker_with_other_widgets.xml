@@ -32,7 +32,7 @@
             android:focusable="true"
             android:background="?android:attr/selectableItemBackground"
         />
-        <androidx.leanback.widget.picker.TimePicker
+        <android.support.v17.leanback.widget.picker.TimePicker
             android:id="@+id/time_picker12"
             android:importantForAccessibility="yes"
             app:is24HourFormat="false"
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/above_picker"
             android:gravity="center" />
-        <androidx.leanback.widget.picker.TimePicker
+        <android.support.v17.leanback.widget.picker.TimePicker
             android:id="@+id/time_picker24"
             android:importantForAccessibility="yes"
             app:is24HourFormat="true"

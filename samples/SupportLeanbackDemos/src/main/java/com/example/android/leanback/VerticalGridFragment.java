@@ -17,18 +17,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.leanback.widget.ArrayObjectAdapter;
-import androidx.leanback.widget.OnItemViewClickedListener;
-import androidx.leanback.widget.OnItemViewSelectedListener;
-import androidx.leanback.widget.Presenter;
-import androidx.leanback.widget.Row;
-import androidx.leanback.widget.RowPresenter;
-import androidx.leanback.widget.VerticalGridPresenter;
-import androidx.core.content.res.ResourcesCompat;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.VerticalGridPresenter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.View;
 
-public class VerticalGridFragment extends androidx.leanback.app.VerticalGridFragment {
+public class VerticalGridFragment extends android.support.v17.leanback.app.VerticalGridFragment {
     private static final String TAG = "leanback.VerticalGridFragment";
 
     private static final int NUM_COLUMNS = 3;
