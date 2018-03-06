@@ -70,7 +70,7 @@ public abstract class Work implements BaseWork {
          *
          * @param workerClass The {@link Worker} class to run with this job
          */
-        public Builder(Class<? extends Worker> workerClass) {
+        public Builder(@NonNull Class<? extends Worker> workerClass) {
             mInternalBuilder = new WorkImpl.Builder(workerClass);
         }
 
@@ -133,7 +133,7 @@ public abstract class Work implements BaseWork {
 
         @VisibleForTesting
         @Override
-        public Builder withInitialState(State state) {
+        public Builder withInitialState(@NonNull State state) {
             mInternalBuilder.withInitialState(state);
             return this;
         }
