@@ -21,8 +21,8 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.os.BuildCompat;
 
 /**
  * Activity that hosts VideoConsumptionExampleFragment.
@@ -63,7 +63,7 @@ public class VideoActivityWithDetailedCard extends Activity {
      * @return if Picture in Picture mode is supported or not
      */
     public static boolean supportsPictureInPicture(Context context) {
-        return BuildCompat.isAtLeastN()
+        return Build.VERSION.SDK_INT >= 24
                 && context.getPackageManager().hasSystemFeature(
                         PackageManager.FEATURE_PICTURE_IN_PICTURE);
     }
