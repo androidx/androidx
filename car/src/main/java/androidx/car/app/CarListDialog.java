@@ -57,6 +57,7 @@ public class CarListDialog extends Dialog {
     private static final String TAG = "CarListDialog";
 
     private ListItemAdapter mAdapter;
+    private final int mInitialPosition;
     private PagedListView mList;
     private PagedScrollBarView mScrollBarView;
     private final DialogInterface.OnClickListener mOnClickListener;
@@ -75,8 +76,10 @@ public class CarListDialog extends Dialog {
                 }
             };
 
-    private CarListDialog(Context context, String[] items, OnClickListener listener) {
+    private CarListDialog(Context context, String[] items, int initialPosition,
+            OnClickListener listener) {
         super(context, getDialogTheme(context));
+        mInitialPosition = initialPosition;
         mOnClickListener = listener;
         initializeAdapter(items);
     }
@@ -135,6 +138,11 @@ public class CarListDialog extends Dialog {
         mList = getWindow().findViewById(R.id.list);
         mList.setMaxPages(PagedListView.UNLIMITED_PAGES);
         mList.setAdapter(mAdapter);
+
+        // The list will start at the 0 position, so no need to scroll.
+        if (mInitialPosition != 0) {
+            mList.snapToPosition(mInitialPosition);
+        }
 
         // Ensure that when the list is scrolled, the scrollbar updates to reflect the new position.
         mList.getRecyclerView().addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -270,6 +278,7 @@ public class CarListDialog extends Dialog {
      */
     public static class Builder {
         private final Context mContext;
+        private int mInitialPosition;
         private String[] mItems;
         private DialogInterface.OnClickListener mOnClickListener;
 
@@ -311,6 +320,21 @@ public class CarListDialog extends Dialog {
 
             mItems = items;
             mOnClickListener = onClickListener;
+            return this;
+        }
+
+        /**
+         * Sets the initial position in the list that the {@code CarListDialog} will start at. When
+         * the dialog is created, the list will animate to the given position.
+         *
+         * @param initialPosition The initial position in the list to display.
+         * @return This {@code Builder} object to allow for chaining of calls.
+         */
+        public Builder setInitialPosition(int initialPosition) {
+            if (initialPosition < 0) {
+                throw new IllegalArgumentException("Initial position cannot be negative.");
+            }
+            mInitialPosition = initialPosition;
             return this;
         }
 
@@ -368,7 +392,16 @@ public class CarListDialog extends Dialog {
                         "CarListDialog must be created with a non-empty list.");
             }
 
-            CarListDialog dialog = new CarListDialog(mContext, mItems, mOnClickListener);
+            if (mInitialPosition >= mItems.length) {
+                throw new IllegalStateException("Initial position is greater than the number of "
+                        + "items in the list.");
+            }
+
+            CarListDialog dialog = new CarListDialog(
+                    mContext,
+                    mItems,
+                    mInitialPosition,
+                    mOnClickListener);
 
             dialog.setCancelable(mCancelable);
             dialog.setCanceledOnTouchOutside(mCancelable);
@@ -383,10 +416,10 @@ public class CarListDialog extends Dialog {
          * and immediately displays the dialog.
          *
          * <p>Calling this method is functionally identical to:
-         * <pre>
-         *     CarAlertDialog dialog = new CarAlertDialog.Builder().create();
-         *     dialog.show();
-         * </pre>
+         * <pre>{@code
+         * CarAlertDialog dialog = new CarAlertDialog.Builder().create();
+         * dialog.show();
+         * }</pre>
          */
         public CarListDialog show() {
             CarListDialog dialog = create();
