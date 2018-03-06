@@ -282,6 +282,8 @@ public class PagedListView extends FrameLayout {
         if (a.getBoolean(R.styleable.PagedListView_showPagedListViewDivider, true)) {
             int dividerStartMargin = a.getDimensionPixelSize(
                     R.styleable.PagedListView_dividerStartMargin, 0);
+            int dividerEndMargin = a.getDimensionPixelSize(
+                    R.styleable.PagedListView_dividerEndMargin, 0);
             int dividerStartId = a.getResourceId(
                     R.styleable.PagedListView_alignDividerStartTo, INVALID_RESOURCE_ID);
             int dividerEndId = a.getResourceId(
@@ -291,7 +293,7 @@ public class PagedListView extends FrameLayout {
                     R.color.car_list_divider);
 
             mRecyclerView.addItemDecoration(new DividerDecoration(context, dividerStartMargin,
-                    dividerStartId, dividerEndId, listDividerColor));
+                    dividerEndMargin, dividerStartId, dividerEndId, listDividerColor));
         }
 
         int itemSpacing = a.getDimensionPixelSize(R.styleable.PagedListView_itemSpacing, 0);
@@ -1106,6 +1108,7 @@ public class PagedListView extends FrameLayout {
         private final Paint mPaint;
         private final int mDividerHeight;
         private final int mDividerStartMargin;
+        private final int mDividerEndMargin;
         @IdRes private final int mDividerStartId;
         @IdRes private final int mDividerEndId;
         @ColorRes private final int mListDividerColor;
@@ -1122,10 +1125,11 @@ public class PagedListView extends FrameLayout {
          *     container view of each child will be used.
          */
         private DividerDecoration(Context context, int dividerStartMargin,
-                @IdRes int dividerStartId, @IdRes int dividerEndId,
+                int dividerEndMargin, @IdRes int dividerStartId, @IdRes int dividerEndId,
                 @ColorRes int listDividerColor) {
             mContext = context;
             mDividerStartMargin = dividerStartMargin;
+            mDividerEndMargin = dividerEndMargin;
             mDividerStartId = dividerStartId;
             mDividerEndId = dividerEndId;
             mListDividerColor = listDividerColor;
@@ -1133,7 +1137,7 @@ public class PagedListView extends FrameLayout {
             mPaint = new Paint();
             mPaint.setColor(mContext.getColor(listDividerColor));
             mDividerHeight = mContext.getResources().getDimensionPixelSize(
-                R.dimen.car_list_divider_height);
+                    R.dimen.car_list_divider_height);
         }
 
         /** Updates the list divider color which may have changed due to a day night transition. */
@@ -1206,7 +1210,8 @@ public class PagedListView extends FrameLayout {
 
             int left = container.getLeft() + mDividerStartMargin
                     + (startRect.left - containerRect.left);
-            int right = container.getRight() - (endRect.right - containerRect.right);
+            int right = container.getRight()  - mDividerEndMargin
+                    - (endRect.right - containerRect.right);
             int bottom = container.getBottom() + spacing / 2 + mDividerHeight / 2;
             int top = bottom - mDividerHeight;
 
@@ -1255,7 +1260,7 @@ public class PagedListView extends FrameLayout {
                 // Otherwise the top items will be visually uneven.
                 outRect.top = mTopOffset;
             } else if (position == 0) {
-                 // Only set the offset for the first item.
+                // Only set the offset for the first item.
                 outRect.top = mTopOffset;
             }
         }
