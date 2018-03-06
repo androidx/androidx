@@ -53,7 +53,7 @@ public class SliceCreator {
     public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
 
     public static final String[] URI_PATHS = {"message", "wifi", "wifi2", "note", "ride", "toggle",
-            "toggle2", "contact", "gallery", "weather"};
+            "toggle2", "contact", "gallery", "subscription", "subscription2", "weather"};
 
     private final Context mContext;
 
@@ -97,6 +97,10 @@ public class SliceCreator {
                 return createContact(sliceUri);
             case "/gallery":
                 return createGallery(sliceUri);
+            case "/subscription":
+                return createSubSlice(sliceUri, false /* customSeeMore */);
+            case "/subscription2":
+                return createSubSlice(sliceUri, true /* customSeeMore */);
             case "/weather":
                 return createWeather(sliceUri);
         }
@@ -141,19 +145,71 @@ public class SliceCreator {
     private Slice createGallery(Uri sliceUri) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri);
         GridBuilder gb = new GridBuilder(b);
-        return gb.addCell(new GridBuilder.CellBuilder(gb)
-                    .addImage(Icon.createWithResource(getContext(), R.drawable.slices_1),
-                            LARGE_IMAGE))
+        PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "see more of your gallery");
+        gb.addSeeMoreAction(pi);
+        gb.addCell(new GridBuilder.CellBuilder(gb)
+                .addImage(Icon.createWithResource(getContext(), R.drawable.slices_1),
+                        LARGE_IMAGE))
                 .addCell(new GridBuilder.CellBuilder(gb)
-                    .addImage(Icon.createWithResource(getContext(), R.drawable.slices_2),
-                            LARGE_IMAGE))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_2),
+                                LARGE_IMAGE))
                 .addCell(new GridBuilder.CellBuilder(gb)
-                    .addImage(Icon.createWithResource(getContext(), R.drawable.slices_3),
-                            LARGE_IMAGE))
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_3),
+                                LARGE_IMAGE))
                 .addCell(new GridBuilder.CellBuilder(gb)
-                    .addImage(Icon.createWithResource(getContext(), R.drawable.slices_4),
-                            LARGE_IMAGE))
-                .build();
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_4),
+                                LARGE_IMAGE))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_2),
+                                LARGE_IMAGE))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_3),
+                                LARGE_IMAGE))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_4),
+                                LARGE_IMAGE));
+        return b.addGrid(gb).build();
+    }
+
+    private Slice createSubSlice(Uri sliceUri, boolean customSeeMore) {
+        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        GridBuilder gb = new GridBuilder(b);
+        GridBuilder.CellBuilder cb = new GridBuilder.CellBuilder(gb);
+        PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "See cats you follow");
+        if (customSeeMore) {
+            cb.addImage(Icon.createWithResource(getContext(), R.drawable.ic_right_caret),
+                    ICON_IMAGE);
+            cb.setContentIntent(pi);
+            cb.addText("All cats");
+            gb.addSeeMoreCell(cb);
+        } else {
+            gb.addSeeMoreAction(pi);
+        }
+        gb.addCell(new GridBuilder.CellBuilder(gb)
+                    .addImage(Icon.createWithResource(getContext(), R.drawable.cat_1),
+                            SMALL_IMAGE)
+                    .addTitleText("Oreo"))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_2),
+                                SMALL_IMAGE)
+                        .addTitleText("Silver"))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_3),
+                                SMALL_IMAGE)
+                        .addTitleText("Drake"))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_5),
+                                SMALL_IMAGE)
+                        .addTitleText("Olive"))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_4),
+                                SMALL_IMAGE)
+                        .addTitleText("Lady Marmalade"))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_6),
+                                SMALL_IMAGE)
+                        .addTitleText("Grapefruit"));
+        return b.addGrid(gb).build();
     }
 
     private Slice createContact(Uri sliceUri) {

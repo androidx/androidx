@@ -17,6 +17,8 @@
 package androidx.slice.widget;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_LIST_ITEM;
+import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
@@ -57,6 +59,7 @@ public class GridContent {
     private SliceItem mColorItem;
     private SliceItem mPrimaryAction;
     private ArrayList<CellContent> mGridContent = new ArrayList<>();
+    private SliceItem mSeeMoreItem;
     private int mMaxCellLineCount;
     private boolean mHasImage;
     private @ListBuilder.ImageMode int mLargestImageMode;
@@ -94,12 +97,16 @@ public class GridContent {
     private boolean populate(SliceItem gridItem) {
         reset();
         mColorItem = SliceQuery.findSubtype(gridItem, FORMAT_INT, SUBTYPE_COLOR);
+        mSeeMoreItem = SliceQuery.find(gridItem, null, HINT_SEE_MORE, null);
+        if (mSeeMoreItem != null && FORMAT_SLICE.equals(mSeeMoreItem.getFormat())) {
+            mSeeMoreItem = mSeeMoreItem.getSlice().getItems().get(0);
+        }
         String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};
         mPrimaryAction = SliceQuery.find(gridItem, FORMAT_SLICE, hints,
                 new String[] {HINT_ACTIONS} /* nonHints */);
         mAllImages = true;
         if (FORMAT_SLICE.equals(gridItem.getFormat())) {
-            List<SliceItem> items = gridItem.getSlice().getItems();
+            List<SliceItem> items = gridItem.getSlice().getItems().get(0).getSlice().getItems();
             items = filterInvalidItems(items);
             // Check if it it's only one item that is a slice
             if (items.size() == 1 && items.get(0).getFormat().equals(FORMAT_SLICE)) {
@@ -154,6 +161,14 @@ public class GridContent {
     }
 
     /**
+     * @return the see more item to use when not all items in the grid can be displayed.
+     */
+    @Nullable
+    public SliceItem getSeeMoreItem() {
+        return mSeeMoreItem;
+    }
+
+    /**
      * @return whether this grid has content that is valid to display.
      */
     public boolean isValid() {
@@ -171,7 +186,8 @@ public class GridContent {
         List<SliceItem> filteredItems = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
             SliceItem item = items.get(i);
-            if (!item.hasHint(HINT_SHORTCUT)) {
+            if (item.hasHint(HINT_LIST_ITEM) && !item.hasHint(HINT_SHORTCUT)
+                    && !item.hasHint(HINT_SEE_MORE)) {
                 filteredItems.add(item);
             }
         }
