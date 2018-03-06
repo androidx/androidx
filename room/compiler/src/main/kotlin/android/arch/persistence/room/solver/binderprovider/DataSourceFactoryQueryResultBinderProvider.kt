@@ -22,7 +22,7 @@ import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.processor.ProcessorErrors
 import android.arch.persistence.room.solver.QueryResultBinderProvider
 import android.arch.persistence.room.solver.query.result.ListQueryResultAdapter
-import android.arch.persistence.room.solver.query.result.LivePagedListQueryResultBinder
+import android.arch.persistence.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import android.arch.persistence.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
 import javax.lang.model.type.DeclaredType
@@ -39,12 +39,14 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
         val typeArg = declared.typeArguments[1]
-        val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
+        val adapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
         }
-        val countedBinder = PositionalDataSourceQueryResultBinder(listAdapter,
-                query.tables.map { it.name })
-        return LivePagedListQueryResultBinder(countedBinder)
+
+        val tableNames = ((adapter?.accessedTableNames() ?: emptyList())
+                + query.tables.map { it.name }).toSet()
+        val countedBinder = PositionalDataSourceQueryResultBinder(adapter, tableNames)
+        return DataSourceFactoryQueryResultBinder(countedBinder)
     }
 
     override fun matches(declared: DeclaredType): Boolean =
