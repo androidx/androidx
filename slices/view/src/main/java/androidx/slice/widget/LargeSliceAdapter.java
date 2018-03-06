@@ -25,7 +25,6 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.widget.SliceView.MODE_LARGE;
 
-import android.annotation.TargetApi;
 import android.app.slice.Slice;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
@@ -40,8 +39,6 @@ import android.view.ViewGroup.LayoutParams;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
@@ -51,7 +48,6 @@ import androidx.slice.view.R;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@TargetApi(24)
 public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.SliceViewHolder> {
 
     static final int TYPE_DEFAULT       = 1;
@@ -95,12 +91,10 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             mSlices.clear();
         } else {
             mIdGen.resetUsage();
-            mSlices = slices.stream().map(new Function<SliceItem, SliceWrapper>() {
-                @Override
-                public SliceWrapper apply(SliceItem s) {
-                    return new SliceWrapper(s, mIdGen);
-                }
-            }).collect(Collectors.<SliceWrapper>toList());
+            mSlices = new ArrayList<>(slices.size());
+            for (SliceItem s : slices) {
+                mSlices.add(new SliceWrapper(s, mIdGen));
+            }
         }
         mColor = color;
         notifyDataSetChanged();
@@ -221,7 +215,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
                 mCurrentIds.put(str, mNextLong++);
             }
             long id = mCurrentIds.get(str);
-            int index = mUsedIds.getOrDefault(str, 0);
+            Integer usedIdIndex = mUsedIds.get(str);
+            int index = usedIdIndex != null ? usedIdIndex : 0;
             mUsedIds.put(str, index + 1);
             return id + index * 10000;
         }

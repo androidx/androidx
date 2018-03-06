@@ -20,7 +20,6 @@ import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.app.RemoteInput;
@@ -41,7 +40,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
@@ -50,7 +48,6 @@ import androidx.slice.core.SliceQuery;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@TargetApi(24)
 public class ActionRow extends FrameLayout {
 
     private static final int MAX_ACTIONS = 5;
@@ -111,46 +108,43 @@ public class ActionRow extends FrameLayout {
         if (color != -1) {
             setColor(color);
         }
-        actions.forEach(new Consumer<SliceItem>() {
-            @Override
-            public void accept(final SliceItem action) {
-                if (mActionsGroup.getChildCount() >= MAX_ACTIONS) {
-                    return;
-                }
-                final SliceItem input = SliceQuery.find(action, FORMAT_REMOTE_INPUT);
-                final SliceItem image = SliceQuery.find(action, FORMAT_IMAGE);
-                if (input != null && image != null
-                        && input.getRemoteInput().getAllowFreeFormInput()) {
-                    boolean tint = !image.hasHint(HINT_NO_TINT);
-                    addAction(image.getIcon(), tint, image).setOnClickListener(
+        for (final SliceItem action : actions) {
+            if (mActionsGroup.getChildCount() >= MAX_ACTIONS) {
+                return;
+            }
+            final SliceItem input = SliceQuery.find(action, FORMAT_REMOTE_INPUT);
+            final SliceItem image = SliceQuery.find(action, FORMAT_IMAGE);
+            if (input != null && image != null
+                    && input.getRemoteInput().getAllowFreeFormInput()) {
+                boolean tint = !image.hasHint(HINT_NO_TINT);
+                addAction(image.getIcon(), tint, image).setOnClickListener(
+                        new OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                handleRemoteInputClick(v, action.getAction(),
+                                        input.getRemoteInput());
+                            }
+                        });
+                createRemoteInputView(mColor, getContext());
+            } else if (action.hasHint(Slice.HINT_SHORTCUT)) {
+                final ActionContent ac = new ActionContent(action);
+                SliceItem iconItem = ac.getIconItem();
+                if (iconItem != null && ac.getActionItem() != null) {
+                    boolean tint = !iconItem.hasHint(HINT_NO_TINT);
+                    addAction(iconItem.getIcon(), tint, image).setOnClickListener(
                             new OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    handleRemoteInputClick(v, action.getAction(),
-                                            input.getRemoteInput());
+                                    try {
+                                        ac.getActionItem().getAction().send();
+                                    } catch (CanceledException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             });
-                    createRemoteInputView(mColor, getContext());
-                } else if (action.hasHint(Slice.HINT_SHORTCUT)) {
-                    final ActionContent ac = new ActionContent(action);
-                    SliceItem iconItem = ac.getIconItem();
-                    if (iconItem != null && ac.getActionItem() != null) {
-                        boolean tint = !iconItem.hasHint(HINT_NO_TINT);
-                        addAction(iconItem.getIcon(), tint, image).setOnClickListener(
-                                new OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        try {
-                                            ac.getActionItem().getAction().send();
-                                        } catch (CanceledException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                });
-                    }
                 }
             }
-        });
+        }
         setVisibility(getChildCount() != 0 ? View.VISIBLE : View.GONE);
     }
 

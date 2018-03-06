@@ -70,6 +70,7 @@ public class ContentProviderWrapper extends ContentProvider {
 
     @Nullable
     @Override
+    @RequiresApi(16)
     public final Cursor query(@NonNull Uri uri, @Nullable String[] projection,
             @Nullable String selection, @Nullable String[] selectionArgs,
             @Nullable String sortOrder, @Nullable CancellationSignal cancellationSignal) {
@@ -115,6 +116,7 @@ public class ContentProviderWrapper extends ContentProvider {
 
     @Nullable
     @Override
+    @RequiresApi(19)
     public final Uri canonicalize(@NonNull Uri url) {
         return mImpl.canonicalize(url);
     }

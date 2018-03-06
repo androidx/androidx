@@ -18,9 +18,9 @@ package androidx.slice;
 
 import android.support.annotation.RestrictTo;
 import android.support.annotation.RestrictTo.Scope;
+import android.support.v4.util.ObjectsCompat;
 
 import java.lang.reflect.Array;
-import java.util.Objects;
 
 /**
  * @hide
@@ -30,7 +30,7 @@ class ArrayUtils {
 
     public static <T> boolean contains(T[] array, T item) {
         for (T t : array) {
-            if (Objects.equals(t, item)) {
+            if (ObjectsCompat.equals(t, item)) {
                 return true;
             }
         }
@@ -59,7 +59,7 @@ class ArrayUtils {
             }
             final int length = array.length;
             for (int i = 0; i < length; i++) {
-                if (Objects.equals(array[i], element)) {
+                if (ObjectsCompat.equals(array[i], element)) {
                     if (length == 1) {
                         return null;
                     }
