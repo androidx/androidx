@@ -60,7 +60,7 @@ public abstract class PeriodicWork implements BaseWork {
          * @param repeatIntervalTimeUnit The {@link TimeUnit} for {@code repeatInterval}
          */
         public Builder(
-                Class<? extends Worker> workerClass,
+                @NonNull Class<? extends Worker> workerClass,
                 long repeatInterval,
                 @NonNull TimeUnit repeatIntervalTimeUnit) {
             mInternalBuilder = new PeriodicWorkImpl.Builder(
@@ -92,7 +92,7 @@ public abstract class PeriodicWork implements BaseWork {
          * @param flexIntervalTimeUnit The {@link TimeUnit} for {@code flexInterval}
          */
         public Builder(
-                Class<? extends Worker> workerClass,
+                @NonNull Class<? extends Worker> workerClass,
                 long repeatInterval,
                 @NonNull TimeUnit repeatIntervalTimeUnit,
                 long flexInterval,
@@ -110,7 +110,7 @@ public abstract class PeriodicWork implements BaseWork {
         public Builder withBackoffCriteria(
                 @NonNull BackoffPolicy backoffPolicy,
                 long backoffDelayMillis,
-                TimeUnit timeUnit) {
+                @NonNull TimeUnit timeUnit) {
             mInternalBuilder.withBackoffCriteria(backoffPolicy, backoffDelayMillis, timeUnit);
             return this;
         }

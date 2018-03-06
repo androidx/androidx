@@ -73,7 +73,7 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
         Set<String> mTags = new HashSet<>();
 
         public Builder(
-                Class<? extends Worker> workerClass,
+                @NonNull Class<? extends Worker> workerClass,
                 long repeatInterval,
                 @NonNull TimeUnit repeatIntervalTimeUnit) {
             mWorkSpec.setWorkerClassName(workerClass.getName());
@@ -81,7 +81,7 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
         }
 
         public Builder(
-                Class<? extends Worker> workerClass,
+                @NonNull Class<? extends Worker> workerClass,
                 long repeatInterval,
                 @NonNull TimeUnit repeatIntervalTimeUnit,
                 long flexInterval,

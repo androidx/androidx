@@ -73,7 +73,7 @@ public class WorkImpl extends Work implements InternalWorkImpl {
         WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
         Set<String> mTags = new HashSet<>();
 
-        public Builder(Class<? extends Worker> workerClass) {
+        public Builder(@NonNull Class<? extends Worker> workerClass) {
             mWorkSpec.setWorkerClassName(workerClass.getName());
             mWorkSpec.setInputMergerClassName(OverwritingInputMerger.class.getName());
         }

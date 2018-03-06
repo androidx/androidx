@@ -48,9 +48,11 @@ public class WorkSpec {
     String mId;
 
     @ColumnInfo(name = "state")
+    @NonNull
     State mState = ENQUEUED;
 
     @ColumnInfo(name = "worker_class_name")
+    @NonNull
     String mWorkerClassName;
 
     @ColumnInfo(name = "input_merger_class_name")
@@ -74,6 +76,7 @@ public class WorkSpec {
     long mFlexDuration;
 
     @Embedded
+    @NonNull
     Constraints mConstraints = Constraints.NONE;
 
     @ColumnInfo(name = "run_attempt_count")
@@ -81,6 +84,7 @@ public class WorkSpec {
 
     // TODO(sumir): Should Backoff be disabled by default?
     @ColumnInfo(name = "backoff_policy")
+    @NonNull
     BackoffPolicy mBackoffPolicy = BackoffPolicy.EXPONENTIAL;
 
     @ColumnInfo(name = "backoff_delay_duration")
@@ -102,19 +106,19 @@ public class WorkSpec {
         mId = id;
     }
 
-    public State getState() {
+    public @NonNull State getState() {
         return mState;
     }
 
-    public void setState(State state) {
+    public void setState(@NonNull State state) {
         mState = state;
     }
 
-    public String getWorkerClassName() {
+    public @NonNull String getWorkerClassName() {
         return mWorkerClassName;
     }
 
-    public void setWorkerClassName(String workerClassName) {
+    public void setWorkerClassName(@NonNull String workerClassName) {
         mWorkerClassName = workerClassName;
     }
 
@@ -142,19 +146,19 @@ public class WorkSpec {
         mOutput = output;
     }
 
-    public Constraints getConstraints() {
+    public @NonNull Constraints getConstraints() {
         return mConstraints;
     }
 
-    public void setConstraints(Constraints constraints) {
+    public void setConstraints(@NonNull Constraints constraints) {
         mConstraints = constraints;
     }
 
-    public BackoffPolicy getBackoffPolicy() {
+    public @NonNull BackoffPolicy getBackoffPolicy() {
         return mBackoffPolicy;
     }
 
-    public void setBackoffPolicy(BackoffPolicy backoffPolicy) {
+    public void setBackoffPolicy(@NonNull BackoffPolicy backoffPolicy) {
         mBackoffPolicy = backoffPolicy;
     }
 
@@ -316,50 +320,47 @@ public class WorkSpec {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WorkSpec workSpec = (WorkSpec) o;
+
+        if (mInitialDelay != workSpec.mInitialDelay) return false;
+        if (mIntervalDuration != workSpec.mIntervalDuration) return false;
+        if (mFlexDuration != workSpec.mFlexDuration) return false;
+        if (mRunAttemptCount != workSpec.mRunAttemptCount) return false;
+        if (mBackoffDelayDuration != workSpec.mBackoffDelayDuration) return false;
+        if (mPeriodStartTime != workSpec.mPeriodStartTime) return false;
+        if (!mId.equals(workSpec.mId)) return false;
+        if (mState != workSpec.mState) return false;
+        if (!mWorkerClassName.equals(workSpec.mWorkerClassName)) return false;
+        if (mInputMergerClassName != null ? !mInputMergerClassName.equals(
+                workSpec.mInputMergerClassName) : workSpec.mInputMergerClassName != null) {
             return false;
         }
-        WorkSpec other = (WorkSpec) o;
-        return mId.equals(other.mId)
-                && mState == other.mState
-                && mInitialDelay == other.mInitialDelay
-                && mIntervalDuration == other.mIntervalDuration
-                && mFlexDuration == other.mFlexDuration
-                && mRunAttemptCount == other.mRunAttemptCount
-                && mBackoffPolicy == other.mBackoffPolicy
-                && mBackoffDelayDuration == other.mBackoffDelayDuration
-                && mArguments.equals(other.mArguments)
-                && mOutput.equals(other.mOutput)
-                && (mWorkerClassName != null
-                        ? mWorkerClassName.equals(other.mWorkerClassName)
-                        : other.mWorkerClassName == null)
-                && (mInputMergerClassName != null
-                        ? mInputMergerClassName.equals(other.mInputMergerClassName)
-                        : other.mInputMergerClassName == null)
-                && (mConstraints != null
-                        ? mConstraints.equals(other.mConstraints)
-                        : other.mConstraints == null);
+        if (!mArguments.equals(workSpec.mArguments)) return false;
+        if (!mOutput.equals(workSpec.mOutput)) return false;
+        if (!mConstraints.equals(workSpec.mConstraints)) return false;
+        return mBackoffPolicy == workSpec.mBackoffPolicy;
     }
 
     @Override
     public int hashCode() {
         int result = mId.hashCode();
         result = 31 * result + mState.hashCode();
-        result = 31 * result + (mWorkerClassName != null ? mWorkerClassName.hashCode() : 0);
-        result = 31 * result
-                + (mInputMergerClassName != null ? mInputMergerClassName.hashCode() : 0);
+        result = 31 * result + mWorkerClassName.hashCode();
+        result = 31 * result + (mInputMergerClassName != null ? mInputMergerClassName.hashCode()
+                : 0);
         result = 31 * result + mArguments.hashCode();
         result = 31 * result + mOutput.hashCode();
         result = 31 * result + (int) (mInitialDelay ^ (mInitialDelay >>> 32));
         result = 31 * result + (int) (mIntervalDuration ^ (mIntervalDuration >>> 32));
         result = 31 * result + (int) (mFlexDuration ^ (mFlexDuration >>> 32));
-        result = 31 * result + (mConstraints != null ? mConstraints.hashCode() : 0);
+        result = 31 * result + mConstraints.hashCode();
         result = 31 * result + mRunAttemptCount;
         result = 31 * result + mBackoffPolicy.hashCode();
         result = 31 * result + (int) (mBackoffDelayDuration ^ (mBackoffDelayDuration >>> 32));
+        result = 31 * result + (int) (mPeriodStartTime ^ (mPeriodStartTime >>> 32));
         return result;
     }
 
