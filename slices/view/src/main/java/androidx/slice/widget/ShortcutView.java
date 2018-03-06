@@ -26,7 +26,7 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import android.annotation.TargetApi;
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
@@ -51,7 +51,6 @@ import androidx.slice.view.R;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@TargetApi(23)
 public class ShortcutView extends SliceChildView {
 
     private static final String TAG = "ShortcutView";
@@ -72,6 +71,7 @@ public class ShortcutView extends SliceChildView {
         mLargeIconSize = res.getDimensionPixelSize(R.dimen.abc_slice_shortcut_size);
     }
 
+    @SuppressLint("NewApi") // mIcon can only be non-null on API 23+
     @Override
     public void setSlice(Slice slice) {
         resetView();
