@@ -31,7 +31,7 @@ DEFAULT_CONFIG="$JETIFIER_DIR/core/src/main/resources/default.config"
 GENERATED_CONFIG="$JETIFIER_DIR/core/src/main/resources/default.generated.config"
 PREPROCESSOR_DISTRO_PATH="$BUILD_DIR/jetifier-preprocessor/build/distributions/jetifier-preprocessor.zip"
 PREPROCESSOR_BIN_PATH="$OUT_DIR/jetifier-preprocessor/bin/jetifier-preprocessor"
-SUPPORT_LIBS_BUILD_NUMBER="4628895"
+SUPPORT_LIBS_BUILD_NUMBER="4631572"
 SUPPORT_LIBS_DOWNLOADED="$OUT_DIR/supportLibs/downloaded"
 SUPPORT_LIBS_UNPACKED="$OUT_DIR/supportLibs/unpacked"
 
@@ -59,7 +59,6 @@ function buildProjectUsingGradle() {
 	cd $1
 	sh gradlew :jetifier-preprocessor:clean :jetifier-preprocessor:uploadArchives $2 > $TEMP_LOG --stacktrace
 }
-
 
 rm -rf $OUT_DIR
 mkdir $OUT_DIR

@@ -17,6 +17,12 @@
 package android.support.tools.jetifier.core.transform.pom
 
 import android.support.tools.jetifier.core.archive.ArchiveFile
+import android.support.tools.jetifier.core.config.Config
+import android.support.tools.jetifier.core.config.ConfigParser
+import android.support.tools.jetifier.core.map.TypesMap
+import android.support.tools.jetifier.core.transform.PackageMap
+import android.support.tools.jetifier.core.transform.TransformationContext
+import android.support.tools.jetifier.core.transform.proguard.ProGuardTypesMap
 import com.google.common.truth.Truth
 import org.junit.Test
 import java.nio.charset.StandardCharsets
@@ -388,7 +394,16 @@ class PomDocumentTest {
 
         val file = ArchiveFile(Paths.get("pom.xml"), given.toByteArray())
         val pomDocument = PomDocument.loadFrom(file)
-        pomDocument.applyRules(rules)
+        val config = Config(
+                restrictToPackagePrefixes = emptyList(),
+                rewriteRules = emptyList(),
+                typesMap = TypesMap.EMPTY,
+                slRules = emptyList(),
+                pomRewriteRules = rules,
+                proGuardMap = ProGuardTypesMap.EMPTY,
+                packageMap = PackageMap.EMPTY);
+        val context = TransformationContext(config)
+        pomDocument.applyRules(context)
         pomDocument.saveBackToFileIfNeeded()
         var strResult = file.data.toString(StandardCharsets.UTF_8)
 
