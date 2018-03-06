@@ -23,6 +23,7 @@ import android.support.annotation.VisibleForTesting;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import androidx.work.Arguments;
 import androidx.work.BackoffPolicy;
@@ -71,17 +72,24 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
         WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
         Set<String> mTags = new HashSet<>();
 
-        public Builder(Class<? extends Worker> workerClass, long intervalMillis) {
+        public Builder(
+                Class<? extends Worker> workerClass,
+                long repeatInterval,
+                @NonNull TimeUnit repeatIntervalTimeUnit) {
             mWorkSpec.setWorkerClassName(workerClass.getName());
-            mWorkSpec.setPeriodic(intervalMillis);
+            mWorkSpec.setPeriodic(repeatIntervalTimeUnit.toMillis(repeatInterval));
         }
 
         public Builder(
                 Class<? extends Worker> workerClass,
-                long intervalMillis,
-                long flexMillis) {
+                long repeatInterval,
+                @NonNull TimeUnit repeatIntervalTimeUnit,
+                long flexInterval,
+                @NonNull TimeUnit flexIntervalTimeUnit) {
             mWorkSpec.setWorkerClassName(workerClass.getName());
-            mWorkSpec.setPeriodic(intervalMillis, flexMillis);
+            mWorkSpec.setPeriodic(
+                    repeatIntervalTimeUnit.toMillis(repeatInterval),
+                    flexIntervalTimeUnit.toMillis(flexInterval));
         }
 
         @VisibleForTesting
@@ -100,18 +108,19 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
 
         @VisibleForTesting
         @Override
-        public Builder withPeriodStartTime(long periodStartTime) {
-            mWorkSpec.setPeriodStartTime(periodStartTime);
+        public Builder withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
+            mWorkSpec.setPeriodStartTime(timeUnit.toMillis(periodStartTime));
             return this;
         }
 
         @Override
         public Builder withBackoffCriteria(
                 @NonNull BackoffPolicy backoffPolicy,
-                long backoffDelayMillis) {
+                long backoffDelay,
+                @NonNull TimeUnit timeUnit) {
             mBackoffCriteriaSet = true;
             mWorkSpec.setBackoffPolicy(backoffPolicy);
-            mWorkSpec.setBackoffDelayDuration(backoffDelayMillis);
+            mWorkSpec.setBackoffDelayDuration(timeUnit.toMillis(backoffDelay));
             return this;
         }
 

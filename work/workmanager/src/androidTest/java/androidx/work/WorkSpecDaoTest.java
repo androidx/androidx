@@ -43,14 +43,16 @@ public class WorkSpecDaoTest extends DatabaseTest {
     public void testSystemAlarmEligibleWorkSpecs() {
         long startTime = System.currentTimeMillis();
         Work work = new Work.Builder(TestWorker.class)
-                .withPeriodStartTime(startTime + TimeUnit.HOURS.toMillis(1))
+                .withPeriodStartTime(
+                        startTime + TimeUnit.HOURS.toMillis(1),
+                        TimeUnit.MILLISECONDS)
                 .build();
         Work succeeded = new Work.Builder(TestWorker.class)
-                .withPeriodStartTime(startTime)
+                .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
                 .withInitialState(SUCCEEDED)
                 .build();
         Work enqueued = new Work.Builder(TestWorker.class)
-                .withPeriodStartTime(startTime)
+                .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
                 .build();
 
         insertWork(work);

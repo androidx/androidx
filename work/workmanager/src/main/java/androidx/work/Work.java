@@ -22,6 +22,7 @@ import android.support.annotation.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import androidx.work.impl.WorkImpl;
 
@@ -76,12 +77,13 @@ public abstract class Work implements BaseWork {
         /**
          * Specify whether {@link Work} should run with an initial delay. Default is 0ms.
          *
-         * @param duration initial delay before running WorkSpec (in milliseconds)
+         * @param duration initial delay before running WorkSpec in {@code timeUnit} units
+         * @param timeUnit The {@link TimeUnit} for {@code duration}
          * @return The current {@link Builder}
          */
         @Override
-        public Builder withInitialDelay(long duration) {
-            mInternalBuilder.withInitialDelay(duration);
+        public Builder withInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
+            mInternalBuilder.withInitialDelay(duration, timeUnit);
             return this;
         }
 
@@ -100,8 +102,9 @@ public abstract class Work implements BaseWork {
         @Override
         public Builder withBackoffCriteria(
                 @NonNull BackoffPolicy backoffPolicy,
-                long backoffDelayMillis) {
-            mInternalBuilder.withBackoffCriteria(backoffPolicy, backoffDelayMillis);
+                long backoffDelay,
+                @NonNull TimeUnit timeUnit) {
+            mInternalBuilder.withBackoffCriteria(backoffPolicy, backoffDelay, timeUnit);
             return this;
         }
 
@@ -144,8 +147,8 @@ public abstract class Work implements BaseWork {
 
         @VisibleForTesting
         @Override
-        public Builder withPeriodStartTime(long periodStartTime) {
-            mInternalBuilder.withPeriodStartTime(periodStartTime);
+        public Builder withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
+            mInternalBuilder.withPeriodStartTime(periodStartTime, timeUnit);
             return this;
         }
     }

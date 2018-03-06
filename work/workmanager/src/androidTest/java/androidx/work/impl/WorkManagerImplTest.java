@@ -68,6 +68,7 @@ import org.mockito.ArgumentCaptor;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import androidx.work.Arguments;
 import androidx.work.BackoffPolicy;
@@ -276,7 +277,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testEnqueue_insertWorkInitialDelay() {
         final long expectedInitialDelay = 5000L;
         Work work0 = new Work.Builder(TestWorker.class)
-                .withInitialDelay(expectedInitialDelay)
+                .withInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS)
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl.beginWith(work0).then(work1).enqueue();
@@ -292,7 +293,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @SmallTest
     public void testEnqueue_insertWorkBackoffPolicy() {
         Work work0 = new Work.Builder(TestWorker.class)
-                .withBackoffCriteria(BackoffPolicy.LINEAR, 50000)
+                .withBackoffCriteria(BackoffPolicy.LINEAR, 50000, TimeUnit.MILLISECONDS)
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl.beginWith(work0).then(work1).enqueue();
@@ -331,7 +332,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testEnqueue_insertPeriodicWork() {
         PeriodicWork periodicWork = new PeriodicWork.Builder(
                 TestWorker.class,
-                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
+                TimeUnit.MILLISECONDS)
                 .build();
         mWorkManagerImpl.enqueue(periodicWork);
 
@@ -360,7 +362,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testEnqueued_periodicWork_setsPeriodStartTime() {
         PeriodicWork periodicWork = new PeriodicWork.Builder(
                 TestWorker.class,
-                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
+                TimeUnit.MILLISECONDS)
                 .build();
         assertThat(getWorkSpec(periodicWork).getPeriodStartTime(), is(0L));
 
@@ -778,9 +781,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testGenerateCleanupCallback_deletesOldFinishedWork() {
         Work work1 = new Work.Builder(TestWorker.class)
                 .withInitialState(SUCCEEDED)
-                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L)
+                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
                 .build();
-        Work work2 = new Work.Builder(TestWorker.class).withPeriodStartTime(Long.MAX_VALUE).build();
+        Work work2 = new Work.Builder(TestWorker.class)
+                .withPeriodStartTime(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
+                .build();
 
         insertWorkSpecAndTags(work1);
         insertWorkSpecAndTags(work2);
@@ -799,15 +804,15 @@ public class WorkManagerImplTest extends WorkManagerTest {
     public void testGenerateCleanupCallback_deletesDanglingBlockedDependencies() {
         Work work1 = new Work.Builder(TestWorker.class)
                 .withInitialState(FAILED)
-                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L)
+                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
                 .build();
         Work work2 = new Work.Builder(TestWorker.class)
                 .withInitialState(BLOCKED)
-                .withPeriodStartTime(Long.MAX_VALUE)
+                .withPeriodStartTime(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
                 .build();
         Work work3 = new Work.Builder(TestWorker.class)
                 .withInitialState(BLOCKED)
-                .withPeriodStartTime(Long.MAX_VALUE)
+                .withPeriodStartTime(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
                 .build();
 
         insertWorkSpecAndTags(work1);

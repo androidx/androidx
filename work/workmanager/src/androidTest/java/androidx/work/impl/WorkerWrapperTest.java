@@ -49,6 +49,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import androidx.work.Arguments;
 import androidx.work.ArrayCreatingInputMerger;
@@ -362,7 +363,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         long expectedNextPeriodStartTime = periodStartTime + intervalDuration;
 
         PeriodicWork periodicWork = new PeriodicWork.Builder(
-                TestWorker.class, intervalDuration).build();
+                TestWorker.class, intervalDuration, TimeUnit.MILLISECONDS).build();
 
         getWorkSpec(periodicWork).setPeriodStartTime(periodStartTime);
 
@@ -385,7 +386,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         long expectedNextPeriodStartTime = periodStartTime + intervalDuration;
 
         PeriodicWork periodicWork = new PeriodicWork.Builder(
-                FailureWorker.class, intervalDuration).build();
+                FailureWorker.class, intervalDuration, TimeUnit.MILLISECONDS).build();
 
         getWorkSpec(periodicWork).setPeriodStartTime(periodStartTime);
 
@@ -405,7 +406,8 @@ public class WorkerWrapperTest extends DatabaseTest {
     public void testPeriodicWork_success() throws InterruptedException {
         PeriodicWork periodicWork = new PeriodicWork.Builder(
                 TestWorker.class,
-                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
+                TimeUnit.MILLISECONDS)
                 .build();
 
         final String periodicWorkId = periodicWork.getId();
@@ -426,7 +428,8 @@ public class WorkerWrapperTest extends DatabaseTest {
     public void testPeriodicWork_fail() throws InterruptedException {
         PeriodicWork periodicWork = new PeriodicWork.Builder(
                 FailureWorker.class,
-                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
+                TimeUnit.MILLISECONDS)
                 .build();
 
         final String periodicWorkId = periodicWork.getId();
@@ -447,7 +450,8 @@ public class WorkerWrapperTest extends DatabaseTest {
     public void testPeriodicWork_retry() throws InterruptedException {
         PeriodicWork periodicWork = new PeriodicWork.Builder(
                 RetryWorker.class,
-                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
+                TimeUnit.MILLISECONDS)
                 .build();
 
         final String periodicWorkId = periodicWork.getId();

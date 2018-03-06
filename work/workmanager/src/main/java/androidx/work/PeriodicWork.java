@@ -18,6 +18,8 @@ package androidx.work;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
+import java.util.concurrent.TimeUnit;
+
 import androidx.work.impl.PeriodicWorkImpl;
 
 /**
@@ -54,10 +56,17 @@ public abstract class PeriodicWork implements BaseWork {
          * an interval.
          *
          * @param workerClass The {@link Worker} class to run with this job
-         * @param intervalMillis Duration in milliseconds for which {@link Work} repeats
+         * @param repeatInterval The repeat interval in {@code repeatIntervalTimeUnit} units
+         * @param repeatIntervalTimeUnit The {@link TimeUnit} for {@code repeatInterval}
          */
-        public Builder(Class<? extends Worker> workerClass, long intervalMillis) {
-            mInternalBuilder = new PeriodicWorkImpl.Builder(workerClass, intervalMillis);
+        public Builder(
+                Class<? extends Worker> workerClass,
+                long repeatInterval,
+                @NonNull TimeUnit repeatIntervalTimeUnit) {
+            mInternalBuilder = new PeriodicWorkImpl.Builder(
+                    workerClass,
+                    repeatInterval,
+                    repeatIntervalTimeUnit);
         }
 
         /**
@@ -76,20 +85,33 @@ public abstract class PeriodicWork implements BaseWork {
          * </pre></p>
          *
          * @param workerClass The {@link Worker} class to run with this job
-         * @param intervalMillis Duration in milliseconds of the interval
-         * @param flexMillis Duration in milliseconds for which {@link Work} repeats from the end of
-         *                   the interval
+         * @param repeatInterval The repeat interval in {@code repeatIntervalTimeUnit} units
+         * @param repeatIntervalTimeUnit The {@link TimeUnit} for {@code repeatInterval}
+         * @param flexInterval The duration in {@code flexIntervalTimeUnit} units for which this
+         *                     work repeats from the end of the {@code repeatInterval}
+         * @param flexIntervalTimeUnit The {@link TimeUnit} for {@code flexInterval}
          */
-        public Builder(Class<? extends Worker> workerClass, long intervalMillis, long flexMillis) {
+        public Builder(
+                Class<? extends Worker> workerClass,
+                long repeatInterval,
+                @NonNull TimeUnit repeatIntervalTimeUnit,
+                long flexInterval,
+                @NonNull TimeUnit flexIntervalTimeUnit) {
             mInternalBuilder =
-                    new PeriodicWorkImpl.Builder(workerClass, intervalMillis, flexMillis);
+                    new PeriodicWorkImpl.Builder(
+                            workerClass,
+                            repeatInterval,
+                            repeatIntervalTimeUnit,
+                            flexInterval,
+                            flexIntervalTimeUnit);
         }
 
         @Override
         public Builder withBackoffCriteria(
                 @NonNull BackoffPolicy backoffPolicy,
-                long backoffDelayMillis) {
-            mInternalBuilder.withBackoffCriteria(backoffPolicy, backoffDelayMillis);
+                long backoffDelayMillis,
+                TimeUnit timeUnit) {
+            mInternalBuilder.withBackoffCriteria(backoffPolicy, backoffDelayMillis, timeUnit);
             return this;
         }
 
@@ -132,8 +154,8 @@ public abstract class PeriodicWork implements BaseWork {
 
         @VisibleForTesting
         @Override
-        public Builder withPeriodStartTime(long periodStartTime) {
-            mInternalBuilder.withPeriodStartTime(periodStartTime);
+        public Builder withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
+            mInternalBuilder.withPeriodStartTime(periodStartTime, timeUnit);
             return this;
         }
     }

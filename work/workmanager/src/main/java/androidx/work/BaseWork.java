@@ -18,6 +18,8 @@ package androidx.work;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * The base interface for units of work.
  */
@@ -55,15 +57,20 @@ public interface BaseWork {
     interface Builder<W, B extends Builder<W, B>> {
 
         /**
-         * Change backoff policy and delay for the work.
-         * Default is {@link BackoffPolicy#EXPONENTIAL} and 30 seconds.
-         * Maximum backoff delay duration is {@value BaseWork#MAX_BACKOFF_MILLIS}.
+         * Change backoff policy and delay for the work.  The default is
+         * {@link BackoffPolicy#EXPONENTIAL} and {@value BaseWork#DEFAULT_BACKOFF_DELAY_MILLIS}.
+         * The maximum backoff delay duration is {@value BaseWork#MAX_BACKOFF_MILLIS}.
          *
-         * @param backoffPolicy Backoff Policy to use for work
-         * @param backoffDelayMillis Time to wait before restarting {@link Worker} (in milliseconds)
+         * @param backoffPolicy The {@link BackoffPolicy} to use for work
+         * @param backoffDelay Time to wait before restarting {@link Worker} in {@code timeUnit}
+         *                     units
+         * @param timeUnit The {@link TimeUnit} for {@code backoffDelay}
          * @return The current {@link Builder}.
          */
-        B withBackoffCriteria(@NonNull BackoffPolicy backoffPolicy, long backoffDelayMillis);
+        B withBackoffCriteria(
+                @NonNull BackoffPolicy backoffPolicy,
+                long backoffDelay,
+                @NonNull TimeUnit timeUnit);
 
         /**
          * Add constraints to the {@link Work}.
@@ -118,11 +125,12 @@ public interface BaseWork {
         /**
          * Set the period start time for this work. Used in testing only.
          *
-         * @param periodStartTime the period start time
+         * @param periodStartTime the period start time in {@code timeUnit} units
+         * @param timeUnit The {@link TimeUnit} for {@code periodStartTime}
          * @return The current {@link Builder}
          */
         @VisibleForTesting
-        B withPeriodStartTime(long periodStartTime);
+        B withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit);
     }
 
     /**
@@ -134,12 +142,13 @@ public interface BaseWork {
     interface WorkBuilder<W, B extends Builder<W, B>> extends Builder<W, B> {
 
         /**
-         * Specify whether {@link Work} should run with an initial delay. Default is 0ms.
+         * Specify whether {@link Work} should run with an initial delay. The default is 0 ms.
          *
-         * @param duration initial delay before running WorkSpec (in milliseconds)
+         * @param duration The initial delay before running WorkSpec in {@code timeUnit} units
+         * @param timeUnit The {@link TimeUnit} for {@code duration}
          * @return The current {@link WorkBuilder}
          */
-        B withInitialDelay(long duration);
+        B withInitialDelay(long duration, @NonNull TimeUnit timeUnit);
 
         /**
          * Specify an {@link InputMerger}.  The default is {@link OverwritingInputMerger}.

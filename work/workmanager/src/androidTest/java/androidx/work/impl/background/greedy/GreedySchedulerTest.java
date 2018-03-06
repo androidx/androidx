@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import androidx.work.PeriodicWork;
 import androidx.work.Work;
@@ -70,7 +71,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @SmallTest
     public void testGreedyScheduler_ignoresPeriodicWork() {
         PeriodicWork periodicWork =
-                new PeriodicWork.Builder(TestWorker.class, 0L).build();
+                new PeriodicWork.Builder(TestWorker.class, 0L, TimeUnit.MILLISECONDS).build();
         mGreedyScheduler.schedule(getWorkSpec(periodicWork));
         verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
     }
@@ -78,7 +79,9 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testGreedyScheduler_ignoresInitialDelayWork() {
-        Work work = new Work.Builder(TestWorker.class).withInitialDelay(1000L).build();
+        Work work = new Work.Builder(TestWorker.class)
+                .withInitialDelay(1000L, TimeUnit.MILLISECONDS)
+                .build();
         mGreedyScheduler.schedule(getWorkSpec(work));
         verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
     }

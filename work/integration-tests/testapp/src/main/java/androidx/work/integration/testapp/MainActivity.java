@@ -25,6 +25,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import java.util.concurrent.TimeUnit;
+
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.Work;
@@ -111,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Enqueuing job with delay of " + delay + " ms");
                 WorkManager.getInstance(MainActivity.this).enqueue(ToastWorker
                         .create("Delayed Job Ran!")
-                        .withInitialDelay(delay)
+                        .withInitialDelay(delay, TimeUnit.MILLISECONDS)
                         .build());
             }
         });

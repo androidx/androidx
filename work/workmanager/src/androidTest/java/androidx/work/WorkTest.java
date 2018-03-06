@@ -27,6 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.concurrent.TimeUnit;
+
 import androidx.work.worker.TestWorker;
 
 @SmallTest
@@ -44,7 +46,7 @@ public class WorkTest extends WorkManagerTest {
     @Test
     public void testBuild_withInitialDelay() {
         final long expectedInitialDelay = 123L;
-        Work work = mBuilder.withInitialDelay(expectedInitialDelay).build();
+        Work work = mBuilder.withInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS).build();
         assertThat(getWorkSpec(work).getInitialDelay(), is(expectedInitialDelay));
     }
 
@@ -52,7 +54,10 @@ public class WorkTest extends WorkManagerTest {
     public void testBuild_setBackoffCriteria_exceedMaxBackoffDuration() {
         final long backoffDuration = BaseWork.MAX_BACKOFF_MILLIS + 123L;
         Work work = mBuilder
-                .withBackoffCriteria(BackoffPolicy.EXPONENTIAL, backoffDuration)
+                .withBackoffCriteria(
+                        BackoffPolicy.EXPONENTIAL,
+                        backoffDuration,
+                        TimeUnit.MILLISECONDS)
                 .build();
         assertThat(getWorkSpec(work).getBackoffDelayDuration(), is(BaseWork.MAX_BACKOFF_MILLIS));
     }
@@ -61,7 +66,10 @@ public class WorkTest extends WorkManagerTest {
     public void testBuild_setBackoffCriteria_lessThanMinBackoffDuration() {
         final long backoffDuration = BaseWork.MIN_BACKOFF_MILLIS - 123L;
         Work work = mBuilder
-                .withBackoffCriteria(BackoffPolicy.EXPONENTIAL, backoffDuration)
+                .withBackoffCriteria(
+                        BackoffPolicy.EXPONENTIAL,
+                        backoffDuration,
+                        TimeUnit.MILLISECONDS)
                 .build();
         assertThat(getWorkSpec(work).getBackoffDelayDuration(), is(BaseWork.MIN_BACKOFF_MILLIS));
     }
@@ -73,7 +81,7 @@ public class WorkTest extends WorkManagerTest {
         Constraints constraints = new Constraints.Builder()
                 .setRequiresDeviceIdle(true)
                 .build();
-        mBuilder.withBackoffCriteria(BackoffPolicy.EXPONENTIAL, 123L)
+        mBuilder.withBackoffCriteria(BackoffPolicy.EXPONENTIAL, 123L, TimeUnit.MILLISECONDS)
                 .withConstraints(constraints)
                 .build();
     }

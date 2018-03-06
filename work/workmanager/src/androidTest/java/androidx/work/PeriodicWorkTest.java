@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.TimeUnit;
+
 import androidx.work.worker.TestWorker;
 
 @RunWith(AndroidJUnit4.class)
@@ -40,8 +42,11 @@ public class PeriodicWorkTest extends WorkManagerTest {
     @SdkSuppress(minSdkVersion = 23)
     public void testBuild_backoffAndIdleMode_throwsIllegalArgumentException() {
         mThrown.expect(IllegalArgumentException.class);
-        new PeriodicWork.Builder(TestWorker.class, PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS)
-                .withBackoffCriteria(BackoffPolicy.EXPONENTIAL, 20000)
+        new PeriodicWork.Builder(
+                TestWorker.class,
+                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
+                TimeUnit.MILLISECONDS)
+                .withBackoffCriteria(BackoffPolicy.EXPONENTIAL, 20000, TimeUnit.MILLISECONDS)
                 .withConstraints(new Constraints.Builder()
                         .setRequiresDeviceIdle(true)
                         .build())
@@ -52,8 +57,11 @@ public class PeriodicWorkTest extends WorkManagerTest {
     @SmallTest
     public void testBuild_setPeriodic_onlyIntervalDuration_inRange() {
         long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
-        PeriodicWork periodicWork =
-                new PeriodicWork.Builder(TestWorker.class, testInterval).build();
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                TestWorker.class,
+                testInterval,
+                TimeUnit.MILLISECONDS)
+                .build();
         assertThat(getWorkSpec(periodicWork).getIntervalDuration(), is(testInterval));
         assertThat(getWorkSpec(periodicWork).getFlexDuration(), is(testInterval));
     }
@@ -62,8 +70,11 @@ public class PeriodicWorkTest extends WorkManagerTest {
     @SmallTest
     public void testBuild_setPeriodic_onlyIntervalDuration_outOfRange() {
         long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS - 123L;
-        PeriodicWork periodicWork =
-                new PeriodicWork.Builder(TestWorker.class, testInterval).build();
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                TestWorker.class,
+                testInterval,
+                TimeUnit.MILLISECONDS)
+                .build();
         assertThat(getWorkSpec(periodicWork).getIntervalDuration(),
                 is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
         assertThat(getWorkSpec(periodicWork).getFlexDuration(),
@@ -75,8 +86,13 @@ public class PeriodicWorkTest extends WorkManagerTest {
     public void testBuild_setPeriodic_intervalAndFlexDurations_inRange() {
         long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
         long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 123L;
-        PeriodicWork periodicWork =
-                new PeriodicWork.Builder(TestWorker.class, testInterval, testFlex).build();
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                TestWorker.class,
+                testInterval,
+                TimeUnit.MILLISECONDS,
+                testFlex,
+                TimeUnit.MILLISECONDS)
+                .build();
         assertThat(getWorkSpec(periodicWork).getIntervalDuration(), is(testInterval));
         assertThat(getWorkSpec(periodicWork).getFlexDuration(), is(testFlex));
     }
@@ -86,8 +102,13 @@ public class PeriodicWorkTest extends WorkManagerTest {
     public void testBuild_setPeriodic_intervalAndFlexDurations_outOfRange() {
         long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS - 123L;
         long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS - 123L;
-        PeriodicWork periodicWork =
-                new PeriodicWork.Builder(TestWorker.class, testInterval, testFlex).build();
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                TestWorker.class,
+                testInterval,
+                TimeUnit.MILLISECONDS,
+                testFlex,
+                TimeUnit.MILLISECONDS)
+                .build();
         assertThat(getWorkSpec(periodicWork).getIntervalDuration(),
                 is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
         assertThat(getWorkSpec(periodicWork).getFlexDuration(),
@@ -99,8 +120,13 @@ public class PeriodicWorkTest extends WorkManagerTest {
     public void testBuild_setPeriodic_intervalInRange_flexOutOfRange() {
         long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
         long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS - 123L;
-        PeriodicWork periodicWork =
-                new PeriodicWork.Builder(TestWorker.class, testInterval, testFlex).build();
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                TestWorker.class,
+                testInterval,
+                TimeUnit.MILLISECONDS,
+                testFlex,
+                TimeUnit.MILLISECONDS)
+                .build();
         assertThat(getWorkSpec(periodicWork).getIntervalDuration(), is(testInterval));
         assertThat(getWorkSpec(periodicWork).getFlexDuration(),
                 is(PeriodicWork.MIN_PERIODIC_FLEX_MILLIS));
@@ -111,8 +137,13 @@ public class PeriodicWorkTest extends WorkManagerTest {
     public void testBuild_setPeriodic_intervalOutOfRange_flexInRange() {
         long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS - 123L;
         long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 123L;
-        PeriodicWork periodicWork =
-                new PeriodicWork.Builder(TestWorker.class, testInterval, testFlex).build();
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                TestWorker.class,
+                testInterval,
+                TimeUnit.MILLISECONDS,
+                testFlex,
+                TimeUnit.MILLISECONDS)
+                .build();
         assertThat(getWorkSpec(periodicWork).getIntervalDuration(),
                 is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
         assertThat(getWorkSpec(periodicWork).getFlexDuration(), is(testFlex));

@@ -23,6 +23,7 @@ import android.support.annotation.VisibleForTesting;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import androidx.work.Arguments;
 import androidx.work.BackoffPolicy;
@@ -93,18 +94,19 @@ public class WorkImpl extends Work implements InternalWorkImpl {
 
         @VisibleForTesting
         @Override
-        public Builder withPeriodStartTime(long periodStartTime) {
-            mWorkSpec.setPeriodStartTime(periodStartTime);
+        public Builder withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
+            mWorkSpec.setPeriodStartTime(timeUnit.toMillis(periodStartTime));
             return this;
         }
 
         @Override
         public Builder withBackoffCriteria(
                 @NonNull BackoffPolicy backoffPolicy,
-                long backoffDelayMillis) {
+                long backoffDelay,
+                @NonNull TimeUnit timeUnit) {
             mBackoffCriteriaSet = true;
             mWorkSpec.setBackoffPolicy(backoffPolicy);
-            mWorkSpec.setBackoffDelayDuration(backoffDelayMillis);
+            mWorkSpec.setBackoffDelayDuration(timeUnit.toMillis(backoffDelay));
             return this;
         }
 
@@ -127,8 +129,8 @@ public class WorkImpl extends Work implements InternalWorkImpl {
         }
 
         @Override
-        public Builder withInitialDelay(long duration) {
-            mWorkSpec.setInitialDelay(duration);
+        public Builder withInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
+            mWorkSpec.setInitialDelay(timeUnit.toMillis(duration));
             return this;
         }
 
