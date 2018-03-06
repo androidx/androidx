@@ -34,12 +34,6 @@ limitations under the License.
     <!-- Slide Up Menu -->
     <dimen name="car_slide_up_menu_initial_height">116dp</dimen>
 
-    <!-- Scroll Bar -->
-    <dimen name="car_scroll_bar_padding">@dimen/car_padding_4</dimen>
-
-    <!-- Scroll Bar Thumb -->
-    <dimen name="car_scroll_bar_thumb_margin">@dimen/car_padding_2</dimen>
-
     <!-- Scroll Bar Buttons -->
     <dimen name="car_scroll_bar_button_size">76dp</dimen>
 
