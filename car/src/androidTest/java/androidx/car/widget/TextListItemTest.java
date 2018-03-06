@@ -753,7 +753,7 @@ public class TextListItemTest {
     }
 
     @Test
-    public void testUpdateItem() throws Throwable {
+    public void testUpdateItem() {
         TextListItem item = new TextListItem(mActivity);
         setupPagedListView(Arrays.asList(item));
 
@@ -767,7 +767,7 @@ public class TextListItemTest {
     }
 
     @Test
-    public void testUxRestrictionsChange() throws Throwable {
+    public void testUxRestrictionsChange() {
         String longText = mActivity.getString(R.string.over_uxr_text_length_limit);
         TextListItem item = new TextListItem(mActivity);
         item.setBody(longText);
@@ -779,7 +779,6 @@ public class TextListItemTest {
         assertThat(viewHolder.getBody().getText(), is(equalTo(longText)));
 
         viewHolder.complyWithUxRestrictions(CarUxRestrictionsTestUtils.getFullyRestricted());
-
         refreshUi();
 
         // Verify that the body text length is limited.
