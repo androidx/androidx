@@ -67,6 +67,9 @@ limitations under the License.
         <!-- A starting margin before the drawing of the dividing line. This margin will be an
              offset from the view specified by "alignDividerStartTo" if given. -->
         <attr name="dividerStartMargin" format="dimension" />
+        <!-- An ending margin before the drawing of the dividing line. This margin will be an
+             offset from the view specified by "alignDividerEndTo" if given. -->
+        <attr name="dividerEndMargin" format="dimension" />
         <!-- The color of the list divider. -->
         <attr name="listDividerColor" format="color" />
         <!-- The width of the margin on the right side of the list.
