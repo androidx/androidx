@@ -32,7 +32,7 @@ dependencies {
 
 supportLibrary {
     name = "Android Jetifier Gradle Plugin"
-    publish = true
+    publish = false
     mavenVersion = LibraryVersions.JETIFIER
     mavenGroup = LibraryGroups.JETIFIER
     generateDocs = false
