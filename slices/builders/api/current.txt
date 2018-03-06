@@ -111,6 +111,7 @@ package androidx.slice.builders {
 
   public class SliceAction {
     ctor public SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, java.lang.CharSequence);
+    ctor public SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, int, java.lang.CharSequence);
     ctor public SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, java.lang.CharSequence, boolean);
     ctor public SliceAction(android.app.PendingIntent, java.lang.CharSequence, boolean);
     method public android.app.PendingIntent getAction();
