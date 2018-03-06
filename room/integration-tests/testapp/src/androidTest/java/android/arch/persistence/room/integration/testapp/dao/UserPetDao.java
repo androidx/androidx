@@ -17,6 +17,7 @@
 package android.arch.persistence.room.integration.testapp.dao;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.paging.DataSource;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -49,6 +50,9 @@ public interface UserPetDao {
 
     @Query("SELECT * FROM Pet p LEFT OUTER JOIN User u ON u.mId = p.mUserId")
     List<UserAndPet> loadPets();
+
+    @Query("SELECT * FROM User u LEFT OUTER JOIN Pet p ON u.mId = p.mUserId")
+    DataSource.Factory<Integer, UserAndAllPets> dataSourceFactoryMultiTable();
 
     @Query("SELECT * FROM User u")
     List<UserAndAllPets> loadAllUsersWithTheirPets();
