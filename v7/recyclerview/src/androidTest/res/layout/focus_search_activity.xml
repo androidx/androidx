@@ -28,13 +28,13 @@
               android:tag="before view"
               android:id="@+id/before"
               android:layout_weight="0"/>
-    <androidx.recyclerview.widget.RecyclerView android:layout_width="match_parent"
-                                               app:spanCount="3"
-                                               android:id="@+id/recycler_view"
-                                               android:layout_weight="1"
-                                               android:layout_height="0dp">
+    <android.support.v7.widget.RecyclerView android:layout_width="match_parent"
+                                            app:spanCount="3"
+                                            android:id="@+id/recycler_view"
+                                            android:layout_weight="1"
+                                            android:layout_height="0dp">
 
-    </androidx.recyclerview.widget.RecyclerView>
+    </android.support.v7.widget.RecyclerView>
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
               android:text="I'm after rv" android:focusableInTouchMode="true"
               android:background="@drawable/item_bg"

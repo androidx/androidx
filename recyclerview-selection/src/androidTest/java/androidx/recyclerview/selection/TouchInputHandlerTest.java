@@ -22,7 +22,7 @@ import static androidx.recyclerview.selection.testing.TestEvents.Touch.TAP;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.recyclerview.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 
 import org.junit.Before;

@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<android.support.design.widget.CoordinatorLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/col"
@@ -34,7 +34,7 @@
                 android:layout_height="match_parent"
                 app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed">
 
-            <androidx.appcompat.widget.Toolbar
+            <android.support.v7.widget.Toolbar
                     android:id="@+id/toolbar"
                     android:layout_height="?attr/actionBarSize"
                     android:layout_width="match_parent"
@@ -46,4 +46,4 @@
 
     <include layout="@layout/include_appbar_recyclerview_swiperefresh"/>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</android.support.design.widget.CoordinatorLayout>

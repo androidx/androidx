@@ -17,7 +17,7 @@ import android.app.Activity;
 import android.os.Bundle;
 
 /**
- * Activity demonstrating the use of {@link androidx.leanback.app.VideoFragment}
+ * Activity demonstrating the use of {@link android.support.v17.leanback.app.VideoFragment}
  */
 public class VideoActivity extends Activity {
 

@@ -16,8 +16,7 @@
 
 package android.support.v4.media.session;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -45,17 +44,14 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
-import androidx.annotation.IntDef;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.core.app.BundleCompat;
+import android.support.annotation.IntDef;
+import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
+import android.support.v4.app.BundleCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
-import androidx.media.VolumeProviderCompat;
-import androidx.media.session.MediaButtonReceiver;
-import androidx.media.session.MediaControllerCompat;
-
+import android.support.v4.media.VolumeProviderCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -223,163 +219,108 @@ public class MediaSessionCompat {
 
     /**
      * Custom action to invoke playFromUri() for the forward compatibility.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_PLAY_FROM_URI =
+    static final String ACTION_PLAY_FROM_URI =
             "android.support.v4.media.session.action.PLAY_FROM_URI";
 
     /**
      * Custom action to invoke prepare() for the forward compatibility.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_PREPARE = "android.support.v4.media.session.action.PREPARE";
+    static final String ACTION_PREPARE = "android.support.v4.media.session.action.PREPARE";
 
     /**
      * Custom action to invoke prepareFromMediaId() for the forward compatibility.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_PREPARE_FROM_MEDIA_ID =
+    static final String ACTION_PREPARE_FROM_MEDIA_ID =
             "android.support.v4.media.session.action.PREPARE_FROM_MEDIA_ID";
 
     /**
      * Custom action to invoke prepareFromSearch() for the forward compatibility.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_PREPARE_FROM_SEARCH =
+    static final String ACTION_PREPARE_FROM_SEARCH =
             "android.support.v4.media.session.action.PREPARE_FROM_SEARCH";
 
     /**
      * Custom action to invoke prepareFromUri() for the forward compatibility.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_PREPARE_FROM_URI =
+    static final String ACTION_PREPARE_FROM_URI =
             "android.support.v4.media.session.action.PREPARE_FROM_URI";
 
     /**
      * Custom action to invoke setCaptioningEnabled() for the forward compatibility.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_SET_CAPTIONING_ENABLED =
+    static final String ACTION_SET_CAPTIONING_ENABLED =
             "android.support.v4.media.session.action.SET_CAPTIONING_ENABLED";
 
     /**
      * Custom action to invoke setRepeatMode() for the forward compatibility.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_SET_REPEAT_MODE =
+    static final String ACTION_SET_REPEAT_MODE =
             "android.support.v4.media.session.action.SET_REPEAT_MODE";
 
     /**
      * Custom action to invoke setShuffleMode() for the forward compatibility.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_SET_SHUFFLE_MODE =
+    static final String ACTION_SET_SHUFFLE_MODE =
             "android.support.v4.media.session.action.SET_SHUFFLE_MODE";
 
     /**
      * Custom action to invoke setRating() with extra fields.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_SET_RATING =
+    static final String ACTION_SET_RATING =
             "android.support.v4.media.session.action.SET_RATING";
 
     /**
      * Argument for use with {@link #ACTION_PREPARE_FROM_MEDIA_ID} indicating media id to play.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_ARGUMENT_MEDIA_ID =
+    static final String ACTION_ARGUMENT_MEDIA_ID =
             "android.support.v4.media.session.action.ARGUMENT_MEDIA_ID";
 
     /**
      * Argument for use with {@link #ACTION_PREPARE_FROM_SEARCH} indicating search query.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_ARGUMENT_QUERY =
+    static final String ACTION_ARGUMENT_QUERY =
             "android.support.v4.media.session.action.ARGUMENT_QUERY";
 
     /**
      * Argument for use with {@link #ACTION_PREPARE_FROM_URI} and {@link #ACTION_PLAY_FROM_URI}
      * indicating URI to play.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_ARGUMENT_URI =
+    static final String ACTION_ARGUMENT_URI =
             "android.support.v4.media.session.action.ARGUMENT_URI";
 
     /**
      * Argument for use with {@link #ACTION_SET_RATING} indicating the rate to be set.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_ARGUMENT_RATING =
+    static final String ACTION_ARGUMENT_RATING =
             "android.support.v4.media.session.action.ARGUMENT_RATING";
 
     /**
      * Argument for use with various actions indicating extra bundle.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_ARGUMENT_EXTRAS =
+    static final String ACTION_ARGUMENT_EXTRAS =
             "android.support.v4.media.session.action.ARGUMENT_EXTRAS";
 
     /**
      * Argument for use with {@link #ACTION_SET_CAPTIONING_ENABLED} indicating whether captioning is
      * enabled.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_ARGUMENT_CAPTIONING_ENABLED =
+    static final String ACTION_ARGUMENT_CAPTIONING_ENABLED =
             "android.support.v4.media.session.action.ARGUMENT_CAPTIONING_ENABLED";
 
     /**
      * Argument for use with {@link #ACTION_SET_REPEAT_MODE} indicating repeat mode.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_ARGUMENT_REPEAT_MODE =
+    static final String ACTION_ARGUMENT_REPEAT_MODE =
             "android.support.v4.media.session.action.ARGUMENT_REPEAT_MODE";
 
     /**
      * Argument for use with {@link #ACTION_SET_SHUFFLE_MODE} indicating shuffle mode.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final String ACTION_ARGUMENT_SHUFFLE_MODE =
+    static final String ACTION_ARGUMENT_SHUFFLE_MODE =
             "android.support.v4.media.session.action.ARGUMENT_SHUFFLE_MODE";
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final String EXTRA_BINDER = "android.support.v4.media.session.EXTRA_BINDER";
+    static final String EXTRA_BINDER = "android.support.v4.media.session.EXTRA_BINDER";
 
     // Maximum size of the bitmap in dp.
     private static final int MAX_BITMAP_SIZE_IN_DP = 320;
@@ -1749,11 +1690,8 @@ public class MediaSessionCompat {
      * This is a wrapper for {@link ResultReceiver} for sending over aidl
      * interfaces. The framework version was not exposed to aidls until
      * {@link android.os.Build.VERSION_CODES#LOLLIPOP}.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static final class ResultReceiverWrapper implements Parcelable {
+    static final class ResultReceiverWrapper implements Parcelable {
         private ResultReceiver mResultReceiver;
 
         public ResultReceiverWrapper(ResultReceiver resultReceiver) {

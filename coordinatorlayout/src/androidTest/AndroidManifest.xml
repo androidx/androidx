@@ -22,9 +22,9 @@
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
 
-        <activity android:name="androidx.coordinatorlayout.widget.CoordinatorLayoutActivity"/>
+        <activity android:name="android.support.design.widget.CoordinatorLayoutActivity"/>
 
-        <activity android:name="androidx.coordinatorlayout.widget.DynamicCoordinatorLayoutActivity"/>
+        <activity android:name="android.support.design.widget.DynamicCoordinatorLayoutActivity"/>
 
     </application>
 

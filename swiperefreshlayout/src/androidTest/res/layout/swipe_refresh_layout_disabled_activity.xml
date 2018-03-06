@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+<android.support.v4.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/swipe_refresh"
     android:layout_width="match_parent"
@@ -25,4 +25,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/content"/>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

@@ -16,10 +16,10 @@
 
 package androidx.slice.builders.impl;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.drawable.Icon;
-import androidx.annotation.RestrictTo;
+import android.support.annotation.RestrictTo;
 
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;

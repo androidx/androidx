@@ -14,53 +14,53 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.leanback.test">
+          package="android.support.v17.leanback.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application
         android:supportsRtl="true">
-        <activity android:name="androidx.leanback.widget.GridActivity"
+        <activity android:name="android.support.v17.leanback.widget.GridActivity"
                   android:exported="true"/>
 
-        <activity android:name="androidx.leanback.widget.picker.TimePickerActivity"
+        <activity android:name="android.support.v17.leanback.widget.picker.TimePickerActivity"
                   android:exported="true"
                   android:theme="@style/Theme.Leanback"/>
 
-        <activity android:name="androidx.leanback.widget.picker.DatePickerActivity"
+        <activity android:name="android.support.v17.leanback.widget.picker.DatePickerActivity"
                   android:exported="true"
                   android:theme="@style/Theme.Leanback"/>
 
         <activity
-            android:name="androidx.leanback.app.wizard.GuidedStepAttributesTestActivity"
+            android:name="android.support.v17.leanback.app.wizard.GuidedStepAttributesTestActivity"
             android:exported="true"
             android:theme="@style/Theme.Leanback.GuidedStep"/>
 
-        <activity android:name="androidx.leanback.app.SingleFragmentTestActivity"
+        <activity android:name="android.support.v17.leanback.app.SingleFragmentTestActivity"
                   android:exported="true"
                   android:theme="@style/Theme.Leanback"/>
 
-        <activity android:name="androidx.leanback.app.BrowseFragmentTestActivity"
+        <activity android:name="android.support.v17.leanback.app.BrowseFragmentTestActivity"
                   android:exported="true"
                   android:theme="@style/Theme.Leanback.Browse"/>
 
-        <activity android:name="androidx.leanback.app.SingleSupportFragmentTestActivity"
+        <activity android:name="android.support.v17.leanback.app.SingleSupportFragmentTestActivity"
                   android:exported="true"
                   android:theme="@style/Theme.Leanback"/>
 
-        <activity android:name="androidx.leanback.app.BrowseSupportFragmentTestActivity"
+        <activity android:name="android.support.v17.leanback.app.BrowseSupportFragmentTestActivity"
                   android:exported="true"
                   android:theme="@style/Theme.Leanback.Browse"/>
 
-        <activity android:name="androidx.leanback.app.GuidedStepFragmentTestActivity"
+        <activity android:name="android.support.v17.leanback.app.GuidedStepFragmentTestActivity"
                   android:exported="true"
                   android:theme="@style/Theme.Leanback.GuidedStep"/>
 
         <activity
-            android:name="androidx.leanback.app.GuidedStepSupportFragmentTestActivity"
+            android:name="android.support.v17.leanback.app.GuidedStepSupportFragmentTestActivity"
             android:exported="true"
             android:theme="@style/Theme.Leanback.GuidedStep"/>
 
-        <activity android:name="androidx.leanback.app.TestActivity"
+        <activity android:name="android.support.v17.leanback.app.TestActivity"
                   android:exported="true"
                   android:theme="@style/Theme.Leanback"/>
     </application>

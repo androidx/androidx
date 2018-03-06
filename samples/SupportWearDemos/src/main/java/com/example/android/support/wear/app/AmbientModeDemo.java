@@ -18,8 +18,8 @@ package com.example.android.support.wear.app;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentActivity;
-import androidx.wear.ambient.AmbientMode;
+import android.support.v4.app.FragmentActivity;
+import android.support.wear.ambient.AmbientMode;
 import android.widget.TextView;
 
 import com.example.android.support.wear.R;

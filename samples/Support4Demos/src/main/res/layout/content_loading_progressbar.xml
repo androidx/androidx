@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <androidx.core.widget.ContentLoadingProgressBar
+    <android.support.v4.widget.ContentLoadingProgressBar
         android:id="@+id/progressbar"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"

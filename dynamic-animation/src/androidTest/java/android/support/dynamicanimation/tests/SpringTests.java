@@ -32,18 +32,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.os.SystemClock;
-import androidx.dynamicanimation.animation.DynamicAnimation;
-import androidx.dynamicanimation.animation.FloatPropertyCompat;
-import androidx.dynamicanimation.animation.FloatValueHolder;
-import androidx.dynamicanimation.animation.SpringAnimation;
-import androidx.dynamicanimation.animation.SpringForce;
-import androidx.dynamicanimation.test.R;
+import android.support.animation.DynamicAnimation;
+import android.support.animation.FloatPropertyCompat;
+import android.support.animation.FloatValueHolder;
+import android.support.animation.SpringAnimation;
+import android.support.animation.SpringForce;
+import android.support.dynamicanimation.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.view.ViewCompat;
+import android.support.v4.view.ViewCompat;
 import android.util.AndroidRuntimeException;
 import android.view.View;
 

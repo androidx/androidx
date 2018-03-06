@@ -14,15 +14,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License
   -->
-<androidx.leanback.preference.LeanbackSettingsRootView xmlns:android="http://schemas.android.com/apk/res/android"
-                                                       android:id="@+id/settings_dialog_container"
-                                                       android:layout_width="match_parent"
-                                                       android:layout_height="match_parent">
-    <androidx.leanback.preference.internal.OutlineOnlyWithChildrenFrameLayout
+<android.support.v17.preference.LeanbackSettingsRootView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/settings_dialog_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <android.support.v17.internal.widget.OutlineOnlyWithChildrenFrameLayout
         android:id="@+id/settings_preference_fragment_container"
         android:layout_width="@dimen/lb_settings_pane_width"
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:elevation="@dimen/lb_preference_decor_elevation"
         android:outlineProvider="bounds" />
-</androidx.leanback.preference.LeanbackSettingsRootView>
+</android.support.v17.preference.LeanbackSettingsRootView>

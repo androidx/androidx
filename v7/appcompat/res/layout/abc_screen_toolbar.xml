@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<androidx.appcompat.widget.ActionBarOverlayLayout
+<android.support.v7.widget.ActionBarOverlayLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/decor_content_parent"
@@ -24,7 +24,7 @@
 
     <include layout="@layout/abc_screen_content_include"/>
 
-    <androidx.appcompat.widget.ActionBarContainer
+    <android.support.v7.widget.ActionBarContainer
             android:id="@+id/action_bar_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,14 +33,14 @@
             android:touchscreenBlocksFocus="true"
             android:gravity="top">
 
-        <androidx.appcompat.widget.Toolbar
+        <android.support.v7.widget.Toolbar
                 android:id="@+id/action_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:navigationContentDescription="@string/abc_action_bar_up_description"
                 style="?attr/toolbarStyle"/>
 
-        <androidx.appcompat.widget.ActionBarContextView
+        <android.support.v7.widget.ActionBarContextView
                 android:id="@+id/action_context_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -48,6 +48,6 @@
                 android:theme="?attr/actionBarTheme"
                 style="?attr/actionModeStyle"/>
 
-    </androidx.appcompat.widget.ActionBarContainer>
+    </android.support.v7.widget.ActionBarContainer>
 
-</androidx.appcompat.widget.ActionBarOverlayLayout>
+</android.support.v7.widget.ActionBarOverlayLayout>

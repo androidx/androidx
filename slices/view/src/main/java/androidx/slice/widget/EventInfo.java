@@ -16,8 +16,8 @@
 
 package androidx.slice.widget;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.RestrictTo;
+import android.support.annotation.IntDef;
+import android.support.annotation.RestrictTo;
 
 /**
  * Represents information associated with a logged event on {@link SliceView}.

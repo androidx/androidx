@@ -18,12 +18,12 @@ package androidx.textclassifier;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.FloatRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.collection.ArrayMap;
-import androidx.core.util.Preconditions;
-import androidx.collection.SimpleArrayMap;
+import android.support.annotation.FloatRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
+import android.support.v4.util.ArrayMap;
+import android.support.v4.util.Preconditions;
+import android.support.v4.util.SimpleArrayMap;
 
 import java.util.ArrayList;
 import java.util.Collections;

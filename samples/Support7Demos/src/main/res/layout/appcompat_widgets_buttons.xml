@@ -26,12 +26,12 @@
                   android:orientation="vertical"
                   android:padding="16dp">
 
-        <androidx.appcompat.widget.SwitchCompat
+        <android.support.v7.widget.SwitchCompat
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:text="SwitchCompat"/>
 
-        <androidx.appcompat.widget.SwitchCompat
+        <android.support.v7.widget.SwitchCompat
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:enabled="false"

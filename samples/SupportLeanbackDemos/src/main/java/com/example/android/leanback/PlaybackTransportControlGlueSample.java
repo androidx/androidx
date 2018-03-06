@@ -20,11 +20,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import androidx.leanback.media.PlaybackBaseControlGlue;
-import androidx.leanback.media.PlayerAdapter;
-import androidx.leanback.widget.Action;
-import androidx.leanback.widget.ArrayObjectAdapter;
-import androidx.leanback.widget.PlaybackControlsRow;
+import android.support.v17.leanback.media.PlaybackBaseControlGlue;
+import android.support.v17.leanback.media.PlayerAdapter;
+import android.support.v17.leanback.widget.Action;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -34,7 +34,7 @@ import android.view.View;
 import android.widget.Toast;
 
 class PlaybackTransportControlGlueSample<T extends PlayerAdapter> extends
-        androidx.leanback.media.PlaybackTransportControlGlue<T> {
+        android.support.v17.leanback.media.PlaybackTransportControlGlue<T> {
 
 
     // In this glue, we don't support fast forward/ rewind/ repeat/ shuffle action

@@ -21,7 +21,7 @@
              android:layout_height="match_parent"
              android:orientation="vertical">
 
-    <androidx.wear.widget.CircularProgressLayout
+    <android.support.wear.widget.CircularProgressLayout
         android:id="@+id/circularProgressLayout_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,5 +38,5 @@
             android:gravity="center"
             android:textColor="@color/cpl_black"
             android:text="@string/cpl_click_me"/>
-    </androidx.wear.widget.CircularProgressLayout>
+    </android.support.wear.widget.CircularProgressLayout>
 </FrameLayout>

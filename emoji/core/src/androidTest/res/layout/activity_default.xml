@@ -13,12 +13,12 @@
         android:layout_height="wrap_content"
         android:textSize="8sp"/>
 
-    <androidx.emoji.widget.EmojiEditText
+    <android.support.text.emoji.widget.EmojiEditText
         android:id="@+id/editText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <androidx.emoji.widget.EmojiEditText
+    <android.support.text.emoji.widget.EmojiEditText
         android:id="@+id/editTextWithMaxCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

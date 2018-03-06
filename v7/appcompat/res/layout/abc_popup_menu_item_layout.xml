@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<androidx.appcompat.view.menu.ListMenuItemView
+<android.support.v7.view.menu.ListMenuItemView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -85,4 +85,4 @@
 
     </LinearLayout>
 
-</androidx.appcompat.view.menu.ListMenuItemView>
+</android.support.v7.view.menu.ListMenuItemView>

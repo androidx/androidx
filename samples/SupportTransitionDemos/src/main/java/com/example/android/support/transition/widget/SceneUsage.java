@@ -18,8 +18,8 @@ package com.example.android.support.transition.widget;
 
 import com.example.android.support.transition.R;
 
-import androidx.transition.Scene;
-import androidx.transition.TransitionManager;
+import android.support.transition.Scene;
+import android.support.transition.TransitionManager;
 import android.view.ViewGroup;
 
 /**

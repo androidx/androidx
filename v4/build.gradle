@@ -6,18 +6,18 @@ plugins {
 }
 
 dependencies {
-    api(project(":core"))
-    api(project(":media"))
-    api(project(":legacy-support-core-utils"))
-    api(project(":legacy-support-core-ui"))
-    api(project(":fragment"))
+    api(project(":support-compat"))
+    api(project(":support-media-compat"))
+    api(project(":support-core-utils"))
+    api(project(":support-core-ui"))
+    api(project(":support-fragment"))
 }
 
 supportLibrary {
     name = "Android Support Library v4"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.LEGACY
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
 }

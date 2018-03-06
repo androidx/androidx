@@ -207,7 +207,7 @@
     </RelativeLayout>
     <RelativeLayout android:layout_width="fill_parent"
                     android:layout_height="match_parent">
-        <androidx.cardview.widget.CardView
+        <android.support.v7.widget.CardView
                 android:id="@+id/card_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -220,7 +220,7 @@
                     android:textColor="@android:color/black"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-        </androidx.cardview.widget.CardView>
+        </android.support.v7.widget.CardView>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/card_view_sample_text"
                   android:textColor="@android:color/black"

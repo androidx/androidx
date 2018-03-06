@@ -40,7 +40,7 @@ import android.support.test.espresso.ViewAction;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;

@@ -7,12 +7,10 @@ plugins {
 }
 
 dependencies {
-    api(project(":core"))
-    api(project(":annotation"))
-    api(project(":interpolator"))
-    api(project(":collection"))
-    api(project(":legacy-support-core-ui"))
-    api(project(":appcompat"))
+    api(project(":support-compat"))
+    api(project(":support-annotations"))
+    api(project(":support-core-ui"))
+    api(project(":appcompat-v7"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
@@ -23,7 +21,7 @@ supportLibrary {
     name = "Android Support Custom Tabs"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.BROWSER
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2015"
     description = "Android Support Custom Tabs"
     minSdkVersion = 15

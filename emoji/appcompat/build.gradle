@@ -22,15 +22,15 @@ plugins {
 }
 
 dependencies {
-    api(project(":emoji"))
-    api(project(":appcompat"))
+    api(project(":support-emoji"))
+    api(project(":appcompat-v7"))
 }
 
 supportLibrary {
     name = "Android Emoji AppCompat"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.EMOJI
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "EmojiCompat Widgets for AppCompat integration"
 }

@@ -16,7 +16,7 @@
 
 package androidx.recyclerview.selection.testing;
 
-import static androidx.core.util.Preconditions.checkArgument;
+import static android.support.v4.util.Preconditions.checkArgument;
 
 import androidx.recyclerview.selection.ItemKeyProvider;
 

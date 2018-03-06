@@ -18,9 +18,9 @@ package androidx.recyclerview.selection.testing;
 
 import static org.junit.Assert.assertTrue;
 
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.Adapter;
-import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.Adapter;
+import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;

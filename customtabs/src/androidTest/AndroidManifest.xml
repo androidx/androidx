@@ -19,10 +19,10 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
-        <activity android:name="androidx.browser.customtabs.TestActivity"/>
+        <activity android:name="android.support.customtabs.TestActivity"/>
 
-        <service android:name="androidx.browser.customtabs.PostMessageService"/>
+        <service android:name="android.support.customtabs.PostMessageService"/>
 
-        <service android:name="androidx.browser.customtabs.TestCustomTabsService"/>
+        <service android:name="android.support.customtabs.TestCustomTabsService"/>
     </application>
 </manifest>

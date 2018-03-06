@@ -19,21 +19,21 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.leanback.app.PlaybackFragmentGlueHost;
-import androidx.leanback.widget.Action;
-import androidx.leanback.widget.ArrayObjectAdapter;
-import androidx.leanback.widget.ClassPresenterSelector;
-import androidx.leanback.widget.HeaderItem;
-import androidx.leanback.widget.ListRow;
-import androidx.leanback.widget.ListRowPresenter;
-import androidx.leanback.widget.SparseArrayObjectAdapter;
+import android.support.v17.leanback.app.PlaybackFragmentGlueHost;
+import android.support.v17.leanback.widget.Action;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.ClassPresenterSelector;
+import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.util.Log;
 
 /**
  * Example of PlaybackFragment working with a PlaybackControlGlue.
  */
 public class PlaybackTransportControlFragment
-        extends androidx.leanback.app.PlaybackFragment
+        extends android.support.v17.leanback.app.PlaybackFragment
         implements PlaybackTransportControlActivity.PictureInPictureListener {
     private static final String TAG = "TransportFragment";
 

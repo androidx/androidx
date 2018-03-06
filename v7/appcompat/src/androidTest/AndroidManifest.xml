@@ -22,118 +22,118 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
         <activity
-            android:name="androidx.appcompat.app.AppCompatActivity"/>
+            android:name="android.support.v7.app.AppCompatActivity"/>
 
-        <activity android:name="androidx.appcompat.app.AppCompatMenuItemShortcutsTestActivity"/>
+        <activity android:name="android.support.v7.app.AppCompatMenuItemShortcutsTestActivity"/>
 
         <activity
-            android:name="androidx.appcompat.app.AppCompatMenuItemIconTintingTestActivity"
+            android:name="android.support.v7.app.AppCompatMenuItemIconTintingTestActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
         <activity
-            android:name="androidx.appcompat.app.WindowDecorAppCompatActivity"/>
+            android:name="android.support.v7.app.WindowDecorAppCompatActivity"/>
         <activity
-            android:name="androidx.appcompat.app.ToolbarAppCompatActivity"
+            android:name="android.support.v7.app.ToolbarAppCompatActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
         <activity
-            android:name="androidx.appcompat.app.DrawerLayoutActivity"
+            android:name="android.support.v7.app.DrawerLayoutActivity"
             android:label="@string/drawer_layout_activity"
             android:theme="@style/Theme.SampleDrawerLayout"/>
 
         <activity
-            android:name="androidx.appcompat.app.DrawerLayoutDoubleActivity"
+            android:name="android.support.v7.app.DrawerLayoutDoubleActivity"
             android:label="@string/drawer_layout_activity"
             android:theme="@style/Theme.SampleDrawerLayout"/>
 
         <activity
-            android:name="androidx.appcompat.app.DrawerDynamicLayoutActivity"
+            android:name="android.support.v7.app.DrawerDynamicLayoutActivity"
             android:label="@string/drawer_layout_activity"
             android:theme="@style/Theme.SampleDrawerLayout"/>
 
         <activity
-            android:name="androidx.appcompat.app.AlertDialogTestActivity"
+            android:name="android.support.v7.app.AlertDialogTestActivity"
             android:label="@string/alert_dialog_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
-        <activity android:name="androidx.appcompat.view.SupportMenuInflaterTestActivity"/>
+        <activity android:name="android.support.v7.view.SupportMenuInflaterTestActivity"/>
 
         <activity
-            android:name="androidx.appcompat.widget.PopupTestActivity"
+            android:name="android.support.v7.widget.PopupTestActivity"
             android:label="@string/popup_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-            android:name="androidx.appcompat.widget.AppCompatSpinnerActivity"
+            android:name="android.support.v7.widget.AppCompatSpinnerActivity"
             android:label="@string/app_compat_spinner_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-            android:name="androidx.appcompat.widget.AppCompatTextViewActivity"
+            android:name="android.support.v7.widget.AppCompatTextViewActivity"
             android:label="@string/app_compat_text_view_activity"
             android:theme="@style/Theme.TextColors"/>
 
         <activity
-            android:name="androidx.appcompat.widget.AppCompatTextViewAutoSizeActivity"
+            android:name="android.support.v7.widget.AppCompatTextViewAutoSizeActivity"
             android:label="@string/app_compat_text_view_auto_size_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-            android:name="androidx.appcompat.widget.AppCompatButtonAutoSizeActivity"
+            android:name="android.support.v7.widget.AppCompatButtonAutoSizeActivity"
             android:label="@string/app_compat_button_auto_size_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-            android:name="androidx.appcompat.widget.AppCompatImageButtonActivity"
+            android:name="android.support.v7.widget.AppCompatImageButtonActivity"
             android:label="@string/app_compat_image_button_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-            android:name="androidx.appcompat.widget.AppCompatImageViewActivity"
+            android:name="android.support.v7.widget.AppCompatImageViewActivity"
             android:label="@string/app_compat_image_view_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-            android:name="androidx.appcompat.widget.AppCompatButtonActivity"
+            android:name="android.support.v7.widget.AppCompatButtonActivity"
             android:label="@string/app_compat_button_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-            android:name="androidx.appcompat.widget.AppCompatRadioButtonActivity"
+            android:name="android.support.v7.widget.AppCompatRadioButtonActivity"
             android:label="@string/app_compat_button_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-            android:name="androidx.appcompat.widget.SearchViewTestActivity"
+            android:name="android.support.v7.widget.SearchViewTestActivity"
             android:label="@string/search_view_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
-            android:name="androidx.appcompat.app.LayoutInflaterFactoryTestActivity"/>
+            android:name="android.support.v7.app.LayoutInflaterFactoryTestActivity"/>
 
         <activity
-            android:name="androidx.appcompat.app.FragmentContentIdActivity"/>
+            android:name="android.support.v7.app.FragmentContentIdActivity"/>
 
         <activity
-            android:name="androidx.appcompat.app.NightModeActivity"
+            android:name="android.support.v7.app.NightModeActivity"
             android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
-            android:name="androidx.appcompat.app.AppCompatVectorDrawableIntegrationActivity"/>
+            android:name="android.support.v7.app.AppCompatVectorDrawableIntegrationActivity"/>
 
         <activity
-            android:name="androidx.appcompat.app.AppCompatInflaterDefaultActivity"/>
+            android:name="android.support.v7.app.AppCompatInflaterDefaultActivity"/>
 
         <activity
-            android:name="androidx.appcompat.app.AppCompatInflaterBadClassNameActivity"
+            android:name="android.support.v7.app.AppCompatInflaterBadClassNameActivity"
             android:theme="@style/Theme.CustomInflaterBadClassName"/>
 
         <activity
-            android:name="androidx.appcompat.app.AppCompatInflaterNullActivity"
+            android:name="android.support.v7.app.AppCompatInflaterNullActivity"
             android:theme="@style/Theme.CustomInflaterNull"/>
 
         <activity
-            android:name="androidx.appcompat.app.AppCompatInflaterCustomActivity"
+            android:name="android.support.v7.app.AppCompatInflaterCustomActivity"
             android:theme="@style/Theme.CustomInflater"/>
 
     </application>

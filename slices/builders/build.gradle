@@ -24,14 +24,14 @@ plugins {
 
 dependencies {
     implementation(project(":slices-core"))
-    implementation project(":annotation")
+    implementation project(":support-annotations")
 }
 
 supportLibrary {
     name = "Slice builders"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SLICE
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2017"
     description = "A set of builders to create templates using SliceProvider APIs"
     minSdkVersion = 24

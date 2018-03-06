@@ -21,7 +21,7 @@ import android.content.res.Resources;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable.ConstantState;
 import android.os.Bundle;
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;

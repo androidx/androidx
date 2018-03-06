@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <androidx.leanback.widget.BrowseFrameLayout
+    <android.support.v17.leanback.widget.BrowseFrameLayout
         android:id="@+id/grid_frame"
         android:focusable="true"
         android:focusableInTouchMode="true"
@@ -32,5 +32,5 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </androidx.leanback.widget.BrowseFrameLayout>
+    </android.support.v17.leanback.widget.BrowseFrameLayout>
 </FrameLayout>

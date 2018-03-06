@@ -18,7 +18,7 @@ package androidx.car.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.cardview.widget.CardView;
+import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.util.Log;
 

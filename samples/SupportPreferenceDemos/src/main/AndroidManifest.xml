@@ -20,7 +20,7 @@
     package="com.example.android.supportpreference">
 
     <uses-sdk
-        tools:overrideLibrary="androidx.leanback.preference, androidx.leanback" />
+        tools:overrideLibrary="android.support.v17.preference, android.support.v17.leanback" />
 
     <uses-feature android:name="android.software.Leanback" android:required="false" />
 

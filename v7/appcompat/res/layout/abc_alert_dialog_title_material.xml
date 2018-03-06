@@ -42,7 +42,7 @@
             android:scaleType="fitCenter"
             android:src="@null"/>
 
-        <androidx.appcompat.widget.DialogTitle
+        <android.support.v7.widget.DialogTitle
             android:id="@+id/alertTitle"
             style="?android:attr/windowTitleStyle"
             android:layout_width="match_parent"

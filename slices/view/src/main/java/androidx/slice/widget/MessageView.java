@@ -24,7 +24,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.RestrictTo;
+import android.support.annotation.RestrictTo;
 import android.text.SpannableStringBuilder;
 import android.util.TypedValue;
 import android.widget.ImageView;

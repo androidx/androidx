@@ -17,10 +17,10 @@
 
 <!-- Layout used by SwitchPreference for the switch widget style. This is inflated
      inside android.R.layout.preference. -->
-<androidx.appcompat.widget.SwitchCompat xmlns:android="http://schemas.android.com/apk/res/android"
-                                        android:id="@+id/switchWidget"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:focusable="false"
-                                        android:clickable="false"
-                                        android:background="@null" />
+<android.support.v7.widget.SwitchCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/switchWidget"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:focusable="false"
+    android:clickable="false"
+    android:background="@null" />

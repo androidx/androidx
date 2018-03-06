@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":core"))
+    api(project(":support-compat"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
@@ -23,7 +23,7 @@ supportLibrary {
     name = "Android Percent Support Library"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.PERCENTLAYOUT
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2015"
     description = "Android Percent Support Library"
 }

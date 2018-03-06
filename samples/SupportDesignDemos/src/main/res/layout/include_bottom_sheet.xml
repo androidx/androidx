@@ -32,7 +32,7 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"/>
 
-    <androidx.core.widget.NestedScrollView
+    <android.support.v4.widget.NestedScrollView
             android:id="@+id/scroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -44,6 +44,6 @@
                 android:padding="16dp"
                 style="@style/TextAppearance.AppCompat.Body1"/>
 
-    </androidx.core.widget.NestedScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
 </merge>

@@ -414,7 +414,7 @@
 
 <!-- BEGIN_INCLUDE(file_provider_declaration) -->
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name="android.support.v4.content.FileProvider"
             android:authorities="com.example.android.supportv4.my_files"
             android:grantUriPermissions="true"
             android:exported="false">
@@ -462,7 +462,7 @@
             </intent-filter>
         </service>
 
-        <receiver android:name="androidx.media.session.MediaButtonReceiver" >
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>

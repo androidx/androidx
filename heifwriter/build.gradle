@@ -13,7 +13,7 @@ android {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api(project(":support-annotations"))
 
     androidTestImplementation(TEST_RUNNER)
 }
@@ -22,7 +22,7 @@ supportLibrary {
     name = "Android Support HeifWriter"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.HEIFWRITER
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2018"
     minSdkVersion = 'P'
     description = "Android Support HeifWriter for writing HEIF still images"

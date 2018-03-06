@@ -16,10 +16,10 @@
 
 package androidx.recyclerview.selection;
 
-import static androidx.core.util.Preconditions.checkArgument;
+import static android.support.v4.util.Preconditions.checkArgument;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.GestureDetector.SimpleOnGestureListener;

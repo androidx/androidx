@@ -34,7 +34,7 @@
         android:layout_gravity="center_vertical|end"
         style="?attr/browseTitleTextStyle"/>
 
-    <androidx.leanback.widget.SearchOrbView
+    <android.support.v17.leanback.widget.SearchOrbView
         android:id="@+id/title_orb"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"

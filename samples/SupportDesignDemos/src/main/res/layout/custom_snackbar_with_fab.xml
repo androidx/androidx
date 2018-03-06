@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<android.support.design.widget.CoordinatorLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/content_view"
         android:layout_width="match_parent"
@@ -42,4 +42,4 @@
             android:src="@drawable/ic_add"
             android:clickable="true"/>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</android.support.design.widget.CoordinatorLayout>

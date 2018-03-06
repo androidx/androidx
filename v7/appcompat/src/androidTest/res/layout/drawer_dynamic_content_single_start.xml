@@ -15,7 +15,7 @@
 -->
 
 <!-- Drawer content with a single start drawer -->
-<androidx.appcompat.custom.CustomDrawerLayout
+<android.support.v7.custom.CustomDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
@@ -36,5 +36,5 @@
         android:layout_gravity="start"
         android:background="#333"
         android:fitsSystemWindows="true" />
-</androidx.appcompat.custom.CustomDrawerLayout>
+</android.support.v7.custom.CustomDrawerLayout>
 

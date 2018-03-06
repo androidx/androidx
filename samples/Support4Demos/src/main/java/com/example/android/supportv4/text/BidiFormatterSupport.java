@@ -19,7 +19,7 @@ package com.example.android.supportv4.text;
 import android.app.Activity;
 import android.os.Bundle;
 
-import androidx.core.text.BidiFormatter;
+import android.support.v4.text.BidiFormatter;
 import android.widget.TextView;
 import com.example.android.supportv4.R;
 

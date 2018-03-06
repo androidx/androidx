@@ -16,13 +16,13 @@
 
 package androidx.recyclerview.selection;
 
-import static androidx.core.util.Preconditions.checkArgument;
-import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
+import static android.support.v4.util.Preconditions.checkArgument;
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 import static androidx.recyclerview.selection.Shared.DEBUG;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.lang.annotation.Retention;

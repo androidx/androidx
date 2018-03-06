@@ -16,19 +16,17 @@
 
 package androidx.recyclerview.selection;
 
-import static androidx.core.util.Preconditions.checkArgument;
-import static androidx.core.util.Preconditions.checkState;
+import static android.support.v4.util.Preconditions.checkArgument;
+import static android.support.v4.util.Preconditions.checkState;
 
 import static androidx.recyclerview.selection.Shared.DEBUG;
 
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
+import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * OperationMonitor provides a mechanism to coordinate application
@@ -37,7 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * <p>
  * The host {@link android.app.Activity} or {@link android.app.Fragment} should avoid changing
- * {@link RecyclerView.Adapter Adapter} data while there
+ * {@link android.support.v7.widget.RecyclerView.Adapter Adapter} data while there
  * are active selection operations, as this can result in a poor user experience.
  *
  * <p>

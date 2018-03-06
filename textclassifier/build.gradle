@@ -7,10 +7,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":appcompat"))
-    api(project(":annotation"))
-    api(project(":collection"))
-    api(project(":core"))
+    api(project(":appcompat-v7"))
+    api(project(":support-annotations"))
+    api(project(":support-v4"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
@@ -20,7 +19,7 @@ supportLibrary {
     name = "Android TextClassifier Support Library"
     publish = false
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.TEXTCLASSIFIER
+    mavenGroup = LibraryGroups.SUPPORT
     inceptionYear = "2018"
     description = "The TextClassifier Support Library can be added to an Android application in order to use the TextClassifier API introduced in Android O on all devices with API level 14 or later."
     minSdkVersion = 14

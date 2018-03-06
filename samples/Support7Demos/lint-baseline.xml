@@ -290,7 +290,7 @@
     <issue
         id="AppCompatResource"
         message="Should use `android:actionProviderClass` when not using the appcompat library"
-        errorLine1="        app:actionProviderClass=&quot;androidx.appcompat.widget.ShareActionProvider&quot;/>"
+        errorLine1="        app:actionProviderClass=&quot;android.support.v7.widget.ShareActionProvider&quot;/>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/menu/action_bar_share_action_provider.xml"
@@ -312,7 +312,7 @@
     <issue
         id="AppCompatResource"
         message="Should use `android:actionViewClass` when not using the appcompat library"
-        errorLine1="          app:actionViewClass=&quot;androidx.appcompat.widget.SearchView&quot; />"
+        errorLine1="          app:actionViewClass=&quot;android.support.v7.widget.SearchView&quot; />"
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/menu/actions.xml"
@@ -411,7 +411,7 @@
     <issue
         id="AppCompatResource"
         message="Should use `android:actionProviderClass` when not using the appcompat library"
-        errorLine1="        app:actionProviderClass=&quot;androidx.mediarouter.app.MediaRouteActionProvider&quot;/>"
+        errorLine1="        app:actionProviderClass=&quot;android.support.v7.app.MediaRouteActionProvider&quot;/>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/menu/sample_media_router_menu.xml"

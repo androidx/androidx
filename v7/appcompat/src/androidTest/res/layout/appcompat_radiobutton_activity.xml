@@ -22,7 +22,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.AppCompatRadioButton
+    <android.support.v7.widget.AppCompatRadioButton
         android:id="@+id/radiobutton_fontresource"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

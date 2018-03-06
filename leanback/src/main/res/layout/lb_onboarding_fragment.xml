@@ -57,7 +57,7 @@
     <FrameLayout
         android:id="@id/navigator_container"
         style="?attr/onboardingNavigatorContainerStyle">
-        <androidx.leanback.widget.PagingIndicator
+        <android.support.v17.leanback.widget.PagingIndicator
             android:id="@+id/page_indicator"
             style="?attr/onboardingPageIndicatorStyle"
             android:visibility="gone" />

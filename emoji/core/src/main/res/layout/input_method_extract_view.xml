@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.emoji.widget.EmojiExtractEditText
+    <android.support.text.emoji.widget.EmojiExtractEditText
         android:id="@android:id/inputExtractEditText"
         android:layout_width="0px"
         android:layout_height="match_parent"
@@ -37,7 +37,7 @@
         android:paddingEnd="8dip"
         android:paddingStart="8dip">
 
-        <androidx.emoji.widget.ExtractButtonCompat
+        <android.support.text.emoji.widget.ExtractButtonCompat
             android:id="@+id/inputExtractAction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

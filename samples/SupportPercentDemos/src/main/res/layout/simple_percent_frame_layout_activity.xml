@@ -14,7 +14,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<android.percentlayout.widget.PercentFrameLayout
+<android.support.percent.PercentFrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -32,4 +32,4 @@
         app:layout_marginRightPercent="33.33%"
         app:layout_marginBottomPercent="33.33%"
         android:background="#0000FF" />
-</android.percentlayout.widget.PercentFrameLayout>
+</android.support.percent.PercentFrameLayout>

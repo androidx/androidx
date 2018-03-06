@@ -18,11 +18,11 @@ package com.example.android.leanback;
 
 import android.content.Context;
 import android.os.Bundle;
-import androidx.core.content.res.ResourcesCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.View;
 
-public class ErrorSupportFragment extends androidx.leanback.app.ErrorSupportFragment {
+public class ErrorSupportFragment extends android.support.v17.leanback.app.ErrorSupportFragment {
     private static final String TAG = "leanback.ErrorSupportFragment";
     private static final boolean TRANSLUCENT = true;
 

@@ -20,6 +20,6 @@
 @RestrictTo(LIBRARY_GROUP)
 package androidx.webkit.internal;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
+import android.support.annotation.RestrictTo;
