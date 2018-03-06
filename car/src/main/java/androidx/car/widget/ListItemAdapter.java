@@ -261,12 +261,6 @@ public class ListItemAdapter extends
 
     @Override
     public void onBindViewHolder(ListItem.ViewHolder holder, int position) {
-        ListItem item = mItemProvider.get(position);
-        item.setTitleTextAppearance(mListItemTitleTextAppearance);
-        item.setBodyTextAppearance(mListItemBodyTextAppearance);
-
-        item.bind(holder);
-
         if (mBackgroundStyle == BackgroundStyle.PANEL) {
             ListItemBackgroundResolver.setBackground(
                     holder.itemView, position, mItemProvider.size());
@@ -276,6 +270,12 @@ public class ListItemAdapter extends
         if (mCurrentUxRestrictions != null) {
             holder.complyWithUxRestrictions(mCurrentUxRestrictions);
         }
+
+        ListItem item = mItemProvider.get(position);
+        item.setTitleTextAppearance(mListItemTitleTextAppearance);
+        item.setBodyTextAppearance(mListItemBodyTextAppearance);
+
+        item.bind(holder);
     }
 
     @Override
