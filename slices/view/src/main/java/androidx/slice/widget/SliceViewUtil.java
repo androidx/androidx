@@ -16,7 +16,6 @@
 
 package androidx.slice.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -34,7 +33,9 @@ import android.graphics.drawable.Icon;
 import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+import android.support.v4.content.ContextCompat;
 import android.text.format.DateUtils;
 import android.view.Gravity;
 import android.view.ViewGroup;
@@ -49,7 +50,6 @@ import java.util.Calendar;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@TargetApi(23)
 public class SliceViewUtil {
 
     /**
@@ -70,9 +70,7 @@ public class SliceViewUtil {
      */
     @ColorInt
     public static int getDefaultColor(@NonNull Context context, int resId) {
-        final ColorStateList list = context.getResources().getColorStateList(resId,
-                context.getTheme());
-
+        final ColorStateList list = ContextCompat.getColorStateList(context, resId);
         return list.getDefaultColor();
     }
 
@@ -140,6 +138,7 @@ public class SliceViewUtil {
 
     /**
      */
+    @RequiresApi(23)
     public static Icon createIconFromDrawable(Drawable d) {
         if (d instanceof BitmapDrawable) {
             return Icon.createWithBitmap(((BitmapDrawable) d).getBitmap());
@@ -154,7 +153,7 @@ public class SliceViewUtil {
 
     /**
      */
-    @TargetApi(28)
+    @RequiresApi(23)
     public static void createCircledIcon(@NonNull Context context, int iconSizePx,
             Icon icon, boolean isLarge, ViewGroup parent) {
         ImageView v = new ImageView(context);

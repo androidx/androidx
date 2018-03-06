@@ -20,7 +20,6 @@ import static android.app.slice.Slice.SUBTYPE_SOURCE;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -41,7 +40,6 @@ import androidx.slice.core.SliceQuery;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@TargetApi(24)
 public class MessageView extends SliceChildView {
 
     private TextView mDetails;
