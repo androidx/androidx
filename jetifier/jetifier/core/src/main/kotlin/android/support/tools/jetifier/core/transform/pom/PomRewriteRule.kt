@@ -51,6 +51,13 @@ data class PomRewriteRule(val from: PomDependency, val to: Set<PomDependency>) {
         }
     }
 
+    fun getReversed(): PomRewriteRule {
+        if (to.size > 1) {
+            throw IllegalArgumentException("Can't reverse pom rule with more than one package.")
+        }
+        return PomRewriteRule(from = to.first(), to = setOf(from))
+    }
+
     /**
      * Validates that the given [input] dependency has a valid version.
      */

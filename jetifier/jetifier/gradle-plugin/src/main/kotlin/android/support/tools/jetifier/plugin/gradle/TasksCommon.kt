@@ -45,9 +45,7 @@ class TasksCommon {
             Log.logConsumer = JetifierLoggerAdapter(logger)
 
             val processor = Processor.createProcessor(config)
-            return processor.transform(
-                    filesToProcess,
-                    copyUnmodifiedLibsAlso = false)
+            return processor.transform(filesToProcess)
         }
 
         fun shouldSkipArtifact(artifactId: String, groupId: String?, config: Config): Boolean {

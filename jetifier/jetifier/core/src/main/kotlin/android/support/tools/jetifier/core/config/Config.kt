@@ -56,6 +56,9 @@ data class Config(
         }
     }
 
+    val restrictToPackagePrefixesWithDots: List<String> = restrictToPackagePrefixes
+            .map { it.replace("/", ".") }
+
     companion object {
         /** Path to the default config file located within the jar file. */
         const val DEFAULT_CONFIG_RES_PATH = "/default.generated.config"

@@ -94,7 +94,7 @@ class Processor private constructor (
                     restrictToPackagePrefixes = REVERSE_RESTRICT_TO_PACKAGE,
                     rewriteRules = config.rewriteRules,
                     slRules = config.slRules,
-                    pomRewriteRules = emptySet(), // TODO: This will need a new set of rules
+                    pomRewriteRules = config.pomRewriteRules.map { it.getReversed() }.toSet(),
                     typesMap = config.typesMap.reverseMapOrDie(),
                     proGuardMap = config.proGuardMap.reverseMapOrDie(),
                     packageMap = config.packageMap.reverse()
@@ -213,7 +213,7 @@ class Processor private constructor (
     }
 
     private fun scanPomFiles(libraries: List<Archive>): List<PomDocument> {
-        val scanner = PomScanner(context.config)
+        val scanner = PomScanner(context)
 
         libraries.forEach { scanner.scanArchiveForPomFile(it) }
         if (scanner.wasErrorFound()) {
@@ -226,7 +226,7 @@ class Processor private constructor (
 
     private fun transformPomFiles(files: List<PomDocument>) {
         files.forEach {
-            it.applyRules(context.config.pomRewriteRules)
+            it.applyRules(context)
             it.saveBackToFileIfNeeded()
         }
     }
@@ -247,11 +247,11 @@ class Processor private constructor (
         val transformer = transformers.firstOrNull { it.canTransform(archiveFile) }
 
         if (transformer == null) {
-            Log.i(TAG, "[Skipped] %s", archiveFile.relativePath)
+            Log.d(TAG, "[Skipped] %s", archiveFile.relativePath)
             return
         }
 
-        Log.i(TAG, "[Applied: %s] %s", transformer.javaClass.simpleName, archiveFile.relativePath)
+        Log.d(TAG, "[Applied: %s] %s", transformer.javaClass.simpleName, archiveFile.relativePath)
         transformer.runTransform(archiveFile)
     }
 }
