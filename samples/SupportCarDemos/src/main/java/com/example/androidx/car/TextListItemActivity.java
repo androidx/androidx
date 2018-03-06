@@ -193,6 +193,11 @@ public class TextListItemActivity extends Activity {
             mItems.add(item);
 
             item = new TextListItem(mContext);
+            item.setTitle("item longer than containing View size");
+            item.setBody(mContext.getResources().getString(R.string.super_long_text));
+            mItems.add(item);
+
+            item = new TextListItem(mContext);
             item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true);
             item.setTitle("double line with full icon and no end icon divider");
             item.setBody("one line text");
