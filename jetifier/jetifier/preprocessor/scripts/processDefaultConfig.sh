@@ -86,7 +86,7 @@ function getPreRenamedSupportLib() {
 
 	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/support-lib-${SUPPORT_LIBS_BUILD_NUMBER}.zip" -d "$SUPPORT_LIBS_UNPACKED"
 	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/arch-${SUPPORT_LIBS_BUILD_NUMBER}.zip" -d "$SUPPORT_LIBS_UNPACKED"
-	cp "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/design/27.1.0/design-27.1.0.aar" "$SUPPORT_LIBS_UNPACKED/design-27.1.0.aar"
+	find "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/" -type f -name "*design-*28.0.0*.aar" -exec cp '{}' -t "$SUPPORT_LIBS_UNPACKED" \;
 	find "$SUPPORT_LIBS_UNPACKED" -type f -name "jetifier*" -exec rm -f {} \;
 }
 getPreRenamedSupportLib
