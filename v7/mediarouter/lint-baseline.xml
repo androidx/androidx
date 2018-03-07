@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0-alpha9">
+<issues format="4" by="lint 3.0.0">
 
     <issue
         id="MissingSuperCall"
@@ -7,8 +7,8 @@
         errorLine1="    public void jumpDrawablesToCurrentState() {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/v7/app/MediaRouteButton.java"
-            line="380"
+            file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
+            line="379"
             column="17"/>
     </issue>
 
@@ -18,8 +18,8 @@
         errorLine1="            Log.e(TAG, &quot;onCreateActionView: this ActionProvider is already associated &quot; +"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/android/support/v7/app/MediaRouteActionProvider.java"
-            line="248"
+            file="src/main/java/androidx/mediarouter/app/MediaRouteActionProvider.java"
+            line="250"
             column="19"/>
     </issue>
 

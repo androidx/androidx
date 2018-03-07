@@ -16,7 +16,7 @@
 
 package androidx.slice;
 
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 
 /**
  * Constants for each of the slice specs

@@ -16,18 +16,20 @@
 
 package androidx.recyclerview.selection;
 
-import static android.support.v4.util.Preconditions.checkArgument;
+import static androidx.core.util.Preconditions.checkArgument;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 /**
  * Provides selection library access to stable selection keys identifying items
- * presented by a {@link android.support.v7.widget.RecyclerView RecyclerView} instance.
+ * presented by a {@link RecyclerView RecyclerView} instance.
  *
  * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
  */

@@ -20,9 +20,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.os.BuildCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.os.BuildCompat;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 

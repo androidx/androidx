@@ -19,10 +19,10 @@ package com.example.android.support.wear.app;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.content.ContextCompat;
-import android.support.wear.widget.CircularProgressLayout;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
+import androidx.wear.widget.CircularProgressLayout;
 import android.view.View;
 import android.widget.TextView;
 

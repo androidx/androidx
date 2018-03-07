@@ -18,7 +18,7 @@ package com.example.android.supportv4.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.widget.ContentLoadingProgressBar;
+import androidx.core.widget.ContentLoadingProgressBar;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;

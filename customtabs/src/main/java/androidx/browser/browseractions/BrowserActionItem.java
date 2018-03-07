@@ -17,8 +17,8 @@
 package androidx.browser.browseractions;
 
 import android.app.PendingIntent;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 
 /**
  * A wrapper class holding custom item of Browser Actions menu.

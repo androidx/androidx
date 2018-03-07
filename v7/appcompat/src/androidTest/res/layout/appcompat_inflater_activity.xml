@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:text="@string/sample_text1" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/ac_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:text="@string/sample_text2" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/ac_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

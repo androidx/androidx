@@ -1,4 +1,4 @@
-package android.support.v4.content {
+package androidx.legacy.content {
 
   public abstract deprecated class WakefulBroadcastReceiver extends android.content.BroadcastReceiver {
     ctor public WakefulBroadcastReceiver();

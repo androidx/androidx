@@ -26,7 +26,7 @@ import android.content.ServiceConnection;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;

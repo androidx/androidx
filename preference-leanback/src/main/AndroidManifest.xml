@@ -15,4 +15,4 @@
   ~ limitations under the License
   -->
 
-<manifest package="android.support.v17.preference"/>
+<manifest package="androidx.leanback.preference"/>

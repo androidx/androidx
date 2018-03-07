@@ -19,20 +19,20 @@
 
 package com.example.android.leanback;
 
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v17.leanback.app.GuidedStepSupportFragment;
-import android.support.v17.leanback.widget.GuidanceStylist;
-import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
-import android.support.v17.leanback.widget.GuidedAction;
-import android.support.v17.leanback.widget.GuidedActionsStylist;
-import android.support.v17.leanback.widget.GuidedDatePickerAction;
-import android.support.v4.content.res.ResourcesCompat;
+import androidx.leanback.app.GuidedStepSupportFragment;
+import androidx.leanback.widget.GuidanceStylist;
+import androidx.leanback.widget.GuidanceStylist.Guidance;
+import androidx.leanback.widget.GuidedAction;
+import androidx.leanback.widget.GuidedActionsStylist;
+import androidx.leanback.widget.GuidedDatePickerAction;
+import androidx.core.content.res.ResourcesCompat;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;

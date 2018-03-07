@@ -22,7 +22,7 @@ dependencies {
     // treats this as local jar and package it inside the aar.
     api files(configurations.repackage)
 
-    api(project(":support-compat"))
+    api(project(":core"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
@@ -56,7 +56,7 @@ supportLibrary {
     name = "Android Emoji Compat"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.EMOJI
     inceptionYear = "2017"
     description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
 

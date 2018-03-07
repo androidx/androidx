@@ -19,13 +19,13 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:keyboardNavigationCluster="true"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"/>
 
-    <android.support.v7.custom.FitWindowsContentLayout
+    <androidx.appcompat.custom.FitWindowsContentLayout
             android:id="@+id/test_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -36,6 +36,6 @@
                 android:layout_height="20dip"
                 android:focusable="true" />
 
-    </android.support.v7.custom.FitWindowsContentLayout>
+    </androidx.appcompat.custom.FitWindowsContentLayout>
 
 </LinearLayout>

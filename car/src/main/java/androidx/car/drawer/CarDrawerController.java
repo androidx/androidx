@@ -19,14 +19,14 @@ package androidx.car.drawer;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.AnimRes;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.AnimRes;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -249,7 +249,7 @@ public class CarDrawerController {
      * Synchronizes the display of the drawer with its linked {@link DrawerLayout}.
      *
      * <p>This should be called from the associated Activity's
-     * {@link android.support.v7.app.AppCompatActivity#onPostCreate(Bundle)} method to synchronize
+     * {@link androidx.appcompat.app.AppCompatActivity#onPostCreate(Bundle)} method to synchronize
      * after teh DRawerLayout's instance state has been restored, and any other time when the
      * state may have diverged in such a way that this controller's associated
      * {@link ActionBarDrawerToggle} had not been notified.

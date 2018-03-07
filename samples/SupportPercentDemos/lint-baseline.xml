@@ -2,6 +2,138 @@
 <issues format="4" by="lint 3.0.0">
 
     <issue
+        id="RequiredSize"
+        message="The required `layout_width` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_hpaddings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_hpaddings.xml"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_height` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_vpaddings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_height` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_vpaddings.xml"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_hpaddings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_hpaddings.xml"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_height` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_vpaddings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_height` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_vpaddings.xml"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` and `layout_height` attributes are missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/simple_percent_frame_layout_activity.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` and `layout_height` attributes are missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/simple_percent_frame_layout_activity.xml"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` and `layout_height` attributes are missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/simple_percent_relative_layout_activity.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` and `layout_height` attributes are missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/simple_percent_relative_layout_activity.xml"
+            line="29"
+            column="5"/>
+    </issue>
+
+    <issue
         id="AllowBackup"
         message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
         errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"

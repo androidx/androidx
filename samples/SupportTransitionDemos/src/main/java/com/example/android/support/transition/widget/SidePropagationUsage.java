@@ -17,10 +17,10 @@
 package com.example.android.support.transition.widget;
 
 import android.os.Bundle;
-import android.support.transition.AutoTransition;
-import android.support.transition.SidePropagation;
-import android.support.transition.Transition;
-import android.support.transition.TransitionManager;
+import androidx.transition.AutoTransition;
+import androidx.transition.SidePropagation;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;

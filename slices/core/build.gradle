@@ -24,8 +24,8 @@ plugins {
 }
 
 dependencies {
-    implementation project(":support-annotations")
-    implementation project(":appcompat-v7")
+    implementation project(":annotation")
+    implementation project(":appcompat")
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
@@ -36,7 +36,7 @@ supportLibrary {
     name = "Common utilities for slices"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2017"
     description = "The slices core library provides utilities for the slices view and provider libraries"
     minSdkVersion = 24

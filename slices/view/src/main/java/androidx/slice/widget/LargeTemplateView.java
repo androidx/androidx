@@ -17,9 +17,9 @@
 package androidx.slice.widget;
 
 import android.content.Context;
-import android.support.annotation.RestrictTo;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.RestrictTo;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
 
 import java.util.ArrayList;
