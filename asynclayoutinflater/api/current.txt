@@ -1,8 +1,8 @@
-package android.support.v4.view {
+package androidx.asynclayoutinflater.view {
 
   public final class AsyncLayoutInflater {
     ctor public AsyncLayoutInflater(android.content.Context);
-    method public void inflate(int, android.view.ViewGroup, android.support.v4.view.AsyncLayoutInflater.OnInflateFinishedListener);
+    method public void inflate(int, android.view.ViewGroup, androidx.asynclayoutinflater.view.AsyncLayoutInflater.OnInflateFinishedListener);
   }
 
   public static abstract interface AsyncLayoutInflater.OnInflateFinishedListener {

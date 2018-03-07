@@ -1,157 +1,5 @@
 package android.support.v4.media {
 
-  public class AudioAttributesCompat {
-    method public int getContentType();
-    method public int getFlags();
-    method public int getLegacyStreamType();
-    method public int getUsage();
-    method public int getVolumeControlStream();
-    method public java.lang.Object unwrap();
-    method public static android.support.v4.media.AudioAttributesCompat wrap(java.lang.Object);
-    field public static final int CONTENT_TYPE_MOVIE = 3; // 0x3
-    field public static final int CONTENT_TYPE_MUSIC = 2; // 0x2
-    field public static final int CONTENT_TYPE_SONIFICATION = 4; // 0x4
-    field public static final int CONTENT_TYPE_SPEECH = 1; // 0x1
-    field public static final int CONTENT_TYPE_UNKNOWN = 0; // 0x0
-    field public static final int FLAG_AUDIBILITY_ENFORCED = 1; // 0x1
-    field public static final int FLAG_HW_AV_SYNC = 16; // 0x10
-    field public static final int USAGE_ALARM = 4; // 0x4
-    field public static final int USAGE_ASSISTANCE_ACCESSIBILITY = 11; // 0xb
-    field public static final int USAGE_ASSISTANCE_NAVIGATION_GUIDANCE = 12; // 0xc
-    field public static final int USAGE_ASSISTANCE_SONIFICATION = 13; // 0xd
-    field public static final int USAGE_ASSISTANT = 16; // 0x10
-    field public static final int USAGE_GAME = 14; // 0xe
-    field public static final int USAGE_MEDIA = 1; // 0x1
-    field public static final int USAGE_NOTIFICATION = 5; // 0x5
-    field public static final int USAGE_NOTIFICATION_COMMUNICATION_DELAYED = 9; // 0x9
-    field public static final int USAGE_NOTIFICATION_COMMUNICATION_INSTANT = 8; // 0x8
-    field public static final int USAGE_NOTIFICATION_COMMUNICATION_REQUEST = 7; // 0x7
-    field public static final int USAGE_NOTIFICATION_EVENT = 10; // 0xa
-    field public static final int USAGE_NOTIFICATION_RINGTONE = 6; // 0x6
-    field public static final int USAGE_UNKNOWN = 0; // 0x0
-    field public static final int USAGE_VOICE_COMMUNICATION = 2; // 0x2
-    field public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING = 3; // 0x3
-  }
-
-  public static class AudioAttributesCompat.Builder {
-    ctor public AudioAttributesCompat.Builder();
-    ctor public AudioAttributesCompat.Builder(android.support.v4.media.AudioAttributesCompat);
-    method public android.support.v4.media.AudioAttributesCompat build();
-    method public android.support.v4.media.AudioAttributesCompat.Builder setContentType(int);
-    method public android.support.v4.media.AudioAttributesCompat.Builder setFlags(int);
-    method public android.support.v4.media.AudioAttributesCompat.Builder setLegacyStreamType(int);
-    method public android.support.v4.media.AudioAttributesCompat.Builder setUsage(int);
-  }
-
-  public final class MediaBrowserCompat {
-    ctor public MediaBrowserCompat(android.content.Context, android.content.ComponentName, android.support.v4.media.MediaBrowserCompat.ConnectionCallback, android.os.Bundle);
-    method public void connect();
-    method public void disconnect();
-    method public android.os.Bundle getExtras();
-    method public void getItem(java.lang.String, android.support.v4.media.MediaBrowserCompat.ItemCallback);
-    method public java.lang.String getRoot();
-    method public android.content.ComponentName getServiceComponent();
-    method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
-    method public boolean isConnected();
-    method public void search(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.SearchCallback);
-    method public void sendCustomAction(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.CustomActionCallback);
-    method public void subscribe(java.lang.String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
-    method public void subscribe(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
-    method public void unsubscribe(java.lang.String);
-    method public void unsubscribe(java.lang.String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
-    field public static final java.lang.String CUSTOM_ACTION_DOWNLOAD = "android.support.v4.media.action.DOWNLOAD";
-    field public static final java.lang.String CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE = "android.support.v4.media.action.REMOVE_DOWNLOADED_FILE";
-    field public static final java.lang.String EXTRA_DOWNLOAD_PROGRESS = "android.media.browse.extra.DOWNLOAD_PROGRESS";
-    field public static final java.lang.String EXTRA_MEDIA_ID = "android.media.browse.extra.MEDIA_ID";
-    field public static final java.lang.String EXTRA_PAGE = "android.media.browse.extra.PAGE";
-    field public static final java.lang.String EXTRA_PAGE_SIZE = "android.media.browse.extra.PAGE_SIZE";
-  }
-
-  public static class MediaBrowserCompat.ConnectionCallback {
-    ctor public MediaBrowserCompat.ConnectionCallback();
-    method public void onConnected();
-    method public void onConnectionFailed();
-    method public void onConnectionSuspended();
-  }
-
-  public static abstract class MediaBrowserCompat.CustomActionCallback {
-    ctor public MediaBrowserCompat.CustomActionCallback();
-    method public void onError(java.lang.String, android.os.Bundle, android.os.Bundle);
-    method public void onProgressUpdate(java.lang.String, android.os.Bundle, android.os.Bundle);
-    method public void onResult(java.lang.String, android.os.Bundle, android.os.Bundle);
-  }
-
-  public static abstract class MediaBrowserCompat.ItemCallback {
-    ctor public MediaBrowserCompat.ItemCallback();
-    method public void onError(java.lang.String);
-    method public void onItemLoaded(android.support.v4.media.MediaBrowserCompat.MediaItem);
-  }
-
-  public static class MediaBrowserCompat.MediaItem implements android.os.Parcelable {
-    ctor public MediaBrowserCompat.MediaItem(android.support.v4.media.MediaDescriptionCompat, int);
-    method public int describeContents();
-    method public static android.support.v4.media.MediaBrowserCompat.MediaItem fromMediaItem(java.lang.Object);
-    method public static java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem> fromMediaItemList(java.util.List<?>);
-    method public android.support.v4.media.MediaDescriptionCompat getDescription();
-    method public int getFlags();
-    method public java.lang.String getMediaId();
-    method public boolean isBrowsable();
-    method public boolean isPlayable();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.support.v4.media.MediaBrowserCompat.MediaItem> CREATOR;
-    field public static final int FLAG_BROWSABLE = 1; // 0x1
-    field public static final int FLAG_PLAYABLE = 2; // 0x2
-  }
-
-  public static abstract class MediaBrowserCompat.SearchCallback {
-    ctor public MediaBrowserCompat.SearchCallback();
-    method public void onError(java.lang.String, android.os.Bundle);
-    method public void onSearchResult(java.lang.String, android.os.Bundle, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>);
-  }
-
-  public static abstract class MediaBrowserCompat.SubscriptionCallback {
-    ctor public MediaBrowserCompat.SubscriptionCallback();
-    method public void onChildrenLoaded(java.lang.String, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>);
-    method public void onChildrenLoaded(java.lang.String, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>, android.os.Bundle);
-    method public void onError(java.lang.String);
-    method public void onError(java.lang.String, android.os.Bundle);
-  }
-
-  public abstract class MediaBrowserServiceCompat extends android.app.Service {
-    ctor public MediaBrowserServiceCompat();
-    method public void dump(java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
-    method public final android.os.Bundle getBrowserRootHints();
-    method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
-    method public void notifyChildrenChanged(java.lang.String);
-    method public void notifyChildrenChanged(java.lang.String, android.os.Bundle);
-    method public android.os.IBinder onBind(android.content.Intent);
-    method public void onCustomAction(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserServiceCompat.Result<android.os.Bundle>);
-    method public abstract android.support.v4.media.MediaBrowserServiceCompat.BrowserRoot onGetRoot(java.lang.String, int, android.os.Bundle);
-    method public abstract void onLoadChildren(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>);
-    method public void onLoadChildren(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>, android.os.Bundle);
-    method public void onLoadItem(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<android.support.v4.media.MediaBrowserCompat.MediaItem>);
-    method public void onSearch(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>);
-    method public void setSessionToken(android.support.v4.media.session.MediaSessionCompat.Token);
-    field public static final java.lang.String SERVICE_INTERFACE = "android.media.browse.MediaBrowserService";
-  }
-
-  public static final class MediaBrowserServiceCompat.BrowserRoot {
-    ctor public MediaBrowserServiceCompat.BrowserRoot(java.lang.String, android.os.Bundle);
-    method public android.os.Bundle getExtras();
-    method public java.lang.String getRootId();
-    field public static final java.lang.String EXTRA_OFFLINE = "android.service.media.extra.OFFLINE";
-    field public static final java.lang.String EXTRA_RECENT = "android.service.media.extra.RECENT";
-    field public static final java.lang.String EXTRA_SUGGESTED = "android.service.media.extra.SUGGESTED";
-    field public static final deprecated java.lang.String EXTRA_SUGGESTION_KEYWORDS = "android.service.media.extra.SUGGESTION_KEYWORDS";
-  }
-
-  public static class MediaBrowserServiceCompat.Result<T> {
-    method public void detach();
-    method public void sendError(android.os.Bundle);
-    method public void sendProgressUpdate(android.os.Bundle);
-    method public void sendResult(T);
-  }
-
   public final class MediaDescriptionCompat implements android.os.Parcelable {
     method public int describeContents();
     method public static android.support.v4.media.MediaDescriptionCompat fromMediaDescription(java.lang.Object);
@@ -279,154 +127,16 @@ package android.support.v4.media {
     field public static final int RATING_THUMB_UP_DOWN = 2; // 0x2
   }
 
-  public abstract class VolumeProviderCompat {
-    ctor public VolumeProviderCompat(int, int, int);
-    method public final int getCurrentVolume();
-    method public final int getMaxVolume();
-    method public final int getVolumeControl();
-    method public java.lang.Object getVolumeProvider();
-    method public void onAdjustVolume(int);
-    method public void onSetVolumeTo(int);
-    method public void setCallback(android.support.v4.media.VolumeProviderCompat.Callback);
-    method public final void setCurrentVolume(int);
-    field public static final int VOLUME_CONTROL_ABSOLUTE = 2; // 0x2
-    field public static final int VOLUME_CONTROL_FIXED = 0; // 0x0
-    field public static final int VOLUME_CONTROL_RELATIVE = 1; // 0x1
-  }
-
-  public static abstract class VolumeProviderCompat.Callback {
-    ctor public VolumeProviderCompat.Callback();
-    method public abstract void onVolumeChanged(android.support.v4.media.VolumeProviderCompat);
-  }
-
-}
-
-package android.support.v4.media.app {
-
-  public class NotificationCompat {
-  }
-
-  public static class NotificationCompat.DecoratedMediaCustomViewStyle extends android.support.v4.media.app.NotificationCompat.MediaStyle {
-    ctor public NotificationCompat.DecoratedMediaCustomViewStyle();
-  }
-
-  public static class NotificationCompat.MediaStyle extends android.support.v4.app.NotificationCompat.Style {
-    ctor public NotificationCompat.MediaStyle();
-    ctor public NotificationCompat.MediaStyle(android.support.v4.app.NotificationCompat.Builder);
-    method public static android.support.v4.media.session.MediaSessionCompat.Token getMediaSession(android.app.Notification);
-    method public android.support.v4.media.app.NotificationCompat.MediaStyle setCancelButtonIntent(android.app.PendingIntent);
-    method public android.support.v4.media.app.NotificationCompat.MediaStyle setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token);
-    method public android.support.v4.media.app.NotificationCompat.MediaStyle setShowActionsInCompactView(int...);
-    method public android.support.v4.media.app.NotificationCompat.MediaStyle setShowCancelButton(boolean);
-  }
-
 }
 
 package android.support.v4.media.session {
-
-  public class MediaButtonReceiver extends android.content.BroadcastReceiver {
-    ctor public MediaButtonReceiver();
-    method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, long);
-    method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, android.content.ComponentName, long);
-    method public static android.view.KeyEvent handleIntent(android.support.v4.media.session.MediaSessionCompat, android.content.Intent);
-    method public void onReceive(android.content.Context, android.content.Intent);
-  }
-
-  public final class MediaControllerCompat {
-    ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat);
-    ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token) throws android.os.RemoteException;
-    method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat);
-    method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat, int);
-    method public void adjustVolume(int, int);
-    method public boolean dispatchMediaButtonEvent(android.view.KeyEvent);
-    method public android.os.Bundle getExtras();
-    method public long getFlags();
-    method public static android.support.v4.media.session.MediaControllerCompat getMediaController(android.app.Activity);
-    method public java.lang.Object getMediaController();
-    method public android.support.v4.media.MediaMetadataCompat getMetadata();
-    method public java.lang.String getPackageName();
-    method public android.support.v4.media.session.MediaControllerCompat.PlaybackInfo getPlaybackInfo();
-    method public android.support.v4.media.session.PlaybackStateCompat getPlaybackState();
-    method public java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem> getQueue();
-    method public java.lang.CharSequence getQueueTitle();
-    method public int getRatingType();
-    method public int getRepeatMode();
-    method public android.app.PendingIntent getSessionActivity();
-    method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
-    method public int getShuffleMode();
-    method public android.support.v4.media.session.MediaControllerCompat.TransportControls getTransportControls();
-    method public boolean isCaptioningEnabled();
-    method public boolean isSessionReady();
-    method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
-    method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback, android.os.Handler);
-    method public void removeQueueItem(android.support.v4.media.MediaDescriptionCompat);
-    method public deprecated void removeQueueItemAt(int);
-    method public void sendCommand(java.lang.String, android.os.Bundle, android.os.ResultReceiver);
-    method public static void setMediaController(android.app.Activity, android.support.v4.media.session.MediaControllerCompat);
-    method public void setVolumeTo(int, int);
-    method public void unregisterCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
-  }
-
-  public static abstract class MediaControllerCompat.Callback implements android.os.IBinder.DeathRecipient {
-    ctor public MediaControllerCompat.Callback();
-    method public void binderDied();
-    method public void onAudioInfoChanged(android.support.v4.media.session.MediaControllerCompat.PlaybackInfo);
-    method public void onCaptioningEnabledChanged(boolean);
-    method public void onExtrasChanged(android.os.Bundle);
-    method public void onMetadataChanged(android.support.v4.media.MediaMetadataCompat);
-    method public void onPlaybackStateChanged(android.support.v4.media.session.PlaybackStateCompat);
-    method public void onQueueChanged(java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem>);
-    method public void onQueueTitleChanged(java.lang.CharSequence);
-    method public void onRepeatModeChanged(int);
-    method public void onSessionDestroyed();
-    method public void onSessionEvent(java.lang.String, android.os.Bundle);
-    method public void onSessionReady();
-    method public void onShuffleModeChanged(int);
-  }
-
-  public static final class MediaControllerCompat.PlaybackInfo {
-    method public int getAudioStream();
-    method public int getCurrentVolume();
-    method public int getMaxVolume();
-    method public int getPlaybackType();
-    method public int getVolumeControl();
-    field public static final int PLAYBACK_TYPE_LOCAL = 1; // 0x1
-    field public static final int PLAYBACK_TYPE_REMOTE = 2; // 0x2
-  }
-
-  public static abstract class MediaControllerCompat.TransportControls {
-    method public abstract void fastForward();
-    method public abstract void pause();
-    method public abstract void play();
-    method public abstract void playFromMediaId(java.lang.String, android.os.Bundle);
-    method public abstract void playFromSearch(java.lang.String, android.os.Bundle);
-    method public abstract void playFromUri(android.net.Uri, android.os.Bundle);
-    method public abstract void prepare();
-    method public abstract void prepareFromMediaId(java.lang.String, android.os.Bundle);
-    method public abstract void prepareFromSearch(java.lang.String, android.os.Bundle);
-    method public abstract void prepareFromUri(android.net.Uri, android.os.Bundle);
-    method public abstract void rewind();
-    method public abstract void seekTo(long);
-    method public abstract void sendCustomAction(android.support.v4.media.session.PlaybackStateCompat.CustomAction, android.os.Bundle);
-    method public abstract void sendCustomAction(java.lang.String, android.os.Bundle);
-    method public abstract void setCaptioningEnabled(boolean);
-    method public abstract void setRating(android.support.v4.media.RatingCompat);
-    method public abstract void setRating(android.support.v4.media.RatingCompat, android.os.Bundle);
-    method public abstract void setRepeatMode(int);
-    method public abstract void setShuffleMode(int);
-    method public abstract void skipToNext();
-    method public abstract void skipToPrevious();
-    method public abstract void skipToQueueItem(long);
-    method public abstract void stop();
-    field public static final java.lang.String EXTRA_LEGACY_STREAM_TYPE = "android.media.session.extra.LEGACY_STREAM_TYPE";
-  }
 
   public class MediaSessionCompat {
     ctor public MediaSessionCompat(android.content.Context, java.lang.String);
     ctor public MediaSessionCompat(android.content.Context, java.lang.String, android.content.ComponentName, android.app.PendingIntent);
     method public void addOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener);
     method public static android.support.v4.media.session.MediaSessionCompat fromMediaSession(android.content.Context, java.lang.Object);
-    method public android.support.v4.media.session.MediaControllerCompat getController();
+    method public androidx.media.session.MediaControllerCompat getController();
     method public java.lang.Object getMediaSession();
     method public java.lang.Object getRemoteControlClient();
     method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
@@ -444,7 +154,7 @@ package android.support.v4.media.session {
     method public void setMetadata(android.support.v4.media.MediaMetadataCompat);
     method public void setPlaybackState(android.support.v4.media.session.PlaybackStateCompat);
     method public void setPlaybackToLocal(int);
-    method public void setPlaybackToRemote(android.support.v4.media.VolumeProviderCompat);
+    method public void setPlaybackToRemote(androidx.media.VolumeProviderCompat);
     method public void setQueue(java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem>);
     method public void setQueueTitle(java.lang.CharSequence);
     method public void setRatingType(int);
@@ -643,6 +353,304 @@ package android.support.v4.media.session {
     ctor public PlaybackStateCompat.CustomAction.Builder(java.lang.String, java.lang.CharSequence, int);
     method public android.support.v4.media.session.PlaybackStateCompat.CustomAction build();
     method public android.support.v4.media.session.PlaybackStateCompat.CustomAction.Builder setExtras(android.os.Bundle);
+  }
+
+}
+
+package androidx.media {
+
+  public class AudioAttributesCompat {
+    method public int getContentType();
+    method public int getFlags();
+    method public int getLegacyStreamType();
+    method public int getUsage();
+    method public int getVolumeControlStream();
+    method public java.lang.Object unwrap();
+    method public static androidx.media.AudioAttributesCompat wrap(java.lang.Object);
+    field public static final int CONTENT_TYPE_MOVIE = 3; // 0x3
+    field public static final int CONTENT_TYPE_MUSIC = 2; // 0x2
+    field public static final int CONTENT_TYPE_SONIFICATION = 4; // 0x4
+    field public static final int CONTENT_TYPE_SPEECH = 1; // 0x1
+    field public static final int CONTENT_TYPE_UNKNOWN = 0; // 0x0
+    field public static final int FLAG_AUDIBILITY_ENFORCED = 1; // 0x1
+    field public static final int FLAG_HW_AV_SYNC = 16; // 0x10
+    field public static final int USAGE_ALARM = 4; // 0x4
+    field public static final int USAGE_ASSISTANCE_ACCESSIBILITY = 11; // 0xb
+    field public static final int USAGE_ASSISTANCE_NAVIGATION_GUIDANCE = 12; // 0xc
+    field public static final int USAGE_ASSISTANCE_SONIFICATION = 13; // 0xd
+    field public static final int USAGE_ASSISTANT = 16; // 0x10
+    field public static final int USAGE_GAME = 14; // 0xe
+    field public static final int USAGE_MEDIA = 1; // 0x1
+    field public static final int USAGE_NOTIFICATION = 5; // 0x5
+    field public static final int USAGE_NOTIFICATION_COMMUNICATION_DELAYED = 9; // 0x9
+    field public static final int USAGE_NOTIFICATION_COMMUNICATION_INSTANT = 8; // 0x8
+    field public static final int USAGE_NOTIFICATION_COMMUNICATION_REQUEST = 7; // 0x7
+    field public static final int USAGE_NOTIFICATION_EVENT = 10; // 0xa
+    field public static final int USAGE_NOTIFICATION_RINGTONE = 6; // 0x6
+    field public static final int USAGE_UNKNOWN = 0; // 0x0
+    field public static final int USAGE_VOICE_COMMUNICATION = 2; // 0x2
+    field public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING = 3; // 0x3
+  }
+
+  public static class AudioAttributesCompat.Builder {
+    ctor public AudioAttributesCompat.Builder();
+    ctor public AudioAttributesCompat.Builder(androidx.media.AudioAttributesCompat);
+    method public androidx.media.AudioAttributesCompat build();
+    method public androidx.media.AudioAttributesCompat.Builder setContentType(int);
+    method public androidx.media.AudioAttributesCompat.Builder setFlags(int);
+    method public androidx.media.AudioAttributesCompat.Builder setLegacyStreamType(int);
+    method public androidx.media.AudioAttributesCompat.Builder setUsage(int);
+  }
+
+  public final class MediaBrowserCompat {
+    ctor public MediaBrowserCompat(android.content.Context, android.content.ComponentName, androidx.media.MediaBrowserCompat.ConnectionCallback, android.os.Bundle);
+    method public void connect();
+    method public void disconnect();
+    method public android.os.Bundle getExtras();
+    method public void getItem(java.lang.String, androidx.media.MediaBrowserCompat.ItemCallback);
+    method public java.lang.String getRoot();
+    method public android.content.ComponentName getServiceComponent();
+    method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
+    method public boolean isConnected();
+    method public void search(java.lang.String, android.os.Bundle, androidx.media.MediaBrowserCompat.SearchCallback);
+    method public void sendCustomAction(java.lang.String, android.os.Bundle, androidx.media.MediaBrowserCompat.CustomActionCallback);
+    method public void subscribe(java.lang.String, androidx.media.MediaBrowserCompat.SubscriptionCallback);
+    method public void subscribe(java.lang.String, android.os.Bundle, androidx.media.MediaBrowserCompat.SubscriptionCallback);
+    method public void unsubscribe(java.lang.String);
+    method public void unsubscribe(java.lang.String, androidx.media.MediaBrowserCompat.SubscriptionCallback);
+    field public static final java.lang.String CUSTOM_ACTION_DOWNLOAD = "android.support.v4.media.action.DOWNLOAD";
+    field public static final java.lang.String CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE = "android.support.v4.media.action.REMOVE_DOWNLOADED_FILE";
+    field public static final java.lang.String EXTRA_DOWNLOAD_PROGRESS = "android.media.browse.extra.DOWNLOAD_PROGRESS";
+    field public static final java.lang.String EXTRA_MEDIA_ID = "android.media.browse.extra.MEDIA_ID";
+    field public static final java.lang.String EXTRA_PAGE = "android.media.browse.extra.PAGE";
+    field public static final java.lang.String EXTRA_PAGE_SIZE = "android.media.browse.extra.PAGE_SIZE";
+  }
+
+  public static class MediaBrowserCompat.ConnectionCallback {
+    ctor public MediaBrowserCompat.ConnectionCallback();
+    method public void onConnected();
+    method public void onConnectionFailed();
+    method public void onConnectionSuspended();
+  }
+
+  public static abstract class MediaBrowserCompat.CustomActionCallback {
+    ctor public MediaBrowserCompat.CustomActionCallback();
+    method public void onError(java.lang.String, android.os.Bundle, android.os.Bundle);
+    method public void onProgressUpdate(java.lang.String, android.os.Bundle, android.os.Bundle);
+    method public void onResult(java.lang.String, android.os.Bundle, android.os.Bundle);
+  }
+
+  public static abstract class MediaBrowserCompat.ItemCallback {
+    ctor public MediaBrowserCompat.ItemCallback();
+    method public void onError(java.lang.String);
+    method public void onItemLoaded(androidx.media.MediaBrowserCompat.MediaItem);
+  }
+
+  public static class MediaBrowserCompat.MediaItem implements android.os.Parcelable {
+    ctor public MediaBrowserCompat.MediaItem(android.support.v4.media.MediaDescriptionCompat, int);
+    method public int describeContents();
+    method public static androidx.media.MediaBrowserCompat.MediaItem fromMediaItem(java.lang.Object);
+    method public static java.util.List<androidx.media.MediaBrowserCompat.MediaItem> fromMediaItemList(java.util.List<?>);
+    method public android.support.v4.media.MediaDescriptionCompat getDescription();
+    method public int getFlags();
+    method public java.lang.String getMediaId();
+    method public boolean isBrowsable();
+    method public boolean isPlayable();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.media.MediaBrowserCompat.MediaItem> CREATOR;
+    field public static final int FLAG_BROWSABLE = 1; // 0x1
+    field public static final int FLAG_PLAYABLE = 2; // 0x2
+  }
+
+  public static abstract class MediaBrowserCompat.SearchCallback {
+    ctor public MediaBrowserCompat.SearchCallback();
+    method public void onError(java.lang.String, android.os.Bundle);
+    method public void onSearchResult(java.lang.String, android.os.Bundle, java.util.List<androidx.media.MediaBrowserCompat.MediaItem>);
+  }
+
+  public static abstract class MediaBrowserCompat.SubscriptionCallback {
+    ctor public MediaBrowserCompat.SubscriptionCallback();
+    method public void onChildrenLoaded(java.lang.String, java.util.List<androidx.media.MediaBrowserCompat.MediaItem>);
+    method public void onChildrenLoaded(java.lang.String, java.util.List<androidx.media.MediaBrowserCompat.MediaItem>, android.os.Bundle);
+    method public void onError(java.lang.String);
+    method public void onError(java.lang.String, android.os.Bundle);
+  }
+
+  public abstract class MediaBrowserServiceCompat extends android.app.Service {
+    ctor public MediaBrowserServiceCompat();
+    method public void dump(java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
+    method public final android.os.Bundle getBrowserRootHints();
+    method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
+    method public void notifyChildrenChanged(java.lang.String);
+    method public void notifyChildrenChanged(java.lang.String, android.os.Bundle);
+    method public android.os.IBinder onBind(android.content.Intent);
+    method public void onCustomAction(java.lang.String, android.os.Bundle, androidx.media.MediaBrowserServiceCompat.Result<android.os.Bundle>);
+    method public abstract androidx.media.MediaBrowserServiceCompat.BrowserRoot onGetRoot(java.lang.String, int, android.os.Bundle);
+    method public abstract void onLoadChildren(java.lang.String, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<androidx.media.MediaBrowserCompat.MediaItem>>);
+    method public void onLoadChildren(java.lang.String, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<androidx.media.MediaBrowserCompat.MediaItem>>, android.os.Bundle);
+    method public void onLoadItem(java.lang.String, androidx.media.MediaBrowserServiceCompat.Result<androidx.media.MediaBrowserCompat.MediaItem>);
+    method public void onSearch(java.lang.String, android.os.Bundle, androidx.media.MediaBrowserServiceCompat.Result<java.util.List<androidx.media.MediaBrowserCompat.MediaItem>>);
+    method public void setSessionToken(android.support.v4.media.session.MediaSessionCompat.Token);
+    field public static final java.lang.String SERVICE_INTERFACE = "android.media.browse.MediaBrowserService";
+  }
+
+  public static final class MediaBrowserServiceCompat.BrowserRoot {
+    ctor public MediaBrowserServiceCompat.BrowserRoot(java.lang.String, android.os.Bundle);
+    method public android.os.Bundle getExtras();
+    method public java.lang.String getRootId();
+    field public static final java.lang.String EXTRA_OFFLINE = "android.service.media.extra.OFFLINE";
+    field public static final java.lang.String EXTRA_RECENT = "android.service.media.extra.RECENT";
+    field public static final java.lang.String EXTRA_SUGGESTED = "android.service.media.extra.SUGGESTED";
+    field public static final deprecated java.lang.String EXTRA_SUGGESTION_KEYWORDS = "android.service.media.extra.SUGGESTION_KEYWORDS";
+  }
+
+  public static class MediaBrowserServiceCompat.Result<T> {
+    method public void detach();
+    method public void sendError(android.os.Bundle);
+    method public void sendProgressUpdate(android.os.Bundle);
+    method public void sendResult(T);
+  }
+
+  public abstract class VolumeProviderCompat {
+    ctor public VolumeProviderCompat(int, int, int);
+    method public final int getCurrentVolume();
+    method public final int getMaxVolume();
+    method public final int getVolumeControl();
+    method public java.lang.Object getVolumeProvider();
+    method public void onAdjustVolume(int);
+    method public void onSetVolumeTo(int);
+    method public void setCallback(androidx.media.VolumeProviderCompat.Callback);
+    method public final void setCurrentVolume(int);
+    field public static final int VOLUME_CONTROL_ABSOLUTE = 2; // 0x2
+    field public static final int VOLUME_CONTROL_FIXED = 0; // 0x0
+    field public static final int VOLUME_CONTROL_RELATIVE = 1; // 0x1
+  }
+
+  public static abstract class VolumeProviderCompat.Callback {
+    ctor public VolumeProviderCompat.Callback();
+    method public abstract void onVolumeChanged(androidx.media.VolumeProviderCompat);
+  }
+
+}
+
+package androidx.media.app {
+
+  public class NotificationCompat {
+  }
+
+  public static class NotificationCompat.DecoratedMediaCustomViewStyle extends androidx.media.app.NotificationCompat.MediaStyle {
+    ctor public NotificationCompat.DecoratedMediaCustomViewStyle();
+  }
+
+  public static class NotificationCompat.MediaStyle extends androidx.core.app.NotificationCompat.Style {
+    ctor public NotificationCompat.MediaStyle();
+    ctor public NotificationCompat.MediaStyle(androidx.core.app.NotificationCompat.Builder);
+    method public static android.support.v4.media.session.MediaSessionCompat.Token getMediaSession(android.app.Notification);
+    method public androidx.media.app.NotificationCompat.MediaStyle setCancelButtonIntent(android.app.PendingIntent);
+    method public androidx.media.app.NotificationCompat.MediaStyle setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token);
+    method public androidx.media.app.NotificationCompat.MediaStyle setShowActionsInCompactView(int...);
+    method public androidx.media.app.NotificationCompat.MediaStyle setShowCancelButton(boolean);
+  }
+
+}
+
+package androidx.media.session {
+
+  public class MediaButtonReceiver extends android.content.BroadcastReceiver {
+    ctor public MediaButtonReceiver();
+    method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, long);
+    method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, android.content.ComponentName, long);
+    method public static android.view.KeyEvent handleIntent(android.support.v4.media.session.MediaSessionCompat, android.content.Intent);
+    method public void onReceive(android.content.Context, android.content.Intent);
+  }
+
+  public final class MediaControllerCompat {
+    ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat);
+    ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token) throws android.os.RemoteException;
+    method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat, int);
+    method public void adjustVolume(int, int);
+    method public boolean dispatchMediaButtonEvent(android.view.KeyEvent);
+    method public android.os.Bundle getExtras();
+    method public long getFlags();
+    method public static androidx.media.session.MediaControllerCompat getMediaController(android.app.Activity);
+    method public java.lang.Object getMediaController();
+    method public android.support.v4.media.MediaMetadataCompat getMetadata();
+    method public java.lang.String getPackageName();
+    method public androidx.media.session.MediaControllerCompat.PlaybackInfo getPlaybackInfo();
+    method public android.support.v4.media.session.PlaybackStateCompat getPlaybackState();
+    method public java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem> getQueue();
+    method public java.lang.CharSequence getQueueTitle();
+    method public int getRatingType();
+    method public int getRepeatMode();
+    method public android.app.PendingIntent getSessionActivity();
+    method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
+    method public int getShuffleMode();
+    method public androidx.media.session.MediaControllerCompat.TransportControls getTransportControls();
+    method public boolean isCaptioningEnabled();
+    method public boolean isSessionReady();
+    method public void registerCallback(androidx.media.session.MediaControllerCompat.Callback);
+    method public void registerCallback(androidx.media.session.MediaControllerCompat.Callback, android.os.Handler);
+    method public void removeQueueItem(android.support.v4.media.MediaDescriptionCompat);
+    method public deprecated void removeQueueItemAt(int);
+    method public void sendCommand(java.lang.String, android.os.Bundle, android.os.ResultReceiver);
+    method public static void setMediaController(android.app.Activity, androidx.media.session.MediaControllerCompat);
+    method public void setVolumeTo(int, int);
+    method public void unregisterCallback(androidx.media.session.MediaControllerCompat.Callback);
+  }
+
+  public static abstract class MediaControllerCompat.Callback implements android.os.IBinder.DeathRecipient {
+    ctor public MediaControllerCompat.Callback();
+    method public void binderDied();
+    method public void onAudioInfoChanged(androidx.media.session.MediaControllerCompat.PlaybackInfo);
+    method public void onCaptioningEnabledChanged(boolean);
+    method public void onExtrasChanged(android.os.Bundle);
+    method public void onMetadataChanged(android.support.v4.media.MediaMetadataCompat);
+    method public void onPlaybackStateChanged(android.support.v4.media.session.PlaybackStateCompat);
+    method public void onQueueChanged(java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem>);
+    method public void onQueueTitleChanged(java.lang.CharSequence);
+    method public void onRepeatModeChanged(int);
+    method public void onSessionDestroyed();
+    method public void onSessionEvent(java.lang.String, android.os.Bundle);
+    method public void onSessionReady();
+    method public void onShuffleModeChanged(int);
+  }
+
+  public static final class MediaControllerCompat.PlaybackInfo {
+    method public int getAudioStream();
+    method public int getCurrentVolume();
+    method public int getMaxVolume();
+    method public int getPlaybackType();
+    method public int getVolumeControl();
+    field public static final int PLAYBACK_TYPE_LOCAL = 1; // 0x1
+    field public static final int PLAYBACK_TYPE_REMOTE = 2; // 0x2
+  }
+
+  public static abstract class MediaControllerCompat.TransportControls {
+    method public abstract void fastForward();
+    method public abstract void pause();
+    method public abstract void play();
+    method public abstract void playFromMediaId(java.lang.String, android.os.Bundle);
+    method public abstract void playFromSearch(java.lang.String, android.os.Bundle);
+    method public abstract void playFromUri(android.net.Uri, android.os.Bundle);
+    method public abstract void prepare();
+    method public abstract void prepareFromMediaId(java.lang.String, android.os.Bundle);
+    method public abstract void prepareFromSearch(java.lang.String, android.os.Bundle);
+    method public abstract void prepareFromUri(android.net.Uri, android.os.Bundle);
+    method public abstract void rewind();
+    method public abstract void seekTo(long);
+    method public abstract void sendCustomAction(android.support.v4.media.session.PlaybackStateCompat.CustomAction, android.os.Bundle);
+    method public abstract void sendCustomAction(java.lang.String, android.os.Bundle);
+    method public abstract void setCaptioningEnabled(boolean);
+    method public abstract void setRating(android.support.v4.media.RatingCompat);
+    method public abstract void setRating(android.support.v4.media.RatingCompat, android.os.Bundle);
+    method public abstract void setRepeatMode(int);
+    method public abstract void setShuffleMode(int);
+    method public abstract void skipToNext();
+    method public abstract void skipToPrevious();
+    method public abstract void skipToQueueItem(long);
+    method public abstract void stop();
+    field public static final java.lang.String EXTRA_LEGACY_STREAM_TYPE = "android.media.session.extra.LEGACY_STREAM_TYPE";
   }
 
 }
