@@ -54,11 +54,14 @@ class LoaderManagerImpl extends LoaderManager {
         private final @NonNull Loader<D> mLoader;
         private LifecycleOwner mLifecycleOwner;
         private LoaderObserver<D> mObserver;
+        private Loader<D> mPriorLoader;
 
-        LoaderInfo(int id, @Nullable Bundle args, @NonNull Loader<D> loader) {
+        LoaderInfo(int id, @Nullable Bundle args, @NonNull Loader<D> loader,
+                @Nullable Loader<D> priorLoader) {
             mId = id;
             mArgs = args;
             mLoader = loader;
+            mPriorLoader = priorLoader;
             mLoader.registerListener(id, this);
         }
 
@@ -133,8 +136,15 @@ class LoaderManagerImpl extends LoaderManager {
             mObserver = null;
         }
 
+        /**
+         * Destroys this LoaderInfo, its underlying {@link #getLoader() Loader}, and removes any
+         * existing {@link android.support.v4.app.LoaderManager.LoaderCallbacks}.
+         *
+         * @param reset Whether the LoaderCallbacks and Loader should be reset.
+         * @return When reset is false, returns any Loader that still needs to be reset
+         */
         @MainThread
-        void destroy() {
+        Loader<D> destroy(boolean reset) {
             if (DEBUG) Log.v(TAG, "  Destroying: " + this);
             // First tell the Loader that we don't need it anymore
             mLoader.cancelLoad();
@@ -143,11 +153,17 @@ class LoaderManagerImpl extends LoaderManager {
             LoaderObserver<D> observer = mObserver;
             if (observer != null) {
                 removeObserver(observer);
-                observer.reset();
+                if (reset) {
+                    observer.reset();
+                }
             }
-            // Finally, send the reset to the Loader
+            // Finally, clean up the Loader
             mLoader.unregisterListener(this);
-            mLoader.reset();
+            if ((observer != null && !observer.hasDeliveredData()) || reset) {
+                mLoader.reset();
+                return mPriorLoader;
+            }
+            return mLoader;
         }
 
         @Override
@@ -164,6 +180,16 @@ class LoaderManagerImpl extends LoaderManager {
                             + "background thread");
                 }
                 postValue(data);
+            }
+        }
+
+        @Override
+        public void setValue(D value) {
+            super.setValue(value);
+            // Now that the new data has arrived, we can reset any prior Loader
+            if (mPriorLoader != null) {
+                mPriorLoader.reset();
+                mPriorLoader = null;
             }
         }
 
@@ -304,7 +330,7 @@ class LoaderManagerImpl extends LoaderManager {
             int size = mLoaders.size();
             for (int index = 0; index < size; index++) {
                 LoaderInfo info = mLoaders.valueAt(index);
-                info.destroy();
+                info.destroy(true);
             }
             mLoaders.clear();
         }
@@ -337,7 +363,7 @@ class LoaderManagerImpl extends LoaderManager {
     @MainThread
     @NonNull
     private <D> Loader<D> createAndInstallLoader(int id, @Nullable Bundle args,
-            @NonNull LoaderCallbacks<D> callback) {
+            @NonNull LoaderCallbacks<D> callback, @Nullable Loader<D> priorLoader) {
         LoaderInfo<D> info;
         try {
             mCreatingLoader = true;
@@ -348,7 +374,7 @@ class LoaderManagerImpl extends LoaderManager {
                         + "must not be a non-static inner member class: "
                         + loader);
             }
-            info = new LoaderInfo<>(id, args, loader);
+            info = new LoaderInfo<>(id, args, loader, priorLoader);
             if (DEBUG) Log.v(TAG, "  Created new loader " + info);
             mLoaderViewModel.putLoader(id, info);
         } finally {
@@ -375,7 +401,7 @@ class LoaderManagerImpl extends LoaderManager {
 
         if (info == null) {
             // Loader doesn't already exist; create.
-            return createAndInstallLoader(id, args, callback);
+            return createAndInstallLoader(id, args, callback, null);
         } else {
             if (DEBUG) Log.v(TAG, "  Re-using existing loader " + info);
             return info.setCallback(mLifecycleOwner, callback);
@@ -395,10 +421,13 @@ class LoaderManagerImpl extends LoaderManager {
         }
 
         if (DEBUG) Log.v(TAG, "restartLoader in " + this + ": args=" + args);
-        // Destroy any existing Loader
-        destroyLoader(id);
+        LoaderInfo<D> info = mLoaderViewModel.getLoader(id);
+        Loader<D> priorLoader = null;
+        if (info != null) {
+            priorLoader = info.destroy(false);
+        }
         // And create a new Loader
-        return createAndInstallLoader(id, args, callback);
+        return createAndInstallLoader(id, args, callback, priorLoader);
     }
 
     @MainThread
@@ -414,7 +443,7 @@ class LoaderManagerImpl extends LoaderManager {
         if (DEBUG) Log.v(TAG, "destroyLoader in " + this + " of " + id);
         LoaderInfo info = mLoaderViewModel.getLoader(id);
         if (info != null) {
-            info.destroy();
+            info.destroy(true);
             mLoaderViewModel.removeLoader(id);
         }
     }
