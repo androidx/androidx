@@ -38,7 +38,6 @@ import static androidx.work.NetworkType.NOT_REQUIRED;
 import static androidx.work.State.BLOCKED;
 import static androidx.work.State.CANCELLED;
 import static androidx.work.State.ENQUEUED;
-import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
 import static androidx.work.State.SUCCEEDED;
 
@@ -797,43 +796,6 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1.getId()), is(nullValue()));
         assertThat(workSpecDao.getWorkSpec(work2.getId()), is(not(nullValue())));
-    }
-
-    @Test
-    @SmallTest
-    public void testGenerateCleanupCallback_deletesDanglingBlockedDependencies() {
-        Work work1 = new Work.Builder(TestWorker.class)
-                .withInitialState(FAILED)
-                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
-                .build();
-        Work work2 = new Work.Builder(TestWorker.class)
-                .withInitialState(BLOCKED)
-                .withPeriodStartTime(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
-                .build();
-        Work work3 = new Work.Builder(TestWorker.class)
-                .withInitialState(BLOCKED)
-                .withPeriodStartTime(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
-                .build();
-
-        insertWorkSpecAndTags(work1);
-        insertWorkSpecAndTags(work2);
-        insertWorkSpecAndTags(work3);
-
-        Dependency dependency21 = new Dependency(work2.getId(), work1.getId());
-        Dependency dependency32 = new Dependency(work3.getId(), work2.getId());
-
-        DependencyDao dependencyDao = mDatabase.dependencyDao();
-        dependencyDao.insertDependency(dependency21);
-        dependencyDao.insertDependency(dependency32);
-
-        SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
-        SupportSQLiteDatabase db = openHelper.getWritableDatabase();
-        WorkDatabase.generateCleanupCallback().onOpen(db);
-
-        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getWorkSpec(work1.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(work2.getId()), is(nullValue()));
-        assertThat(workSpecDao.getWorkSpec(work3.getId()), is(nullValue()));
     }
 
     private void insertWorkSpecAndTags(Work work) {

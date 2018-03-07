@@ -74,7 +74,7 @@ public class CancelWorkRunnable implements Runnable {
     }
 
     private void cancel(String workSpecId) {
-        recursivelyCancelWorkAndDependencies(workSpecId);
+        recursivelyCancelWorkAndDependents(workSpecId);
 
         Processor processor = mWorkManagerImpl.getProcessor();
         processor.stopWork(workSpecId, true);
@@ -85,13 +85,13 @@ public class CancelWorkRunnable implements Runnable {
         }
     }
 
-    private void recursivelyCancelWorkAndDependencies(String workSpecId) {
+    private void recursivelyCancelWorkAndDependents(String workSpecId) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         DependencyDao dependencyDao = mWorkDatabase.dependencyDao();
 
         List<String> dependentIds = dependencyDao.getDependentWorkIds(workSpecId);
         for (String id : dependentIds) {
-            recursivelyCancelWorkAndDependencies(id);
+            recursivelyCancelWorkAndDependents(id);
         }
 
         State state = workSpecDao.getState(workSpecId);

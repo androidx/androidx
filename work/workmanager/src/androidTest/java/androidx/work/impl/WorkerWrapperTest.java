@@ -357,6 +357,34 @@ public class WorkerWrapperTest extends DatabaseTest {
 
     @Test
     @SmallTest
+    public void testDependencies_failsUncancelledDependentsOnFailure() {
+        Work prerequisiteWork = new Work.Builder(FailureWorker.class).build();
+        Work work = new Work.Builder(TestWorker.class).withInitialState(BLOCKED).build();
+        Work cancelledWork = new Work.Builder(TestWorker.class).withInitialState(CANCELLED).build();
+        Dependency dependency1 = new Dependency(work.getId(), prerequisiteWork.getId());
+        Dependency dependency2 = new Dependency(cancelledWork.getId(), prerequisiteWork.getId());
+
+        mDatabase.beginTransaction();
+        try {
+            insertWork(prerequisiteWork);
+            insertWork(work);
+            insertWork(cancelledWork);
+            mDependencyDao.insertDependency(dependency1);
+            mDependencyDao.insertDependency(dependency2);
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            mDatabase.endTransaction();
+        }
+
+        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId()).build().run();
+
+        assertThat(mWorkSpecDao.getState(prerequisiteWork.getId()), is(FAILED));
+        assertThat(mWorkSpecDao.getState(work.getId()), is(FAILED));
+        assertThat(mWorkSpecDao.getState(cancelledWork.getId()), is(CANCELLED));
+    }
+
+    @Test
+    @SmallTest
     public void testRun_periodicWork_success_updatesPeriodStartTime() {
         long intervalDuration = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
         long periodStartTime = System.currentTimeMillis();

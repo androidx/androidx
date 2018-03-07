@@ -16,7 +16,6 @@
 
 package androidx.work.impl;
 
-import static androidx.work.impl.model.EnumTypeConverters.StateIds.BLOCKED;
 import static androidx.work.impl.model.EnumTypeConverters.StateIds.CANCELLED;
 import static androidx.work.impl.model.EnumTypeConverters.StateIds.ENQUEUED;
 import static androidx.work.impl.model.EnumTypeConverters.StateIds.FAILED;
@@ -63,9 +62,6 @@ public abstract class WorkDatabase extends RoomDatabase {
             + " WHERE state=" + RUNNING;
     private static final String PRUNE_SQL_PREFIX = "DELETE FROM workspec WHERE state IN ("
             + SUCCEEDED + ", " + FAILED + ", " + CANCELLED + ") AND period_start_time < ";
-    private static final String BLOCKED_WITHOUT_PREREQUISITES_WHERE_CLAUSE =
-            "state=" + BLOCKED + " AND id NOT IN "
-            + "(SELECT DISTINCT work_spec_id FROM dependency)";
 
     private static final long PRUNE_THRESHOLD_MILLIS = TimeUnit.DAYS.toMillis(7);
 
@@ -99,14 +95,6 @@ public abstract class WorkDatabase extends RoomDatabase {
 
                     // Delete everything that's finished and older than PRUNE_THRESHOLD_MILLIS.
                     db.execSQL(PRUNE_SQL_PREFIX + getPruneDate(), new Object[0]);
-                    // Keep deleting everything that's blocked but has no prerequisites (it had a
-                    // failed or cancelled prerequisite that got deleted in the above step).
-                    int deletedCount;
-                    do {
-                        deletedCount = db.delete("workspec",
-                                BLOCKED_WITHOUT_PREREQUISITES_WHERE_CLAUSE,
-                                null);
-                    } while (deletedCount > 0);
 
                     db.setTransactionSuccessful();
                 } finally {

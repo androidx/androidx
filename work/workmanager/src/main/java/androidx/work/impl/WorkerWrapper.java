@@ -205,8 +205,10 @@ public class WorkerWrapper implements Runnable {
     private void setFailedAndNotify() {
         mWorkDatabase.beginTransaction();
         try {
-            mWorkSpecDao.setState(FAILED, mWorkSpecId);
-            // This could be a permanent error where we couldn't find or create the worker class.
+            recursivelyFailWorkAndDependents(mWorkSpecId);
+
+            // Try to set the output for the failed work but check if the worker exists; this could
+            // be a permanent error where we couldn't find or create the worker class.
             if (mWorker != null) {
                 // Update Arguments as necessary.
                 Arguments outputArgs = mWorker.getOutput();
@@ -214,10 +216,23 @@ public class WorkerWrapper implements Runnable {
                     mWorkSpecDao.setOutput(mWorkSpecId, outputArgs);
                 }
             }
+
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
             notifyListener(false, false);
+        }
+    }
+
+    private void recursivelyFailWorkAndDependents(String workSpecId) {
+        List<String> dependentIds = mDependencyDao.getDependentWorkIds(workSpecId);
+        for (String id : dependentIds) {
+            recursivelyFailWorkAndDependents(id);
+        }
+
+        // Don't fail already cancelled work.
+        if (mWorkSpecDao.getState(workSpecId) != CANCELLED) {
+            mWorkSpecDao.setState(FAILED, workSpecId);
         }
     }
 
