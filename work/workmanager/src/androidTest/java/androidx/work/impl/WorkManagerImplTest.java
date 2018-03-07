@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.isIn;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -38,6 +39,7 @@ import static androidx.work.NetworkType.NOT_REQUIRED;
 import static androidx.work.State.BLOCKED;
 import static androidx.work.State.CANCELLED;
 import static androidx.work.State.ENQUEUED;
+import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
 import static androidx.work.State.SUCCEEDED;
 
@@ -87,6 +89,7 @@ import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
+import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.TestWorker;
 
 @RunWith(AndroidJUnit4.class)
@@ -214,9 +217,39 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work1.getId()), is(SUCCEEDED));
 
+        Work work2 = new Work.Builder(InfiniteTestWorker.class).build();
+        workContinuation.then(work2).enqueue();
+        assertThat(workSpecDao.getState(work2.getId()), isOneOf(ENQUEUED, RUNNING));
+    }
+
+    @Test
+    @SmallTest
+    public void testEnqueue_insertWithFailedDependencies_isStatusFailed() {
+        Work work1 = new Work.Builder(TestWorker.class).withInitialState(FAILED).build();
+
+        WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
+        workContinuation.enqueue();
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getState(work1.getId()), is(FAILED));
+
         Work work2 = new Work.Builder(TestWorker.class).build();
         workContinuation.then(work2).enqueue();
-        assertThat(workSpecDao.getState(work2.getId()), is(not(BLOCKED)));
+        assertThat(workSpecDao.getState(work2.getId()), is(FAILED));
+    }
+
+    @Test
+    @SmallTest
+    public void testEnqueue_insertWithCancelledDependencies_isStatusCancelled() {
+        Work work1 = new Work.Builder(TestWorker.class).withInitialState(CANCELLED).build();
+
+        WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
+        workContinuation.enqueue();
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
+
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        workContinuation.then(work2).enqueue();
+        assertThat(workSpecDao.getState(work2.getId()), is(CANCELLED));
     }
 
     @Test
