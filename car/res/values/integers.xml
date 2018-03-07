@@ -19,9 +19,6 @@ limitations under the License.
     <integer name="car_column_number">4</integer>
 
     <!-- Application Components -->
-    <!-- Action Bar -->
-    <integer name="action_bar_column_number">@integer/car_column_number</integer>
-
     <!-- Cards -->
     <integer name="column_card_default_column_span">4</integer>
 
@@ -56,4 +53,9 @@ limitations under the License.
 
     <!-- The amount of time for the speed bump background color to transition. -->
     <integer name="speed_bump_lock_out_color_change_ms">500</integer>
+
+    <!-- Action Bar animation durations -->
+    <integer name="car_action_bar_expand_anim_duration">333</integer>
+    <integer name="car_action_bar_collapse_anim_duration">233</integer>
+
 </resources>

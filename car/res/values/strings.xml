@@ -23,8 +23,13 @@ limitations under the License.
     <string name="car_drawer_close" translatable="false">Close drawer</string>
     <string name="ellipsis" translatable="false">&#8230;</string>
 
+    <!-- Speed Bump -->
     <!-- The message that is displayed to the user to inform them that they should focus on the
          task of driving. When this message is displayed, the user is also locked out from
          interacting with the current application. [CHAR_LIMIT=30] -->
     <string name="speed_bump_lockout_message">Focus on the road</string>
+
+    <!-- Action Bar -->
+    <!-- Content description for the 'Expand/Collapse' button [CHAR_LIMIT=50] -->
+    <string name="action_bar_expand_collapse_button">Expand/collapse button</string>
 </resources>
