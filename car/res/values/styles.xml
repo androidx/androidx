@@ -339,4 +339,17 @@ limitations under the License.
     <style name="Widget.Car.Dialog.Body.Dark">
         <item name="android:textAppearance">@style/TextAppearance.Car.Body2.Dark</item>
     </style>
+
+    <!-- ================ -->
+    <!-- ActionBar Themes -->
+    <!-- ================ -->
+    <eat-comment />
+
+    <!-- Styles for action buttons -->
+    <style name="Widget.Car.Button.ActionBar">
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:padding">@dimen/car_action_button_icon_inset</item>
+        <item name="android:background">@drawable/car_action_button_background</item>
+        <item name="android:tint">@color/car_tint</item>
+    </style>
 </resources>
