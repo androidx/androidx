@@ -31,7 +31,6 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
 
@@ -115,11 +114,13 @@ public class ActionContent {
     }
 
     /**
-     * @return the subtitle associated with this action.
+     * @return the content description associated with this action.
      */
     @Nullable
-    public SliceItem getContentDescriptionItem() {
-        return mContentDescItem;
+    public CharSequence getContentDescription() {
+        return mContentDescItem != null
+                ? mContentDescItem.getText()
+                : mTitleItem != null ? mTitleItem.getText() : null;
     }
 
     /**
