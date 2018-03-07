@@ -227,7 +227,7 @@ public class ListItemAdapter extends
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 frameLayout.setBackgroundColor(a.getColor(
                         R.styleable.ListItem_listItemBackgroundColor,
-                        R.color.car_card));
+                        mContext.getResources().getColor(R.color.car_card)));
 
                 container = frameLayout;
                 break;
@@ -241,7 +241,7 @@ public class ListItemAdapter extends
                 card.setRadius(mContext.getResources().getDimensionPixelSize(R.dimen.car_radius_1));
                 card.setCardBackgroundColor(a.getColor(
                         R.styleable.ListItem_listItemBackgroundColor,
-                        R.color.car_card));
+                        mContext.getResources().getColor(R.color.car_card)));
 
                 container = card;
                 break;
