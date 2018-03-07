@@ -17,6 +17,7 @@
 package androidx.work;
 
 import android.arch.persistence.room.TypeConverter;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import java.io.ByteArrayInputStream;
@@ -409,6 +410,20 @@ public final class Arguments {
          */
         public Builder putStringArray(String key, String[] value) {
             mValues.put(key, value);
+            return this;
+        }
+
+        /**
+         * Puts all input key-value pairs from the {@link Arguments} into the Builder.
+         * Any non-valid types will be logged and ignored.  Valid types are: Boolean, Integer,
+         * Long, Double, String, and array versions of each of those types.
+         * Any {@code null} values will also be ignored.
+         *
+         * @param values {@link Arguments} containing key-value pairs to add
+         * @return The {@link Builder}
+         */
+        public Builder putAll(@NonNull Arguments values) {
+            putAll(values.mValues);
             return this;
         }
 

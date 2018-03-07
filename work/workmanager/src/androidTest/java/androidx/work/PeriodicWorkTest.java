@@ -29,6 +29,8 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
 
+import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.workers.ConstraintTrackingWorker;
 import androidx.work.worker.TestWorker;
 
 @RunWith(AndroidJUnit4.class)
@@ -147,5 +149,79 @@ public class PeriodicWorkTest extends WorkManagerTest {
         assertThat(getWorkSpec(periodicWork).getIntervalDuration(),
                 is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
         assertThat(getWorkSpec(periodicWork).getFlexDuration(), is(testFlex));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    public void testBuild_withBatteryNotLowConstraint_expectsConstraintTrackingWorker() {
+        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
+        long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 123L;
+        PeriodicWork.Builder builder = new PeriodicWork.Builder(
+                TestWorker.class,
+                testInterval,
+                TimeUnit.MILLISECONDS,
+                testFlex,
+                TimeUnit.MILLISECONDS);
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresBatteryNotLow(true)
+                .build();
+
+        PeriodicWork work = builder.withConstraints(constraints).build();
+        WorkSpec workSpec = getWorkSpec(work);
+        String workerClassName = workSpec.getArguments().getString(
+                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null);
+
+        assertThat(workSpec.getWorkerClassName(), is(ConstraintTrackingWorker.class.getName()));
+        assertThat(workerClassName, is(TestWorker.class.getName()));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    public void testBuild_withStorageNotLowConstraint_expectsConstraintTrackingWorker() {
+        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
+        long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 123L;
+        PeriodicWork.Builder builder = new PeriodicWork.Builder(
+                TestWorker.class,
+                testInterval,
+                TimeUnit.MILLISECONDS,
+                testFlex,
+                TimeUnit.MILLISECONDS);
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresStorageNotLow(true)
+                .build();
+
+        PeriodicWork work = builder.withConstraints(constraints).build();
+        WorkSpec workSpec = getWorkSpec(work);
+        String workerClassName = workSpec.getArguments().getString(
+                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null);
+
+        assertThat(workSpec.getWorkerClassName(), is(ConstraintTrackingWorker.class.getName()));
+        assertThat(workerClassName, is(TestWorker.class.getName()));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    public void testBuild_withBatteryNotLowConstraintApi26() {
+        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
+        long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 123L;
+        PeriodicWork.Builder builder = new PeriodicWork.Builder(
+                TestWorker.class,
+                testInterval,
+                TimeUnit.MILLISECONDS,
+                testFlex,
+                TimeUnit.MILLISECONDS);
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresBatteryNotLow(true)
+                .build();
+
+        PeriodicWork work = builder.withConstraints(constraints).build();
+        WorkSpec workSpec = getWorkSpec(work);
+        assertThat(workSpec.getWorkerClassName(), is(TestWorker.class.getName()));
     }
 }

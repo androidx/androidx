@@ -16,6 +16,8 @@
 
 package androidx.work.impl;
 
+import static androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME;
+
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
@@ -33,6 +35,7 @@ import androidx.work.PeriodicWork;
 import androidx.work.State;
 import androidx.work.Worker;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.workers.ConstraintTrackingWorker;
 
 /**
  * A concrete implementation of {@link PeriodicWork}.
@@ -156,6 +159,26 @@ public class PeriodicWorkImpl extends PeriodicWork implements InternalWorkImpl {
                 throw new IllegalArgumentException(
                         "Cannot set backoff criteria on an idle mode job");
             }
+
+            // requiresBatteryNotLow and requiresStorageNotLow require API 26 for JobScheduler.
+            // Delegate to ConstraintTrackingWorker between API 23-26.
+
+            if (Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT < 26) {
+                Constraints constraints = mWorkSpec.getConstraints();
+                if (constraints != null
+                        && (constraints.requiresBatteryNotLow()
+                        || constraints.requiresStorageNotLow())) {
+
+                    String workerClassName = mWorkSpec.getWorkerClassName();
+                    Arguments.Builder builder = new Arguments.Builder();
+                    // Copy all arguments
+                    builder.putAll(mWorkSpec.getArguments())
+                            .putString(ARGUMENT_CLASS_NAME, workerClassName);
+                    mWorkSpec.setWorkerClassName(ConstraintTrackingWorker.class.getName());
+                    mWorkSpec.setArguments(builder.build());
+                }
+            }
+
             return new PeriodicWorkImpl(this);
         }
     }

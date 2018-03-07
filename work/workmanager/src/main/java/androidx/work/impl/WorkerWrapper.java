@@ -24,7 +24,9 @@ import static androidx.work.State.SUCCEEDED;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
@@ -68,6 +70,7 @@ public class WorkerWrapper implements Runnable {
         mWorkSpecId = builder.mWorkSpecId;
         mListener = builder.mListener;
         mSchedulers = builder.mSchedulers;
+        mWorker = builder.mWorker;
 
         mWorkDatabase = builder.mWorkDatabase;
         mWorkSpecDao = mWorkDatabase.workSpecDao();
@@ -107,8 +110,12 @@ public class WorkerWrapper implements Runnable {
             arguments = inputMerger.merge(inputs);
         }
 
+        // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
+        // in test mode.
+        if (mWorker == null) {
+            mWorker = workerFromWorkSpec(mAppContext, mWorkSpec, arguments);
+        }
 
-        mWorker = workerFromWorkSpec(mAppContext, mWorkSpec, arguments);
         if (mWorker == null) {
             Logger.error(TAG, "Could for create Worker %s", mWorkSpec.getWorkerClassName());
             setFailedAndNotify();
@@ -310,19 +317,40 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    @SuppressWarnings("ClassNewInstance")
     static Worker workerFromWorkSpec(@NonNull Context context,
             @NonNull WorkSpec workSpec,
             @NonNull Arguments arguments) {
-        Context appContext = context.getApplicationContext();
         String workerClassName = workSpec.getWorkerClassName();
+        String workSpecId = workSpec.getId();
+        return workerFromClassName(context, workerClassName, workSpecId, arguments);
+    }
+
+    /**
+     * Creates a {@link Worker} reflectively & initializes the worker.
+     *
+     * @param context         The application {@link Context}
+     * @param workerClassName The fully qualified class name for the {@link Worker}
+     * @param workSpecId      The {@link WorkSpec} identifier
+     * @param arguments       The {@link Arguments} for the worker
+     * @return The instance of {@link Worker}
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressWarnings("ClassNewInstance")
+    public static Worker workerFromClassName(
+            @NonNull Context context,
+            @NonNull String workerClassName,
+            @NonNull String workSpecId,
+            @NonNull Arguments arguments) {
+        Context appContext = context.getApplicationContext();
         try {
             Class<?> clazz = Class.forName(workerClassName);
             Worker worker = (Worker) clazz.newInstance();
             Method internalInitMethod = Worker.class.getDeclaredMethod(
                     "internalInit", Context.class, String.class, Arguments.class);
             internalInitMethod.setAccessible(true);
-            internalInitMethod.invoke(worker, appContext, workSpec.getId(), arguments);
+            internalInitMethod.invoke(worker, appContext, workSpecId, arguments);
             return worker;
         } catch (Exception e) {
             Log.e(TAG, "Trouble instantiating " + workerClassName, e);
@@ -332,15 +360,19 @@ public class WorkerWrapper implements Runnable {
 
     /**
      * Builder class for {@link WorkerWrapper}
+     * @hide
      */
-    static class Builder {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static class Builder {
         private Context mAppContext;
+        @Nullable
+        private Worker mWorker;
         private WorkDatabase mWorkDatabase;
         private String mWorkSpecId;
         private ExecutionListener mListener;
         private List<Scheduler> mSchedulers;
 
-        Builder(@NonNull Context context,
+        public Builder(@NonNull Context context,
                 @NonNull WorkDatabase database,
                 @NonNull String workSpecId) {
             mAppContext = context.getApplicationContext();
@@ -348,17 +380,40 @@ public class WorkerWrapper implements Runnable {
             mWorkSpecId = workSpecId;
         }
 
-        Builder withListener(ExecutionListener listener) {
+        /**
+         * @param listener The {@link ExecutionListener} which gets notified on completion of the
+         *                 {@link Worker} with the given {@code workSpecId}.
+         * @return The instance of {@link Builder} for chaining.
+         */
+        public Builder withListener(ExecutionListener listener) {
             mListener = listener;
             return this;
         }
 
-        Builder withSchedulers(List<Scheduler> schedulers) {
+        /**
+         * @param schedulers The list of {@link Scheduler}'s used for scheduling {@link Worker}'s.
+         * @return The instance of {@link Builder} for chaining.
+         */
+        public Builder withSchedulers(List<Scheduler> schedulers) {
             mSchedulers = schedulers;
             return this;
         }
 
-        WorkerWrapper build() {
+        /**
+         * @param worker The instance of {@link Worker} to be executed by {@link WorkerWrapper}.
+         *               Useful in the context of testing.
+         * @return The instance of {@link Builder} for chaining.
+         */
+        @VisibleForTesting
+        public Builder withWorker(Worker worker) {
+            mWorker = worker;
+            return this;
+        }
+
+        /**
+         * @return The instance of {@link WorkerWrapper}.
+         */
+        public WorkerWrapper build() {
             return new WorkerWrapper(this);
         }
     }
