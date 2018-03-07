@@ -54,8 +54,11 @@ package androidx.slice.builders {
     ctor public ListBuilder.HeaderBuilder(androidx.slice.builders.ListBuilder);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setSubtitle(java.lang.CharSequence);
+    method public androidx.slice.builders.ListBuilder.HeaderBuilder setSubtitle(java.lang.CharSequence, boolean);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setSummarySubtitle(java.lang.CharSequence);
+    method public androidx.slice.builders.ListBuilder.HeaderBuilder setSummarySubtitle(java.lang.CharSequence, boolean);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setTitle(java.lang.CharSequence);
+    method public androidx.slice.builders.ListBuilder.HeaderBuilder setTitle(java.lang.CharSequence, boolean);
   }
 
   public static class ListBuilder.InputRangeBuilder extends androidx.slice.builders.TemplateSliceBuilder {

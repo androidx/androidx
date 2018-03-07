@@ -24,15 +24,15 @@ import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
+
+import java.util.function.Consumer;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-
-import java.util.function.Consumer;
-
 import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.ListBuilderBasicImpl;
 import androidx.slice.builders.impl.ListBuilderV1Impl;
@@ -819,7 +819,15 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public HeaderBuilder setTitle(@NonNull CharSequence title) {
-            mImpl.setTitle(title);
+            return setTitle(title, false /* isLoading */);
+        }
+
+        /**
+         * Sets the title to be shown in this header.
+         */
+        @NonNull
+        public HeaderBuilder setTitle(@NonNull CharSequence title, boolean isLoading) {
+            mImpl.setTitle(title, isLoading);
             return this;
         }
 
@@ -828,7 +836,15 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public HeaderBuilder setSubtitle(@NonNull CharSequence subtitle) {
-            mImpl.setSubtitle(subtitle);
+            return setSubtitle(subtitle, false /* isLoading */);
+        }
+
+        /**
+         * Sets the subtitle to be shown in this header.
+         */
+        @NonNull
+        public HeaderBuilder setSubtitle(@NonNull CharSequence subtitle, boolean isLoading) {
+            mImpl.setSubtitle(subtitle, isLoading);
             return this;
         }
 
@@ -839,7 +855,18 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public HeaderBuilder setSummarySubtitle(@NonNull CharSequence summarySubtitle) {
-            mImpl.setSummarySubtitle(summarySubtitle);
+            return setSummarySubtitle(summarySubtitle, false /* isLoading */);
+        }
+
+        /**
+         * Sets the summary subtitle to be shown in this header. If unset, the normal subtitle
+         * will be used. The summary is used when the parent template is presented in a
+         * small format.
+         */
+        @NonNull
+        public HeaderBuilder setSummarySubtitle(@NonNull CharSequence summarySubtitle,
+                boolean isLoading) {
+            mImpl.setSummarySubtitle(summarySubtitle, isLoading);
             return this;
         }
 

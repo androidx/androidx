@@ -31,13 +31,14 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
 import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
+import android.util.SparseArray;
 
 import java.util.Calendar;
 
+import androidx.annotation.NonNull;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
 import androidx.slice.builders.GridBuilder;
@@ -60,11 +61,9 @@ public class SampleSliceProvider extends SliceProvider {
     public static final String ACTION_TOAST_RANGE_VALUE =
             "com.example.androidx.slice.action.TOAST_RANGE_VALUE";
 
-    public static final int LOADING_DELAY_MS = 4000;
-
     public static final String[] URI_PATHS = {"message", "wifi", "note", "ride", "toggle",
-            "toggle2", "contact", "gallery", "weather", "reservation", "loadlist", "loadlist2",
-            "loadgrid", "loadgrid2", "inputrange", "range", "contact2", "subscription"};
+            "toggle2", "contact", "gallery", "weather", "reservation", "loadlist", "loadgrid",
+            "inputrange", "range", "contact2", "subscription"};
 
     /**
      * @return Uri with the provided path
@@ -91,6 +90,14 @@ public class SampleSliceProvider extends SliceProvider {
     @Override
     public Slice onBindSlice(Uri sliceUri) {
         String path = sliceUri.getPath();
+        if (!path.equals("/loadlist")) {
+            mListSummaries.clear();
+            mListLastUpdate = 0;
+        }
+        if (!path.equals("/loadgrid")) {
+            mGridSummaries.clear();
+            mGridLastUpdate = 0;
+        }
         switch (path) {
             // TODO: add list / grid slices with 'see more' options
             case "/message":
@@ -116,13 +123,9 @@ public class SampleSliceProvider extends SliceProvider {
             case "/reservation":
                 return createReservationSlice(sliceUri);
             case "/loadlist":
-                return createLoadingSlice(sliceUri, false /* loadAll */, true /* isList */);
-            case "/loadlist2":
-                return createLoadingSlice(sliceUri, true /* loadAll */, true /* isList */);
+                return createLoadingListSlice(sliceUri);
             case "/loadgrid":
-                return createLoadingSlice(sliceUri, false /* loadAll */, false /* isList */);
-            case "/loadgrid2":
-                return createLoadingSlice(sliceUri, true /* loadAll */, false /* isList */);
+                return createLoadingGridSlice(sliceUri);
             case "/inputrange":
                 return createStarRatingInputRange(sliceUri);
             case "/range":
@@ -530,90 +533,84 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Handler mHandler = new Handler();
-    private Runnable mLoader;
-    private boolean mLoaded = false;
+    private SparseArray<String> mListSummaries = new SparseArray<>();
+    private long mListLastUpdate;
+    private SparseArray<String> mGridSummaries = new SparseArray<>();
+    private long mGridLastUpdate;
 
-    private Slice createLoadingSlice(Uri sliceUri, boolean loadAll, boolean isList) {
-        if (!mLoaded || mLoader != null) {
-            // Need to load content or we're still loading so just return partial
-            if (!mLoaded) {
-                mLoader = () -> {
-                    // Note that we've loaded things
-                    mLoader = null;
-                    mLoaded = true;
-                    // Notify to update the slice
-                    getContext().getContentResolver().notifyChange(sliceUri, null);
-                };
-                mHandler.postDelayed(mLoader, LOADING_DELAY_MS);
-            }
-            if (loadAll) {
-                return new ListBuilder(getContext(), sliceUri).build();
-            }
-            return createPartialSlice(sliceUri, true, isList);
-        } else {
-            mLoaded = false;
-            return createPartialSlice(sliceUri, false, isList);
+    private void update(long delay, SparseArray<String> summaries, int id, String s, Uri uri,
+            Runnable r) {
+        mHandler.postDelayed(() -> {
+            summaries.put(id, s);
+            getContext().getContentResolver().notifyChange(uri, null);
+            r.run();
+        }, delay);
+    }
+
+    private Slice createLoadingListSlice(Uri sliceUri) {
+        boolean updating = mListLastUpdate == 0
+                || mListLastUpdate < (System.currentTimeMillis() - 10 * System.currentTimeMillis());
+        if (updating) {
+            Runnable r = () -> mListLastUpdate = System.currentTimeMillis();
+            update(1000, mListSummaries, 0, "44 miles | 1 hour 45 min | $31.41", sliceUri, r);
+            update(1500, mListSummaries, 1, "12 miles | 12 min | $9.00", sliceUri, r);
+            update(1700, mListSummaries, 2, "5 miles | 10 min | $8.00", sliceUri, r);
         }
+        Slice s = new ListBuilder(getContext(), sliceUri)
+                .addRow(b -> b
+                        .setTitle("Work")
+                        .setSubtitle(mListSummaries.get(0, ""), updating)
+                        .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_work),
+                                ICON_IMAGE))
+                .addRow(b -> b
+                        .setTitle("Home")
+                        .setSubtitle(mListSummaries.get(1, ""), updating)
+                        .addEndItem(
+                                Icon.createWithResource(getContext(), R.drawable.ic_home),
+                                ICON_IMAGE))
+                .addRow(b -> b
+                        .setTitle("School")
+                        .setSubtitle(mListSummaries.get(2, ""), updating)
+                        .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_school),
+                                ICON_IMAGE))
+                .build();
+        return s;
     }
 
-    private Slice createPartialSlice(Uri sliceUri, boolean isPartial, boolean isList) {
-        Icon icon = Icon.createWithResource(getContext(), R.drawable.ic_star_on);
-        PendingIntent intent = getBroadcastIntent(ACTION_TOAST, "star tapped");
-        PendingIntent intent2 = getBroadcastIntent(ACTION_TOAST, "toggle tapped");
-        if (isPartial) {
-            if (isList) {
-                return new ListBuilder(getContext(), sliceUri)
-                        .addRow(b -> createRow(b, "Slice that has content to load",
-                                "Temporary subtitle", icon, intent, true))
-                        .addRow(b -> createRow(b, null, null, null, intent, true))
-                        .addRow(b -> b
-                                .setTitle("My title")
-                                .addEndItem(new SliceAction(intent2, "Some action",
-                                        false /* isChecked */),
-                                        true /* isLoading */))
-                        .build();
-            } else {
-                return new ListBuilder(getContext(), sliceUri).addGrid(gb -> gb
-                        .addCell(b -> createCell(b, null, null, null, true))
-                        .addCell(b -> createCell(b, "Two stars", null, icon, true))
-                        .addCell(b -> createCell(b, null, null, null, true)))
-                        .build();
-            }
-        } else {
-            if (isList) {
-                return new ListBuilder(getContext(), sliceUri)
-                        .addRow(b -> createRow(b, "Slice that has content to load",
-                                "Subtitle loaded", icon, intent, false))
-                        .addRow(b -> createRow(b, "Loaded row", "Loaded subtitle",
-                                icon, intent, false))
-                        .addRow(b -> b
-                                .setTitle("My title")
-                                .addEndItem(new SliceAction(intent2, "Some action",
-                                                false /* isChecked */)))
-                        .build();
-            } else {
-                return new ListBuilder(getContext(), sliceUri).addGrid(gb -> gb
-                        .addCell(b -> createCell(b, "One star", "meh", icon, false))
-                        .addCell(b -> createCell(b, "Two stars", "good", icon, false))
-                        .addCell(b -> createCell(b, "Three stars", "best", icon, false)))
-                        .build();
-            }
+    private Slice createLoadingGridSlice(Uri sliceUri) {
+        boolean updating = mGridLastUpdate == 0
+                || mGridLastUpdate < (System.currentTimeMillis() - 10 * System.currentTimeMillis());
+        if (updating) {
+            Runnable r = () -> mGridLastUpdate = System.currentTimeMillis();
+            update(2000, mGridSummaries, 0, "Heavy traffic in your area", sliceUri, r);
+            update(3500, mGridSummaries, 1, "Typical conditions with delays up to 28 min",
+                    sliceUri, r);
+            update(3000, mGridSummaries, 2, "41 min", sliceUri, r);
+            update(1500, mGridSummaries, 3, "33 min", sliceUri, r);
+            update(1000, mGridSummaries, 4, "12 min", sliceUri, r);
         }
-    }
-
-    private ListBuilder.RowBuilder createRow(ListBuilder.RowBuilder rb, String title,
-            String subtitle, Icon icon, PendingIntent content, boolean isLoading) {
-        SliceAction primaryAction = new SliceAction(content, icon, title);
-        return rb.setTitle(title, isLoading)
-          .setSubtitle(subtitle, isLoading)
-          .addEndItem(icon, isLoading)
-          .setPrimaryAction(primaryAction);
-    }
-
-    private GridBuilder.CellBuilder createCell(GridBuilder.CellBuilder cb, String text1,
-            String text2, Icon icon, boolean isLoading) {
-        return cb.addText(text1, isLoading).addText(text2, isLoading).addImage(icon,
-                SMALL_IMAGE, isLoading);
+        Slice s = new ListBuilder(getContext(), sliceUri)
+                .setHeader(hb -> hb
+                        .setTitle(mGridSummaries.get(0, ""), updating)
+                        .setSubtitle(mGridSummaries.get(1, ""), updating))
+                .addGrid(gb -> gb
+                    .addCell(cb -> cb
+                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_home),
+                                    ICON_IMAGE)
+                            .addTitleText("Home")
+                            .addText(mGridSummaries.get(2, ""), updating))
+                    .addCell(cb -> cb
+                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_work),
+                                    ICON_IMAGE)
+                            .addTitleText("Work")
+                            .addText(mGridSummaries.get(3, ""), updating))
+                    .addCell(cb -> cb
+                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_school),
+                                    ICON_IMAGE)
+                            .addTitleText("School")
+                            .addText(mGridSummaries.get(4, ""), updating)))
+                    .build();
+        return s;
     }
 
     private PendingIntent getIntent(String action) {

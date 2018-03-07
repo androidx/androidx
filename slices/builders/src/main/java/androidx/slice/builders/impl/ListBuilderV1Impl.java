@@ -27,8 +27,8 @@ import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
@@ -38,13 +38,13 @@ import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceSpec;
@@ -495,9 +495,9 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     public static class HeaderBuilderImpl extends TemplateBuilderImpl
             implements ListBuilder.HeaderBuilder {
 
-        private CharSequence mTitle;
-        private CharSequence mSubtitle;
-        private CharSequence mSummarySubtitle;
+        private SliceItem mTitleItem;
+        private SliceItem mSubtitleItem;
+        private SliceItem mSummaryItem;
         private SliceAction mPrimaryAction;
 
         /**
@@ -516,14 +516,14 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
          */
         @Override
         public void apply(Slice.Builder b) {
-            if (mTitle != null) {
-                b.addText(mTitle, null /* subtype */, HINT_TITLE);
+            if (mTitleItem != null) {
+                b.addItem(mTitleItem);
             }
-            if (mSubtitle != null) {
-                b.addText(mSubtitle, null /* subtype */);
+            if (mSubtitleItem != null) {
+                b.addItem(mSubtitleItem);
             }
-            if (mSummarySubtitle != null) {
-                b.addText(mSummarySubtitle, null /* subtype */, HINT_SUMMARY);
+            if (mSummaryItem != null) {
+                b.addItem(mSummaryItem);
             }
             if (mPrimaryAction != null) {
                 Slice.Builder sb = new Slice.Builder(
@@ -535,22 +535,32 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         /**
          */
         @Override
-        public void setTitle(CharSequence title) {
-            mTitle = title;
+        public void setTitle(CharSequence title, boolean isLoading) {
+            mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});
+            if (isLoading) {
+                mTitleItem.addHint(HINT_PARTIAL);
+            }
         }
 
         /**
          */
         @Override
-        public void setSubtitle(CharSequence subtitle) {
-            mSubtitle = subtitle;
+        public void setSubtitle(CharSequence subtitle, boolean isLoading) {
+            mSubtitleItem = new SliceItem(subtitle, FORMAT_TEXT, null, new String[0]);
+            if (isLoading) {
+                mSubtitleItem.addHint(HINT_PARTIAL);
+            }
         }
 
         /**
          */
         @Override
-        public void setSummarySubtitle(CharSequence summarySubtitle) {
-            mSummarySubtitle = summarySubtitle;
+        public void setSummarySubtitle(CharSequence summarySubtitle, boolean isLoading) {
+            mSummaryItem = new SliceItem(summarySubtitle, FORMAT_TEXT, null,
+                    new String[] {HINT_SUMMARY});
+            if (isLoading) {
+                mSummaryItem.addHint(HINT_PARTIAL);
+            }
         }
 
         /**

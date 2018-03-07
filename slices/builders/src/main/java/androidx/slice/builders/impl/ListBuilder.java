@@ -21,10 +21,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import androidx.slice.builders.SliceAction;
 
 /**
@@ -292,19 +292,19 @@ public interface ListBuilder {
         /**
          * Sets the title to be shown in this header.
          */
-        void setTitle(CharSequence title);
+        void setTitle(CharSequence title, boolean isLoading);
 
         /**
          * Sets the subtitle to be shown in this header.
          */
-        void setSubtitle(CharSequence subtitle);
+        void setSubtitle(CharSequence subtitle, boolean isLoading);
 
         /**
          * Sets the summary subtitle to be shown in this header. If unset, the normal subtitle
          * will be used. The summary is used when the parent template is presented in a
          * small format.
          */
-        void setSummarySubtitle(CharSequence summarySubtitle);
+        void setSummarySubtitle(CharSequence summarySubtitle, boolean isLoading);
 
         /**
          * Sets the action to invoke when the header is activated.
