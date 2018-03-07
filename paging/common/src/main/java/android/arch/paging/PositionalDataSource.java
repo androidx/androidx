@@ -84,7 +84,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
          */
         public final boolean placeholdersEnabled;
 
-        LoadInitialParams(
+        public LoadInitialParams(
                 int requestedStartPosition,
                 int requestedLoadSize,
                 int pageSize,
@@ -114,7 +114,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
          */
         public final int loadSize;
 
-        LoadRangeParams(int startPosition, int loadSize) {
+        public LoadRangeParams(int startPosition, int loadSize) {
             this.startPosition = startPosition;
             this.loadSize = loadSize;
         }
@@ -124,7 +124,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
      * Callback for {@link #loadInitial(LoadInitialParams, LoadInitialCallback)}
      * to return data, position, and count.
      * <p>
-     * A callback can be called only once, and will throw if called again.
+     * A callback should be called only once, and may throw if called again.
      * <p>
      * It is always valid for a DataSource loading method that takes a callback to stash the
      * callback and call it later. This enables DataSources to be fully asynchronous, and to handle
@@ -132,20 +132,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
      *
      * @param <T> Type of items being loaded.
      */
-    public static class LoadInitialCallback<T> extends BaseLoadCallback<T> {
-        private final boolean mCountingEnabled;
-        private final int mPageSize;
-
-        LoadInitialCallback(@NonNull PositionalDataSource dataSource, boolean countingEnabled,
-                int pageSize, PageResult.Receiver<T> receiver) {
-            super(dataSource, PageResult.INIT, null, receiver);
-            mCountingEnabled = countingEnabled;
-            mPageSize = pageSize;
-            if (mPageSize < 1) {
-                throw new IllegalArgumentException("Page size must be non-negative");
-            }
-        }
-
+    public abstract static class LoadInitialCallback<T> {
         /**
          * Called to pass initial load state from a DataSource.
          * <p>
@@ -166,27 +153,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
          *                   as well as any items that can be loaded in front or behind of
          *                   {@code data}.
          */
-        public void onResult(@NonNull List<T> data, int position, int totalCount) {
-            if (!dispatchInvalidResultIfInvalid()) {
-                validateInitialLoadParams(data, position, totalCount);
-                if (position + data.size() != totalCount
-                        && data.size() % mPageSize != 0) {
-                    throw new IllegalArgumentException("PositionalDataSource requires initial load"
-                            + " size to be a multiple of page size to support internal tiling."
-                            + " loadSize " + data.size() + ", position " + position
-                            + ", totalCount " + totalCount + ", pageSize " + mPageSize);
-                }
-
-                if (mCountingEnabled) {
-                    int trailingUnloadedCount = totalCount - position - data.size();
-                    dispatchResultToReceiver(
-                            new PageResult<>(data, position, trailingUnloadedCount, 0));
-                } else {
-                    // Only occurs when wrapped as contiguous
-                    dispatchResultToReceiver(new PageResult<>(data, position));
-                }
-            }
-        }
+        public abstract void onResult(@NonNull List<T> data, int position, int totalCount);
 
         /**
          * Called to pass initial load state from a DataSource without total count,
@@ -204,9 +171,72 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
          *                 items before the items in data that can be provided by this DataSource,
          *                 pass {@code N}.
          */
-        @SuppressWarnings("WeakerAccess")
+        public abstract void onResult(@NonNull List<T> data, int position);
+    }
+
+    /**
+     * Callback for PositionalDataSource {@link #loadRange(LoadRangeParams, LoadRangeCallback)}
+     * to return data.
+     * <p>
+     * A callback should be called only once, and may throw if called again.
+     * <p>
+     * It is always valid for a DataSource loading method that takes a callback to stash the
+     * callback and call it later. This enables DataSources to be fully asynchronous, and to handle
+     * temporary, recoverable error states (such as a network error that can be retried).
+     *
+     * @param <T> Type of items being loaded.
+     */
+    public abstract static class LoadRangeCallback<T> {
+        /**
+         * Called to pass loaded data from {@link #loadRange(LoadRangeParams, LoadRangeCallback)}.
+         *
+         * @param data List of items loaded from the DataSource. Must be same size as requested,
+         *             unless at end of list.
+         */
+        public abstract void onResult(@NonNull List<T> data);
+    }
+
+    static class LoadInitialCallbackImpl<T> extends LoadInitialCallback<T> {
+        final LoadCallbackHelper<T> mCallbackHelper;
+        private final boolean mCountingEnabled;
+        private final int mPageSize;
+
+        LoadInitialCallbackImpl(@NonNull PositionalDataSource dataSource, boolean countingEnabled,
+                int pageSize, PageResult.Receiver<T> receiver) {
+            mCallbackHelper = new LoadCallbackHelper<>(dataSource, PageResult.INIT, null, receiver);
+            mCountingEnabled = countingEnabled;
+            mPageSize = pageSize;
+            if (mPageSize < 1) {
+                throw new IllegalArgumentException("Page size must be non-negative");
+            }
+        }
+
+        @Override
+        public void onResult(@NonNull List<T> data, int position, int totalCount) {
+            if (!mCallbackHelper.dispatchInvalidResultIfInvalid()) {
+                LoadCallbackHelper.validateInitialLoadParams(data, position, totalCount);
+                if (position + data.size() != totalCount
+                        && data.size() % mPageSize != 0) {
+                    throw new IllegalArgumentException("PositionalDataSource requires initial load"
+                            + " size to be a multiple of page size to support internal tiling."
+                            + " loadSize " + data.size() + ", position " + position
+                            + ", totalCount " + totalCount + ", pageSize " + mPageSize);
+                }
+
+                if (mCountingEnabled) {
+                    int trailingUnloadedCount = totalCount - position - data.size();
+                    mCallbackHelper.dispatchResultToReceiver(
+                            new PageResult<>(data, position, trailingUnloadedCount, 0));
+                } else {
+                    // Only occurs when wrapped as contiguous
+                    mCallbackHelper.dispatchResultToReceiver(new PageResult<>(data, position));
+                }
+            }
+        }
+
+        @Override
         public void onResult(@NonNull List<T> data, int position) {
-            if (!dispatchInvalidResultIfInvalid()) {
+            if (!mCallbackHelper.dispatchInvalidResultIfInvalid()) {
                 if (position < 0) {
                     throw new IllegalArgumentException("Position must be non-negative");
                 }
@@ -219,41 +249,26 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
                             + " provided. Please call the three-parameter onResult method, or"
                             + " disable placeholders in the PagedList.Config");
                 }
-                dispatchResultToReceiver(new PageResult<>(data, position));
+                mCallbackHelper.dispatchResultToReceiver(new PageResult<>(data, position));
             }
         }
     }
 
-    /**
-     * Callback for PositionalDataSource {@link #loadRange(LoadRangeParams, LoadRangeCallback)}
-     * to return data.
-     * <p>
-     * A callback can be called only once, and will throw if called again.
-     * <p>
-     * It is always valid for a DataSource loading method that takes a callback to stash the
-     * callback and call it later. This enables DataSources to be fully asynchronous, and to handle
-     * temporary, recoverable error states (such as a network error that can be retried).
-     *
-     * @param <T> Type of items being loaded.
-     */
-    public static class LoadRangeCallback<T> extends BaseLoadCallback<T> {
+    static class LoadRangeCallbackImpl<T> extends LoadRangeCallback<T> {
+        private LoadCallbackHelper<T> mCallbackHelper;
         private final int mPositionOffset;
-        LoadRangeCallback(@NonNull PositionalDataSource dataSource,
+        LoadRangeCallbackImpl(@NonNull PositionalDataSource dataSource,
                 @PageResult.ResultType int resultType, int positionOffset,
                 Executor mainThreadExecutor, PageResult.Receiver<T> receiver) {
-            super(dataSource, resultType, mainThreadExecutor, receiver);
+            mCallbackHelper = new LoadCallbackHelper<>(
+                    dataSource, resultType, mainThreadExecutor, receiver);
             mPositionOffset = positionOffset;
         }
 
-        /**
-         * Called to pass loaded data from {@link #loadRange(LoadRangeParams, LoadRangeCallback)}.
-         *
-         * @param data List of items loaded from the DataSource. Must be same size as requested,
-         *             unless at end of list.
-         */
+        @Override
         public void onResult(@NonNull List<T> data) {
-            if (!dispatchInvalidResultIfInvalid()) {
-                dispatchResultToReceiver(new PageResult<>(
+            if (!mCallbackHelper.dispatchInvalidResultIfInvalid()) {
+                mCallbackHelper.dispatchResultToReceiver(new PageResult<>(
                         data, 0, 0, mPositionOffset));
             }
         }
@@ -262,8 +277,8 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
     final void dispatchLoadInitial(boolean acceptCount,
             int requestedStartPosition, int requestedLoadSize, int pageSize,
             @NonNull Executor mainThreadExecutor, @NonNull PageResult.Receiver<T> receiver) {
-        LoadInitialCallback<T> callback =
-                new LoadInitialCallback<>(this, acceptCount, pageSize, receiver);
+        LoadInitialCallbackImpl<T> callback =
+                new LoadInitialCallbackImpl<>(this, acceptCount, pageSize, receiver);
 
         LoadInitialParams params = new LoadInitialParams(
                 requestedStartPosition, requestedLoadSize, pageSize, acceptCount);
@@ -272,13 +287,13 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
         // If initialLoad's callback is not called within the body, we force any following calls
         // to post to the UI thread. This constructor may be run on a background thread, but
         // after constructor, mutation must happen on UI thread.
-        callback.setPostExecutor(mainThreadExecutor);
+        callback.mCallbackHelper.setPostExecutor(mainThreadExecutor);
     }
 
     final void dispatchLoadRange(@PageResult.ResultType int resultType, int startPosition,
             int count, @NonNull Executor mainThreadExecutor,
             @NonNull PageResult.Receiver<T> receiver) {
-        LoadRangeCallback<T> callback = new LoadRangeCallback<>(
+        LoadRangeCallback<T> callback = new LoadRangeCallbackImpl<>(
                 this, resultType, startPosition, mainThreadExecutor, receiver);
         if (count == 0) {
             callback.onResult(Collections.<T>emptyList());

@@ -141,7 +141,7 @@ public abstract class DataSource<Key, Value> {
      */
     abstract boolean isContiguous();
 
-    static class BaseLoadCallback<T> {
+    static class LoadCallbackHelper<T> {
         static void validateInitialLoadParams(@NonNull List<?> data, int position, int totalCount) {
             if (position < 0) {
                 throw new IllegalArgumentException("Position must be non-negative");
@@ -166,7 +166,7 @@ public abstract class DataSource<Key, Value> {
         private Executor mPostExecutor = null;
         private boolean mHasSignalled = false;
 
-        BaseLoadCallback(@NonNull DataSource dataSource, @PageResult.ResultType int resultType,
+        LoadCallbackHelper(@NonNull DataSource dataSource, @PageResult.ResultType int resultType,
                 @Nullable Executor mainThreadExecutor, @NonNull PageResult.Receiver<T> receiver) {
             mDataSource = dataSource;
             mResultType = resultType;
