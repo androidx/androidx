@@ -29,14 +29,13 @@ data class Destination(
     companion object {
         fun createName(id: ResReference?, name: String, applicationId: String): ClassName? = when {
             name.isNotEmpty() -> {
-                val simpleName = name.substringAfterLast('.')
                 val specifiedPackage = name.substringBeforeLast('.', "")
-                val classPackage = when {
-                    specifiedPackage.isNotEmpty() -> specifiedPackage
-                    name.startsWith(".") -> applicationId
-                    else -> ""
+                val classPackage = if (name.startsWith(".")) {
+                    "$applicationId$specifiedPackage"
+                } else {
+                    specifiedPackage
                 }
-                ClassName.get(classPackage, simpleName)
+                ClassName.get(classPackage, name.substringAfterLast('.'))
             }
             id != null -> ClassName.get(id.packageName, id.name.capitalize())
             else -> null
