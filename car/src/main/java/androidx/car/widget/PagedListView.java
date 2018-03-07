@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -85,6 +86,13 @@ public class PagedListView extends FrameLayout {
      * holds down a pagination button.
      */
     private static final int PAGINATION_HOLD_DELAY_MS = 400;
+
+
+    /**
+     * When doing a snap, offset the snap by this number of position and then do a smooth scroll to
+     * the final position.
+     */
+    private static final int SNAP_SCROLL_OFFSET_POSITION = 2;
 
     private static final String TAG = "PagedListView";
     private static final int INVALID_RESOURCE_ID = -1;
@@ -497,6 +505,52 @@ public class PagedListView extends FrameLayout {
         // Sometimes #scrollToPosition doesn't change the scroll state so we need to make sure
         // the pagination arrows actually get updated. See b/15801119
         mHandler.post(mUpdatePaginationRunnable);
+    }
+
+    /**
+     * Snap to the given position. This method will snap instantly to a position that's "close" to
+     * the given position and then animate a short decelerate to indicate the direction that the
+     * snap happened.
+     *
+     * @param position The position in the list to scroll to.
+     */
+    public void snapToPosition(int position) {
+        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
+
+        if (layoutManager == null) {
+            return;
+        }
+
+        int startPosition = position;
+        if ((layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
+            PointF vector = ((RecyclerView.SmoothScroller.ScrollVectorProvider) layoutManager)
+                    .computeScrollVectorForPosition(position);
+
+            // A positive value in the vector means scrolling down, so should offset by scrolling to
+            // an item previous in the list.
+            int offsetDirection = (vector == null || vector.y > 0) ? -1 : 1;
+            startPosition += offsetDirection * SNAP_SCROLL_OFFSET_POSITION;
+
+            // Clamp the start position.
+            startPosition = Math.max(0, Math.min(startPosition, layoutManager.getItemCount() - 1));
+        } else {
+            // If the LayoutManager doesn't implement ScrollVectorProvider (the default for
+            // PagedListView, LinearLayoutManager does, but if the user has overridden it) then we
+            // cannot compute the direction we need to scroll. So just snap instantly instead.
+            Log.w(TAG, "LayoutManager is not a ScrollVectorProvider, can't do snap animation.");
+        }
+
+        if (layoutManager instanceof LinearLayoutManager) {
+            ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(startPosition, 0);
+        } else {
+            layoutManager.scrollToPosition(startPosition);
+        }
+
+        if (startPosition != position) {
+            // The actual scroll above happens on the next update, so we wait for that to finish
+            // before doing the smooth scroll.
+            post(() -> scrollToPosition(position));
+        }
     }
 
     /** Sets the icon to be used for the up button. */
