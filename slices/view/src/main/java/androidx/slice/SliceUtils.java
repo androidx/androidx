@@ -201,7 +201,7 @@ public class SliceUtils {
         // Check loading state
         boolean hasHintPartial =
                 SliceQuery.find(slice, null, HINT_PARTIAL, null) != null;
-        if (hasHintPartial && slice.getItems().size() == 0) {
+        if (slice.getItems().size() == 0) {
             // Empty slice
             return LOADING_ALL;
         } else if (hasHintPartial) {

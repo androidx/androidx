@@ -17,6 +17,7 @@
 package androidx.slice;
 
 
+import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
@@ -28,6 +29,9 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
+import static androidx.slice.SliceUtils.LOADING_ALL;
+import static androidx.slice.SliceUtils.LOADING_COMPLETE;
+import static androidx.slice.SliceUtils.LOADING_PARTIAL;
 import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
 
 import android.content.Context;
@@ -177,6 +181,22 @@ public class SliceXmlTest {
                 .build();
         List<String> slice3Keywords = SliceUtils.getSliceKeywords(slice3);
         assertTrue(slice3Keywords.isEmpty());
+    }
+
+    @Test
+    public void testGetLoadingState() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        Slice s1 = new Slice.Builder(uri).build();
+        int actualState1 = SliceUtils.getLoadingState(s1);
+        assertEquals(LOADING_ALL, actualState1);
+
+        Slice s2 = new Slice.Builder(uri).addText(null, null, HINT_PARTIAL).build();
+        int actualState2 = SliceUtils.getLoadingState(s2);
+        assertEquals(LOADING_PARTIAL, actualState2);
+
+        Slice s3 = new Slice.Builder(uri).addText("Text", null).build();
+        int actualState3 = SliceUtils.getLoadingState(s3);
+        assertEquals(LOADING_COMPLETE, actualState3);
     }
 
     private void assertEquivalent(Slice desired, Slice actual) {
