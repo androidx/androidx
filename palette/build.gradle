@@ -10,7 +10,7 @@ dependencies {
     api(project(":core"))
     api(project(":legacy-support-core-utils"))
 
-    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
 }
 
 supportLibrary {
