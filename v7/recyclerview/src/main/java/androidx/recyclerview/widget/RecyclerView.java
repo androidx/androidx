@@ -37,30 +37,6 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import androidx.annotation.CallSuper;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.Px;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.core.os.TraceCompat;
-import androidx.core.util.Preconditions;
-import androidx.customview.view.AbsSavedState;
-import androidx.core.view.InputDeviceCompat;
-import androidx.core.view.MotionEventCompat;
-import androidx.core.view.NestedScrollingChild2;
-import androidx.core.view.NestedScrollingChildHelper;
-import androidx.core.view.ScrollingView;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.ViewConfigurationCompat;
-import androidx.core.view.accessibility.AccessibilityEventCompat;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-import androidx.core.widget.EdgeEffectCompat;
-import androidx.recyclerview.R;
-import androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
-import androidx.viewpager.widget.ViewPager;
-
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -88,6 +64,30 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.Px;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
+import androidx.core.os.TraceCompat;
+import androidx.core.util.Preconditions;
+import androidx.core.view.InputDeviceCompat;
+import androidx.core.view.MotionEventCompat;
+import androidx.core.view.NestedScrollingChild2;
+import androidx.core.view.NestedScrollingChildHelper;
+import androidx.core.view.ScrollingView;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewConfigurationCompat;
+import androidx.core.view.accessibility.AccessibilityEventCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.widget.EdgeEffectCompat;
+import androidx.customview.view.AbsSavedState;
+import androidx.recyclerview.R;
+import androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
+import androidx.viewpager.widget.ViewPager;
 
 /**
  * A flexible view for providing a limited window into a large data set.
@@ -11472,12 +11472,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             if (!mRunning) {
                 return;
             }
+            mRunning = false;
             onStop();
             mRecyclerView.mState.mTargetPosition = RecyclerView.NO_POSITION;
             mTargetView = null;
             mTargetPosition = RecyclerView.NO_POSITION;
             mPendingInitialRun = false;
-            mRunning = false;
             // trigger a cleanup
             mLayoutManager.onSmoothScrollerStopped(this);
             // clear references to avoid any potential leak by a custom smooth scroller
