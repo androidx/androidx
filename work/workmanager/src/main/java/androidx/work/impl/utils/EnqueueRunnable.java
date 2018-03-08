@@ -19,7 +19,9 @@ package androidx.work.impl.utils;
 import static androidx.work.ExistingWorkPolicy.APPEND;
 import static androidx.work.ExistingWorkPolicy.KEEP;
 import static androidx.work.State.BLOCKED;
+import static androidx.work.State.CANCELLED;
 import static androidx.work.State.ENQUEUED;
+import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
 import static androidx.work.State.SUCCEEDED;
 
@@ -35,6 +37,7 @@ import java.util.Set;
 
 import androidx.work.BaseWork;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.State;
 import androidx.work.impl.InternalWorkImpl;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkContinuationImpl;
@@ -165,6 +168,8 @@ public class EnqueueRunnable implements Runnable {
 
         boolean hasPrerequisite = (prerequisiteIds != null && prerequisiteIds.length > 0);
         boolean hasCompletedAllPrerequisites = true;
+        boolean hasFailedPrerequisites = false;
+        boolean hasCancelledPrerequisites = false;
 
         if (hasPrerequisite) {
             // If there are prerequisites, make sure they actually exist before enqueuing
@@ -176,8 +181,14 @@ public class EnqueueRunnable implements Runnable {
                     Logger.error(TAG, "Prerequisite %s doesn't exist; not enqueuing", id);
                     return;
                 }
-                hasCompletedAllPrerequisites &=
-                        (prerequisiteWorkSpec.getState() == SUCCEEDED);
+
+                State prerequisiteState = prerequisiteWorkSpec.getState();
+                hasCompletedAllPrerequisites &= (prerequisiteState == SUCCEEDED);
+                if (prerequisiteState == FAILED) {
+                    hasFailedPrerequisites = true;
+                } else if (prerequisiteState == CANCELLED) {
+                    hasCancelledPrerequisites = true;
+                }
             }
         }
 
@@ -199,6 +210,11 @@ public class EnqueueRunnable implements Runnable {
                     for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
                         if (!dependencyDao.hasDependents(idAndState.id)) {
                             hasCompletedAllPrerequisites &= (idAndState.state == SUCCEEDED);
+                            if (idAndState.state == FAILED) {
+                                hasFailedPrerequisites = true;
+                            } else if (idAndState.state == CANCELLED) {
+                                hasCancelledPrerequisites = true;
+                            }
                             newPrerequisiteIds.add(idAndState.id);
                         }
                     }
@@ -232,7 +248,13 @@ public class EnqueueRunnable implements Runnable {
             WorkSpec workSpec = work.getWorkSpec();
 
             if (hasPrerequisite && !hasCompletedAllPrerequisites) {
-                workSpec.setState(BLOCKED);
+                if (hasFailedPrerequisites) {
+                    workSpec.setState(FAILED);
+                } else if (hasCancelledPrerequisites) {
+                    workSpec.setState(CANCELLED);
+                } else {
+                    workSpec.setState(BLOCKED);
+                }
             } else {
                 // Set scheduled times only for work without prerequisites. Dependent work
                 // will set their scheduled times when they are unblocked.
