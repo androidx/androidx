@@ -24,10 +24,10 @@ plugins {
 }
 
 dependencies {
-    api(project(":arch:common"))
-    api(project(":lifecycle:common"))
-    api(project(":lifecycle:livedata"))
-    api(project(":lifecycle:runtime"))
+    api(project(":arch:core-common"))
+    api(project(":lifecycle:lifecycle-common"))
+    api(project(":lifecycle:lifecycle-livedata"))
+    api(project(":lifecycle:lifecycle-runtime"))
     api(SUPPORT_ANNOTATIONS)
     api(REACTIVE_STREAMS)
 

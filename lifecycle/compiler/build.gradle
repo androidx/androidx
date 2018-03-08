@@ -19,7 +19,7 @@ configurations.all {
 }
 
 dependencies {
-    compile(project(":lifecycle:common"))
+    compile(project(":lifecycle:lifecycle-common"))
     compile(KOTLIN_STDLIB)
     compile(AUTO_COMMON)
     compile(JAVAPOET)
@@ -28,7 +28,7 @@ dependencies {
     testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
-// we actually need to compile :lifecycle:common, but compileJava is easier
+// we actually need to compile :lifecycle:lifecycle-common, but compileJava is easier
 task compileTestLibrarySource(type: JavaCompile, dependsOn: compileJava) {
     source "src/tests/test-data/lib/src"
     classpath = project.compileJava.classpath

@@ -23,7 +23,7 @@ package androidx.fragment.app {
     field public static final int STYLE_NO_TITLE = 1; // 0x1
   }
 
-  public class Fragment implements android.content.ComponentCallbacks android.arch.lifecycle.LifecycleOwner android.view.View.OnCreateContextMenuListener android.arch.lifecycle.ViewModelStoreOwner {
+  public class Fragment implements android.content.ComponentCallbacks androidx.lifecycle.LifecycleOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
     ctor public Fragment();
     method public void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public final boolean equals(java.lang.Object);
@@ -39,7 +39,7 @@ package androidx.fragment.app {
     method public final java.lang.Object getHost();
     method public final int getId();
     method public final android.view.LayoutInflater getLayoutInflater();
-    method public android.arch.lifecycle.Lifecycle getLifecycle();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
     method public deprecated androidx.loader.app.LoaderManager getLoaderManager();
     method public final androidx.fragment.app.Fragment getParentFragment();
     method public java.lang.Object getReenterTransition();
@@ -56,7 +56,7 @@ package androidx.fragment.app {
     method public final java.lang.CharSequence getText(int);
     method public boolean getUserVisibleHint();
     method public android.view.View getView();
-    method public android.arch.lifecycle.ViewModelStore getViewModelStore();
+    method public androidx.lifecycle.ViewModelStore getViewModelStore();
     method public final int hashCode();
     method public static androidx.fragment.app.Fragment instantiate(android.content.Context, java.lang.String);
     method public static androidx.fragment.app.Fragment instantiate(android.content.Context, java.lang.String, android.os.Bundle);
@@ -147,12 +147,12 @@ package androidx.fragment.app {
     field public static final android.os.Parcelable.Creator<androidx.fragment.app.Fragment.SavedState> CREATOR;
   }
 
-  public class FragmentActivity extends androidx.core.app.SupportActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator android.arch.lifecycle.ViewModelStoreOwner {
+  public class FragmentActivity extends androidx.core.app.SupportActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator androidx.lifecycle.ViewModelStoreOwner {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
     method public deprecated androidx.loader.app.LoaderManager getSupportLoaderManager();
-    method public android.arch.lifecycle.ViewModelStore getViewModelStore();
+    method public androidx.lifecycle.ViewModelStore getViewModelStore();
     method public void onAttachFragment(androidx.fragment.app.Fragment);
     method public void onMultiWindowModeChanged(boolean);
     method public void onPictureInPictureModeChanged(boolean);

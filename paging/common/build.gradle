@@ -26,7 +26,7 @@ plugins {
 
 dependencies {
     compile(SUPPORT_ANNOTATIONS)
-    compile(project(":arch:common"))
+    compile(project(":arch:core-common"))
 
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)

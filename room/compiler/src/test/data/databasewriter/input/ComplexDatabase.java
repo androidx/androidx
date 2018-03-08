@@ -15,7 +15,7 @@
  */
 
 package foo.bar;
-import android.arch.persistence.room.*;
+import androidx.room.*;
 import java.lang.SuppressWarnings;
 import java.util.List;
 
