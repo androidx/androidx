@@ -19,10 +19,6 @@ package androidx.fragment.app;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.ViewModelStore;
-import android.arch.lifecycle.ViewModelStoreOwner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -48,21 +44,15 @@ import androidx.collection.SparseArrayCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.app.SupportActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelStore;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.Collection;
-
-import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.collection.SparseArrayCompat;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.SharedElementCallback;
-import androidx.loader.app.LoaderManager;
 
 /**
  * Base class for activities that want to use the support-based

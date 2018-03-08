@@ -14,8 +14,8 @@ android {
 }
 
 dependencies {
-    api(project(":lifecycle:common"))
-    api(project(":arch:common"))
+    api(project(":lifecycle:lifecycle-common"))
+    api(project(":arch:core-common"))
     // necessary for IJ to resolve dependencies.
     api(SUPPORT_ANNOTATIONS)
 

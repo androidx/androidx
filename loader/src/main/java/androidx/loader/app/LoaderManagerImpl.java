@@ -16,12 +16,6 @@
 
 package androidx.loader.app;
 
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelStore;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -31,6 +25,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.util.DebugUtils;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStore;
 import androidx.loader.content.Loader;
 
 import java.io.FileDescriptor;
@@ -130,7 +130,7 @@ class LoaderManagerImpl extends LoaderManager {
         }
 
         @Override
-        public void removeObserver(@NonNull Observer<D> observer) {
+        public void removeObserver(@NonNull Observer<? super D> observer) {
             super.removeObserver(observer);
             // Clear out our references when the observer is removed to avoid leaking
             mLifecycleOwner = null;

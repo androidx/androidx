@@ -69,11 +69,11 @@ package androidx.slice.widget {
 
   public final class SliceLiveData {
     ctor public SliceLiveData();
-    method public static android.arch.lifecycle.LiveData<androidx.slice.Slice> fromIntent(android.content.Context, android.content.Intent);
-    method public static android.arch.lifecycle.LiveData<androidx.slice.Slice> fromUri(android.content.Context, android.net.Uri);
+    method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromIntent(android.content.Context, android.content.Intent);
+    method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromUri(android.content.Context, android.net.Uri);
   }
 
-  public class SliceView extends android.view.ViewGroup implements android.arch.lifecycle.Observer {
+  public class SliceView extends android.view.ViewGroup implements androidx.lifecycle.Observer {
     ctor public SliceView(android.content.Context);
     ctor public SliceView(android.content.Context, android.util.AttributeSet);
     ctor public SliceView(android.content.Context, android.util.AttributeSet, int);

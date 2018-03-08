@@ -24,7 +24,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
-import android.arch.lifecycle.ViewModelStore;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources.NotFoundException;
@@ -64,6 +63,7 @@ import androidx.core.util.DebugUtils;
 import androidx.core.util.LogWriter;
 import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
+import androidx.lifecycle.ViewModelStore;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
