@@ -23,11 +23,13 @@ import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 import android.support.test.filters.SmallTest;
-import androidx.loader.app.test.DummyLoader;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import androidx.loader.app.test.DummyLoader;
+import androidx.loader.content.Loader;
 
 @RunWith(JUnit4.class)
 @SmallTest
@@ -66,7 +68,7 @@ public class LoaderViewModelTest {
         boolean mDestroyed = false;
 
         AlwaysRunningLoaderInfo(Context context) {
-            super(0, null, new DummyLoader(context));
+            super(0, null, new DummyLoader(context), null);
         }
 
         @Override
@@ -75,8 +77,9 @@ public class LoaderViewModelTest {
         }
 
         @Override
-        void destroy() {
+        Loader<Boolean> destroy(boolean reset) {
             mDestroyed = true;
+            return super.destroy(reset);
         }
     }
 }
