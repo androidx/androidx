@@ -16,7 +16,7 @@
 
 package androidx.fragment.app.test;
 
-import android.arch.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModel;
 
 public class TestViewModel extends ViewModel {
     public boolean mCleared = false;

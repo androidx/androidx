@@ -15,8 +15,8 @@
  */
 
 package foo.bar;
-import android.support.annotation.NonNull;
-import android.arch.persistence.room.*;
+import androidx.annotation.NonNull;
+import androidx.room.*;
 @Entity(primaryKeys = {"name", "lastName"})
 public class MultiPKeyEntity {
     @NonNull

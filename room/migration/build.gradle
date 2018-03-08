@@ -27,7 +27,7 @@ sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
 }
 dependencies {
-    compile(project(":room:common"))
+    compile(project(":room:room-common"))
     compile(KOTLIN_STDLIB)
     compile(GSON)
     testCompile(JUNIT)

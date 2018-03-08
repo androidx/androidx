@@ -20,26 +20,26 @@ import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_INT;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
-
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceUtils;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
+
+import java.util.List;
 
 /**
  * A view for displaying a {@link Slice} which is a piece of app content and actions. SliceView is
