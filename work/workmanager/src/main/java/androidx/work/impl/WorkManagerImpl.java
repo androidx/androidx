@@ -202,11 +202,18 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     @WorkerThread
-    public WorkStatus getStatusSync(@NonNull String id) {
+    public @Nullable WorkStatus getStatusSync(@NonNull String id) {
         assertBackgroundThread("Cannot call getStatusSync on main thread!");
         WorkSpec.IdStateAndOutput idStateAndOutput =
                 mWorkDatabase.workSpecDao().getIdStateAndOutput(id);
-        return new WorkStatus(idStateAndOutput.id, idStateAndOutput.state, idStateAndOutput.output);
+        if (idStateAndOutput != null) {
+            return new WorkStatus(
+                    idStateAndOutput.id,
+                    idStateAndOutput.state,
+                    idStateAndOutput.output);
+        } else {
+            return null;
+        }
     }
 
     LiveData<List<WorkStatus>> getStatuses(@NonNull List<String> workSpecIds) {

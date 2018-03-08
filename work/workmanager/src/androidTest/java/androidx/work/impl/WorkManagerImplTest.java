@@ -600,6 +600,24 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
+    public void testGetStatusSync() {
+        Work work = new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
+        insertWorkSpecAndTags(work);
+
+        WorkStatus workStatus = mWorkManagerImpl.getStatusSync(work.getId());
+        assertThat(workStatus.getId(), is(work.getId()));
+        assertThat(workStatus.getState(), is(SUCCEEDED));
+    }
+
+    @Test
+    @SmallTest
+    public void testGetStatusSync_ReturnsNullIfNotInDatabase() {
+        WorkStatus workStatus = mWorkManagerImpl.getStatusSync("dummy");
+        assertThat(workStatus, is(nullValue()));
+    }
+
+    @Test
+    @SmallTest
     @SuppressWarnings("unchecked")
     public void testGetStatuses() {
         Work work0 = new Work.Builder(TestWorker.class).build();
