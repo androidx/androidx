@@ -21,7 +21,6 @@ import static junit.framework.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -40,10 +39,7 @@ import android.support.v4.os.BuildCompat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 
 import androidx.slice.render.SliceRenderActivity;
@@ -60,32 +56,7 @@ public class SliceManagerTest {
     @Before
     public void setup() {
         TestSliceProvider.sSliceProviderReceiver = mSliceProvider = mock(SliceProvider.class);
-        mManager = createSliceManager(mContext);
-    }
-
-    private SliceManager createSliceManager(Context context) {
-        if (BuildCompat.isAtLeastP()) {
-            android.app.slice.SliceManager manager = mock(android.app.slice.SliceManager.class);
-            doAnswer(new Answer<Void>() {
-                @Override
-                public Void answer(InvocationOnMock invocation) throws Throwable {
-                    TestSliceProvider.sSliceProviderReceiver.onSlicePinned(
-                            (Uri) invocation.getArguments()[0]);
-                    return null;
-                }
-            }).when(manager).pinSlice(any(Uri.class), any(List.class));
-            doAnswer(new Answer<Void>() {
-                @Override
-                public Void answer(InvocationOnMock invocation) throws Throwable {
-                    TestSliceProvider.sSliceProviderReceiver.onSliceUnpinned(
-                            (Uri) invocation.getArguments()[0]);
-                    return null;
-                }
-            }).when(manager).unpinSlice(any(Uri.class));
-            return new SliceManagerWrapper(context, manager);
-        } else {
-            return SliceManager.getInstance(context);
-        }
+        mManager = SliceManager.getInstance(mContext);
     }
 
     @Test
@@ -94,8 +65,12 @@ public class SliceManagerTest {
                 .scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(mContext.getPackageName())
                 .build();
-        mManager.pinSlice(uri);
-        verify(mSliceProvider).onSlicePinned(eq(uri));
+        try {
+            mManager.pinSlice(uri);
+            verify(mSliceProvider, timeout(2000)).onSlicePinned(eq(uri));
+        } finally {
+            mManager.unpinSlice(uri);
+        }
     }
 
     @Test
@@ -105,9 +80,10 @@ public class SliceManagerTest {
                 .authority(mContext.getPackageName())
                 .build();
         mManager.pinSlice(uri);
+        verify(mSliceProvider, timeout(2000)).onSlicePinned(eq(uri));
         clearInvocations(mSliceProvider);
         mManager.unpinSlice(uri);
-        verify(mSliceProvider).onSliceUnpinned(eq(uri));
+        verify(mSliceProvider, timeout(2000)).onSliceUnpinned(eq(uri));
     }
 
     @Test
