@@ -19,6 +19,7 @@ package androidx.slice;
 import static androidx.slice.SliceConvert.unwrap;
 import static androidx.slice.widget.SliceLiveData.SUPPORTED_SPECS;
 
+import android.app.slice.SliceManager;
 import android.app.slice.SliceSpec;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,12 @@ class SliceManagerWrapper extends SliceManagerBase {
 
     private final android.app.slice.SliceManager mManager;
     private final List<SliceSpec> mSpecs;
+    private final SliceManager.SliceCallback mCallback = new SliceManager.SliceCallback() {
+        @Override
+        public void onSliceUpdated(@NonNull android.app.slice.Slice s) {
+
+        }
+    };
 
     SliceManagerWrapper(Context context) {
         this(context, context.getSystemService(android.app.slice.SliceManager.class));
@@ -52,12 +59,12 @@ class SliceManagerWrapper extends SliceManagerBase {
 
     @Override
     public void pinSlice(@NonNull Uri uri) {
-        mManager.pinSlice(uri, mSpecs);
+        mManager.registerSliceCallback(uri, mSpecs, mCallback);
     }
 
     @Override
     public void unpinSlice(@NonNull Uri uri) {
-        mManager.unpinSlice(uri);
+        mManager.unregisterSliceCallback(uri, mCallback);
     }
 
     @Override
