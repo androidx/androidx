@@ -1,12 +1,12 @@
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api(project(":support-annotations"))
+    api(project(":annotation"))
 }
 
 android {
@@ -19,7 +19,7 @@ supportLibrary {
     name = "Android Support CardView v7"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.CARDVIEW
     inceptionYear = "2011"
     description = "Android Support CardView v7"
 }

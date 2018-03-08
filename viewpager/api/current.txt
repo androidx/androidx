@@ -1,4 +1,4 @@
-package android.support.v4.view {
+package androidx.viewpager.widget {
 
   public abstract class PagerAdapter {
     ctor public PagerAdapter();
@@ -26,7 +26,7 @@ package android.support.v4.view {
     field public static final int POSITION_UNCHANGED = -1; // 0xffffffff
   }
 
-  public class PagerTabStrip extends android.support.v4.view.PagerTitleStrip {
+  public class PagerTabStrip extends androidx.viewpager.widget.PagerTitleStrip {
     ctor public PagerTabStrip(android.content.Context);
     ctor public PagerTabStrip(android.content.Context, android.util.AttributeSet);
     method public boolean getDrawFullUnderline();
@@ -51,8 +51,8 @@ package android.support.v4.view {
   public class ViewPager extends android.view.ViewGroup {
     ctor public ViewPager(android.content.Context);
     ctor public ViewPager(android.content.Context, android.util.AttributeSet);
-    method public void addOnAdapterChangeListener(android.support.v4.view.ViewPager.OnAdapterChangeListener);
-    method public void addOnPageChangeListener(android.support.v4.view.ViewPager.OnPageChangeListener);
+    method public void addOnAdapterChangeListener(androidx.viewpager.widget.ViewPager.OnAdapterChangeListener);
+    method public void addOnPageChangeListener(androidx.viewpager.widget.ViewPager.OnPageChangeListener);
     method public boolean arrowScroll(int);
     method public boolean beginFakeDrag();
     method protected boolean canScroll(android.view.View, boolean, int, int, int);
@@ -60,7 +60,7 @@ package android.support.v4.view {
     method public void endFakeDrag();
     method public boolean executeKeyEvent(android.view.KeyEvent);
     method public void fakeDragBy(float);
-    method public android.support.v4.view.PagerAdapter getAdapter();
+    method public androidx.viewpager.widget.PagerAdapter getAdapter();
     method public int getCurrentItem();
     method public int getOffscreenPageLimit();
     method public int getPageMargin();
@@ -68,18 +68,18 @@ package android.support.v4.view {
     method protected void onPageScrolled(int, float, int);
     method public void onRestoreInstanceState(android.os.Parcelable);
     method public android.os.Parcelable onSaveInstanceState();
-    method public void removeOnAdapterChangeListener(android.support.v4.view.ViewPager.OnAdapterChangeListener);
-    method public void removeOnPageChangeListener(android.support.v4.view.ViewPager.OnPageChangeListener);
-    method public void setAdapter(android.support.v4.view.PagerAdapter);
+    method public void removeOnAdapterChangeListener(androidx.viewpager.widget.ViewPager.OnAdapterChangeListener);
+    method public void removeOnPageChangeListener(androidx.viewpager.widget.ViewPager.OnPageChangeListener);
+    method public void setAdapter(androidx.viewpager.widget.PagerAdapter);
     method public void setCurrentItem(int);
     method public void setCurrentItem(int, boolean);
     method public void setOffscreenPageLimit(int);
-    method public deprecated void setOnPageChangeListener(android.support.v4.view.ViewPager.OnPageChangeListener);
+    method public deprecated void setOnPageChangeListener(androidx.viewpager.widget.ViewPager.OnPageChangeListener);
     method public void setPageMargin(int);
     method public void setPageMarginDrawable(android.graphics.drawable.Drawable);
     method public void setPageMarginDrawable(int);
-    method public void setPageTransformer(boolean, android.support.v4.view.ViewPager.PageTransformer);
-    method public void setPageTransformer(boolean, android.support.v4.view.ViewPager.PageTransformer, int);
+    method public void setPageTransformer(boolean, androidx.viewpager.widget.ViewPager.PageTransformer);
+    method public void setPageTransformer(boolean, androidx.viewpager.widget.ViewPager.PageTransformer, int);
     field public static final int SCROLL_STATE_DRAGGING = 1; // 0x1
     field public static final int SCROLL_STATE_IDLE = 0; // 0x0
     field public static final int SCROLL_STATE_SETTLING = 2; // 0x2
@@ -96,7 +96,7 @@ package android.support.v4.view {
   }
 
   public static abstract interface ViewPager.OnAdapterChangeListener {
-    method public abstract void onAdapterChanged(android.support.v4.view.ViewPager, android.support.v4.view.PagerAdapter, android.support.v4.view.PagerAdapter);
+    method public abstract void onAdapterChanged(androidx.viewpager.widget.ViewPager, androidx.viewpager.widget.PagerAdapter, androidx.viewpager.widget.PagerAdapter);
   }
 
   public static abstract interface ViewPager.OnPageChangeListener {
@@ -109,12 +109,12 @@ package android.support.v4.view {
     method public abstract void transformPage(android.view.View, float);
   }
 
-  public static class ViewPager.SavedState extends android.support.v4.view.AbsSavedState {
+  public static class ViewPager.SavedState extends androidx.customview.view.AbsSavedState {
     ctor public ViewPager.SavedState(android.os.Parcelable);
-    field public static final android.os.Parcelable.Creator<android.support.v4.view.ViewPager.SavedState> CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.viewpager.widget.ViewPager.SavedState> CREATOR;
   }
 
-  public static class ViewPager.SimpleOnPageChangeListener implements android.support.v4.view.ViewPager.OnPageChangeListener {
+  public static class ViewPager.SimpleOnPageChangeListener implements androidx.viewpager.widget.ViewPager.OnPageChangeListener {
     ctor public ViewPager.SimpleOnPageChangeListener();
     method public void onPageScrollStateChanged(int);
     method public void onPageScrolled(int, float, int);

@@ -18,6 +18,10 @@ package com.example.androidx.slice.demos;
 
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 
+import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
+import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
+import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
+
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -27,7 +31,7 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
@@ -46,6 +50,8 @@ import androidx.slice.builders.SliceAction;
  */
 public class SampleSliceProvider extends SliceProvider {
 
+    private static final boolean TEST_CUSTOM_SEE_MORE = false;
+
     public static final String ACTION_WIFI_CHANGED =
             "com.example.androidx.slice.action.WIFI_CHANGED";
     public static final String ACTION_TOAST =
@@ -58,7 +64,7 @@ public class SampleSliceProvider extends SliceProvider {
 
     public static final String[] URI_PATHS = {"message", "wifi", "note", "ride", "toggle",
             "toggle2", "contact", "gallery", "weather", "reservation", "loadlist", "loadlist2",
-            "loadgrid", "loadgrid2", "inputrange", "range", "contact2"};
+            "loadgrid", "loadgrid2", "inputrange", "range", "contact2", "subscription"};
 
     /**
      * @return Uri with the provided path
@@ -121,6 +127,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createStarRatingInputRange(sliceUri);
             case "/range":
                 return createDownloadProgressRange(sliceUri);
+            case "/subscription":
+                return createCatSlice(sliceUri, false /* customSeeMore */);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -133,27 +141,27 @@ public class SampleSliceProvider extends SliceProvider {
                 .setPrimaryAction(primaryAction)
                 .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.weather_1),
-                                GridBuilder.SMALL_IMAGE)
+                                SMALL_IMAGE)
                         .addText("MON")
                         .addTitleText("69\u00B0"))
                 .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.weather_2),
-                                GridBuilder.SMALL_IMAGE)
+                                SMALL_IMAGE)
                         .addText("TUE")
                         .addTitleText("71\u00B0"))
                 .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.weather_3),
-                                GridBuilder.SMALL_IMAGE)
+                                SMALL_IMAGE)
                         .addText("WED")
                         .addTitleText("76\u00B0"))
                 .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.weather_4),
-                                GridBuilder.SMALL_IMAGE)
+                                SMALL_IMAGE)
                         .addText("THU")
                         .addTitleText("72\u00B0"))
                 .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.weather_1),
-                                GridBuilder.SMALL_IMAGE)
+                                SMALL_IMAGE)
                         .addText("FRI")
                         .addTitleText("68\u00B0")))
                 .build();
@@ -176,28 +184,68 @@ public class SampleSliceProvider extends SliceProvider {
                 .addGrid(b -> b
                     .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.slices_1),
-                            GridBuilder.LARGE_IMAGE))
+                            LARGE_IMAGE))
                     .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.slices_2),
-                                GridBuilder.LARGE_IMAGE))
+                                LARGE_IMAGE))
                     .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.slices_3),
-                                GridBuilder.LARGE_IMAGE))
+                                LARGE_IMAGE))
                     .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.slices_4),
-                                GridBuilder.LARGE_IMAGE))
+                                LARGE_IMAGE))
                     .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.slices_2),
-                                GridBuilder.LARGE_IMAGE))
+                                LARGE_IMAGE))
                     .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.slices_3),
-                                GridBuilder.LARGE_IMAGE))
+                                LARGE_IMAGE))
                     .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.slices_4),
-                                GridBuilder.LARGE_IMAGE)))
+                                LARGE_IMAGE))
+                    .addSeeMoreAction(getBroadcastIntent(ACTION_TOAST, "see your gallery")))
                 .build();
     }
 
+    private Slice createCatSlice(Uri sliceUri, boolean customSeeMore) {
+        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        GridBuilder gb = new GridBuilder(b);
+        PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "See cats you follow");
+        if (customSeeMore) {
+            GridBuilder.CellBuilder cb = new GridBuilder.CellBuilder(gb);
+            cb.addImage(Icon.createWithResource(getContext(), R.drawable.ic_right_caret),
+                    ICON_IMAGE);
+            cb.setContentIntent(pi);
+            cb.addTitleText("All cats");
+            gb.addSeeMoreCell(cb);
+        } else {
+            gb.addSeeMoreAction(pi);
+        }
+        gb.addCell(new GridBuilder.CellBuilder(gb)
+                    .addImage(Icon.createWithResource(getContext(), R.drawable.cat_1), SMALL_IMAGE)
+                    .addTitleText("Oreo"))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_2),
+                                SMALL_IMAGE)
+                        .addTitleText("Silver"))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_3),
+                                SMALL_IMAGE)
+                        .addTitleText("Drake"))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_5),
+                                SMALL_IMAGE)
+                        .addTitleText("Olive"))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_4),
+                                SMALL_IMAGE)
+                        .addTitleText("Lady Marmalade"))
+                .addCell(new GridBuilder.CellBuilder(gb)
+                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_6),
+                                SMALL_IMAGE)
+                        .addTitleText("Grapefruit"));
+        return b.addGrid(gb).build();
+    }
 
     private Slice createContact2(Uri sliceUri) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri);
@@ -211,22 +259,22 @@ public class SampleSliceProvider extends SliceProvider {
                 .addGrid(gb
                         .addCell(new GridBuilder.CellBuilder(gb)
                                 .addImage(Icon.createWithResource(getContext(), R.drawable.ic_call),
-                                        GridBuilder.ICON_IMAGE)
+                                        ICON_IMAGE)
                                 .addText("Call")
                                 .setContentIntent(getBroadcastIntent(ACTION_TOAST, "call")))
                         .addCell(new GridBuilder.CellBuilder(gb)
                                 .addImage(Icon.createWithResource(getContext(), R.drawable.ic_text),
-                                        GridBuilder.ICON_IMAGE)
+                                        ICON_IMAGE)
                                 .addText("Text")
                                 .setContentIntent(getBroadcastIntent(ACTION_TOAST, "text")))
                         .addCell(new GridBuilder.CellBuilder(gb)
                                 .addImage(Icon.createWithResource(getContext(),
-                                        R.drawable.ic_video), GridBuilder.ICON_IMAGE)
+                                        R.drawable.ic_video), ICON_IMAGE)
                                 .setContentIntent(getBroadcastIntent(ACTION_TOAST, "video"))
                                 .addText("Video"))
                         .addCell(new GridBuilder.CellBuilder(gb)
                                 .addImage(Icon.createWithResource(getContext(),
-                                        R.drawable.ic_email), GridBuilder.ICON_IMAGE)
+                                        R.drawable.ic_email), ICON_IMAGE)
                                 .addText("Email")
                                 .setContentIntent(getBroadcastIntent(ACTION_TOAST, "email"))))
                 .build();
@@ -319,7 +367,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .addGrid(b -> b
                     .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.reservation),
-                            GridBuilder.LARGE_IMAGE)))
+                            LARGE_IMAGE)))
                 .addGrid(b -> b
                     .addCell(cb -> cb
                         .addTitleText("Check In")
@@ -414,18 +462,49 @@ public class SampleSliceProvider extends SliceProvider {
                 state = ""; // just don't show anything?
                 break;
         }
+
+        // Set the first row as a toggle
         boolean finalWifiEnabled = wifiEnabled;
         SliceAction primaryAction = new SliceAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
                 Icon.createWithResource(getContext(), R.drawable.ic_wifi), "Wi-fi Settings");
-        return new ListBuilder(getContext(), sliceUri)
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff4285f4)
                 .addRow(b -> b
                     .setTitle("Wi-fi")
                     .setSubtitle(state)
                     .addEndItem(new SliceAction(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
                             "Toggle wifi", finalWifiEnabled))
-                    .setPrimaryAction(primaryAction))
-                .build();
+                    .setPrimaryAction(primaryAction));
+
+        // Add fake wifi networks
+        int[] wifiIcons = new int[] {R.drawable.ic_wifi_full, R.drawable.ic_wifi_low,
+                R.drawable.ic_wifi_fair};
+        for (int i = 0; i < 10; i++) {
+            final int iconId = wifiIcons[i % wifiIcons.length];
+            Icon icon = Icon.createWithResource(getContext(), iconId);
+            final String networkName = "Network" + i;
+            ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb);
+            rb.setTitleItem(icon, ICON_IMAGE).setTitle("Network" + networkName);
+            boolean locked = i % 3 == 0;
+            if (locked) {
+                rb.addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_lock));
+            }
+            String message = locked ? "Open wifi password dialog" : "Connect to " + networkName;
+            rb.setPrimaryAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, message), icon,
+                    message));
+            lb.addRow(rb);
+        }
+
+        // Add see more intent
+        if (TEST_CUSTOM_SEE_MORE) {
+            lb.addSeeMoreRow(rb -> rb
+                    .setTitle("See all available networks")
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_right_caret))
+                    .setPrimaryAction(primaryAction));
+        } else {
+            lb.addSeeMoreAction(primaryAction.getAction());
+        }
+        return lb.build();
     }
 
     private Slice createStarRatingInputRange(Uri sliceUri) {
@@ -534,7 +613,7 @@ public class SampleSliceProvider extends SliceProvider {
     private GridBuilder.CellBuilder createCell(GridBuilder.CellBuilder cb, String text1,
             String text2, Icon icon, boolean isLoading) {
         return cb.addText(text1, isLoading).addText(text2, isLoading).addImage(icon,
-                GridBuilder.SMALL_IMAGE, isLoading);
+                SMALL_IMAGE, isLoading);
     }
 
     private PendingIntent getIntent(String action) {

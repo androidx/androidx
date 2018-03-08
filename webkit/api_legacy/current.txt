@@ -1,0 +1,24 @@
+package androidx.webkit {
+
+  public class WebSettingsCompat {
+    method public static int getDisabledActionModeMenuItems(android.webkit.WebSettings);
+    method public static boolean getOffscreenPreRaster(android.webkit.WebSettings);
+    method public static boolean getSafeBrowsingEnabled(android.webkit.WebSettings);
+    method public static void setDisabledActionModeMenuItems(android.webkit.WebSettings, int);
+    method public static void setOffscreenPreRaster(android.webkit.WebSettings, boolean);
+    method public static void setSafeBrowsingEnabled(android.webkit.WebSettings, boolean);
+  }
+
+  public class WebViewCompat {
+    method public static android.net.Uri getSafeBrowsingPrivacyPolicyUrl();
+    method public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
+    method public static void setSafeBrowsingWhitelist(java.util.List<java.lang.String>, android.webkit.ValueCallback<java.lang.Boolean>);
+    method public static void startSafeBrowsing(android.content.Context, android.webkit.ValueCallback<java.lang.Boolean>);
+  }
+
+  public static abstract interface WebViewCompat.VisualStateCallback {
+    method public abstract void onComplete(long);
+  }
+
+}
+

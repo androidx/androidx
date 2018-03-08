@@ -24,8 +24,8 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
-import android.support.annotation.RequiresApi;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;

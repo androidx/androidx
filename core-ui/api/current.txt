@@ -1,8 +1,8 @@
-package android.support.v4.app {
+package androidx.legacy.app {
 
-  public deprecated class ActionBarDrawerToggle implements android.support.v4.widget.DrawerLayout.DrawerListener {
-    ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, int, int, int);
-    ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, boolean, int, int, int);
+  public deprecated class ActionBarDrawerToggle implements androidx.drawerlayout.widget.DrawerLayout.DrawerListener {
+    ctor public ActionBarDrawerToggle(android.app.Activity, androidx.drawerlayout.widget.DrawerLayout, int, int, int);
+    ctor public ActionBarDrawerToggle(android.app.Activity, androidx.drawerlayout.widget.DrawerLayout, boolean, int, int, int);
     method public boolean isDrawerIndicatorEnabled();
     method public void onConfigurationChanged(android.content.res.Configuration);
     method public void onDrawerClosed(android.view.View);
@@ -23,12 +23,12 @@ package android.support.v4.app {
   }
 
   public static abstract deprecated interface ActionBarDrawerToggle.DelegateProvider {
-    method public abstract android.support.v4.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
+    method public abstract androidx.legacy.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
   }
 
 }
 
-package android.support.v4.widget {
+package androidx.legacy.widget {
 
   public deprecated class Space extends android.view.View {
     ctor public deprecated Space(android.content.Context, android.util.AttributeSet, int);

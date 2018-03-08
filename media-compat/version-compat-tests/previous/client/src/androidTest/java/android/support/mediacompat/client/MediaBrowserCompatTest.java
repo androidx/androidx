@@ -63,7 +63,7 @@ import static org.junit.Assert.fail;
 import android.content.ComponentName;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.support.mediacompat.testlib.util.PollingCheck;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;

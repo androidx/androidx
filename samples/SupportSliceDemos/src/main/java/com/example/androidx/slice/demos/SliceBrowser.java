@@ -31,10 +31,10 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.view.Menu;
@@ -67,6 +67,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     private static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
     private static final boolean TEST_INTENT = false;
     private static final boolean TEST_THEMES = false;
+    private static final boolean SCROLLING_ENABLED = true;
 
     private ArrayList<Uri> mSliceUris = new ArrayList<Uri>();
     private int mSelectedMode;
@@ -289,6 +290,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         if (mSliceLiveData != null) {
             mSliceLiveData.removeObservers(this);
         }
+        v.setScrollable(SCROLLING_ENABLED);
         return v;
     }
 }

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportJavaLibraryPlugin")
 }
 
 dependencies {
-    compile(project(":support-annotations"))
+    compile(project(":annotation"))
     testCompile(JUNIT)
 }
 
@@ -31,7 +31,7 @@ supportLibrary {
     name = "Android Support Library collections"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."
 }

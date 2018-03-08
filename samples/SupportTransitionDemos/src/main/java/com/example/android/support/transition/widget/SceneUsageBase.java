@@ -17,8 +17,8 @@
 package com.example.android.support.transition.widget;
 
 import android.os.Bundle;
-import android.support.transition.Scene;
-import android.support.transition.TransitionManager;
+import androidx.transition.Scene;
+import androidx.transition.TransitionManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;

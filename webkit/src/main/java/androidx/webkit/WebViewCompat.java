@@ -16,16 +16,21 @@
 
 package androidx.webkit;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.v4.os.BuildCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.os.BuildCompat;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import androidx.webkit.internal.WebViewGlueCommunicator;
 import androidx.webkit.internal.WebViewProviderAdapter;
@@ -117,6 +122,79 @@ public class WebViewCompat {
             // TODO(gsennton): guard with if WebViewApk.hasFeature(POSTVISUALSTATECALLBACK)
             checkThread(webview);
             getProvider(webview).insertVisualStateCallback(requestId, callback);
+        }
+    }
+
+    /**
+     * Starts Safe Browsing initialization.
+     * <p>
+     * URL loads are not guaranteed to be protected by Safe Browsing until after {@code callback} is
+     * invoked with {@code true}. Safe Browsing is not fully supported on all devices. For those
+     * devices {@code callback} will receive {@code false}.
+     * <p>
+     * This should not be called if Safe Browsing has been disabled by manifest tag or {@link
+     * android.webkit.WebSettings#setSafeBrowsingEnabled}. This prepares resources used for Safe
+     * Browsing.
+     * <p>
+     * This should be called with the Application Context (and will always use the Application
+     * context to do its work regardless).
+     *
+     * @param context Application Context.
+     * @param callback will be called on the UI thread with {@code true} if initialization is
+     * successful, {@code false} otherwise.
+     */
+    public static void startSafeBrowsing(@NonNull Context context,
+            @Nullable ValueCallback<Boolean> callback) {
+        if (Build.VERSION.SDK_INT >= 27) {
+            WebView.startSafeBrowsing(context, callback);
+        } else { // TODO(gsennton): guard with WebViewApk.hasFeature(SafeBrowsing)
+            getFactory().getStatics().initSafeBrowsing(context, callback);
+        }
+    }
+
+    /**
+     * Sets the list of hosts (domain names/IP addresses) that are exempt from SafeBrowsing checks.
+     * The list is global for all the WebViews.
+     * <p>
+     * Each rule should take one of these:
+     * <table>
+     * <tr><th> Rule </th> <th> Example </th> <th> Matches Subdomain</th> </tr>
+     * <tr><td> HOSTNAME </td> <td> example.com </td> <td> Yes </td> </tr>
+     * <tr><td> .HOSTNAME </td> <td> .example.com </td> <td> No </td> </tr>
+     * <tr><td> IPV4_LITERAL </td> <td> 192.168.1.1 </td> <td> No </td></tr>
+     * <tr><td> IPV6_LITERAL_WITH_BRACKETS </td><td>[10:20:30:40:50:60:70:80]</td><td>No</td></tr>
+     * </table>
+     * <p>
+     * All other rules, including wildcards, are invalid.
+     * <p>
+     * The correct syntax for hosts is defined by <a
+     * href="https://tools.ietf.org/html/rfc3986#section-3.2.2">RFC 3986</a>.
+     *
+     * @param hosts the list of hosts
+     * @param callback will be called with {@code true} if hosts are successfully added to the
+     * whitelist. It will be called with {@code false} if any hosts are malformed. The callback
+     * will be run on the UI thread
+     */
+    public static void setSafeBrowsingWhitelist(@NonNull List<String> hosts,
+            @Nullable ValueCallback<Boolean> callback) {
+        if (Build.VERSION.SDK_INT >= 27) {
+            WebView.setSafeBrowsingWhitelist(hosts, callback);
+        } else { // TODO(gsennton): guard with WebViewApk.hasFeature(SafeBrowsing)
+            getFactory().getStatics().setSafeBrowsingWhitelist(hosts, callback);
+        }
+    }
+
+    /**
+     * Returns a URL pointing to the privacy policy for Safe Browsing reporting.
+     *
+     * @return the url pointing to a privacy policy document which can be displayed to users.
+     */
+    @NonNull
+    public static Uri getSafeBrowsingPrivacyPolicyUrl() {
+        if (Build.VERSION.SDK_INT >= 27) {
+            return WebView.getSafeBrowsingPrivacyPolicyUrl();
+        } else { // TODO(gsennton): guard with WebViewApk.hasFeature(SafeBrowsing)
+            return getFactory().getStatics().getSafeBrowsingPrivacyPolicyUrl();
         }
     }
 

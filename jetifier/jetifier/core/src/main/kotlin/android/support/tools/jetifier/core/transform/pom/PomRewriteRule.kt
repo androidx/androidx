@@ -45,9 +45,17 @@ data class PomRewriteRule(val from: PomDependency, val to: Set<PomDependency>) {
             }
 
             if (checkVersion && (dep.version == null || dep.version!!.isEmpty())) {
-                throw IllegalArgumentException("Version is missing in the POM rule!")
+                throw IllegalArgumentException(
+                    "Version is missing in the POM rule for ${dep.groupId}:${dep.artifactId}!")
             }
         }
+    }
+
+    fun getReversed(): PomRewriteRule {
+        if (to.size > 1) {
+            throw IllegalArgumentException("Can't reverse pom rule with more than one package.")
+        }
+        return PomRewriteRule(from = to.first(), to = setOf(from))
     }
 
     /**

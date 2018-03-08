@@ -1,14 +1,14 @@
-import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api(project(":support-annotations"))
-    api(project(":support-compat"))
+    api(project(":annotation"))
+    api(project(":core"))
     api(project(":customview"))
 
     androidTestImplementation(TEST_RUNNER)
@@ -21,7 +21,7 @@ supportLibrary {
     name = "Android Support Library View Pager"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.VIEWPAGER
     inceptionYear = "2018"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
 }

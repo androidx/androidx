@@ -16,6 +16,7 @@
 
 package android.support.tools.jetifier.plugin.gradle
 
+import android.support.tools.jetifier.core.FileMapping
 import android.support.tools.jetifier.core.config.ConfigParser
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -40,13 +41,11 @@ open class JetifyLibsTask : DefaultTask() {
     companion object {
         const val TASK_NAME = "jetifyLibs"
         const val GROUP_ID = "Pre-build"
-        // TODO: Get back to this once the name of the library is decided.
         const val DESCRIPTION = "Rewrites input libraries to run with jetpack"
 
         const val OUTPUT_DIR_APPENDIX = "jetifier"
 
-
-        fun resolveTask(project: Project) : JetifyLibsTask {
+        fun resolveTask(project: Project): JetifyLibsTask {
             val task = project.tasks.findByName(TASK_NAME) as? JetifyLibsTask
             if (task != null) {
                 return task
@@ -56,10 +55,9 @@ open class JetifyLibsTask : DefaultTask() {
 
     }
 
-    private var filesToProcess : FileCollection = project.files()
-
     private val outputDir = File(project.buildDir, OUTPUT_DIR_APPENDIX)
 
+    private val filesToProcess = mutableSetOf<FileMapping>()
 
     override fun getGroup() = GROUP_ID
 
@@ -70,9 +68,20 @@ open class JetifyLibsTask : DefaultTask() {
      *
      * See [JetifierExtension] for details on how to use this.
      */
-    fun addFilesToProcess(files: FileCollection) : FileCollection {
-        filesToProcess = filesToProcess.plus(files)
-        return project.files(files.map { File(outputDir, it.name) }.toList())
+    fun addFilesToProcess(files: FileCollection): FileCollection {
+        return project.files(files.map { addFile(it).to }.toList())
+    }
+
+    private fun addFile(file: File): FileMapping {
+        val mappingMaybe = filesToProcess.firstOrNull { it.from == file }
+        if (mappingMaybe != null) {
+            return mappingMaybe
+        }
+
+        val newFile = File(outputDir, file.hashCode().toString() + "_" + file.name)
+        val mapping = FileMapping(file, newFile)
+        filesToProcess.add(mapping)
+        return mapping
     }
 
     /**
@@ -80,8 +89,8 @@ open class JetifyLibsTask : DefaultTask() {
      * is different then the task is re-run.
      */
     @InputFiles
-    fun getInputFiles() : FileCollection {
-        return filesToProcess
+    fun getInputFiles(): FileCollection {
+        return project.files(filesToProcess.map { it.from }.toList())
     }
 
     /**
@@ -91,7 +100,7 @@ open class JetifyLibsTask : DefaultTask() {
      * and lead to constant re-runs.
      */
     @OutputDirectory
-    fun getOutputDir() : File {
+    fun getOutputDir(): File {
         return outputDir
     }
 
@@ -101,7 +110,6 @@ open class JetifyLibsTask : DefaultTask() {
         val config = ConfigParser.loadConfigOrFail(TasksCommon.configFilePath)
 
         // Process the files using Jetifier
-        TasksCommon.processFiles(config, filesToProcess.toSet(), project.logger, outputDir)
+        TasksCommon.processFiles(config, filesToProcess, project.logger)
     }
-
 }

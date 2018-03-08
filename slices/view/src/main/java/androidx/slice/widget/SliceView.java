@@ -24,10 +24,10 @@ import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -125,6 +125,8 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
 
     private final int mShortcutSize;
     private final int mMinLargeHeight;
+    private final int mMaxLargeHeight;
+    private final int mActionRowHeight;
 
     private AttributeSet mAttrs;
     private int mThemeTintColor = -1;
@@ -163,6 +165,9 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         mShortcutSize = getContext().getResources()
                 .getDimensionPixelSize(R.dimen.abc_slice_shortcut_size);
         mMinLargeHeight = getResources().getDimensionPixelSize(R.dimen.abc_slice_large_height);
+        mMaxLargeHeight = getResources().getDimensionPixelSize(R.dimen.abc_slice_max_large_height);
+        mActionRowHeight = getResources().getDimensionPixelSize(
+                R.dimen.abc_slice_action_row_height);
     }
 
     private int getHeightForMode() {
@@ -182,48 +187,51 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         if (MODE_SHORTCUT == mMode) {
             // TODO: consider scaling the shortcut to fit if too small
             childWidth = mShortcutSize;
-            width = mShortcutSize;
+            width = mShortcutSize + getPaddingLeft() + getPaddingRight();
         }
-
         final int actionHeight = mActionRow.getVisibility() != View.GONE
-                ? mActionRow.getMeasuredHeight()
+                ? mActionRowHeight
                 : 0;
-        final int sliceHeight = getHeightForMode() + actionHeight;
+        final int sliceHeight = getHeightForMode();
         final int heightAvailable = MeasureSpec.getSize(heightMeasureSpec);
         final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int height = heightAvailable;
-        if (heightAvailable >= sliceHeight) {
-            // Available space is larger than the slice
-            if (heightMode == MeasureSpec.AT_MOST || heightMode == MeasureSpec.UNSPECIFIED) {
-                height = sliceHeight;
+        // Remove the padding from our available height
+        int height = heightAvailable - getPaddingTop() - getPaddingBottom();
+        if (heightAvailable >= sliceHeight + actionHeight
+                || heightMode == MeasureSpec.UNSPECIFIED) {
+            // Available space is larger than the slice or we be what we want
+            if (heightMode != MeasureSpec.EXACTLY) {
+                if (!mIsScrollable) {
+                    height = Math.min(mMaxLargeHeight, sliceHeight);
+                } else {
+                    // If we want to be bigger than max, then we can be a good scrollable at min
+                    // large height, if it's not larger lets just use its desired height
+                    height = sliceHeight > mMaxLargeHeight ? mMinLargeHeight : sliceHeight;
+                }
             }
         } else {
             // Not enough space available for slice in current mode
             if (getMode() == MODE_LARGE && heightAvailable >= mMinLargeHeight + actionHeight) {
                 // It's just a slice with scrolling content; cap it to height available.
-                height = heightAvailable;
+                height = Math.min(mMinLargeHeight, heightAvailable);
             } else if (getMode() == MODE_SHORTCUT) {
                 // TODO: consider scaling the shortcut to fit if too small
                 height = mShortcutSize;
             }
         }
-        heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
 
-        // Measure the children without the padding
-        final int left = getPaddingLeft();
-        final int top = getPaddingTop();
-        final int right = getPaddingRight();
-        final int bot = getPaddingBottom();
-        int childHeight = MeasureSpec.getSize(heightMeasureSpec);
-        childWidth -= left + right;
-        childHeight -= top + bot;
+        int childHeight = height + getPaddingTop() + getPaddingBottom();
         int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY);
         int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY);
-        measureChildren(childWidthMeasureSpec, childHeightMeasureSpec);
+        measureChild(mCurrentView, childWidthMeasureSpec, childHeightMeasureSpec);
 
-        // Figure out parent width
-        width += left + right;
-        setMeasuredDimension(width, heightMeasureSpec);
+        int actionPaddedHeight = actionHeight + getPaddingTop() + getPaddingBottom();
+        int actionHeightSpec = MeasureSpec.makeMeasureSpec(actionPaddedHeight, MeasureSpec.EXACTLY);
+        measureChild(mActionRow, childWidthMeasureSpec, actionHeightSpec);
+
+        // Total height should include action row and our padding
+        height += actionHeight + getPaddingTop() + getPaddingBottom();
+        setMeasuredDimension(width, height);
     }
 
     @Override
@@ -231,14 +239,12 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         View v = mCurrentView.getView();
         final int left = getPaddingLeft();
         final int top = getPaddingTop();
-        final int right = getPaddingRight();
-        final int bottom = getPaddingBottom();
         v.layout(left, top, left + v.getMeasuredWidth(), top + v.getMeasuredHeight());
         if (mActionRow.getVisibility() != View.GONE) {
             mActionRow.layout(left,
-                    top + v.getMeasuredHeight() + bottom,
-                    left + mActionRow.getMeasuredWidth() + right,
-                    top + v.getMeasuredHeight() + bottom + mActionRow.getMeasuredHeight());
+                    top + v.getMeasuredHeight(),
+                    left + mActionRow.getMeasuredWidth(),
+                    top + v.getMeasuredHeight() + mActionRow.getMeasuredHeight());
         }
     }
 

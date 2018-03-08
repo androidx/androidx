@@ -1,16 +1,16 @@
-import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api(project(":support-annotations"))
-    api(project(":support-core-ui"))
-    api(project(":support-fragment"))
-    api(project(":recyclerview-v7"))
+    api(project(":annotation"))
+    api(project(":legacy-support-core-ui"))
+    api(project(":fragment"))
+    api(project(":recyclerview"))
     api(CONSTRAINT_LAYOUT, { transitive = true })
 
     androidTestImplementation(TEST_RUNNER)
@@ -38,7 +38,7 @@ supportLibrary {
     name = "Android Wear Support UI"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.WEAR
     inceptionYear = "2016"
     description = "Android Wear Support UI"
     minSdkVersion = 23

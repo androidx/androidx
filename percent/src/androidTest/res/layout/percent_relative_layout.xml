@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<android.support.percent.PercentRelativeLayout
+<android.percentlayout.widget.PercentRelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
@@ -80,5 +80,5 @@
         app:layout_marginPercent="10%"
         android:background="#F07020"  />
 
-</android.support.percent.PercentRelativeLayout>
+</android.percentlayout.widget.PercentRelativeLayout>
 

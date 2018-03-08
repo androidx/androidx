@@ -1,27 +1,29 @@
-import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api(project(":support-compat"))
-    api(project(":support-annotations"))
-    api(project(":support-core-ui"))
-    api(project(":appcompat-v7"))
+    api(project(":core"))
+    api(project(":annotation"))
+    api(project(":interpolator"))
+    api(project(":collection"))
+    api(project(":legacy-support-core-ui"))
+    api(project(":appcompat"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(project(":support-testutils"))
+    androidTestImplementation(project(":internal-testutils"))
 }
 
 supportLibrary {
     name = "Android Support Custom Tabs"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.BROWSER
     inceptionYear = "2015"
     description = "Android Support Custom Tabs"
     minSdkVersion = 15

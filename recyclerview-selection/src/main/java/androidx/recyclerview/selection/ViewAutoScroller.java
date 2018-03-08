@@ -16,18 +16,18 @@
 
 package androidx.recyclerview.selection;
 
-import static android.support.v4.util.Preconditions.checkArgument;
-import static android.support.v4.util.Preconditions.checkState;
+import static androidx.core.util.Preconditions.checkArgument;
+import static androidx.core.util.Preconditions.checkState;
 
 import static androidx.recyclerview.selection.Shared.DEBUG;
 import static androidx.recyclerview.selection.Shared.VERBOSE;
 
 import android.graphics.Point;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 
 /**

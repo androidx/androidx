@@ -17,7 +17,9 @@
 package androidx.webkit;
 
 import android.support.test.InstrumentationRegistry;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class WebViewOnUiThread {
     private WebView mWebView;
@@ -40,6 +42,15 @@ public class WebViewOnUiThread {
         });
     }
 
+    public void setWebViewClient(final WebViewClient webviewClient) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.setWebViewClient(webviewClient);
+            }
+        });
+    }
+
     public void postVisualStateCallbackCompat(final long requestId,
             final WebViewCompat.VisualStateCallback callback) {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
@@ -50,7 +61,36 @@ public class WebViewOnUiThread {
         });
     }
 
+    public WebSettings getSettings() {
+        return getValue(new ValueGetter<WebSettings>() {
+            @Override
+            public WebSettings capture() {
+                return mWebView.getSettings();
+            }
+        });
+    }
+
     public WebView getWebViewOnCurrentThread() {
         return mWebView;
+    }
+
+    private <T> T getValue(ValueGetter<T> getter) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(getter);
+        return getter.getValue();
+    }
+
+    private abstract class ValueGetter<T> implements Runnable {
+        private T mValue;
+
+        @Override
+        public void run() {
+            mValue = capture();
+        }
+
+        protected abstract T capture();
+
+        public T getValue() {
+            return mValue;
+        }
     }
 }

@@ -27,8 +27,10 @@ import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
+import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
 import static androidx.slice.core.SliceHints.SUBTYPE_RANGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
@@ -36,10 +38,9 @@ import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -140,7 +141,8 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         getBuilder().addSubSlice(
                 new Slice.Builder(getBuilder())
                         .addHints(HINT_SEE_MORE)
-                        .addAction(intent, new Slice.Builder(getBuilder()).build(), null)
+                        .addAction(intent, new Slice.Builder(getBuilder())
+                                .addHints(HINT_SEE_MORE).build(), null)
                         .build());
     }
 
@@ -313,15 +315,27 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
          */
         @NonNull
         @Override
-        public void setTitleItem(@NonNull Icon icon) {
-            setTitleItem(icon, false /* isLoading */);
+        public void setTitleItem(Icon icon, int imageMode) {
+            setTitleItem(icon, imageMode, false /* isLoading */);
         }
 
         /**
          */
+        @NonNull
         @Override
-        public void setTitleItem(@Nullable Icon icon, boolean isLoading) {
-            Slice.Builder sb = new Slice.Builder(getBuilder()).addIcon(icon, null /* subtype */);
+        public void setTitleItem(Icon icon, int imageMode, boolean isLoading) {
+            ArrayList<String> hints = new ArrayList<>();
+            if (imageMode != ICON_IMAGE) {
+                hints.add(HINT_NO_TINT);
+            }
+            if (imageMode == LARGE_IMAGE) {
+                hints.add(HINT_LARGE);
+            }
+            if (isLoading) {
+                hints.add(HINT_PARTIAL);
+            }
+            Slice.Builder sb = new Slice.Builder(getBuilder())
+                    .addIcon(icon, null /* subType */, hints);
             if (isLoading) {
                 sb.addHints(HINT_PARTIAL);
             }
@@ -404,16 +418,27 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
          */
         @NonNull
         @Override
-        public void addEndItem(@NonNull Icon icon) {
-            addEndItem(icon, false /* isLoading */);
+        public void addEndItem(Icon icon, int imageMode) {
+            addEndItem(icon, imageMode, false /* isLoading */);
         }
 
         /**
          */
+        @NonNull
         @Override
-        public void addEndItem(Icon icon, boolean isLoading) {
-            Slice.Builder sb = new Slice.Builder(getBuilder()).addIcon(icon, null /* subType */,
-                    HINT_NO_TINT, HINT_LARGE);
+        public void addEndItem(Icon icon, int imageMode, boolean isLoading) {
+            ArrayList<String> hints = new ArrayList<>();
+            if (imageMode != ICON_IMAGE) {
+                hints.add(HINT_NO_TINT);
+            }
+            if (imageMode == LARGE_IMAGE) {
+                hints.add(HINT_LARGE);
+            }
+            if (isLoading) {
+                hints.add(HINT_PARTIAL);
+            }
+            Slice.Builder sb = new Slice.Builder(getBuilder())
+                    .addIcon(icon, null /* subType */, hints);
             if (isLoading) {
                 sb.addHints(HINT_PARTIAL);
             }

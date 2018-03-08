@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 <!-- Layout for the frame of a 2 pane actions fragment. -->
-<android.support.v17.leanback.app.GuidedStepRootLayout
+<androidx.leanback.app.GuidedStepRootLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/guidedstep_root"
     android:layout_width="match_parent"
@@ -37,13 +37,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <android.support.v17.leanback.widget.NonOverlappingFrameLayout
+            <androidx.leanback.widget.NonOverlappingFrameLayout
                 android:id="@+id/content_fragment"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent" />
 
-            <android.support.v17.leanback.widget.NonOverlappingFrameLayout
+            <androidx.leanback.widget.NonOverlappingFrameLayout
                 android:id="@+id/action_fragment_root"
                 android:transitionName="action_fragment_root"
                 android:transitionGroup="false"
@@ -55,7 +55,7 @@
                 android:layout_weight="?attr/guidedActionContentWidthWeight"
                 android:layout_height="match_parent" >
 
-                <android.support.v17.leanback.widget.NonOverlappingView
+                <androidx.leanback.widget.NonOverlappingView
                     android:id="@+id/action_fragment_background"
                     android:transitionName="action_fragment_background"
                     android:orientation="horizontal"
@@ -65,7 +65,7 @@
                     android:background="?attr/guidedActionsBackground"
                     android:elevation="?attr/guidedActionsElevation" />
 
-                <android.support.v17.leanback.widget.NonOverlappingLinearLayout
+                <androidx.leanback.widget.NonOverlappingLinearLayout
                     android:id="@+id/action_fragment"
                     android:focusable="true"
                     android:descendantFocusability="afterDescendants"
@@ -75,10 +75,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:elevation="?attr/guidedActionsElevation" />
-            </android.support.v17.leanback.widget.NonOverlappingFrameLayout>
+            </androidx.leanback.widget.NonOverlappingFrameLayout>
 
         </LinearLayout>
 
     </FrameLayout>
 
-</android.support.v17.leanback.app.GuidedStepRootLayout>
+</androidx.leanback.app.GuidedStepRootLayout>

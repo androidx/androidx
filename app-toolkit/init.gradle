@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import android.support.DacOptions
-import android.support.license.CheckExternalDependencyLicensesTask
+import androidx.build.DacOptions
+import androidx.build.license.CheckExternalDependencyLicensesTask
+
 apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
 init.setSdkInLocalPropertiesFile()
 

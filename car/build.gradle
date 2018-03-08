@@ -1,32 +1,32 @@
-import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("androidx.tools.jetifier")
 }
 
 dependencies {
-    api project(':appcompat-v7')
-    api project(':cardview-v7')
-    api("com.android.support:design-widget:28.0.0-alpha1") {
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'com.android.support', module: 'support-compat'
-        exclude group: 'com.android.support', module: 'support-core-ui'
-        exclude group: 'com.android.support', module: 'support-core-utils'
-        exclude group: 'com.android.support', module: 'support-fragment'
-        exclude group: 'com.android.support', module: 'transition'
-        exclude group: 'com.android.support', module: 'appcompat-v7'
-        exclude group: 'com.android.support', module: 'recyclerview-v7'
-        exclude group: 'com.android.support', module: 'cardview-v7'
+    api project(':appcompat')
+    api project(':cardview')
+    api "com.android.temp.support:design-widget:28.0.0-alpha1", {
+        exclude group: 'androidx.annotation'
+        exclude group: 'androidx.core'
+        exclude group: 'androidx.legacy'
+        exclude group: 'androidx.fragment'
+        exclude group: 'androidx.transition'
+        exclude group: 'androidx.appcompat'
+        exclude group: 'androidx.recyclerview'
+        exclude group: 'androidx.cardview'
     }
-    api project(':support-annotations')
-    api project(':support-v4')
-    api project(':recyclerview-v7')
+    api project(':annotation')
+    api project(':legacy-support-v4')
+    api project(':recyclerview')
 
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_support)
+    androidTestImplementation jetifier.process(TEST_RUNNER, libs.exclude_support)
+    androidTestImplementation jetifier.process(ESPRESSO_CORE, libs.exclude_support)
+    androidTestImplementation jetifier.process(ESPRESSO_CONTRIB, libs.exclude_support)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 

@@ -1,29 +1,29 @@
-package android.support.v4.app {
+package androidx.loader.app {
 
   public abstract class LoaderManager {
     ctor public LoaderManager();
     method public abstract void destroyLoader(int);
     method public abstract void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public static void enableDebugLogging(boolean);
-    method public static <T extends android.arch.lifecycle.LifecycleOwner & android.arch.lifecycle.ViewModelStoreOwner> android.support.v4.app.LoaderManager getInstance(T);
-    method public abstract <D> android.support.v4.content.Loader<D> getLoader(int);
+    method public static <T extends android.arch.lifecycle.LifecycleOwner & android.arch.lifecycle.ViewModelStoreOwner> androidx.loader.app.LoaderManager getInstance(T);
+    method public abstract <D> androidx.loader.content.Loader<D> getLoader(int);
     method public boolean hasRunningLoaders();
-    method public abstract <D> android.support.v4.content.Loader<D> initLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
+    method public abstract <D> androidx.loader.content.Loader<D> initLoader(int, android.os.Bundle, androidx.loader.app.LoaderManager.LoaderCallbacks<D>);
     method public abstract void markForRedelivery();
-    method public abstract <D> android.support.v4.content.Loader<D> restartLoader(int, android.os.Bundle, android.support.v4.app.LoaderManager.LoaderCallbacks<D>);
+    method public abstract <D> androidx.loader.content.Loader<D> restartLoader(int, android.os.Bundle, androidx.loader.app.LoaderManager.LoaderCallbacks<D>);
   }
 
   public static abstract interface LoaderManager.LoaderCallbacks<D> {
-    method public abstract android.support.v4.content.Loader<D> onCreateLoader(int, android.os.Bundle);
-    method public abstract void onLoadFinished(android.support.v4.content.Loader<D>, D);
-    method public abstract void onLoaderReset(android.support.v4.content.Loader<D>);
+    method public abstract androidx.loader.content.Loader<D> onCreateLoader(int, android.os.Bundle);
+    method public abstract void onLoadFinished(androidx.loader.content.Loader<D>, D);
+    method public abstract void onLoaderReset(androidx.loader.content.Loader<D>);
   }
 
 }
 
-package android.support.v4.content {
+package androidx.loader.content {
 
-  public abstract class AsyncTaskLoader<D> extends android.support.v4.content.Loader {
+  public abstract class AsyncTaskLoader<D> extends androidx.loader.content.Loader {
     ctor public AsyncTaskLoader(android.content.Context);
     method public void cancelLoadInBackground();
     method public boolean isLoadInBackgroundCanceled();
@@ -33,7 +33,7 @@ package android.support.v4.content {
     method public void setUpdateThrottle(long);
   }
 
-  public class CursorLoader extends android.support.v4.content.AsyncTaskLoader {
+  public class CursorLoader extends androidx.loader.content.AsyncTaskLoader {
     ctor public CursorLoader(android.content.Context);
     ctor public CursorLoader(android.content.Context, android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String);
     method public void deliverResult(android.database.Cursor);
@@ -73,15 +73,15 @@ package android.support.v4.content {
     method protected void onReset();
     method protected void onStartLoading();
     method protected void onStopLoading();
-    method public void registerListener(int, android.support.v4.content.Loader.OnLoadCompleteListener<D>);
-    method public void registerOnLoadCanceledListener(android.support.v4.content.Loader.OnLoadCanceledListener<D>);
+    method public void registerListener(int, androidx.loader.content.Loader.OnLoadCompleteListener<D>);
+    method public void registerOnLoadCanceledListener(androidx.loader.content.Loader.OnLoadCanceledListener<D>);
     method public void reset();
     method public void rollbackContentChanged();
     method public final void startLoading();
     method public void stopLoading();
     method public boolean takeContentChanged();
-    method public void unregisterListener(android.support.v4.content.Loader.OnLoadCompleteListener<D>);
-    method public void unregisterOnLoadCanceledListener(android.support.v4.content.Loader.OnLoadCanceledListener<D>);
+    method public void unregisterListener(androidx.loader.content.Loader.OnLoadCompleteListener<D>);
+    method public void unregisterOnLoadCanceledListener(androidx.loader.content.Loader.OnLoadCanceledListener<D>);
   }
 
   public final class Loader.ForceLoadContentObserver extends android.database.ContentObserver {
@@ -89,11 +89,11 @@ package android.support.v4.content {
   }
 
   public static abstract interface Loader.OnLoadCanceledListener<D> {
-    method public abstract void onLoadCanceled(android.support.v4.content.Loader<D>);
+    method public abstract void onLoadCanceled(androidx.loader.content.Loader<D>);
   }
 
   public static abstract interface Loader.OnLoadCompleteListener<D> {
-    method public abstract void onLoadComplete(android.support.v4.content.Loader<D>, D);
+    method public abstract void onLoadComplete(androidx.loader.content.Loader<D>, D);
   }
 
 }

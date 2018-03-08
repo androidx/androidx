@@ -1,6 +1,6 @@
-import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import java.util.zip.ZipException
 import java.util.zip.ZipFile
 
@@ -22,13 +22,13 @@ dependencies {
     // treats this as local jar and package it inside the aar.
     api files(configurations.repackage)
 
-    api(project(":support-compat"))
+    api(project(":core"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation project(':support-testutils')
+    androidTestImplementation project(':internal-testutils')
 }
 
 android {
@@ -56,7 +56,7 @@ supportLibrary {
     name = "Android Emoji Compat"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.EMOJI
     inceptionYear = "2017"
     description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
 

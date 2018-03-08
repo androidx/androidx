@@ -1,14 +1,14 @@
-import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api(project(":support-vector-drawable"))
-    api(project(":support-core-ui"))
+    api(project(":vectordrawable"))
+    api(project(":legacy-support-core-ui"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
@@ -33,7 +33,7 @@ supportLibrary {
     name = "Android Support AnimatedVectorDrawable"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.VECTORDRAWABLE
     inceptionYear = "2015"
     description = "Android Support AnimatedVectorDrawable"
 }

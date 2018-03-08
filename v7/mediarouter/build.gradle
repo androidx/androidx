@@ -1,15 +1,15 @@
-import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api(project(":support-media-compat"))
-    api(project(":appcompat-v7"))
-    api(project(":palette-v7"))
+    api(project(":media"))
+    api(project(":appcompat"))
+    api(project(":palette"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
@@ -31,7 +31,7 @@ supportLibrary {
     name = "Android MediaRouter Support Library"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.MEDIAROUTER
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"
 }

@@ -21,14 +21,14 @@ plugins {
 dependencies {
     implementation("com.android.support:design:28.0.0-SNAPSHOT", { transitive = false })
     implementation(project(":transition"))
-    implementation(project(":recyclerview-v7"))
-    implementation(project(":appcompat-v7"))
-    implementation(project(":support-content"))
+    implementation(project(":recyclerview"))
+    implementation(project(":appcompat"))
+    implementation(project(":contentpaging"))
 }
 
 android {
     defaultConfig {
-        applicationId "com.example.android.support.content.demos"
+        applicationId "com.example.androidx.contentpager.content.demos"
         minSdkVersion 14
     }
 }

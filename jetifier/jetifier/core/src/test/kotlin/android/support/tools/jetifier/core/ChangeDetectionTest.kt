@@ -219,9 +219,7 @@ class ChangeDetectionTest {
         val expectedFileIfRefactored = Files.createTempFile("testRefactored", ".zip")
         val processor = Processor.createProcessor(config)
         val resultFiles = processor.transform(
-            setOf(sourceArchive),
-            outputPath = expectedFileIfRefactored,
-            outputIsDir = false,
+            setOf(FileMapping(sourceArchive, expectedFileIfRefactored.toFile())),
             copyUnmodifiedLibsAlso = false)
 
         if (areChangesExpected) {

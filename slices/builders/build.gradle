@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryVersions
-import android.support.LibraryGroups
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryVersions
+import androidx.build.LibraryGroups
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -24,14 +24,14 @@ plugins {
 
 dependencies {
     implementation(project(":slices-core"))
-    implementation project(":support-annotations")
+    implementation project(":annotation")
 }
 
 supportLibrary {
     name = "Slice builders"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2017"
     description = "A set of builders to create templates using SliceProvider APIs"
     minSdkVersion = 24

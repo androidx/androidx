@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import android.support.DacOptions
+
+import androidx.build.DacOptions
 
 def currentJvmVersion = org.gradle.api.JavaVersion.current()
 if (currentJvmVersion.getMajorVersion() != "8") {
@@ -33,6 +34,7 @@ buildscript {
 
     dependencies {
         classpath build_libs.gradle
+        classpath build_libs.lint
         classpath build_libs.jacoco
         classpath build_libs.jetifier
         classpath build_libs.kotlin.gradle_plugin

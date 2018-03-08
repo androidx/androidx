@@ -20,7 +20,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false">
 
-    <android.support.wear.widget.CircledImageView
+    <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_0"
         android:layout_centerInParent="true"
         app:layout_constraintLeft_toLeftOf="parent"

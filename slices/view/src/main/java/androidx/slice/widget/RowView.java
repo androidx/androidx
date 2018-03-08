@@ -36,12 +36,14 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
-import android.support.annotation.ColorInt;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.ColorInt;
+import androidx.annotation.RestrictTo;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -82,6 +84,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private LinearLayout mEndContainer;
     private SeekBar mSeekBar;
     private ProgressBar mProgressBar;
+    private View mSeeMoreView;
 
     private int mRowIndex;
     private RowContent mRowContent;
@@ -89,12 +92,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private boolean mIsHeader;
     private List<SliceItem> mHeaderActions;
 
+    private int mImageSize;
     private int mIconSize;
     private int mPadding;
 
     public RowView(Context context) {
         super(context);
         mIconSize = getContext().getResources().getDimensionPixelSize(R.dimen.abc_slice_icon_size);
+        mImageSize = getContext().getResources().getDimensionPixelSize(
+                R.dimen.abc_slice_small_image_size);
         mPadding = getContext().getResources().getDimensionPixelSize(R.dimen.abc_slice_padding);
         inflate(context, R.layout.abc_slice_small_template, this);
 
@@ -173,6 +179,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     private void populateViews() {
         resetView();
+        if (mRowContent.isDefaultSeeMore()) {
+            showSeeMore();
+            return;
+        }
+
         boolean showStart = false;
         final SliceItem startItem = mRowContent.getStartItem();
         if (startItem != null) {
@@ -416,13 +427,17 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (image != null) {
             ImageView iv = new ImageView(getContext());
             iv.setImageIcon(image.getIcon());
-            if (color != -1 && !sliceItem.hasHint(HINT_NO_TINT)) {
-                iv.setColorFilter(color);
+            int size = mImageSize;
+            if (!image.hasHint(HINT_NO_TINT)) {
+                if (color != -1) {
+                    iv.setColorFilter(color);
+                }
+                size = mIconSize;
             }
             container.addView(iv);
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
-            lp.width = mIconSize;
-            lp.height = mIconSize;
+            lp.width = size;
+            lp.height = size;
             lp.setMarginStart(padding);
             addedView = iv;
         } else if (timeStamp != null) {
@@ -452,6 +467,31 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                     android.R.attr.selectableItemBackground));
         }
         return addedView != null;
+    }
+
+    private void showSeeMore() {
+        Button b = (Button) LayoutInflater.from(getContext()).inflate(
+                R.layout.abc_slice_row_show_more, this, false);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    if (mObserver != null) {
+                        EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_SEE_MORE,
+                                EventInfo.ROW_TYPE_LIST, mRowIndex);
+                        mObserver.onSliceAction(info, mRowContent.getSlice());
+                    }
+                    mRowContent.getSlice().getAction().send();
+                } catch (CanceledException e) {
+                    Log.w(TAG, "PendingIntent for slice cannot be sent", e);
+                }
+            }
+        });
+        if (mTintColor != -1) {
+            b.setTextColor(mTintColor);
+        }
+        mSeeMoreView = b;
+        addView(mSeeMoreView);
     }
 
     @Override
@@ -494,5 +534,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mDivider.setVisibility(View.GONE);
         mSeekBar.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.GONE);
+        if (mSeeMoreView != null) {
+            removeView(mSeeMoreView);
+        }
     }
 }

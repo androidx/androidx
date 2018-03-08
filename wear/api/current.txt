@@ -1,8 +1,8 @@
-package android.support.wear.ambient {
+package androidx.wear.ambient {
 
   public final deprecated class AmbientMode extends android.app.Fragment {
     ctor public AmbientMode();
-    method public static <T extends android.app.Activity> android.support.wear.ambient.AmbientMode.AmbientController attachAmbientSupport(T);
+    method public static <T extends android.app.Activity> androidx.wear.ambient.AmbientMode.AmbientController attachAmbientSupport(T);
     field public static final java.lang.String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
     field public static final java.lang.String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
     field public static final java.lang.String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
@@ -16,16 +16,16 @@ package android.support.wear.ambient {
   }
 
   public static abstract interface AmbientMode.AmbientCallbackProvider {
-    method public abstract android.support.wear.ambient.AmbientMode.AmbientCallback getAmbientCallback();
+    method public abstract androidx.wear.ambient.AmbientMode.AmbientCallback getAmbientCallback();
   }
 
   public final class AmbientMode.AmbientController {
     method public boolean isAmbient();
   }
 
-  public final class AmbientModeSupport extends android.support.v4.app.Fragment {
+  public final class AmbientModeSupport extends androidx.fragment.app.Fragment {
     ctor public AmbientModeSupport();
-    method public static <T extends android.support.v4.app.FragmentActivity> android.support.wear.ambient.AmbientModeSupport.AmbientController attach(T);
+    method public static <T extends androidx.fragment.app.FragmentActivity> androidx.wear.ambient.AmbientModeSupport.AmbientController attach(T);
     field public static final java.lang.String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
     field public static final java.lang.String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
     field public static final java.lang.String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
@@ -39,7 +39,7 @@ package android.support.wear.ambient {
   }
 
   public static abstract interface AmbientModeSupport.AmbientCallbackProvider {
-    method public abstract android.support.wear.ambient.AmbientModeSupport.AmbientCallback getAmbientCallback();
+    method public abstract androidx.wear.ambient.AmbientModeSupport.AmbientCallback getAmbientCallback();
   }
 
   public final class AmbientModeSupport.AmbientController {
@@ -48,7 +48,7 @@ package android.support.wear.ambient {
 
 }
 
-package android.support.wear.utils {
+package androidx.wear.utils {
 
   public class MetadataConstants {
     method public static int getPreviewDrawableResourceId(android.content.Context, boolean);
@@ -64,13 +64,13 @@ package android.support.wear.utils {
 
 }
 
-package android.support.wear.widget {
+package androidx.wear.widget {
 
   public class BoxInsetLayout extends android.view.ViewGroup {
     ctor public BoxInsetLayout(android.content.Context);
     ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet);
     ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet, int);
-    method public android.support.wear.widget.BoxInsetLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
+    method public androidx.wear.widget.BoxInsetLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
   }
 
   public static class BoxInsetLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams {
@@ -81,7 +81,7 @@ package android.support.wear.widget {
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.widget.FrameLayout.LayoutParams);
-    ctor public BoxInsetLayout.LayoutParams(android.support.wear.widget.BoxInsetLayout.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(androidx.wear.widget.BoxInsetLayout.LayoutParams);
     field public static final int BOX_ALL = 15; // 0xf
     field public static final int BOX_BOTTOM = 8; // 0x8
     field public static final int BOX_LEFT = 1; // 0x1
@@ -98,8 +98,8 @@ package android.support.wear.widget {
     ctor public CircularProgressLayout(android.content.Context, android.util.AttributeSet, int, int);
     method public int getBackgroundColor();
     method public int[] getColorSchemeColors();
-    method public android.support.wear.widget.CircularProgressLayout.OnTimerFinishedListener getOnTimerFinishedListener();
-    method public android.support.v4.widget.CircularProgressDrawable getProgressDrawable();
+    method public androidx.wear.widget.CircularProgressLayout.OnTimerFinishedListener getOnTimerFinishedListener();
+    method public androidx.swiperefreshlayout.widget.CircularProgressDrawable getProgressDrawable();
     method public float getStartingRotation();
     method public float getStrokeWidth();
     method public long getTotalTime();
@@ -107,7 +107,7 @@ package android.support.wear.widget {
     method public boolean isTimerRunning();
     method public void setColorSchemeColors(int...);
     method public void setIndeterminate(boolean);
-    method public void setOnTimerFinishedListener(android.support.wear.widget.CircularProgressLayout.OnTimerFinishedListener);
+    method public void setOnTimerFinishedListener(androidx.wear.widget.CircularProgressLayout.OnTimerFinishedListener);
     method public void setStartingRotation(float);
     method public void setStrokeWidth(float);
     method public void setTotalTime(long);
@@ -116,13 +116,13 @@ package android.support.wear.widget {
   }
 
   public static abstract interface CircularProgressLayout.OnTimerFinishedListener {
-    method public abstract void onTimerFinished(android.support.wear.widget.CircularProgressLayout);
+    method public abstract void onTimerFinished(androidx.wear.widget.CircularProgressLayout);
   }
 
-  public class CurvingLayoutCallback extends android.support.wear.widget.WearableLinearLayoutManager.LayoutCallback {
+  public class CurvingLayoutCallback extends androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback {
     ctor public CurvingLayoutCallback(android.content.Context);
     method public void adjustAnchorOffsetXY(android.view.View, float[]);
-    method public void onLayoutFinished(android.view.View, android.support.v7.widget.RecyclerView);
+    method public void onLayoutFinished(android.view.View, androidx.recyclerview.widget.RecyclerView);
   }
 
   public class RoundedDrawable extends android.graphics.drawable.Drawable {
@@ -146,30 +146,30 @@ package android.support.wear.widget {
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet);
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet, int);
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet, int, int);
-    method public void addCallback(android.support.wear.widget.SwipeDismissFrameLayout.Callback);
-    method public void removeCallback(android.support.wear.widget.SwipeDismissFrameLayout.Callback);
+    method public void addCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback);
+    method public void removeCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback);
   }
 
   public static abstract class SwipeDismissFrameLayout.Callback {
     ctor public SwipeDismissFrameLayout.Callback();
-    method public void onDismissed(android.support.wear.widget.SwipeDismissFrameLayout);
-    method public void onSwipeCanceled(android.support.wear.widget.SwipeDismissFrameLayout);
-    method public void onSwipeStarted(android.support.wear.widget.SwipeDismissFrameLayout);
+    method public void onDismissed(androidx.wear.widget.SwipeDismissFrameLayout);
+    method public void onSwipeCanceled(androidx.wear.widget.SwipeDismissFrameLayout);
+    method public void onSwipeStarted(androidx.wear.widget.SwipeDismissFrameLayout);
   }
 
-  public class WearableLinearLayoutManager extends android.support.v7.widget.LinearLayoutManager {
-    ctor public WearableLinearLayoutManager(android.content.Context, android.support.wear.widget.WearableLinearLayoutManager.LayoutCallback);
+  public class WearableLinearLayoutManager extends androidx.recyclerview.widget.LinearLayoutManager {
+    ctor public WearableLinearLayoutManager(android.content.Context, androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback);
     ctor public WearableLinearLayoutManager(android.content.Context);
-    method public android.support.wear.widget.WearableLinearLayoutManager.LayoutCallback getLayoutCallback();
-    method public void setLayoutCallback(android.support.wear.widget.WearableLinearLayoutManager.LayoutCallback);
+    method public androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback getLayoutCallback();
+    method public void setLayoutCallback(androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback);
   }
 
   public static abstract class WearableLinearLayoutManager.LayoutCallback {
     ctor public WearableLinearLayoutManager.LayoutCallback();
-    method public abstract void onLayoutFinished(android.view.View, android.support.v7.widget.RecyclerView);
+    method public abstract void onLayoutFinished(android.view.View, androidx.recyclerview.widget.RecyclerView);
   }
 
-  public class WearableRecyclerView extends android.support.v7.widget.RecyclerView {
+  public class WearableRecyclerView extends androidx.recyclerview.widget.RecyclerView {
     ctor public WearableRecyclerView(android.content.Context);
     ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet);
     ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet, int);
@@ -186,9 +186,9 @@ package android.support.wear.widget {
 
 }
 
-package android.support.wear.widget.drawer {
+package androidx.wear.widget.drawer {
 
-  public class WearableActionDrawerView extends android.support.wear.widget.drawer.WearableDrawerView {
+  public class WearableActionDrawerView extends androidx.wear.widget.drawer.WearableDrawerView {
     ctor public WearableActionDrawerView(android.content.Context);
     ctor public WearableActionDrawerView(android.content.Context, android.util.AttributeSet);
     ctor public WearableActionDrawerView(android.content.Context, android.util.AttributeSet, int);
@@ -204,21 +204,21 @@ package android.support.wear.widget.drawer {
     method public void peekDrawer();
   }
 
-  public class WearableDrawerLayout extends android.widget.FrameLayout implements android.support.v4.view.NestedScrollingParent android.view.View.OnLayoutChangeListener {
+  public class WearableDrawerLayout extends android.widget.FrameLayout implements androidx.core.view.NestedScrollingParent android.view.View.OnLayoutChangeListener {
     ctor public WearableDrawerLayout(android.content.Context);
     ctor public WearableDrawerLayout(android.content.Context, android.util.AttributeSet);
     ctor public WearableDrawerLayout(android.content.Context, android.util.AttributeSet, int);
     ctor public WearableDrawerLayout(android.content.Context, android.util.AttributeSet, int, int);
     method public void onFlingComplete(android.view.View);
     method public void onLayoutChange(android.view.View, int, int, int, int, int, int, int, int);
-    method public void setDrawerStateCallback(android.support.wear.widget.drawer.WearableDrawerLayout.DrawerStateCallback);
+    method public void setDrawerStateCallback(androidx.wear.widget.drawer.WearableDrawerLayout.DrawerStateCallback);
   }
 
   public static class WearableDrawerLayout.DrawerStateCallback {
     ctor public WearableDrawerLayout.DrawerStateCallback();
-    method public void onDrawerClosed(android.support.wear.widget.drawer.WearableDrawerLayout, android.support.wear.widget.drawer.WearableDrawerView);
-    method public void onDrawerOpened(android.support.wear.widget.drawer.WearableDrawerLayout, android.support.wear.widget.drawer.WearableDrawerView);
-    method public void onDrawerStateChanged(android.support.wear.widget.drawer.WearableDrawerLayout, int);
+    method public void onDrawerClosed(androidx.wear.widget.drawer.WearableDrawerLayout, androidx.wear.widget.drawer.WearableDrawerView);
+    method public void onDrawerOpened(androidx.wear.widget.drawer.WearableDrawerLayout, androidx.wear.widget.drawer.WearableDrawerView);
+    method public void onDrawerStateChanged(androidx.wear.widget.drawer.WearableDrawerLayout, int);
   }
 
   public class WearableDrawerView extends android.widget.FrameLayout {
@@ -226,7 +226,7 @@ package android.support.wear.widget.drawer {
     ctor public WearableDrawerView(android.content.Context, android.util.AttributeSet);
     ctor public WearableDrawerView(android.content.Context, android.util.AttributeSet, int);
     ctor public WearableDrawerView(android.content.Context, android.util.AttributeSet, int, int);
-    method public android.support.wear.widget.drawer.WearableDrawerController getController();
+    method public androidx.wear.widget.drawer.WearableDrawerController getController();
     method public android.view.View getDrawerContent();
     method public int getDrawerState();
     method public boolean isAutoPeekEnabled();
@@ -253,15 +253,15 @@ package android.support.wear.widget.drawer {
     field public static final int STATE_SETTLING = 2; // 0x2
   }
 
-  public class WearableNavigationDrawerView extends android.support.wear.widget.drawer.WearableDrawerView {
+  public class WearableNavigationDrawerView extends androidx.wear.widget.drawer.WearableDrawerView {
     ctor public WearableNavigationDrawerView(android.content.Context);
     ctor public WearableNavigationDrawerView(android.content.Context, android.util.AttributeSet);
     ctor public WearableNavigationDrawerView(android.content.Context, android.util.AttributeSet, int);
     ctor public WearableNavigationDrawerView(android.content.Context, android.util.AttributeSet, int, int);
-    method public void addOnItemSelectedListener(android.support.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener);
+    method public void addOnItemSelectedListener(androidx.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener);
     method public int getNavigationStyle();
-    method public void removeOnItemSelectedListener(android.support.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener);
-    method public void setAdapter(android.support.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter);
+    method public void removeOnItemSelectedListener(androidx.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener);
+    method public void setAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter);
     method public void setCurrentItem(int, boolean);
     field public static final int MULTI_PAGE = 1; // 0x1
     field public static final int SINGLE_PAGE = 0; // 0x0

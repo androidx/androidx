@@ -15,10 +15,10 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.widget.viewpager2.test">
+          package="androidx.viewpager2.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">
-        <activity android:name="androidx.widget.viewpager2.tests.TestActivity"/>
+        <activity android:name="androidx.viewpager2.widget.tests.TestActivity"/>
     </application>
 </manifest>

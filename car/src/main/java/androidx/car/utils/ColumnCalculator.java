@@ -18,7 +18,7 @@ package androidx.car.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.annotation.Px;
+import androidx.annotation.Px;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;

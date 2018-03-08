@@ -19,9 +19,9 @@ package com.example.android.support.transition.widget;
 
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.transition.ChangeClipBounds;
-import android.support.transition.TransitionManager;
-import android.support.v4.view.ViewCompat;
+import androidx.transition.ChangeClipBounds;
+import androidx.transition.TransitionManager;
+import androidx.core.view.ViewCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;

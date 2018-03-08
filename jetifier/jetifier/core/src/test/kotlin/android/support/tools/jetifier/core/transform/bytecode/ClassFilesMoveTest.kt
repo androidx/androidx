@@ -16,6 +16,7 @@
 
 package android.support.tools.jetifier.core.transform.bytecode
 
+import android.support.tools.jetifier.core.FileMapping
 import android.support.tools.jetifier.core.Processor
 import android.support.tools.jetifier.core.archive.Archive
 import android.support.tools.jetifier.core.archive.ArchiveFile
@@ -101,7 +102,9 @@ class ClassFilesMoveTest {
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
         val tempDir = createTempDir()
-        val resultFiles = processor.transform(setOf(inputFile), tempDir.toPath(), true)
+        val expectedFile = File(createTempDir(), "test.zip")
+
+        val resultFiles = processor.transform(setOf(FileMapping(inputFile, expectedFile)))
 
         Truth.assertThat(resultFiles).hasSize(1)
         testArchivesAreSame(resultFiles.first(),
@@ -122,7 +125,9 @@ class ClassFilesMoveTest {
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
         val tempDir = createTempDir()
-        val resultFiles = processor.transform(setOf(inputFile), tempDir.toPath(), true)
+        val expectedFile = File(createTempDir(), "test.zip")
+
+        val resultFiles = processor.transform(setOf(FileMapping(inputFile, expectedFile)))
 
         Truth.assertThat(resultFiles).hasSize(1)
         testArchivesAreSame(resultFiles.first(),
@@ -144,14 +149,19 @@ class ClassFilesMoveTest {
         val processor = Processor.createProcessor(TEST_CONFIG,
             rewritingSupportLib = true)
         val inputFile = File(javaClass.getResource(inputZipPath).file)
+
         val tempDir = createTempDir()
-        val resultFiles = processor.transform(setOf(inputFile), tempDir.toPath(), true)
+        val expectedFile = File(createTempDir(), "test.zip")
+
+        val resultFiles = processor.transform(setOf(FileMapping(inputFile, expectedFile)))
 
         // Take previous result & reverse it
         val processor2 = Processor.createProcessor(TEST_CONFIG,
             rewritingSupportLib = true,
             reversedMode = true)
-        val resultFiles2 = processor2.transform(setOf(resultFiles.first()), tempDir.toPath(), true)
+        val expectedFile2 = File(createTempDir(), "test2.zip")
+        val resultFiles2 = processor2.transform(setOf(
+                FileMapping(resultFiles.first(), expectedFile2)))
 
         testArchivesAreSame(resultFiles2.first(),
             File(javaClass.getResource(inputZipPath).file))
@@ -170,7 +180,9 @@ class ClassFilesMoveTest {
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
         val tempDir = createTempDir()
-        val resultFiles = processor.transform(setOf(inputFile), tempDir.toPath(), true)
+        val expectedFile = File(createTempDir(), inputFile.name)
+
+        val resultFiles = processor.transform(setOf(FileMapping(inputFile, expectedFile)))
 
         Truth.assertThat(resultFiles).hasSize(1)
         testArchivesAreSame(resultFiles.first(),

@@ -48,8 +48,17 @@ class Archive(
 
     override val fileName: String = relativePath.fileName.toString()
 
+    private var targetPath: Path = relativePath
+
     override val wasChanged: Boolean
         get() = files.any { it.wasChanged }
+
+    /**
+     * Sets path where the file should be saved after transformation.
+     */
+    fun setTargetPath(path: Path) {
+        targetPath = path
+    }
 
     override fun accept(visitor: ArchiveItemVisitor) {
         visitor.visit(this)
@@ -60,6 +69,10 @@ class Archive(
         val outputPath = Paths.get(outputDirPath.toString(), fileName)
 
         return writeSelfToFile(outputPath)
+    }
+
+    fun writeSelf(): File {
+        return writeSelfToFile(targetPath)
     }
 
     @Throws(IOException::class)

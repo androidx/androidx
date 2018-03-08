@@ -16,7 +16,7 @@
 
 package androidx.webkit.internal;
 
-import android.support.v4.os.BuildCompat;
+import androidx.core.os.BuildCompat;
 import android.webkit.WebView;
 
 import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface;
@@ -42,10 +42,17 @@ public class WebViewGlueCommunicator {
         return LAZY_FACTORY_HOLDER.INSTANCE;
     }
 
+    public static WebkitToCompatConverter getCompatConverter() {
+        return LAZY_FACTORY_HOLDER.COMPAT_CONVERTER;
+    }
+
     private static class LAZY_FACTORY_HOLDER {
         static final WebViewProviderFactoryAdapter INSTANCE =
                 new WebViewProviderFactoryAdapter(
                         WebViewGlueCommunicator.createGlueProviderFactory());
+        static final WebkitToCompatConverter COMPAT_CONVERTER =
+                new WebkitToCompatConverter(
+                        INSTANCE.getWebkitToCompatConverter());
     }
 
     private static InvocationHandler fetchGlueProviderFactoryImpl() {

@@ -82,7 +82,7 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
      * @param <S>       The type of data hold by {@code source} LiveData
      */
     @MainThread
-    public <S> void addSource(@NonNull LiveData<S> source, @NonNull Observer<S> onChanged) {
+    public <S> void addSource(@NonNull LiveData<S> source, @NonNull Observer<? super S> onChanged) {
         Source<S> e = new Source<>(source, onChanged);
         Source<?> existing = mSources.putIfAbsent(source, e);
         if (existing != null && existing.mObserver != onChanged) {
@@ -129,10 +129,10 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
 
     private static class Source<V> implements Observer<V> {
         final LiveData<V> mLiveData;
-        final Observer<V> mObserver;
+        final Observer<? super V> mObserver;
         int mVersion = START_VERSION;
 
-        Source(LiveData<V> liveData, final Observer<V> observer) {
+        Source(LiveData<V> liveData, final Observer<? super V> observer) {
             mLiveData = liveData;
             mObserver = observer;
         }

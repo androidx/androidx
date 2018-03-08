@@ -40,7 +40,7 @@
                        android:layout_marginBottom="8dp"
                        android:scaleType="fitCenter"
                        android:src="?attr/mediaRouteAudioTrackDrawable" />
-            <android.support.v7.app.MediaRouteVolumeSlider
+            <androidx.mediarouter.app.MediaRouteVolumeSlider
                 android:id="@+id/mr_volume_slider"
                 android:layout_width="fill_parent"
                 android:layout_height="40dp"

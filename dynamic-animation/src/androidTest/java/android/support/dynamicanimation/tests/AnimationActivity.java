@@ -18,7 +18,7 @@ package android.support.dynamicanimation.tests;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.dynamicanimation.test.R;
+import androidx.dynamicanimation.test.R;
 
 public class AnimationActivity extends Activity {
     @Override

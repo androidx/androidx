@@ -16,7 +16,7 @@
 
 package androidx.heifwriter;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.Matrix;

@@ -176,6 +176,9 @@
         <attr name="iconSpaceReserved" format="boolean" />
         <attr name="android:iconSpaceReserved" />
 
+        <!-- Whether the Preference is visible. By default, this is set to true. -->
+        <attr name="isPreferenceVisible" format="boolean" />
+
     </declare-styleable>
 
     <!-- Base attributes available to CheckBoxPreference. -->

@@ -13,4 +13,4 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest package="android.support.v7.preference"/>
+<manifest package="androidx.preference"/>
