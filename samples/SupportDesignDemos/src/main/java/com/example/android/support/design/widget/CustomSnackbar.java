@@ -16,7 +16,7 @@
 package com.example.android.support.design.widget;
 
 import android.support.design.widget.BaseTransientBottomBar;
-import android.support.design.widget.CoordinatorLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import android.view.View;
 import android.widget.TextView;
 

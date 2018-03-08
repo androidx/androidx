@@ -18,13 +18,13 @@
     <declare-styleable name="RecyclerView">
         <!-- Class name of the Layout Manager to be used.
         <p/>
-        The class must extend android.support.v7.widget.RecyclerView$LayoutManager
+        The class must extandroidx.recyclerview.widget.RecyclerViewView$LayoutManager
         and have either a default constructor or constructor with the signature
         (android.content.Context, android.util.AttributeSet, int, int).
          <p/>
          If the name starts with a '.', application package is prefixed.
          Else, if the name contains a '.', the classname is assumed to be a full class name.
-         Else, the recycler view package name (android.support.v7.widget) is prefixed. -->
+         Else, the recycler view package naandroidx.appcompat.widgetdget) is prefixed. -->
         <attr name="layoutManager" format="string" />
 
         <!-- ============================= -->

@@ -17,7 +17,7 @@
 package com.example.android.support.wear.app.drawers;
 
 import android.graphics.drawable.Drawable;
-import android.support.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter;
+import androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter;
 
 /** Simple and declarative {@link WearableNavigationDrawerAdapter}. */
 public class DemoNavDrawerAdapter extends WearableNavigationDrawerAdapter {

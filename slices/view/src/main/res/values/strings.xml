@@ -16,8 +16,10 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- Format string for indicating there is more content in a slice view -->
+    <!-- Format string indicating the number of extra items that aren't being displayed. [CHAR LIMIT=none] -->
     <string name="abc_slice_more_content">+ <xliff:g id="number" example="5">%1$d</xliff:g></string>
+    <!-- Text indicating there is more content available that is not displayed. [CHAR LIMIT=10] -->
+    <string name="abc_slice_more">More</string>
     <!-- String to indicate there is more content to display in a list [CHAR LIMIT=none] -->
     <string name="abc_slice_show_more">Show more</string>
 </resources>

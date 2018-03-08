@@ -22,9 +22,9 @@
         android:id="@+id/main_image"
         style="?attr/imageCardViewImageStyle" />
 
-    <android.support.v17.leanback.widget.NonOverlappingRelativeLayout
+    <androidx.leanback.widget.NonOverlappingRelativeLayout
         android:id="@+id/info_field"
         style="?attr/imageCardViewInfoAreaStyle">
-    </android.support.v17.leanback.widget.NonOverlappingRelativeLayout>
+    </androidx.leanback.widget.NonOverlappingRelativeLayout>
 
 </merge>

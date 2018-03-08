@@ -16,11 +16,11 @@
 
 package androidx.webkit.internal;
 
-import android.support.v4.os.BuildCompat;
+import androidx.core.os.BuildCompat;
 import android.webkit.WebView;
 
-import org.chromium.support_lib_boundary.BoundaryInterfaceReflectionUtil;
 import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface;
+import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;

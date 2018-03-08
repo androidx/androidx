@@ -18,8 +18,8 @@ package com.example.android.supportv7.app;
 import com.example.android.supportv7.R;
 
 import android.os.Bundle;
-import android.support.v4.view.WindowCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * This demonstrates usage of the Action Bar's hide on content scroll

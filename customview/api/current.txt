@@ -1,4 +1,4 @@
-package android.support.v4.view {
+package androidx.customview.view {
 
   public abstract class AbsSavedState implements android.os.Parcelable {
     ctor protected AbsSavedState(android.os.Parcelable);
@@ -7,15 +7,15 @@ package android.support.v4.view {
     method public int describeContents();
     method public final android.os.Parcelable getSuperState();
     method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.support.v4.view.AbsSavedState> CREATOR;
-    field public static final android.support.v4.view.AbsSavedState EMPTY_STATE;
+    field public static final android.os.Parcelable.Creator<androidx.customview.view.AbsSavedState> CREATOR;
+    field public static final androidx.customview.view.AbsSavedState EMPTY_STATE;
   }
 
 }
 
-package android.support.v4.widget {
+package androidx.customview.widget {
 
-  public abstract class ExploreByTouchHelper extends android.support.v4.view.AccessibilityDelegateCompat {
+  public abstract class ExploreByTouchHelper extends androidx.core.view.AccessibilityDelegateCompat {
     ctor public ExploreByTouchHelper(android.view.View);
     method public final boolean clearKeyboardFocusForVirtualView(int);
     method public final boolean dispatchHoverEvent(android.view.MotionEvent);
@@ -32,8 +32,8 @@ package android.support.v4.widget {
     method protected abstract boolean onPerformActionForVirtualView(int, int, android.os.Bundle);
     method protected void onPopulateEventForHost(android.view.accessibility.AccessibilityEvent);
     method protected void onPopulateEventForVirtualView(int, android.view.accessibility.AccessibilityEvent);
-    method protected void onPopulateNodeForHost(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
-    method protected abstract void onPopulateNodeForVirtualView(int, android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
+    method protected void onPopulateNodeForHost(androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
+    method protected abstract void onPopulateNodeForVirtualView(int, androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
     method protected void onVirtualViewKeyboardFocusChanged(int, boolean);
     method public final boolean requestKeyboardFocusForVirtualView(int);
     method public final boolean sendEventForVirtualView(int, int);
@@ -49,8 +49,8 @@ package android.support.v4.widget {
     method public boolean checkTouchSlop(int);
     method public boolean checkTouchSlop(int, int);
     method public boolean continueSettling(boolean);
-    method public static android.support.v4.widget.ViewDragHelper create(android.view.ViewGroup, android.support.v4.widget.ViewDragHelper.Callback);
-    method public static android.support.v4.widget.ViewDragHelper create(android.view.ViewGroup, float, android.support.v4.widget.ViewDragHelper.Callback);
+    method public static androidx.customview.widget.ViewDragHelper create(android.view.ViewGroup, androidx.customview.widget.ViewDragHelper.Callback);
+    method public static androidx.customview.widget.ViewDragHelper create(android.view.ViewGroup, float, androidx.customview.widget.ViewDragHelper.Callback);
     method public android.view.View findTopChildUnder(int, int);
     method public void flingCapturedView(int, int, int, int);
     method public int getActivePointerId();

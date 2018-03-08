@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/view_tinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/view_tinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -42,27 +42,27 @@
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/view_untinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@drawable/test_drawable_blue" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/view_untinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@drawable/test_drawable_blue"
             android:background="@drawable/test_background_green" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/view_android_src_srccompat"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:src="@drawable/test_drawable_blue"
             app:srcCompat="@drawable/test_drawable_red" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/view_tinted_source"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -70,25 +70,25 @@
             app:tint="@color/color_state_list_lilac"
             app:tintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/view_tinted_no_source"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tint="@color/color_state_list_lilac"
             app:tintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/view_untinted_source"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@drawable/test_drawable_blue" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/view_untinted_no_source"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/view_tinted_android_src_srccompat"
             android:layout_width="30dp"
             android:layout_height="30dp"

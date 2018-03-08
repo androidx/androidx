@@ -1,10 +1,10 @@
-package android.support.content {
+package androidx.contentpager.content {
 
   public class ContentPager {
-    ctor public ContentPager(android.content.ContentResolver, android.support.content.ContentPager.QueryRunner);
-    ctor public ContentPager(android.content.ContentResolver, android.support.content.ContentPager.QueryRunner, int);
+    ctor public ContentPager(android.content.ContentResolver, androidx.contentpager.content.ContentPager.QueryRunner);
+    ctor public ContentPager(android.content.ContentResolver, androidx.contentpager.content.ContentPager.QueryRunner, int);
     method public static android.os.Bundle createArgs(int, int);
-    method public android.support.content.Query query(android.net.Uri, java.lang.String[], android.os.Bundle, android.os.CancellationSignal, android.support.content.ContentPager.ContentCallback);
+    method public androidx.contentpager.content.Query query(android.net.Uri, java.lang.String[], android.os.Bundle, android.os.CancellationSignal, androidx.contentpager.content.ContentPager.ContentCallback);
     method public void reset();
     field public static final int CURSOR_DISPOSITION_COPIED = 1; // 0x1
     field public static final int CURSOR_DISPOSITION_PAGED = 2; // 0x2
@@ -19,28 +19,28 @@ package android.support.content {
   }
 
   public static abstract interface ContentPager.ContentCallback {
-    method public abstract void onCursorReady(android.support.content.Query, android.database.Cursor);
+    method public abstract void onCursorReady(androidx.contentpager.content.Query, android.database.Cursor);
   }
 
   public static abstract class ContentPager.CursorDisposition implements java.lang.annotation.Annotation {
   }
 
   public static abstract interface ContentPager.QueryRunner {
-    method public abstract void cancel(android.support.content.Query);
-    method public abstract boolean isRunning(android.support.content.Query);
-    method public abstract void query(android.support.content.Query, android.support.content.ContentPager.QueryRunner.Callback);
+    method public abstract void cancel(androidx.contentpager.content.Query);
+    method public abstract boolean isRunning(androidx.contentpager.content.Query);
+    method public abstract void query(androidx.contentpager.content.Query, androidx.contentpager.content.ContentPager.QueryRunner.Callback);
   }
 
   public static abstract interface ContentPager.QueryRunner.Callback {
-    method public abstract void onQueryFinished(android.support.content.Query, android.database.Cursor);
-    method public abstract android.database.Cursor runQueryInBackground(android.support.content.Query);
+    method public abstract void onQueryFinished(androidx.contentpager.content.Query, android.database.Cursor);
+    method public abstract android.database.Cursor runQueryInBackground(androidx.contentpager.content.Query);
   }
 
-  public final class LoaderQueryRunner implements android.support.content.ContentPager.QueryRunner {
+  public final class LoaderQueryRunner implements androidx.contentpager.content.ContentPager.QueryRunner {
     ctor public LoaderQueryRunner(android.content.Context, android.app.LoaderManager);
-    method public void cancel(android.support.content.Query);
-    method public boolean isRunning(android.support.content.Query);
-    method public void query(android.support.content.Query, android.support.content.ContentPager.QueryRunner.Callback);
+    method public void cancel(androidx.contentpager.content.Query);
+    method public boolean isRunning(androidx.contentpager.content.Query);
+    method public void query(androidx.contentpager.content.Query, androidx.contentpager.content.ContentPager.QueryRunner.Callback);
   }
 
   public final class Query {

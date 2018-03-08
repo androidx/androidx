@@ -1,6 +1,6 @@
-package android.support.v13.app {
+package androidx.legacy.app {
 
-  public deprecated class ActivityCompat extends android.support.v4.app.ActivityCompat {
+  public deprecated class ActivityCompat extends androidx.core.app.ActivityCompat {
     ctor protected deprecated ActivityCompat();
   }
 
@@ -8,7 +8,7 @@ package android.support.v13.app {
     ctor public deprecated FragmentCompat();
     method public static deprecated void requestPermissions(android.app.Fragment, java.lang.String[], int);
     method public static deprecated void setMenuVisibility(android.app.Fragment, boolean);
-    method public static deprecated void setPermissionCompatDelegate(android.support.v13.app.FragmentCompat.PermissionCompatDelegate);
+    method public static deprecated void setPermissionCompatDelegate(androidx.legacy.app.FragmentCompat.PermissionCompatDelegate);
     method public static deprecated void setUserVisibleHint(android.app.Fragment, boolean);
     method public static deprecated boolean shouldShowRequestPermissionRationale(android.app.Fragment, java.lang.String);
   }
@@ -21,7 +21,7 @@ package android.support.v13.app {
     method public abstract deprecated boolean requestPermissions(android.app.Fragment, java.lang.String[], int);
   }
 
-  public abstract deprecated class FragmentPagerAdapter extends android.support.v4.view.PagerAdapter {
+  public abstract deprecated class FragmentPagerAdapter extends androidx.viewpager.widget.PagerAdapter {
     ctor public deprecated FragmentPagerAdapter(android.app.FragmentManager);
     method public deprecated void destroyItem(android.view.ViewGroup, int, java.lang.Object);
     method public deprecated void finishUpdate(android.view.ViewGroup);
@@ -35,7 +35,7 @@ package android.support.v13.app {
     method public deprecated void startUpdate(android.view.ViewGroup);
   }
 
-  public abstract deprecated class FragmentStatePagerAdapter extends android.support.v4.view.PagerAdapter {
+  public abstract deprecated class FragmentStatePagerAdapter extends androidx.viewpager.widget.PagerAdapter {
     ctor public deprecated FragmentStatePagerAdapter(android.app.FragmentManager);
     method public deprecated void destroyItem(android.view.ViewGroup, int, java.lang.Object);
     method public deprecated void finishUpdate(android.view.ViewGroup);
@@ -65,9 +65,9 @@ package android.support.v13.app {
 
 }
 
-package android.support.v13.view {
+package androidx.legacy.view {
 
-  public deprecated class ViewCompat extends android.support.v4.view.ViewCompat {
+  public deprecated class ViewCompat extends androidx.core.view.ViewCompat {
   }
 
 }

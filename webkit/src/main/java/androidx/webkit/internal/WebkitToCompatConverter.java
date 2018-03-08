@@ -18,9 +18,9 @@ package androidx.webkit.internal;
 
 import android.webkit.WebSettings;
 
-import org.chromium.support_lib_boundary.BoundaryInterfaceReflectionUtil;
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
+import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
 /**
  * A class providing functionality for converting android.webkit classes into support library

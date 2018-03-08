@@ -16,7 +16,7 @@
 
 package androidx.car.widget;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 /**
  * Specifies how the system UI should respond to day/night mode events.

@@ -1,4 +1,4 @@
-package android.support.v4.view.animation {
+package androidx.interpolator.view.animation {
 
   public class FastOutLinearInInterpolator implements android.view.animation.Interpolator {
     ctor public FastOutLinearInInterpolator();

@@ -19,9 +19,9 @@ package com.example.android.support.design.widget;
 import com.example.android.support.design.R;
 
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
+import androidx.annotation.LayoutRes;
 import android.support.design.widget.NavigationView;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;

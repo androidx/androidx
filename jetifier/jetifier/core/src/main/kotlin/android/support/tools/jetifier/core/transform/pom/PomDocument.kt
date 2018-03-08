@@ -17,6 +17,7 @@
 package android.support.tools.jetifier.core.transform.pom
 
 import android.support.tools.jetifier.core.archive.ArchiveFile
+import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.utils.Log
 import org.jdom2.Document
 import org.jdom2.Element
@@ -78,7 +79,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
      *
      * Changes are not saved back until requested.
      */
-    fun applyRules(rules: Set<PomRewriteRule>) {
+    fun applyRules(context: TransformationContext) {
         if (dependenciesGroup == null) {
             // Nothing to transform as this file has no dependencies section
             return
@@ -90,14 +91,24 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
                 continue
             }
 
-            val rule = rules.firstOrNull { it.matches(dependency) }
-            if (rule == null) {
-                // No rule to rewrite => keep it
-                newDependencies.add(dependency)
-            } else {
+            val rule = context.config.pomRewriteRules.firstOrNull { it.matches(dependency) }
+            if (rule != null) {
                 // Replace with new dependencies
                 newDependencies.addAll(rule.to.mapTo(newDependencies) { it.rewrite(dependency) })
+                continue
             }
+
+            val matchesPrefix = context.config.restrictToPackagePrefixesWithDots.any {
+                dependency.groupId!!.startsWith(it)
+            }
+            if (matchesPrefix) {
+                // Report error
+                Log.e(TAG, "No mapping found for '%s'", dependency.toStringNotation())
+                context.reportNoPackageMappingFoundFailure()
+            }
+
+            // No rule to rewrite => keep it
+            newDependencies.add(dependency)
         }
 
         if (newDependencies.isEmpty()) {
@@ -127,7 +138,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
     fun logDocumentDetails() {
         Log.i(TAG, "POM file at: '%s'", file.relativePath)
         for ((groupId, artifactId, version) in dependencies) {
-            Log.i(TAG, "- Dep: %s:%s:%s", groupId, artifactId, version)
+            Log.d(TAG, "- Dep: %s:%s:%s", groupId, artifactId, version)
         }
     }
 }

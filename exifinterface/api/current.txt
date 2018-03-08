@@ -1,4 +1,4 @@
-package android.support.media {
+package androidx.exifinterface.media {
 
   public class ExifInterface {
     ctor public ExifInterface(java.lang.String) throws java.io.IOException;

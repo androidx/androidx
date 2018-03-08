@@ -1,0 +1,29 @@
+package android.support.v4.provider {
+
+  public abstract class DocumentFile {
+    method public abstract boolean canRead();
+    method public abstract boolean canWrite();
+    method public abstract android.support.v4.provider.DocumentFile createDirectory(java.lang.String);
+    method public abstract android.support.v4.provider.DocumentFile createFile(java.lang.String, java.lang.String);
+    method public abstract boolean delete();
+    method public abstract boolean exists();
+    method public android.support.v4.provider.DocumentFile findFile(java.lang.String);
+    method public static android.support.v4.provider.DocumentFile fromFile(java.io.File);
+    method public static android.support.v4.provider.DocumentFile fromSingleUri(android.content.Context, android.net.Uri);
+    method public static android.support.v4.provider.DocumentFile fromTreeUri(android.content.Context, android.net.Uri);
+    method public abstract java.lang.String getName();
+    method public android.support.v4.provider.DocumentFile getParentFile();
+    method public abstract java.lang.String getType();
+    method public abstract android.net.Uri getUri();
+    method public abstract boolean isDirectory();
+    method public static boolean isDocumentUri(android.content.Context, android.net.Uri);
+    method public abstract boolean isFile();
+    method public abstract boolean isVirtual();
+    method public abstract long lastModified();
+    method public abstract long length();
+    method public abstract android.support.v4.provider.DocumentFile[] listFiles();
+    method public abstract boolean renameTo(java.lang.String);
+  }
+
+}
+

@@ -23,9 +23,11 @@ plugins {
 }
 
 dependencies {
-    api(project(":support-v4"))
-    api(project(":appcompat-v7"))
-    api(project(":recyclerview-v7"))
+    api(project(":core"))
+    api(project(":collection"))
+    api(project(":fragment"))
+    api(project(":appcompat"))
+    api(project(":recyclerview"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
@@ -50,7 +52,7 @@ supportLibrary {
     name = "Android Support Preference v7"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.PREFERENCE
     inceptionYear = "2015"
     description = "Android Support Preference v7"
 }

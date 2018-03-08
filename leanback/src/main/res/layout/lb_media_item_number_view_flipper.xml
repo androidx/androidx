@@ -33,7 +33,7 @@
             android:adjustViewBounds="true"
             android:src="@drawable/lb_ic_play_fit"
     />
-    <android.support.v17.leanback.widget.MediaNowPlayingView
+    <androidx.leanback.widget.MediaNowPlayingView
             android:id="@+id/playing"
             android:layout_width="@dimen/lb_playback_now_playing_view_size"
             android:layout_height="@dimen/lb_playback_now_playing_view_size"

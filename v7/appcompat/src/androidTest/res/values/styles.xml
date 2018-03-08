@@ -32,7 +32,7 @@
     </style>
 
     <style name="Theme.CustomInflater" parent="@style/Theme.AppCompat.Light">
-        <item name="viewInflaterClass">android.support.v7.app.inflater.CustomViewInflater</item>
+        <item name="viewInflaterClass">androidx.appcompat.app.inflater.CustomViewInflater</item>
     </style>
 
     <style name="Theme.CustomInflaterBadClassName" parent="@style/Theme.AppCompat.Light">

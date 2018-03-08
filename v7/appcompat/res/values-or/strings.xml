@@ -32,7 +32,10 @@
     <!-- no translation found for abc_shareactionprovider_share_with_application (3300176832234831527) -->
     <skip />
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"ଏହାଙ୍କ ସହ ଶେୟାର୍‌ କରନ୍ତୁ"</string>
-    <string name="abc_capital_on" msgid="3405795526292276155">"ଅନ୍"</string>
-    <string name="abc_capital_off" msgid="121134116657445385">"ଅଫ୍"</string>
-    <string name="search_menu_title" msgid="146198913615257606">"ସର୍ଚ୍ଚ କରନ୍ତୁ"</string>
+    <!-- no translation found for abc_capital_on (3405795526292276155) -->
+    <skip />
+    <!-- no translation found for abc_capital_off (121134116657445385) -->
+    <skip />
+    <!-- no translation found for search_menu_title (146198913615257606) -->
+    <skip />
 </resources>

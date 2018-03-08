@@ -13,8 +13,8 @@ jar {
     // themselves have been manually extracted into the
     // external-annotations directory, and those are packaged separately
     // below by the annotationsZip task.
-    exclude('android/support/annotation/ProductionVisibility.class')
-    exclude('android/support/annotation/DimensionUnit.class')
+    exclude('androidx/annotation/ProductionVisibility.class')
+    exclude('androidx/annotation/DimensionUnit.class')
     preserveFileTimestamps = false
     reproducibleFileOrder = true
 }
@@ -54,7 +54,7 @@ supportLibrary {
     name = "Android Support Library Annotations"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.ANNOTATION
     inceptionYear = "2013"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
 }
