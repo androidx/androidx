@@ -20,7 +20,7 @@
      while we do have to use layout_alignParentEnd *and* layout_alignParentRight (as
      the core RelativeLayout needs the old attribute on older pre-v17 platform versions).
 -->
-<android.support.percent.PercentRelativeLayout
+<android.percentlayout.widget.PercentRelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
@@ -93,5 +93,5 @@
         app:layout_marginPercent="10%"
         android:background="#F07020" />
 
-</android.support.percent.PercentRelativeLayout>
+</android.percentlayout.widget.PercentRelativeLayout>
 

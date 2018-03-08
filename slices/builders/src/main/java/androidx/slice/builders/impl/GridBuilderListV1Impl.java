@@ -24,17 +24,17 @@ import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import static androidx.slice.builders.GridBuilder.ICON_IMAGE;
-import static androidx.slice.builders.GridBuilder.LARGE_IMAGE;
+import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
+import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 
@@ -95,7 +95,7 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
      */
     @Override
     public void addCell(TemplateBuilderImpl builder) {
-        getBuilder().addSubSlice(builder.build());
+        getBuilder().addSubSlice(builder.getBuilder().addHints(HINT_LIST_ITEM).build());
     }
 
 
@@ -230,11 +230,11 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
         public Slice build() {
             if (mContentIntent != null) {
                 return new Slice.Builder(getBuilder())
-                        .addHints(HINT_HORIZONTAL, HINT_LIST_ITEM)
+                        .addHints(HINT_HORIZONTAL)
                         .addAction(mContentIntent, getBuilder().build(), null)
                         .build();
             }
-            return getBuilder().addHints(HINT_HORIZONTAL, HINT_LIST_ITEM).build();
+            return getBuilder().addHints(HINT_HORIZONTAL).build();
         }
     }
 }

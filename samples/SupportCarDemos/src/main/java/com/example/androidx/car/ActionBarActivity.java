@@ -18,8 +18,8 @@ package com.example.androidx.car;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
-import android.support.v4.app.FragmentActivity;
+import androidx.annotation.DrawableRes;
+import androidx.fragment.app.FragmentActivity;
 import android.view.View;
 import android.widget.ImageButton;
 

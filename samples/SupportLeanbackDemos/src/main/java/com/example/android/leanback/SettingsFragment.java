@@ -17,11 +17,11 @@
 package com.example.android.leanback;
 
 import android.os.Bundle;
-import android.support.v14.preference.PreferenceFragment;
-import android.support.v17.preference.LeanbackPreferenceFragment;
-import android.support.v17.preference.LeanbackSettingsFragment;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceScreen;
+import androidx.preference.PreferenceFragment;
+import androidx.leanback.preference.LeanbackPreferenceFragment;
+import androidx.leanback.preference.LeanbackSettingsFragment;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
 import android.widget.Toast;
 
 import java.util.Arrays;

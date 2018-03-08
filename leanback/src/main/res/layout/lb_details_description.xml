@@ -23,7 +23,7 @@
     >
 
     <!-- Top margins set programatically -->
-    <android.support.v17.leanback.widget.ResizingTextView
+    <androidx.leanback.widget.ResizingTextView
         android:id="@+id/lb_details_description_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

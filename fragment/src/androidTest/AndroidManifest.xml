@@ -26,20 +26,20 @@
     <application
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
-        <activity android:name="android.support.v4.app.test.FragmentTestActivity"/>
+        <activity android:name="androidx.fragment.app.test.FragmentTestActivity"/>
 
-        <activity android:name="android.support.v4.app.test.EmptyFragmentTestActivity"/>
+        <activity android:name="androidx.fragment.app.test.EmptyFragmentTestActivity"/>
 
-        <activity android:name="android.support.v4.app.test.FragmentResultActivity"/>
+        <activity android:name="androidx.fragment.app.test.FragmentResultActivity"/>
 
-        <activity android:name="android.support.v4.app.test.LoaderActivity"/>
+        <activity android:name="androidx.fragment.app.test.LoaderActivity"/>
 
-        <activity android:name="android.support.v4.app.test.NewIntentActivity"
+        <activity android:name="androidx.fragment.app.test.NewIntentActivity"
                   android:launchMode="singleInstance"/>
 
-        <activity android:name="android.support.v4.app.test.NonConfigOnStopActivity"/>
-        <activity android:name="android.support.v4.app.test.HangingFragmentActivity"/>
-        <activity android:name="android.support.v4.app.test.ViewModelActivity" />
+        <activity android:name="androidx.fragment.app.test.NonConfigOnStopActivity"/>
+        <activity android:name="androidx.fragment.app.test.HangingFragmentActivity"/>
+        <activity android:name="androidx.fragment.app.test.ViewModelActivity" />
     </application>
 
 </manifest>

@@ -20,7 +20,7 @@ plugins {
 
 dependencies {
     implementation(project(":wear"))
-    implementation project(path: ':appcompat-v7')
+    implementation project(path: ':appcompat')
 }
 
 supportTestApp {

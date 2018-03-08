@@ -7,8 +7,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":support-annotations"))
-    api(project(":support-compat"))
+    api(project(":annotation"))
+    api(project(":core"))
 
     androidTestImplementation(TEST_RUNNER)
 }
@@ -28,7 +28,7 @@ supportLibrary {
     name = "Android Support VectorDrawable"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.VECTORDRAWABLE
     inceptionYear = "2015"
     description = "Android Support VectorDrawable"
 }

@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":support-annotations"))
+    api(project(":annotation"))
 }
 
 android {
@@ -19,7 +19,7 @@ supportLibrary {
     name = "Android Support CardView v7"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.CARDVIEW
     inceptionYear = "2011"
     description = "Android Support CardView v7"
 }

@@ -25,7 +25,7 @@ plugins {
 dependencies {
     implementation(project(":slices-core"))
     implementation(project(":slices-builders"))
-    implementation(project(":recyclerview-v7"))
+    implementation(project(":recyclerview"))
     api(ARCH_LIFECYCLE_LIVEDATA_CORE, libs.exclude_annotations_transitive)
 
     androidTestImplementation(TEST_RUNNER)
@@ -41,7 +41,7 @@ supportLibrary {
     name = "Slice views"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2017"
     description = "A library that handles rendering of slice content into supported templates"
     minSdkVersion = 24

@@ -30,6 +30,10 @@
     <dimen name="abc_slice_small_height">48dp</dimen>
     <!-- Minimum height of a large template -->
     <dimen name="abc_slice_large_height">240dp</dimen>
+    <!-- Maximum height of a large template -->
+    <dimen name="abc_slice_max_large_height">320dp</dimen>
+    <!-- Height of the action row -->
+    <dimen name="abc_slice_action_row_height">48dp</dimen>
 
     <!-- Row view sizes-->
     <!-- Min height of row view; default size if one line of text -->

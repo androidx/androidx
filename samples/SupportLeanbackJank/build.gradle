@@ -1,11 +1,12 @@
 plugins {
     id("SupportAndroidTestAppPlugin")
+    id("androidx.tools.jetifier")
 }
 
 dependencies {
-    implementation 'com.github.bumptech.glide:glide:3.6.1'
-    implementation(project(":leanback-v17"))
-    implementation(project(":preference-leanback-v17"))
+    implementation(jetifier.process('com.github.bumptech.glide:glide:3.6.1'))
+    implementation(project(":leanback"))
+    implementation(project(":leanback-preference"))
 }
 
 android {

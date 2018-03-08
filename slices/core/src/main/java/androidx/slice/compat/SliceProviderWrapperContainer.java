@@ -24,8 +24,8 @@ import android.app.slice.SliceProvider;
 import android.app.slice.SliceSpec;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.util.List;
 

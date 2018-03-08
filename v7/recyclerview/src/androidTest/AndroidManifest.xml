@@ -19,9 +19,9 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">
-        <activity android:name="android.support.v7.widget.test.RecyclerViewTestActivity"
+        <activity android:name="androidx.recyclerview.test.RecyclerViewTestActivity"
                   android:theme="@style/noAnimTheme"/>
-        <activity android:name="android.support.v7.widget.TestActivity"
+        <activity android:name="androidx.recyclerview.widget.TestActivity"
                   android:theme="@style/noAnimTheme"/>
     </application>
 </manifest>

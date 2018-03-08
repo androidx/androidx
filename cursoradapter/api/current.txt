@@ -1,4 +1,4 @@
-package android.support.v4.widget {
+package androidx.cursoradapter.widget {
 
   public abstract class CursorAdapter extends android.widget.BaseAdapter implements android.widget.Filterable {
     ctor public deprecated CursorAdapter(android.content.Context, android.database.Cursor);
@@ -25,7 +25,7 @@ package android.support.v4.widget {
     field public static final int FLAG_REGISTER_CONTENT_OBSERVER = 2; // 0x2
   }
 
-  public abstract class ResourceCursorAdapter extends android.support.v4.widget.CursorAdapter {
+  public abstract class ResourceCursorAdapter extends androidx.cursoradapter.widget.CursorAdapter {
     ctor public deprecated ResourceCursorAdapter(android.content.Context, int, android.database.Cursor);
     ctor public deprecated ResourceCursorAdapter(android.content.Context, int, android.database.Cursor, boolean);
     ctor public ResourceCursorAdapter(android.content.Context, int, android.database.Cursor, int);
@@ -34,17 +34,17 @@ package android.support.v4.widget {
     method public void setViewResource(int);
   }
 
-  public class SimpleCursorAdapter extends android.support.v4.widget.ResourceCursorAdapter {
+  public class SimpleCursorAdapter extends androidx.cursoradapter.widget.ResourceCursorAdapter {
     ctor public deprecated SimpleCursorAdapter(android.content.Context, int, android.database.Cursor, java.lang.String[], int[]);
     ctor public SimpleCursorAdapter(android.content.Context, int, android.database.Cursor, java.lang.String[], int[], int);
     method public void bindView(android.view.View, android.content.Context, android.database.Cursor);
     method public void changeCursorAndColumns(android.database.Cursor, java.lang.String[], int[]);
-    method public android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter getCursorToStringConverter();
+    method public androidx.cursoradapter.widget.SimpleCursorAdapter.CursorToStringConverter getCursorToStringConverter();
     method public int getStringConversionColumn();
-    method public android.support.v4.widget.SimpleCursorAdapter.ViewBinder getViewBinder();
-    method public void setCursorToStringConverter(android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter);
+    method public androidx.cursoradapter.widget.SimpleCursorAdapter.ViewBinder getViewBinder();
+    method public void setCursorToStringConverter(androidx.cursoradapter.widget.SimpleCursorAdapter.CursorToStringConverter);
     method public void setStringConversionColumn(int);
-    method public void setViewBinder(android.support.v4.widget.SimpleCursorAdapter.ViewBinder);
+    method public void setViewBinder(androidx.cursoradapter.widget.SimpleCursorAdapter.ViewBinder);
     method public void setViewImage(android.widget.ImageView, java.lang.String);
     method public void setViewText(android.widget.TextView, java.lang.String);
   }

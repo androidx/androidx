@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<android.support.v7.widget.GridLayout
+<androidx.gridlayout.widget.GridLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/gridView"
@@ -39,4 +39,4 @@
             app:layout_columnWeight="1"
             app:layout_gravity="fill_horizontal"
             android:text="column 2, with weight of 1"/>
-</android.support.v7.widget.GridLayout>
+</androidx.gridlayout.widget.GridLayout>

@@ -7,8 +7,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":support-annotations"))
-    api(project(":support-compat"))
+    api(project(":annotation"))
+    api(project(":core"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
@@ -19,7 +19,7 @@ supportLibrary {
     name = "Android Support TV Provider"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.TVPROVIDER
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"
     minSdkVersion = 21

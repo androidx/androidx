@@ -54,6 +54,7 @@ interface ArchiveItem {
     fun writeSelfTo(outputStream: OutputStream)
 
     fun isPomFile() = fileName.equals("pom.xml", ignoreCase = true)
+            || fileName.endsWith(".pom", ignoreCase = true)
 
     fun isClassFile() = fileName.endsWith(".class", ignoreCase = true)
 

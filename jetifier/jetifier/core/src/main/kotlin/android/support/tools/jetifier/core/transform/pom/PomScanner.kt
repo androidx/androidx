@@ -19,13 +19,13 @@ package android.support.tools.jetifier.core.transform.pom
 import android.support.tools.jetifier.core.archive.Archive
 import android.support.tools.jetifier.core.archive.ArchiveFile
 import android.support.tools.jetifier.core.archive.ArchiveItemVisitor
-import android.support.tools.jetifier.core.config.Config
+import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.utils.Log
 
 /**
  * Helper to scan [Archive]s to find their POM files.
  */
-class PomScanner(private val config: Config) {
+class PomScanner(private val context: TransformationContext) {
 
     companion object {
         private const val TAG = "PomScanner"
@@ -35,7 +35,7 @@ class PomScanner(private val config: Config) {
 
     private var validationFailuresCount = 0
 
-    val pomFiles : List<PomDocument> = pomFilesInternal
+    val pomFiles: List<PomDocument> = pomFilesInternal
 
     fun wasErrorFound() = validationFailuresCount > 0
 
@@ -44,44 +44,36 @@ class PomScanner(private val config: Config) {
      *
      * @return null if POM file was not found
      */
-    fun scanArchiveForPomFile(archive: Archive) : PomDocument? {
+    fun scanArchiveForPomFile(archive: Archive) {
         val session = PomScannerSession()
         archive.accept(session)
 
-        if (session.pomFile == null) {
-            return null
+        session.pomFiles.forEach {
+            it.logDocumentDetails()
+
+            // FYI: In reverse mode we don't validate versions
+            if (!context.isInReversedMode && !it.validate(context.config.pomRewriteRules)) {
+                Log.e(TAG, "Version mismatch!")
+                validationFailuresCount++
+            }
+
+            pomFilesInternal.add(it)
         }
-        val pomFile = session.pomFile!!
-
-        pomFile.logDocumentDetails()
-
-        if (!pomFile.validate(config.pomRewriteRules)) {
-            Log.e(TAG, "Version mismatch!")
-            validationFailuresCount++
-        }
-
-        pomFilesInternal.add(session.pomFile!!)
-
-        return session.pomFile
     }
-
 
     private class PomScannerSession : ArchiveItemVisitor {
 
-        var pomFile : PomDocument? = null
+        val pomFiles = mutableSetOf<PomDocument>()
 
         override fun visit(archive: Archive) {
             for (archiveItem in archive.files) {
-                if (pomFile != null) {
-                    break
-                }
                 archiveItem.accept(this)
             }
         }
 
         override fun visit(archiveFile: ArchiveFile) {
             if (archiveFile.isPomFile()) {
-                pomFile = PomDocument.loadFrom(archiveFile)
+                pomFiles.add(PomDocument.loadFrom(archiveFile))
             }
         }
     }

@@ -21,7 +21,7 @@
           app:contentDescription="@string/search_menu_description"
           app:tooltipText="@string/search_menu_tooltip"
           app:showAsAction="always|collapseActionView"
-          app:actionViewClass="android.support.v7.app.CustomCollapsibleView"/>
+          app:actionViewClass="androidx.appcompat.app.CustomCollapsibleView"/>
 
     <item android:id="@+id/action_alpha_shortcut"
           android:title="@string/alpha_menu_title"

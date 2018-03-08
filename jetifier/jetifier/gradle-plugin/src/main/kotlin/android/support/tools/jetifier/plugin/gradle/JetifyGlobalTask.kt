@@ -1,5 +1,6 @@
 package android.support.tools.jetifier.plugin.gradle
 
+import android.support.tools.jetifier.core.FileMapping
 import android.support.tools.jetifier.core.config.ConfigParser
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -115,8 +116,11 @@ open class JetifyGlobalTask : DefaultTask() {
         }
 
         // Process the files using Jetifier
-        val result = TasksCommon.processFiles(config, dependenciesMap.keys, project.logger,
-            outputDir)
+        val result = TasksCommon.processFiles(config,
+                dependenciesMap.keys.map {
+                    FileMapping(it, File(outputDir, it.name))
+                }.toSet(),
+                project.logger)
 
         configurationsToProcess.forEach { conf ->
             // Remove files that we don't need anymore

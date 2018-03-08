@@ -16,7 +16,7 @@
 
 package androidx.recyclerview.selection;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Subclass of {@link Selection} exposing public support for mutating the underlying

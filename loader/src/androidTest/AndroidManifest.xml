@@ -19,7 +19,7 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
-        <activity android:name="android.support.v4.app.test.EmptyActivity" />
+        <activity android:name="androidx.loader.app.test.EmptyActivity" />
     </application>
 
 </manifest>

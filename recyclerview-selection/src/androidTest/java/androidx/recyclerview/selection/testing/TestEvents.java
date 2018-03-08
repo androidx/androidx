@@ -17,7 +17,7 @@
 package androidx.recyclerview.selection.testing;
 
 import android.graphics.Point;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;

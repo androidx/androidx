@@ -20,9 +20,9 @@ import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.support.annotation.ColorRes;
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.ColorRes;
+import androidx.annotation.VisibleForTesting;
+import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -248,22 +248,22 @@ public class PagedScrollBarView extends FrameLayout
             case DayNightStyle.AUTO:
                 tintResId = R.color.car_tint;
                 thumbColorResId = R.color.car_scrollbar_thumb;
-                upDownBackgroundResId = R.drawable.car_card_ripple_background;
+                upDownBackgroundResId = R.drawable.car_button_ripple_background;
                 break;
             case DayNightStyle.AUTO_INVERSE:
                 tintResId = R.color.car_tint_inverse;
                 thumbColorResId = R.color.car_scrollbar_thumb_inverse;
-                upDownBackgroundResId = R.drawable.car_card_ripple_background_inverse;
+                upDownBackgroundResId = R.drawable.car_button_ripple_background_inverse;
                 break;
             case DayNightStyle.FORCE_NIGHT:
                 tintResId = R.color.car_tint_light;
                 thumbColorResId = R.color.car_scrollbar_thumb_light;
-                upDownBackgroundResId = R.drawable.car_card_ripple_background_night;
+                upDownBackgroundResId = R.drawable.car_button_ripple_background_night;
                 break;
             case DayNightStyle.FORCE_DAY:
                 tintResId =  R.color.car_tint_dark;
                 thumbColorResId = R.color.car_scrollbar_thumb_dark;
-                upDownBackgroundResId = R.drawable.car_card_ripple_background_day;
+                upDownBackgroundResId = R.drawable.car_button_ripple_background_day;
                 break;
             default:
                 throw new IllegalArgumentException("Unknown DayNightStyle: " + mDayNightStyle);

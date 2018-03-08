@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android" >
-  <transition class="android.support.v17.leanback.transition.SlideNoPropagation"
+  <transition class="androidx.leanback.transition.SlideNoPropagation"
       android:interpolator="@android:interpolator/fast_out_linear_in"
       android:duration="350"
       android:slideEdge="bottom">
@@ -29,7 +29,7 @@
   </transition>
     <!-- The ParallaxTransition runs with with Slide transition, must use same duration
       and same startDelay-->
-  <transition class="android.support.v17.leanback.transition.ParallaxTransition"
+  <transition class="androidx.leanback.transition.ParallaxTransition"
       android:duration="350">
       <targets>
           <target android:targetId="@id/details_frame" />

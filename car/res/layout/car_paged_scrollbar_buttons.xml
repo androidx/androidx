@@ -22,7 +22,7 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <ImageView
+    <ImageButton
         android:id="@+id/page_up"
         android:layout_width="@dimen/car_scroll_bar_button_size"
         android:layout_height="@dimen/car_scroll_bar_button_size"
@@ -47,7 +47,7 @@
             android:background="@drawable/car_scrollbar_thumb" />
     </FrameLayout>
 
-    <ImageView
+    <ImageButton
         android:id="@+id/page_down"
         android:layout_width="@dimen/car_scroll_bar_button_size"
         android:layout_height="@dimen/car_scroll_bar_button_size"

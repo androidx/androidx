@@ -1,4 +1,4 @@
-package android.support.v7.widget {
+package androidx.cardview.widget {
 
   public class CardView extends android.widget.FrameLayout {
     ctor public CardView(android.content.Context);
