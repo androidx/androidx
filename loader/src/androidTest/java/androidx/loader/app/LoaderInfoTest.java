@@ -25,16 +25,10 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.content.Context;
-import android.os.SystemClock;
-import androidx.annotation.Nullable;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.loader.app.test.DummyLoaderCallbacks;
-import androidx.loader.app.test.EmptyActivity;
-import androidx.loader.content.AsyncTaskLoader;
-import androidx.loader.content.Loader;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,6 +37,11 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import androidx.loader.app.test.DelayLoader;
+import androidx.loader.app.test.DummyLoaderCallbacks;
+import androidx.loader.app.test.EmptyActivity;
+import androidx.loader.content.Loader;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -68,26 +67,10 @@ public class LoaderInfoTest {
     public void testIsCallbackWaitingForData() throws Throwable {
         final DummyLoaderCallbacks loaderCallback = new DummyLoaderCallbacks(mock(Context.class));
         final CountDownLatch deliverResultLatch = new CountDownLatch(1);
-        Loader<Boolean> delayLoader = new AsyncTaskLoader<Boolean>(mock(Context.class)) {
-            @Override
-            public Boolean loadInBackground() {
-                SystemClock.sleep(50);
-                return true;
-            }
-
-            @Override
-            protected void onStartLoading() {
-                forceLoad();
-            }
-
-            @Override
-            public void deliverResult(@Nullable Boolean data) {
-                super.deliverResult(data);
-                deliverResultLatch.countDown();
-            }
-        };
+        Loader<Boolean> delayLoader = new DelayLoader(mActivityRule.getActivity(),
+                deliverResultLatch);
         final LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
-                0, null, delayLoader);
+                0, null, delayLoader, null);
         assertFalse("isCallbackWaitingForData should be false before setCallback",
                 loaderInfo.isCallbackWaitingForData());
 
@@ -115,7 +98,7 @@ public class LoaderInfoTest {
         final DummyLoaderCallbacks loaderCallback = new DummyLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
         final LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
-                0, null, loader);
+                0, null, loader, null);
         assertFalse("onLoadFinished shouldn't be called before setCallback",
                 loaderCallback.mOnLoadFinished);
 
@@ -130,7 +113,7 @@ public class LoaderInfoTest {
         final DummyLoaderCallbacks initialCallback = new DummyLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = initialCallback.onCreateLoader(0, null);
         LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
-                0, null, loader);
+                0, null, loader, null);
         assertFalse("onLoadFinished for initial shouldn't be called before setCallback initial",
                 initialCallback.mOnLoadFinished);
 
@@ -158,7 +141,7 @@ public class LoaderInfoTest {
                 new DummyLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
         LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
-                0, null, loader);
+                0, null, loader, null);
         loaderInfo.setCallback(mOwner, loaderCallback);
         assertTrue("onLoadFinished should be called after setCallback",
                 loaderCallback.mOnLoadFinished);
@@ -181,7 +164,7 @@ public class LoaderInfoTest {
                 new DummyLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = initialCallback.onCreateLoader(0, null);
         LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
-                0, null, loader);
+                0, null, loader, null);
         loaderInfo.setCallback(mOwner, initialCallback);
         assertTrue("onLoadFinished for initial should be called after setCallback initial",
                 initialCallback.mOnLoadFinished);
@@ -212,11 +195,11 @@ public class LoaderInfoTest {
         final DummyLoaderCallbacks loaderCallback = new DummyLoaderCallbacks(mock(Context.class));
         final Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
         final LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
-                0, null, loader);
+                0, null, loader, null);
 
         loaderInfo.setCallback(mActivityRule.getActivity(), loaderCallback);
         assertTrue("Loader should be started after setCallback", loader.isStarted());
-        loaderInfo.destroy();
+        loaderInfo.destroy(true);
         assertFalse("Loader should not be started after destroy", loader.isStarted());
     }
 }
