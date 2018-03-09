@@ -111,11 +111,11 @@ project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "r
 include ':room:integration-tests:kotlintestapp'
 project(':room:integration-tests:kotlintestapp').projectDir = new File(supportRoot, "room/integration-tests/kotlintestapp")
 
-include ':work:workmanager'
-project(':work:workmanager').projectDir = new File(supportRoot, "work/workmanager")
+include ':work:work-runtime'
+project(':work:work-runtime').projectDir = new File(supportRoot, "work/workmanager")
 
-include ':work:workmanager-firebase'
-project(':work:workmanager-firebase').projectDir = new File(supportRoot, "work/workmanager-firebase")
+include ':work:work-firebase'
+project(':work:work-firebase').projectDir = new File(supportRoot, "work/workmanager-firebase")
 
 include ':work:integration-tests:testapp'
 project(':work:integration-tests:testapp').projectDir = new File(supportRoot, "work/integration-tests/testapp")
