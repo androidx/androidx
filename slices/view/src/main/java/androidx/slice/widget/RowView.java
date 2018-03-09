@@ -36,8 +36,6 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
-import androidx.annotation.ColorInt;
-import androidx.annotation.RestrictTo;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -56,6 +54,8 @@ import android.widget.ToggleButton;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
@@ -183,7 +183,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             showSeeMore();
             return;
         }
-
+        CharSequence contentDescr = mRowContent.getContentDescription();
+        if (contentDescr != null) {
+            mContent.setContentDescription(contentDescr);
+        }
         boolean showStart = false;
         final SliceItem startItem = mRowContent.getStartItem();
         if (startItem != null) {
@@ -368,6 +371,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             toggle = new Switch(getContext());
             container.addView(toggle);
         }
+        CharSequence contentDesc = actionContent.getContentDescription();
+        if (contentDesc != null) {
+            toggle.setContentDescription(contentDesc);
+        }
         toggle.setChecked(actionContent.isChecked());
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -433,6 +440,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                     iv.setColorFilter(color);
                 }
                 size = mIconSize;
+            }
+            if (actionContent != null && actionContent.getContentDescription() != null) {
+                iv.setContentDescription(actionContent.getContentDescription());
             }
             container.addView(iv);
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
