@@ -86,7 +86,7 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
                 .then(textReducingWork)
                 .enqueue();
 
-        workManager.getStatus(textReducingWork.getId()).observe(
+        workManager.getStatusById(textReducingWork.getId()).observe(
                 this,
                 status -> {
                     boolean loading = (status != null

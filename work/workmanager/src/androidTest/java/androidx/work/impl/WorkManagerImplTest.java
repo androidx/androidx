@@ -600,26 +600,26 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testGetStatusSync() {
+    public void testGetStatusByIdSync() {
         Work work = new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
         insertWorkSpecAndTags(work);
 
-        WorkStatus workStatus = mWorkManagerImpl.getStatusSync(work.getId());
+        WorkStatus workStatus = mWorkManagerImpl.getStatusByIdSync(work.getId());
         assertThat(workStatus.getId(), is(work.getId()));
         assertThat(workStatus.getState(), is(SUCCEEDED));
     }
 
     @Test
     @SmallTest
-    public void testGetStatusSync_ReturnsNullIfNotInDatabase() {
-        WorkStatus workStatus = mWorkManagerImpl.getStatusSync("dummy");
+    public void testGetStatusByIdSync_returnsNullIfNotInDatabase() {
+        WorkStatus workStatus = mWorkManagerImpl.getStatusByIdSync("dummy");
         assertThat(workStatus, is(nullValue()));
     }
 
     @Test
     @SmallTest
     @SuppressWarnings("unchecked")
-    public void testGetStatuses() {
+    public void testGetStatusesById() {
         Work work0 = new Work.Builder(TestWorker.class).build();
         Work work1 = new Work.Builder(TestWorker.class).build();
         insertWorkSpecAndTags(work0);
@@ -629,7 +629,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
         LiveData<List<WorkStatus>> liveData =
-                mWorkManagerImpl.getStatuses(Arrays.asList(work0.getId(), work1.getId()));
+                mWorkManagerImpl.getStatusesById(Arrays.asList(work0.getId(), work1.getId()));
         liveData.observe(testLifecycleOwner, mockObserver);
 
         ArgumentCaptor<List<WorkStatus>> captor =
@@ -660,6 +660,97 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(captor.getValue().size(), is(2));
 
         workStatus1 = new WorkStatus(work1.getId(), RUNNING, Arguments.EMPTY);
+        assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
+
+        liveData.removeObservers(testLifecycleOwner);
+    }
+
+    @Test
+    @SmallTest
+    public void testGetStatusesByTagSync() {
+        final String firstTag = "first_tag";
+        final String secondTag = "second_tag";
+
+        Work work0 = new Work.Builder(TestWorker.class)
+                .addTag(firstTag)
+                .addTag(secondTag)
+                .withInitialState(RUNNING)
+                .build();
+        Work work1 = new Work.Builder(TestWorker.class)
+                .addTag(firstTag)
+                .withInitialState(BLOCKED)
+                .build();
+        Work work2 = new Work.Builder(TestWorker.class)
+                .addTag(secondTag)
+                .withInitialState(SUCCEEDED)
+                .build();
+        insertWorkSpecAndTags(work0);
+        insertWorkSpecAndTags(work1);
+        insertWorkSpecAndTags(work2);
+
+        WorkStatus workStatus0 = new WorkStatus(work0.getId(), RUNNING, Arguments.EMPTY);
+        WorkStatus workStatus1 = new WorkStatus(work1.getId(), BLOCKED, Arguments.EMPTY);
+        WorkStatus workStatus2 = new WorkStatus(work2.getId(), SUCCEEDED, Arguments.EMPTY);
+
+        List<WorkStatus> workStatuses = mWorkManagerImpl.getStatusesByTagSync(firstTag);
+        assertThat(workStatuses, containsInAnyOrder(workStatus0, workStatus1));
+
+        workStatuses = mWorkManagerImpl.getStatusesByTagSync(secondTag);
+        assertThat(workStatuses, containsInAnyOrder(workStatus0, workStatus2));
+
+        workStatuses = mWorkManagerImpl.getStatusesByTagSync("dummy");
+        assertThat(workStatuses.size(), is(0));
+    }
+
+    @Test
+    @SmallTest
+    @SuppressWarnings("unchecked")
+    public void testGetStatusesByTag() {
+        final String firstTag = "first_tag";
+        final String secondTag = "second_tag";
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        Work work0 = new Work.Builder(TestWorker.class)
+                .addTag(firstTag)
+                .addTag(secondTag)
+                .withInitialState(RUNNING)
+                .build();
+        Work work1 = new Work.Builder(TestWorker.class)
+                .addTag(firstTag)
+                .withInitialState(BLOCKED)
+                .build();
+        Work work2 = new Work.Builder(TestWorker.class)
+                .addTag(secondTag)
+                .withInitialState(SUCCEEDED)
+                .build();
+        insertWorkSpecAndTags(work0);
+        insertWorkSpecAndTags(work1);
+        insertWorkSpecAndTags(work2);
+
+        Observer<List<WorkStatus>> mockObserver = mock(Observer.class);
+
+        TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
+        LiveData<List<WorkStatus>> liveData =
+                mWorkManagerImpl.getStatusesByTag(firstTag);
+        liveData.observe(testLifecycleOwner, mockObserver);
+
+        ArgumentCaptor<List<WorkStatus>> captor =
+                ArgumentCaptor.forClass(List.class);
+        verify(mockObserver).onChanged(captor.capture());
+        assertThat(captor.getValue(), is(not(nullValue())));
+        assertThat(captor.getValue().size(), is(2));
+
+        WorkStatus workStatus0 = new WorkStatus(work0.getId(), RUNNING, Arguments.EMPTY);
+        WorkStatus workStatus1 = new WorkStatus(work1.getId(), BLOCKED, Arguments.EMPTY);
+        assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
+
+        workSpecDao.setState(ENQUEUED, work0.getId());
+
+        verify(mockObserver, times(2)).onChanged(captor.capture());
+        assertThat(captor.getValue(), is(not(nullValue())));
+        assertThat(captor.getValue().size(), is(2));
+
+        workStatus0 = new WorkStatus(work0.getId(), ENQUEUED, Arguments.EMPTY);
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         liveData.removeObservers(testLifecycleOwner);
@@ -806,7 +897,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(workSpecDao.getState(work.getId()), is(ENQUEUED));
 
         mWorkManagerImpl.cancelWorkByIdSync(work.getId());
-        assertThat(mWorkManagerImpl.getStatusSync(work.getId()).getState(), is(CANCELLED));
+        assertThat(mWorkManagerImpl.getStatusByIdSync(work.getId()).getState(), is(CANCELLED));
     }
 
     @Test

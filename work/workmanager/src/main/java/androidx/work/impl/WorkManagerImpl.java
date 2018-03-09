@@ -176,12 +176,12 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public LiveData<WorkStatus> getStatus(@NonNull String id) {
+    public LiveData<WorkStatus> getStatusById(@NonNull String id) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         final MediatorLiveData<WorkStatus> mediatorLiveData = new MediatorLiveData<>();
         mediatorLiveData.addSource(
                 LiveDataUtils.dedupedLiveDataFor(
-                        dao.getIdStateAndOutputsLiveData(Collections.singletonList(id))),
+                        dao.getIdStateAndOutputsLiveDataForIds(Collections.singletonList(id))),
                 new Observer<List<WorkSpec.IdStateAndOutput>>() {
                     @Override
                     public void onChanged(
@@ -202,10 +202,10 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     @WorkerThread
-    public @Nullable WorkStatus getStatusSync(@NonNull String id) {
-        assertBackgroundThread("Cannot call getStatusSync on main thread!");
+    public @Nullable WorkStatus getStatusByIdSync(@NonNull String id) {
+        assertBackgroundThread("Cannot call getStatusByIdSync on main thread!");
         WorkSpec.IdStateAndOutput idStateAndOutput =
-                mWorkDatabase.workSpecDao().getIdStateAndOutput(id);
+                mWorkDatabase.workSpecDao().getIdStateAndOutputForId(id);
         if (idStateAndOutput != null) {
             return new WorkStatus(
                     idStateAndOutput.id,
@@ -216,11 +216,58 @@ public class WorkManagerImpl extends WorkManager {
         }
     }
 
-    LiveData<List<WorkStatus>> getStatuses(@NonNull List<String> workSpecIds) {
+    @Override
+    public LiveData<List<WorkStatus>> getStatusesByTag(@NonNull String tag) {
+        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+        final MediatorLiveData<List<WorkStatus>> mediatorLiveData = new MediatorLiveData<>();
+        mediatorLiveData.addSource(
+                LiveDataUtils.dedupedLiveDataFor(
+                        workSpecDao.getIdStateAndOutputLiveDataForTag(tag)),
+                new Observer<List<WorkSpec.IdStateAndOutput>>() {
+                    @Override
+                    public void onChanged(
+                            @Nullable List<WorkSpec.IdStateAndOutput> idStateAndOutputs) {
+                        List<WorkStatus> workStatuses = null;
+                        if (idStateAndOutputs != null) {
+                            workStatuses = new ArrayList<>(idStateAndOutputs.size());
+                            for (WorkSpec.IdStateAndOutput idStateAndOutput : idStateAndOutputs) {
+                                workStatuses.add(new WorkStatus(
+                                        idStateAndOutput.id,
+                                        idStateAndOutput.state,
+                                        idStateAndOutput.output));
+                            }
+                        }
+                        mediatorLiveData.setValue(workStatuses);
+                    }
+                });
+        return mediatorLiveData;
+    }
+
+    @Override
+    public List<WorkStatus> getStatusesByTagSync(@NonNull String tag) {
+        assertBackgroundThread("Cannot call getStatusesByTagSync on main thread!");
+        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+        List<WorkStatus> workStatuses = null;
+        List<WorkSpec.IdStateAndOutput> idStateAndOutputs =
+                workSpecDao.getIdStateAndOutputForTag(tag);
+        if (idStateAndOutputs != null) {
+            workStatuses = new ArrayList<>(idStateAndOutputs.size());
+            for (WorkSpec.IdStateAndOutput idStateAndOutput : idStateAndOutputs) {
+                workStatuses.add(new WorkStatus(
+                        idStateAndOutput.id,
+                        idStateAndOutput.state,
+                        idStateAndOutput.output));
+            }
+        }
+        return workStatuses;
+    }
+
+    LiveData<List<WorkStatus>> getStatusesById(@NonNull List<String> workSpecIds) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         final MediatorLiveData<List<WorkStatus>> mediatorLiveData = new MediatorLiveData<>();
         mediatorLiveData.addSource(
-                LiveDataUtils.dedupedLiveDataFor(dao.getIdStateAndOutputsLiveData(workSpecIds)),
+                LiveDataUtils.dedupedLiveDataFor(
+                        dao.getIdStateAndOutputsLiveDataForIds(workSpecIds)),
                 new Observer<List<WorkSpec.IdStateAndOutput>>() {
                     @Override
                     public void onChanged(
