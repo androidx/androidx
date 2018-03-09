@@ -3687,6 +3687,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public boolean performAccessibilityAction(Recycler recycler, State state, int action,
             Bundle args) {
+        if (!isScrollEnabled()) {
+            return false;
+        }
         saveContext(recycler, state);
         int translatedAction = action;
         boolean reverseFlowPrimary = (mFlag & PF_REVERSE_FLOW_PRIMARY) != 0;
