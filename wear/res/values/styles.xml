@@ -14,6 +14,11 @@
      limitations under the License.
 -->
 <resources>
+    <style name="ConfirmationActivity" parent="android:Theme.Translucent.NoTitleBar.Fullscreen">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:activityOpenEnterAnimation">@null</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
     <style name="WsSinglePageNavDrawerIconStyle">
         <item name="android:layout_height">@dimen/ws_nav_drawer_single_page_icon_size</item>
         <item name="android:layout_width">@dimen/ws_nav_drawer_single_page_icon_size</item>
