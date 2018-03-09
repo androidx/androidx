@@ -19,6 +19,7 @@ package androidx.slice.render;
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
+import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
 
@@ -116,7 +117,7 @@ public class SliceCreator {
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
                 "open weather app"), Icon.createWithResource(getContext(), R.drawable.weather_1),
                 "Weather is happening!");
-        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         GridRowBuilder gb = new GridRowBuilder(b);
         gb.setPrimaryAction(primaryAction);
         gb.addCell(new GridRowBuilder.CellBuilder(gb)
@@ -148,7 +149,7 @@ public class SliceCreator {
     }
 
     private Slice createGallery(Uri sliceUri) {
-        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         GridRowBuilder gb = new GridRowBuilder(b);
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "see more of your gallery");
         gb.addSeeMoreAction(pi);
@@ -177,7 +178,7 @@ public class SliceCreator {
     }
 
     private Slice createSubSlice(Uri sliceUri, boolean customSeeMore) {
-        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         GridRowBuilder gb = new GridRowBuilder(b);
         GridRowBuilder.CellBuilder cb = new GridRowBuilder.CellBuilder(gb);
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "See cats you follow");
@@ -218,7 +219,7 @@ public class SliceCreator {
     }
 
     private Slice createContact(Uri sliceUri) {
-        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(b);
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
                 "See contact info"), Icon.createWithResource(getContext(),
@@ -275,7 +276,7 @@ public class SliceCreator {
 
     private Slice createNoteSlice(Uri sliceUri) {
         // TODO: Remote input.
-        ListBuilder lb = new ListBuilder(getContext(), sliceUri);
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
         return lb.setColor(0xfff4b400)
                 .addRow(new ListBuilder.RowBuilder(lb)
                     .setTitle("Create new note")
@@ -302,7 +303,7 @@ public class SliceCreator {
         workSubtitle.setSpan(colorSpan, 27, workSubtitle.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "get ride"),
                 Icon.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
-        ListBuilder lb = new ListBuilder(getContext(), sliceUri);
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
         return lb.setColor(0xff0F9D58)
                 .setHeader(new ListBuilder.HeaderBuilder(lb)
                         .setTitle("Get ride")
@@ -325,7 +326,7 @@ public class SliceCreator {
     }
 
     private Slice createCustomToggleSlice(Uri sliceUri) {
-        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         return b.setColor(0xffff4081)
                 .addRow(new ListBuilder.RowBuilder(b)
                     .setTitle("Custom toggle")
@@ -337,7 +338,7 @@ public class SliceCreator {
     }
 
     private Slice createTwoCustomToggleSlices(Uri sliceUri) {
-        ListBuilder lb = new ListBuilder(getContext(), sliceUri);
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
         return lb.setColor(0xffff4081)
                 .addRow(new ListBuilder.RowBuilder(lb)
                         .setTitle("2 toggles")
@@ -375,7 +376,7 @@ public class SliceCreator {
                 break;
         }
         boolean finalWifiEnabled = wifiEnabled;
-        ListBuilder lb = new ListBuilder(getContext(), sliceUri);
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
         SliceAction primaryAction = new SliceAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
                 Icon.createWithResource(getContext(), R.drawable.ic_wifi), "Wi-fi Settings");
         lb.setColor(0xff4285f4);
@@ -422,7 +423,7 @@ public class SliceCreator {
     }
 
     private Slice createReservationSlice(Uri sliceUri) {
-        ListBuilder lb = new ListBuilder(getContext(), sliceUri);
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
         GridRowBuilder gb1 = new GridRowBuilder(lb);
         gb1.addCell(new GridRowBuilder.CellBuilder(gb1)
                 .addImage(Icon.createWithResource(getContext(), R.drawable.reservation),

@@ -56,7 +56,8 @@ package androidx.slice.builders {
   }
 
   public class ListBuilder extends androidx.slice.builders.TemplateSliceBuilder {
-    ctor public ListBuilder(android.content.Context, android.net.Uri);
+    ctor public deprecated ListBuilder(android.content.Context, android.net.Uri);
+    ctor public ListBuilder(android.content.Context, android.net.Uri, long);
     method public androidx.slice.builders.ListBuilder addAction(androidx.slice.builders.SliceAction);
     method public deprecated androidx.slice.builders.ListBuilder addGrid(androidx.slice.builders.GridBuilder);
     method public deprecated androidx.slice.builders.ListBuilder addGrid(java.util.function.Consumer<androidx.slice.builders.GridBuilder>);
@@ -75,6 +76,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder setHeader(java.util.function.Consumer<androidx.slice.builders.ListBuilder.HeaderBuilder>);
     method public androidx.slice.builders.ListBuilder setKeywords(java.util.List<java.lang.String>);
     field public static final int ICON_IMAGE = 0; // 0x0
+    field public static final long INFINITY = -1L; // 0xffffffffffffffffL
     field public static final int LARGE_IMAGE = 2; // 0x2
     field public static final int SMALL_IMAGE = 1; // 0x1
   }

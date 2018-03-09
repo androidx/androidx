@@ -17,12 +17,12 @@
 package androidx.slice.builders.impl;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
+import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
 
 import android.graphics.drawable.Icon;
-import androidx.annotation.RestrictTo;
 
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
 
@@ -39,6 +39,7 @@ public class MessagingListV1Impl extends TemplateBuilderImpl implements Messagin
     public MessagingListV1Impl(Slice.Builder b, SliceSpec spec) {
         super(b, spec);
         mListBuilder = new ListBuilderV1Impl(b, spec);
+        mListBuilder.setTtl(INFINITY);
     }
 
     /**

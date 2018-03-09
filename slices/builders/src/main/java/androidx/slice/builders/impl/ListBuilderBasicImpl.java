@@ -114,6 +114,12 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     /**
      */
     @Override
+    public void setTtl(long ttl) {
+    }
+
+    /**
+     */
+    @Override
     public TemplateBuilderImpl createRowBuilder() {
         return new RowBuilderImpl(this);
     }

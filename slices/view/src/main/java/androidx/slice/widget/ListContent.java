@@ -36,7 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
-import androidx.slice.SliceUtils;
+import androidx.slice.SliceMetadata;
 import androidx.slice.core.SliceQuery;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class ListContent {
         reset();
         mColorItem = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
         // Find slice actions
-        mSliceActions = SliceUtils.getSliceActions(slice);
+        mSliceActions = SliceMetadata.getSliceActions(slice);
         // Find header
         mHeaderItem = findHeaderItem(slice);
         if (mHeaderItem != null) {

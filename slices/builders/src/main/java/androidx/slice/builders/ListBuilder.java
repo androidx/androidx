@@ -86,11 +86,34 @@ public class ListBuilder extends TemplateSliceBuilder {
     public static final int LARGE_IMAGE = 2;
 
     /**
+     * Constant representing infinity.
+     */
+    public static final long INFINITY = -1;
+
+    /**
      * Create a builder which will construct a slice that will display rows of content.
      * @param uri Uri to tag for this slice.
+     *
+     * @deprecated TO BE REMOVED; use {@link #ListBuilder(Context, Uri, long)}.
      */
+    @Deprecated
     public ListBuilder(@NonNull Context context, @NonNull Uri uri) {
         super(context, uri);
+    }
+
+    /**
+     * Create a builder which will construct a slice that will display rows of content.
+     * <p>
+     * A slice requires an associated time-to-live, i.e. how long the data contained in the slice
+     * can remain fresh. If your slice has content that is not time sensitive, set a TTL of
+     * {@link #INFINITY}.
+     *
+     * @param uri Uri to tag for this slice.
+     * @param ttl the length in milliseconds that the content in this slice can live for.
+     */
+    public ListBuilder(@NonNull Context context, @NonNull Uri uri, long ttl) {
+        super(context, uri);
+        mImpl.setTtl(ttl);
     }
 
     @Override

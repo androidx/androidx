@@ -35,7 +35,7 @@ import androidx.annotation.RestrictTo;
 import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
-import androidx.slice.SliceUtils;
+import androidx.slice.SliceMetadata;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -263,7 +263,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         if (slice != null) {
             if (mCurrentSlice == null || mCurrentSlice.getUri() != slice.getUri()) {
                 // New slice, new actions
-                mActions = SliceUtils.getSliceActions(slice);
+                mActions = SliceMetadata.getSliceActions(slice);
                 mCurrentView.resetView();
             }
         } else {
@@ -290,14 +290,14 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
      * It is required that the slice be set on this view before actions can be set, otherwise
      * this will throw {@link IllegalStateException}. If any of the actions supplied are not
      * available for the slice set on this view (i.e. the action is not returned by
-     * {@link SliceUtils#getSliceActions(Slice)} this will throw {@link IllegalArgumentException}.
+     * {@link SliceMetadata#getSliceActions()} this will throw {@link IllegalArgumentException}.
      */
     public void setSliceActions(@Nullable List<SliceItem> newActions) {
         // Check that these actions are part of available set
         if (mCurrentSlice == null) {
             throw new IllegalStateException("Trying to set actions on a view without a slice");
         }
-        List<SliceItem> availableActions = SliceUtils.getSliceActions(mCurrentSlice);
+        List<SliceItem> availableActions = SliceMetadata.getSliceActions(mCurrentSlice);
         if (availableActions != null && newActions != null) {
             for (int i = 0; i < newActions.size(); i++) {
                 if (!availableActions.contains(newActions.get(i))) {
