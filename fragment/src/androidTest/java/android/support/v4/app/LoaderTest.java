@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -187,6 +188,150 @@ public class LoaderTest {
         activity.getSupportLoaderManager().destroyLoader(-1);
     }
 
+    @Test
+    public void testDestroyLoaderBeforeDeliverData() throws Throwable {
+        final LoaderActivity activity = mActivityRule.getActivity();
+        final LoaderManager loaderManager = activity.getSupportLoaderManager();
+        final LoaderTest.DelayLoaderCallbacks callback =
+                new LoaderTest.DelayLoaderCallbacks(mock(Context.class), new CountDownLatch(1));
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loaderManager.initLoader(37, null, callback);
+                // Immediately destroy it before it has a chance to deliver data
+                loaderManager.destroyLoader(37);
+            }
+        });
+        assertFalse("LoaderCallbacks should not be reset if they never received data",
+                callback.mOnLoaderReset);
+        assertTrue("Loader should be reset after destroyLoader()",
+                callback.mLoader.isReset());
+    }
+
+    @Test
+    public void testDestroyLoaderAfterDeliverData() throws Throwable {
+        final LoaderActivity activity = mActivityRule.getActivity();
+        final LoaderManager loaderManager = activity.getSupportLoaderManager();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        final LoaderTest.DelayLoaderCallbacks callback =
+                new LoaderTest.DelayLoaderCallbacks(mock(Context.class), countDownLatch);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loaderManager.initLoader(38, null, callback);
+            }
+        });
+        // Wait for the Loader to return data
+        countDownLatch.await(1, TimeUnit.SECONDS);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loaderManager.destroyLoader(38);
+            }
+        });
+        assertTrue("LoaderCallbacks should be reset after destroyLoader()",
+                callback.mOnLoaderReset);
+        assertTrue("Loader should be reset after destroyLoader()",
+                callback.mLoader.isReset());
+    }
+
+
+    @Test
+    public void testRestartLoaderBeforeDeliverData() throws Throwable {
+        final LoaderActivity activity = mActivityRule.getActivity();
+        final LoaderManager loaderManager = activity.getSupportLoaderManager();
+        final LoaderTest.DelayLoaderCallbacks initialCallback =
+                new LoaderTest.DelayLoaderCallbacks(mock(Context.class), new CountDownLatch(1));
+        CountDownLatch restartCountDownLatch = new CountDownLatch(1);
+        final LoaderTest.DelayLoaderCallbacks restartCallback =
+                new LoaderTest.DelayLoaderCallbacks(mock(Context.class), restartCountDownLatch);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loaderManager.initLoader(44, null, initialCallback);
+                // Immediately restart it before it has a chance to deliver data
+                loaderManager.restartLoader(44, null, restartCallback);
+            }
+        });
+        assertFalse("Initial LoaderCallbacks should not be reset after restartLoader()",
+                initialCallback.mOnLoaderReset);
+        assertTrue("Initial Loader should be reset if it is restarted before delivering data",
+                initialCallback.mLoader.isReset());
+        restartCountDownLatch.await(1, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void testRestartLoaderAfterDeliverData() throws Throwable {
+        final LoaderActivity activity = mActivityRule.getActivity();
+        final LoaderManager loaderManager = activity.getSupportLoaderManager();
+        CountDownLatch initialCountDownLatch = new CountDownLatch(1);
+        final LoaderTest.DelayLoaderCallbacks initialCallback =
+                new LoaderTest.DelayLoaderCallbacks(mock(Context.class), initialCountDownLatch);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loaderManager.initLoader(45, null, initialCallback);
+            }
+        });
+        // Wait for the first Loader to return data
+        initialCountDownLatch.await(1, TimeUnit.SECONDS);
+        CountDownLatch restartCountDownLatch = new CountDownLatch(1);
+        final LoaderTest.DelayLoaderCallbacks restartCallback =
+                new LoaderTest.DelayLoaderCallbacks(mock(Context.class), restartCountDownLatch);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loaderManager.restartLoader(45, null, restartCallback);
+            }
+        });
+        assertFalse("Initial LoaderCallbacks should not be reset after restartLoader()",
+                initialCallback.mOnLoaderReset);
+        assertFalse("Initial Loader should not be reset if it is restarted after delivering data",
+                initialCallback.mLoader.isReset());
+        restartCountDownLatch.await(1, TimeUnit.SECONDS);
+        assertTrue("Initial Loader should be reset after its replacement Loader delivers data",
+                initialCallback.mLoader.isReset());
+    }
+
+    @Test
+    public void testRestartLoaderMultiple() throws Throwable {
+        final LoaderActivity activity = mActivityRule.getActivity();
+        final LoaderManager loaderManager = activity.getSupportLoaderManager();
+        CountDownLatch initialCountDownLatch = new CountDownLatch(1);
+        final LoaderTest.DelayLoaderCallbacks initialCallback =
+                new LoaderTest.DelayLoaderCallbacks(mock(Context.class), initialCountDownLatch);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loaderManager.initLoader(46, null, initialCallback);
+            }
+        });
+        // Wait for the first Loader to return data
+        initialCountDownLatch.await(1, TimeUnit.SECONDS);
+        final LoaderTest.DelayLoaderCallbacks intermediateCallback =
+                new LoaderTest.DelayLoaderCallbacks(mock(Context.class), new CountDownLatch(1));
+        CountDownLatch restartCountDownLatch = new CountDownLatch(1);
+        final LoaderTest.DelayLoaderCallbacks restartCallback =
+                new LoaderTest.DelayLoaderCallbacks(mock(Context.class), restartCountDownLatch);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loaderManager.restartLoader(46, null, intermediateCallback);
+                // Immediately replace the restarted Loader with yet another Loader
+                loaderManager.restartLoader(46, null, restartCallback);
+            }
+        });
+        assertFalse("Initial LoaderCallbacks should not be reset after restartLoader()",
+                initialCallback.mOnLoaderReset);
+        assertFalse("Initial Loader should not be reset if it is restarted after delivering data",
+                initialCallback.mLoader.isReset());
+        assertTrue("Intermediate Loader should be reset if it is restarted before delivering data",
+                intermediateCallback.mLoader.isReset());
+        restartCountDownLatch.await(1, TimeUnit.SECONDS);
+        assertTrue("Initial Loader should be reset after its replacement Loader delivers data",
+                initialCallback.mLoader.isReset());
+    }
+
     /**
      * When a change is interrupted with stop, the data in the LoaderManager remains stale.
      */
@@ -288,6 +433,7 @@ public class LoaderTest {
     static class DummyLoaderCallbacks implements LoaderManager.LoaderCallbacks<Boolean> {
         private final Context mContext;
 
+        Loader<Boolean> mLoader;
         boolean mOnLoadFinished;
         boolean mOnLoaderReset;
 
@@ -298,7 +444,8 @@ public class LoaderTest {
         @NonNull
         @Override
         public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-            return new DummyLoader(mContext);
+            mLoader = new DummyLoader(mContext);
+            return mLoader;
         }
 
         @Override
@@ -320,6 +467,63 @@ public class LoaderTest {
         @Override
         protected void onStartLoading() {
             deliverResult(true);
+        }
+    }
+
+    static class DelayLoaderCallbacks implements LoaderManager.LoaderCallbacks<Boolean> {
+        private final Context mContext;
+        private final CountDownLatch mDeliverResultLatch;
+
+        Loader<Boolean> mLoader;
+        boolean mOnLoadFinished;
+        boolean mOnLoaderReset;
+
+        DelayLoaderCallbacks(Context context, CountDownLatch deliverResultLatch) {
+            mContext = context;
+            mDeliverResultLatch = deliverResultLatch;
+        }
+
+        @NonNull
+        @Override
+        public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+            mLoader = new DelayLoader(mContext, mDeliverResultLatch);
+            return mLoader;
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<Boolean> loader, Boolean data) {
+            mOnLoadFinished = true;
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<Boolean> loader) {
+            mOnLoaderReset = true;
+        }
+    }
+
+    static class DelayLoader extends AsyncTaskLoader<Boolean> {
+        private final CountDownLatch mDeliverResultLatch;
+
+        DelayLoader(Context context, CountDownLatch deliverResultLatch) {
+            super(context);
+            mDeliverResultLatch = deliverResultLatch;
+        }
+
+        @Override
+        public Boolean loadInBackground() {
+            SystemClock.sleep(50);
+            return true;
+        }
+
+        @Override
+        protected void onStartLoading() {
+            forceLoad();
+        }
+
+        @Override
+        public void deliverResult(@Nullable Boolean data) {
+            super.deliverResult(data);
+            mDeliverResultLatch.countDown();
         }
     }
 }

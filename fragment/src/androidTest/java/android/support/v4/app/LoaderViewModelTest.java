@@ -25,6 +25,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.LoaderActivity;
+import android.support.v4.content.Loader;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,7 +73,7 @@ public class LoaderViewModelTest {
         boolean mDestroyed = false;
 
         AlwaysRunningLoaderInfo(Context context) {
-            super(0, null, new LoaderTest.DummyLoader(context));
+            super(0, null, new LoaderTest.DummyLoader(context), null);
         }
 
         @Override
@@ -81,8 +82,9 @@ public class LoaderViewModelTest {
         }
 
         @Override
-        void destroy() {
+        Loader<Boolean> destroy(boolean reset) {
             mDestroyed = true;
+            return super.destroy(reset);
         }
     }
 }
