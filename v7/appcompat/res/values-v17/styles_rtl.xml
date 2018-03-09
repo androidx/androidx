@@ -70,6 +70,16 @@
         <item name="android:textAlignment">viewStart</item>
     </style>
 
+    <style name="RtlOverlay.Widget.AppCompat.PopupMenuItem.Title" parent="android:Widget">
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:textAlignment">viewStart</item>
+    </style>
+
+    <style name="RtlOverlay.Widget.AppCompat.PopupMenuItem.Shortcut" parent="android:Widget">
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:textAlignment">viewEnd</item>
+    </style>
+
     <style name="RtlOverlay.Widget.AppCompat.PopupMenuItem.SubmenuArrow" parent="android:Widget">
         <item name="android:layout_marginStart">8dp</item>
     </style>

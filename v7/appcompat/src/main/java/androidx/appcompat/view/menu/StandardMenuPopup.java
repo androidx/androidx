@@ -19,9 +19,6 @@ package androidx.appcompat.view.menu;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Parcelable;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.R;
-import androidx.appcompat.widget.MenuPopupWindow;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -36,12 +33,17 @@ import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
+import androidx.appcompat.R;
+import androidx.appcompat.widget.MenuPopupWindow;
+import androidx.core.view.ViewCompat;
+
 /**
  * A standard menu popup in which when a submenu is opened, it replaces its parent menu in the
  * viewport.
  */
 final class StandardMenuPopup extends MenuPopup implements OnDismissListener, OnItemClickListener,
         MenuPresenter, OnKeyListener {
+    private static final int ITEM_LAYOUT = R.layout.abc_popup_menu_item_layout;
 
     private final Context mContext;
 
@@ -115,7 +117,7 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
         mMenu = menu;
         mOverflowOnly = overflowOnly;
         final LayoutInflater inflater = LayoutInflater.from(context);
-        mAdapter = new MenuAdapter(menu, inflater, mOverflowOnly);
+        mAdapter = new MenuAdapter(menu, inflater, mOverflowOnly, ITEM_LAYOUT);
         mPopupStyleAttr = popupStyleAttr;
         mPopupStyleRes = popupStyleRes;
 
