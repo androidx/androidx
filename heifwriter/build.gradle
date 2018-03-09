@@ -15,7 +15,7 @@ android {
 dependencies {
     api(project(":annotation"))
 
-    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
 }
 
 supportLibrary {

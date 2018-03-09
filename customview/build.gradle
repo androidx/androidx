@@ -11,8 +11,8 @@ dependencies {
     api(project(":core"))
 
     androidTestImplementation(JUNIT)
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(TEST_RULES_TMP, libs.exclude_for_espresso)
 }
 
 supportLibrary {
