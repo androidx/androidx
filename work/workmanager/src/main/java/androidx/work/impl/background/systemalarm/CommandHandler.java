@@ -25,11 +25,9 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import androidx.work.impl.ExecutionListener;
-import androidx.work.impl.Scheduler;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
 
@@ -261,15 +259,7 @@ public class CommandHandler implements ExecutionListener {
             @NonNull SystemAlarmDispatcher dispatcher) {
 
         Logger.debug(TAG, "Handling reschedule %s, %s", intent, startId);
-        // Get workspec's that are eligible irrespective of their start time.
-        List<WorkSpec> eligibleWorkSpecs = dispatcher.getWorkManager().getWorkDatabase()
-                .workSpecDao()
-                .getSystemAlarmEligibleWorkSpecs(Long.MAX_VALUE);
-
-        // Delegate to the WorkManager's schedulers.
-        for (Scheduler scheduler: dispatcher.getWorkManager().getSchedulers()) {
-            scheduler.schedule(eligibleWorkSpecs.toArray(new WorkSpec[0]));
-        }
+        dispatcher.getWorkManager().rescheduleEligibleWork();
     }
 
     private static boolean hasKeys(@Nullable Bundle bundle, @NonNull String... keys) {

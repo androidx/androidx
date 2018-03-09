@@ -60,7 +60,7 @@ public class WorkSpecDaoTest extends DatabaseTest {
         insertWork(enqueued);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        List<WorkSpec> eligibleWorkSpecs = workSpecDao.getSystemAlarmEligibleWorkSpecs(startTime);
+        List<WorkSpec> eligibleWorkSpecs = workSpecDao.getEligibleWorkSpecs(startTime);
         assertThat(eligibleWorkSpecs.size(), equalTo(1));
         assertThat(eligibleWorkSpecs.get(0).getId(), equalTo(enqueued.getId()));
     }

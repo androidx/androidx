@@ -165,7 +165,7 @@ public interface WorkSpecDao {
     @Query("SELECT * FROM workspec WHERE (state=" + EnumTypeConverters.StateIds.ENQUEUED
             + " OR state=" + EnumTypeConverters.StateIds.RUNNING
             + ") AND period_start_time<=:startTime")
-    List<WorkSpec> getSystemAlarmEligibleWorkSpecs(long startTime);
+    List<WorkSpec> getEligibleWorkSpecs(long startTime);
 
     /**
      * Gets all inputs coming from prerequisites for a particular {@link WorkSpec}.  These are

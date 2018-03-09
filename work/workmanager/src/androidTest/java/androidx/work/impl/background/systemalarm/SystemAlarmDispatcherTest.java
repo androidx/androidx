@@ -18,6 +18,7 @@ package androidx.work.impl.background.systemalarm;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -353,6 +354,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     public void testReschedule() throws InterruptedException {
         // Use a mocked scheduler in this test.
         Scheduler scheduler = mock(Scheduler.class);
+        doCallRealMethod().when(mWorkManager).rescheduleEligibleWork();
         when(mWorkManager.getSchedulers()).thenReturn(Collections.singletonList(scheduler));
 
         Work failed = new Work.Builder(TestWorker.class)
