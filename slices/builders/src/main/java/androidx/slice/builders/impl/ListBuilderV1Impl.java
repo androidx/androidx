@@ -26,9 +26,10 @@ import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
+import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
@@ -38,13 +39,13 @@ import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceSpec;
@@ -154,6 +155,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         private int mMax = 100;
         private int mValue = 0;
         private CharSequence mTitle;
+        private CharSequence mContentDescr;
 
         public RangeBuilderImpl(Slice.Builder sb) {
             super(sb, null);
@@ -175,9 +177,17 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         }
 
         @Override
+        public void setContentDescription(@NonNull CharSequence description) {
+            mContentDescr = description;
+        }
+
+        @Override
         public void apply(Slice.Builder builder) {
             if (mTitle != null) {
                 builder.addText(mTitle, null, HINT_TITLE);
+            }
+            if (mContentDescr != null) {
+                builder.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
             }
             builder.addHints(HINT_LIST_ITEM)
                     .addInt(mMax, SUBTYPE_MAX)
@@ -283,6 +293,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         private SliceItem mSubtitleItem;
         private Slice mStartItem;
         private ArrayList<Slice> mEndItems = new ArrayList<>();
+        private CharSequence mContentDescr;
 
         /**
          */
@@ -464,6 +475,11 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             mEndItems.add(action.buildSlice(sb));
         }
 
+        @Override
+        public void setContentDescription(CharSequence description) {
+            mContentDescr = description;
+        }
+
         /**
          */
         @Override
@@ -480,6 +496,9 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             for (int i = 0; i < mEndItems.size(); i++) {
                 Slice item = mEndItems.get(i);
                 b.addSubSlice(item);
+            }
+            if (mContentDescr != null) {
+                b.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
             }
             if (mPrimaryAction != null) {
                 Slice.Builder sb = new Slice.Builder(
@@ -499,6 +518,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         private CharSequence mSubtitle;
         private CharSequence mSummarySubtitle;
         private SliceAction mPrimaryAction;
+        private CharSequence mContentDescr;
 
         /**
          */
@@ -524,6 +544,9 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             }
             if (mSummarySubtitle != null) {
                 b.addText(mSummarySubtitle, null /* subtype */, HINT_SUMMARY);
+            }
+            if (mContentDescr != null) {
+                b.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
             }
             if (mPrimaryAction != null) {
                 Slice.Builder sb = new Slice.Builder(
@@ -558,6 +581,13 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @Override
         public void setPrimaryAction(SliceAction action) {
             mPrimaryAction = action;
+        }
+
+        /**
+         */
+        @Override
+        public void setContentDescription(CharSequence description) {
+            mContentDescr = description;
         }
     }
 }
