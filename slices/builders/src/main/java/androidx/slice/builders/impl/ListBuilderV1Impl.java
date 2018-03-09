@@ -32,6 +32,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
+import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
 import static androidx.slice.core.SliceHints.SUBTYPE_RANGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
@@ -237,6 +238,17 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     @Override
     public void setColor(@ColorInt int color) {
         getBuilder().addInt(color, SUBTYPE_COLOR);
+    }
+
+    /**
+     */
+    @Override
+    public void setKeywords(@NonNull List<String> keywords) {
+        Slice.Builder sb = new Slice.Builder(getBuilder());
+        for (int i = 0; i < keywords.size(); i++) {
+            sb.addText(keywords.get(i), null);
+        }
+        getBuilder().addSubSlice(sb.addHints(HINT_KEY_WORDS).build());
     }
 
     /**

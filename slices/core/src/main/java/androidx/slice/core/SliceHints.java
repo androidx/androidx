@@ -54,4 +54,11 @@ public class SliceHints {
      * the activity.
      */
     public static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
+
+    /**
+     * A hint to indicate that the contents of this subslice represent a list of keywords
+     * related to the parent slice.
+     */
+    public static final String HINT_KEY_WORDS = "key_words";
+
 }
