@@ -60,7 +60,6 @@ includeProject(":mediarouter", "v7/mediarouter")
 includeProject(":palette", "v7/palette")
 includeProject(":percentlayout", "percent")
 includeProject(":preference", "v7/preference")
-includeProject(":legacy-preference-v14", "v14/preference")
 includeProject(":leanback-preference", "preference-leanback")
 includeProject(":print", "print")
 includeProject(":recommendation", "recommendation")
@@ -73,8 +72,6 @@ includeProject(":slidingpanelayout", "slidingpanelayout")
 includeProject(":annotation", "annotations")
 includeProject(":core", "compat")
 includeProject(":contentpaging", "content")
-includeProject(":legacy-support-core-ui", "core-ui")
-includeProject(":legacy-support-core-utils", "core-utils")
 includeProject(":dynamicanimation", "dynamic-animation")
 includeProject(":emoji", "emoji/core")
 includeProject(":emoji-bundled", "emoji/bundled")
@@ -83,8 +80,6 @@ includeProject(":fragment", "fragment")
 includeProject(":media", "media-compat")
 includeProject(":tvprovider", "tv-provider")
 includeProject(":vectordrawable", "graphics/drawable/static")
-includeProject(":legacy-support-v4", "v4")
-includeProject(":legacy-support-v13", "v13")
 includeProject(":swiperefreshlayout", "swiperefreshlayout")
 includeProject(":textclassifier", "textclassifier")
 includeProject(":transition", "transition")
@@ -93,6 +88,18 @@ includeProject(":viewpager2", "viewpager2")
 includeProject(":wear", "wear")
 includeProject(":webkit", "webkit")
 includeProject(":webkit-codegen", "webkit-codegen")
+
+/////////////////////////////
+//
+// Legacy
+//
+/////////////////////////////
+
+includeProject(":legacy-support-core-ui", "legacy/core-ui")
+includeProject(":legacy-support-core-utils", "legacy/core-utils")
+includeProject(":legacy-support-v4", "legacy/v4")
+includeProject(":legacy-support-v13", "legacy/v13")
+includeProject(":legacy-preference-v14", "legacy/preference-v14")
 
 /////////////////////////////
 //
