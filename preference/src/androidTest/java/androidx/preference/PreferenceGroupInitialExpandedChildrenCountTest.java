@@ -17,7 +17,6 @@
 package androidx.preference;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doAnswer;
@@ -45,6 +44,9 @@ import org.mockito.stubbing.Answer;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Test for InitialExpandedChildrenCount in {@link androidx.preference.PreferenceGroup}.
+ */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class PreferenceGroupInitialExpandedChildrenCountTest {
@@ -52,6 +54,7 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     private static final int INITIAL_EXPANDED_COUNT = 5;
     private static final int TOTAL_PREFERENCE = 10;
     private static final String PREFERENCE_TITLE_PREFIX = "Preference_";
+    private static final String PREFERENCE_KEY = "testing";
 
     private Context mContext;
     private PreferenceManager mPreferenceManager;
@@ -61,11 +64,12 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
 
     @Before
     @UiThreadTest
-    public void setup() throws Exception {
+    public void setup() {
         MockitoAnnotations.initMocks(this);
         mContext = InstrumentationRegistry.getTargetContext();
         mPreferenceManager = new PreferenceManager(mContext);
         mScreen = mPreferenceManager.createPreferenceScreen(mContext);
+        mScreen.setKey(PREFERENCE_KEY);
 
         // Add 10 preferences to the screen and to the cache
         mPreferenceList = new ArrayList<>();
@@ -75,24 +79,13 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         mHandler = spy(new Handler());
         doAnswer(new Answer<Void>() {
             @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
+            public Void answer(InvocationOnMock invocation) {
                 Object[] args = invocation.getArguments();
                 Message message = (Message) args[0];
                 mHandler.dispatchMessage(message);
                 return null;
             }
         }).when(mHandler).sendMessageDelayed(any(Message.class), anyLong());
-    }
-
-    /**
-     * Verifies that when PreferenceGroupAdapter is created, the PreferenceInstanceStateCallback
-     * is set on the PreferenceGroup.
-     */
-    @Test
-    @UiThreadTest
-    public void createPreferenceGroupAdapter_setPreferenceInstanceStateCallback() {
-        PreferenceGroupAdapter preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
-        assertNotNull(mScreen.getPreferenceInstanceStateCallback());
     }
 
     /**
@@ -135,6 +128,7 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     @UiThreadTest
     public void createPreferenceGroupAdapter_displayNestedPreferences() {
         final PreferenceScreen screen = mPreferenceManager.createPreferenceScreen(mContext);
+        screen.setKey(PREFERENCE_KEY);
         final List<Preference> preferenceList = new ArrayList<>();
 
         // Add 2 preferences and 2 categories to screen
@@ -261,27 +255,17 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     @UiThreadTest
     public void saveInstanceState_shouldSaveMaxNumberOfChildrenToShow() {
         // No limit set, should save max value
-        PreferenceGroupAdapter preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
         Parcelable state = mScreen.onSaveInstanceState();
-        assertEquals(CollapsiblePreferenceGroupController.SavedState.class, state.getClass());
+        assertEquals(PreferenceGroup.SavedState.class, state.getClass());
         assertEquals(Integer.MAX_VALUE,
-                ((CollapsiblePreferenceGroupController.SavedState) state).mMaxPreferenceToShow);
+                ((PreferenceGroup.SavedState) state).mInitialExpandedChildrenCount);
 
         // Has limit set, should save limit
         mScreen.setInitialExpandedChildrenCount(INITIAL_EXPANDED_COUNT);
-        preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
         state = mScreen.onSaveInstanceState();
-        assertEquals(CollapsiblePreferenceGroupController.SavedState.class, state.getClass());
+        assertEquals(PreferenceGroup.SavedState.class, state.getClass());
         assertEquals(INITIAL_EXPANDED_COUNT,
-                ((CollapsiblePreferenceGroupController.SavedState) state).mMaxPreferenceToShow);
-
-        // Preferences expanded already, should save max value
-        final Preference expandButton = preferenceGroupAdapter.getItem(INITIAL_EXPANDED_COUNT);
-        expandButton.performClick();
-        state = mScreen.onSaveInstanceState();
-        assertEquals(CollapsiblePreferenceGroupController.SavedState.class, state.getClass());
-        assertEquals(Integer.MAX_VALUE,
-                ((CollapsiblePreferenceGroupController.SavedState) state).mMaxPreferenceToShow);
+                ((PreferenceGroup.SavedState) state).mInitialExpandedChildrenCount);
     }
 
     /**
@@ -291,36 +275,21 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     @Test
     @UiThreadTest
     public void restoreInstanceState_noChange_shouldDoNothing() {
-        Parcelable baseState = Preference.BaseSavedState.EMPTY_STATE;
-        // Initialized as expanded, restore with no saved data, should remain expanded
-        PreferenceGroupAdapter preferenceGroupAdapter =
-                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
-        mScreen.onRestoreInstanceState(baseState);
-        assertPreferencesAreExpanded(preferenceGroupAdapter);
-        verify(mHandler, never()).sendMessageDelayed(any(Message.class), anyLong());
+        PreferenceGroup.SavedState state;
 
-        // Initialized as collapsed, restore with no saved data, should remain collapsed
-        mScreen.setInitialExpandedChildrenCount(INITIAL_EXPANDED_COUNT);
-        preferenceGroupAdapter =
-                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
-        mScreen.onRestoreInstanceState(baseState);
-        assertPreferencesAreCollapsed(preferenceGroupAdapter);
-        verify(mHandler, never()).sendMessageDelayed(any(Message.class), anyLong());
-
-        CollapsiblePreferenceGroupController.SavedState state =
-                new CollapsiblePreferenceGroupController.SavedState(baseState);
         // Initialized as expanded, restore as expanded, should remain expanded
-        state.mMaxPreferenceToShow = Integer.MAX_VALUE;
-        mScreen.setInitialExpandedChildrenCount(Integer.MAX_VALUE);
-        preferenceGroupAdapter =
+        state = new PreferenceGroup.SavedState(
+                Preference.BaseSavedState.EMPTY_STATE, Integer.MAX_VALUE);
+        PreferenceGroupAdapter preferenceGroupAdapter =
                 PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
         mScreen.onRestoreInstanceState(state);
         assertPreferencesAreExpanded(preferenceGroupAdapter);
         verify(mHandler, never()).sendMessageDelayed(any(Message.class), anyLong());
 
         // Initialized as collapsed, restore as collapsed, should remain collapsed
-        state.mMaxPreferenceToShow = INITIAL_EXPANDED_COUNT;
         mScreen.setInitialExpandedChildrenCount(INITIAL_EXPANDED_COUNT);
+        state = new PreferenceGroup.SavedState(
+                Preference.BaseSavedState.EMPTY_STATE, INITIAL_EXPANDED_COUNT);
         preferenceGroupAdapter =
                 PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
         mScreen.onRestoreInstanceState(state);
@@ -335,11 +304,11 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     @Test
     @UiThreadTest
     public void restoreHierarchyState_previouslyCollapsed_shouldRestoreToCollapsedState() {
-        CollapsiblePreferenceGroupController.SavedState state =
-                new CollapsiblePreferenceGroupController.SavedState(
-                        Preference.BaseSavedState.EMPTY_STATE);
+        PreferenceGroup.SavedState state =
+                new PreferenceGroup.SavedState(
+                        Preference.BaseSavedState.EMPTY_STATE, Integer.MAX_VALUE);
         // Initialized as expanded, restore as collapsed, should collapse
-        state.mMaxPreferenceToShow = INITIAL_EXPANDED_COUNT;
+        state.mInitialExpandedChildrenCount = INITIAL_EXPANDED_COUNT;
         mScreen.setInitialExpandedChildrenCount(Integer.MAX_VALUE);
         PreferenceGroupAdapter preferenceGroupAdapter =
                 PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
@@ -355,11 +324,11 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     @Test
     @UiThreadTest
     public void restoreHierarchyState_previouslyExpanded_shouldRestoreToExpandedState() {
-        CollapsiblePreferenceGroupController.SavedState state =
-                new CollapsiblePreferenceGroupController.SavedState(
-                        Preference.BaseSavedState.EMPTY_STATE);
+        PreferenceGroup.SavedState state =
+                new PreferenceGroup.SavedState(
+                        Preference.BaseSavedState.EMPTY_STATE, Integer.MAX_VALUE);
         // Initialized as collapsed, restore as expanded, should expand
-        state.mMaxPreferenceToShow = Integer.MAX_VALUE;
+        state.mInitialExpandedChildrenCount = Integer.MAX_VALUE;
         mScreen.setInitialExpandedChildrenCount(INITIAL_EXPANDED_COUNT);
         PreferenceGroupAdapter preferenceGroupAdapter =
                 PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
