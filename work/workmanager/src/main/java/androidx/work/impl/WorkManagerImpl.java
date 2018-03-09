@@ -41,6 +41,7 @@ import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.CancelWorkRunnable;
+import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.LiveDataUtils;
 import androidx.work.impl.utils.StartWorkRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
@@ -95,6 +96,9 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
                 mWorkDatabase,
                 mSchedulers,
                 configuration.getExecutorService());
+
+        // Checks for app force stops.
+        mTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
     }
 
     /**
@@ -310,6 +314,26 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopWork(String workSpecId) {
         mTaskExecutor.executeOnBackgroundThread(new StopWorkRunnable(this, workSpecId));
+    }
+
+    /**
+     * Reschedules all the eligible work. Useful for cases like, app was force stopped or
+     * BOOT_COMPLETED, TIMEZONE_CHANGED and TIME_SET for AlarmManager.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void rescheduleEligibleWork() {
+        // Using getters here so we can use from a mocked instance
+        // of WorkManagerImpl.
+        List<WorkSpec> eligibleWorkSpecs = getWorkDatabase()
+                .workSpecDao()
+                .getEligibleWorkSpecs(Long.MAX_VALUE);
+
+        // Delegate to the WorkManager's schedulers.
+        for (Scheduler scheduler : getSchedulers()) {
+            scheduler.schedule(eligibleWorkSpecs.toArray(new WorkSpec[0]));
+        }
     }
 
     private void assertBackgroundThread(String errorMessage) {

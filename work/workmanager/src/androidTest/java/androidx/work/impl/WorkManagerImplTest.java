@@ -23,7 +23,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.isOneOf;
 import static org.mockito.Mockito.clearInvocations;
@@ -386,7 +386,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         mWorkManagerImpl.enqueue(work);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
-        assertThat(workSpec.getPeriodStartTime(), is(greaterThan(beforeEnqueueTime)));
+        assertThat(workSpec.getPeriodStartTime(), is(greaterThanOrEqualTo(beforeEnqueueTime)));
     }
 
     @Test
@@ -404,7 +404,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         mWorkManagerImpl.enqueue(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
-        assertThat(workSpec.getPeriodStartTime(), is(greaterThan(beforeEnqueueTime)));
+        assertThat(workSpec.getPeriodStartTime(), is(greaterThanOrEqualTo(beforeEnqueueTime)));
     }
 
     @Test

@@ -64,7 +64,7 @@ class ConstraintsCommandHandler {
 
         List<WorkSpec> eligibleWorkSpecs = mDispatcher.getWorkManager().getWorkDatabase()
                 .workSpecDao()
-                .getSystemAlarmEligibleWorkSpecs(maxStartTime);
+                .getEligibleWorkSpecs(maxStartTime);
 
         // Update constraint proxy to potentially disable proxies for previously
         // completed WorkSpecs.
