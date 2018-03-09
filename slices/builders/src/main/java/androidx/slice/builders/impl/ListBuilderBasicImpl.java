@@ -21,10 +21,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
 import androidx.slice.builders.SliceAction;
@@ -179,6 +179,13 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         /**
          */
         @Override
+        public void setContentDescription(CharSequence description) {
+
+        }
+
+        /**
+         */
+        @Override
         public void setTitleItem(long timeStamp) {
 
         }
@@ -321,6 +328,11 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
          */
         @Override
         public void setPrimaryAction(SliceAction action) {
+
+        }
+
+        @Override
+        public void setContentDescription(CharSequence description) {
 
         }
     }

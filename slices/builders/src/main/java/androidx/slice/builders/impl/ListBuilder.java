@@ -21,10 +21,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import androidx.slice.builders.SliceAction;
 
 /**
@@ -139,6 +139,11 @@ public interface ListBuilder {
          * Set the title.
          */
         void setTitle(@NonNull CharSequence title);
+
+        /**
+         * Sets the content description.
+         */
+        void setContentDescription(CharSequence description);
     }
 
     /**
@@ -280,6 +285,11 @@ public interface ListBuilder {
          * until updated.
          */
         void addEndItem(SliceAction action, boolean isLoading);
+
+        /**
+         * Sets the content description for this row.
+         */
+        void setContentDescription(CharSequence description);
     }
 
 
@@ -310,6 +320,11 @@ public interface ListBuilder {
          * Sets the action to invoke when the header is activated.
          */
         void setPrimaryAction(SliceAction action);
+
+        /**
+         * Sets the content description for the header.
+         */
+        void setContentDescription(CharSequence description);
     }
 }
 

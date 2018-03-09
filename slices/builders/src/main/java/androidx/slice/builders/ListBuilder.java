@@ -24,15 +24,15 @@ import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
+
+import java.util.function.Consumer;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-
-import java.util.function.Consumer;
-
 import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.ListBuilderBasicImpl;
 import androidx.slice.builders.impl.ListBuilderV1Impl;
@@ -356,6 +356,15 @@ public class ListBuilder extends TemplateSliceBuilder {
             return this;
         }
 
+        /**
+         * Sets the content description.
+         */
+        @NonNull
+        public RangeBuilder setContentDescription(@NonNull CharSequence description) {
+            mImpl.setContentDescription(description);
+            return this;
+        }
+
         @Override
         void setImpl(TemplateBuilderImpl impl) {
             mImpl = (androidx.slice.builders.impl.ListBuilder.RangeBuilder) impl;
@@ -415,6 +424,15 @@ public class ListBuilder extends TemplateSliceBuilder {
         @NonNull
         public InputRangeBuilder setThumb(@NonNull Icon thumb) {
             mImpl.setThumb(thumb);
+            return this;
+        }
+
+        /**
+         * Sets the content description.
+         */
+        @NonNull
+        public InputRangeBuilder setContentDescription(@NonNull CharSequence description) {
+            mImpl.setContentDescription(description);
             return this;
         }
 
@@ -774,6 +792,15 @@ public class ListBuilder extends TemplateSliceBuilder {
             return this;
         }
 
+        /**
+         * Sets the content description for the row.
+         */
+        @NonNull
+        public RowBuilder setContentDescription(@NonNull CharSequence description) {
+            mImpl.setContentDescription(description);
+            return this;
+        }
+
         @Override
         void setImpl(TemplateBuilderImpl impl) {
             mImpl = (androidx.slice.builders.impl.ListBuilder.RowBuilder) impl;
@@ -849,6 +876,15 @@ public class ListBuilder extends TemplateSliceBuilder {
         @NonNull
         public HeaderBuilder setPrimaryAction(@NonNull SliceAction action) {
             mImpl.setPrimaryAction(action);
+            return this;
+        }
+
+        /**
+         * Sets the content description for the header.
+         */
+        @NonNull
+        public HeaderBuilder setContentDescription(@NonNull CharSequence description) {
+            mImpl.setContentDescription(description);
             return this;
         }
 
