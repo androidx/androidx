@@ -306,21 +306,21 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         /**
          */
         @Override
-        public void setTitle(CharSequence title) {
+        public void setTitle(CharSequence title, boolean isLoading) {
 
         }
 
         /**
          */
         @Override
-        public void setSubtitle(CharSequence subtitle) {
+        public void setSubtitle(CharSequence subtitle, boolean isLoading) {
 
         }
 
         /**
          */
         @Override
-        public void setSummarySubtitle(CharSequence summarySubtitle) {
+        public void setSummarySubtitle(CharSequence summarySubtitle, boolean isLoading) {
 
         }
 
