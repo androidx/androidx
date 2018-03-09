@@ -20,9 +20,9 @@ dependencies {
     api(project(":asynclayoutinflater"))
     api(project(":cursoradapter"))
 
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_support)
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CONTRIB_TMP, libs.exclude_for_espresso)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation project(':internal-testutils'), {
         exclude group: 'androidx.legacy', module: 'legacy-support-core-ui'

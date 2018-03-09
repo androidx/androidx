@@ -10,7 +10,7 @@ dependencies {
     api(project(":annotation"))
     api(project(":core"))
 
-    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
 }
 
 android {
