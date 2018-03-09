@@ -34,6 +34,8 @@ import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 
+import java.util.Arrays;
+
 import androidx.slice.Slice;
 import androidx.slice.builders.GridBuilder;
 import androidx.slice.builders.ListBuilder;
@@ -378,6 +380,10 @@ public class SliceCreator {
                 .addEndItem(new SliceAction(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
                         "Toggle wifi", finalWifiEnabled))
                 .setPrimaryAction(primaryAction));
+
+        // Add keywords
+        String[] keywords = new String[] {"internet", "wifi", "data", "network"};
+        lb.setKeywords(Arrays.asList(keywords));
 
         // Add fake wifi networks
         int[] wifiIcons = new int[] {R.drawable.ic_wifi_full, R.drawable.ic_wifi_low,

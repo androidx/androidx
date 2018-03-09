@@ -22,6 +22,8 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 
+import java.util.List;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -91,6 +93,11 @@ public interface ListBuilder {
      * Sets the color to tint items displayed by this template (e.g. icons).
      */
     void setColor(@ColorInt int color);
+
+    /**
+     * Sets keywords to associate with this slice.
+     */
+    void setKeywords(List<String> keywords);
 
     /**
      * Create a builder that implements {@link RowBuilder}.

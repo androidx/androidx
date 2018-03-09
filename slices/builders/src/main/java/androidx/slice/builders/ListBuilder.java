@@ -25,6 +25,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import androidx.annotation.ColorInt;
@@ -186,6 +187,15 @@ public class ListBuilder extends TemplateSliceBuilder {
     @NonNull
     public ListBuilder setColor(@ColorInt int color) {
         mImpl.setColor(color);
+        return this;
+    }
+
+    /**
+     * Sets keywords to associate with this slice.
+     */
+    @NonNull
+    public ListBuilder setKeywords(List<String> keywords) {
+        mImpl.setKeywords(keywords);
         return this;
     }
 
