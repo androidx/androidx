@@ -21,12 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +28,13 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * An adapter that connects a RecyclerView to the {@link Preference} objects contained in the
@@ -45,8 +46,6 @@ import java.util.List;
 public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewHolder>
         implements Preference.OnPreferenceChangeInternalListener,
         PreferenceGroup.PreferencePositionCallback {
-
-    private static final String TAG = "PreferenceGroupAdapter";
 
     /**
      * The group that we are providing data from.
@@ -86,16 +85,16 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     };
 
     private static class PreferenceLayout {
-        private int resId;
-        private int widgetResId;
-        private String name;
+        private int mResId;
+        private int mWidgetResId;
+        private String mName;
 
-        public PreferenceLayout() {}
+        PreferenceLayout() {}
 
-        public PreferenceLayout(PreferenceLayout other) {
-            resId = other.resId;
-            widgetResId = other.widgetResId;
-            name = other.name;
+        PreferenceLayout(PreferenceLayout other) {
+            mResId = other.mResId;
+            mWidgetResId = other.mWidgetResId;
+            mName = other.mName;
         }
 
         @Override
@@ -104,17 +103,17 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
                 return false;
             }
             final PreferenceLayout other = (PreferenceLayout) o;
-            return resId == other.resId
-                    && widgetResId == other.widgetResId
-                    && TextUtils.equals(name, other.name);
+            return mResId == other.mResId
+                    && mWidgetResId == other.mWidgetResId
+                    && TextUtils.equals(mName, other.mName);
         }
 
         @Override
         public int hashCode() {
             int result = 17;
-            result = 31 * result + resId;
-            result = 31 * result + widgetResId;
-            result = 31 * result + name.hashCode();
+            result = 31 * result + mResId;
+            result = 31 * result + mWidgetResId;
+            result = 31 * result + mName.hashCode();
             return result;
         }
     }
@@ -160,7 +159,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         flattenPreferenceGroup(fullPreferenceList, mPreferenceGroup);
 
         final List<Preference> visiblePreferenceList =
-                mPreferenceGroupController.createVisiblePreferencesList(fullPreferenceList);
+                mPreferenceGroupController.createVisiblePreferencesList(mPreferenceGroup);
 
         final List<Preference> oldVisibleList = mPreferenceList;
         mPreferenceList = visiblePreferenceList;
@@ -235,10 +234,10 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
      * different view types.
      */
     private PreferenceLayout createPreferenceLayout(Preference preference, PreferenceLayout in) {
-        PreferenceLayout pl = in != null? in : new PreferenceLayout();
-        pl.name = preference.getClass().getName();
-        pl.resId = preference.getLayoutResource();
-        pl.widgetResId = preference.getWidgetLayoutResource();
+        PreferenceLayout pl = in != null ? in : new PreferenceLayout();
+        pl.mName = preference.getClass().getName();
+        pl.mResId = preference.getLayoutResource();
+        pl.mWidgetResId = preference.getWidgetLayoutResource();
         return pl;
     }
 
@@ -353,15 +352,15 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         }
         a.recycle();
 
-        final View view = inflater.inflate(pl.resId, parent, false);
+        final View view = inflater.inflate(pl.mResId, parent, false);
         if (view.getBackground() == null) {
             ViewCompat.setBackground(view, background);
         }
 
         final ViewGroup widgetFrame = (ViewGroup) view.findViewById(android.R.id.widget_frame);
         if (widgetFrame != null) {
-            if (pl.widgetResId != 0) {
-                inflater.inflate(pl.widgetResId, widgetFrame);
+            if (pl.mWidgetResId != 0) {
+                inflater.inflate(pl.mWidgetResId, widgetFrame);
             } else {
                 widgetFrame.setVisibility(View.GONE);
             }
