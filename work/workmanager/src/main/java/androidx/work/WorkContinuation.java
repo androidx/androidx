@@ -19,7 +19,6 @@ import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.annotation.WorkerThread;
 
 import java.util.Arrays;
 import java.util.List;
@@ -64,12 +63,12 @@ public abstract class WorkContinuation {
     public abstract void enqueue();
 
     /**
-     * Enqueues the instance of {@link WorkContinuation} in a blocking fashion.  This method is
-     * expected to be called from a background thread and, upon successful execution, you can rely
-     * on that the work has been enqueued.
+     * Gets an object that gives access to blocking (synchronous) methods.
+     *
+     * @return A {@link BlockingWorkContinuationMethods} object, which gives access to blocking
+     *         (synchronous) methods
      */
-    @WorkerThread
-    public abstract void enqueueSync();
+    public abstract BlockingWorkContinuationMethods blocking();
 
     /**
      * Joins multiple {@link WorkContinuation}s to allow for complex chaining.

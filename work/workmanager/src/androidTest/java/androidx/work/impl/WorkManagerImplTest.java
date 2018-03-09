@@ -604,7 +604,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work work = new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
         insertWorkSpecAndTags(work);
 
-        WorkStatus workStatus = mWorkManagerImpl.getStatusByIdSync(work.getId());
+        WorkStatus workStatus = mWorkManagerImpl.getStatusByIdBlocking(work.getId());
         assertThat(workStatus.getId(), is(work.getId()));
         assertThat(workStatus.getState(), is(SUCCEEDED));
     }
@@ -612,7 +612,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testGetStatusByIdSync_returnsNullIfNotInDatabase() {
-        WorkStatus workStatus = mWorkManagerImpl.getStatusByIdSync("dummy");
+        WorkStatus workStatus = mWorkManagerImpl.getStatusByIdBlocking("dummy");
         assertThat(workStatus, is(nullValue()));
     }
 
@@ -692,13 +692,13 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkStatus workStatus1 = new WorkStatus(work1.getId(), BLOCKED, Arguments.EMPTY);
         WorkStatus workStatus2 = new WorkStatus(work2.getId(), SUCCEEDED, Arguments.EMPTY);
 
-        List<WorkStatus> workStatuses = mWorkManagerImpl.getStatusesByTagSync(firstTag);
+        List<WorkStatus> workStatuses = mWorkManagerImpl.getStatusesByTagBlocking(firstTag);
         assertThat(workStatuses, containsInAnyOrder(workStatus0, workStatus1));
 
-        workStatuses = mWorkManagerImpl.getStatusesByTagSync(secondTag);
+        workStatuses = mWorkManagerImpl.getStatusesByTagBlocking(secondTag);
         assertThat(workStatuses, containsInAnyOrder(workStatus0, workStatus2));
 
-        workStatuses = mWorkManagerImpl.getStatusesByTagSync("dummy");
+        workStatuses = mWorkManagerImpl.getStatusesByTagBlocking("dummy");
         assertThat(workStatuses.size(), is(0));
     }
 
@@ -896,8 +896,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work.getId()), is(ENQUEUED));
 
-        mWorkManagerImpl.cancelWorkByIdSync(work.getId());
-        assertThat(mWorkManagerImpl.getStatusByIdSync(work.getId()).getState(), is(CANCELLED));
+        mWorkManagerImpl.cancelWorkByIdBlocking(work.getId());
+        assertThat(mWorkManagerImpl.getStatusByIdBlocking(work.getId()).getState(), is(CANCELLED));
     }
 
     @Test

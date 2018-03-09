@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 import androidx.work.BaseWork;
+import androidx.work.BlockingWorkManagerMethods;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Work;
 import androidx.work.WorkContinuation;
@@ -53,7 +54,7 @@ import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
  */
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WorkManagerImpl extends WorkManager {
+public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerMethods {
 
     public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 22;
     public static final int MIN_JOB_SCHEDULER_API_LEVEL = 23;
@@ -158,7 +159,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     @WorkerThread
-    public void cancelWorkByIdSync(@NonNull String id) {
+    public void cancelWorkByIdBlocking(@NonNull String id) {
         assertBackgroundThread("Cannot cancelWorkByIdSync on main thread!");
         new CancelWorkRunnable(this, id, null).run();
     }
@@ -170,7 +171,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     @WorkerThread
-    public void cancelAllWorkWithTagSync(@NonNull String tag) {
+    public void cancelAllWorkWithTagBlocking(@NonNull String tag) {
         assertBackgroundThread("Cannot cancelAllWorkWithTagSync on main thread!");
         new CancelWorkRunnable(this, null, tag).run();
     }
@@ -202,7 +203,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     @WorkerThread
-    public @Nullable WorkStatus getStatusByIdSync(@NonNull String id) {
+    public @Nullable WorkStatus getStatusByIdBlocking(@NonNull String id) {
         assertBackgroundThread("Cannot call getStatusByIdSync on main thread!");
         WorkSpec.IdStateAndOutput idStateAndOutput =
                 mWorkDatabase.workSpecDao().getIdStateAndOutputForId(id);
@@ -244,7 +245,7 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public List<WorkStatus> getStatusesByTagSync(@NonNull String tag) {
+    public List<WorkStatus> getStatusesByTagBlocking(@NonNull String tag) {
         assertBackgroundThread("Cannot call getStatusesByTagSync on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         List<WorkStatus> workStatuses = null;
@@ -260,6 +261,11 @@ public class WorkManagerImpl extends WorkManager {
             }
         }
         return workStatuses;
+    }
+
+    @Override
+    public BlockingWorkManagerMethods blocking() {
+        return this;
     }
 
     LiveData<List<WorkStatus>> getStatusesById(@NonNull List<String> workSpecIds) {

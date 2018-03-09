@@ -19,7 +19,6 @@ package androidx.work;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.WorkerThread;
 
 import java.util.Arrays;
 import java.util.List;
@@ -147,18 +146,6 @@ public abstract class WorkManager {
     public abstract void cancelWorkById(@NonNull String id);
 
     /**
-     * Cancels work with the given id in a blocking fashion.  Note that cancellation is dependent
-     * on timing (for example, the work could have completed in a different thread just as you issue
-     * this call).  Use {@link #getStatusById(String)} or {@link #getStatusByIdSync(String)} to find
-     * out the actual state of the work after this call.  This method is expected to be called from
-     * a background thread.
-     *
-     * @param id The id of the work
-     */
-    @WorkerThread
-    public abstract void cancelWorkByIdSync(@NonNull String id);
-
-    /**
      * Cancels all work with the given tag, regardless of the current state of the work.
      * Note that cancellation is a best-effort policy and work that is already executing may
      * continue to run.
@@ -166,18 +153,6 @@ public abstract class WorkManager {
      * @param tag The tag used to identify the work
      */
     public abstract void cancelAllWorkWithTag(@NonNull String tag);
-
-    /**
-     * Cancels all work with the given tag in a blocking fashion.  Note that cancellation is
-     * dependent on timing (for example, the work could have completed in a different thread just as
-     * you issue this call).  Use {@link #getStatusById(String)} or
-     * {@link #getStatusByIdSync(String)} to find out the actual state of the work after this call.
-     * This method is expected to be called from a background thread.
-     *
-     * @param tag The tag used to identify the work
-     */
-    @WorkerThread
-    public abstract void cancelAllWorkWithTagSync(@NonNull String tag);
 
     /**
      * Gets a {@link LiveData} of the {@link WorkStatus} for a given work id.
@@ -188,16 +163,6 @@ public abstract class WorkManager {
     public abstract LiveData<WorkStatus> getStatusById(@NonNull String id);
 
     /**
-     * Gets the {@link WorkStatus} of a given work id in a blocking fashion.  This method is
-     * expected to be called from a background thread.
-     *
-     * @param id The id of the work
-     * @return A {@link WorkStatus} associated with {@code id}
-     */
-    @WorkerThread
-    public abstract WorkStatus getStatusByIdSync(@NonNull String id);
-
-    /**
      * Gets a {@link LiveData} of the {@link WorkStatus} for all work for a given tag.
      *
      * @param tag The tag of the work
@@ -206,12 +171,10 @@ public abstract class WorkManager {
     public abstract LiveData<List<WorkStatus>> getStatusesByTag(@NonNull String tag);
 
     /**
-     * Gets the {@link WorkStatus} for all work with a given tag in a blocking fashion.  This method
-     * is expected to be called from a background thread.
+     * Gets an object that gives access to blocking (synchronous) methods.
      *
-     * @param tag The tag of the work
-     * @return A list of {@link WorkStatus} for work tagged with {@code tag}
+     * @return A {@link BlockingWorkManagerMethods} object, which gives access to blocking
+     *         (synchronous) methods
      */
-    @WorkerThread
-    public abstract List<WorkStatus> getStatusesByTagSync(@NonNull String tag);
+    public abstract BlockingWorkManagerMethods blocking();
 }

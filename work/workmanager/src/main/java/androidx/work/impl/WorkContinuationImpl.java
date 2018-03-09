@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 import androidx.work.BaseWork;
+import androidx.work.BlockingWorkContinuationMethods;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Work;
 import androidx.work.WorkContinuation;
@@ -43,7 +44,8 @@ import androidx.work.impl.workers.JoinWorker;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WorkContinuationImpl extends WorkContinuation {
+public class WorkContinuationImpl extends WorkContinuation
+        implements BlockingWorkContinuationMethods {
 
     private static final String TAG = "WorkContinuationImpl";
 
@@ -172,9 +174,9 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     @Override
     @WorkerThread
-    public void enqueueSync() {
+    public void enqueueBlocking() {
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-            throw new IllegalStateException("Cannot enqueueSync on main thread!");
+            throw new IllegalStateException("Cannot enqueueBlocking on main thread!");
         }
 
         if (!mEnqueued) {
@@ -184,6 +186,11 @@ public class WorkContinuationImpl extends WorkContinuation {
         } else {
             Logger.warn(TAG, "Already enqueued work ids (%s)", TextUtils.join(", ", mIds));
         }
+    }
+
+    @Override
+    public BlockingWorkContinuationMethods blocking() {
+        return this;
     }
 
     @Override
