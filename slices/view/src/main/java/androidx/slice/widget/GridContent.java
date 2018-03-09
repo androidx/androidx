@@ -17,6 +17,8 @@
 package androidx.slice.widget;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_LIST_ITEM;
+import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
@@ -27,18 +29,22 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
+import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
+import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
+import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
+
 import android.app.slice.Slice;
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.slice.SliceItem;
-import androidx.slice.builders.GridBuilder;
+import androidx.slice.builders.ListBuilder;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -53,9 +59,10 @@ public class GridContent {
     private SliceItem mColorItem;
     private SliceItem mPrimaryAction;
     private ArrayList<CellContent> mGridContent = new ArrayList<>();
+    private SliceItem mSeeMoreItem;
     private int mMaxCellLineCount;
     private boolean mHasImage;
-    private @GridBuilder.ImageMode int mLargestImageMode;
+    private @ListBuilder.ImageMode int mLargestImageMode;
 
     private int mBigPicMinHeight;
     private int mBigPicMaxHeight;
@@ -90,12 +97,16 @@ public class GridContent {
     private boolean populate(SliceItem gridItem) {
         reset();
         mColorItem = SliceQuery.findSubtype(gridItem, FORMAT_INT, SUBTYPE_COLOR);
+        mSeeMoreItem = SliceQuery.find(gridItem, null, HINT_SEE_MORE, null);
+        if (mSeeMoreItem != null && FORMAT_SLICE.equals(mSeeMoreItem.getFormat())) {
+            mSeeMoreItem = mSeeMoreItem.getSlice().getItems().get(0);
+        }
         String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};
         mPrimaryAction = SliceQuery.find(gridItem, FORMAT_SLICE, hints,
                 new String[] {HINT_ACTIONS} /* nonHints */);
         mAllImages = true;
         if (FORMAT_SLICE.equals(gridItem.getFormat())) {
-            List<SliceItem> items = gridItem.getSlice().getItems();
+            List<SliceItem> items = gridItem.getSlice().getItems().get(0).getSlice().getItems();
             items = filterInvalidItems(items);
             // Check if it it's only one item that is a slice
             if (items.size() == 1 && items.get(0).getFormat().equals(FORMAT_SLICE)) {
@@ -150,6 +161,14 @@ public class GridContent {
     }
 
     /**
+     * @return the see more item to use when not all items in the grid can be displayed.
+     */
+    @Nullable
+    public SliceItem getSeeMoreItem() {
+        return mSeeMoreItem;
+    }
+
+    /**
      * @return whether this grid has content that is valid to display.
      */
     public boolean isValid() {
@@ -167,7 +186,8 @@ public class GridContent {
         List<SliceItem> filteredItems = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
             SliceItem item = items.get(i);
-            if (!item.hasHint(HINT_SHORTCUT)) {
+            if (item.hasHint(HINT_LIST_ITEM) && !item.hasHint(HINT_SHORTCUT)
+                    && !item.hasHint(HINT_SEE_MORE)) {
                 filteredItems.add(item);
             }
         }
@@ -209,13 +229,13 @@ public class GridContent {
         if (mAllImages) {
             return mGridContent.size() == 1
                     ? isSmall ? mBigPicMinHeight : mBigPicMaxHeight
-                    : mLargestImageMode == GridBuilder.ICON_IMAGE ? mMinHeight : mAllImagesHeight;
+                    : mLargestImageMode == ICON_IMAGE ? mMinHeight : mAllImagesHeight;
         } else {
             boolean twoLines = getMaxCellLineCount() > 1;
             boolean hasImage = hasImage();
             return (twoLines && !isSmall)
                     ? hasImage ? mMaxHeight : mMinHeight
-                    : mLargestImageMode == GridBuilder.ICON_IMAGE ? mMinHeight : mImageTextHeight;
+                    : mLargestImageMode == ICON_IMAGE ? mMinHeight : mImageTextHeight;
         }
     }
 
@@ -264,10 +284,10 @@ public class GridContent {
                     } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
                         if (item.hasHint(Slice.HINT_NO_TINT)) {
                             mImageMode = item.hasHint(Slice.HINT_LARGE)
-                                    ? GridBuilder.LARGE_IMAGE
-                                    : GridBuilder.SMALL_IMAGE;
+                                    ? LARGE_IMAGE
+                                    : SMALL_IMAGE;
                         } else {
-                            mImageMode = GridBuilder.ICON_IMAGE;
+                            mImageMode = ICON_IMAGE;
                         }
                         imageCount++;
                         mHasImage = true;

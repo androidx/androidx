@@ -22,7 +22,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.support.v4.view.animation.LinearOutSlowInInterpolator;
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -38,7 +38,7 @@ class BrowserActionsFallbackMenuDialog extends Dialog {
     private final View mContentView;
 
     BrowserActionsFallbackMenuDialog(Context context, View contentView) {
-        super(context, android.support.customtabs.R.style.Theme_AppCompat_Light_Dialog);
+        super(context, androidx.browser.R.style.Theme_AppCompat_Light_Dialog);
         mContentView = contentView;
     }
 

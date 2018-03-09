@@ -30,12 +30,12 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import android.support.annotation.AttrRes;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.annotation.RestrictTo;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.AttrRes;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.core.content.ContextCompat;
 import android.text.format.DateUtils;
 import android.view.Gravity;
 import android.view.ViewGroup;
@@ -158,6 +158,8 @@ public class SliceViewUtil {
             Icon icon, boolean isLarge, ViewGroup parent) {
         ImageView v = new ImageView(context);
         v.setImageIcon(icon);
+        v.setScaleType(isLarge ? ImageView.ScaleType.CENTER_CROP
+                : ImageView.ScaleType.CENTER_INSIDE);
         parent.addView(v);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) v.getLayoutParams();
         if (isLarge) {

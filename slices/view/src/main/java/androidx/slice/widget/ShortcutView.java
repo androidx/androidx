@@ -17,9 +17,9 @@
 package androidx.slice.widget;
 
 import static android.app.slice.Slice.HINT_LARGE;
+import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
-import static android.app.slice.Slice.SUBTYPE_SOURCE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
@@ -39,7 +39,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 import android.widget.ImageView;
 
 import androidx.slice.Slice;
@@ -87,14 +87,16 @@ public class ShortcutView extends SliceChildView {
         ShapeDrawable circle = new ShapeDrawable(new OvalShape());
         circle.setTint(color);
         ImageView iv = new ImageView(getContext());
-        iv.setBackground(circle);
+        if (mIcon != null && !mIcon.hasHint(HINT_NO_TINT)) {
+            // Only set the background if we're tintable
+            iv.setBackground(circle);
+        }
         addView(iv);
         if (mIcon != null) {
-            final boolean isLarge = mIcon.hasHint(HINT_LARGE)
-                    || SUBTYPE_SOURCE.equals(mIcon.getSubType());
-            final int iconSize = isLarge ? mLargeIconSize : mSmallIconSize;
+            boolean isImage = mIcon.hasHint(HINT_NO_TINT);
+            final int iconSize = isImage ? mLargeIconSize : mSmallIconSize;
             SliceViewUtil.createCircledIcon(getContext(), iconSize, mIcon.getIcon(),
-                    isLarge, this /* parent */);
+                    isImage, this /* parent */);
             mUri = slice.getUri();
             setClickable(true);
         } else {

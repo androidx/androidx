@@ -15,14 +15,14 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.percent.test">
+          package="androidx.percentlayout.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">
-        <activity android:name="android.support.percent.TestFrameActivity"/>
-        <activity android:name="android.support.percent.TestRelativeActivity"/>
-        <activity android:name="android.support.percent.TestRelativeRtlActivity"/>
-        <activity android:name="android.support.percent.PercentDynamicLayoutActivity"/>
+        <activity android:name="android.percentlayout.widget.TestFrameActivity"/>
+        <activity android:name="android.percentlayout.widget.TestRelativeActivity"/>
+        <activity android:name="android.percentlayout.widget.TestRelativeRtlActivity"/>
+        <activity android:name="android.percentlayout.widget.PercentDynamicLayoutActivity"/>
     </application>
 
 </manifest>

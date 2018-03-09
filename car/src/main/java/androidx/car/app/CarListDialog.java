@@ -20,9 +20,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -48,7 +48,7 @@ import androidx.car.widget.TextListItem;
  * fixed list of items. There is no affordance for setting titles or any other text.
  *
  * <p>Its functionality is similar to if a list has been set on
- * {@link android.support.v7.app.AlertDialog}, but is styled so that it is more appropriate for
+ * {@link androidx.appcompat.app.AlertDialog}, but is styled so that it is more appropriate for
  * displaying in vehicles.
  *
  * <p>Note that this dialog cannot be created with an empty list.

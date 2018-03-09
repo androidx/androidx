@@ -32,71 +32,121 @@ class PackageMap(private val rules: List<PackageRule>) {
         val DEFAULT_RULES = listOf(
             PackageRule(
                 from = "android/support/exifinterface",
-                to = "android/support/exifinterface"
+                to = "androidx/exifinterface"
+            ),
+            PackageRule(
+                from = "android/support/heifwriter",
+                to = "androidx/heifwriter"
             ),
             PackageRule(
                 from = "android/support/graphics/drawable",
-                to = "androidx/graphics/drawable"
+                to = "androidx/vectordrawable"
             ),
             PackageRule(
                 from = "android/support/graphics/drawable/animated",
-                to = "androidx/graphics/drawable/animated"
+                to = "androidx/vectordrawable"
             ),
             PackageRule(
-                from = "androidx/media/tv",
-                to = "androidx/media/tv"
+                from = "android/support/media/tv",
+                to = "androidx/tvprovider"
             ),
             PackageRule(
-                from = "androidx/view/textclassifier",
-                to = "androidx/view/textclassifier"
+                from = "androidx/textclassifier",
+                to = "androidx/textclassifier"
             ),
             PackageRule(
-                from = "androidx/widget/recyclerview/selection",
-                to = "androidx/widget/recyclerview/selection"),
+                from = "androidx/recyclerview/selection",
+                to = "androidx/recyclerview/selection"),
             PackageRule(
                 from = "android/support/v4",
-                to = "android/support/v4"
+                to = "androidx/legacy/v4"
+            ),
+            PackageRule(
+                from = "android/support/print",
+                to = "androidx/print"
+            ),
+            PackageRule(
+                from = "android/support/documentfile",
+                to = "androidx/documentfile"
+            ),
+            PackageRule(
+                from = "android/support/coordinatorlayout",
+                to = "androidx/coordinatorlayout"
+            ),
+            PackageRule(
+                from = "android/support/swiperefreshlayout",
+                to = "androidx/swiperefreshlayout"
+            ),
+            PackageRule(
+                from = "android/support/slidingpanelayout",
+                to = "androidx/slidingpanelayout"
+            ),
+            PackageRule(
+                from = "android/support/asynclayoutinflater",
+                to = "androidx/asynclayoutinflater"
+            ),
+            PackageRule(
+                from = "android/support/interpolator",
+                to = "androidx/interpolator"
             ),
             PackageRule(
                 from = "android/support/v7/palette",
-                to = "android/support/v7/palette"
+                to = "androidx/palette"
             ),
             PackageRule(
                 from = "android/support/v7/cardview",
-                to = "android/support/v7/cardview"
+                to = "androidx/cardview"
+            ),
+            PackageRule(
+                from = "android/support/customview",
+                to = "androidx/customview"
+            ),
+            PackageRule(
+                from = "android/support/loader",
+                to = "androidx/loader"
+            ),
+            PackageRule(
+                from = "android/support/cursoradapter",
+                to = "androidx/cursoradapter"
             ),
             PackageRule(
                 from = "android/support/v7/mediarouter",
-                to = "android/support/v7/mediarouter"
+                to = "androidx/mediarouter"
             ),
             PackageRule(
                 from = "android/support/v7/appcompat",
-                to = "android/support/v7/appcompat"
+                to = "androidx/appcompat"
             ),
             PackageRule(
                 from = "android/support/v7/recyclerview",
-                to = "android/support/v7/recyclerview"
+                to = "androidx/recyclerview"
+            ),
+            PackageRule(
+                from = "android/support/v7/viewpager",
+                to = "androidx/viewpager"
+            ),
+            PackageRule(
+                from = "android/support/percent",
+                to = "androidx/percentlayout"
             ),
             PackageRule(
                 from = "android/support/v7/gridlayout",
-                to = "android/support/v7/gridlayout"
+                to = "androidx/gridlayout"
             ),
             PackageRule(
                 from = "android/support/v13",
-                to = "android/support/v13"
+                to = "androidx/legacy/v13"
             ),
             PackageRule(
                 from = "android/support/v7/preference",
-                to = "androidx/preference",
-                filePrefix = "preference-v7"
+                to = "androidx/preference"
             ),
             PackageRule(
                 from = "android/support/v14/preference",
-                to = "androidx/preference",
-                filePrefix = "preference-v14"
+                to = "androidx/legacy/preference"
             ),
             PackageRule(
-                from = "android/support/v17/lexanback",
+                from = "android/support/v17/leanback",
                 to = "androidx/leanback"
             ),
             PackageRule(
@@ -105,47 +155,47 @@ class PackageMap(private val rules: List<PackageRule>) {
             ),
             PackageRule(
                 from = "android/support/compat",
-                to = "android/support/compat"
+                to = "androidx/core"
             ),
             PackageRule(
                 from = "android/support/mediacompat",
-                to = "android/support/mediacompat"
+                to = "androidx/media"
             ),
             PackageRule(
                 from = "android/support/fragment",
-                to = "android/support/fragment"
+                to = "androidx/fragment"
             ),
             PackageRule(
                 from = "android/support/coreutils",
-                to = "android/support/coreutils"
+                to = "androidx/legacy/coreutils"
             ),
             PackageRule(
                 from = "android/support/dynamicanimation",
-                to = "android/support/dynamicanimation"
+                to = "androidx/dynamicanimation"
             ),
             PackageRule(
                 from = "android/support/customtabs",
-                to = "androidx/browser/customtabs"
+                to = "androidx/browser"
             ),
             PackageRule(
                 from = "android/support/coreui",
-                to = "android/support/coreui"
+                to = "androidx/legacy/coreui"
             ),
             PackageRule(
                 from = "android/support/content",
-                to = "android/support/content"
+                to = "androidx/contentpager"
             ),
             PackageRule(
                 from = "android/support/transition",
                 to = "androidx/transition"
             ),
             PackageRule(
-                from = "android/support/v17/leanback",
-                to = "androidx/leanback"
+                from = "android/support/recommendation",
+                to = "androidx/recommendation"
             ),
             PackageRule(
-                from = "android/support/recommendation",
-                to = "android/support/recommendation"
+                from = "android/support/drawerlayout",
+                to = "androidx/drawerlayout"
             ),
             PackageRule(
                 from = "android/support/wear",
@@ -156,16 +206,44 @@ class PackageMap(private val rules: List<PackageRule>) {
                 to = "androidx/design"
             ),
             PackageRule(
-                from = "androidx/text/emoji",
-                to = "androidx/text/emoji"
+                from = "android/support/text/emoji/appcompat",
+                to = "androidx/emoji/appcompat"
             ),
             PackageRule(
-                from = "androidx/text/emoji/appcompat",
-                to = "androidx/text/emoji/appcompat"
+                from = "android/support/text/emoji/bundled",
+                to = "androidx/emoji/bundled"
+            ),
+            PackageRule(
+                from = "android/support/text/emoji",
+                to = "androidx/emoji"
             ),
             PackageRule(
                 from = "androidx/text/emoji/bundled",
                 to = "androidx/text/emoji/bundled"
+            ),
+            PackageRule(
+                from = "android/support/localbroadcastmanager",
+                to = "androidx/localbroadcastmanager"
+            ),
+            PackageRule(
+                from = "androidx/text/emoji/bundled",
+                to = "androidx/text/emoji/bundled"
+            ),
+            PackageRule(
+                from = "androidx/webkit",
+                to = "androidx/webkit"
+            ),
+            PackageRule(
+                from = "androidx/slice/view",
+                to = "androidx/slice/view"
+            ),
+            PackageRule(
+                from = "androidx/slice/core",
+                to = "androidx/slice/core"
+            ),
+            PackageRule(
+                from = "androidx/slice/builders",
+                to = "androidx/slice/builders"
             )
         )
 

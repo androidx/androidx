@@ -16,14 +16,14 @@
 
 package androidx.slice.builders.impl;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
@@ -165,20 +165,6 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         /**
          */
         @Override
-        public void addEndItem(Icon icon) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void addEndItem(Icon icon, boolean isLoading) {
-
-        }
-
-        /**
-         */
-        @Override
         public void addEndItem(SliceAction action) {
 
         }
@@ -200,13 +186,14 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         /**
          */
         @Override
-        public void setTitleItem(Icon icon) {
+        public void setTitleItem(Icon icon, int imageMode) {
+
         }
 
         /**
          */
         @Override
-        public void setTitleItem(Icon icon, boolean isLoading) {
+        public void setTitleItem(Icon icon, int imageMode, boolean isLoading) {
 
         }
 
@@ -260,6 +247,20 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
          */
         @Override
         public void addEndItem(long timeStamp) {
+
+        }
+
+        /**
+         */
+        @Override
+        public void addEndItem(Icon icon, int imageMode) {
+
+        }
+
+        /**
+         */
+        @Override
+        public void addEndItem(Icon icon, int imageMode, boolean isLoading) {
 
         }
 

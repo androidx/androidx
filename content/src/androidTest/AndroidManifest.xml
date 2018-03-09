@@ -15,15 +15,15 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.content.test">
+          package="androidx.contentpager.content.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">
-        <activity android:name="android.support.content.TestActivity" />
+        <activity android:name="androidx.contentpager.content.TestActivity" />
 
         <!-- Must be run in-process for some of the test instrumentation to work correctly -->
-        <provider android:name="android.support.content.TestContentProvider"
-                  android:authorities="android.support.content.test.testpagingprovider"
+        <provider android:name="androidx.contentpager.content.TestContentProvider"
+                  android:authorities="androidx.contentpager.content.test.testpagingprovider"
                   android:multiprocess="false" />
     </application>
 </manifest>

@@ -19,7 +19,7 @@ package com.example.android.support.vectordrawable.app;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;

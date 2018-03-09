@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Rect;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v7.widget.RecyclerView.OnScrollListener;
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import android.view.MotionEvent;
 
 import org.junit.Before;

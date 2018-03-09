@@ -16,7 +16,7 @@
 
 package androidx.recyclerview.selection;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 

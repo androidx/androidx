@@ -16,10 +16,12 @@
 
 package androidx.slice.builders.impl;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
 
 import android.graphics.drawable.Icon;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
@@ -82,7 +84,7 @@ public class MessagingListV1Impl extends TemplateBuilderImpl implements Messagin
          */
         @Override
         public void addSource(Icon source) {
-            mListBuilder.setTitleItem(source);
+            mListBuilder.setTitleItem(source, SMALL_IMAGE);
         }
 
         /**

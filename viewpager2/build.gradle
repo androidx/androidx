@@ -23,8 +23,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":support-fragment"))
-    api(project(":recyclerview-v7"))
+    api(project(":fragment"))
+    api(project(":recyclerview"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
@@ -40,7 +40,7 @@ supportLibrary {
     name = "AndroidX Widget ViewPager2"
     publish = false
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.VIEWPAGER2
     inceptionYear = "2017"
     description = "AndroidX Widget ViewPager2"
 }

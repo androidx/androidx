@@ -32,12 +32,20 @@ if (androidPluginVersionOverride != null) {
     build_libs.gradle = 'com.android.tools.build:gradle:3.0.0'
 }
 
+// lint
+def lintPluginVersionOverride = System.getenv("LINT_PLUGIN_VERSION")
+if (lintPluginVersionOverride != null) {
+  build_libs.lint = 'com.android.tools.lint:lint:' + lintPluginVersionOverride
+} else {
+  build_libs.lint = 'com.android.tools.lint:lint:26.0.0'
+}
+
 // jarjar plugin
 build_libs.jarjar_gradle = 'org.anarres.jarjar:jarjar-gradle:1.0.0'
 build_libs.error_prone_gradle = 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.13'
 build_libs.jacoco = 'org.jacoco:org.jacoco.core:0.7.8'
 build_libs.jacoco_ant = 'org.jacoco:org.jacoco.ant:0.7.8'
-build_libs.jetifier = 'androidx.tools.jetifier:gradle-plugin:0.1'
+build_libs.jetifier = 'com.android.support.jetifier:jetifier-gradle-plugin:0.2.0'
 build_libs.kotlin = [
         gradle_plugin: "org.jetbrains.kotlin:kotlin-gradle-plugin:${build_versions.kotlin}"
 ]

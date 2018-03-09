@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import android.os.Parcel;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.os.LocaleListCompat;
+import androidx.core.os.LocaleListCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

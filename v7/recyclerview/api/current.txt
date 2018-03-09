@@ -1,45 +1,33 @@
-package android.support.v7.recyclerview.extensions {
+package androidx.recyclerview.widget {
 
-  public final class AsyncDifferConfig<T> {
-    method public java.util.concurrent.Executor getBackgroundThreadExecutor();
-    method public android.support.v7.util.DiffUtil.ItemCallback<T> getDiffCallback();
-  }
-
-  public static final class AsyncDifferConfig.Builder<T> {
-    ctor public AsyncDifferConfig.Builder(android.support.v7.util.DiffUtil.ItemCallback<T>);
-    method public android.support.v7.recyclerview.extensions.AsyncDifferConfig<T> build();
-    method public android.support.v7.recyclerview.extensions.AsyncDifferConfig.Builder<T> setBackgroundThreadExecutor(java.util.concurrent.Executor);
-  }
-
-  public class AsyncListDiffer<T> {
-    ctor public AsyncListDiffer(android.support.v7.widget.RecyclerView.Adapter, android.support.v7.util.DiffUtil.ItemCallback<T>);
-    ctor public AsyncListDiffer(android.support.v7.util.ListUpdateCallback, android.support.v7.recyclerview.extensions.AsyncDifferConfig<T>);
-    method public java.util.List<T> getCurrentList();
-    method public void submitList(java.util.List<T>);
-  }
-
-  public abstract class ListAdapter<T, VH extends android.support.v7.widget.RecyclerView.ViewHolder> extends android.support.v7.widget.RecyclerView.Adapter {
-    ctor protected ListAdapter(android.support.v7.util.DiffUtil.ItemCallback<T>);
-    ctor protected ListAdapter(android.support.v7.recyclerview.extensions.AsyncDifferConfig<T>);
-    method protected T getItem(int);
-    method public int getItemCount();
-    method public void submitList(java.util.List<T>);
-  }
-
-}
-
-package android.support.v7.util {
-
-  public final class AdapterListUpdateCallback implements android.support.v7.util.ListUpdateCallback {
-    ctor public AdapterListUpdateCallback(android.support.v7.widget.RecyclerView.Adapter);
+  public final class AdapterListUpdateCallback implements androidx.recyclerview.widget.ListUpdateCallback {
+    ctor public AdapterListUpdateCallback(androidx.recyclerview.widget.RecyclerView.Adapter);
     method public void onChanged(int, int, java.lang.Object);
     method public void onInserted(int, int);
     method public void onMoved(int, int);
     method public void onRemoved(int, int);
   }
 
+  public final class AsyncDifferConfig<T> {
+    method public java.util.concurrent.Executor getBackgroundThreadExecutor();
+    method public androidx.recyclerview.widget.DiffUtil.ItemCallback<T> getDiffCallback();
+  }
+
+  public static final class AsyncDifferConfig.Builder<T> {
+    ctor public AsyncDifferConfig.Builder(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
+    method public androidx.recyclerview.widget.AsyncDifferConfig<T> build();
+    method public androidx.recyclerview.widget.AsyncDifferConfig.Builder<T> setBackgroundThreadExecutor(java.util.concurrent.Executor);
+  }
+
+  public class AsyncListDiffer<T> {
+    ctor public AsyncListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
+    ctor public AsyncListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T>);
+    method public java.util.List<T> getCurrentList();
+    method public void submitList(java.util.List<T>);
+  }
+
   public class AsyncListUtil<T> {
-    ctor public AsyncListUtil(java.lang.Class<T>, int, android.support.v7.util.AsyncListUtil.DataCallback<T>, android.support.v7.util.AsyncListUtil.ViewCallback);
+    ctor public AsyncListUtil(java.lang.Class<T>, int, androidx.recyclerview.widget.AsyncListUtil.DataCallback<T>, androidx.recyclerview.widget.AsyncListUtil.ViewCallback);
     method public T getItem(int);
     method public int getItemCount();
     method public void onRangeChanged();
@@ -65,8 +53,8 @@ package android.support.v7.util {
     field public static final int HINT_SCROLL_NONE = 0; // 0x0
   }
 
-  public class BatchingListUpdateCallback implements android.support.v7.util.ListUpdateCallback {
-    ctor public BatchingListUpdateCallback(android.support.v7.util.ListUpdateCallback);
+  public class BatchingListUpdateCallback implements androidx.recyclerview.widget.ListUpdateCallback {
+    ctor public BatchingListUpdateCallback(androidx.recyclerview.widget.ListUpdateCallback);
     method public void dispatchLastEvent();
     method public void onChanged(int, int, java.lang.Object);
     method public void onInserted(int, int);
@@ -74,9 +62,21 @@ package android.support.v7.util {
     method public void onRemoved(int, int);
   }
 
+  public class DefaultItemAnimator extends androidx.recyclerview.widget.SimpleItemAnimator {
+    ctor public DefaultItemAnimator();
+    method public boolean animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int);
+    method public boolean animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int);
+    method public boolean animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void endAnimation(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void endAnimations();
+    method public boolean isRunning();
+    method public void runPendingAnimations();
+  }
+
   public class DiffUtil {
-    method public static android.support.v7.util.DiffUtil.DiffResult calculateDiff(android.support.v7.util.DiffUtil.Callback);
-    method public static android.support.v7.util.DiffUtil.DiffResult calculateDiff(android.support.v7.util.DiffUtil.Callback, boolean);
+    method public static androidx.recyclerview.widget.DiffUtil.DiffResult calculateDiff(androidx.recyclerview.widget.DiffUtil.Callback);
+    method public static androidx.recyclerview.widget.DiffUtil.DiffResult calculateDiff(androidx.recyclerview.widget.DiffUtil.Callback, boolean);
   }
 
   public static abstract class DiffUtil.Callback {
@@ -89,8 +89,8 @@ package android.support.v7.util {
   }
 
   public static class DiffUtil.DiffResult {
-    method public void dispatchUpdatesTo(android.support.v7.widget.RecyclerView.Adapter);
-    method public void dispatchUpdatesTo(android.support.v7.util.ListUpdateCallback);
+    method public void dispatchUpdatesTo(androidx.recyclerview.widget.RecyclerView.Adapter);
+    method public void dispatchUpdatesTo(androidx.recyclerview.widget.ListUpdateCallback);
   }
 
   public static abstract class DiffUtil.ItemCallback<T> {
@@ -100,75 +100,7 @@ package android.support.v7.util {
     method public java.lang.Object getChangePayload(T, T);
   }
 
-  public abstract interface ListUpdateCallback {
-    method public abstract void onChanged(int, int, java.lang.Object);
-    method public abstract void onInserted(int, int);
-    method public abstract void onMoved(int, int);
-    method public abstract void onRemoved(int, int);
-  }
-
-  public class SortedList<T> {
-    ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>);
-    ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>, int);
-    method public int add(T);
-    method public void addAll(T[], boolean);
-    method public void addAll(T...);
-    method public void addAll(java.util.Collection<T>);
-    method public void beginBatchedUpdates();
-    method public void clear();
-    method public void endBatchedUpdates();
-    method public T get(int) throws java.lang.IndexOutOfBoundsException;
-    method public int indexOf(T);
-    method public void recalculatePositionOfItemAt(int);
-    method public boolean remove(T);
-    method public T removeItemAt(int);
-    method public void replaceAll(T[], boolean);
-    method public void replaceAll(T...);
-    method public void replaceAll(java.util.Collection<T>);
-    method public int size();
-    method public void updateItemAt(int, T);
-    field public static final int INVALID_POSITION = -1; // 0xffffffff
-  }
-
-  public static class SortedList.BatchedCallback<T2> extends android.support.v7.util.SortedList.Callback {
-    ctor public SortedList.BatchedCallback(android.support.v7.util.SortedList.Callback<T2>);
-    method public boolean areContentsTheSame(T2, T2);
-    method public boolean areItemsTheSame(T2, T2);
-    method public int compare(T2, T2);
-    method public void dispatchLastEvent();
-    method public void onChanged(int, int);
-    method public void onInserted(int, int);
-    method public void onMoved(int, int);
-    method public void onRemoved(int, int);
-  }
-
-  public static abstract class SortedList.Callback<T2> implements java.util.Comparator android.support.v7.util.ListUpdateCallback {
-    ctor public SortedList.Callback();
-    method public abstract boolean areContentsTheSame(T2, T2);
-    method public abstract boolean areItemsTheSame(T2, T2);
-    method public abstract int compare(T2, T2);
-    method public java.lang.Object getChangePayload(T2, T2);
-    method public abstract void onChanged(int, int);
-    method public void onChanged(int, int, java.lang.Object);
-  }
-
-}
-
-package android.support.v7.widget {
-
-  public class DefaultItemAnimator extends android.support.v7.widget.SimpleItemAnimator {
-    ctor public DefaultItemAnimator();
-    method public boolean animateAdd(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public boolean animateChange(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder, int, int, int, int);
-    method public boolean animateMove(android.support.v7.widget.RecyclerView.ViewHolder, int, int, int, int);
-    method public boolean animateRemove(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void endAnimation(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void endAnimations();
-    method public boolean isRunning();
-    method public void runPendingAnimations();
-  }
-
-  public class DividerItemDecoration extends android.support.v7.widget.RecyclerView.ItemDecoration {
+  public class DividerItemDecoration extends androidx.recyclerview.widget.RecyclerView.ItemDecoration {
     ctor public DividerItemDecoration(android.content.Context, int);
     method public void setDrawable(android.graphics.drawable.Drawable);
     method public void setOrientation(int);
@@ -176,28 +108,28 @@ package android.support.v7.widget {
     field public static final int VERTICAL = 1; // 0x1
   }
 
-  public class GridLayoutManager extends android.support.v7.widget.LinearLayoutManager {
+  public class GridLayoutManager extends androidx.recyclerview.widget.LinearLayoutManager {
     ctor public GridLayoutManager(android.content.Context, android.util.AttributeSet, int, int);
     ctor public GridLayoutManager(android.content.Context, int);
     ctor public GridLayoutManager(android.content.Context, int, int, boolean);
     method public int getSpanCount();
-    method public android.support.v7.widget.GridLayoutManager.SpanSizeLookup getSpanSizeLookup();
+    method public androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup getSpanSizeLookup();
     method public void setSpanCount(int);
-    method public void setSpanSizeLookup(android.support.v7.widget.GridLayoutManager.SpanSizeLookup);
+    method public void setSpanSizeLookup(androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup);
     field public static final int DEFAULT_SPAN_COUNT = -1; // 0xffffffff
   }
 
-  public static final class GridLayoutManager.DefaultSpanSizeLookup extends android.support.v7.widget.GridLayoutManager.SpanSizeLookup {
+  public static final class GridLayoutManager.DefaultSpanSizeLookup extends androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup {
     ctor public GridLayoutManager.DefaultSpanSizeLookup();
     method public int getSpanSize(int);
   }
 
-  public static class GridLayoutManager.LayoutParams extends android.support.v7.widget.RecyclerView.LayoutParams {
+  public static class GridLayoutManager.LayoutParams extends androidx.recyclerview.widget.RecyclerView.LayoutParams {
     ctor public GridLayoutManager.LayoutParams(android.content.Context, android.util.AttributeSet);
     ctor public GridLayoutManager.LayoutParams(int, int);
     ctor public GridLayoutManager.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
     ctor public GridLayoutManager.LayoutParams(android.view.ViewGroup.LayoutParams);
-    ctor public GridLayoutManager.LayoutParams(android.support.v7.widget.RecyclerView.LayoutParams);
+    ctor public GridLayoutManager.LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams);
     method public int getSpanIndex();
     method public int getSpanSize();
     field public static final int INVALID_SPAN_ID = -1; // 0xffffffff
@@ -213,7 +145,78 @@ package android.support.v7.widget {
     method public void setSpanIndexCacheEnabled(boolean);
   }
 
-  public class LinearLayoutManager extends android.support.v7.widget.RecyclerView.LayoutManager implements android.support.v7.widget.helper.ItemTouchHelper.ViewDropHandler android.support.v7.widget.RecyclerView.SmoothScroller.ScrollVectorProvider {
+  public class ItemTouchHelper extends androidx.recyclerview.widget.RecyclerView.ItemDecoration implements androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener {
+    ctor public ItemTouchHelper(androidx.recyclerview.widget.ItemTouchHelper.Callback);
+    method public void attachToRecyclerView(androidx.recyclerview.widget.RecyclerView);
+    method public void onChildViewAttachedToWindow(android.view.View);
+    method public void onChildViewDetachedFromWindow(android.view.View);
+    method public void startDrag(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void startSwipe(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    field public static final int ACTION_STATE_DRAG = 2; // 0x2
+    field public static final int ACTION_STATE_IDLE = 0; // 0x0
+    field public static final int ACTION_STATE_SWIPE = 1; // 0x1
+    field public static final int ANIMATION_TYPE_DRAG = 8; // 0x8
+    field public static final int ANIMATION_TYPE_SWIPE_CANCEL = 4; // 0x4
+    field public static final int ANIMATION_TYPE_SWIPE_SUCCESS = 2; // 0x2
+    field public static final int DOWN = 2; // 0x2
+    field public static final int END = 32; // 0x20
+    field public static final int LEFT = 4; // 0x4
+    field public static final int RIGHT = 8; // 0x8
+    field public static final int START = 16; // 0x10
+    field public static final int UP = 1; // 0x1
+  }
+
+  public static abstract class ItemTouchHelper.Callback {
+    ctor public ItemTouchHelper.Callback();
+    method public boolean canDropOver(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder chooseDropTarget(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder>, int, int);
+    method public void clearView(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public int convertToAbsoluteDirection(int, int);
+    method public static int convertToRelativeDirection(int, int);
+    method public long getAnimationDuration(androidx.recyclerview.widget.RecyclerView, int, float, float);
+    method public int getBoundingBoxMargin();
+    method public static androidx.recyclerview.widget.ItemTouchUIUtil getDefaultUIUtil();
+    method public float getMoveThreshold(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public abstract int getMovementFlags(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public float getSwipeEscapeVelocity(float);
+    method public float getSwipeThreshold(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public float getSwipeVelocityThreshold(float);
+    method public int interpolateOutOfBoundsScroll(androidx.recyclerview.widget.RecyclerView, int, int, int, long);
+    method public boolean isItemViewSwipeEnabled();
+    method public boolean isLongPressDragEnabled();
+    method public static int makeFlag(int, int);
+    method public static int makeMovementFlags(int, int);
+    method public void onChildDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, float, float, int, boolean);
+    method public void onChildDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, float, float, int, boolean);
+    method public abstract boolean onMove(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onMoved(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int);
+    method public void onSelectedChanged(androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
+    method public abstract void onSwiped(androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
+    field public static final int DEFAULT_DRAG_ANIMATION_DURATION = 200; // 0xc8
+    field public static final int DEFAULT_SWIPE_ANIMATION_DURATION = 250; // 0xfa
+  }
+
+  public static abstract class ItemTouchHelper.SimpleCallback extends androidx.recyclerview.widget.ItemTouchHelper.Callback {
+    ctor public ItemTouchHelper.SimpleCallback(int, int);
+    method public int getDragDirs(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public int getMovementFlags(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public int getSwipeDirs(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void setDefaultDragDirs(int);
+    method public void setDefaultSwipeDirs(int);
+  }
+
+  public static abstract interface ItemTouchHelper.ViewDropHandler {
+    method public abstract void prepareForDrop(android.view.View, android.view.View, int, int);
+  }
+
+  public abstract interface ItemTouchUIUtil {
+    method public abstract void clearView(android.view.View);
+    method public abstract void onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean);
+    method public abstract void onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean);
+    method public abstract void onSelected(android.view.View);
+  }
+
+  public class LinearLayoutManager extends androidx.recyclerview.widget.RecyclerView.LayoutManager implements androidx.recyclerview.widget.ItemTouchHelper.ViewDropHandler androidx.recyclerview.widget.RecyclerView.SmoothScroller.ScrollVectorProvider {
     ctor public LinearLayoutManager(android.content.Context);
     ctor public LinearLayoutManager(android.content.Context, int, boolean);
     ctor public LinearLayoutManager(android.content.Context, android.util.AttributeSet, int, int);
@@ -222,8 +225,8 @@ package android.support.v7.widget {
     method public int findFirstVisibleItemPosition();
     method public int findLastCompletelyVisibleItemPosition();
     method public int findLastVisibleItemPosition();
-    method public android.support.v7.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
-    method protected int getExtraLayoutSpace(android.support.v7.widget.RecyclerView.State);
+    method public androidx.recyclerview.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
+    method protected int getExtraLayoutSpace(androidx.recyclerview.widget.RecyclerView.State);
     method public int getInitialPrefetchItemCount();
     method public int getOrientation();
     method public boolean getRecycleChildrenOnDetach();
@@ -252,7 +255,7 @@ package android.support.v7.widget {
     field public boolean mIgnoreConsumed;
   }
 
-  public class LinearSmoothScroller extends android.support.v7.widget.RecyclerView.SmoothScroller {
+  public class LinearSmoothScroller extends androidx.recyclerview.widget.RecyclerView.SmoothScroller {
     ctor public LinearSmoothScroller(android.content.Context);
     method public int calculateDtToFit(int, int, int, int, int);
     method public int calculateDxToMakeVisible(android.view.View, int);
@@ -262,11 +265,11 @@ package android.support.v7.widget {
     method protected int calculateTimeForScrolling(int);
     method protected int getHorizontalSnapPreference();
     method protected int getVerticalSnapPreference();
-    method protected void onSeekTargetStep(int, int, android.support.v7.widget.RecyclerView.State, android.support.v7.widget.RecyclerView.SmoothScroller.Action);
+    method protected void onSeekTargetStep(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action);
     method protected void onStart();
     method protected void onStop();
-    method protected void onTargetFound(android.view.View, android.support.v7.widget.RecyclerView.State, android.support.v7.widget.RecyclerView.SmoothScroller.Action);
-    method protected void updateActionForInterimTarget(android.support.v7.widget.RecyclerView.SmoothScroller.Action);
+    method protected void onTargetFound(android.view.View, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action);
+    method protected void updateActionForInterimTarget(androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action);
     field public static final int SNAP_TO_ANY = 0; // 0x0
     field public static final int SNAP_TO_END = 1; // 0x1
     field public static final int SNAP_TO_START = -1; // 0xffffffff
@@ -277,17 +280,32 @@ package android.support.v7.widget {
     field protected android.graphics.PointF mTargetVector;
   }
 
-  public class LinearSnapHelper extends android.support.v7.widget.SnapHelper {
+  public class LinearSnapHelper extends androidx.recyclerview.widget.SnapHelper {
     ctor public LinearSnapHelper();
-    method public int[] calculateDistanceToFinalSnap(android.support.v7.widget.RecyclerView.LayoutManager, android.view.View);
-    method public android.view.View findSnapView(android.support.v7.widget.RecyclerView.LayoutManager);
-    method public int findTargetSnapPosition(android.support.v7.widget.RecyclerView.LayoutManager, int, int);
+    method public int[] calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View);
+    method public android.view.View findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method public int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int);
+  }
+
+  public abstract class ListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter {
+    ctor protected ListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
+    ctor protected ListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T>);
+    method protected T getItem(int);
+    method public int getItemCount();
+    method public void submitList(java.util.List<T>);
+  }
+
+  public abstract interface ListUpdateCallback {
+    method public abstract void onChanged(int, int, java.lang.Object);
+    method public abstract void onInserted(int, int);
+    method public abstract void onMoved(int, int);
+    method public abstract void onRemoved(int, int);
   }
 
   public abstract class OrientationHelper {
-    method public static android.support.v7.widget.OrientationHelper createHorizontalHelper(android.support.v7.widget.RecyclerView.LayoutManager);
-    method public static android.support.v7.widget.OrientationHelper createOrientationHelper(android.support.v7.widget.RecyclerView.LayoutManager, int);
-    method public static android.support.v7.widget.OrientationHelper createVerticalHelper(android.support.v7.widget.RecyclerView.LayoutManager);
+    method public static androidx.recyclerview.widget.OrientationHelper createHorizontalHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method public static androidx.recyclerview.widget.OrientationHelper createOrientationHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager, int);
+    method public static androidx.recyclerview.widget.OrientationHelper createVerticalHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager);
     method public abstract int getDecoratedEnd(android.view.View);
     method public abstract int getDecoratedMeasurement(android.view.View);
     method public abstract int getDecoratedMeasurementInOther(android.view.View);
@@ -295,7 +313,7 @@ package android.support.v7.widget {
     method public abstract int getEnd();
     method public abstract int getEndAfterPadding();
     method public abstract int getEndPadding();
-    method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
+    method public androidx.recyclerview.widget.RecyclerView.LayoutManager getLayoutManager();
     method public abstract int getMode();
     method public abstract int getModeInOther();
     method public abstract int getStartAfterPadding();
@@ -308,26 +326,26 @@ package android.support.v7.widget {
     method public void onLayoutComplete();
     field public static final int HORIZONTAL = 0; // 0x0
     field public static final int VERTICAL = 1; // 0x1
-    field protected final android.support.v7.widget.RecyclerView.LayoutManager mLayoutManager;
+    field protected final androidx.recyclerview.widget.RecyclerView.LayoutManager mLayoutManager;
   }
 
-  public class PagerSnapHelper extends android.support.v7.widget.SnapHelper {
+  public class PagerSnapHelper extends androidx.recyclerview.widget.SnapHelper {
     ctor public PagerSnapHelper();
-    method public int[] calculateDistanceToFinalSnap(android.support.v7.widget.RecyclerView.LayoutManager, android.view.View);
-    method protected android.support.v7.widget.LinearSmoothScroller createSnapScroller(android.support.v7.widget.RecyclerView.LayoutManager);
-    method public android.view.View findSnapView(android.support.v7.widget.RecyclerView.LayoutManager);
-    method public int findTargetSnapPosition(android.support.v7.widget.RecyclerView.LayoutManager, int, int);
+    method public int[] calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View);
+    method protected androidx.recyclerview.widget.LinearSmoothScroller createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method public android.view.View findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method public int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int);
   }
 
-  public class RecyclerView extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingChild2 android.support.v4.view.ScrollingView {
+  public class RecyclerView extends android.view.ViewGroup implements androidx.core.view.NestedScrollingChild2 androidx.core.view.ScrollingView {
     ctor public RecyclerView(android.content.Context);
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet);
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet, int);
-    method public void addItemDecoration(android.support.v7.widget.RecyclerView.ItemDecoration, int);
-    method public void addItemDecoration(android.support.v7.widget.RecyclerView.ItemDecoration);
-    method public void addOnChildAttachStateChangeListener(android.support.v7.widget.RecyclerView.OnChildAttachStateChangeListener);
-    method public void addOnItemTouchListener(android.support.v7.widget.RecyclerView.OnItemTouchListener);
-    method public void addOnScrollListener(android.support.v7.widget.RecyclerView.OnScrollListener);
+    method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration, int);
+    method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
+    method public void addOnChildAttachStateChangeListener(androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener);
+    method public void addOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
+    method public void addOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
     method public void clearOnChildAttachStateChangeListeners();
     method public void clearOnScrollListeners();
     method public int computeHorizontalScrollExtent();
@@ -341,30 +359,30 @@ package android.support.v7.widget {
     method public boolean drawChild(android.graphics.Canvas, android.view.View, long);
     method public android.view.View findChildViewUnder(float, float);
     method public android.view.View findContainingItemView(android.view.View);
-    method public android.support.v7.widget.RecyclerView.ViewHolder findContainingViewHolder(android.view.View);
-    method public android.support.v7.widget.RecyclerView.ViewHolder findViewHolderForAdapterPosition(int);
-    method public android.support.v7.widget.RecyclerView.ViewHolder findViewHolderForItemId(long);
-    method public android.support.v7.widget.RecyclerView.ViewHolder findViewHolderForLayoutPosition(int);
-    method public deprecated android.support.v7.widget.RecyclerView.ViewHolder findViewHolderForPosition(int);
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder findContainingViewHolder(android.view.View);
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder findViewHolderForAdapterPosition(int);
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder findViewHolderForItemId(long);
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder findViewHolderForLayoutPosition(int);
+    method public deprecated androidx.recyclerview.widget.RecyclerView.ViewHolder findViewHolderForPosition(int);
     method public boolean fling(int, int);
-    method public android.support.v7.widget.RecyclerView.Adapter getAdapter();
+    method public androidx.recyclerview.widget.RecyclerView.Adapter getAdapter();
     method public int getChildAdapterPosition(android.view.View);
     method public long getChildItemId(android.view.View);
     method public int getChildLayoutPosition(android.view.View);
     method public deprecated int getChildPosition(android.view.View);
-    method public android.support.v7.widget.RecyclerView.ViewHolder getChildViewHolder(android.view.View);
-    method public android.support.v7.widget.RecyclerViewAccessibilityDelegate getCompatAccessibilityDelegate();
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder getChildViewHolder(android.view.View);
+    method public androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate getCompatAccessibilityDelegate();
     method public void getDecoratedBoundsWithMargins(android.view.View, android.graphics.Rect);
-    method public android.support.v7.widget.RecyclerView.EdgeEffectFactory getEdgeEffectFactory();
-    method public android.support.v7.widget.RecyclerView.ItemAnimator getItemAnimator();
-    method public android.support.v7.widget.RecyclerView.ItemDecoration getItemDecorationAt(int);
+    method public androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory getEdgeEffectFactory();
+    method public androidx.recyclerview.widget.RecyclerView.ItemAnimator getItemAnimator();
+    method public androidx.recyclerview.widget.RecyclerView.ItemDecoration getItemDecorationAt(int);
     method public int getItemDecorationCount();
-    method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
+    method public androidx.recyclerview.widget.RecyclerView.LayoutManager getLayoutManager();
     method public int getMaxFlingVelocity();
     method public int getMinFlingVelocity();
-    method public android.support.v7.widget.RecyclerView.OnFlingListener getOnFlingListener();
+    method public androidx.recyclerview.widget.RecyclerView.OnFlingListener getOnFlingListener();
     method public boolean getPreserveFocusAfterLayout();
-    method public android.support.v7.widget.RecyclerView.RecycledViewPool getRecycledViewPool();
+    method public androidx.recyclerview.widget.RecyclerView.RecycledViewPool getRecycledViewPool();
     method public int getScrollState();
     method public boolean hasFixedSize();
     method public boolean hasNestedScrollingParent(int);
@@ -380,35 +398,35 @@ package android.support.v7.widget {
     method public void onDraw(android.graphics.Canvas);
     method public void onScrollStateChanged(int);
     method public void onScrolled(int, int);
-    method public void removeItemDecoration(android.support.v7.widget.RecyclerView.ItemDecoration);
+    method public void removeItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
     method public void removeItemDecorationAt(int);
-    method public void removeOnChildAttachStateChangeListener(android.support.v7.widget.RecyclerView.OnChildAttachStateChangeListener);
-    method public void removeOnItemTouchListener(android.support.v7.widget.RecyclerView.OnItemTouchListener);
-    method public void removeOnScrollListener(android.support.v7.widget.RecyclerView.OnScrollListener);
+    method public void removeOnChildAttachStateChangeListener(androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener);
+    method public void removeOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
+    method public void removeOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
     method public void scrollToPosition(int);
-    method public void setAccessibilityDelegateCompat(android.support.v7.widget.RecyclerViewAccessibilityDelegate);
-    method public void setAdapter(android.support.v7.widget.RecyclerView.Adapter);
-    method public void setChildDrawingOrderCallback(android.support.v7.widget.RecyclerView.ChildDrawingOrderCallback);
-    method public void setEdgeEffectFactory(android.support.v7.widget.RecyclerView.EdgeEffectFactory);
+    method public void setAccessibilityDelegateCompat(androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate);
+    method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter);
+    method public void setChildDrawingOrderCallback(androidx.recyclerview.widget.RecyclerView.ChildDrawingOrderCallback);
+    method public void setEdgeEffectFactory(androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory);
     method public void setHasFixedSize(boolean);
-    method public void setItemAnimator(android.support.v7.widget.RecyclerView.ItemAnimator);
+    method public void setItemAnimator(androidx.recyclerview.widget.RecyclerView.ItemAnimator);
     method public void setItemViewCacheSize(int);
     method public void setLayoutFrozen(boolean);
-    method public void setLayoutManager(android.support.v7.widget.RecyclerView.LayoutManager);
-    method public void setOnFlingListener(android.support.v7.widget.RecyclerView.OnFlingListener);
-    method public deprecated void setOnScrollListener(android.support.v7.widget.RecyclerView.OnScrollListener);
+    method public void setLayoutManager(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method public void setOnFlingListener(androidx.recyclerview.widget.RecyclerView.OnFlingListener);
+    method public deprecated void setOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
     method public void setPreserveFocusAfterLayout(boolean);
-    method public void setRecycledViewPool(android.support.v7.widget.RecyclerView.RecycledViewPool);
-    method public void setRecyclerListener(android.support.v7.widget.RecyclerView.RecyclerListener);
+    method public void setRecycledViewPool(androidx.recyclerview.widget.RecyclerView.RecycledViewPool);
+    method public void setRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener);
     method public void setScrollingTouchSlop(int);
-    method public void setViewCacheExtension(android.support.v7.widget.RecyclerView.ViewCacheExtension);
+    method public void setViewCacheExtension(androidx.recyclerview.widget.RecyclerView.ViewCacheExtension);
     method public void smoothScrollBy(int, int);
     method public void smoothScrollBy(int, int, android.view.animation.Interpolator);
     method public void smoothScrollToPosition(int);
     method public boolean startNestedScroll(int, int);
     method public void stopNestedScroll(int);
     method public void stopScroll();
-    method public void swapAdapter(android.support.v7.widget.RecyclerView.Adapter, boolean);
+    method public void swapAdapter(androidx.recyclerview.widget.RecyclerView.Adapter, boolean);
     field public static final int HORIZONTAL = 0; // 0x0
     field public static final int INVALID_TYPE = -1; // 0xffffffff
     field public static final long NO_ID = -1L; // 0xffffffffffffffffL
@@ -421,7 +439,7 @@ package android.support.v7.widget {
     field public static final int VERTICAL = 1; // 0x1
   }
 
-  public static abstract class RecyclerView.Adapter<VH extends android.support.v7.widget.RecyclerView.ViewHolder> {
+  public static abstract class RecyclerView.Adapter<VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> {
     ctor public RecyclerView.Adapter();
     method public final void bindViewHolder(VH, int);
     method public final VH createViewHolder(android.view.ViewGroup, int);
@@ -440,18 +458,18 @@ package android.support.v7.widget {
     method public final void notifyItemRangeInserted(int, int);
     method public final void notifyItemRangeRemoved(int, int);
     method public final void notifyItemRemoved(int);
-    method public void onAttachedToRecyclerView(android.support.v7.widget.RecyclerView);
+    method public void onAttachedToRecyclerView(androidx.recyclerview.widget.RecyclerView);
     method public abstract void onBindViewHolder(VH, int);
     method public void onBindViewHolder(VH, int, java.util.List<java.lang.Object>);
     method public abstract VH onCreateViewHolder(android.view.ViewGroup, int);
-    method public void onDetachedFromRecyclerView(android.support.v7.widget.RecyclerView);
+    method public void onDetachedFromRecyclerView(androidx.recyclerview.widget.RecyclerView);
     method public boolean onFailedToRecycleView(VH);
     method public void onViewAttachedToWindow(VH);
     method public void onViewDetachedFromWindow(VH);
     method public void onViewRecycled(VH);
-    method public void registerAdapterDataObserver(android.support.v7.widget.RecyclerView.AdapterDataObserver);
+    method public void registerAdapterDataObserver(androidx.recyclerview.widget.RecyclerView.AdapterDataObserver);
     method public void setHasStableIds(boolean);
-    method public void unregisterAdapterDataObserver(android.support.v7.widget.RecyclerView.AdapterDataObserver);
+    method public void unregisterAdapterDataObserver(androidx.recyclerview.widget.RecyclerView.AdapterDataObserver);
   }
 
   public static abstract class RecyclerView.AdapterDataObserver {
@@ -470,7 +488,7 @@ package android.support.v7.widget {
 
   public static class RecyclerView.EdgeEffectFactory {
     ctor public RecyclerView.EdgeEffectFactory();
-    method protected android.widget.EdgeEffect createEdgeEffect(android.support.v7.widget.RecyclerView, int);
+    method protected android.widget.EdgeEffect createEdgeEffect(androidx.recyclerview.widget.RecyclerView, int);
     field public static final int DIRECTION_BOTTOM = 3; // 0x3
     field public static final int DIRECTION_LEFT = 0; // 0x0
     field public static final int DIRECTION_RIGHT = 2; // 0x2
@@ -482,28 +500,28 @@ package android.support.v7.widget {
 
   public static abstract class RecyclerView.ItemAnimator {
     ctor public RecyclerView.ItemAnimator();
-    method public abstract boolean animateAppearance(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public abstract boolean animateChange(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public abstract boolean animateDisappearance(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public abstract boolean animatePersistence(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public boolean canReuseUpdatedViewHolder(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public boolean canReuseUpdatedViewHolder(android.support.v7.widget.RecyclerView.ViewHolder, java.util.List<java.lang.Object>);
-    method public final void dispatchAnimationFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchAnimationStarted(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public abstract boolean animateAppearance(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animateDisappearance(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animatePersistence(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public boolean canReuseUpdatedViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public boolean canReuseUpdatedViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<java.lang.Object>);
+    method public final void dispatchAnimationFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public final void dispatchAnimationStarted(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public final void dispatchAnimationsFinished();
-    method public abstract void endAnimation(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public abstract void endAnimation(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public abstract void endAnimations();
     method public long getAddDuration();
     method public long getChangeDuration();
     method public long getMoveDuration();
     method public long getRemoveDuration();
     method public abstract boolean isRunning();
-    method public final boolean isRunning(android.support.v7.widget.RecyclerView.ItemAnimator.ItemAnimatorFinishedListener);
-    method public android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo obtainHolderInfo();
-    method public void onAnimationFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onAnimationStarted(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo recordPostLayoutInformation(android.support.v7.widget.RecyclerView.State, android.support.v7.widget.RecyclerView.ViewHolder);
-    method public android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo recordPreLayoutInformation(android.support.v7.widget.RecyclerView.State, android.support.v7.widget.RecyclerView.ViewHolder, int, java.util.List<java.lang.Object>);
+    method public final boolean isRunning(androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemAnimatorFinishedListener);
+    method public androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo obtainHolderInfo();
+    method public void onAnimationFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onAnimationStarted(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo recordPostLayoutInformation(androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo recordPreLayoutInformation(androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, java.util.List<java.lang.Object>);
     method public abstract void runPendingAnimations();
     method public void setAddDuration(long);
     method public void setChangeDuration(long);
@@ -525,8 +543,8 @@ package android.support.v7.widget {
 
   public static class RecyclerView.ItemAnimator.ItemHolderInfo {
     ctor public RecyclerView.ItemAnimator.ItemHolderInfo();
-    method public android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo setFrom(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo setFrom(android.support.v7.widget.RecyclerView.ViewHolder, int);
+    method public androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo setFrom(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo setFrom(androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
     field public int bottom;
     field public int changeFlags;
     field public int left;
@@ -536,12 +554,12 @@ package android.support.v7.widget {
 
   public static abstract class RecyclerView.ItemDecoration {
     ctor public RecyclerView.ItemDecoration();
-    method public deprecated void getItemOffsets(android.graphics.Rect, int, android.support.v7.widget.RecyclerView);
-    method public void getItemOffsets(android.graphics.Rect, android.view.View, android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.State);
-    method public void onDraw(android.graphics.Canvas, android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.State);
-    method public deprecated void onDraw(android.graphics.Canvas, android.support.v7.widget.RecyclerView);
-    method public void onDrawOver(android.graphics.Canvas, android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.State);
-    method public deprecated void onDrawOver(android.graphics.Canvas, android.support.v7.widget.RecyclerView);
+    method public deprecated void getItemOffsets(android.graphics.Rect, int, androidx.recyclerview.widget.RecyclerView);
+    method public void getItemOffsets(android.graphics.Rect, android.view.View, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State);
+    method public void onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State);
+    method public deprecated void onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView);
+    method public void onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State);
+    method public deprecated void onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView);
   }
 
   public static abstract class RecyclerView.LayoutManager {
@@ -552,33 +570,33 @@ package android.support.v7.widget {
     method public void addView(android.view.View, int);
     method public void assertInLayoutOrScroll(java.lang.String);
     method public void assertNotInLayoutOrScroll(java.lang.String);
-    method public void attachView(android.view.View, int, android.support.v7.widget.RecyclerView.LayoutParams);
+    method public void attachView(android.view.View, int, androidx.recyclerview.widget.RecyclerView.LayoutParams);
     method public void attachView(android.view.View, int);
     method public void attachView(android.view.View);
     method public void calculateItemDecorationsForChild(android.view.View, android.graphics.Rect);
     method public boolean canScrollHorizontally();
     method public boolean canScrollVertically();
-    method public boolean checkLayoutParams(android.support.v7.widget.RecyclerView.LayoutParams);
+    method public boolean checkLayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams);
     method public static int chooseSize(int, int, int);
-    method public void collectAdjacentPrefetchPositions(int, int, android.support.v7.widget.RecyclerView.State, android.support.v7.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry);
-    method public void collectInitialPrefetchPositions(int, android.support.v7.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry);
-    method public int computeHorizontalScrollExtent(android.support.v7.widget.RecyclerView.State);
-    method public int computeHorizontalScrollOffset(android.support.v7.widget.RecyclerView.State);
-    method public int computeHorizontalScrollRange(android.support.v7.widget.RecyclerView.State);
-    method public int computeVerticalScrollExtent(android.support.v7.widget.RecyclerView.State);
-    method public int computeVerticalScrollOffset(android.support.v7.widget.RecyclerView.State);
-    method public int computeVerticalScrollRange(android.support.v7.widget.RecyclerView.State);
-    method public void detachAndScrapAttachedViews(android.support.v7.widget.RecyclerView.Recycler);
-    method public void detachAndScrapView(android.view.View, android.support.v7.widget.RecyclerView.Recycler);
-    method public void detachAndScrapViewAt(int, android.support.v7.widget.RecyclerView.Recycler);
+    method public void collectAdjacentPrefetchPositions(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry);
+    method public void collectInitialPrefetchPositions(int, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry);
+    method public int computeHorizontalScrollExtent(androidx.recyclerview.widget.RecyclerView.State);
+    method public int computeHorizontalScrollOffset(androidx.recyclerview.widget.RecyclerView.State);
+    method public int computeHorizontalScrollRange(androidx.recyclerview.widget.RecyclerView.State);
+    method public int computeVerticalScrollExtent(androidx.recyclerview.widget.RecyclerView.State);
+    method public int computeVerticalScrollOffset(androidx.recyclerview.widget.RecyclerView.State);
+    method public int computeVerticalScrollRange(androidx.recyclerview.widget.RecyclerView.State);
+    method public void detachAndScrapAttachedViews(androidx.recyclerview.widget.RecyclerView.Recycler);
+    method public void detachAndScrapView(android.view.View, androidx.recyclerview.widget.RecyclerView.Recycler);
+    method public void detachAndScrapViewAt(int, androidx.recyclerview.widget.RecyclerView.Recycler);
     method public void detachView(android.view.View);
     method public void detachViewAt(int);
     method public void endAnimation(android.view.View);
     method public android.view.View findContainingItemView(android.view.View);
     method public android.view.View findViewByPosition(int);
-    method public abstract android.support.v7.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
-    method public android.support.v7.widget.RecyclerView.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
-    method public android.support.v7.widget.RecyclerView.LayoutParams generateLayoutParams(android.content.Context, android.util.AttributeSet);
+    method public abstract androidx.recyclerview.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
+    method public androidx.recyclerview.widget.RecyclerView.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
+    method public androidx.recyclerview.widget.RecyclerView.LayoutParams generateLayoutParams(android.content.Context, android.util.AttributeSet);
     method public int getBaseline();
     method public int getBottomDecorationHeight(android.view.View);
     method public android.view.View getChildAt(int);
@@ -586,7 +604,7 @@ package android.support.v7.widget {
     method public static deprecated int getChildMeasureSpec(int, int, int, boolean);
     method public static int getChildMeasureSpec(int, int, int, int, boolean);
     method public boolean getClipToPadding();
-    method public int getColumnCountForAccessibility(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
+    method public int getColumnCountForAccessibility(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
     method public int getDecoratedBottom(android.view.View);
     method public void getDecoratedBoundsWithMargins(android.view.View, android.graphics.Rect);
     method public int getDecoratedLeft(android.view.View);
@@ -610,10 +628,10 @@ package android.support.v7.widget {
     method public int getPaddingStart();
     method public int getPaddingTop();
     method public int getPosition(android.view.View);
-    method public static android.support.v7.widget.RecyclerView.LayoutManager.Properties getProperties(android.content.Context, android.util.AttributeSet, int, int);
+    method public static androidx.recyclerview.widget.RecyclerView.LayoutManager.Properties getProperties(android.content.Context, android.util.AttributeSet, int, int);
     method public int getRightDecorationWidth(android.view.View);
-    method public int getRowCountForAccessibility(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
-    method public int getSelectionModeForAccessibility(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
+    method public int getRowCountForAccessibility(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
+    method public int getSelectionModeForAccessibility(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
     method public int getTopDecorationHeight(android.view.View);
     method public void getTransformedBoundingBox(android.view.View, boolean, android.graphics.Rect);
     method public int getWidth();
@@ -624,7 +642,7 @@ package android.support.v7.widget {
     method public boolean isAutoMeasureEnabled();
     method public boolean isFocused();
     method public final boolean isItemPrefetchEnabled();
-    method public boolean isLayoutHierarchical(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
+    method public boolean isLayoutHierarchical(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
     method public boolean isMeasurementCacheEnabled();
     method public boolean isSmoothScrolling();
     method public boolean isViewPartiallyVisible(android.view.View, boolean, boolean);
@@ -635,56 +653,56 @@ package android.support.v7.widget {
     method public void moveView(int, int);
     method public void offsetChildrenHorizontal(int);
     method public void offsetChildrenVertical(int);
-    method public void onAdapterChanged(android.support.v7.widget.RecyclerView.Adapter, android.support.v7.widget.RecyclerView.Adapter);
-    method public boolean onAddFocusables(android.support.v7.widget.RecyclerView, java.util.ArrayList<android.view.View>, int, int);
-    method public void onAttachedToWindow(android.support.v7.widget.RecyclerView);
-    method public deprecated void onDetachedFromWindow(android.support.v7.widget.RecyclerView);
-    method public void onDetachedFromWindow(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.Recycler);
-    method public android.view.View onFocusSearchFailed(android.view.View, int, android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
+    method public void onAdapterChanged(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.RecyclerView.Adapter);
+    method public boolean onAddFocusables(androidx.recyclerview.widget.RecyclerView, java.util.ArrayList<android.view.View>, int, int);
+    method public void onAttachedToWindow(androidx.recyclerview.widget.RecyclerView);
+    method public deprecated void onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView);
+    method public void onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler);
+    method public android.view.View onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
     method public void onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent);
-    method public void onInitializeAccessibilityEvent(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State, android.view.accessibility.AccessibilityEvent);
-    method public void onInitializeAccessibilityNodeInfo(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State, android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
-    method public void onInitializeAccessibilityNodeInfoForItem(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State, android.view.View, android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
+    method public void onInitializeAccessibilityEvent(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.accessibility.AccessibilityEvent);
+    method public void onInitializeAccessibilityNodeInfo(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
+    method public void onInitializeAccessibilityNodeInfoForItem(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
     method public android.view.View onInterceptFocusSearch(android.view.View, int);
-    method public void onItemsAdded(android.support.v7.widget.RecyclerView, int, int);
-    method public void onItemsChanged(android.support.v7.widget.RecyclerView);
-    method public void onItemsMoved(android.support.v7.widget.RecyclerView, int, int, int);
-    method public void onItemsRemoved(android.support.v7.widget.RecyclerView, int, int);
-    method public void onItemsUpdated(android.support.v7.widget.RecyclerView, int, int);
-    method public void onItemsUpdated(android.support.v7.widget.RecyclerView, int, int, java.lang.Object);
-    method public void onLayoutChildren(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
-    method public void onLayoutCompleted(android.support.v7.widget.RecyclerView.State);
-    method public void onMeasure(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State, int, int);
-    method public deprecated boolean onRequestChildFocus(android.support.v7.widget.RecyclerView, android.view.View, android.view.View);
-    method public boolean onRequestChildFocus(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.State, android.view.View, android.view.View);
+    method public void onItemsAdded(androidx.recyclerview.widget.RecyclerView, int, int);
+    method public void onItemsChanged(androidx.recyclerview.widget.RecyclerView);
+    method public void onItemsMoved(androidx.recyclerview.widget.RecyclerView, int, int, int);
+    method public void onItemsRemoved(androidx.recyclerview.widget.RecyclerView, int, int);
+    method public void onItemsUpdated(androidx.recyclerview.widget.RecyclerView, int, int);
+    method public void onItemsUpdated(androidx.recyclerview.widget.RecyclerView, int, int, java.lang.Object);
+    method public void onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
+    method public void onLayoutCompleted(androidx.recyclerview.widget.RecyclerView.State);
+    method public void onMeasure(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, int, int);
+    method public deprecated boolean onRequestChildFocus(androidx.recyclerview.widget.RecyclerView, android.view.View, android.view.View);
+    method public boolean onRequestChildFocus(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, android.view.View, android.view.View);
     method public void onRestoreInstanceState(android.os.Parcelable);
     method public android.os.Parcelable onSaveInstanceState();
     method public void onScrollStateChanged(int);
-    method public boolean performAccessibilityAction(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State, int, android.os.Bundle);
-    method public boolean performAccessibilityActionForItem(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State, android.view.View, int, android.os.Bundle);
+    method public boolean performAccessibilityAction(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, int, android.os.Bundle);
+    method public boolean performAccessibilityActionForItem(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.View, int, android.os.Bundle);
     method public void postOnAnimation(java.lang.Runnable);
     method public void removeAllViews();
-    method public void removeAndRecycleAllViews(android.support.v7.widget.RecyclerView.Recycler);
-    method public void removeAndRecycleView(android.view.View, android.support.v7.widget.RecyclerView.Recycler);
-    method public void removeAndRecycleViewAt(int, android.support.v7.widget.RecyclerView.Recycler);
+    method public void removeAndRecycleAllViews(androidx.recyclerview.widget.RecyclerView.Recycler);
+    method public void removeAndRecycleView(android.view.View, androidx.recyclerview.widget.RecyclerView.Recycler);
+    method public void removeAndRecycleViewAt(int, androidx.recyclerview.widget.RecyclerView.Recycler);
     method public boolean removeCallbacks(java.lang.Runnable);
     method public void removeDetachedView(android.view.View);
     method public void removeView(android.view.View);
     method public void removeViewAt(int);
-    method public boolean requestChildRectangleOnScreen(android.support.v7.widget.RecyclerView, android.view.View, android.graphics.Rect, boolean);
-    method public boolean requestChildRectangleOnScreen(android.support.v7.widget.RecyclerView, android.view.View, android.graphics.Rect, boolean, boolean);
+    method public boolean requestChildRectangleOnScreen(androidx.recyclerview.widget.RecyclerView, android.view.View, android.graphics.Rect, boolean);
+    method public boolean requestChildRectangleOnScreen(androidx.recyclerview.widget.RecyclerView, android.view.View, android.graphics.Rect, boolean, boolean);
     method public void requestLayout();
     method public void requestSimpleAnimationsInNextLayout();
-    method public int scrollHorizontallyBy(int, android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
+    method public int scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
     method public void scrollToPosition(int);
-    method public int scrollVerticallyBy(int, android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
+    method public int scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State);
     method public deprecated void setAutoMeasureEnabled(boolean);
     method public final void setItemPrefetchEnabled(boolean);
     method public void setMeasuredDimension(android.graphics.Rect, int, int);
     method public void setMeasuredDimension(int, int);
     method public void setMeasurementCacheEnabled(boolean);
-    method public void smoothScrollToPosition(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.State, int);
-    method public void startSmoothScroll(android.support.v7.widget.RecyclerView.SmoothScroller);
+    method public void smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int);
+    method public void startSmoothScroll(androidx.recyclerview.widget.RecyclerView.SmoothScroller);
     method public void stopIgnoringView(android.view.View);
     method public boolean supportsPredictiveItemAnimations();
   }
@@ -706,7 +724,7 @@ package android.support.v7.widget {
     ctor public RecyclerView.LayoutParams(int, int);
     ctor public RecyclerView.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
     ctor public RecyclerView.LayoutParams(android.view.ViewGroup.LayoutParams);
-    ctor public RecyclerView.LayoutParams(android.support.v7.widget.RecyclerView.LayoutParams);
+    ctor public RecyclerView.LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams);
     method public int getViewAdapterPosition();
     method public int getViewLayoutPosition();
     method public deprecated int getViewPosition();
@@ -727,23 +745,23 @@ package android.support.v7.widget {
   }
 
   public static abstract interface RecyclerView.OnItemTouchListener {
-    method public abstract boolean onInterceptTouchEvent(android.support.v7.widget.RecyclerView, android.view.MotionEvent);
+    method public abstract boolean onInterceptTouchEvent(androidx.recyclerview.widget.RecyclerView, android.view.MotionEvent);
     method public abstract void onRequestDisallowInterceptTouchEvent(boolean);
-    method public abstract void onTouchEvent(android.support.v7.widget.RecyclerView, android.view.MotionEvent);
+    method public abstract void onTouchEvent(androidx.recyclerview.widget.RecyclerView, android.view.MotionEvent);
   }
 
   public static abstract class RecyclerView.OnScrollListener {
     ctor public RecyclerView.OnScrollListener();
-    method public void onScrollStateChanged(android.support.v7.widget.RecyclerView, int);
-    method public void onScrolled(android.support.v7.widget.RecyclerView, int, int);
+    method public void onScrollStateChanged(androidx.recyclerview.widget.RecyclerView, int);
+    method public void onScrolled(androidx.recyclerview.widget.RecyclerView, int, int);
   }
 
   public static class RecyclerView.RecycledViewPool {
     ctor public RecyclerView.RecycledViewPool();
     method public void clear();
-    method public android.support.v7.widget.RecyclerView.ViewHolder getRecycledView(int);
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder getRecycledView(int);
     method public int getRecycledViewCount(int);
-    method public void putRecycledView(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void putRecycledView(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public void setMaxRecycledViews(int, int);
   }
 
@@ -752,21 +770,21 @@ package android.support.v7.widget {
     method public void bindViewToPosition(android.view.View, int);
     method public void clear();
     method public int convertPreLayoutPositionToPostLayout(int);
-    method public java.util.List<android.support.v7.widget.RecyclerView.ViewHolder> getScrapList();
+    method public java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder> getScrapList();
     method public android.view.View getViewForPosition(int);
     method public void recycleView(android.view.View);
     method public void setViewCacheSize(int);
   }
 
   public static abstract interface RecyclerView.RecyclerListener {
-    method public abstract void onViewRecycled(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public abstract void onViewRecycled(androidx.recyclerview.widget.RecyclerView.ViewHolder);
   }
 
-  public static class RecyclerView.SimpleOnItemTouchListener implements android.support.v7.widget.RecyclerView.OnItemTouchListener {
+  public static class RecyclerView.SimpleOnItemTouchListener implements androidx.recyclerview.widget.RecyclerView.OnItemTouchListener {
     ctor public RecyclerView.SimpleOnItemTouchListener();
-    method public boolean onInterceptTouchEvent(android.support.v7.widget.RecyclerView, android.view.MotionEvent);
+    method public boolean onInterceptTouchEvent(androidx.recyclerview.widget.RecyclerView, android.view.MotionEvent);
     method public void onRequestDisallowInterceptTouchEvent(boolean);
-    method public void onTouchEvent(android.support.v7.widget.RecyclerView, android.view.MotionEvent);
+    method public void onTouchEvent(androidx.recyclerview.widget.RecyclerView, android.view.MotionEvent);
   }
 
   public static abstract class RecyclerView.SmoothScroller {
@@ -775,17 +793,17 @@ package android.support.v7.widget {
     method public android.view.View findViewByPosition(int);
     method public int getChildCount();
     method public int getChildPosition(android.view.View);
-    method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
+    method public androidx.recyclerview.widget.RecyclerView.LayoutManager getLayoutManager();
     method public int getTargetPosition();
     method public deprecated void instantScrollToPosition(int);
     method public boolean isPendingInitialRun();
     method public boolean isRunning();
     method protected void normalize(android.graphics.PointF);
     method protected void onChildAttachedToWindow(android.view.View);
-    method protected abstract void onSeekTargetStep(int, int, android.support.v7.widget.RecyclerView.State, android.support.v7.widget.RecyclerView.SmoothScroller.Action);
+    method protected abstract void onSeekTargetStep(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action);
     method protected abstract void onStart();
     method protected abstract void onStop();
-    method protected abstract void onTargetFound(android.view.View, android.support.v7.widget.RecyclerView.State, android.support.v7.widget.RecyclerView.SmoothScroller.Action);
+    method protected abstract void onTargetFound(android.view.View, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action);
     method public void setTargetPosition(int);
     method protected final void stop();
   }
@@ -830,7 +848,7 @@ package android.support.v7.widget {
 
   public static abstract class RecyclerView.ViewCacheExtension {
     ctor public RecyclerView.ViewCacheExtension();
-    method public abstract android.view.View getViewForPositionAndType(android.support.v7.widget.RecyclerView.Recycler, int, int);
+    method public abstract android.view.View getViewForPositionAndType(androidx.recyclerview.widget.RecyclerView.Recycler, int, int);
   }
 
   public static abstract class RecyclerView.ViewHolder {
@@ -846,58 +864,111 @@ package android.support.v7.widget {
     field public final android.view.View itemView;
   }
 
-  public class RecyclerViewAccessibilityDelegate extends android.support.v4.view.AccessibilityDelegateCompat {
-    ctor public RecyclerViewAccessibilityDelegate(android.support.v7.widget.RecyclerView);
-    method public android.support.v4.view.AccessibilityDelegateCompat getItemDelegate();
+  public class RecyclerViewAccessibilityDelegate extends androidx.core.view.AccessibilityDelegateCompat {
+    ctor public RecyclerViewAccessibilityDelegate(androidx.recyclerview.widget.RecyclerView);
+    method public androidx.core.view.AccessibilityDelegateCompat getItemDelegate();
   }
 
-  public static class RecyclerViewAccessibilityDelegate.ItemDelegate extends android.support.v4.view.AccessibilityDelegateCompat {
-    ctor public RecyclerViewAccessibilityDelegate.ItemDelegate(android.support.v7.widget.RecyclerViewAccessibilityDelegate);
+  public static class RecyclerViewAccessibilityDelegate.ItemDelegate extends androidx.core.view.AccessibilityDelegateCompat {
+    ctor public RecyclerViewAccessibilityDelegate.ItemDelegate(androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate);
   }
 
-  public abstract class SimpleItemAnimator extends android.support.v7.widget.RecyclerView.ItemAnimator {
+  public abstract class SimpleItemAnimator extends androidx.recyclerview.widget.RecyclerView.ItemAnimator {
     ctor public SimpleItemAnimator();
-    method public abstract boolean animateAdd(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public boolean animateAppearance(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public boolean animateChange(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public abstract boolean animateChange(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder, int, int, int, int);
-    method public boolean animateDisappearance(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public abstract boolean animateMove(android.support.v7.widget.RecyclerView.ViewHolder, int, int, int, int);
-    method public boolean animatePersistence(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public abstract boolean animateRemove(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchAddFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchAddStarting(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchChangeFinished(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
-    method public final void dispatchChangeStarting(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
-    method public final void dispatchMoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchMoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchRemoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchRemoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public abstract boolean animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public boolean animateAppearance(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int);
+    method public boolean animateDisappearance(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int);
+    method public boolean animatePersistence(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public final void dispatchAddFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public final void dispatchAddStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public final void dispatchChangeFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder, boolean);
+    method public final void dispatchChangeStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder, boolean);
+    method public final void dispatchMoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public final void dispatchMoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public final void dispatchRemoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public final void dispatchRemoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public boolean getSupportsChangeAnimations();
-    method public void onAddFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onAddStarting(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onChangeFinished(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
-    method public void onChangeStarting(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
-    method public void onMoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onMoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onRemoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onRemoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void onAddFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onAddStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onChangeFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder, boolean);
+    method public void onChangeStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder, boolean);
+    method public void onMoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onMoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onRemoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onRemoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public void setSupportsChangeAnimations(boolean);
   }
 
-  public abstract class SnapHelper extends android.support.v7.widget.RecyclerView.OnFlingListener {
+  public abstract class SnapHelper extends androidx.recyclerview.widget.RecyclerView.OnFlingListener {
     ctor public SnapHelper();
-    method public void attachToRecyclerView(android.support.v7.widget.RecyclerView) throws java.lang.IllegalStateException;
-    method public abstract int[] calculateDistanceToFinalSnap(android.support.v7.widget.RecyclerView.LayoutManager, android.view.View);
+    method public void attachToRecyclerView(androidx.recyclerview.widget.RecyclerView) throws java.lang.IllegalStateException;
+    method public abstract int[] calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View);
     method public int[] calculateScrollDistance(int, int);
-    method protected android.support.v7.widget.RecyclerView.SmoothScroller createScroller(android.support.v7.widget.RecyclerView.LayoutManager);
-    method protected deprecated android.support.v7.widget.LinearSmoothScroller createSnapScroller(android.support.v7.widget.RecyclerView.LayoutManager);
-    method public abstract android.view.View findSnapView(android.support.v7.widget.RecyclerView.LayoutManager);
-    method public abstract int findTargetSnapPosition(android.support.v7.widget.RecyclerView.LayoutManager, int, int);
+    method protected androidx.recyclerview.widget.RecyclerView.SmoothScroller createScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method protected deprecated androidx.recyclerview.widget.LinearSmoothScroller createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method public abstract android.view.View findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method public abstract int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int);
     method public boolean onFling(int, int);
   }
 
-  public class StaggeredGridLayoutManager extends android.support.v7.widget.RecyclerView.LayoutManager implements android.support.v7.widget.RecyclerView.SmoothScroller.ScrollVectorProvider {
+  public class SortedList<T> {
+    ctor public SortedList(java.lang.Class<T>, androidx.recyclerview.widget.SortedList.Callback<T>);
+    ctor public SortedList(java.lang.Class<T>, androidx.recyclerview.widget.SortedList.Callback<T>, int);
+    method public int add(T);
+    method public void addAll(T[], boolean);
+    method public void addAll(T...);
+    method public void addAll(java.util.Collection<T>);
+    method public void beginBatchedUpdates();
+    method public void clear();
+    method public void endBatchedUpdates();
+    method public T get(int) throws java.lang.IndexOutOfBoundsException;
+    method public int indexOf(T);
+    method public void recalculatePositionOfItemAt(int);
+    method public boolean remove(T);
+    method public T removeItemAt(int);
+    method public void replaceAll(T[], boolean);
+    method public void replaceAll(T...);
+    method public void replaceAll(java.util.Collection<T>);
+    method public int size();
+    method public void updateItemAt(int, T);
+    field public static final int INVALID_POSITION = -1; // 0xffffffff
+  }
+
+  public static class SortedList.BatchedCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback {
+    ctor public SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2>);
+    method public boolean areContentsTheSame(T2, T2);
+    method public boolean areItemsTheSame(T2, T2);
+    method public int compare(T2, T2);
+    method public void dispatchLastEvent();
+    method public void onChanged(int, int);
+    method public void onInserted(int, int);
+    method public void onMoved(int, int);
+    method public void onRemoved(int, int);
+  }
+
+  public static abstract class SortedList.Callback<T2> implements java.util.Comparator androidx.recyclerview.widget.ListUpdateCallback {
+    ctor public SortedList.Callback();
+    method public abstract boolean areContentsTheSame(T2, T2);
+    method public abstract boolean areItemsTheSame(T2, T2);
+    method public abstract int compare(T2, T2);
+    method public java.lang.Object getChangePayload(T2, T2);
+    method public abstract void onChanged(int, int);
+    method public void onChanged(int, int, java.lang.Object);
+  }
+
+  public abstract class SortedListAdapterCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback {
+    ctor public SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter);
+    method public void onChanged(int, int);
+    method public void onInserted(int, int);
+    method public void onMoved(int, int);
+    method public void onRemoved(int, int);
+  }
+
+  public class StaggeredGridLayoutManager extends androidx.recyclerview.widget.RecyclerView.LayoutManager implements androidx.recyclerview.widget.RecyclerView.SmoothScroller.ScrollVectorProvider {
     ctor public StaggeredGridLayoutManager(android.content.Context, android.util.AttributeSet, int, int);
     ctor public StaggeredGridLayoutManager(int, int);
     method public android.graphics.PointF computeScrollVectorForPosition(int);
@@ -905,7 +976,7 @@ package android.support.v7.widget {
     method public int[] findFirstVisibleItemPositions(int[]);
     method public int[] findLastCompletelyVisibleItemPositions(int[]);
     method public int[] findLastVisibleItemPositions(int[]);
-    method public android.support.v7.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
+    method public androidx.recyclerview.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
     method public int getGapStrategy();
     method public int getOrientation();
     method public boolean getReverseLayout();
@@ -923,103 +994,16 @@ package android.support.v7.widget {
     field public static final int VERTICAL = 1; // 0x1
   }
 
-  public static class StaggeredGridLayoutManager.LayoutParams extends android.support.v7.widget.RecyclerView.LayoutParams {
+  public static class StaggeredGridLayoutManager.LayoutParams extends androidx.recyclerview.widget.RecyclerView.LayoutParams {
     ctor public StaggeredGridLayoutManager.LayoutParams(android.content.Context, android.util.AttributeSet);
     ctor public StaggeredGridLayoutManager.LayoutParams(int, int);
     ctor public StaggeredGridLayoutManager.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
     ctor public StaggeredGridLayoutManager.LayoutParams(android.view.ViewGroup.LayoutParams);
-    ctor public StaggeredGridLayoutManager.LayoutParams(android.support.v7.widget.RecyclerView.LayoutParams);
+    ctor public StaggeredGridLayoutManager.LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams);
     method public final int getSpanIndex();
     method public boolean isFullSpan();
     method public void setFullSpan(boolean);
     field public static final int INVALID_SPAN_ID = -1; // 0xffffffff
-  }
-
-}
-
-package android.support.v7.widget.helper {
-
-  public class ItemTouchHelper extends android.support.v7.widget.RecyclerView.ItemDecoration implements android.support.v7.widget.RecyclerView.OnChildAttachStateChangeListener {
-    ctor public ItemTouchHelper(android.support.v7.widget.helper.ItemTouchHelper.Callback);
-    method public void attachToRecyclerView(android.support.v7.widget.RecyclerView);
-    method public void onChildViewAttachedToWindow(android.view.View);
-    method public void onChildViewDetachedFromWindow(android.view.View);
-    method public void startDrag(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void startSwipe(android.support.v7.widget.RecyclerView.ViewHolder);
-    field public static final int ACTION_STATE_DRAG = 2; // 0x2
-    field public static final int ACTION_STATE_IDLE = 0; // 0x0
-    field public static final int ACTION_STATE_SWIPE = 1; // 0x1
-    field public static final int ANIMATION_TYPE_DRAG = 8; // 0x8
-    field public static final int ANIMATION_TYPE_SWIPE_CANCEL = 4; // 0x4
-    field public static final int ANIMATION_TYPE_SWIPE_SUCCESS = 2; // 0x2
-    field public static final int DOWN = 2; // 0x2
-    field public static final int END = 32; // 0x20
-    field public static final int LEFT = 4; // 0x4
-    field public static final int RIGHT = 8; // 0x8
-    field public static final int START = 16; // 0x10
-    field public static final int UP = 1; // 0x1
-  }
-
-  public static abstract class ItemTouchHelper.Callback {
-    ctor public ItemTouchHelper.Callback();
-    method public boolean canDropOver(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder);
-    method public android.support.v7.widget.RecyclerView.ViewHolder chooseDropTarget(android.support.v7.widget.RecyclerView.ViewHolder, java.util.List<android.support.v7.widget.RecyclerView.ViewHolder>, int, int);
-    method public void clearView(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
-    method public int convertToAbsoluteDirection(int, int);
-    method public static int convertToRelativeDirection(int, int);
-    method public long getAnimationDuration(android.support.v7.widget.RecyclerView, int, float, float);
-    method public int getBoundingBoxMargin();
-    method public static android.support.v7.widget.helper.ItemTouchUIUtil getDefaultUIUtil();
-    method public float getMoveThreshold(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public abstract int getMovementFlags(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
-    method public float getSwipeEscapeVelocity(float);
-    method public float getSwipeThreshold(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public float getSwipeVelocityThreshold(float);
-    method public int interpolateOutOfBoundsScroll(android.support.v7.widget.RecyclerView, int, int, int, long);
-    method public boolean isItemViewSwipeEnabled();
-    method public boolean isLongPressDragEnabled();
-    method public static int makeFlag(int, int);
-    method public static int makeMovementFlags(int, int);
-    method public void onChildDraw(android.graphics.Canvas, android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, float, float, int, boolean);
-    method public void onChildDrawOver(android.graphics.Canvas, android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, float, float, int, boolean);
-    method public abstract boolean onMove(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onMoved(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, int, android.support.v7.widget.RecyclerView.ViewHolder, int, int, int);
-    method public void onSelectedChanged(android.support.v7.widget.RecyclerView.ViewHolder, int);
-    method public abstract void onSwiped(android.support.v7.widget.RecyclerView.ViewHolder, int);
-    field public static final int DEFAULT_DRAG_ANIMATION_DURATION = 200; // 0xc8
-    field public static final int DEFAULT_SWIPE_ANIMATION_DURATION = 250; // 0xfa
-  }
-
-  public static abstract class ItemTouchHelper.SimpleCallback extends android.support.v7.widget.helper.ItemTouchHelper.Callback {
-    ctor public ItemTouchHelper.SimpleCallback(int, int);
-    method public int getDragDirs(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
-    method public int getMovementFlags(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
-    method public int getSwipeDirs(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void setDefaultDragDirs(int);
-    method public void setDefaultSwipeDirs(int);
-  }
-
-  public static abstract interface ItemTouchHelper.ViewDropHandler {
-    method public abstract void prepareForDrop(android.view.View, android.view.View, int, int);
-  }
-
-  public abstract interface ItemTouchUIUtil {
-    method public abstract void clearView(android.view.View);
-    method public abstract void onDraw(android.graphics.Canvas, android.support.v7.widget.RecyclerView, android.view.View, float, float, int, boolean);
-    method public abstract void onDrawOver(android.graphics.Canvas, android.support.v7.widget.RecyclerView, android.view.View, float, float, int, boolean);
-    method public abstract void onSelected(android.view.View);
-  }
-
-}
-
-package android.support.v7.widget.util {
-
-  public abstract class SortedListAdapterCallback<T2> extends android.support.v7.util.SortedList.Callback {
-    ctor public SortedListAdapterCallback(android.support.v7.widget.RecyclerView.Adapter);
-    method public void onChanged(int, int);
-    method public void onInserted(int, int);
-    method public void onMoved(int, int);
-    method public void onRemoved(int, int);
   }
 
 }

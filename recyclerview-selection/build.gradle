@@ -23,9 +23,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":recyclerview-v7"))
-    api(project(":support-annotations"))
-    api(project(":support-compat"))
+    api(project(":recyclerview"))
+    api(project(":annotation"))
+    api(project(":core"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)

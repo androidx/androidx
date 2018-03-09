@@ -20,11 +20,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Parcel;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.os.LocaleListCompat;
-import android.support.v4.util.ArrayMap;
+import androidx.core.os.LocaleListCompat;
+import androidx.collection.ArrayMap;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ClickableSpan;

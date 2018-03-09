@@ -17,11 +17,11 @@
 package androidx.car.widget;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearSnapHelper;
-import android.support.v7.widget.OrientationHelper;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.OrientationHelper;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 /**
@@ -318,7 +318,7 @@ public class PagedSnapHelper extends LinearSnapHelper {
 
     /**
      * Returns an {@link OrientationHelper} that corresponds to the current scroll direction of
-     * the given {@link android.support.v7.widget.RecyclerView.LayoutManager}.
+     * the given {@link RecyclerView.LayoutManager}.
      */
     @NonNull
     private OrientationHelper getOrientationHelper(

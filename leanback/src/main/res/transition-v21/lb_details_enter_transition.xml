@@ -16,7 +16,7 @@
 -->
 
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android" >
-  <transition class="android.support.v17.leanback.transition.SlideNoPropagation"
+  <transition class="androidx.leanback.transition.SlideNoPropagation"
       android:duration="500"
       android:interpolator="@android:interpolator/linear_out_slow_in"
       android:slideEdge="bottom">
@@ -30,7 +30,7 @@
   </transition>
   <!-- The ParallaxTransition runs with with Slide transition, must use same duration
     and same startDelay-->
-  <transition class="android.support.v17.leanback.transition.ParallaxTransition"
+  <transition class="androidx.leanback.transition.ParallaxTransition"
     android:duration="500">
       <targets>
           <target android:targetId="@id/details_frame" />

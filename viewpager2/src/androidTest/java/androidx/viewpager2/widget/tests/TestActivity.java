@@ -17,14 +17,17 @@
 package androidx.viewpager2.widget.tests;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 
 import androidx.viewpager2.test.R;
+import androidx.viewpager2.widget.ViewPager2;
 
 public class TestActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.activity_test_layout);
+
+        ViewPager2Tests.sAdapterStrategy.setAdapter((ViewPager2) findViewById(R.id.view_pager));
     }
 }

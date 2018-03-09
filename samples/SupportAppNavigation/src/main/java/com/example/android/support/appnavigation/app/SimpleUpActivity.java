@@ -18,10 +18,9 @@ package com.example.android.support.appnavigation.app;
 
 import com.example.android.support.appnavigation.R;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
+import androidx.core.app.NavUtils;
 import android.view.MenuItem;
 
 public class SimpleUpActivity extends Activity {

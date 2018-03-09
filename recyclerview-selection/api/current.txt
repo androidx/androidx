@@ -6,12 +6,12 @@ package androidx.recyclerview.selection {
   }
 
   public static final class BandPredicate.EmptyArea extends androidx.recyclerview.selection.BandPredicate {
-    ctor public BandPredicate.EmptyArea(android.support.v7.widget.RecyclerView);
+    ctor public BandPredicate.EmptyArea(androidx.recyclerview.widget.RecyclerView);
     method public boolean canInitiate(android.view.MotionEvent);
   }
 
   public static final class BandPredicate.NonDraggableArea extends androidx.recyclerview.selection.BandPredicate {
-    ctor public BandPredicate.NonDraggableArea(android.support.v7.widget.RecyclerView, androidx.recyclerview.selection.ItemDetailsLookup);
+    ctor public BandPredicate.NonDraggableArea(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.selection.ItemDetailsLookup);
     method public boolean canInitiate(android.view.MotionEvent);
   }
 
@@ -109,7 +109,7 @@ package androidx.recyclerview.selection {
   }
 
   public static final class SelectionTracker.Builder<K> {
-    ctor public SelectionTracker.Builder(java.lang.String, android.support.v7.widget.RecyclerView, androidx.recyclerview.selection.ItemKeyProvider<K>, androidx.recyclerview.selection.ItemDetailsLookup<K>, androidx.recyclerview.selection.StorageStrategy<K>);
+    ctor public SelectionTracker.Builder(java.lang.String, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.selection.ItemKeyProvider<K>, androidx.recyclerview.selection.ItemDetailsLookup<K>, androidx.recyclerview.selection.StorageStrategy<K>);
     method public androidx.recyclerview.selection.SelectionTracker<K> build();
     method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withBandOverlay(int);
     method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withBandPredicate(androidx.recyclerview.selection.BandPredicate);
@@ -139,7 +139,7 @@ package androidx.recyclerview.selection {
   }
 
   public final class StableIdKeyProvider extends androidx.recyclerview.selection.ItemKeyProvider {
-    ctor public StableIdKeyProvider(android.support.v7.widget.RecyclerView);
+    ctor public StableIdKeyProvider(androidx.recyclerview.widget.RecyclerView);
     method public java.lang.Long getKey(int);
     method public int getPosition(java.lang.Long);
   }
