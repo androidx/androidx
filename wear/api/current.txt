@@ -1,3 +1,18 @@
+package androidx.wear.activity {
+
+  public class ConfirmationActivity extends android.app.Activity {
+    ctor public ConfirmationActivity();
+    method protected void onAnimationFinished();
+    method public void onCreate(android.os.Bundle);
+    field public static final java.lang.String EXTRA_ANIMATION_TYPE = "androidx.wear.activity.extra.ANIMATION_TYPE";
+    field public static final java.lang.String EXTRA_MESSAGE = "androidx.wear.activity.extra.MESSAGE";
+    field public static final int FAILURE_ANIMATION = 3; // 0x3
+    field public static final int OPEN_ON_PHONE_ANIMATION = 2; // 0x2
+    field public static final int SUCCESS_ANIMATION = 1; // 0x1
+  }
+
+}
+
 package androidx.wear.ambient {
 
   public final deprecated class AmbientMode extends android.app.Fragment {
@@ -117,6 +132,27 @@ package androidx.wear.widget {
 
   public static abstract interface CircularProgressLayout.OnTimerFinishedListener {
     method public abstract void onTimerFinished(androidx.wear.widget.CircularProgressLayout);
+  }
+
+  public class ConfirmationOverlay {
+    ctor public ConfirmationOverlay();
+    method public androidx.wear.widget.ConfirmationOverlay setDuration(int);
+    method public androidx.wear.widget.ConfirmationOverlay setFinishedAnimationListener(androidx.wear.widget.ConfirmationOverlay.OnAnimationFinishedListener);
+    method public androidx.wear.widget.ConfirmationOverlay setMessage(java.lang.String);
+    method public androidx.wear.widget.ConfirmationOverlay setType(int);
+    method public void showAbove(android.view.View);
+    method public void showOn(android.app.Activity);
+    field public static final int DEFAULT_ANIMATION_DURATION_MS = 1000; // 0x3e8
+    field public static final int FAILURE_ANIMATION = 1; // 0x1
+    field public static final int OPEN_ON_PHONE_ANIMATION = 2; // 0x2
+    field public static final int SUCCESS_ANIMATION = 0; // 0x0
+  }
+
+  public static abstract interface ConfirmationOverlay.OnAnimationFinishedListener {
+    method public abstract void onAnimationFinished();
+  }
+
+  public static abstract class ConfirmationOverlay.OverlayType implements java.lang.annotation.Annotation {
   }
 
   public class CurvingLayoutCallback extends androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback {

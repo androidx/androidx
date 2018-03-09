@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/generic_confirmation" >
+    <target
+        android:name="icon"
+        android:animation="@anim/generic_confirmation_icon_animation" />
+    <target
+        android:name="generic_confirmation"
+        android:animation="@anim/generic_confirmation_animation" />
+</animated-vector>

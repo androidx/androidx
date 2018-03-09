@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ConfirmationOverlay sizes which have corresponding entries in:
+        values, values-sw180dp-notround, values-sw210dp-round. -->
+    <dimen name="confirmation_overlay_image_size">72dp</dimen>
+    <item name="confirmation_overlay_margin_side" type="fraction">18.75%</item>
+    <item name="confirmation_overlay_margin_above_text" type="fraction">4.167%</item>
+</resources>
