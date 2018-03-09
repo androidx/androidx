@@ -145,7 +145,7 @@ public interface WorkSpecDao {
      * @return A list of {@link WorkSpec.IdStateAndOutput}
      */
     @Query("SELECT id, state, output FROM workspec WHERE id=:id")
-    WorkSpec.IdStateAndOutput getIdStateAndOutput(String id);
+    WorkSpec.IdStateAndOutput getIdStateAndOutputForId(String id);
 
     /**
      * For a list of {@link WorkSpec} identifiers, retrieves a {@link LiveData} list of their
@@ -155,7 +155,28 @@ public interface WorkSpecDao {
      * @return A {@link LiveData} list of {@link WorkSpec.IdStateAndOutput}
      */
     @Query("SELECT id, state, output FROM workspec WHERE id IN (:ids)")
-    LiveData<List<WorkSpec.IdStateAndOutput>> getIdStateAndOutputsLiveData(List<String> ids);
+    LiveData<List<WorkSpec.IdStateAndOutput>> getIdStateAndOutputsLiveDataForIds(List<String> ids);
+
+    /**
+     * Retrieves a list of {@link WorkSpec.IdStateAndOutput} for all work with a given tag.
+     *
+     * @param tag The tag for the {@link WorkSpec}s
+     * @return A list of {@link WorkSpec.IdStateAndOutput}
+     */
+    @Query("SELECT id, state, output FROM workspec WHERE id IN "
+            + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
+    List<WorkSpec.IdStateAndOutput> getIdStateAndOutputForTag(String tag);
+
+    /**
+     * Retrieves a {@link LiveData} list of {@link WorkSpec.IdStateAndOutput} for all work with a
+     * given tag.
+     *
+     * @param tag The tag for the {@link WorkSpec}s
+     * @return A {@link LiveData} list of {@link WorkSpec.IdStateAndOutput}
+     */
+    @Query("SELECT id, state, output FROM workspec WHERE id IN "
+            + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
+    LiveData<List<WorkSpec.IdStateAndOutput>> getIdStateAndOutputLiveDataForTag(String tag);
 
     /**
      * Retrieves {@link WorkSpec}s that have state {@code ENQUEUED} or {@code RUNNING}

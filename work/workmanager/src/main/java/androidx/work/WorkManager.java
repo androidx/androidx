@@ -149,9 +149,9 @@ public abstract class WorkManager {
     /**
      * Cancels work with the given id in a blocking fashion.  Note that cancellation is dependent
      * on timing (for example, the work could have completed in a different thread just as you issue
-     * this call).  Use {@link #getStatus(String)} or {@link #getStatusSync(String)} to find out the
-     * actual state of the work after this call.  This method is expected to be called from a
-     * background thread.
+     * this call).  Use {@link #getStatusById(String)} or {@link #getStatusByIdSync(String)} to find
+     * out the actual state of the work after this call.  This method is expected to be called from
+     * a background thread.
      *
      * @param id The id of the work
      */
@@ -170,9 +170,9 @@ public abstract class WorkManager {
     /**
      * Cancels all work with the given tag in a blocking fashion.  Note that cancellation is
      * dependent on timing (for example, the work could have completed in a different thread just as
-     * you issue this call).  Use {@link #getStatus(String)} or {@link #getStatusSync(String)} to
-     * find out the actual state of the work after this call.  This method is expected to be called
-     * from a background thread.
+     * you issue this call).  Use {@link #getStatusById(String)} or
+     * {@link #getStatusByIdSync(String)} to find out the actual state of the work after this call.
+     * This method is expected to be called from a background thread.
      *
      * @param tag The tag used to identify the work
      */
@@ -180,12 +180,12 @@ public abstract class WorkManager {
     public abstract void cancelAllWorkWithTagSync(@NonNull String tag);
 
     /**
-     * Gets the {@link WorkStatus} for a given work id.
+     * Gets a {@link LiveData} of the {@link WorkStatus} for a given work id.
      *
      * @param id The id of the work
      * @return A {@link LiveData} of the {@link WorkStatus} associated with {@code id}
      */
-    public abstract LiveData<WorkStatus> getStatus(@NonNull String id);
+    public abstract LiveData<WorkStatus> getStatusById(@NonNull String id);
 
     /**
      * Gets the {@link WorkStatus} of a given work id in a blocking fashion.  This method is
@@ -195,5 +195,23 @@ public abstract class WorkManager {
      * @return A {@link WorkStatus} associated with {@code id}
      */
     @WorkerThread
-    public abstract WorkStatus getStatusSync(@NonNull String id);
+    public abstract WorkStatus getStatusByIdSync(@NonNull String id);
+
+    /**
+     * Gets a {@link LiveData} of the {@link WorkStatus} for all work for a given tag.
+     *
+     * @param tag The tag of the work
+     * @return A {@link LiveData} list of {@link WorkStatus} for work tagged with {@code tag}
+     */
+    public abstract LiveData<List<WorkStatus>> getStatusesByTag(@NonNull String tag);
+
+    /**
+     * Gets the {@link WorkStatus} for all work with a given tag in a blocking fashion.  This method
+     * is expected to be called from a background thread.
+     *
+     * @param tag The tag of the work
+     * @return A list of {@link WorkStatus} for work tagged with {@code tag}
+     */
+    @WorkerThread
+    public abstract List<WorkStatus> getStatusesByTagSync(@NonNull String tag);
 }

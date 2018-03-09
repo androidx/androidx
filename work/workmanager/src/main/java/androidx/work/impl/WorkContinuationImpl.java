@@ -154,7 +154,7 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     @Override
     public LiveData<List<WorkStatus>> getStatuses() {
-        return mWorkManagerImpl.getStatuses(mAllIds);
+        return mWorkManagerImpl.getStatusesById(mAllIds);
     }
 
     @Override
