@@ -69,6 +69,14 @@
         <item name="android:layout_alignParentLeft">true</item>
     </style>
 
+    <style name="RtlOverlay.Widget.AppCompat.PopupMenuItem.Title" parent="android:Widget">
+        <item name="android:layout_marginLeft">16dp</item>
+    </style>
+
+    <style name="RtlOverlay.Widget.AppCompat.PopupMenuItem.Shortcut" parent="android:Widget">
+        <item name="android:layout_marginLeft">16dp</item>
+    </style>
+
     <style name="RtlOverlay.Widget.AppCompat.PopupMenuItem.SubmenuArrow" parent="android:Widget">
         <item name="android:layout_marginLeft">8dp</item>
     </style>
