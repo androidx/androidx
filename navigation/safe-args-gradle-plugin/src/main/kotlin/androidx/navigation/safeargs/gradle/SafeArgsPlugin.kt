@@ -24,7 +24,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import java.io.File
 
-internal const val GENERATED_PATH = "generated/source/args"
+private const val PLUGIN_DIRNAME = "navigation-args"
+internal const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
+internal const val INTERMEDIATES_PATH = "intermediates/$PLUGIN_DIRNAME"
 
 @Suppress("unused")
 class SafeArgsPlugin : Plugin<Project> {
@@ -39,22 +41,25 @@ class SafeArgsPlugin : Plugin<Project> {
                 task.applicationId = variant.applicationId
                 task.navigationFiles = navigationFiles(variant)
                 task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
+                task.incrementalFolder = File(project.buildDir,
+                        "$INTERMEDIATES_PATH/${variant.dirName}")
+                task.variantName = variant.name
             }
             variant.registerJavaGeneratingTask(task, task.outputDir)
         }
     }
-
-    private fun navigationFiles(variant: BaseVariant) = variant.sourceSets
-            .flatMap { it.resDirectories }
-            .mapNotNull {
-                File(it, "navigation").let { navFolder ->
-                    if (navFolder.exists() && navFolder.isDirectory) navFolder else null
-                }
-            }
-            .flatMap { navFolder -> navFolder.listFiles().asIterable() }
-            .groupBy { file -> file.name }
-            .map { entry -> entry.value.last() }
 }
+
+private fun navigationFiles(variant: BaseVariant) = variant.sourceSets
+        .flatMap { it.resDirectories }
+        .mapNotNull {
+            File(it, "navigation").let { navFolder ->
+                if (navFolder.exists() && navFolder.isDirectory) navFolder else null
+            }
+        }
+        .flatMap { navFolder -> navFolder.listFiles().asIterable() }
+        .groupBy { file -> file.name }
+        .map { entry -> entry.value.last() }
 
 private fun BaseVariant.rFilePackage(): String {
     val mainSourceSet = sourceSets.find { it.name == "main" }

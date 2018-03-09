@@ -17,33 +17,83 @@
 package androidx.navigation.safeargs.gradle
 
 import androidx.navigation.safe.args.generator.generateSafeArgs
-import org.gradle.api.DefaultTask
+import com.android.build.gradle.internal.tasks.IncrementalTask
+import com.android.ide.common.res2.FileStatus
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-open class ArgumentsGenerationTask : DefaultTask() {
+private const val MAPPING_FILE = "file_mappings.json"
+
+open class ArgumentsGenerationTask : IncrementalTask() {
+    @get:Input
+    lateinit var rFilePackage: String
 
     @get:Input
-    var rFilePackage: String = ""
-
-    @get:Input
-    var applicationId: String = ""
+    lateinit var applicationId: String
 
     @get:OutputDirectory
-    var outputDir: File? = null
+    lateinit var outputDir: File
 
     @get:InputFiles
     var navigationFiles: List<File> = emptyList()
 
-    @TaskAction
-    fun perform() {
-        val out = outputDir ?: throw GradleException("ArgumentsGenerationTask must have outputDir")
-        navigationFiles.forEach { file ->
-            generateSafeArgs(rFilePackage, applicationId, file, out)
+    private fun generateArgs(navFiles: Collection<File>, out: File) = navFiles.map { file ->
+        Mapping(file.relativeTo(project.projectDir).path,
+                generateSafeArgs(rFilePackage, applicationId, file, out))
+    }
+
+    private fun writeMappings(mappings: List<Mapping>) {
+        File(incrementalFolder, MAPPING_FILE).writer().use { Gson().toJson(mappings, it) }
+    }
+
+    private fun readMappings(): List<Mapping> {
+        val type = object : TypeToken<List<Mapping>>() {}.type
+        val mappingsFile = File(incrementalFolder, MAPPING_FILE)
+        if (mappingsFile.exists()) {
+            return mappingsFile.reader().use { Gson().fromJson(it, type) }
+        } else {
+            return emptyList()
         }
     }
+
+    override fun doFullTaskAction() {
+        if (outputDir.exists() && !outputDir.deleteRecursively()) {
+            project.logger.warn("Failed to clear directory for navigation arguments")
+        }
+        if (!outputDir.exists() && !outputDir.mkdirs()) {
+            throw GradleException("Failed to create directory for navigation arguments")
+        }
+        val mappings = generateArgs(navigationFiles, outputDir)
+        writeMappings(mappings)
+    }
+
+    override fun doIncrementalTaskAction(changedInputs: MutableMap<File, FileStatus>) {
+        super.doIncrementalTaskAction(changedInputs)
+        val oldMapping = readMappings()
+        val navFiles = changedInputs.filter { (_, status) -> status != FileStatus.REMOVED }.keys
+        val newMapping = generateArgs(navFiles, outputDir)
+        val newJavaFiles = newMapping.flatMap { it.javaFiles }.toSet()
+        val (modified, unmodified) = oldMapping.partition {
+            File(project.projectDir, it.navFile) in changedInputs
+        }
+        modified.flatMap { it.javaFiles }
+                .filter { name -> name !in newJavaFiles }
+                .forEach { javaName ->
+                    val fileName = "${javaName.replace('.', File.separatorChar)}.java"
+                    val file = File(outputDir, fileName)
+                    if (file.exists()) {
+                        file.delete()
+                    }
+                }
+        writeMappings(unmodified + newMapping)
+    }
+
+    override fun isIncremental() = true
 }
+
+private data class Mapping(val navFile: String, val javaFiles: List<String>)

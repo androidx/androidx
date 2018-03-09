@@ -41,7 +41,7 @@ plugins {
     id("SupportAndroidTestAppPlugin")
 }
 
-apply plugin: 'android.arch.navigation.safeargs'
+apply plugin: 'androidx.navigation.safeargs'
 apply from: "${supportRootFolder}/buildSrc/repos.gradle"
 repos.addMavenRepositories(repositories)
 repositories {
