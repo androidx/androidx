@@ -22,18 +22,19 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.core.content.res.TypedArrayUtils;
-import androidx.collection.SimpleArrayMap;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.RestrictTo;
+import androidx.collection.SimpleArrayMap;
+import androidx.core.content.res.TypedArrayUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -52,6 +53,8 @@ import androidx.recyclerview.widget.RecyclerView;
  * @attr name initialExpandedChildrenCount
  */
 public abstract class PreferenceGroup extends Preference {
+    private static final String TAG = "PreferenceGroup";
+
     /**
      * The container for child {@link Preference}s. This is sorted based on the
      * ordering, please use {@link #addPreference(Preference)} instead of adding
@@ -66,7 +69,6 @@ public abstract class PreferenceGroup extends Preference {
     private boolean mAttachedToHierarchy = false;
 
     private int mInitialExpandedChildrenCount = Integer.MAX_VALUE;
-    private PreferenceInstanceStateCallback mPreferenceInstanceStateCallback;
 
     private final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
     private final Handler mHandler = new Handler();
@@ -92,9 +94,9 @@ public abstract class PreferenceGroup extends Preference {
                         R.styleable.PreferenceGroup_orderingFromXml, true);
 
         if (a.hasValue(R.styleable.PreferenceGroup_initialExpandedChildrenCount)) {
-            mInitialExpandedChildrenCount = TypedArrayUtils.getInt(
+            setInitialExpandedChildrenCount((TypedArrayUtils.getInt(
                     a, R.styleable.PreferenceGroup_initialExpandedChildrenCount,
-                            R.styleable.PreferenceGroup_initialExpandedChildrenCount, -1);
+                    R.styleable.PreferenceGroup_initialExpandedChildrenCount, Integer.MAX_VALUE)));
         }
         a.recycle();
     }
@@ -141,19 +143,26 @@ public abstract class PreferenceGroup extends Preference {
      * group will be counted.
      * By default, all children will be shown, so the default value of this attribute is equal to
      * Integer.MAX_VALUE.
+     * <p>
+     * Note: The group should have a key defined if an expandable preference is present to
+     * correctly persist state.
      *
      * @param expandedCount the number of children that is initially shown.
      *
      * @attr ref R.styleable#PreferenceGroup_initialExpandedChildrenCount
      */
     public void setInitialExpandedChildrenCount(int expandedCount) {
+        if (expandedCount != Integer.MAX_VALUE && !hasKey()) {
+            Log.e(TAG, this.getClass().getSimpleName()
+                    + " should have a key defined if it contains an expandable preference");
+        }
         mInitialExpandedChildrenCount = expandedCount;
     }
 
     /**
-     * Gets the maximal number of children that is initially shown.
+     * Gets the maximal number of children that are initially shown.
      *
-     * @return the maximal number of children that is initially shown.
+     * @return the maximal number of children that are initially shown.
      *
      * @attr ref R.styleable#PreferenceGroup_initialExpandedChildrenCount
      */
@@ -195,8 +204,19 @@ public abstract class PreferenceGroup extends Preference {
      */
     public boolean addPreference(Preference preference) {
         if (mPreferenceList.contains(preference)) {
-            // Exists
             return true;
+        }
+        if (preference.getKey() != null) {
+            PreferenceGroup root = this;
+            while (root.getParent() != null) {
+                root = root.getParent();
+            }
+            final String key = preference.getKey();
+            if (root.findPreference(key) != null) {
+                Log.e(TAG, "Found duplicated key: \"" + key
+                        + "\". This can cause unintended behaviour,"
+                        + " please use unique keys for every preference.");
+            }
         }
 
         if (preference.getOrder() == DEFAULT_ORDER) {
@@ -445,39 +465,22 @@ public abstract class PreferenceGroup extends Preference {
     @Override
     protected Parcelable onSaveInstanceState() {
         final Parcelable superState = super.onSaveInstanceState();
-        if (mPreferenceInstanceStateCallback != null) {
-            return mPreferenceInstanceStateCallback.saveInstanceState(superState);
-        }
-        return superState;
+        return new SavedState(superState, mInitialExpandedChildrenCount);
     }
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        if (mPreferenceInstanceStateCallback != null) {
-            state = mPreferenceInstanceStateCallback.restoreInstanceState(state);
+        if (state == null || !state.getClass().equals(SavedState.class)) {
+            // Didn't save state for us in saveInstanceState
+            super.onRestoreInstanceState(state);
+            return;
         }
-        super.onRestoreInstanceState(state);
-    }
-
-    /**
-     * Sets the instance state callback.
-     *
-     * @param callback The callback.
-     * @see #onSaveInstanceState()
-     * @see #onRestoreInstanceState()
-     */
-    final void setPreferenceInstanceStateCallback(PreferenceInstanceStateCallback callback) {
-        mPreferenceInstanceStateCallback = callback;
-    }
-
-    /**
-     * Gets the instance state callback.
-     *
-     * @return the instance state callback.
-     */
-    @VisibleForTesting
-    final PreferenceInstanceStateCallback getPreferenceInstanceStateCallback() {
-        return mPreferenceInstanceStateCallback;
+        SavedState groupState = (SavedState) state;
+        if (mInitialExpandedChildrenCount != groupState.mInitialExpandedChildrenCount) {
+            mInitialExpandedChildrenCount = groupState.mInitialExpandedChildrenCount;
+            notifyHierarchyChanged();
+        }
+        super.onRestoreInstanceState(groupState.getSuperState());
     }
 
     /**
@@ -508,27 +511,39 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     /**
-     * Interface for callback to implement so that they can save and restore the preference group's
-     * instance state.
+     * A class for managing the instance state of a {@link PreferenceGroup}.
      */
-    interface PreferenceInstanceStateCallback {
+    static class SavedState extends Preference.BaseSavedState {
 
-        /**
-         * Save the internal state that can later be used to create a new instance with that
-         * same state.
-         *
-         * @param state The Parcelable to save the current dynamic state.
-         */
-        Parcelable saveInstanceState(Parcelable state);
+        int mInitialExpandedChildrenCount;
 
-        /**
-         * Restore the previously saved state from the given parcelable.
-         *
-         * @param state The Parcelable that holds the previously saved state.
-         * @return the super state if data has been saved in the state in {@link saveInstanceState}
-         *         or state otherwise
-         */
-        Parcelable restoreInstanceState(Parcelable state);
+        SavedState(Parcel source) {
+            super(source);
+            mInitialExpandedChildrenCount = source.readInt();
+        }
+
+        SavedState(Parcelable superState, int initialExpandedChildrenCount) {
+            super(superState);
+            mInitialExpandedChildrenCount = initialExpandedChildrenCount;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeInt(mInitialExpandedChildrenCount);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
     }
-
 }

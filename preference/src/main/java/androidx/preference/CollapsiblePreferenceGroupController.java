@@ -17,8 +17,6 @@
 package androidx.preference;
 
 import android.content.Context;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -27,53 +25,93 @@ import java.util.List;
 /**
  * A controller to handle advanced children display logic with collapsible functionality.
  */
-final class CollapsiblePreferenceGroupController
-        implements PreferenceGroup.PreferenceInstanceStateCallback {
+final class CollapsiblePreferenceGroupController {
 
     private final PreferenceGroupAdapter mPreferenceGroupAdapter;
-    private int mMaxPreferenceToShow;
     private final Context mContext;
+
+    /**
+     * Whether there is a child PreferenceGroup that has an expandable preference. This is used to
+     * avoid unnecessary preference tree rebuilds when no such group exists.
+     */
+    private boolean mHasExpandablePreference = false;
 
     CollapsiblePreferenceGroupController(PreferenceGroup preferenceGroup,
             PreferenceGroupAdapter preferenceGroupAdapter) {
         mPreferenceGroupAdapter = preferenceGroupAdapter;
-        mMaxPreferenceToShow = preferenceGroup.getInitialExpandedChildrenCount();
         mContext = preferenceGroup.getContext();
-        preferenceGroup.setPreferenceInstanceStateCallback(this);
     }
 
     /**
-     * Creates the visible portion of the flattened preferences.
+     * Generates the visible section of the PreferenceGroup.
      *
-     * @param flattenedPreferenceList the flattened children of the preference group
-     * @return the visible portion of the flattened preferences
+     * @param group the root preference group to be processed
+     * @return the flattened and visible section of the PreferenceGroup
      */
-    public List<Preference> createVisiblePreferencesList(List<Preference> flattenedPreferenceList) {
+    public List<Preference> createVisiblePreferencesList(PreferenceGroup group) {
+        return createInnerVisiblePreferencesList(group);
+    }
+
+    private List<Preference> createInnerVisiblePreferencesList(PreferenceGroup group) {
+        mHasExpandablePreference = false;
         int visiblePreferenceCount = 0;
-        final List<Preference> visiblePreferenceList =
-                new ArrayList<>(flattenedPreferenceList.size());
-        // Copy only the visible preferences to the active list up to the maximum specified
-        for (final Preference preference : flattenedPreferenceList) {
-            if (preference.isVisible()) {
-                if (visiblePreferenceCount < mMaxPreferenceToShow) {
-                    visiblePreferenceList.add(preference);
+        final boolean hasExpandablePreference =
+                group.getInitialExpandedChildrenCount() != Integer.MAX_VALUE;
+        final List<Preference> visiblePreferences = new ArrayList<>();
+        final List<Preference> collapsedPreferences = new ArrayList<>();
+
+        final int groupSize = group.getPreferenceCount();
+        for (int i = 0; i < groupSize; i++) {
+            final Preference preference = group.getPreference(i);
+
+            if (!preference.isVisible()) {
+                continue;
+            }
+
+            if (!hasExpandablePreference
+                    || visiblePreferenceCount < group.getInitialExpandedChildrenCount()) {
+                visiblePreferences.add(preference);
+            } else {
+                collapsedPreferences.add(preference);
+            }
+
+            // PreferenceGroups do not count towards the maximal number of preferences to show
+            if (!(preference instanceof PreferenceGroup)) {
+                visiblePreferenceCount++;
+                continue;
+            }
+
+            PreferenceGroup innerGroup = (PreferenceGroup) preference;
+            if (!innerGroup.isOnSameScreenAsChildren()) {
+                continue;
+            }
+
+            // Recursively generate nested list of visible preferences
+            final List<Preference> innerList = createInnerVisiblePreferencesList(innerGroup);
+            if (hasExpandablePreference && mHasExpandablePreference) {
+                throw new IllegalArgumentException("Nested expand buttons are not supported!");
+            }
+
+            for (Preference inner : innerList) {
+                if (!hasExpandablePreference
+                        || visiblePreferenceCount < group.getInitialExpandedChildrenCount()) {
+                    visiblePreferences.add(inner);
+                } else {
+                    collapsedPreferences.add(inner);
                 }
-                // Do no count PreferenceGroup as expanded preference because the list of its child
-                // is already contained in the flattenedPreferenceList
-                if (!(preference instanceof PreferenceGroup)) {
-                    visiblePreferenceCount++;
-                }
+                visiblePreferenceCount++;
             }
         }
+
         // If there are any visible preferences being hidden, add an expand button to show the rest
-        // of the preferences. Clicking the expand button will show all the visible preferences and
-        // reset mMaxPreferenceToShow
-        if (showLimitedChildren() && visiblePreferenceCount > mMaxPreferenceToShow) {
-            final ExpandButton expandButton  = createExpandButton(visiblePreferenceList,
-                    flattenedPreferenceList);
-            visiblePreferenceList.add(expandButton);
+        // of the preferences. Clicking the expand button will show all the visible preferences.
+        if (hasExpandablePreference
+                && visiblePreferenceCount > group.getInitialExpandedChildrenCount()) {
+            final ExpandButton expandButton = createExpandButton(group, collapsedPreferences);
+            visiblePreferences.add(expandButton);
         }
-        return visiblePreferenceList;
+        mHasExpandablePreference |= hasExpandablePreference;
+        return visiblePreferences;
     }
 
     /**
@@ -83,46 +121,23 @@ final class CollapsiblePreferenceGroupController
      * @return {@code true} if view update has been handled by this controller.
      */
     public boolean onPreferenceVisibilityChange(Preference preference) {
-        if (showLimitedChildren()) {
-            // We only want to show up to the max number of preferences. Preference visibility
-            // change can result in the expand button being added/removed, as well as expand button
-            // summary change. Rebulid the data to ensure the correct data is shown.
+        if (mHasExpandablePreference) {
+            // We only want to show up to the maximal number of preferences. Preference visibility
+            // change can result in the expand button being added/removed, as well as changes to
+            // its summary. Rebuild to ensure that the correct data is shown.
             mPreferenceGroupAdapter.onPreferenceHierarchyChange(preference);
             return true;
         }
         return false;
     }
 
-    @Override
-    public Parcelable saveInstanceState(Parcelable state) {
-        final SavedState myState = new SavedState(state);
-        myState.mMaxPreferenceToShow = mMaxPreferenceToShow;
-        return myState;
-    }
-
-    @Override
-    public Parcelable restoreInstanceState(Parcelable state) {
-        if (state == null || !state.getClass().equals(SavedState.class)) {
-            // Didn't save state for us in saveInstanceState
-            return state;
-        }
-        SavedState myState = (SavedState) state;
-        final int restoredMaxToShow = myState.mMaxPreferenceToShow;
-        if (mMaxPreferenceToShow != restoredMaxToShow) {
-            mMaxPreferenceToShow = restoredMaxToShow;
-            mPreferenceGroupAdapter.onPreferenceHierarchyChange(null);
-        }
-        return myState.getSuperState();
-    }
-
-    private ExpandButton createExpandButton(List<Preference> visiblePreferenceList,
-            List<Preference> flattenedPreferenceList) {
-        final ExpandButton preference = new ExpandButton(mContext, visiblePreferenceList,
-                flattenedPreferenceList);
+    private ExpandButton createExpandButton(final PreferenceGroup group,
+            List<Preference> collapsedPreferences) {
+        final ExpandButton preference = new ExpandButton(mContext, collapsedPreferences);
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                mMaxPreferenceToShow = Integer.MAX_VALUE;
+                group.setInitialExpandedChildrenCount(Integer.MAX_VALUE);
                 mPreferenceGroupAdapter.onPreferenceHierarchyChange(preference);
                 return true;
             }
@@ -130,20 +145,15 @@ final class CollapsiblePreferenceGroupController
         return preference;
     }
 
-    private boolean showLimitedChildren() {
-        return mMaxPreferenceToShow != Integer.MAX_VALUE;
-    }
-
     /**
      * A {@link Preference} that provides capability to expand the collapsed items in the
      * {@link PreferenceGroup}.
      */
     static class ExpandButton extends Preference {
-        ExpandButton(Context context, List<Preference> visiblePreferenceList,
-                List<Preference> flattenedPreferenceList) {
+        ExpandButton(Context context, List<Preference> collapsedPreferences) {
             super(context);
             initLayout();
-            setSummary(visiblePreferenceList, flattenedPreferenceList);
+            setSummary(collapsedPreferences);
         }
 
         private void initLayout() {
@@ -156,20 +166,24 @@ final class CollapsiblePreferenceGroupController
 
         /*
          * The summary of this will be the list of title for collapsed preferences. Iterate through
-         * the preferences not in the visible list and add its title to the summary text.
+         * the preferences not in the visible list and add its title to the summary text. If
+         * there are any nested groups with titles, ignore their children.
          */
-        private void setSummary(List<Preference> visiblePreferenceList,
-                List<Preference> flattenedPreferenceList) {
-            final Preference lastVisiblePreference =
-                    visiblePreferenceList.get(visiblePreferenceList.size() - 1);
-            final int collapsedIndex = flattenedPreferenceList.indexOf(lastVisiblePreference) + 1;
+        private void setSummary(List<Preference> collapsedPreferences) {
             CharSequence summary = null;
-            for (int i = collapsedIndex; i < flattenedPreferenceList.size(); i++) {
-                final Preference preference = flattenedPreferenceList.get(i);
-                if (preference instanceof PreferenceGroup || !preference.isVisible()) {
+            final List<PreferenceGroup> parents = new ArrayList<>();
+
+            for (Preference preference : collapsedPreferences) {
+                final CharSequence title = preference.getTitle();
+                if (preference instanceof PreferenceGroup && !TextUtils.isEmpty(title)) {
+                    parents.add((PreferenceGroup) preference);
+                }
+                if (parents.contains(preference.getParent())) {
+                    if (preference instanceof PreferenceGroup) {
+                        parents.add((PreferenceGroup) preference);
+                    }
                     continue;
                 }
-                final CharSequence title = preference.getTitle();
                 if (!TextUtils.isEmpty(title)) {
                     if (summary == null) {
                         summary = title;
@@ -189,38 +203,4 @@ final class CollapsiblePreferenceGroupController
         }
     }
 
-    /**
-     * A class for managing the instance state of a {@link PreferenceGroup}.
-     */
-    static class SavedState extends Preference.BaseSavedState {
-        int mMaxPreferenceToShow;
-
-        SavedState(Parcel source) {
-            super(source);
-            mMaxPreferenceToShow = source.readInt();
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            super.writeToParcel(dest, flags);
-            dest.writeInt(mMaxPreferenceToShow);
-        }
-
-        SavedState(Parcelable superState) {
-            super(superState);
-        }
-
-        public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
-                    @Override
-                    public SavedState createFromParcel(Parcel in) {
-                        return new SavedState(in);
-                    }
-
-                    @Override
-                    public SavedState[] newArray(int size) {
-                        return new SavedState[size];
-                    }
-                };
-    }
 }
