@@ -16,6 +16,13 @@
 
 package androidx.core.app;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import static androidx.core.app.NotificationCompat.DEFAULT_ALL;
 import static androidx.core.app.NotificationCompat.DEFAULT_LIGHTS;
 import static androidx.core.app.NotificationCompat.DEFAULT_SOUND;
@@ -23,12 +30,6 @@ import static androidx.core.app.NotificationCompat.DEFAULT_VIBRATE;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_ALL;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_CHILDREN;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 import android.app.Notification;
 import android.content.Context;
@@ -635,7 +636,10 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     private static final NotificationCompat.Action TEST_INVISIBLE_ACTION =
-            new NotificationCompat.Action.Builder(0, "Test Title", null).build();
+            new NotificationCompat.Action.Builder(0, "Test Title", null)
+                    .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MUTE)
+                    .setShowsUserInterface(false)
+                    .build();
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
@@ -663,6 +667,10 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         NotificationCompat.Action resultAction = result.get(0);
         assertEquals(resultAction.getIcon(), TEST_INVISIBLE_ACTION.getIcon());
         assertEquals(resultAction.getTitle(), TEST_INVISIBLE_ACTION.getTitle());
+        assertEquals(
+                resultAction.getShowsUserInterface(),
+                TEST_INVISIBLE_ACTION.getShowsUserInterface());
+        assertEquals(resultAction.getSemanticAction(), TEST_INVISIBLE_ACTION.getSemanticAction());
     }
 
     private static RemoteInput newDataOnlyRemoteInput() {
