@@ -32,8 +32,6 @@ import static androidx.slice.widget.SliceView.MODE_SMALL;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
-import androidx.annotation.ColorInt;
-import androidx.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
@@ -52,6 +50,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
@@ -163,6 +163,10 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
             Pair<SliceItem, EventInfo> tagItem = new Pair<>(gc.getContentIntent(), info);
             mViewContainer.setTag(tagItem);
             makeClickable(mViewContainer);
+        }
+        CharSequence contentDescr = gc.getContentDescription();
+        if (contentDescr != null) {
+            mViewContainer.setContentDescription(contentDescr);
         }
         ArrayList<GridContent.CellContent> cells = gc.getGridContent();
         boolean hasSeeMore = gc.getSeeMoreItem() != null;
@@ -276,6 +280,10 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
             }
         }
         if (added) {
+            CharSequence contentDescr = cell.getContentDescription();
+            if (contentDescr != null) {
+                cellContainer.setContentDescription(contentDescr);
+            }
             mViewContainer.addView(cellContainer,
                     new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1));
             if (index != total - 1) {

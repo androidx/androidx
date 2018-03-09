@@ -31,13 +31,13 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
 import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 
 import java.util.Calendar;
 
+import androidx.annotation.NonNull;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
 import androidx.slice.builders.GridBuilder;
@@ -203,7 +203,8 @@ public class SampleSliceProvider extends SliceProvider {
                     .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.slices_4),
                                 LARGE_IMAGE))
-                    .addSeeMoreAction(getBroadcastIntent(ACTION_TOAST, "see your gallery")))
+                    .addSeeMoreAction(getBroadcastIntent(ACTION_TOAST, "see your gallery"))
+                    .setContentDescription("Images from your trip to Hawaii"))
                 .build();
     }
 
@@ -255,7 +256,8 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(rb
                         .setTitle("Mady Pitza")
                         .setSubtitle("Frequently contacted contact")
-                        .addEndItem(Icon.createWithResource(getContext(), R.drawable.mady)))
+                        .addEndItem(Icon.createWithResource(getContext(), R.drawable.mady),
+                                SMALL_IMAGE))
                 .addGrid(gb
                         .addCell(new GridBuilder.CellBuilder(gb)
                                 .addImage(Icon.createWithResource(getContext(), R.drawable.ic_call),
@@ -295,12 +297,14 @@ public class SampleSliceProvider extends SliceProvider {
                         .setSummarySubtitle("Called " + lastCalledString)
                         .setPrimaryAction(primaryAction))
                 .addRow(b -> b
-                        .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_call))
+                        .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_call),
+                                ICON_IMAGE)
                         .setTitle("314-259-2653")
                         .setSubtitle("Call lasted 1 hr 17 min")
                         .addEndItem(lastCalled))
                 .addRow(b -> b
-                        .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_text))
+                        .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_text),
+                                ICON_IMAGE)
                         .setTitle("You: Coooooool see you then")
                         .addEndItem(System.currentTimeMillis() - 40 * DateUtils.MINUTE_IN_MILLIS))
                 .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "call"),
@@ -367,7 +371,8 @@ public class SampleSliceProvider extends SliceProvider {
                 .addGrid(b -> b
                     .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.reservation),
-                            LARGE_IMAGE)))
+                            LARGE_IMAGE)
+                        .setContentDescription("Image of your reservation in Seattle")))
                 .addGrid(b -> b
                     .addCell(cb -> cb
                         .addTitleText("Check In")
@@ -467,14 +472,18 @@ public class SampleSliceProvider extends SliceProvider {
         boolean finalWifiEnabled = wifiEnabled;
         SliceAction primaryAction = new SliceAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
                 Icon.createWithResource(getContext(), R.drawable.ic_wifi), "Wi-fi Settings");
+        String toggleCDString = wifiEnabled ? "Turn wifi off" : "Turn wifi on";
+        String sliceCDString = wifiEnabled ? "Wifi connected to " + state
+                : "Wifi disconnected, 10 networks available";
         ListBuilder lb = new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff4285f4)
-                .addRow(b -> b
+                .setHeader(b -> b
                     .setTitle("Wi-fi")
                     .setSubtitle(state)
-                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
-                            "Toggle wifi", finalWifiEnabled))
-                    .setPrimaryAction(primaryAction));
+                    .setContentDescription(sliceCDString)
+                    .setPrimaryAction(primaryAction))
+                .addAction((new SliceAction(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
+                        toggleCDString, finalWifiEnabled)));
 
         // Add fake wifi networks
         int[] wifiIcons = new int[] {R.drawable.ic_wifi_full, R.drawable.ic_wifi_low,
@@ -484,10 +493,14 @@ public class SampleSliceProvider extends SliceProvider {
             Icon icon = Icon.createWithResource(getContext(), iconId);
             final String networkName = "Network" + i;
             ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb);
-            rb.setTitleItem(icon, ICON_IMAGE).setTitle("Network" + networkName);
+            rb.setTitleItem(icon, ICON_IMAGE).setTitle(networkName);
             boolean locked = i % 3 == 0;
             if (locked) {
-                rb.addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_lock));
+                rb.addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_lock),
+                        ICON_IMAGE);
+                rb.setContentDescription("Connect to " + networkName + ", password needed");
+            } else {
+                rb.setContentDescription("Connect to " + networkName);
             }
             String message = locked ? "Open wifi password dialog" : "Connect to " + networkName;
             rb.setPrimaryAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, message), icon,
@@ -499,7 +512,8 @@ public class SampleSliceProvider extends SliceProvider {
         if (TEST_CUSTOM_SEE_MORE) {
             lb.addSeeMoreRow(rb -> rb
                     .setTitle("See all available networks")
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_right_caret))
+                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_right_caret),
+                            SMALL_IMAGE)
                     .setPrimaryAction(primaryAction));
         } else {
             lb.addSeeMoreAction(primaryAction.getAction());
@@ -515,7 +529,8 @@ public class SampleSliceProvider extends SliceProvider {
                         .setThumb(Icon.createWithResource(getContext(), R.drawable.ic_star_on))
                         .setAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
                         .setMax(5)
-                        .setValue(3))
+                        .setValue(3)
+                        .setContentDescription("Slider for star ratings"))
                 .build();
     }
 

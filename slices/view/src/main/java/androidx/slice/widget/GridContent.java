@@ -22,6 +22,7 @@ import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
+import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
@@ -36,13 +37,13 @@ import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
 import android.app.slice.Slice;
 import android.content.Context;
 import android.content.res.Resources;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.core.SliceQuery;
@@ -63,6 +64,7 @@ public class GridContent {
     private int mMaxCellLineCount;
     private boolean mHasImage;
     private @ListBuilder.ImageMode int mLargestImageMode;
+    private SliceItem mContentDescr;
 
     private int mBigPicMinHeight;
     private int mBigPicMaxHeight;
@@ -83,19 +85,10 @@ public class GridContent {
         mMaxHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_max_height);
     }
 
-    private void reset() {
-        mColorItem = null;
-        mMaxCellLineCount = 0;
-        mHasImage = false;
-        mGridContent.clear();
-        mLargestImageMode = 0;
-    }
-
     /**
      * @return whether this grid has content that is valid to display.
      */
     private boolean populate(SliceItem gridItem) {
-        reset();
         mColorItem = SliceQuery.findSubtype(gridItem, FORMAT_INT, SUBTYPE_COLOR);
         mSeeMoreItem = SliceQuery.find(gridItem, null, HINT_SEE_MORE, null);
         if (mSeeMoreItem != null && FORMAT_SLICE.equals(mSeeMoreItem.getFormat())) {
@@ -107,10 +100,11 @@ public class GridContent {
         mAllImages = true;
         if (FORMAT_SLICE.equals(gridItem.getFormat())) {
             List<SliceItem> items = gridItem.getSlice().getItems().get(0).getSlice().getItems();
-            items = filterInvalidItems(items);
+            items = filterAndProcessItems(items);
             // Check if it it's only one item that is a slice
             if (items.size() == 1 && items.get(0).getFormat().equals(FORMAT_SLICE)) {
                 items = items.get(0).getSlice().getItems();
+                items = filterAndProcessItems(items);
             }
             for (int i = 0; i < items.size(); i++) {
                 SliceItem item = items.get(i);
@@ -169,6 +163,14 @@ public class GridContent {
     }
 
     /**
+     * @return content description for this row.
+     */
+    @Nullable
+    public CharSequence getContentDescription() {
+        return mContentDescr != null ? mContentDescr.getText() : null;
+    }
+
+    /**
      * @return whether this grid has content that is valid to display.
      */
     public boolean isValid() {
@@ -182,11 +184,16 @@ public class GridContent {
         return mAllImages;
     }
 
-    private List<SliceItem> filterInvalidItems(List<SliceItem> items) {
+    /**
+     * Filters non-cell items out of the list of items and finds content description.
+     */
+    private List<SliceItem> filterAndProcessItems(List<SliceItem> items) {
         List<SliceItem> filteredItems = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
             SliceItem item = items.get(i);
-            if (item.hasHint(HINT_LIST_ITEM) && !item.hasHint(HINT_SHORTCUT)
+            if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
+                mContentDescr = item;
+            } else if (item.hasHint(HINT_LIST_ITEM) && !item.hasHint(HINT_SHORTCUT)
                     && !item.hasHint(HINT_SEE_MORE)) {
                 filteredItems.add(item);
             }
@@ -247,6 +254,7 @@ public class GridContent {
     public static class CellContent {
         private SliceItem mContentIntent;
         private ArrayList<SliceItem> mCellItems = new ArrayList<>();
+        private SliceItem mContentDescr;
         private int mTextCount;
         private boolean mHasImage;
         private int mImageMode = -1;
@@ -277,7 +285,9 @@ public class GridContent {
                 for (int i = 0; i < items.size(); i++) {
                     final SliceItem item = items.get(i);
                     final String itemFormat = item.getFormat();
-                    if (mTextCount < 2 && (FORMAT_TEXT.equals(itemFormat)
+                    if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
+                        mContentDescr = item;
+                    } else if (mTextCount < 2 && (FORMAT_TEXT.equals(itemFormat)
                             || FORMAT_TIMESTAMP.equals(itemFormat))) {
                         mTextCount++;
                         mCellItems.add(item);
@@ -319,9 +329,10 @@ public class GridContent {
          */
         private boolean isValidCellContent(SliceItem cellItem) {
             final String format = cellItem.getFormat();
-            return FORMAT_TEXT.equals(format)
+            return !SUBTYPE_CONTENT_DESCRIPTION.equals(cellItem.getSubType())
+                    && (FORMAT_TEXT.equals(format)
                     || FORMAT_TIMESTAMP.equals(format)
-                    || FORMAT_IMAGE.equals(format);
+                    || FORMAT_IMAGE.equals(format));
         }
 
         /**
@@ -357,6 +368,11 @@ public class GridContent {
          */
         public int getImageMode() {
             return mImageMode;
+        }
+
+        @Nullable
+        public CharSequence getContentDescription() {
+            return mContentDescr != null ? mContentDescr.getText() : null;
         }
     }
 }
