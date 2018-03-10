@@ -98,7 +98,9 @@
              preference category) will not be counted towards the limit. But instead the children of
              such group will be counted.
              By default, all children will be shown, so the default value of this attribute is equal
-             to Integer.MAX_VALUE. -->
+             to Integer.MAX_VALUE.
+             The group should have a key defined if an expandable preference is present to correctly
+             persist state. -->
         <attr name="initialExpandedChildrenCount" format="integer" />
     </declare-styleable>
 
