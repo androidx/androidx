@@ -104,12 +104,15 @@ public class GridContent {
             // Check if it it's only one item that is a slice
             if (items.size() == 1 && items.get(0).getFormat().equals(FORMAT_SLICE)) {
                 items = items.get(0).getSlice().getItems();
-                items = filterAndProcessItems(items);
             }
             for (int i = 0; i < items.size(); i++) {
                 SliceItem item = items.get(i);
-                CellContent cc = new CellContent(item);
-                processContent(cc);
+                if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
+                    mContentDescr = item;
+                } else {
+                    CellContent cc = new CellContent(item);
+                    processContent(cc);
+                }
             }
         } else {
             CellContent cc = new CellContent(gridItem);
