@@ -7,6 +7,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.GridBuilder addSeeMoreAction(android.app.PendingIntent);
     method public androidx.slice.builders.GridBuilder addSeeMoreCell(androidx.slice.builders.GridBuilder.CellBuilder);
     method public androidx.slice.builders.GridBuilder addSeeMoreCell(java.util.function.Consumer<androidx.slice.builders.GridBuilder.CellBuilder>);
+    method public androidx.slice.builders.GridBuilder setContentDescription(java.lang.CharSequence);
     method public androidx.slice.builders.GridBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     field public static final deprecated int ICON_IMAGE = 0; // 0x0
     field public static final deprecated int LARGE_IMAGE = 2; // 0x2
@@ -26,6 +27,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.GridBuilder.CellBuilder addText(java.lang.CharSequence, boolean);
     method public androidx.slice.builders.GridBuilder.CellBuilder addTitleText(java.lang.CharSequence);
     method public androidx.slice.builders.GridBuilder.CellBuilder addTitleText(java.lang.CharSequence, boolean);
+    method public androidx.slice.builders.GridBuilder.CellBuilder setContentDescription(java.lang.CharSequence);
     method public androidx.slice.builders.GridBuilder.CellBuilder setContentIntent(android.app.PendingIntent);
   }
 
@@ -52,6 +54,7 @@ package androidx.slice.builders {
 
   public static class ListBuilder.HeaderBuilder extends androidx.slice.builders.TemplateSliceBuilder {
     ctor public ListBuilder.HeaderBuilder(androidx.slice.builders.ListBuilder);
+    method public androidx.slice.builders.ListBuilder.HeaderBuilder setContentDescription(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setSubtitle(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setSummarySubtitle(java.lang.CharSequence);
@@ -61,6 +64,7 @@ package androidx.slice.builders {
   public static class ListBuilder.InputRangeBuilder extends androidx.slice.builders.TemplateSliceBuilder {
     ctor public ListBuilder.InputRangeBuilder(androidx.slice.builders.ListBuilder);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setAction(android.app.PendingIntent);
+    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setContentDescription(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setMax(int);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setThumb(android.graphics.drawable.Icon);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setTitle(java.lang.CharSequence);
@@ -69,6 +73,7 @@ package androidx.slice.builders {
 
   public static class ListBuilder.RangeBuilder extends androidx.slice.builders.TemplateSliceBuilder {
     ctor public ListBuilder.RangeBuilder(androidx.slice.builders.ListBuilder);
+    method public androidx.slice.builders.ListBuilder.RangeBuilder setContentDescription(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setMax(int);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setTitle(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setValue(int);
@@ -85,6 +90,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(android.graphics.drawable.Icon, int, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.slice.builders.SliceAction, boolean);
+    method public androidx.slice.builders.ListBuilder.RowBuilder setContentDescription(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.RowBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RowBuilder setSubtitle(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.RowBuilder setSubtitle(java.lang.CharSequence, boolean);
