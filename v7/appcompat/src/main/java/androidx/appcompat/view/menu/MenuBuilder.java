@@ -28,13 +28,6 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.core.content.ContextCompat;
-import androidx.core.internal.view.SupportMenu;
-import androidx.core.internal.view.SupportMenuItem;
-import androidx.core.view.ActionProvider;
-import androidx.appcompat.R;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.KeyCharacterMap;
@@ -47,6 +40,14 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.core.content.ContextCompat;
+import androidx.core.internal.view.SupportMenu;
+import androidx.core.internal.view.SupportMenuItem;
+import androidx.core.view.ActionProvider;
 
 /**
  * Implementation of the {@link androidx.core.internal.view.SupportMenu} interface for creating a
@@ -596,6 +597,7 @@ public class MenuBuilder implements SupportMenu {
         mPreventDispatchingItemsChanged = true;
         clear();
         clearHeader();
+        mPresenters.clear();
         mPreventDispatchingItemsChanged = false;
         mItemsChangedWhileDispatchPrevented = false;
         mStructureChangedWhileDispatchPrevented = false;
