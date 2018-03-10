@@ -126,7 +126,8 @@ class WorkManagerConfiguration {
 
     @VisibleForTesting
     static ExecutorService createExecutorService() {
-        // TODO(sumir): Poll availableProcessors periodically to update this value.
-        return Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        return Executors.newFixedThreadPool(
+                // This value is the same as the core pool size for AsyncTask#THREAD_POOL_EXECUTOR.
+                Math.max(2, Math.min(Runtime.getRuntime().availableProcessors() - 1, 4)));
     }
 }
