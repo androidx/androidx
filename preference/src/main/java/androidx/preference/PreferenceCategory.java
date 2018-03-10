@@ -17,10 +17,11 @@
 package androidx.preference;
 
 import android.content.Context;
+import android.util.AttributeSet;
+
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat;
-import android.util.AttributeSet;
 
 /**
  * Used to group {@link Preference} objects and provide a disabled title above
@@ -52,16 +53,6 @@ public class PreferenceCategory extends PreferenceGroup {
 
     public PreferenceCategory(Context context) {
         this(context, null);
-    }
-
-    @Override
-    protected boolean onPrepareAddPreference(Preference preference) {
-        if (preference instanceof PreferenceCategory) {
-            throw new IllegalArgumentException(
-                    "Cannot add a " + TAG + " directly to a " + TAG);
-        }
-
-        return super.onPrepareAddPreference(preference);
     }
 
     @Override
