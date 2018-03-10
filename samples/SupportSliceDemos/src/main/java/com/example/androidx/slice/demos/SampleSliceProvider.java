@@ -47,6 +47,7 @@ import androidx.slice.builders.SliceAction;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Examples of using slice template builders.
@@ -401,7 +402,7 @@ public class SampleSliceProvider extends SliceProvider {
 
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "get ride"),
                 Icon.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
-        return new ListBuilder(getContext(), sliceUri, INFINITY)
+        return new ListBuilder(getContext(), sliceUri, -TimeUnit.MINUTES.toMillis(2))
                 .setColor(0xff0F9D58)
                 .setHeader(b -> b
                     .setTitle("Get ride")
@@ -579,7 +580,7 @@ public class SampleSliceProvider extends SliceProvider {
             update(1500, mListSummaries, 1, "12 miles | 12 min | $9.00", sliceUri, r);
             update(1700, mListSummaries, 2, "5 miles | 10 min | $8.00", sliceUri, r);
         }
-        Slice s = new ListBuilder(getContext(), sliceUri, INFINITY)
+        Slice s = new ListBuilder(getContext(), sliceUri, -TimeUnit.MINUTES.toMillis(5))
                 .addRow(b -> b
                         .setTitle("Work")
                         .setSubtitle(mListSummaries.get(0, ""), updating)

@@ -36,6 +36,7 @@ import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceMetadata;
+import androidx.slice.builders.ListBuilder;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -122,6 +123,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
 
     private boolean mShowActions = false;
     private boolean mIsScrollable = true;
+    private boolean mShowLastUpdated = true;
 
     private final int mShortcutSize;
     private final int mMinLargeHeight;
@@ -261,15 +263,14 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
      */
     public void setSlice(@Nullable Slice slice) {
         if (slice != null) {
-            if (mCurrentSlice == null || mCurrentSlice.getUri() != slice.getUri()) {
-                // New slice, new actions
-                mActions = SliceMetadata.getSliceActions(slice);
+            if (mCurrentSlice == null || !mCurrentSlice.getUri().equals(slice.getUri())) {
                 mCurrentView.resetView();
             }
         } else {
             // No slice, no actions
             mActions = null;
         }
+        mActions = SliceMetadata.getSliceActions(slice);
         mCurrentSlice = slice;
         reinflate();
     }
@@ -344,6 +345,18 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     public void setTint(int tintColor) {
         mThemeTintColor = tintColor;
         mCurrentView.setTint(tintColor);
+    }
+
+    /**
+     * Sets whether this view should display when the slice was last updated.
+     *
+     * @param showLastUpdated whether the view should display when the slice was last updated.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setShowLastUpdated(boolean showLastUpdated) {
+        mShowLastUpdated = showLastUpdated;
+        mCurrentView.setShowLastUpdated(showLastUpdated);
     }
 
     /**
@@ -435,6 +448,16 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         mCurrentView.setStyle(mAttrs);
         mCurrentView.setTint(getTintColor());
         mCurrentView.setVisibility(lc.isValid() ? View.VISIBLE : View.GONE);
+
+        // Check if the slice content is expired and show when it was last updated
+        SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
+        long lastUpdated = sliceMetadata.getLastUpdatedTime();
+        long expiry = sliceMetadata.getExpiry();
+        long now = System.currentTimeMillis();
+        mCurrentView.setLastUpdated(lastUpdated);
+        boolean expired = expiry != ListBuilder.INFINITY && now > expiry;
+        mCurrentView.setShowLastUpdated(mShowLastUpdated && expired);
+
         // Set the slice
         mCurrentView.setSlice(mCurrentSlice);
         updateActions();

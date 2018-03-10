@@ -18,18 +18,18 @@ package androidx.slice.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import java.util.List;
-
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.view.R;
+
+import java.util.List;
 
 /**
  * Base class for children views of {@link SliceView}.
@@ -49,6 +49,8 @@ public abstract class SliceChildView extends FrameLayout {
     protected int mSubtitleSize;
     protected int mGridTitleSize;
     protected int mGridSubtitleSize;
+    protected boolean mShowLastUpdated;
+    protected long mLastUpdated = -1;
 
     public SliceChildView(@NonNull Context context) {
         super(context);
@@ -110,6 +112,20 @@ public abstract class SliceChildView extends FrameLayout {
      */
     public void setTint(@ColorInt int tintColor) {
         mTintColor = tintColor;
+    }
+
+    /**
+     * Sets whether the last updated time should be displayed.
+     */
+    public void setShowLastUpdated(boolean showLastUpdated) {
+        mShowLastUpdated = showLastUpdated;
+    }
+
+    /**
+     * Sets when the content of this view was last updated.
+     */
+    public void setLastUpdated(long lastUpdated) {
+        mLastUpdated = lastUpdated;
     }
 
     /**

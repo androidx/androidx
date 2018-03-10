@@ -43,6 +43,7 @@ import androidx.slice.builders.SliceAction;
 import androidx.slice.view.test.R;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Examples of using slice template builders.
@@ -55,9 +56,9 @@ public class SliceCreator {
             "com.example.androidx.slice.action.TOAST";
     public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
 
-    public static final String[] URI_PATHS = {"message", "wifi", "wifi2", "note", "ride", "toggle",
-            "toggle2", "contact", "gallery", "subscription", "subscription2", "weather",
-            "reservation"};
+    public static final String[] URI_PATHS = {"message", "wifi", "wifi2", "note", "ride",
+            "ride-ttl", "toggle", "toggle2", "contact", "gallery", "subscription", "subscription2",
+            "weather", "reservation"};
 
     private final Context mContext;
 
@@ -92,7 +93,9 @@ public class SliceCreator {
             case "/note":
                 return createNoteSlice(sliceUri);
             case "/ride":
-                return createRideSlice(sliceUri);
+                return createRideSlice(sliceUri, false /* showUpdated */);
+            case "/ride-ttl":
+                return createRideSlice(sliceUri, true /* showUpdated */);
             case "/toggle":
                 return createCustomToggleSlice(sliceUri);
             case "/toggle2":
@@ -117,7 +120,7 @@ public class SliceCreator {
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
                 "open weather app"), Icon.createWithResource(getContext(), R.drawable.weather_1),
                 "Weather is happening!");
-        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
+        ListBuilder b = new ListBuilder(getContext(), sliceUri, -TimeUnit.HOURS.toMillis(8));
         GridRowBuilder gb = new GridRowBuilder(b);
         gb.setPrimaryAction(primaryAction);
         gb.addCell(new GridRowBuilder.CellBuilder(gb)
@@ -293,7 +296,7 @@ public class SliceCreator {
                 .build();
     }
 
-    private Slice createRideSlice(Uri sliceUri) {
+    private Slice createRideSlice(Uri sliceUri, boolean showUpdated) {
         final ForegroundColorSpan colorSpan = new ForegroundColorSpan(0xff0F9D58);
         SpannableString headerSubtitle = new SpannableString("Ride in 4 min");
         headerSubtitle.setSpan(colorSpan, 8, headerSubtitle.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -303,7 +306,10 @@ public class SliceCreator {
         workSubtitle.setSpan(colorSpan, 27, workSubtitle.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "get ride"),
                 Icon.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
-        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        Long ttl = showUpdated
+                ? -TimeUnit.MINUTES.toMillis(2) // negative for testing
+                : INFINITY;
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, ttl);
         return lb.setColor(0xff0F9D58)
                 .setHeader(new ListBuilder.HeaderBuilder(lb)
                         .setTitle("Get ride")
@@ -326,11 +332,10 @@ public class SliceCreator {
     }
 
     private Slice createCustomToggleSlice(Uri sliceUri) {
-        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
+        ListBuilder b = new ListBuilder(getContext(), sliceUri, -TimeUnit.HOURS.toMillis(1));
         return b.setColor(0xffff4081)
                 .addRow(new ListBuilder.RowBuilder(b)
                     .setTitle("Custom toggle")
-                    .setSubtitle("It can support two states")
                     .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "star toggled"),
                             Icon.createWithResource(getContext(), R.drawable.toggle_star),
                             "Toggle star", true /* isChecked */)))
