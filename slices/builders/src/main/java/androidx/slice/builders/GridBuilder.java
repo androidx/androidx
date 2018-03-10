@@ -22,13 +22,13 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
+
+import java.util.function.Consumer;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-
-import java.util.function.Consumer;
-
 import androidx.slice.builders.impl.TemplateBuilderImpl;
 
 
@@ -174,6 +174,15 @@ public class GridBuilder extends TemplateSliceBuilder {
     @NonNull
     public GridBuilder setPrimaryAction(@NonNull SliceAction action) {
         mImpl.setPrimaryAction(action);
+        return this;
+    }
+
+    /**
+     * Sets the content description for the entire grid row.
+     */
+    @NonNull
+    public GridBuilder setContentDescription(@NonNull CharSequence description) {
+        mImpl.setContentDescription(description);
         return this;
     }
 
@@ -379,6 +388,15 @@ public class GridBuilder extends TemplateSliceBuilder {
         @NonNull
         public CellBuilder setContentIntent(@NonNull PendingIntent intent) {
             mImpl.setContentIntent(intent);
+            return this;
+        }
+
+        /**
+         * Sets the content description for this cell.
+         */
+        @NonNull
+        public CellBuilder setContentDescription(@NonNull CharSequence description) {
+            mImpl.setContentDescription(description);
             return this;
         }
     }
