@@ -11407,12 +11407,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             if (!mRunning) {
                 return;
             }
+            mRunning = false;
             onStop();
             mRecyclerView.mState.mTargetPosition = RecyclerView.NO_POSITION;
             mTargetView = null;
             mTargetPosition = RecyclerView.NO_POSITION;
             mPendingInitialRun = false;
-            mRunning = false;
             // trigger a cleanup
             mLayoutManager.onSmoothScrollerStopped(this);
             // clear references to avoid any potential leak by a custom smooth scroller
