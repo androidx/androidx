@@ -58,7 +58,7 @@ import androidx.work.impl.model.WorkTagDao;
 @TypeConverters(value = {Arguments.class, ContentUriTriggers.class, EnumTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
-    private static final String DB_NAME = "androidx.work.workmanager.work";
+    private static final String DB_NAME = "androidx.work.workdb";
     private static final String CLEANUP_SQL = "UPDATE workspec SET state=" + ENQUEUED
             + " WHERE state=" + RUNNING;
 

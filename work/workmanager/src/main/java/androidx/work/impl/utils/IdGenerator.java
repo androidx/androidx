@@ -27,7 +27,7 @@ import android.support.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IdGenerator {
-    static final String PREFERENCE_FILE_KEY = "androidx.work.workmanager.util.id";
+    static final String PREFERENCE_FILE_KEY = "androidx.work.util.id";
     static final String NEXT_JOB_SCHEDULER_ID_KEY = "next_job_scheduler_id";
     static final String NEXT_FIREBASE_ALARM_ID_KEY = "next_firebase_alarm_id";
     static final String NEXT_ALARM_MANAGER_ID_KEY = "next_alarm_manager_id";
