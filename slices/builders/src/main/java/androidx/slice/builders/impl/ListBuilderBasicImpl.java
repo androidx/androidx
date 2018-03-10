@@ -17,10 +17,13 @@
 package androidx.slice.builders.impl;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
 
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+
+import java.util.List;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -95,6 +98,17 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
      */
     @Override
     public void setColor(@ColorInt int color) {
+    }
+
+    /**
+     */
+    @Override
+    public void setKeywords(List<String> keywords) {
+        Slice.Builder sb = new Slice.Builder(getBuilder());
+        for (int i = 0; i < keywords.size(); i++) {
+            sb.addText(keywords.get(i), null);
+        }
+        getBuilder().addSubSlice(sb.addHints(HINT_KEY_WORDS).build());
     }
 
     /**

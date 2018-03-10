@@ -17,12 +17,18 @@
 package androidx.slice;
 
 
+import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNull;
+
+import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -39,6 +45,7 @@ import org.junit.runner.RunWith;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -135,6 +142,41 @@ public class SliceXmlTest {
         Slice after = SliceUtils.parseSlice(inputStream, "UTF-8");
 
         assertEquivalent(before, after);
+    }
+
+    @Test
+    public void testKeywords() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        Slice keywordSlice = new Slice.Builder(uri)
+                .addHints(HINT_KEY_WORDS)
+                .addText("keyword1", null)
+                .addText("keyword2", null)
+                .addText("keyword3", null).build();
+        Slice slice = new Slice.Builder(uri)
+                .addText("Some text", null, HINT_TITLE)
+                .addText("Some other text", null)
+                .addSubSlice(keywordSlice)
+                .build();
+
+        List<String> sliceKeywords = SliceUtils.getSliceKeywords(slice);
+        String[] expectedList = new String[] {"keyword1", "keyword2", "keyword3"};
+        assertArrayEquals(expectedList, sliceKeywords.toArray());
+
+        // Make sure it doesn't find keywords that aren't there
+        Slice slice2 = new Slice.Builder(uri)
+                .addText("Some text", null, HINT_TITLE)
+                .addText("Some other text", null).build();
+        List<String> slice2Keywords = SliceUtils.getSliceKeywords(slice2);
+        assertNull(slice2Keywords);
+
+        // Make sure empty list if specified to have no keywords
+        Slice noKeywordSlice = new Slice.Builder(uri).addHints(HINT_KEY_WORDS).build();
+        Slice slice3 = new Slice.Builder(uri)
+                .addText("Some text", null, HINT_TITLE)
+                .addSubSlice(noKeywordSlice)
+                .build();
+        List<String> slice3Keywords = SliceUtils.getSliceKeywords(slice3);
+        assertTrue(slice3Keywords.isEmpty());
     }
 
     private void assertEquivalent(Slice desired, Slice actual) {

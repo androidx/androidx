@@ -23,18 +23,23 @@ import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
+import static android.app.slice.SliceItem.FORMAT_TEXT;
+
+import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
 
 import android.content.Context;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import android.text.TextUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.slice.core.SliceQuery;
 
 /**
@@ -218,5 +223,28 @@ public class SliceUtils {
         return (actionGroup != null)
                 ? SliceQuery.findAll(actionGroup, FORMAT_SLICE, hints, null)
                 : null;
+    }
+
+    /**
+     * @return the list of keywords associated with the provided slice, null if no keywords were
+     * specified or an empty list if the slice was specified to have no keywords.
+     */
+    @Nullable
+    public static List<String> getSliceKeywords(@NonNull Slice slice) {
+        SliceItem keywordGroup = SliceQuery.find(slice, FORMAT_SLICE, HINT_KEY_WORDS, null);
+        if (keywordGroup != null) {
+            List<SliceItem> itemList = SliceQuery.findAll(keywordGroup, FORMAT_TEXT);
+            if (itemList != null) {
+                ArrayList<String> stringList = new ArrayList<>();
+                for (int i = 0; i < itemList.size(); i++) {
+                    String keyword = (String) itemList.get(i).getText();
+                    if (!TextUtils.isEmpty(keyword)) {
+                        stringList.add(keyword);
+                    }
+                }
+                return stringList;
+            }
+        }
+        return null;
     }
 }

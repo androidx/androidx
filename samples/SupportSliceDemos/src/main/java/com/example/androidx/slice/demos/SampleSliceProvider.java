@@ -36,6 +36,7 @@ import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.SparseArray;
 
+import java.util.Arrays;
 import java.util.Calendar;
 
 import androidx.annotation.NonNull;
@@ -510,6 +511,10 @@ public class SampleSliceProvider extends SliceProvider {
                     message));
             lb.addRow(rb);
         }
+
+        // Add keywords
+        String[] keywords = new String[] {"internet", "wifi", "data", "network"};
+        lb.setKeywords(Arrays.asList(keywords));
 
         // Add see more intent
         if (TEST_CUSTOM_SEE_MORE) {
