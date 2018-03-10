@@ -33,6 +33,7 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
+import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
 
 import android.app.slice.Slice;
 import android.content.Context;
@@ -193,8 +194,8 @@ public class GridContent {
             SliceItem item = items.get(i);
             if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
                 mContentDescr = item;
-            } else if (item.hasHint(HINT_LIST_ITEM) && !item.hasHint(HINT_SHORTCUT)
-                    && !item.hasHint(HINT_SEE_MORE)) {
+            } else if (item.hasHint(HINT_LIST_ITEM) && !item.hasAnyHints(HINT_SHORTCUT,
+                    HINT_SEE_MORE, HINT_KEY_WORDS)) {
                 filteredItems.add(item);
             }
         }
@@ -329,7 +330,9 @@ public class GridContent {
          */
         private boolean isValidCellContent(SliceItem cellItem) {
             final String format = cellItem.getFormat();
-            return !SUBTYPE_CONTENT_DESCRIPTION.equals(cellItem.getSubType())
+            boolean isSpecial = SUBTYPE_CONTENT_DESCRIPTION.equals(cellItem.getSubType())
+                    || cellItem.hasHint(HINT_KEY_WORDS);
+            return !isSpecial
                     && (FORMAT_TEXT.equals(format)
                     || FORMAT_TIMESTAMP.equals(format)
                     || FORMAT_IMAGE.equals(format));

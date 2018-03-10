@@ -47,6 +47,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder addSeeMoreRow(java.util.function.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
     method public androidx.slice.builders.ListBuilder setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
     method public androidx.slice.builders.ListBuilder setHeader(java.util.function.Consumer<androidx.slice.builders.ListBuilder.HeaderBuilder>);
+    method public androidx.slice.builders.ListBuilder setKeywords(java.util.List<java.lang.String>);
     field public static final int ICON_IMAGE = 0; // 0x0
     field public static final int LARGE_IMAGE = 2; // 0x2
     field public static final int SMALL_IMAGE = 1; // 0x1
