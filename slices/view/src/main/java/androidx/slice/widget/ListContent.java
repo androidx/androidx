@@ -27,14 +27,16 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
+
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceUtils;
@@ -87,7 +89,7 @@ public class ListContent {
         for (int i = 0; i < children.size(); i++) {
             final SliceItem child = children.get(i);
             final String format = child.getFormat();
-            if (!child.hasAnyHints(HINT_ACTIONS, HINT_SEE_MORE)
+            if (!child.hasAnyHints(HINT_ACTIONS, HINT_SEE_MORE, HINT_KEY_WORDS)
                     && (FORMAT_ACTION.equals(format) || FORMAT_SLICE.equals(format))) {
                 if (mHeaderItem == null && !child.hasHint(HINT_LIST_ITEM)) {
                     mHeaderItem = child;
@@ -209,7 +211,8 @@ public class ListContent {
     @Nullable
     private static SliceItem findHeaderItem(@NonNull Slice slice) {
         // See if header is specified
-        String[] nonHints = new String[] {HINT_LIST_ITEM, HINT_SHORTCUT, HINT_ACTIONS};
+        String[] nonHints = new String[] {HINT_LIST_ITEM, HINT_SHORTCUT, HINT_ACTIONS,
+                HINT_KEY_WORDS};
         SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null, nonHints);
         if (header != null && isValidHeader(header)) {
             return header;
@@ -233,8 +236,8 @@ public class ListContent {
     }
 
     private static boolean isValidHeader(SliceItem sliceItem) {
-        if (FORMAT_SLICE.equals(sliceItem.getFormat()) && !sliceItem.hasHint(HINT_LIST_ITEM)
-                && !sliceItem.hasHint(HINT_ACTIONS)) {
+        if (FORMAT_SLICE.equals(sliceItem.getFormat()) && !sliceItem.hasAnyHints(HINT_LIST_ITEM,
+                HINT_ACTIONS, HINT_KEY_WORDS)) {
              // Minimum valid header is a slice with text
             SliceItem item = SliceQuery.find(sliceItem, FORMAT_TEXT, (String) null, null);
             return item != null;
