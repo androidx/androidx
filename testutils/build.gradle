@@ -24,8 +24,8 @@ dependencies {
     api(project(":fragment"))
     api(project(":appcompat"))
 
-    implementation(TEST_RUNNER)
-    implementation(ESPRESSO_CORE)
+    implementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    implementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
     implementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     implementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     implementation(JUNIT)

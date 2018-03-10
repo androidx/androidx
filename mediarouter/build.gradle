@@ -11,9 +11,9 @@ dependencies {
     api(project(":appcompat"))
     api(project(":palette"))
 
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(TEST_RULES_TMP, libs.exclude_for_espresso)
 }
 
 android {
