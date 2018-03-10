@@ -39,6 +39,7 @@ includeProject(":asynclayoutinflater", "asynclayoutinflater")
 includeProject(":car", "car")
 includeProject(":cardview", "cardview")
 includeProject(":collection", "collection")
+includeProject(":collection-ktx", "collection-ktx")
 includeProject(":coordinatorlayout", "coordinatorlayout")
 includeProject(":cursoradapter", "cursoradapter")
 includeProject(":browser", "browser")
@@ -135,6 +136,7 @@ includeProject(":viewpager2-demos", new File(samplesRoot, "ViewPager2Demos"))
 /////////////////////////////
 
 includeProject(":internal-testutils", "testutils")
+includeProject(":internal-testutils-ktx", "testutils-ktx")
 
 /////////////////////////////
 //
