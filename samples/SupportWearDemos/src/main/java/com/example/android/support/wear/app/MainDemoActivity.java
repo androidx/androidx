@@ -19,9 +19,6 @@ package com.example.android.support.wear.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.wear.widget.WearableRecyclerView;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +28,10 @@ import com.example.android.support.wear.app.drawers.WearableDrawersDemo;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.wear.widget.WearableRecyclerView;
 
 /**
  * Main activity for the wear demos.
@@ -66,6 +67,8 @@ public class MainDemoActivity extends Activity {
                 this, AmbientModeDemo.class));
         contentMap.put("Alert Dialog (v7)", new Intent(
                 this, AlertDialogDemo.class));
+        contentMap.put("Confirmation Overlay", new Intent(
+                this, ConfirmationOverlayDemo.class));
 
         return contentMap;
     }
