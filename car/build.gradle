@@ -25,14 +25,14 @@ dependencies {
     api project(':recyclerview')
     api project(':gridlayout')
 
-    androidTestImplementation jetifier.process(TEST_RUNNER, libs.exclude_support)
-    androidTestImplementation jetifier.process(ESPRESSO_CORE, libs.exclude_support)
-    androidTestImplementation jetifier.process(ESPRESSO_CONTRIB, libs.exclude_support)
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CONTRIB_TMP, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 
     testImplementation(JUNIT)
-    testImplementation(TEST_RUNNER)
+    testImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
     testImplementation(MOCKITO_CORE)
 
     compileOnly fileTree(dir: 'car-stubs', include: ['android.car.jar'])

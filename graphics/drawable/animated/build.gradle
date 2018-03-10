@@ -10,8 +10,8 @@ dependencies {
     api(project(":vectordrawable"))
     api(project(":legacy-support-core-ui"))
 
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
 }
 
 android {

@@ -27,7 +27,7 @@ dependencies {
     implementation project(":annotation")
     implementation project(":appcompat")
 
-    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 }
