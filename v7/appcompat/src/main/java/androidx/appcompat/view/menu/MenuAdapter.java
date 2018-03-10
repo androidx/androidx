@@ -17,8 +17,6 @@ package androidx.appcompat.view.menu;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,13 +24,13 @@ import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
 
+import androidx.annotation.RestrictTo;
+
 /**
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public class MenuAdapter extends BaseAdapter {
-    static final int ITEM_LAYOUT = R.layout.abc_popup_menu_item_layout;
-
     MenuBuilder mAdapterMenu;
 
     private int mExpandedIndex = -1;
@@ -40,11 +38,14 @@ public class MenuAdapter extends BaseAdapter {
     private boolean mForceShowIcon;
     private final boolean mOverflowOnly;
     private final LayoutInflater mInflater;
+    private final int mItemLayoutRes;
 
-    public MenuAdapter(MenuBuilder menu, LayoutInflater inflater, boolean overflowOnly) {
+    public MenuAdapter(MenuBuilder menu, LayoutInflater inflater, boolean overflowOnly,
+            int itemLayoutRes) {
         mOverflowOnly = overflowOnly;
         mInflater = inflater;
         mAdapterMenu = menu;
+        mItemLayoutRes = itemLayoutRes;
         findExpandedIndex();
     }
 
@@ -90,7 +91,7 @@ public class MenuAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = mInflater.inflate(ITEM_LAYOUT, parent, false);
+            convertView = mInflater.inflate(mItemLayoutRes, parent, false);
         }
 
         final int currGroupId = getItem(position).getGroupId();
