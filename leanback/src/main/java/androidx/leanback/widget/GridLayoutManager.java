@@ -196,17 +196,23 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      * Base class which scrolls to selected view in onStop().
      */
     abstract class GridLinearSmoothScroller extends LinearSmoothScroller {
+        boolean mSkipOnStopInternal;
+
         GridLinearSmoothScroller() {
             super(mBaseGridView.getContext());
         }
 
         @Override
         protected void onStop() {
-            mFlag |= PF_IN_ONSTOP_SMOOTHSCROLLER;
-            try {
+            super.onStop();
+            if (!mSkipOnStopInternal) {
                 onStopInternal();
-            } finally {
-                mFlag &= ~PF_IN_ONSTOP_SMOOTHSCROLLER;
+            }
+            if (mCurrentSmoothScroller == this) {
+                mCurrentSmoothScroller = null;
+            }
+            if (mPendingMoveSmoothScroller == this) {
+                mPendingMoveSmoothScroller = null;
             }
         }
 
@@ -219,7 +225,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     // to the target position.
                     scrollToSelection(getTargetPosition(), 0, false, 0);
                 }
-                super.onStop();
                 return;
             }
             if (mFocusPosition != getTargetPosition()) {
@@ -233,7 +238,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
             dispatchChildSelected();
             dispatchChildSelectedAndPositioned();
-            super.onStop();
         }
 
         @Override
@@ -380,7 +384,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             super.onStopInternal();
             // if we hit wall,  need clear the remaining pending moves.
             mPendingMoves = 0;
-            mPendingMoveSmoothScroller = null;
             View v = findViewByPosition(getTargetPosition());
             if (v != null) scrollToView(v, true);
         }
@@ -543,12 +546,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     static final int PF_REVERSE_FLOW_MASK = PF_REVERSE_FLOW_PRIMARY | PF_REVERSE_FLOW_SECONDARY;
 
-    /**
-     * flag to prevent calling stop() in onStop() which will lead to stack overflow crash
-     * TODO: fix RecyclerView.SmoothScroller#stop() instead
-     */
-    static final int PF_IN_ONSTOP_SMOOTHSCROLLER = 1 << 20;
-
     int mFlag = PF_LAYOUT_ENABLED
             | PF_FOCUS_OUT_SIDE_START | PF_FOCUS_OUT_SIDE_END
             | PF_PRUNE_CHILD | PF_SCROLL_ENABLED;
@@ -573,7 +570,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     int mSubFocusPosition = 0;
 
     /**
-     * LinearSmoothScroller that consume pending DPAD movements.
+     * Current running SmoothScroller.
+     */
+    GridLinearSmoothScroller mCurrentSmoothScroller;
+
+    /**
+     * LinearSmoothScroller that consume pending DPAD movements. Can be same object as
+     * mCurrentSmoothScroller when mCurrentSmoothScroller is PendingMoveSmoothScroller.
      */
     PendingMoveSmoothScroller mPendingMoveSmoothScroller;
 
@@ -2664,8 +2667,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         // is still valid and no layout is requested, otherwise defer to next layout pass.
         // If it is still in smoothScrolling, we should either update smoothScroller or initiate
         // a layout.
-        final boolean notSmoothScrolling = !isSmoothScrolling()
-                || (mFlag & PF_IN_ONSTOP_SMOOTHSCROLLER) != 0;
+        final boolean notSmoothScrolling = !isSmoothScrolling();
         if (notSmoothScrolling && !mBaseGridView.isLayoutRequested()
                 && view != null && getAdapterPositionByView(view) == position) {
             mFlag |= PF_IN_SELECTION;
@@ -2678,7 +2680,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mFocusPositionOffset = Integer.MIN_VALUE;
                 return;
             }
-            if (smooth) {
+            if (smooth && !mBaseGridView.isLayoutRequested()) {
                 mFocusPosition = position;
                 mSubFocusPosition = subposition;
                 mFocusPositionOffset = Integer.MIN_VALUE;
@@ -2697,13 +2699,21 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 // stopScroll might change mFocusPosition, so call it before assign value to
                 // mFocusPosition
                 if (!notSmoothScrolling) {
+                    skipSmoothScrollerOnStopInternal();
                     mBaseGridView.stopScroll();
                 }
-                mFocusPosition = position;
-                mSubFocusPosition = subposition;
-                mFocusPositionOffset = Integer.MIN_VALUE;
-                mFlag |= PF_FORCE_FULL_LAYOUT;
-                requestLayout();
+                if (!mBaseGridView.isLayoutRequested()
+                        && view != null && getAdapterPositionByView(view) == position) {
+                    mFlag |= PF_IN_SELECTION;
+                    scrollToView(view, smooth);
+                    mFlag &= ~PF_IN_SELECTION;
+                } else {
+                    mFocusPosition = position;
+                    mSubFocusPosition = subposition;
+                    mFocusPositionOffset = Integer.MIN_VALUE;
+                    mFlag |= PF_FORCE_FULL_LAYOUT;
+                    requestLayout();
+                }
             }
         }
         if (TRACE) TraceCompat.endSection();
@@ -2736,6 +2746,33 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return linearSmoothScroller.getTargetPosition();
     }
 
+    /**
+     * when start a new SmoothScroller or scroll to a different location, dont need
+     * current SmoothScroller.onStopInternal() doing the scroll work.
+     */
+    void skipSmoothScrollerOnStopInternal() {
+        if (mCurrentSmoothScroller != null) {
+            mCurrentSmoothScroller.mSkipOnStopInternal = true;
+        }
+    }
+
+    @Override
+    public void startSmoothScroll(RecyclerView.SmoothScroller smoothScroller) {
+        skipSmoothScrollerOnStopInternal();
+        super.startSmoothScroll(smoothScroller);
+        if (smoothScroller.isRunning() && smoothScroller instanceof GridLinearSmoothScroller) {
+            mCurrentSmoothScroller = (GridLinearSmoothScroller) smoothScroller;
+            if (mCurrentSmoothScroller instanceof PendingMoveSmoothScroller) {
+                mPendingMoveSmoothScroller = (PendingMoveSmoothScroller) mCurrentSmoothScroller;
+            } else {
+                mPendingMoveSmoothScroller = null;
+            }
+        } else {
+            mCurrentSmoothScroller = null;
+            mPendingMoveSmoothScroller = null;
+        }
+    }
+
     private void processPendingMovement(boolean forward) {
         if (forward ? hasCreatedLastItem() : hasCreatedFirstItem()) {
             return;
@@ -2747,9 +2784,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     forward ? 1 : -1, mNumRows > 1);
             mFocusPositionOffset = 0;
             startSmoothScroll(linearSmoothScroller);
-            if (linearSmoothScroller.isRunning()) {
-                mPendingMoveSmoothScroller = linearSmoothScroller;
-            }
         } else {
             if (forward) {
                 mPendingMoveSmoothScroller.increasePendingMoves();
