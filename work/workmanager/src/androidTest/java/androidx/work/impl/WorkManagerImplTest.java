@@ -67,6 +67,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -638,8 +639,16 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(captor.getValue(), is(not(nullValue())));
         assertThat(captor.getValue().size(), is(2));
 
-        WorkStatus workStatus0 = new WorkStatus(work0.getId(), ENQUEUED, Arguments.EMPTY);
-        WorkStatus workStatus1 = new WorkStatus(work1.getId(), ENQUEUED, Arguments.EMPTY);
+        WorkStatus workStatus0 = new WorkStatus(
+                work0.getId(),
+                ENQUEUED,
+                Arguments.EMPTY,
+                Collections.<String>emptyList());
+        WorkStatus workStatus1 = new WorkStatus(
+                work1.getId(),
+                ENQUEUED,
+                Arguments.EMPTY,
+                Collections.<String>emptyList());
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
@@ -649,7 +658,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(captor.getValue(), is(not(nullValue())));
         assertThat(captor.getValue().size(), is(2));
 
-        workStatus0 = new WorkStatus(work0.getId(), RUNNING, Arguments.EMPTY);
+        workStatus0 = new WorkStatus(
+                work0.getId(),
+                RUNNING,
+                Arguments.EMPTY,
+                Collections.<String>emptyList());
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         clearInvocations(mockObserver);
@@ -659,7 +672,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(captor.getValue(), is(not(nullValue())));
         assertThat(captor.getValue().size(), is(2));
 
-        workStatus1 = new WorkStatus(work1.getId(), RUNNING, Arguments.EMPTY);
+        workStatus1 = new WorkStatus(
+                work1.getId(),
+                RUNNING,
+                Arguments.EMPTY,
+                Collections.<String>emptyList());
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         liveData.removeObservers(testLifecycleOwner);
@@ -688,9 +705,21 @@ public class WorkManagerImplTest extends WorkManagerTest {
         insertWorkSpecAndTags(work1);
         insertWorkSpecAndTags(work2);
 
-        WorkStatus workStatus0 = new WorkStatus(work0.getId(), RUNNING, Arguments.EMPTY);
-        WorkStatus workStatus1 = new WorkStatus(work1.getId(), BLOCKED, Arguments.EMPTY);
-        WorkStatus workStatus2 = new WorkStatus(work2.getId(), SUCCEEDED, Arguments.EMPTY);
+        WorkStatus workStatus0 = new WorkStatus(
+                work0.getId(),
+                RUNNING,
+                Arguments.EMPTY,
+                Arrays.asList(firstTag, secondTag));
+        WorkStatus workStatus1 = new WorkStatus(
+                work1.getId(),
+                BLOCKED,
+                Arguments.EMPTY,
+                Collections.singletonList(firstTag));
+        WorkStatus workStatus2 = new WorkStatus(
+                work2.getId(),
+                SUCCEEDED,
+                Arguments.EMPTY,
+                Collections.singletonList(secondTag));
 
         List<WorkStatus> workStatuses = mWorkManagerImpl.getStatusesByTagBlocking(firstTag);
         assertThat(workStatuses, containsInAnyOrder(workStatus0, workStatus1));
@@ -740,8 +769,16 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(captor.getValue(), is(not(nullValue())));
         assertThat(captor.getValue().size(), is(2));
 
-        WorkStatus workStatus0 = new WorkStatus(work0.getId(), RUNNING, Arguments.EMPTY);
-        WorkStatus workStatus1 = new WorkStatus(work1.getId(), BLOCKED, Arguments.EMPTY);
+        WorkStatus workStatus0 = new WorkStatus(
+                work0.getId(),
+                RUNNING,
+                Arguments.EMPTY,
+                Arrays.asList(firstTag, secondTag));
+        WorkStatus workStatus1 = new WorkStatus(
+                work1.getId(),
+                BLOCKED,
+                Arguments.EMPTY,
+                Collections.singletonList(firstTag));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         workSpecDao.setState(ENQUEUED, work0.getId());
@@ -750,7 +787,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(captor.getValue(), is(not(nullValue())));
         assertThat(captor.getValue().size(), is(2));
 
-        workStatus0 = new WorkStatus(work0.getId(), ENQUEUED, Arguments.EMPTY);
+        workStatus0 = new WorkStatus(
+                work0.getId(),
+                ENQUEUED,
+                Arguments.EMPTY,
+                Arrays.asList(firstTag, secondTag));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
         liveData.removeObservers(testLifecycleOwner);

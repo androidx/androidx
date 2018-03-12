@@ -26,13 +26,17 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.Relation;
 import android.support.annotation.NonNull;
+
+import java.util.List;
 
 import androidx.work.Arguments;
 import androidx.work.BackoffPolicy;
 import androidx.work.BaseWork;
 import androidx.work.Constraints;
 import androidx.work.State;
+import androidx.work.WorkStatus;
 import androidx.work.impl.logger.Logger;
 
 /**
@@ -414,9 +418,9 @@ public class WorkSpec {
     }
 
     /**
-     * A POJO containing the ID, state, and output of a WorkSpec.
+     * A POJO containing the ID, state, output, and tags of a WorkSpec.
      */
-    public static class IdStateAndOutput {
+    public static class WorkStatusPojo {
 
         @ColumnInfo(name = "id")
         public String id;
@@ -427,23 +431,41 @@ public class WorkSpec {
         @ColumnInfo(name = "output")
         public Arguments output;
 
+        @Relation(
+                parentColumn = "id",
+                entityColumn = "work_spec_id",
+                entity = WorkTag.class,
+                projection = {"tag"})
+        public List<String> tags;
+
+        /**
+         * Converts this POJO to a {@link WorkStatus}.
+         *
+         * @return The {@link WorkStatus} represented by this POJO
+         */
+        public WorkStatus toWorkStatus() {
+            return new WorkStatus(id, state, output, tags);
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            IdStateAndOutput that = (IdStateAndOutput) o;
+            WorkStatusPojo that = (WorkStatusPojo) o;
 
-            if (!id.equals(that.id)) return false;
+            if (id != null ? !id.equals(that.id) : that.id != null) return false;
             if (state != that.state) return false;
-            return output != null ? output.equals(that.output) : that.output == null;
+            if (output != null ? !output.equals(that.output) : that.output != null) return false;
+            return tags != null ? tags.equals(that.tags) : that.tags == null;
         }
 
         @Override
         public int hashCode() {
-            int result = id.hashCode();
-            result = 31 * result + state.hashCode();
+            int result = id != null ? id.hashCode() : 0;
+            result = 31 * result + (state != null ? state.hashCode() : 0);
             result = 31 * result + (output != null ? output.hashCode() : 0);
+            result = 31 * result + (tags != null ? tags.hashCode() : 0);
             return result;
         }
     }

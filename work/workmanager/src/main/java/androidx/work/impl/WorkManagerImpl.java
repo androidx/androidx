@@ -187,17 +187,13 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
         mediatorLiveData.addSource(
                 LiveDataUtils.dedupedLiveDataFor(
                         dao.getIdStateAndOutputsLiveDataForIds(Collections.singletonList(id))),
-                new Observer<List<WorkSpec.IdStateAndOutput>>() {
+                new Observer<List<WorkSpec.WorkStatusPojo>>() {
                     @Override
                     public void onChanged(
-                            @Nullable List<WorkSpec.IdStateAndOutput> idStateAndOutputs) {
+                            @Nullable List<WorkSpec.WorkStatusPojo> workStatusPojos) {
                         WorkStatus workStatus = null;
-                        if (idStateAndOutputs != null && idStateAndOutputs.size() > 0) {
-                            WorkSpec.IdStateAndOutput idStateAndOutput = idStateAndOutputs.get(0);
-                            workStatus = new WorkStatus(
-                                    idStateAndOutput.id,
-                                    idStateAndOutput.state,
-                                    idStateAndOutput.output);
+                        if (workStatusPojos != null && workStatusPojos.size() > 0) {
+                            workStatus = workStatusPojos.get(0).toWorkStatus();
                         }
                         mediatorLiveData.setValue(workStatus);
                     }
@@ -209,13 +205,10 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
     @WorkerThread
     public @Nullable WorkStatus getStatusByIdBlocking(@NonNull String id) {
         assertBackgroundThread("Cannot call getStatusByIdSync on main thread!");
-        WorkSpec.IdStateAndOutput idStateAndOutput =
+        WorkSpec.WorkStatusPojo workStatusPojo =
                 mWorkDatabase.workSpecDao().getIdStateAndOutputForId(id);
-        if (idStateAndOutput != null) {
-            return new WorkStatus(
-                    idStateAndOutput.id,
-                    idStateAndOutput.state,
-                    idStateAndOutput.output);
+        if (workStatusPojo != null) {
+            return workStatusPojo.toWorkStatus();
         } else {
             return null;
         }
@@ -228,18 +221,15 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
         mediatorLiveData.addSource(
                 LiveDataUtils.dedupedLiveDataFor(
                         workSpecDao.getIdStateAndOutputLiveDataForTag(tag)),
-                new Observer<List<WorkSpec.IdStateAndOutput>>() {
+                new Observer<List<WorkSpec.WorkStatusPojo>>() {
                     @Override
                     public void onChanged(
-                            @Nullable List<WorkSpec.IdStateAndOutput> idStateAndOutputs) {
+                            @Nullable List<WorkSpec.WorkStatusPojo> workStatusPojos) {
                         List<WorkStatus> workStatuses = null;
-                        if (idStateAndOutputs != null) {
-                            workStatuses = new ArrayList<>(idStateAndOutputs.size());
-                            for (WorkSpec.IdStateAndOutput idStateAndOutput : idStateAndOutputs) {
-                                workStatuses.add(new WorkStatus(
-                                        idStateAndOutput.id,
-                                        idStateAndOutput.state,
-                                        idStateAndOutput.output));
+                        if (workStatusPojos != null) {
+                            workStatuses = new ArrayList<>(workStatusPojos.size());
+                            for (WorkSpec.WorkStatusPojo workStatusPojo : workStatusPojos) {
+                                workStatuses.add(workStatusPojo.toWorkStatus());
                             }
                         }
                         mediatorLiveData.setValue(workStatuses);
@@ -253,15 +243,12 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
         assertBackgroundThread("Cannot call getStatusesByTagSync on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         List<WorkStatus> workStatuses = null;
-        List<WorkSpec.IdStateAndOutput> idStateAndOutputs =
+        List<WorkSpec.WorkStatusPojo> workStatusPojos =
                 workSpecDao.getIdStateAndOutputForTag(tag);
-        if (idStateAndOutputs != null) {
-            workStatuses = new ArrayList<>(idStateAndOutputs.size());
-            for (WorkSpec.IdStateAndOutput idStateAndOutput : idStateAndOutputs) {
-                workStatuses.add(new WorkStatus(
-                        idStateAndOutput.id,
-                        idStateAndOutput.state,
-                        idStateAndOutput.output));
+        if (workStatusPojos != null) {
+            workStatuses = new ArrayList<>(workStatusPojos.size());
+            for (WorkSpec.WorkStatusPojo workStatusPojo : workStatusPojos) {
+                workStatuses.add(workStatusPojo.toWorkStatus());
             }
         }
         return workStatuses;
@@ -278,18 +265,15 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
         mediatorLiveData.addSource(
                 LiveDataUtils.dedupedLiveDataFor(
                         dao.getIdStateAndOutputsLiveDataForIds(workSpecIds)),
-                new Observer<List<WorkSpec.IdStateAndOutput>>() {
+                new Observer<List<WorkSpec.WorkStatusPojo>>() {
                     @Override
                     public void onChanged(
-                            @Nullable List<WorkSpec.IdStateAndOutput> idStateAndOutputs) {
+                            @Nullable List<WorkSpec.WorkStatusPojo> workStatusPojos) {
                         List<WorkStatus> workStatuses = null;
-                        if (idStateAndOutputs != null) {
-                            workStatuses = new ArrayList<>(idStateAndOutputs.size());
-                            for (WorkSpec.IdStateAndOutput idStateAndOutput : idStateAndOutputs) {
-                                workStatuses.add(new WorkStatus(
-                                        idStateAndOutput.id,
-                                        idStateAndOutput.state,
-                                        idStateAndOutput.output));
+                        if (workStatusPojos != null) {
+                            workStatuses = new ArrayList<>(workStatusPojos.size());
+                            for (WorkSpec.WorkStatusPojo workStatusPojo : workStatusPojos) {
+                                workStatuses.add(workStatusPojo.toWorkStatus());
                             }
                         }
                         mediatorLiveData.setValue(workStatuses);
