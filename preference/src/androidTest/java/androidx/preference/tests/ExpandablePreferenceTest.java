@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test for expandable preferences in various contexts..
+ * Test for expandable preferences in various contexts.
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)

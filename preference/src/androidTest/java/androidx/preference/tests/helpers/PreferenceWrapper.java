@@ -27,7 +27,7 @@ import java.util.Set;
  */
 public final class PreferenceWrapper extends Preference {
 
-    Object mDefaultValue;
+    private Object mDefaultValue;
 
     public PreferenceWrapper(Context context) {
         super(context);

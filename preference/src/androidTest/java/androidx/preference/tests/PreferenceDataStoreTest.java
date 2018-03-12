@@ -62,23 +62,22 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Tests for {@link PreferenceDataStore} API.
+ * Test for {@link PreferenceDataStore} API.
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class PreferenceDataStoreTest {
 
+    private static final String KEY = "TestPrefKey";
+    private static final String TEST_STR = "Test";
+    private static final String TEST_DEFAULT_STR = "TestDefault";
+    private static final String TEST_WRONG_STR = "TestFromSharedPref";
     private Context mContext;
     private PreferenceWrapper mPreference;
     private PreferenceDataStore mDataStore;
     private PreferenceScreen mScreen;
     private PreferenceManager mManager;
     private SharedPreferences mSharedPref;
-
-    private static final String KEY = "TestPrefKey";
-    private static final String TEST_STR = "Test";
-    private static final String TEST_DEFAULT_STR = "TestDefault";
-    private static final String TEST_WRONG_STR = "TestFromSharedPref";
 
     @Before
     @UiThreadTest
@@ -148,7 +147,7 @@ public class PreferenceDataStoreTest {
 
         mPreference.putString(TEST_STR);
 
-        // Check that the Preference returns the correct data store.
+        // Check that the preference returns the correct data store.
         assertEquals(mDataStore, mPreference.getPreferenceDataStore());
 
         // Check that the secondary data store assigned to the manager was NOT used.
@@ -513,7 +512,7 @@ public class PreferenceDataStoreTest {
 
     /**
      * When {@link PreferenceDataStore} is NOT assigned, the getter for SharedPreferences must not
-     * return null for Preference.
+     * return null for preference.
      */
     @Test
     @UiThreadTest
@@ -535,7 +534,7 @@ public class PreferenceDataStoreTest {
 
     /**
      * When {@link PreferenceDataStore} is assigned, the getter for SharedPreferences has to return
-     * null for Preference.
+     * null for preference.
      */
     @Test
     @UiThreadTest

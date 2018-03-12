@@ -34,20 +34,23 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
+/**
+ * Test for assigning a parent in {@link androidx.preference.PreferenceGroup}.
+ */
 @SmallTest
+@RunWith(AndroidJUnit4.class)
 public class PreferenceParentGroupTest {
 
     private Context mContext;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         mContext = InstrumentationRegistry.getTargetContext();
     }
 
     /**
-     * Tests that parent PreferenceGroup is correctly assigned and removed when creating preferences
-     * from code.
+     * Tests that the parent PreferenceGroup is correctly assigned and removed when creating
+     * preferences from code.
      */
     @Test
     @UiThreadTest
@@ -60,24 +63,24 @@ public class PreferenceParentGroupTest {
         PreferenceCategory category = new PreferenceCategory(mContext);
         assertNull(category.getParent());
 
-        CheckBoxPreference pref = new CheckBoxPreference(mContext);
-        assertNull(pref.getParent());
+        CheckBoxPreference preference = new CheckBoxPreference(mContext);
+        assertNull(preference.getParent());
 
         screen.addPreference(category);
         assertEquals(screen, category.getParent());
 
-        category.addPreference(pref);
-        assertEquals(category, pref.getParent());
+        category.addPreference(preference);
+        assertEquals(category, preference.getParent());
 
         screen.removePreference(category);
         assertNull(category.getParent());
 
-        category.removePreference(pref);
-        assertNull(pref.getParent());
+        category.removePreference(preference);
+        assertNull(preference.getParent());
     }
 
     /**
-     * Tests that parent PreferenceGroup is correctly maintained during reassignment.
+     * Tests that the parent PreferenceGroup is correctly set during reassignment.
      */
     @Test
     @UiThreadTest
@@ -91,24 +94,25 @@ public class PreferenceParentGroupTest {
         PreferenceCategory category2 = new PreferenceCategory(mContext);
         screen.addPreference(category2);
 
-        CheckBoxPreference pref = new CheckBoxPreference(mContext);
-        assertNull(pref.getParent());
+        CheckBoxPreference preference = new CheckBoxPreference(mContext);
+        assertNull(preference.getParent());
 
-        category1.addPreference(pref);
-        assertEquals(category1, pref.getParent());
+        category1.addPreference(preference);
+        assertEquals(category1, preference.getParent());
 
-        category1.removePreference(pref);
-        category2.addPreference(pref);
-        assertEquals(category2, pref.getParent());
+        category1.removePreference(preference);
+        category2.addPreference(preference);
+        assertEquals(category2, preference.getParent());
     }
 
     /**
-     * Adds a preference into two different groups without removing it first. This is maybe not
-     * something we want to support in the future but this makes this behavior visible.
+     * Tests that the most recent parent PreferenceGroup is set when adding a preference to two
+     * different groups without removing it first. This is maybe not something we want to support
+     * in the future but this makes this behavior visible.
      */
     @Test
     @UiThreadTest
-    public void parentDoubleAddTest() throws InterruptedException {
+    public void parentDoubleAddTest() {
         PreferenceManager manager = new PreferenceManager(mContext);
 
         PreferenceScreen screen = manager.createPreferenceScreen(mContext);
@@ -118,12 +122,12 @@ public class PreferenceParentGroupTest {
         PreferenceCategory category2 = new PreferenceCategory(mContext);
         screen.addPreference(category2);
 
-        CheckBoxPreference pref = new CheckBoxPreference(mContext);
-        assertNull(pref.getParent());
+        CheckBoxPreference preference = new CheckBoxPreference(mContext);
+        assertNull(preference.getParent());
 
-        category1.addPreference(pref);
-        category2.addPreference(pref);
+        category1.addPreference(preference);
+        category2.addPreference(preference);
 
-        assertEquals(category2, pref.getParent());
+        assertEquals(category2, preference.getParent());
     }
 }

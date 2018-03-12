@@ -36,6 +36,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+/**
+ * Test for single line titles in {@link Preference}.
+ */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class PreferenceSingleLineTitleTest {
