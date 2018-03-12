@@ -51,8 +51,7 @@ class PomScanner(private val context: TransformationContext) {
         session.pomFiles.forEach {
             it.logDocumentDetails()
 
-            // FYI: In reverse mode we don't validate versions
-            if (!context.isInReversedMode && !it.validate(context.config.pomRewriteRules)) {
+            if (!context.ignorePomVersionCheck && !it.validate(context.config.pomRewriteRules)) {
                 Log.e(TAG, "Version mismatch!")
                 validationFailuresCount++
             }
