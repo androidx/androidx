@@ -1457,7 +1457,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                                 }
                             }
                             f.mContainer = container;
-                            f.mView = f.performCreateView(f.performGetLayoutInflater(
+                            f.performCreateView(f.performGetLayoutInflater(
                                     f.mSavedFragmentState), container, f.mSavedFragmentState);
                             if (f.mView != null) {
                                 f.mInnerView = f.mView;
@@ -1562,6 +1562,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         }
                         f.mContainer = null;
                         f.mView = null;
+                        // Set here to ensure that Observers are called after
+                        // the Fragment's view is set to null
+                        f.mViewLifecycleOwner = null;
+                        f.mViewLifecycleOwnerLiveData.setValue(null);
                         f.mInnerView = null;
                         f.mInLayout = false;
                     }
@@ -1693,7 +1697,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     void ensureInflatedFragmentView(Fragment f) {
         if (f.mFromLayout && !f.mPerformedCreateView) {
-            f.mView = f.performCreateView(f.performGetLayoutInflater(
+            f.performCreateView(f.performGetLayoutInflater(
                     f.mSavedFragmentState), null, f.mSavedFragmentState);
             if (f.mView != null) {
                 f.mInnerView = f.mView;
