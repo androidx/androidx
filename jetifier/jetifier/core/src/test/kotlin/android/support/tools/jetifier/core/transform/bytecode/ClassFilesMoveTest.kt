@@ -52,34 +52,18 @@ class ClassFilesMoveTest {
             typesMap = TypesMap(mapOf(
                 "android/support/v7/preference/Preference"
                     to "androidx/support/preference/Preference",
-                "android/support/v7/preference/Preference\$1"
-                    to "androidx/support/preference/Preference\$1",
                 "android/support/v7/preference/TwoStatePreference"
                     to "androidx/support/preference/TwoStatePreference",
                 "android/support/v7/preference/PreferenceGroup"
                     to "androidx/support/preference/PreferenceGroup",
-                "android/support/v7/preference/Preference\$OnPreferenceChangeListener"
-                    to "androidx/support/preference/Preference\$OnPreferenceChangeListener",
-                "android/support/v7/preference/Preference\$OnPreferenceClickListener"
-                    to "androidx/support/preference/Preference\$OnPreferenceClickListener",
-                "android/support/v7/preference/Preference\$OnPreferenceChangeInternalListener"
-                    to "androidx/support/preference/Preference\$OnPreferenceChangeInternalListener",
-                "android/support/v7/preference/PreferenceManager\$OnPreferenceTreeClickListener"
-                    to "androidx/support/preference/PreferenceManager\$OnPreferenceTreeClickLisnr",
                 "android/support/v7/preference/PreferenceViewHolder"
                     to "androidx/support/preference/PreferenceViewHolder",
                 "android/support/v7/preference/PreferenceManager"
                     to "androidx/support/preference/PreferenceManager",
                 "android/support/v14/preference/SwitchPreference"
                     to "androidx/support/preference/SwitchPreference",
-                "android/support/v14/preference/SwitchPreference\$1"
-                    to "androidx/support/preference/SwitchPreference\$1",
-                "android/support/v14/preference/SwitchPreference\$Listener"
-                    to "androidx/support/preference/SwitchPreference\$Listener",
                 "android/support/v7/preference/PreferenceDataStore"
-                    to "androidx/support/preference/PreferenceDataStore",
-                "android/support/v7/preference/Preference\$BaseSavedState"
-                    to "androidx/support/preference/Preference\$BaseSavedState"
+                    to "androidx/support/preference/PreferenceDataStore"
             ).map { JavaType(it.key) to JavaType(it.value) }.toMap()),
             proGuardMap = ProGuardTypesMap.EMPTY
         )

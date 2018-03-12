@@ -41,5 +41,33 @@ data class JavaType(val fullName: String) {
         return fullName.replace('/', '.')
     }
 
+    /** Whether this type references to an inner type (e.g. MyClass$Inner) */
+    fun hasInnerType() = fullName.contains('$')
+
+    /**
+     * Returns the root type of this type stripped from any inner types (e.g. for MyClass$Inner
+     * returns MyClass)
+     */
+    fun getRootType(): JavaType {
+        if (!hasInnerType()) {
+            return this
+        }
+
+        return JavaType(fullName.split('$').first())
+    }
+
+    /**
+     * Returns this type with its root top level type replaced with the give root type.
+     */
+    fun remapWithNewRootType(root: JavaType): JavaType {
+        if (root.hasInnerType()) {
+            throw IllegalArgumentException("Cannot remap type with a nested types as a root!")
+        }
+
+        val tokens = fullName.split('$').toMutableList()
+        tokens[0] = root.fullName
+        return JavaType(tokens.joinToString("$"))
+    }
+
     override fun toString() = fullName
 }

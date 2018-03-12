@@ -161,7 +161,7 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
             return typeName
         }
 
-        val result = typesMap.types[type]
+        val result = typesMap.mapType(type)
         if (result != null) {
             Log.i(TAG, "  map: %s -> %s", type, result)
             return result.toDotNotation()
