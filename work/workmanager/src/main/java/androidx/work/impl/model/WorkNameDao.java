@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,25 +25,25 @@ import android.arch.persistence.room.Query;
 import java.util.List;
 
 /**
- * The Data Access Object for {@link WorkTag}s.
+ * The Data Access Object for {@link WorkName}s.
  */
 @Dao
-public interface WorkTagDao {
+public interface WorkNameDao {
 
     /**
-     * Inserts a {@link WorkTag} into the table.
+     * Inserts a {@link WorkName} into the table.
      *
-     * @param workTag The {@link WorkTag} to insert
+     * @param workName The {@link WorkName} to insert
      */
     @Insert(onConflict = FAIL)
-    void insert(WorkTag workTag);
+    void insert(WorkName workName);
 
     /**
-     * Retrieves all {@link WorkSpec} ids with the given tag.
+     * Retrieves all {@link WorkSpec} ids in the given named graph.
      *
-     * @param tag The matching tag
-     * @return All {@link WorkSpec} ids with the given tag
+     * @param name The matching name
+     * @return All {@link WorkSpec} ids in the given named graph
      */
-    @Query("SELECT work_spec_id FROM worktag WHERE tag=:tag")
-    List<String> getWorkSpecIdsWithTag(String tag);
+    @Query("SELECT work_spec_id FROM workname WHERE name=:name")
+    List<String> getWorkSpecIdsWithName(String name);
 }

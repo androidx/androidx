@@ -47,6 +47,8 @@ public class EnumTypeConverters {
         int FAILED = 3;
         int BLOCKED = 4;
         int CANCELLED = 5;
+
+        String COMPLETED_STATES = "(" + SUCCEEDED + ", " + FAILED + ", " + CANCELLED + ")";
     }
 
     /**

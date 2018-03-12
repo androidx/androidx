@@ -149,35 +149,35 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
     }
 
     @Override
-    public WorkContinuation beginWithUniqueTag(
-            @NonNull String tag,
+    public WorkContinuation beginWithName(
+            @NonNull String name,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<Work> work) {
-        return new WorkContinuationImpl(this, tag, existingWorkPolicy, work);
+        return new WorkContinuationImpl(this, name, existingWorkPolicy, work);
     }
 
     @Override
     public void cancelWorkById(@NonNull String id) {
-        mTaskExecutor.executeOnBackgroundThread(new CancelWorkRunnable(this, id, null));
+        mTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forId(id, this));
     }
 
     @Override
     @WorkerThread
     public void cancelWorkByIdBlocking(@NonNull String id) {
         assertBackgroundThread("Cannot cancelWorkByIdSync on main thread!");
-        new CancelWorkRunnable(this, id, null).run();
+        CancelWorkRunnable.forId(id, this).run();
     }
 
     @Override
     public void cancelAllWorkWithTag(@NonNull final String tag) {
-        mTaskExecutor.executeOnBackgroundThread(new CancelWorkRunnable(this, null, tag));
+        mTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forTag(tag, this));
     }
 
     @Override
     @WorkerThread
     public void cancelAllWorkWithTagBlocking(@NonNull String tag) {
         assertBackgroundThread("Cannot cancelAllWorkWithTagSync on main thread!");
-        new CancelWorkRunnable(this, null, tag).run();
+        CancelWorkRunnable.forTag(tag, this).run();
     }
 
     @Override

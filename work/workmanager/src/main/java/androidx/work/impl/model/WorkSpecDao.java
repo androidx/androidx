@@ -18,6 +18,8 @@ package androidx.work.impl.model;
 
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
+import static androidx.work.impl.model.EnumTypeConverters.StateIds.COMPLETED_STATES;
+
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
@@ -61,21 +63,21 @@ public interface WorkSpecDao {
     /**
      * Retrieves {@link WorkSpec}s with the identifiers.
      *
-     * @param ids The identifiers of desired {@link WorkSpec}s.
-     * @return The {@link WorkSpec}s with the requested IDs.
+     * @param ids The identifiers of desired {@link WorkSpec}s
+     * @return The {@link WorkSpec}s with the requested IDs
      */
     @Query("SELECT * FROM workspec WHERE id IN (:ids)")
     WorkSpec[] getWorkSpecs(List<String> ids);
 
     /**
-     * Retrieves {@link WorkSpec}s with the given tag.
+     * Retrieves {@link WorkSpec}s labelled with a given name.
      *
-     * @param tag The tag of the desired {@link WorkSpec}s.
-     * @return The {@link WorkSpec}s with the requested tag.
+     * @param name The work graph name
+     * @return The {@link WorkSpec}s labelled with the given name
      */
     @Query("SELECT id, state FROM workspec WHERE id IN "
-            + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
-    List<WorkSpec.IdAndState> getWorkSpecIdAndStatesForTag(String tag);
+            + "(SELECT work_spec_id FROM workname WHERE name=:name)")
+    List<WorkSpec.IdAndState> getWorkSpecIdAndStatesForName(String name);
 
     /**
      * @return All WorkSpec ids in the database.
@@ -205,8 +207,17 @@ public interface WorkSpecDao {
      * @param tag The tag used to identify the work
      * @return A list of work ids
      */
-    @Query("SELECT id FROM workspec WHERE state!=" + EnumTypeConverters.StateIds.SUCCEEDED
-            + " AND state!=" + EnumTypeConverters.StateIds.FAILED
+    @Query("SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES
             + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
     List<String> getUnfinishedWorkWithTag(@NonNull String tag);
+
+    /**
+     * Retrieves work ids for unfinished work with a given name.
+     *
+     * @param name THe tag used to identify the work
+     * @return A list of work ids
+     */
+    @Query("SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES
+            + " AND id IN (SELECT work_spec_id FROM workname WHERE name=:name)")
+    List<String> getUnfinishedWorkWithName(@NonNull String name);
 }

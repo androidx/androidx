@@ -20,6 +20,7 @@ import static androidx.work.State.CANCELLED;
 import static androidx.work.State.FAILED;
 import static androidx.work.State.SUCCEEDED;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
@@ -39,64 +40,112 @@ import androidx.work.impl.model.WorkSpecDao;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class CancelWorkRunnable implements Runnable {
+public abstract class CancelWorkRunnable implements Runnable {
 
-    private WorkManagerImpl mWorkManagerImpl;
-    private WorkDatabase mWorkDatabase;
-    private String mId;
-    private String mTag;
+    void cancel(WorkManagerImpl workManagerImpl, String workSpecId) {
+        recursivelyCancelWorkAndDependents(workManagerImpl.getWorkDatabase(), workSpecId);
 
-    public CancelWorkRunnable(WorkManagerImpl workManagerImpl, String id, String tag) {
-        mWorkManagerImpl = workManagerImpl;
-        mWorkDatabase = mWorkManagerImpl.getWorkDatabase();
-        mId = id;
-        mTag = tag;
-    }
-
-    @WorkerThread
-    @Override
-    public void run() {
-        mWorkDatabase.beginTransaction();
-        try {
-            WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-            if (mTag != null) {
-                List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithTag(mTag);
-                for (String workSpecId : workSpecIds) {
-                    cancel(workSpecId);
-                }
-            } else if (mId != null) {
-                cancel(mId);
-            }
-            mWorkDatabase.setTransactionSuccessful();
-        } finally {
-            mWorkDatabase.endTransaction();
-        }
-    }
-
-    private void cancel(String workSpecId) {
-        recursivelyCancelWorkAndDependents(workSpecId);
-
-        Processor processor = mWorkManagerImpl.getProcessor();
+        Processor processor = workManagerImpl.getProcessor();
         processor.stopWork(workSpecId, true);
         processor.setCancelled(workSpecId);
 
-        for (Scheduler scheduler : mWorkManagerImpl.getSchedulers()) {
+        for (Scheduler scheduler : workManagerImpl.getSchedulers()) {
             scheduler.cancel(workSpecId);
         }
     }
 
-    private void recursivelyCancelWorkAndDependents(String workSpecId) {
-        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-        DependencyDao dependencyDao = mWorkDatabase.dependencyDao();
+    private void recursivelyCancelWorkAndDependents(WorkDatabase workDatabase, String workSpecId) {
+
+        WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+        DependencyDao dependencyDao = workDatabase.dependencyDao();
 
         List<String> dependentIds = dependencyDao.getDependentWorkIds(workSpecId);
         for (String id : dependentIds) {
-            recursivelyCancelWorkAndDependents(id);
+            recursivelyCancelWorkAndDependents(workDatabase, id);
         }
 
         State state = workSpecDao.getState(workSpecId);
         if (state != SUCCEEDED && state != FAILED) {
             workSpecDao.setState(CANCELLED, workSpecId);
         }
+    }
+
+    /**
+     * Creates a {@link CancelWorkRunnable} that cancels work for a specific id.
+     *
+     * @param id The id to cancel
+     * @param workManagerImpl The {@link WorkManagerImpl} to use
+     * @return A {@link Runnable} that cancels work for a specific id
+     */
+    public static Runnable forId(
+            @NonNull final String id,
+            @NonNull final WorkManagerImpl workManagerImpl) {
+        return new CancelWorkRunnable() {
+            @WorkerThread
+            @Override
+            public void run() {
+                cancel(workManagerImpl, id);
+            }
+        };
+    }
+
+    /**
+     * Creates a {@link CancelWorkRunnable} that cancels work for a specific tag.
+     *
+     * @param tag The tag to cancel
+     * @param workManagerImpl The {@link WorkManagerImpl} to use
+     * @return A {@link Runnable} that cancels work for a specific tag
+     */
+    public static Runnable forTag(
+            @NonNull final String tag,
+            @NonNull final WorkManagerImpl workManagerImpl) {
+        return new CancelWorkRunnable() {
+            @WorkerThread
+            @Override
+            public void run() {
+                WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
+                workDatabase.beginTransaction();
+                try {
+                    WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+                    List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithTag(tag);
+                    for (String workSpecId : workSpecIds) {
+                        cancel(workManagerImpl, workSpecId);
+                    }
+                    workDatabase.setTransactionSuccessful();
+                } finally {
+                    workDatabase.endTransaction();
+                }
+            }
+        };
+    }
+
+    /**
+     * Creates a {@link CancelWorkRunnable} that cancels work labelled with a specific name.
+     *
+     * @param name The name to cancel
+     * @param workManagerImpl The {@link WorkManagerImpl} to use
+     * @return A {@link Runnable} that cancels work labelled with a specific name
+     */
+    public static Runnable forName(
+            @NonNull final String name,
+            @NonNull final WorkManagerImpl workManagerImpl) {
+        return new CancelWorkRunnable() {
+            @WorkerThread
+            @Override
+            public void run() {
+                WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
+                workDatabase.beginTransaction();
+                try {
+                    WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+                    List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithName(name);
+                    for (String workSpecId : workSpecIds) {
+                        cancel(workManagerImpl, workSpecId);
+                    }
+                    workDatabase.setTransactionSuccessful();
+                } finally {
+                    workDatabase.endTransaction();
+                }
+            }
+        };
     }
 }
