@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.percentlayout.widget;
+package androidx.percentlayout.widget;
 
 import androidx.percentlayout.test.R;
 
