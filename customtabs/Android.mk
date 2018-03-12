@@ -34,7 +34,6 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/src/main/res
 LOCAL_JAVA_LIBRARIES := \
     android-support-annotations
 LOCAL_SHARED_ANDROID_LIBRARIES := \
-    android-support-v7-appcompat \
     android-support-compat \
     android-support-core-ui
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
