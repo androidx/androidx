@@ -17,6 +17,7 @@
 package androidx.work;
 
 import android.content.Context;
+import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
@@ -90,6 +91,7 @@ public abstract class Worker {
         return mOutput;
     }
 
+    @Keep
     private void internalInit(
             Context appContext,
             @NonNull String id,
