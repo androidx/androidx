@@ -19,7 +19,7 @@ plugins {
     id("application")
 }
 
-mainClassName = "android.support.tools.jetifier.standalone.MainKt"
+mainClassName = "android.support.tools.jetifier.standalone.Main"
 
 dependencies {
     compile project(':jetifier-core')

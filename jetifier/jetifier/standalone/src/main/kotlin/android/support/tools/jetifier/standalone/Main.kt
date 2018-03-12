@@ -66,6 +66,10 @@ class Main {
             OPTIONS.addOption(op)
             return op
         }
+
+        @JvmStatic fun main(args: Array<String>) {
+            Main().run(args)
+        }
     }
 
     fun run(args: Array<String>) {
@@ -136,6 +140,3 @@ class Main {
     }
 }
 
-fun main(args: Array<String>) {
-    Main().run(args)
-}
