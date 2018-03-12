@@ -4529,8 +4529,8 @@ public class GridWidgetTest {
             @Override
             public void run() {
                 for (int i  = 0; i < 100; i++) {
-                    delegateCompat.performAccessibilityAction(mGridView,
-                            AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD, null);
+                    assertTrue(delegateCompat.performAccessibilityAction(mGridView,
+                            AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD, null));
                 }
             }
         });
