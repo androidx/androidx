@@ -24,7 +24,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.os.Handler;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -36,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.concurrent.CountDownLatch;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
 import androidx.slice.view.test.R;
@@ -65,7 +65,7 @@ public class SliceRenderer {
             protected void onLayout(boolean changed, int l, int t, int r, int b) {
                 int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1000,
                         mContext.getResources().getDisplayMetrics());
-                int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300,
+                int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 330,
                         mContext.getResources().getDisplayMetrics());
                 mLayout.measure(makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                         makeMeasureSpec(height, View.MeasureSpec.EXACTLY));

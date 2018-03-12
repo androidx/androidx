@@ -55,7 +55,8 @@ public class SliceCreator {
     public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
 
     public static final String[] URI_PATHS = {"message", "wifi", "wifi2", "note", "ride", "toggle",
-            "toggle2", "contact", "gallery", "subscription", "subscription2", "weather"};
+            "toggle2", "contact", "gallery", "subscription", "subscription2", "weather",
+            "reservation"};
 
     private final Context mContext;
 
@@ -105,6 +106,8 @@ public class SliceCreator {
                 return createSubSlice(sliceUri, true /* customSeeMore */);
             case "/weather":
                 return createWeather(sliceUri);
+            case "/reservation":
+                return createReservationSlice(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -222,7 +225,8 @@ public class SliceCreator {
                 .addRow(rb
                         .setTitle("Mady Pitza")
                         .setSubtitle("Frequently contacted contact")
-                        .addEndItem(Icon.createWithResource(getContext(), R.drawable.mady)))
+                        .addEndItem(Icon.createWithResource(getContext(), R.drawable.mady),
+                        SMALL_IMAGE))
                 .addGrid(gb
                         .addCell(new GridBuilder.CellBuilder(gb)
                             .addImage(Icon.createWithResource(getContext(), R.drawable.ic_call),
@@ -413,6 +417,36 @@ public class SliceCreator {
             lb.addSeeMoreAction(primaryAction.getAction());
         }
         return lb.build();
+    }
+
+    private Slice createReservationSlice(Uri sliceUri) {
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri);
+        GridBuilder gb1 = new GridBuilder(lb);
+        gb1.addCell(new GridBuilder.CellBuilder(gb1)
+                .addImage(Icon.createWithResource(getContext(), R.drawable.reservation),
+                        LARGE_IMAGE)
+                .setContentDescription("Image of your reservation in Seattle"));
+        GridBuilder gb2 = new GridBuilder(lb);
+        gb2.addCell(new GridBuilder.CellBuilder(gb2)
+                    .addTitleText("Check In")
+                    .addText("12:00 PM, Feb 1"))
+                .addCell(new GridBuilder.CellBuilder(gb2)
+                    .addTitleText("Check Out")
+                    .addText("11:00 AM, Feb 19"));
+        return lb.setColor(0xffFF5252)
+                .setHeader(new ListBuilder.HeaderBuilder(lb)
+                        .setTitle("Upcoming trip to Seattle")
+                        .setSubtitle("Feb 1 - 19 | 2 guests"))
+                .addAction(new SliceAction(
+                        getBroadcastIntent(ACTION_TOAST, "show location on map"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_location),
+                        "Show reservation location"))
+                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "contact host"),
+                        Icon.createWithResource(getContext(), R.drawable.ic_text),
+                        "Contact host"))
+                .addGrid(gb1)
+                .addGrid(gb2)
+                .build();
     }
 
     private PendingIntent getIntent(String action) {
