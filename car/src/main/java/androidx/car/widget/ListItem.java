@@ -41,7 +41,7 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
      *
      * @return type of this ListItem.
      */
-    abstract int getViewType();
+    public abstract int getViewType();
 
     /**
      * Called when ListItem is bound to its ViewHolder.
@@ -181,8 +181,8 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
      * }
      * </pre>
      *
-     * @params binder to interact with subviews in {@code ViewHolder}.
-     * @params cleanUp view binder to revert the effect of {@code binder}. cleanUp binders will be
+     * @param binder to interact with subviews in {@code ViewHolder}.
+     * @param cleanUp view binder to revert the effect of {@code binder}. cleanUp binders will be
      *                 stored in {@link ListItem.ViewHolder} and should be invoked via
      *                 {@link ViewHolder#cleanUp()} before {@code ViewHolder} is recycled.
      *                 This is to avoid changed made to ViewHolder lingers around when ViewHolder is
