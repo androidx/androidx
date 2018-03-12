@@ -26,7 +26,9 @@ plugins {
 
 dependencies {
     compile(SUPPORT_ANNOTATIONS)
-    compile(project(":arch:common"))
+
+    // Paging is temporarily using prebuilts of other arch modules
+    compile(ARCH_COMMON_1)
 
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)

@@ -22,13 +22,19 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":arch:runtime"))
-    implementation(project(":arch:common"))
     implementation(project(":paging:common"))
-    implementation(project(":lifecycle:extensions"))
-    implementation(project(":lifecycle:runtime"))
-    implementation(project(":lifecycle:common"))
     implementation(project(":paging:runtime"))
+
+    // Paging is temporarily using prebuilts of other arch modules
+    implementation(ARCH_RUNTIME_1)
+    implementation(ARCH_COMMON_1)
+    implementation(ARCH_LIFECYCLE_COMMON_1)
+    implementation(ARCH_LIFECYCLE_RUNTIME_1)
+    implementation(ARCH_LIFECYCLE_LIVEDATA_1)
+    implementation(ARCH_LIFECYCLE_LIVEDATA_CORE_1)
+    implementation(ARCH_LIFECYCLE_VIEWMODEL_1)
+    implementation(ARCH_LIFECYCLE_EXTENSIONS_1)
+
     implementation(MULTIDEX)
     implementation(SUPPORT_RECYCLERVIEW_27, libs.support_exclude_config)
     implementation(SUPPORT_APPCOMPAT_27, libs.support_exclude_config)
