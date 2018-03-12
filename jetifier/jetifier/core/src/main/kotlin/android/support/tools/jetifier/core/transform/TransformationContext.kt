@@ -35,6 +35,16 @@ class TransformationContext(
     private val packagePrefixPattern = Pattern.compile(
         "^(" + config.restrictToPackagePrefixes.map { "($it)" }.joinToString("|") + ").*$")
 
+    /**
+     * Whether to use identity if type in our scope is missing instead of throwing an exception.
+     */
+    val useIdentityIfTypeIsMissing = rewritingSupportLib || isInReversedMode
+
+    /**
+     * Whether to skip verification of dependency version match in pom files.
+     */
+    val ignorePomVersionCheck = rewritingSupportLib || isInReversedMode
+
     /** Counter for [reportNoMappingFoundFailure] calls. */
     var mappingNotFoundFailuresCount = 0
         private set

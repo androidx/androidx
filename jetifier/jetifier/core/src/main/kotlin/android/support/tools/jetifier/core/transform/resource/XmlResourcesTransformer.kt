@@ -167,8 +167,13 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
             return result.toDotNotation()
         }
 
+        if (context.useIdentityIfTypeIsMissing) {
+            Log.i(TAG, "No mapping for: %s - using identity", type)
+            return typeName
+        }
+
         context.reportNoMappingFoundFailure()
-        Log.e(TAG, "No mapping for: " + type)
+        Log.e(TAG, "No mapping for: %s", type)
         return typeName
     }
 
