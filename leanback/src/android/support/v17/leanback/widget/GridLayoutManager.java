@@ -3722,7 +3722,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     public boolean performAccessibilityAction(Recycler recycler, State state, int action,
             Bundle args) {
         if (!isScrollEnabled()) {
-            return false;
+            // eat action request so that talkback wont focus out of RV
+            return true;
         }
         saveContext(recycler, state);
         int translatedAction = action;
