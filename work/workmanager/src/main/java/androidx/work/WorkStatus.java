@@ -18,8 +18,12 @@ package androidx.work;
 
 import android.support.annotation.NonNull;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
- * A simple class with the id of a {@link BaseWork}, its current {@link State}, and its output.
+ * A simple class with the id of a {@link BaseWork}, its current {@link State}, output, and tags.
  * Note that output is only available for terminal states ({@link State#SUCCEEDED} and
  * {@link State#FAILED}).
  */
@@ -29,11 +33,17 @@ public class WorkStatus {
     private String mId;
     private State mState;
     private Arguments mOutput;
+    private Set<String> mTags;
 
-    public WorkStatus(@NonNull String id, @NonNull State state, @NonNull Arguments output) {
+    public WorkStatus(
+            @NonNull String id,
+            @NonNull State state,
+            @NonNull Arguments output,
+            @NonNull List<String> tags) {
         mId = id;
         mState = state;
         mOutput = output;
+        mTags = new HashSet<>(tags);
     }
 
     public @NonNull String getId() {
@@ -48,6 +58,10 @@ public class WorkStatus {
         return mOutput;
     }
 
+    public @NonNull Set<String> getTags() {
+        return mTags;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -55,16 +69,18 @@ public class WorkStatus {
 
         WorkStatus that = (WorkStatus) o;
 
-        if (!mId.equals(that.mId)) return false;
+        if (mId != null ? !mId.equals(that.mId) : that.mId != null) return false;
         if (mState != that.mState) return false;
-        return mOutput.equals(that.mOutput);
+        if (mOutput != null ? !mOutput.equals(that.mOutput) : that.mOutput != null) return false;
+        return mTags != null ? mTags.equals(that.mTags) : that.mTags == null;
     }
 
     @Override
     public int hashCode() {
-        int result = mId.hashCode();
-        result = 31 * result + mState.hashCode();
-        result = 31 * result + mOutput.hashCode();
+        int result = mId != null ? mId.hashCode() : 0;
+        result = 31 * result + (mState != null ? mState.hashCode() : 0);
+        result = 31 * result + (mOutput != null ? mOutput.hashCode() : 0);
+        result = 31 * result + (mTags != null ? mTags.hashCode() : 0);
         return result;
     }
 }
