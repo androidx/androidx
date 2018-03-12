@@ -26,7 +26,6 @@ import java.util.List;
 import androidx.work.Constraints;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.utils.PackageManagerHelper;
 
 abstract class ConstraintProxy extends BroadcastReceiver {
     private static final String TAG = "ConstraintProxy";
@@ -88,13 +87,15 @@ abstract class ConstraintProxy extends BroadcastReceiver {
             }
         }
 
-        PackageManagerHelper.setComponentEnabled(context, BatteryNotLowProxy.class,
-                batteryNotLowProxyEnabled);
-        PackageManagerHelper.setComponentEnabled(context, BatteryChargingProxy.class,
-                batteryChargingProxyEnabled);
-        PackageManagerHelper.setComponentEnabled(context, StorageNotLowProxy.class,
-                storageNotLowProxyEnabled);
-        PackageManagerHelper.setComponentEnabled(context, NetworkStateProxy.class,
-                networkStateProxyEnabled);
+        Intent updateProxyIntent =
+                ConstraintProxyUpdateReceiver.newConstraintProxyUpdateIntent(
+                        batteryNotLowProxyEnabled,
+                        batteryChargingProxyEnabled,
+                        storageNotLowProxyEnabled,
+                        networkStateProxyEnabled);
+
+        // ConstraintProxies are being updated via a separate broadcast receiver.
+        // For more information on why we do this look at b/73549299
+        context.sendBroadcast(updateProxyIntent);
     }
 }
