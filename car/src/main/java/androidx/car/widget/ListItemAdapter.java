@@ -17,22 +17,10 @@
 package androidx.car.widget;
 
 import android.app.Activity;
-import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarUxRestrictions;
-import android.car.drivingstate.CarUxRestrictionsManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.os.IBinder;
-import androidx.annotation.IntDef;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.Nullable;
-import androidx.annotation.StyleRes;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
@@ -45,8 +33,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.function.Function;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.StyleRes;
 import androidx.car.R;
+import androidx.car.utils.CarUxRestrictionsHelper;
 import androidx.car.utils.ListItemBackgroundResolver;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Adapter for {@link PagedListView} to display {@link ListItem}.
@@ -106,8 +100,7 @@ public class ListItemAdapter extends
     @StyleRes private int mListItemTitleTextAppearance;
     @StyleRes private int mListItemBodyTextAppearance;
 
-    private final Car mCar;
-    @Nullable private CarUxRestrictionsManager mCarUxRestrictionsManager;
+    private final CarUxRestrictionsHelper mUxRestrictionsHelper;
     private CarUxRestrictions mCurrentUxRestrictions;
 
     private Context mContext;
@@ -130,7 +123,11 @@ public class ListItemAdapter extends
         registerListItemViewType(LIST_ITEM_TYPE_SEEKBAR,
                 R.layout.car_list_item_seekbar_content, SeekbarListItem::createViewHolder);
 
-        mCar = Car.createCar(context, mServiceConnection);
+        mUxRestrictionsHelper =
+                new CarUxRestrictionsHelper(context, carUxRestrictions -> {
+                    mCurrentUxRestrictions = carUxRestrictions;
+                    notifyDataSetChanged();
+                });
     }
 
     /**
@@ -142,9 +139,7 @@ public class ListItemAdapter extends
      * <p>This method must be accompanied with a matching {@link #stop()} to avoid leak.
      */
     public void start() {
-        if (!mCar.isConnected()) {
-            mCar.connect();
-        }
+        mUxRestrictionsHelper.start();
     }
 
     /**
@@ -154,7 +149,7 @@ public class ListItemAdapter extends
      * time of this adapter being discarded.
      */
     public void stop() {
-        mCar.disconnect();
+        mUxRestrictionsHelper.stop();
     }
 
     /**
@@ -298,42 +293,6 @@ public class ListItemAdapter extends
         return position >= 0 && position < getItemCount()
                 && mItemProvider.get(position).shouldHideDivider();
     }
-
-    // Keep onUxRestrictionsChangedListener an internal var to avoid exposing APIs from android.car.
-    // Otherwise car sample apk will fail at compile time due to not having access to the stubs.
-    private CarUxRestrictionsManager.onUxRestrictionsChangedListener mUxrChangeListener =
-            new CarUxRestrictionsManager.onUxRestrictionsChangedListener() {
-            @Override
-            public void onUxRestrictionsChanged(CarUxRestrictions carUxRestrictions) {
-                mCurrentUxRestrictions = carUxRestrictions;
-                notifyDataSetChanged();
-            }
-        };
-
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            try {
-                mCarUxRestrictionsManager = (CarUxRestrictionsManager)
-                        mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
-                mCarUxRestrictionsManager.registerListener(mUxrChangeListener);
-                mUxrChangeListener.onUxRestrictionsChanged(
-                        mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
-            } catch (CarNotConnectedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            try {
-                mCarUxRestrictionsManager.unregisterListener();
-                mCarUxRestrictionsManager = null;
-            } catch (CarNotConnectedException e) {
-                e.printStackTrace();
-            }
-        }
-    };
 
     /**
      * Returns the style that has been assigned to {@code listItemStyle} in the
