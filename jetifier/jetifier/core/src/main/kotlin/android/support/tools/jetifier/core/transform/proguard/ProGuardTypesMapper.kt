@@ -48,14 +48,19 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
             }
 
             val result = config.typesMap.types[javaType]
-            if (result == null) {
-                context.reportNoProGuardMappingFoundFailure()
-                Log.e(TAG, "No mapping for: " + type)
+            if (result != null) {
+                Log.i(TAG, "  map: %s -> %s", type, result)
+                return result.toDotNotation()
+            }
+
+            if (context.useIdentityIfTypeIsMissing) {
+                Log.i(TAG, "No mapping for: %s - using identity")
                 return typeToReplace
             }
 
-            Log.i(TAG, "  map: %s -> %s", type, result)
-            return result.toDotNotation()
+            context.reportNoProGuardMappingFoundFailure()
+            Log.e(TAG, "No mapping for: %s", type)
+            return typeToReplace
         }
 
         // Type contains wildcards - try custom rules map

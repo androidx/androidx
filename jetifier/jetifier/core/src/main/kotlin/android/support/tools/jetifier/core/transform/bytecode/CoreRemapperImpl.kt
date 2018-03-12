@@ -56,8 +56,12 @@ class CoreRemapperImpl(
             return result
         }
 
-        context.reportNoMappingFoundFailure()
-        Log.e(TAG, "No mapping for: " + type)
+        if (context.useIdentityIfTypeIsMissing) {
+            Log.i(TAG, "No mapping for %s - using identity", type)
+        } else {
+            context.reportNoMappingFoundFailure()
+            Log.e(TAG, "No mapping for: " + type)
+        }
         return type
     }
 
@@ -95,8 +99,13 @@ class CoreRemapperImpl(
             return path.fileSystem.getPath(result.fullName + ".class")
         }
 
+        if (context.useIdentityIfTypeIsMissing) {
+            Log.i(TAG, "No mapping for: %s", type)
+            return path
+        }
+
         context.reportNoMappingFoundFailure()
-        Log.e(TAG, "No mapping for: " + type)
+        Log.e(TAG, "No mapping for: %s", type)
         return path
     }
 }
