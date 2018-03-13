@@ -21,6 +21,9 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
 
 @RunWith(JUnit4::class)
 class PositionalDataSourceTest {
@@ -212,5 +215,83 @@ class PositionalDataSourceTest {
     fun initialLoadCallbackInvalidThreeArg() = performLoadInitial(invalidateDataSource = true) {
         // LoadInitialCallback doesn't throw on invalid args if DataSource is invalid
         it.onResult(emptyList(), 0, 1)
+    }
+
+    private abstract class WrapperDataSource<in A, B>(private val source: PositionalDataSource<A>)
+            : PositionalDataSource<B>() {
+        private val invalidatedCallback = DataSource.InvalidatedCallback {
+            invalidate()
+            removeCallback()
+        }
+
+        init {
+            source.addInvalidatedCallback(invalidatedCallback)
+        }
+
+        private fun removeCallback() {
+            removeInvalidatedCallback(invalidatedCallback)
+        }
+
+        override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<B>) {
+            source.loadInitial(params, object : LoadInitialCallback<A>() {
+                override fun onResult(data: List<A>, position: Int, totalCount: Int) {
+                    callback.onResult(convert(data), position, totalCount)
+                }
+
+                override fun onResult(data: List<A>, position: Int) {
+                    callback.onResult(convert(data), position)
+                }
+            })
+        }
+
+        override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<B>) {
+            source.loadRange(params, object : LoadRangeCallback<A>() {
+                override fun onResult(data: List<A>) {
+                    callback.onResult(convert(data))
+                }
+            })
+        }
+
+        protected abstract fun convert(source: List<A>): List<B>
+    }
+
+    private class StringWrapper<in A>(source: PositionalDataSource<A>)
+            : WrapperDataSource<A, String>(source) {
+        override fun convert(source: List<A>): List<String> {
+            return source.map { it.toString() }
+        }
+    }
+
+    @Test
+    fun simpleWrappedDataSource() {
+        // verify that it's possible to wrap a PositionalDataSource, and transform its data
+        val orig = ListDataSource(listOf(0, 5, 4, 8, 12))
+        val wrapper = StringWrapper(orig)
+
+        // load initial
+        @Suppress("UNCHECKED_CAST")
+        val loadInitialCallback = mock(PositionalDataSource.LoadInitialCallback::class.java)
+                as PositionalDataSource.LoadInitialCallback<String>
+
+        wrapper.loadInitial(PositionalDataSource.LoadInitialParams(0, 2, 1, true),
+                loadInitialCallback)
+        verify(loadInitialCallback).onResult(listOf("0", "5"), 0, 5)
+        verifyNoMoreInteractions(loadInitialCallback)
+
+        // load range
+        @Suppress("UNCHECKED_CAST")
+        val loadRangeCallback = mock(PositionalDataSource.LoadRangeCallback::class.java)
+                as PositionalDataSource.LoadRangeCallback<String>
+
+        wrapper.loadRange(PositionalDataSource.LoadRangeParams(2, 3), loadRangeCallback)
+        verify(loadRangeCallback).onResult(listOf("4", "8", "12"))
+        verifyNoMoreInteractions(loadRangeCallback)
+
+        // check invalidation behavior
+        val invalCallback = mock(DataSource.InvalidatedCallback::class.java)
+        wrapper.addInvalidatedCallback(invalCallback)
+        orig.invalidate()
+        verify(invalCallback).onInvalidated()
+        verifyNoMoreInteractions(invalCallback)
     }
 }
