@@ -25,10 +25,13 @@ plugins {
 }
 
 dependencies {
-    api(project(":arch:runtime"))
     api(project(":paging:common"))
-    api(project(":lifecycle:runtime"))
-    api(project(":lifecycle:livedata"))
+
+    // Paging is temporarily using prebuilts of other arch modules
+    api(ARCH_RUNTIME_1)
+    api(ARCH_LIFECYCLE_RUNTIME_1)
+    api(ARCH_LIFECYCLE_LIVEDATA_1)
+    api(ARCH_LIFECYCLE_LIVEDATA_CORE_1)
 
     api(SUPPORT_RECYCLERVIEW_27, libs.support_exclude_config)
 
