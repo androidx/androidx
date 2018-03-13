@@ -20,11 +20,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.util.AttributeSet;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.emoji.R;
-import android.util.AttributeSet;
-import android.view.View;
 
 /**
  * Helper class to parse EmojiCompat EditText attributes.

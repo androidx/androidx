@@ -37,13 +37,14 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.R;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+
+import androidx.emoji.R;
+import androidx.emoji.text.EmojiCompat;
 
 import org.junit.Before;
 import org.junit.BeforeClass;

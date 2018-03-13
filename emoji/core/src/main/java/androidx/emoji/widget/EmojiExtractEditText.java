@@ -21,16 +21,17 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.inputmethodservice.ExtractEditText;
 import android.os.Build;
+import android.text.method.KeyListener;
+import android.util.AttributeSet;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
+
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.EmojiSpan;
-import android.text.method.KeyListener;
-import android.util.AttributeSet;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputConnection;
 
 /**
  * ExtractEditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}.

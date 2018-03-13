@@ -17,15 +17,16 @@ package androidx.emoji.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.text.Selection;
+import android.text.Spannable;
+import android.text.Spanned;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.EmojiCompat.InitCallback;
-import android.text.Selection;
-import android.text.Spannable;
-import android.text.Spanned;
-import android.widget.TextView;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;

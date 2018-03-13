@@ -19,11 +19,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.text.TextPaint;
+
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import android.text.TextPaint;
 
 /**
  * EmojiSpan subclass used to render emojis using Typeface.

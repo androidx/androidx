@@ -17,12 +17,13 @@ package androidx.emoji.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.emoji.text.EmojiCompat;
 import android.text.Editable;
 import android.view.KeyEvent;
 import android.view.View;
+
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.emoji.text.EmojiCompat;
 
 /**
  * KeyListener class to handle delete operations correctly.

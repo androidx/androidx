@@ -16,15 +16,16 @@
 package androidx.emoji.widget;
 
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.emoji.text.EmojiCompat;
-import androidx.core.util.Preconditions;
 import android.text.InputFilter;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.TransformationMethod;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.util.Preconditions;
+import androidx.emoji.text.EmojiCompat;
 
 /**
  * Utility class to enhance custom TextView widgets with {@link EmojiCompat}.

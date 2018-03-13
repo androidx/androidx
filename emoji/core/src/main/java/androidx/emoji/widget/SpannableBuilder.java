@@ -17,16 +17,17 @@ package androidx.emoji.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.emoji.text.EmojiSpan;
-import androidx.core.util.Preconditions;
 import android.text.Editable;
 import android.text.SpanWatcher;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.core.util.Preconditions;
+import androidx.emoji.text.EmojiSpan;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

@@ -17,6 +17,7 @@
 package androidx.emoji.text;
 
 import static android.content.res.AssetManager.ACCESS_BUFFER;
+
 import static androidx.core.provider.FontsContractCompat.Columns.RESULT_CODE_FONT_NOT_FOUND;
 import static androidx.core.provider.FontsContractCompat.Columns.RESULT_CODE_FONT_UNAVAILABLE;
 import static androidx.core.provider.FontsContractCompat.Columns.RESULT_CODE_MALFORMED_QUERY;
@@ -45,13 +46,14 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
-import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontInfo;

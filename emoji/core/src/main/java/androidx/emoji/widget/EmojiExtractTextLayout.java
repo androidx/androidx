@@ -20,12 +20,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.inputmethodservice.InputMethodService;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.text.EmojiSpan;
-import androidx.emoji.R;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -34,6 +28,13 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.LinearLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.emoji.R;
+import androidx.emoji.text.EmojiCompat;
+import androidx.emoji.text.EmojiSpan;
 
 /**
  * Layout that contains emoji compatibility enhanced ExtractEditText. Should be used by

@@ -30,10 +30,11 @@ import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.emoji.test.R;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.TestActivity;
 import androidx.emoji.text.TestConfigBuilder;
-import androidx.emoji.test.R;
 import androidx.emoji.util.TestString;
 
 import org.junit.Before;

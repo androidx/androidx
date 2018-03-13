@@ -18,16 +18,6 @@ package androidx.emoji.text;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Build;
-import androidx.annotation.AnyThread;
-import androidx.annotation.IntDef;
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.emoji.widget.SpannableBuilder;
-import androidx.core.graphics.PaintCompat;
-import androidx.core.util.Preconditions;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
@@ -38,6 +28,17 @@ import android.text.method.KeyListener;
 import android.text.method.MetaKeyKeyListener;
 import android.view.KeyEvent;
 import android.view.inputmethod.InputConnection;
+
+import androidx.annotation.AnyThread;
+import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.core.graphics.PaintCompat;
+import androidx.core.util.Preconditions;
+import androidx.emoji.widget.SpannableBuilder;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
