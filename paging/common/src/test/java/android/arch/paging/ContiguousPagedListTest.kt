@@ -16,6 +16,7 @@
 
 package android.arch.paging
 
+import android.arch.core.util.Function
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -102,6 +103,16 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
 
         private fun getClampedRange(startInc: Int, endExc: Int): List<Item> {
             return listData.subList(Math.max(0, startInc), Math.min(listData.size, endExc))
+        }
+
+        override fun <ToValue : Any?> mapByPage(function: Function<List<Item>, List<ToValue>>):
+                DataSource<Int, ToValue> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun <ToValue : Any?> map(function: Function<Item, ToValue>):
+                DataSource<Int, ToValue> {
+            throw UnsupportedOperationException()
         }
     }
 
