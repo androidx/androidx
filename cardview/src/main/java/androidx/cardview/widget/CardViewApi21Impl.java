@@ -17,9 +17,10 @@ package androidx.cardview.widget;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.view.View;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import android.view.View;
 
 @RequiresApi(21)
 class CardViewApi21Impl implements CardViewImpl {
