@@ -90,12 +90,13 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
-import androidx.media.VolumeProviderCompat;
-import androidx.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.KeyEvent;
+
+import androidx.media.VolumeProviderCompat;
+import androidx.media.session.MediaControllerCompat;
 
 import org.junit.After;
 import org.junit.Before;

@@ -23,18 +23,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.StringDef;
-import androidx.media.session.MediaControllerCompat.TransportControls;
-import androidx.collection.ArrayMap;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.RestrictTo;
+import androidx.annotation.StringDef;
+import androidx.collection.ArrayMap;
+import androidx.media.MediaBrowserCompat;
+import androidx.media.session.MediaControllerCompat.TransportControls;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
-
-import androidx.media.MediaBrowserCompat;
 
 /**
  * Contains metadata about an item, such as the title, artist, etc.

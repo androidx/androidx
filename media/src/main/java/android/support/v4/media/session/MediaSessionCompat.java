@@ -45,22 +45,22 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
-import androidx.annotation.IntDef;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.core.app.BundleCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
-import androidx.media.VolumeProviderCompat;
-import androidx.media.session.MediaButtonReceiver;
-import androidx.media.session.MediaControllerCompat;
-
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.core.app.BundleCompat;
+import androidx.media.VolumeProviderCompat;
+import androidx.media.session.MediaButtonReceiver;
+import androidx.media.session.MediaControllerCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -23,10 +23,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.media.MediaBrowserCompat;
 
 /**
