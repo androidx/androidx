@@ -16,6 +16,13 @@
 
 package androidx.wear.internal.widget.drawer;
 
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -26,12 +33,6 @@ import androidx.wear.R;
 import androidx.wear.widget.drawer.PageIndicatorView;
 import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 import androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 /**
  * Handles view logic for the multi page style {@link WearableNavigationDrawerView}.

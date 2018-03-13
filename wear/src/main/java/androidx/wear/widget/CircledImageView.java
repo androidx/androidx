@@ -31,12 +31,13 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+import android.view.View;
+
 import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.R;
-import android.util.AttributeSet;
-import android.view.View;
 
 import java.util.Objects;
 

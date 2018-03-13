@@ -17,12 +17,13 @@
 package androidx.wear.widget;
 
 import android.content.Context;
-import androidx.annotation.UiThread;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+
+import androidx.annotation.UiThread;
 
 import java.util.ArrayList;
 

@@ -16,12 +16,13 @@
 
 package androidx.wear.widget.drawer;
 
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.widget.drawer.FlingWatcherFactory.FlingListener;
 import androidx.wear.widget.drawer.FlingWatcherFactory.FlingWatcher;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 
 import java.lang.ref.WeakReference;
 

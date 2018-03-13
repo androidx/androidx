@@ -18,6 +18,7 @@ package androidx.wear.widget;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
 import static androidx.wear.widget.util.AsyncViewActions.waitForMatchingView;
 import static androidx.wear.widget.util.MoreViewAssertions.withNoVerticalScrollOffset;
 import static androidx.wear.widget.util.MoreViewAssertions.withPositiveVerticalScrollOffset;
@@ -29,7 +30,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
-import androidx.annotation.IdRes;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.GeneralLocation;
@@ -39,10 +39,12 @@ import android.support.test.espresso.action.Swipe;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.View;
+
+import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.WakeLockRule;
-import android.view.View;
 
 import org.junit.Before;
 import org.junit.Rule;

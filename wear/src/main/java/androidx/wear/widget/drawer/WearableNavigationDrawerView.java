@@ -21,6 +21,14 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.accessibility.AccessibilityManager;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -31,13 +39,6 @@ import androidx.wear.internal.widget.drawer.MultiPageUi;
 import androidx.wear.internal.widget.drawer.SinglePagePresenter;
 import androidx.wear.internal.widget.drawer.SinglePageUi;
 import androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.Gravity;
-import android.view.MotionEvent;
-import android.view.accessibility.AccessibilityManager;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

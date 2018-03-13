@@ -20,13 +20,14 @@ import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.RectF;
 import android.os.SystemClock;
-import androidx.annotation.VisibleForTesting;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.action.MotionEvents;
 import android.support.test.espresso.action.Swiper;
-import androidx.core.util.Preconditions;
 import android.util.Log;
 import android.view.MotionEvent;
+
+import androidx.annotation.VisibleForTesting;
+import androidx.core.util.Preconditions;
 
 /**
  * Swiper for gestures meant to be performed on an arc - part of a circle - not a straight line.

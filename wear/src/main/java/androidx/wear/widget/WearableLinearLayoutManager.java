@@ -16,10 +16,11 @@
 package androidx.wear.widget;
 
 import android.content.Context;
+import android.view.View;
+
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.View;
 
 /**
  * This wear-specific implementation of {@link LinearLayoutManager} provides basic

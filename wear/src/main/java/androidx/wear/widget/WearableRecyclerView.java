@@ -19,13 +19,14 @@ package androidx.wear.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Point;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.wear.R;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.wear.R;
 
 /**
  * Wearable specific implementation of the {@link RecyclerView} enabling {@link

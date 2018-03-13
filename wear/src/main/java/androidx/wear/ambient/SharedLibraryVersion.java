@@ -16,6 +16,7 @@
 package androidx.wear.ambient;
 
 import android.os.Build;
+
 import androidx.annotation.VisibleForTesting;
 
 import com.google.android.wearable.WearableSharedLib;

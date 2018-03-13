@@ -27,6 +27,9 @@ import android.graphics.RadialGradient;
 import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
 import android.os.Build;
+import android.util.AttributeSet;
+import android.view.View;
+
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -35,8 +38,6 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener;
 import androidx.wear.R;
 import androidx.wear.widget.SimpleAnimatorListener;
-import android.util.AttributeSet;
-import android.view.View;
 
 import java.util.concurrent.TimeUnit;
 

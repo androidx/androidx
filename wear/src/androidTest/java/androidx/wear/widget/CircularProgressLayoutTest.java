@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.wear.test.R;
 
 import org.junit.Before;

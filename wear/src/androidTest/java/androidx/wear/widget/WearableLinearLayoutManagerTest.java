@@ -23,10 +23,11 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.wear.test.R;
-import androidx.wear.widget.util.WakeLockRule;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import androidx.wear.test.R;
+import androidx.wear.widget.util.WakeLockRule;
 
 import org.junit.Before;
 import org.junit.Rule;
