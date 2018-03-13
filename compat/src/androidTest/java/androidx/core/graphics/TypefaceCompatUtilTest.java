@@ -21,9 +21,10 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
+
+import androidx.annotation.RequiresApi;
 import androidx.core.provider.MockFontProvider;
 
 import org.junit.Before;

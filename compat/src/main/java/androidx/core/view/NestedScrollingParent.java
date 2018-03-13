@@ -17,12 +17,13 @@
 
 package androidx.core.view;
 
-import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat.ScrollAxis;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat.ScrollAxis;
 
 /**
  * This interface should be implemented by {@link android.view.ViewGroup ViewGroup} subclasses

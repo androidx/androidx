@@ -19,11 +19,12 @@ package androidx.core.view;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import androidx.annotation.RestrictTo;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * This class is a mediator for accomplishing a given task, for example sharing a file. It is

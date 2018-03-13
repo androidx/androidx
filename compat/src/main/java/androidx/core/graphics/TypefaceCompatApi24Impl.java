@@ -23,15 +23,16 @@ import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.CancellationSignal;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import androidx.core.content.res.FontResourcesParserCompat.FontFileResourceEntry;
 import androidx.core.provider.FontsContractCompat.FontInfo;
-import androidx.collection.SimpleArrayMap;
-import android.util.Log;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;

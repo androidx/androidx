@@ -21,15 +21,16 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
+import android.view.View;
+import android.view.accessibility.AccessibilityNodeInfo;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
 import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
-import android.text.InputType;
-import android.view.View;
-import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;

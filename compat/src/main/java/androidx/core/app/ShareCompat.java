@@ -25,8 +25,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import androidx.annotation.StringRes;
-import androidx.core.content.IntentCompat;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
@@ -34,6 +32,9 @@ import android.view.ActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ShareActionProvider;
+
+import androidx.annotation.StringRes;
+import androidx.core.content.IntentCompat;
 
 import java.util.ArrayList;
 

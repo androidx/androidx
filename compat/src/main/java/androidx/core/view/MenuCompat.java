@@ -17,10 +17,11 @@
 package androidx.core.view;
 
 import android.annotation.SuppressLint;
-import androidx.core.internal.view.SupportMenu;
-import androidx.core.os.BuildCompat;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import androidx.core.internal.view.SupportMenu;
+import androidx.core.os.BuildCompat;
 
 /**
  * Helper for accessing features in {@link android.view.Menu}.

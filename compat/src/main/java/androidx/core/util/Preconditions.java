@@ -16,10 +16,11 @@
 
 package androidx.core.util;
 
+import android.text.TextUtils;
+
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import android.text.TextUtils;
 
 import java.util.Collection;
 import java.util.Locale;

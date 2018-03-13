@@ -17,8 +17,9 @@
 package androidx.core.text;
 
 import android.os.Build;
-import androidx.annotation.Nullable;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

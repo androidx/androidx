@@ -50,6 +50,7 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
+
 import androidx.core.app.TestSupportActivity;
 import androidx.core.graphics.drawable.IconCompat;
 

@@ -18,6 +18,7 @@ package androidx.core.app;
 
 import android.app.ActivityManager;
 import android.os.Build;
+
 import androidx.annotation.NonNull;
 
 /**

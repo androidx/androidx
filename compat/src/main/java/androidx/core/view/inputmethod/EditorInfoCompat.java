@@ -18,9 +18,10 @@ package androidx.core.view.inputmethod;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.view.inputmethod.EditorInfo;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.view.inputmethod.EditorInfo;
 
 /**
  * Helper for accessing features in {@link EditorInfo} in a backwards compatible fashion.

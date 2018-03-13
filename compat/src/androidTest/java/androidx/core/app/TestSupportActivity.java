@@ -17,8 +17,9 @@
 package androidx.core.app;
 
 import android.os.Bundle;
-import androidx.core.test.R;
 import android.view.WindowManager;
+
+import androidx.core.test.R;
 
 public class TestSupportActivity extends SupportActivity {
     @Override

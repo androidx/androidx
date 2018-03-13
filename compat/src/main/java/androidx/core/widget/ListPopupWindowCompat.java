@@ -17,11 +17,12 @@
 package androidx.core.widget;
 
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ListPopupWindow;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Helper for accessing features in {@link ListPopupWindow}.

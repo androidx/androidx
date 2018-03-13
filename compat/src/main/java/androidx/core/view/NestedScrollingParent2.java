@@ -17,11 +17,12 @@
 
 package androidx.core.view;
 
+import android.view.MotionEvent;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat.NestedScrollType;
 import androidx.core.view.ViewCompat.ScrollAxis;
-import android.view.MotionEvent;
-import android.view.View;
 
 /**
  * This interface should be implemented by {@link android.view.ViewGroup ViewGroup} subclasses

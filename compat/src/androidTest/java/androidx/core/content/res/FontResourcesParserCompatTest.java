@@ -29,12 +29,13 @@ import android.app.Instrumentation;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.os.Build;
-import androidx.core.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.provider.FontRequest;
 import android.util.Base64;
+
+import androidx.core.provider.FontRequest;
+import androidx.core.test.R;
 
 import org.junit.Before;
 import org.junit.Test;

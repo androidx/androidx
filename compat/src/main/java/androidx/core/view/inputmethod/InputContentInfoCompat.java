@@ -19,10 +19,11 @@ package androidx.core.view.inputmethod;
 import android.content.ClipDescription;
 import android.net.Uri;
 import android.os.Build;
+import android.view.inputmethod.InputContentInfo;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import android.view.inputmethod.InputContentInfo;
 
 /**
  * Helper for accessing features in InputContentInfo introduced after API level 13 in a backwards

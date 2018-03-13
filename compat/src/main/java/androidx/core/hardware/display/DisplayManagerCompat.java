@@ -19,11 +19,12 @@ package androidx.core.hardware.display;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
+import android.view.Display;
+import android.view.WindowManager;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import android.view.Display;
-import android.view.WindowManager;
 
 import java.util.WeakHashMap;
 

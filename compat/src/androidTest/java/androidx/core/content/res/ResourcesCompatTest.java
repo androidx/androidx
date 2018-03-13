@@ -28,14 +28,15 @@ import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.core.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
-import androidx.core.provider.FontsContractCompat;
-import androidx.core.provider.MockFontProvider;
 import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
+
+import androidx.annotation.NonNull;
+import androidx.core.provider.FontsContractCompat;
+import androidx.core.provider.MockFontProvider;
+import androidx.core.test.R;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -23,14 +23,14 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.util.SparseArray;
 
+import androidx.annotation.RequiresApi;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import androidx.annotation.RequiresApi;
 
 @RequiresApi(16)
 class NotificationCompatJellybean {
