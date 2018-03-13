@@ -19,12 +19,13 @@ package androidx.mediarouter.app;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import androidx.annotation.IntDef;
-import androidx.core.graphics.ColorUtils;
-import androidx.mediarouter.R;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+
+import androidx.annotation.IntDef;
+import androidx.core.graphics.ColorUtils;
+import androidx.mediarouter.R;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

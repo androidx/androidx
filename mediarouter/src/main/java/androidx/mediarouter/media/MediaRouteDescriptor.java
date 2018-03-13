@@ -21,8 +21,9 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.RestrictTo;
 import android.text.TextUtils;
+
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.Arrays;

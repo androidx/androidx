@@ -32,20 +32,22 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Display;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.hardware.display.DisplayManagerCompat;
-import androidx.media.VolumeProviderCompat;
-import android.support.v4.media.session.MediaSessionCompat;
 import androidx.core.util.Pair;
+import androidx.media.VolumeProviderCompat;
+import androidx.mediarouter.app.MediaRouteDiscoveryFragment;
 import androidx.mediarouter.media.MediaRouteProvider.ProviderMetadata;
 import androidx.mediarouter.media.MediaRouteProvider.RouteController;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.Display;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -59,8 +61,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import androidx.mediarouter.app.MediaRouteDiscoveryFragment;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
