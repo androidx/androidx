@@ -16,20 +16,13 @@
 
 package androidx.recyclerview.selection;
 
-import static org.junit.Assert.assertFalse;
-
 import static androidx.recyclerview.selection.testing.TestEvents.Touch.TAP;
+
+import static org.junit.Assert.assertFalse;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.MotionEvent;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.util.List;
 
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.selection.testing.SelectionProbe;
@@ -42,6 +35,13 @@ import androidx.recyclerview.selection.testing.TestItemKeyProvider;
 import androidx.recyclerview.selection.testing.TestOnItemActivatedListener;
 import androidx.recyclerview.selection.testing.TestRunnable;
 import androidx.recyclerview.selection.testing.TestSelectionPredicate;
+import androidx.recyclerview.widget.RecyclerView;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

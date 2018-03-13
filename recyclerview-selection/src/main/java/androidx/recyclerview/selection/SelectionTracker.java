@@ -21,13 +21,14 @@ import static androidx.core.util.Preconditions.checkArgument;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.GestureDetector;
+import android.view.HapticFeedbackConstants;
+import android.view.MotionEvent;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.GestureDetector;
-import android.view.HapticFeedbackConstants;
-import android.view.MotionEvent;
 
 import java.util.Set;
 

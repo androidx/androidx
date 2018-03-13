@@ -18,16 +18,16 @@ package androidx.recyclerview.selection.testing;
 
 import static org.junit.Assert.assertTrue;
 
+import android.view.ViewGroup;
+
+import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import androidx.recyclerview.selection.SelectionTracker;
 
 public class TestAdapter<K> extends Adapter<TestHolder> {
 

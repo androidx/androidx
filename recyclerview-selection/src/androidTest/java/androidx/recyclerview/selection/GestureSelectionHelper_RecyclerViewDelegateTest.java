@@ -24,11 +24,11 @@ import android.support.test.runner.AndroidJUnit4;
 import android.view.MotionEvent;
 import android.view.View;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import androidx.recyclerview.selection.GestureSelectionHelper.RecyclerViewDelegate;
 import androidx.recyclerview.selection.testing.TestEvents;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

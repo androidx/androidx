@@ -22,15 +22,7 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Rect;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import android.view.MotionEvent;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.util.Collections;
-import java.util.List;
 
 import androidx.recyclerview.selection.testing.TestAdapter;
 import androidx.recyclerview.selection.testing.TestAutoScroller;
@@ -38,6 +30,14 @@ import androidx.recyclerview.selection.testing.TestBandPredicate;
 import androidx.recyclerview.selection.testing.TestData;
 import androidx.recyclerview.selection.testing.TestEvents.Builder;
 import androidx.recyclerview.selection.testing.TestItemKeyProvider;
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.Collections;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

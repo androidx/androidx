@@ -16,10 +16,10 @@
 
 package androidx.recyclerview.selection.testing;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.MotionEvent;
 
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.recyclerview.widget.RecyclerView;
 
 public final class TestItemDetails extends ItemDetails<String> {
 

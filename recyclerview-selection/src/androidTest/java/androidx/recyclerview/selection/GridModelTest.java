@@ -16,16 +16,19 @@
 
 package androidx.recyclerview.selection;
 
+import static androidx.recyclerview.selection.GridModel.NOT_SET;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import static androidx.recyclerview.selection.GridModel.NOT_SET;
 
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.recyclerview.selection.testing.TestAdapter;
+import androidx.recyclerview.selection.testing.TestItemKeyProvider;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
 import org.junit.After;
@@ -37,9 +40,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nullable;
-
-import androidx.recyclerview.selection.testing.TestAdapter;
-import androidx.recyclerview.selection.testing.TestItemKeyProvider;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
