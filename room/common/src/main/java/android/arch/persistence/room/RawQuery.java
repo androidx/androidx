@@ -137,8 +137,8 @@ public @interface RawQuery {
      * Denotes the list of entities which are accessed in the provided query and should be observed
      * for invalidation if the query is observable.
      * <p>
-     * The listed classes should be {@link Entity Entities} that are linked from the containing
-     * {@link Database}.
+     * The listed classes should either be annotated with {@link Entity} or they should reference to
+     * at least 1 Entity (via {@link Embedded} or {@link Relation}).
      * <p>
      * Providing this field in a non-observable query has no impact.
      * <pre>

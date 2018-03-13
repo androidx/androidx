@@ -480,7 +480,7 @@ class EntityProcessor(baseContext: Context,
     }
 
     companion object {
-        private fun extractTableName(element: TypeElement, annotation: AnnotationMirror): String {
+        fun extractTableName(element: TypeElement, annotation: AnnotationMirror): String {
             val annotationValue = AnnotationMirrors
                     .getAnnotationValue(annotation, "tableName").value.toString()
             return if (annotationValue == "") {
