@@ -20,9 +20,10 @@ import static org.junit.Assert.assertTrue;
 
 import android.database.Cursor;
 import android.net.Uri;
-import androidx.contentpager.content.ContentPager.ContentCallback;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.contentpager.content.ContentPager.ContentCallback;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

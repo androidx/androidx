@@ -19,6 +19,7 @@ package androidx.contentpager.content;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
+
 import androidx.annotation.VisibleForTesting;
 
 import java.util.concurrent.CountDownLatch;

@@ -24,8 +24,9 @@ import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 /**
  * A {@link ContentPager.QueryRunner} that executes queries using a {@link LoaderManager}.
