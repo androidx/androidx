@@ -85,28 +85,28 @@ public abstract class WorkManager {
      * active.  If there is one pending, you can choose to let it run or replace it with your new
      * work.
      *
-     * All work in this chain will be automatically tagged with {@code tag} if it isn't already.
+     * The {@code name} uniquely identifies this set of work.
      *
      * If this method determines that new work should be enqueued and run, all records of previous
-     * work with {@code tag} will be pruned.  If this method determines that new work should NOT be
+     * work with {@code name} will be pruned.  If this method determines that new work should NOT be
      * run, then the entire chain will be considered a no-op.
      *
-     * @param tag A tag which should uniquely label all the work in this chain
+     * @param name A name which should uniquely label all the work in this chain
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}.
      * @param work One or more {@link Work} to enqueue. {@code REPLACE} ensures that
-     *             if there is pending work labelled with {@code tag}, it will be cancelled and the
+     *             if there is pending work labelled with {@code name}, it will be cancelled and the
      *             new work will run. {@code KEEP} will run the new sequence of work
-     *             only if there is no pending work labelled with {@code tag}.
+     *             only if there is no pending work labelled with {@code name}.
      *             {@code APPEND} will create a new sequence of work if there is no
-     *             existing work with {@code tag}; otherwise, {@code work} will be added as a child
-     *             of all leaf nodes labelled with {@code tag}.
+     *             existing work with {@code name}; otherwise, {@code work} will be added as a child
+     *             of all leaf nodes labelled with {@code name}.
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public final WorkContinuation beginWithUniqueTag(
-            @NonNull String tag,
+    public final WorkContinuation beginWithName(
+            @NonNull String name,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull Work... work) {
-        return beginWithUniqueTag(tag, existingWorkPolicy, Arrays.asList(work));
+        return beginWithName(name, existingWorkPolicy, Arrays.asList(work));
     }
 
     /**
@@ -115,25 +115,25 @@ public abstract class WorkManager {
      * active.  If there is one pending, you can choose to let it run or replace it with your new
      * work.
      *
-     * All work in this chain will be automatically tagged with {@code tag} if it isn't already.
+     * The {@code name} uniquely identifies this set of work.
      *
      * If this method determines that new work should be enqueued and run, all records of previous
-     * work with {@code tag} will be pruned.  If this method determines that new work should NOT be
+     * work with {@code name} will be pruned.  If this method determines that new work should NOT be
      * run, then the entire chain will be considered a no-op.
      *
-     * @param tag A tag which should uniquely label all the work in this chain
+     * @param name A name which should uniquely label all the work in this chain
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}.
      * @param work One or more {@link Work} to enqueue. {@code REPLACE} ensures that if there is
-     *             pending work labelled with {@code tag}, it will be cancelled and the new work
+     *             pending work labelled with {@code name}, it will be cancelled and the new work
      *             will run. {@code KEEP} will run the new sequence of work only if there is no
-     *             pending work labelled with {@code tag}.  {@code APPEND} will create a new
-     *             sequence of work if there is no existing work with {@code tag}; otherwise,
+     *             pending work labelled with {@code name}.  {@code APPEND} will create a new
+     *             sequence of work if there is no existing work with {@code name}; otherwise,
      *             {@code work} will be added as a child of all leaf nodes labelled with
-     *             {@code tag}.
+     *             {@code name}.
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public abstract WorkContinuation beginWithUniqueTag(
-            @NonNull String tag,
+    public abstract WorkContinuation beginWithName(
+            @NonNull String name,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<Work> work);
 

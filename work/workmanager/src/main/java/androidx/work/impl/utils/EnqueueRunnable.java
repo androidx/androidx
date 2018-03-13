@@ -46,6 +46,7 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
+import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
@@ -140,7 +141,7 @@ public class EnqueueRunnable implements Runnable {
                 workContinuation.getWorkManagerImpl(),
                 workContinuation.getWork(),
                 prerequisiteIds.toArray(new String[0]),
-                workContinuation.getUniqueTag(),
+                workContinuation.getName(),
                 workContinuation.getExistingWorkPolicy(),
                 workToBeScheduled);
 
@@ -154,7 +155,7 @@ public class EnqueueRunnable implements Runnable {
             WorkManagerImpl workManagerImpl,
             @NonNull List<? extends BaseWork> workList,
             String[] prerequisiteIds,
-            String uniqueTag,
+            String name,
             ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<InternalWorkImpl> workToBeScheduled) {
 
@@ -192,15 +193,15 @@ public class EnqueueRunnable implements Runnable {
             }
         }
 
-        boolean hasUniqueTag = !TextUtils.isEmpty(uniqueTag);
+        boolean isNamed = !TextUtils.isEmpty(name);
 
         // We only apply existing work policies for unique tag sequences that are the beginning of
         // chains.
-        boolean shouldApplyExistingWorkPolicy = hasUniqueTag && !hasPrerequisite;
+        boolean shouldApplyExistingWorkPolicy = isNamed && !hasPrerequisite;
         if (shouldApplyExistingWorkPolicy) {
             // Get everything with the unique tag.
             List<WorkSpec.IdAndState> existingWorkSpecIdAndStates =
-                    workDatabase.workSpecDao().getWorkSpecIdAndStatesForTag(uniqueTag);
+                    workDatabase.workSpecDao().getWorkSpecIdAndStatesForName(name);
 
             if (!existingWorkSpecIdAndStates.isEmpty()) {
                 // If appending, these are the new prerequisites.
@@ -232,9 +233,7 @@ public class EnqueueRunnable implements Runnable {
                     }
 
                     // Cancel all of these workers.
-                    CancelWorkRunnable cancelWorkRunnable =
-                            new CancelWorkRunnable(workManagerImpl, null, uniqueTag);
-                    cancelWorkRunnable.run();
+                    CancelWorkRunnable.forName(name, workManagerImpl).run();
                     // And delete all the database records.
                     WorkSpecDao workSpecDao = workDatabase.workSpecDao();
                     for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
@@ -274,9 +273,8 @@ public class EnqueueRunnable implements Runnable {
                 workDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
             }
 
-            // Enforce that the unique tag is always present.
-            if (hasUniqueTag) {
-                workDatabase.workTagDao().insert(new WorkTag(uniqueTag, work.getId()));
+            if (isNamed) {
+                workDatabase.workNameDao().insert(new WorkName(name, work.getId()));
             }
         }
 

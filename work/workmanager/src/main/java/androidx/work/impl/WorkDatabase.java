@@ -16,11 +16,9 @@
 
 package androidx.work.impl;
 
-import static androidx.work.impl.model.EnumTypeConverters.StateIds.CANCELLED;
+import static androidx.work.impl.model.EnumTypeConverters.StateIds.COMPLETED_STATES;
 import static androidx.work.impl.model.EnumTypeConverters.StateIds.ENQUEUED;
-import static androidx.work.impl.model.EnumTypeConverters.StateIds.FAILED;
 import static androidx.work.impl.model.EnumTypeConverters.StateIds.RUNNING;
-import static androidx.work.impl.model.EnumTypeConverters.StateIds.SUCCEEDED;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
@@ -41,6 +39,8 @@ import androidx.work.impl.model.AlarmInfoDao;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.EnumTypeConverters;
+import androidx.work.impl.model.WorkName;
+import androidx.work.impl.model.WorkNameDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
@@ -53,17 +53,20 @@ import androidx.work.impl.model.WorkTagDao;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 // TODO (rahulrav@) Figure out if / how we export the Room Schema
-@Database(entities = {Dependency.class, WorkSpec.class, WorkTag.class, AlarmInfo.class},
-        version = 1, exportSchema = false)
+@Database(entities = {
+        Dependency.class,
+        WorkSpec.class,
+        WorkTag.class,
+        AlarmInfo.class,
+        WorkName.class},
+        version = 1,
+        exportSchema = false)
 @TypeConverters(value = {Arguments.class, ContentUriTriggers.class, EnumTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "androidx.work.workdb";
     private static final String CLEANUP_SQL = "UPDATE workspec SET state=" + ENQUEUED
             + " WHERE state=" + RUNNING;
-
-    private static final String COMPLETED_STATES =
-            "(" + SUCCEEDED + ", " + FAILED + ", " + CANCELLED + ")";
 
     // Delete rows in the workspec table that...
     private static final String PRUNE_SQL_FORMAT = "DELETE FROM workspec WHERE "
@@ -146,4 +149,9 @@ public abstract class WorkDatabase extends RoomDatabase {
      * @return The Data Access Object for {@link AlarmInfo}s.
      */
     public abstract AlarmInfoDao alarmInfoDao();
+
+    /**
+     * @return The Data Access Object for {@link WorkName}s.
+     */
+    public abstract WorkNameDao workNameDao();
 }

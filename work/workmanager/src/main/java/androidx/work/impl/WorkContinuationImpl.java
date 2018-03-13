@@ -50,7 +50,7 @@ public class WorkContinuationImpl extends WorkContinuation
     private static final String TAG = "WorkContinuationImpl";
 
     private final WorkManagerImpl mWorkManagerImpl;
-    private final String mUniqueTag;
+    private final String mName;
     private final ExistingWorkPolicy mExistingWorkPolicy;
     private final List<? extends BaseWork> mWork;
     private final List<String> mIds;
@@ -64,8 +64,8 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @Nullable
-    public String getUniqueTag() {
-        return mUniqueTag;
+    public String getName() {
+        return mName;
     }
 
     public ExistingWorkPolicy getExistingWorkPolicy() {
@@ -113,19 +113,19 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
-            String uniqueTag,
+            String name,
             ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<? extends BaseWork> work) {
-        this(workManagerImpl, uniqueTag, existingWorkPolicy, work, null);
+        this(workManagerImpl, name, existingWorkPolicy, work, null);
     }
 
     WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
-            String uniqueTag,
+            String name,
             ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<? extends BaseWork> work,
             @Nullable List<WorkContinuationImpl> parents) {
         mWorkManagerImpl = workManagerImpl;
-        mUniqueTag = uniqueTag;
+        mName = name;
         mExistingWorkPolicy = existingWorkPolicy;
         mWork = work;
         mParents = parents;
@@ -148,7 +148,7 @@ public class WorkContinuationImpl extends WorkContinuation
         // TODO (rahulrav@) We need to decide if we want to allow chaining of continuations after
         // an initial call to enqueue()
         return new WorkContinuationImpl(mWorkManagerImpl,
-                mUniqueTag,
+                mName,
                 ExistingWorkPolicy.KEEP,
                 work,
                 Collections.singletonList(this));

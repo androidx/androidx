@@ -354,10 +354,10 @@ public class WorkManagerImplTest extends WorkManagerTest {
         mWorkManagerImpl.beginWith(work0).then(work1).then(work2).enqueue();
 
         WorkTagDao workTagDao = mDatabase.workTagDao();
-        assertThat(workTagDao.getWorkSpecsWithTag(firstTag),
+        assertThat(workTagDao.getWorkSpecIdsWithTag(firstTag),
                 containsInAnyOrder(work0.getId(), work1.getId()));
-        assertThat(workTagDao.getWorkSpecsWithTag(secondTag), containsInAnyOrder(work0.getId()));
-        assertThat(workTagDao.getWorkSpecsWithTag(thirdTag), emptyCollectionOf(String.class));
+        assertThat(workTagDao.getWorkSpecIdsWithTag(secondTag), containsInAnyOrder(work0.getId()));
+        assertThat(workTagDao.getWorkSpecIdsWithTag(thirdTag), emptyCollectionOf(String.class));
     }
 
     @Test
@@ -410,34 +410,37 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testUniqueTagSequence_setsUniqueTag() {
-        final String testTag = "mytag";
+    public void testBeginWithName_setsUniqueName() {
+        final String testName = "myname";
 
         Work work = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.beginWithUniqueTag(testTag, REPLACE)
+        mWorkManagerImpl.beginWithName(testName, REPLACE)
                 .then(work)
                 .enqueue();
 
-        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(work.getId(), isIn(workSpecIds));
     }
 
     @Test
     @SmallTest
-    public void testUniqueTagSequence_deletesOldTagsOnReplace() {
-        final String testTag = "mytag";
+    public void testBeginWithName_deletesOldWorkOnReplace() {
+        final String testName = "myname";
 
-        Work originalWork = new Work.Builder(TestWorker.class).addTag(testTag).build();
-        insertWorkSpecAndTags(originalWork);
+        Work originalWork = new Work.Builder(InfiniteTestWorker.class).build();
+        mWorkManagerImpl.beginWithName(testName, KEEP, originalWork).enqueue();
+
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
+        assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));
 
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, REPLACE, replacementWork1)
+                .beginWithName(testName, REPLACE, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 
-        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(
                 workSpecIds,
                 containsInAnyOrder(replacementWork1.getId(), replacementWork2.getId()));
@@ -450,20 +453,23 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testUniqueTagSequence_keepsExistingWorkOnKeep() {
-        final String testTag = "mytag";
+    public void testBeginWithName_keepsExistingWorkOnKeep() {
+        final String testName = "myname";
 
-        Work originalWork = new Work.Builder(TestWorker.class).addTag(testTag).build();
-        insertWorkSpecAndTags(originalWork);
+        Work originalWork = new Work.Builder(InfiniteTestWorker.class).build();
+        mWorkManagerImpl.beginWithName(testName, KEEP, originalWork).enqueue();
+
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
+        assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));
 
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, KEEP, replacementWork1)
+                .beginWithName(testName, KEEP, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 
-        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
@@ -474,23 +480,23 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testUniqueTagSequence_replacesExistingWorkOnKeepWhenExistingWorkIsFinished() {
-        final String testTag = "mytag";
+    public void testBeginWithName_replacesExistingWorkOnKeepWhenExistingWorkIsFinished() {
+        final String testName = "myname";
 
-        Work originalWork = new Work.Builder(TestWorker.class)
-                .withInitialState(SUCCEEDED)
-                .addTag(testTag)
-                .build();
-        insertWorkSpecAndTags(originalWork);
+        Work originalWork = new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
+        mWorkManagerImpl.beginWithName(testName, KEEP, originalWork).enqueue();
+
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
+        assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));
 
         Work replacementWork1 = new Work.Builder(TestWorker.class).build();
         Work replacementWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, KEEP, replacementWork1)
+                .beginWithName(testName, KEEP, replacementWork1)
                 .then(replacementWork2)
                 .enqueue();
 
-        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds,
                 containsInAnyOrder(replacementWork1.getId(), replacementWork2.getId()));
 
@@ -502,20 +508,23 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testUniqueTagSequence_appendsExistingWorkOnAppend() {
-        final String testTag = "mytag";
+    public void testBeginWithName_appendsExistingWorkOnAppend() {
+        final String testName = "myname";
 
-        Work originalWork = new Work.Builder(TestWorker.class).addTag(testTag).build();
-        insertWorkSpecAndTags(originalWork);
+        Work originalWork = new Work.Builder(InfiniteTestWorker.class).build();
+        mWorkManagerImpl.beginWithName(testName, KEEP, originalWork).enqueue();
+
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
+        assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));
 
         Work appendWork1 = new Work.Builder(TestWorker.class).build();
         Work appendWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, APPEND, appendWork1)
+                .beginWithName(testName, APPEND, appendWork1)
                 .then(appendWork2)
                 .enqueue();
 
-        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds,
                 containsInAnyOrder(originalWork.getId(), appendWork1.getId(), appendWork2.getId()));
 
@@ -530,35 +539,34 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testUniqueTagSequence_appendsExistingWorkToOnlyLeavesOnAppend() {
-        final String testTag = "mytag";
+    public void testBeginWithName_appendsExistingWorkToOnlyLeavesOnAppend() {
+        final String testName = "myname";
 
-        Work originalWork1 = new Work.Builder(TestWorker.class).addTag(testTag).build();
-        Work originalWork2 = new Work.Builder(TestWorker.class).addTag(testTag).build();
-        Work originalWork3 = new Work.Builder(TestWorker.class).addTag(testTag).build();
-        Work originalWork4 = new Work.Builder(TestWorker.class).addTag(testTag).build();
-        insertWorkSpecAndTags(originalWork1);
-        insertWorkSpecAndTags(originalWork2);
-        insertWorkSpecAndTags(originalWork3);
-        insertWorkSpecAndTags(originalWork4);
+        Work originalWork1 = new Work.Builder(InfiniteTestWorker.class).build();
+        Work originalWork2 = new Work.Builder(InfiniteTestWorker.class).build();
+        Work originalWork3 = new Work.Builder(InfiniteTestWorker.class).build();
+        Work originalWork4 = new Work.Builder(InfiniteTestWorker.class).build();
+        mWorkManagerImpl.beginWithName(testName, KEEP, originalWork1)
+                .then(originalWork2)
+                .then(originalWork3, originalWork4)
+                .enqueue();
 
-        Dependency dependency21 = new Dependency(originalWork2.getId(), originalWork1.getId());
-        Dependency dependency32 = new Dependency(originalWork3.getId(), originalWork2.getId());
-        Dependency dependency42 = new Dependency(originalWork4.getId(), originalWork2.getId());
-
-        DependencyDao dependencyDao = mDatabase.dependencyDao();
-        dependencyDao.insertDependency(dependency21);
-        dependencyDao.insertDependency(dependency32);
-        dependencyDao.insertDependency(dependency42);
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
+        assertThat(workSpecIds,
+                containsInAnyOrder(
+                        originalWork1.getId(),
+                        originalWork2.getId(),
+                        originalWork3.getId(),
+                        originalWork4.getId()));
 
         Work appendWork1 = new Work.Builder(TestWorker.class).build();
         Work appendWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, APPEND, appendWork1)
+                .beginWithName(testName, APPEND, appendWork1)
                 .then(appendWork2)
                 .enqueue();
 
-        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds,
                 containsInAnyOrder(
                         originalWork1.getId(),
@@ -576,6 +584,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(workSpecDao.getState(appendWork1.getId()), is(BLOCKED));
         assertThat(workSpecDao.getState(appendWork2.getId()), is(BLOCKED));
 
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
         assertThat(dependencyDao.getPrerequisites(appendWork1.getId()),
                 containsInAnyOrder(originalWork3.getId(), originalWork4.getId()));
         assertThat(dependencyDao.getPrerequisites(appendWork2.getId()),
@@ -584,17 +593,17 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testUniqueTagSequence_insertsExistingWorkWhenNothingToAppendTo() {
-        final String testTag = "mytag";
+    public void testBeginWithName_insertsExistingWorkWhenNothingToAppendTo() {
+        final String testName = "myname";
 
         Work appendWork1 = new Work.Builder(TestWorker.class).build();
         Work appendWork2 = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithUniqueTag(testTag, APPEND, appendWork1)
+                .beginWithName(testName, APPEND, appendWork1)
                 .then(appendWork2)
                 .enqueue();
 
-        List<String> workSpecIds = mDatabase.workTagDao().getWorkSpecsWithTag(testTag);
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds,
                 containsInAnyOrder(appendWork1.getId(), appendWork2.getId()));
     }
