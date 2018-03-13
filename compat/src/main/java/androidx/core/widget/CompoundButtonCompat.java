@@ -20,12 +20,13 @@ import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.Log;
+import android.widget.CompoundButton;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.graphics.drawable.DrawableCompat;
-import android.util.Log;
-import android.widget.CompoundButton;
 
 import java.lang.reflect.Field;
 

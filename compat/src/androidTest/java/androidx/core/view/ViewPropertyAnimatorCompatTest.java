@@ -19,10 +19,11 @@ package androidx.core.view;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
-import androidx.core.test.R;
 import android.support.test.filters.MediumTest;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.View;
+
+import androidx.core.test.R;
 
 import org.junit.Before;
 import org.junit.Test;

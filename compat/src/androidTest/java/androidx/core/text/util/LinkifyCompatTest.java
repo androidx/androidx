@@ -24,13 +24,14 @@ import static org.junit.Assert.fail;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.util.PatternsCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.text.util.Linkify.MatchFilter;
 import android.text.util.Linkify.TransformFilter;
+
+import androidx.core.util.PatternsCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

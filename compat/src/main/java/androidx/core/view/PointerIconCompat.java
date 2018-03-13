@@ -17,13 +17,15 @@
 package androidx.core.view;
 
 import static android.os.Build.VERSION.SDK_INT;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import androidx.annotation.RestrictTo;
 import android.view.PointerIcon;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Helper for accessing features in {@link android.view.PointerIcon} in a backwards compatible

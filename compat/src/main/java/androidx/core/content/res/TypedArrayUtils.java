@@ -21,14 +21,15 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+import android.util.TypedValue;
+
 import androidx.annotation.AnyRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleableRes;
-import android.util.AttributeSet;
-import android.util.TypedValue;
 
 import org.xmlpull.v1.XmlPullParser;
 

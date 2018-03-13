@@ -18,10 +18,11 @@ package androidx.core.text;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
-import android.text.TextUtils;
 
 import java.util.Locale;
 

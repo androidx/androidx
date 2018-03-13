@@ -17,11 +17,12 @@
 
 package androidx.core.view;
 
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat.NestedScrollType;
 import androidx.core.view.ViewCompat.ScrollAxis;
-import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * Helper class for implementing nested scrolling parent views compatible with Android platform

@@ -32,6 +32,7 @@ import android.os.Environment;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.core.content.FileProvider.SimplePathStrategy;
 
 import org.junit.Before;

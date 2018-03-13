@@ -18,6 +18,7 @@ package androidx.core.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
+
 import androidx.core.test.R;
 
 public class ContentLoadingProgressBarActivity extends Activity {

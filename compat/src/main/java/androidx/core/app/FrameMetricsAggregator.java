@@ -23,13 +23,14 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.SparseIntArray;
+import android.view.Window;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import android.util.SparseIntArray;
-import android.view.Window;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

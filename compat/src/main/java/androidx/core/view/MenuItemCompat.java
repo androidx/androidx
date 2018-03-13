@@ -20,13 +20,14 @@ import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
-import androidx.core.internal.view.SupportMenuItem;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.internal.view.SupportMenuItem;
 
 /**
  * Helper for accessing features in {@link android.view.MenuItem}.

@@ -17,12 +17,13 @@
 
 package androidx.core.view;
 
-import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat.NestedScrollType;
-import androidx.core.view.ViewCompat.ScrollAxis;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
+
+import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat.NestedScrollType;
+import androidx.core.view.ViewCompat.ScrollAxis;
 
 /**
  * This interface should be implemented by {@link View View} subclasses that wish

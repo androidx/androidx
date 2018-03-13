@@ -24,11 +24,12 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Pair;
-import android.view.View;
 
 /**
  * Helper for accessing features in {@link android.app.ActivityOptions} in a backwards compatible

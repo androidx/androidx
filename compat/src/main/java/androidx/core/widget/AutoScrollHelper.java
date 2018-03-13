@@ -18,8 +18,6 @@ package androidx.core.widget;
 
 import android.content.res.Resources;
 import android.os.SystemClock;
-import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,6 +25,9 @@ import android.view.ViewConfiguration;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 
 /**
  * AutoScrollHelper is a utility class for adding automatic edge-triggered
