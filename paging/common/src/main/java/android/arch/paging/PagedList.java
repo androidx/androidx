@@ -542,6 +542,14 @@ public abstract class PagedList<T> extends AbstractList<T> {
     }
 
     /**
+     * Return the DataSource that provides data to this PagedList.
+     *
+     * @return the DataSource of this PagedList.
+     */
+    @NonNull
+    public abstract DataSource<?, T> getDataSource();
+
+    /**
      * Return the key for the position passed most recently to {@link #loadAround(int)}.
      * <p>
      * When a PagedList is invalidated, you can pass the key returned by this function to initialize
