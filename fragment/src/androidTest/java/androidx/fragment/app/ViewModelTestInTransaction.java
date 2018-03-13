@@ -22,11 +22,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.annotation.Nullable;
 import androidx.fragment.app.test.EmptyFragmentTestActivity;
 import androidx.fragment.app.test.TestViewModel;
 

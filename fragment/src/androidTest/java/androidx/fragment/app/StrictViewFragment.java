@@ -18,10 +18,11 @@
 package androidx.fragment.app;
 
 import android.os.Bundle;
-import androidx.fragment.test.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.test.R;
 
 public class StrictViewFragment extends StrictFragment {
     boolean mOnCreateViewCalled, mOnViewCreatedCalled, mOnDestroyViewCalled;

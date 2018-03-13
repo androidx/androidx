@@ -26,10 +26,11 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
-import androidx.fragment.app.test.FragmentTestActivity;
 import android.util.Pair;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+
+import androidx.fragment.app.test.FragmentTestActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

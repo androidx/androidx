@@ -18,11 +18,12 @@ package androidx.fragment.app;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.core.util.LogWriter;
-import androidx.core.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+
+import androidx.core.util.LogWriter;
+import androidx.core.view.ViewCompat;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;

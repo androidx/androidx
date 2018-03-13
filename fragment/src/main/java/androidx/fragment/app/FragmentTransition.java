@@ -17,13 +17,13 @@ package androidx.fragment.app;
 
 import android.graphics.Rect;
 import android.os.Build;
-import androidx.collection.ArrayMap;
-
-import androidx.core.app.SharedElementCallback;
-import androidx.core.view.ViewCompat;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.collection.ArrayMap;
+import androidx.core.app.SharedElementCallback;
+import androidx.core.view.ViewCompat;
 
 import java.util.ArrayList;
 import java.util.Collection;

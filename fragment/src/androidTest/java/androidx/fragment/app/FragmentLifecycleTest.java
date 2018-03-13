@@ -35,20 +35,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.app.ActivityCompat;
-
-import androidx.fragment.app.test.EmptyFragmentTestActivity;
-import androidx.fragment.app.test.FragmentTestActivity;
-import androidx.core.view.ViewCompat;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -56,6 +48,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.view.ViewCompat;
+import androidx.fragment.app.test.EmptyFragmentTestActivity;
+import androidx.fragment.app.test.FragmentTestActivity;
+import androidx.fragment.test.R;
 
 import org.junit.Assert;
 import org.junit.Rule;

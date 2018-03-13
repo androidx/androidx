@@ -19,6 +19,8 @@ package androidx.fragment.app;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Bundle;
+import android.view.View;
+
 import androidx.annotation.AnimRes;
 import androidx.annotation.AnimatorRes;
 import androidx.annotation.IdRes;
@@ -27,7 +29,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
-import android.view.View;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

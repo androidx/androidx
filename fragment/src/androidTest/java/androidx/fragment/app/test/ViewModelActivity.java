@@ -18,10 +18,11 @@ package androidx.fragment.app.test;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
-import androidx.fragment.test.R;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.test.R;
 
 public class ViewModelActivity extends FragmentActivity {
     public static final String KEY_FRAGMENT_MODEL = "fragment-model";
