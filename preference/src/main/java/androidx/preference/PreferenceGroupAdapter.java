@@ -37,8 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An adapter that connects a RecyclerView to the {@link Preference} objects contained in the
- * associated {@link PreferenceGroup}.
+ * An adapter that connects a {@link RecyclerView} to the {@link Preference} objects contained in
+ * the associated {@link PreferenceGroup}.
  *
  * @hide
  */
@@ -55,13 +55,13 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     /**
      * Maps a position into this adapter -> {@link Preference}. These
      * {@link Preference}s don't have to be direct children of this
-     * {@link PreferenceGroup}, they can be grand children or younger)
+     * {@link PreferenceGroup}, they can be grandchildren or younger).
      */
     private List<Preference> mPreferenceList;
 
     /**
      * Contains a sorted list of all preferences in this adapter regardless of visibility. This is
-     * used to construct {@link #mPreferenceList}
+     * used to construct {@link #mPreferenceList}.
      */
     private List<Preference> mPreferenceListInternal;
 
@@ -83,40 +83,6 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
             syncMyPreferences();
         }
     };
-
-    private static class PreferenceLayout {
-        private int mResId;
-        private int mWidgetResId;
-        private String mName;
-
-        PreferenceLayout() {}
-
-        PreferenceLayout(PreferenceLayout other) {
-            mResId = other.mResId;
-            mWidgetResId = other.mWidgetResId;
-            mName = other.mName;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof PreferenceLayout)) {
-                return false;
-            }
-            final PreferenceLayout other = (PreferenceLayout) o;
-            return mResId == other.mResId
-                    && mWidgetResId == other.mWidgetResId
-                    && TextUtils.equals(mName, other.mName);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = 17;
-            result = 31 * result + mResId;
-            result = 31 * result + mWidgetResId;
-            result = 31 * result + mName.hashCode();
-            return result;
-        }
-    }
 
     public PreferenceGroupAdapter(PreferenceGroup preferenceGroup) {
         this(preferenceGroup, new Handler());
@@ -397,5 +363,40 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
             }
         }
         return RecyclerView.NO_POSITION;
+    }
+
+    private static class PreferenceLayout {
+        private int mResId;
+        private int mWidgetResId;
+        private String mName;
+
+        PreferenceLayout() {
+        }
+
+        PreferenceLayout(PreferenceLayout other) {
+            mResId = other.mResId;
+            mWidgetResId = other.mWidgetResId;
+            mName = other.mName;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof PreferenceLayout)) {
+                return false;
+            }
+            final PreferenceLayout other = (PreferenceLayout) o;
+            return mResId == other.mResId
+                    && mWidgetResId == other.mWidgetResId
+                    && TextUtils.equals(mName, other.mName);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = 17;
+            result = 31 * result + mResId;
+            result = 31 * result + mWidgetResId;
+            result = 31 * result + mName.hashCode();
+            return result;
+        }
     }
 }

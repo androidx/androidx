@@ -27,7 +27,8 @@ import androidx.annotation.RestrictTo;
 import androidx.preference.R;
 
 /**
- * Extension of ImageView that correctly applies maxWidth and maxHeight.
+ * Extension of {@link ImageView} that correctly applies maxWidth and maxHeight.
+ *
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
@@ -58,11 +59,6 @@ public class PreferenceImageView extends ImageView {
 
         a.recycle();
     }
-
-//    public PreferenceImageView(Context context, AttributeSet attrs, int defStyleAttr,
-//            int defStyleRes) {
-//        super(context, attrs, defStyleAttr, defStyleRes);
-//    }
 
     @Override
     public void setMaxWidth(int maxWidth) {

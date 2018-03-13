@@ -30,8 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
- * A version of {@link ListPreference} that presents the options in a
- * drop down menu rather than a dialog.
+ * A {@link ListPreference} that presents the options in a drop down menu rather than a dialog.
  */
 public class DropDownPreference extends ListPreference {
 
@@ -39,6 +38,23 @@ public class DropDownPreference extends ListPreference {
     private final ArrayAdapter mAdapter;
 
     private Spinner mSpinner;
+
+    private final OnItemSelectedListener mItemSelectedListener = new OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
+            if (position >= 0) {
+                String value = getEntryValues()[position].toString();
+                if (!value.equals(getValue()) && callChangeListener(value)) {
+                    setValue(value);
+                }
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+            // noop
+        }
+    };
 
     public DropDownPreference(Context context) {
         this(context, null);
@@ -72,15 +88,14 @@ public class DropDownPreference extends ListPreference {
         updateEntries();
     }
 
-
     /**
-     * By default, this class uses a simple {@link android.widget.ArrayAdapter}. But if you need
-     * a more complicated {@link android.widget.ArrayAdapter}, this method can be overridden to
-     * create a custom one.
-     * <p> Note: This method is called from the constructor. So, overridden methods will get called
+     * By default, this class uses a simple {@link ArrayAdapter}. But if you need a more
+     * complicated adapter, this method can be overridden to create a custom one.
+     *
+     * <p>Note: This method is called from the constructor. Overridden methods will get called
      * before any subclass initialization.
      *
-     * @return The custom {@link android.widget.ArrayAdapter} that needs to be used with this class.
+     * @return The custom {@link ArrayAdapter} that needs to be used with this class
      */
     protected ArrayAdapter createAdapter() {
         return new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_dropdown_item);
@@ -124,28 +139,11 @@ public class DropDownPreference extends ListPreference {
 
     @Override
     public void onBindViewHolder(PreferenceViewHolder view) {
-        mSpinner = (Spinner) view.itemView.findViewById(R.id.spinner);
+        mSpinner = view.itemView.findViewById(R.id.spinner);
         mSpinner.setAdapter(mAdapter);
         mSpinner.setOnItemSelectedListener(mItemSelectedListener);
         mSpinner.setSelection(findSpinnerIndexOfValue(getValue()));
         super.onBindViewHolder(view);
     }
-
-    private final OnItemSelectedListener mItemSelectedListener = new OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
-            if (position >= 0) {
-                String value = getEntryValues()[position].toString();
-                if (!value.equals(getValue()) && callChangeListener(value)) {
-                    setValue(value);
-                }
-            }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-            // noop
-        }
-    };
 }
 

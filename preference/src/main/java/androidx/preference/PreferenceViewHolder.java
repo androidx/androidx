@@ -24,16 +24,15 @@ import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * A {@link RecyclerView.ViewHolder} class which caches views associated
- * with the default {@link Preference} layouts. Cached views can be retrieved by calling
- * {@link #findViewById(int)}.
+ * A {@link RecyclerView.ViewHolder} class which caches views associated with the default
+ * {@link Preference} layouts. Cached views can be retrieved by calling {@link #findViewById(int)}.
  */
 public class PreferenceViewHolder extends RecyclerView.ViewHolder {
     private final SparseArray<View> mCachedViews = new SparseArray<>(4);
     private boolean mDividerAllowedAbove;
     private boolean mDividerAllowedBelow;
 
-    /* package */ PreferenceViewHolder(View itemView) {
+    PreferenceViewHolder(View itemView) {
         super(itemView);
 
         // Pre-cache the views that we know in advance we'll want to find
@@ -56,7 +55,7 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
      * yet cached, it falls back to calling {@link View#findViewById(int)} and caches the result.
      *
      * @param id Resource ID of the view to find
-     * @return The view, or null if no view with the requested ID is found.
+     * @return The view, or {@code null} if no view with the requested ID is found
      */
     public View findViewById(@IdRes int id) {
         final View cachedView = mCachedViews.get(id);
@@ -75,7 +74,7 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
      * Dividers are only drawn between items if both items allow it, or above the first and below
      * the last item if that item allows it.
      *
-     * @return true if dividers are allowed above this item
+     * @return {@code true} if dividers are allowed above this item
      */
     public boolean isDividerAllowedAbove() {
         return mDividerAllowedAbove;
@@ -89,7 +88,7 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
      * same value as returned by {@link Preference#isSelectable()}, so that non-selectable items
      * do not have a divider drawn above them.
      *
-     * @param allowed false to prevent dividers being drawn above this item
+     * @param allowed False to prevent dividers being drawn above this item
      */
     public void setDividerAllowedAbove(boolean allowed) {
         mDividerAllowedAbove = allowed;
@@ -99,7 +98,7 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
      * Dividers are only drawn between items if both items allow it, or above the first and below
      * the last item if that item allows it.
      *
-     * @return true if dividers are allowed below this item
+     * @return {@code true} if dividers are allowed below this item
      */
     public boolean isDividerAllowedBelow() {
         return mDividerAllowedBelow;
@@ -113,7 +112,7 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
      * same value as returned by {@link Preference#isSelectable()}, so that non-selectable items
      * do not have a divider drawn below them.
      *
-     * @param allowed false to prevent dividers being drawn below this item
+     * @param allowed False to prevent dividers being drawn below this item
      */
     public void setDividerAllowedBelow(boolean allowed) {
         mDividerAllowedBelow = allowed;

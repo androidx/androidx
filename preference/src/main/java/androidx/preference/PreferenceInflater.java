@@ -34,27 +34,19 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
 /**
- * The {@link PreferenceInflater} is used to inflate preference hierarchies from
- * XML files.
+ * This inflater is used to inflate preference hierarchies from XML files.
  */
 class PreferenceInflater {
-    private static final String TAG = "PreferenceInflater";
-
-    private static final Class<?>[] CONSTRUCTOR_SIGNATURE = new Class[] {
+    private static final Class<?>[] CONSTRUCTOR_SIGNATURE = new Class[]{
             Context.class, AttributeSet.class};
 
     private static final HashMap<String, Constructor> CONSTRUCTOR_MAP = new HashMap<>();
-
-    private final Context mContext;
-
-    private final Object[] mConstructorArgs = new Object[2];
-
-    private PreferenceManager mPreferenceManager;
-
-    private String[] mDefaultPackages;
-
     private static final String INTENT_TAG_NAME = "intent";
     private static final String EXTRA_TAG_NAME = "extra";
+    private final Context mContext;
+    private final Object[] mConstructorArgs = new Object[2];
+    private PreferenceManager mPreferenceManager;
+    private String[] mDefaultPackages;
 
     public PreferenceInflater(Context context, PreferenceManager preferenceManager) {
         mContext = context;
@@ -66,7 +58,7 @@ class PreferenceInflater {
 
         // Handle legacy case for de-Jetification. These preference classes were originally
         // in separate packages, so we need two defaults when de-Jetified.
-        setDefaultPackages(new String[] {
+        setDefaultPackages(new String[]{
                 // Preference was originally in android.support.v7.preference.
                 Preference.class.getPackage().getName() + ".",
                 // SwitchPreference was originally in android.support.v14.preference.
@@ -75,44 +67,41 @@ class PreferenceInflater {
     }
 
     /**
-     * Sets the default package that will be searched for classes to construct
-     * for tag names that have no explicit package.
+     * Sets the default package that will be searched for classes to construct for tag names that
+     * have no explicit package.
      *
-     * @param defaultPackage The default package. This will be prepended to the
-     *            tag name, so it should end with a period.
+     * @param defaultPackage The default package. This will be prepended to the tag name, so it
+     *                       should end with a period.
      */
     public void setDefaultPackages(String[] defaultPackage) {
         mDefaultPackages = defaultPackage;
     }
 
     /**
-     * Returns the default package, or null if it is not set.
+     * Returns the default package, or {@code }null if it is not set.
      *
+     * @return The default package
      * @see #setDefaultPackages(String[])
-     * @return The default package.
      */
     public String[] getDefaultPackages() {
         return mDefaultPackages;
     }
 
     /**
-     * Return the context we are running in, for access to resources, class
-     * loader, etc.
+     * Return the context we are running in, for access to resources, class loader, etc.
      */
     public Context getContext() {
         return mContext;
     }
 
     /**
-     * Inflate a new item hierarchy from the specified xml resource. Throws
-     * InflaterException if there is an error.
+     * Inflate a new item hierarchy from the specified xml resource. Throws InflaterException if
+     * there is an error.
      *
-     * @param resource ID for an XML resource to load (e.g.,
-     *        <code>R.layout.main_page</code>)
-     * @param root Optional parent of the generated hierarchy.
-     * @return The root of the inflated hierarchy. If root was supplied,
-     *         this is the root item; otherwise it is the root of the inflated
-     *         XML file.
+     * @param resource ID for an XML resource to load (e.g., <code>R.layout.main_page</code>)
+     * @param root     Optional parent of the generated hierarchy
+     * @return The root of the inflated hierarchy. If root was supplied, this is the root item;
+     * otherwise it is the root of the inflated XML file.
      */
     public Preference inflate(int resource, @Nullable PreferenceGroup root) {
         XmlResourceParser parser = getContext().getResources().getXml(resource);
@@ -124,23 +113,21 @@ class PreferenceInflater {
     }
 
     /**
-     * Inflate a new hierarchy from the specified XML node. Throws
-     * InflaterException if there is an error.
-     * <p>
-     * <em><strong>Important</strong></em>&nbsp;&nbsp;&nbsp;For performance
-     * reasons, inflation relies heavily on pre-processing of XML files
-     * that is done at build time. Therefore, it is not currently possible to
-     * use inflater with an XmlPullParser over a plain XML file at runtime.
+     * Inflate a new hierarchy from the specified XML node. Throws InflaterException if there is
+     * an error.
      *
-     * @param parser XML dom node containing the description of the
-     *        hierarchy.
-     * @param root Optional to be the parent of the generated hierarchy (if
-     *        <em>attachToRoot</em> is true), or else simply an object that
-     *        provides a set of values for root of the returned
-     *        hierarchy (if <em>attachToRoot</em> is false.)
-     * @return The root of the inflated hierarchy. If root was supplied,
-     *         this is root; otherwise it is the root of
-     *         the inflated XML file.
+     * <p><em><strong>Important</strong></em>&nbsp;&nbsp;&nbsp;For performance reasons,
+     * inflation relies heavily on pre-processing of XML files that is done at build time.
+     * Therefore, it is not currently possible to use inflater with an XmlPullParser over a plain
+     * XML file at runtime.
+     *
+     * @param parser XML dom node containing the description of the hierarchy
+     * @param root   Optional to be the parent of the generated hierarchy (if
+     *               <em>attachToRoot</em> is true), or else simply an object that provides a set
+     *               of values for root of the returned hierarchy (if <em>attachToRoot</em> is
+     *               false).
+     * @return The root of the inflated hierarchy. If root was supplied, this is root; otherwise
+     * it is the root of the inflated XML file.
      */
     public Preference inflate(XmlPullParser parser, @Nullable PreferenceGroup root) {
         synchronized (mConstructorArgs) {
@@ -200,21 +187,17 @@ class PreferenceInflater {
     }
 
     /**
-     * Low-level function for instantiating by name. This attempts to
-     * instantiate class of the given <var>name</var> found in this
-     * inflater's ClassLoader.
+     * Low-level function for instantiating by name. This attempts to instantiate class of the
+     * given <var>name</var> found in this inflater's ClassLoader.
      *
-     * <p>
-     * There are two things that can happen in an error case: either the
-     * exception describing the error will be thrown, or a null will be
-     * returned. You must deal with both possibilities -- the former will happen
-     * the first time createItem() is called for a class of a particular name,
-     * the latter every time there-after for that class name.
+     * <p>There are two things that can happen in an error case: either the exception describing
+     * the error will be thrown, or a null will be returned. You must deal with both
+     * possibilities -- the former will happen the first time createItem() is called for a class
+     * of a particular name, the latter every time there-after for that class name.
      *
-     * @param name The full name of the class to be instantiated.
-     * @param attrs The XML attributes supplied for this instance.
-     *
-     * @return The newly instantiated item, or null.
+     * @param name  The full name of the class to be instantiated
+     * @param attrs The XML attributes supplied for this instance
+     * @return The newly instantiated item, or {@code null}
      */
     private Preference createItem(@NonNull String name, @Nullable String[] prefixes,
             AttributeSet attrs)
@@ -270,14 +253,13 @@ class PreferenceInflater {
     }
 
     /**
-     * This routine is responsible for creating the correct subclass of item
-     * given the xml element name. Override it to handle custom item objects. If
-     * you override this in your subclass be sure to call through to
-     * super.onCreateItem(name) for names you do not recognize.
+     * This routine is responsible for creating the correct subclass of item given the xml
+     * element name. Override it to handle custom item objects. If you override this in your
+     * subclass be sure to call through to super.onCreateItem(name) for names you do not recognize.
      *
-     * @param name The fully qualified class name of the item to be create.
-     * @param attrs An AttributeSet of attributes to apply to the item.
-     * @return The item created.
+     * @param name  The fully qualified class name of the item to be create
+     * @param attrs An AttributeSet of attributes to apply to the item
+     * @return The item created
      */
     protected Preference onCreateItem(String name, AttributeSet attrs)
             throws ClassNotFoundException {
@@ -317,8 +299,8 @@ class PreferenceInflater {
     }
 
     /**
-     * Recursive method used to descend down the xml hierarchy and instantiate
-     * items, instantiate their children, and then call onFinishInflate().
+     * Recursive method used to descend down the xml hierarchy and instantiate items, instantiate
+     * their children, and then call onFinishInflate().
      */
     private void rInflate(XmlPullParser parser, Preference parent, final AttributeSet attrs)
             throws XmlPullParserException, IOException {

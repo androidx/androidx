@@ -30,10 +30,9 @@ import androidx.annotation.RestrictTo;
 import androidx.core.content.res.TypedArrayUtils;
 
 /**
- * A {@link Preference} that provides checkbox widget
- * functionality.
- * <p>
- * This preference will store a boolean into the SharedPreferences.
+ * A {@link Preference} that provides checkbox widget functionality.
+ *
+ * <p>This preference saves a boolean value.
  *
  * @attr name android:summaryOff
  * @attr name android:summaryOn
@@ -41,19 +40,6 @@ import androidx.core.content.res.TypedArrayUtils;
  */
 public class CheckBoxPreference extends TwoStatePreference {
     private final Listener mListener = new Listener();
-
-    private class Listener implements CompoundButton.OnCheckedChangeListener {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (!callChangeListener(isChecked)) {
-                // Listener didn't like it, change it back.
-                // CompoundButton will make sure we don't recurse.
-                buttonView.setChecked(!isChecked);
-                return;
-            }
-            CheckBoxPreference.this.setChecked(isChecked);
-        }
-    }
 
     public CheckBoxPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
@@ -130,6 +116,19 @@ public class CheckBoxPreference extends TwoStatePreference {
         }
         if (view instanceof CompoundButton) {
             ((CompoundButton) view).setOnCheckedChangeListener(mListener);
+        }
+    }
+
+    private class Listener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (!callChangeListener(isChecked)) {
+                // Listener didn't like it, change it back.
+                // CompoundButton will make sure we don't recurse.
+                buttonView.setChecked(!isChecked);
+                return;
+            }
+            CheckBoxPreference.this.setChecked(isChecked);
         }
     }
 }

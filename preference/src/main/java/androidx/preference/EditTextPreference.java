@@ -27,13 +27,9 @@ import android.widget.EditText;
 import androidx.core.content.res.TypedArrayUtils;
 
 /**
- * A {@link Preference} that allows for string
- * input.
- * <p>
- * It is a subclass of {@link DialogPreference} and shows the {@link EditText}
- * in a dialog.
- * <p>
- * This preference will store a string into the SharedPreferences.
+ * A {@link DialogPreference} that shows a {@link EditText} in the dialog.
+ *
+ * <p>This preference saves a string value.
  */
 public class EditTextPreference extends DialogPreference {
     private String mText;
@@ -57,7 +53,7 @@ public class EditTextPreference extends DialogPreference {
     }
 
     /**
-     * Saves the text to the {@link android.content.SharedPreferences}.
+     * Saves the text to the current data storage.
      *
      * @param text The text to save
      */
@@ -75,9 +71,9 @@ public class EditTextPreference extends DialogPreference {
     }
 
     /**
-     * Gets the text from the {@link android.content.SharedPreferences}.
+     * Gets the text from the current data storage.
      *
-     * @return The current preference value.
+     * @return The current preference value
      */
     public String getText() {
         return mText;
@@ -107,7 +103,7 @@ public class EditTextPreference extends DialogPreference {
         }
 
         final SavedState myState = new SavedState(superState);
-        myState.text = getText();
+        myState.mText = getText();
         return myState;
     }
 
@@ -121,39 +117,39 @@ public class EditTextPreference extends DialogPreference {
 
         SavedState myState = (SavedState) state;
         super.onRestoreInstanceState(myState.getSuperState());
-        setText(myState.text);
+        setText(myState.mText);
     }
 
     private static class SavedState extends BaseSavedState {
-        String text;
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
 
-        public SavedState(Parcel source) {
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
+
+        String mText;
+
+        SavedState(Parcel source) {
             super(source);
-            text = source.readString();
+            mText = source.readString();
+        }
+
+        SavedState(Parcelable superState) {
+            super(superState);
         }
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
             super.writeToParcel(dest, flags);
-            dest.writeString(text);
+            dest.writeString(mText);
         }
-
-        public SavedState(Parcelable superState) {
-            super(superState);
-        }
-
-        public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
-            @Override
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            @Override
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
     }
 
 }
