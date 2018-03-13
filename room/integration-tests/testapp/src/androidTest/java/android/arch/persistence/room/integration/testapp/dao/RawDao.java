@@ -33,28 +33,46 @@ import java.util.List;
 public interface RawDao {
     @RawQuery
     User getUser(String query);
+
     @RawQuery
     UserAndAllPets getUserAndAllPets(String query);
+
+    @RawQuery(observedEntities = UserAndAllPets.class)
+    LiveData<UserAndAllPets> getUserAndAllPetsObservable(String query);
+
     @RawQuery
     User getUser(SupportSQLiteQuery query);
+
     @RawQuery
     UserAndPet getUserAndPet(String query);
+
     @RawQuery
     NameAndLastName getUserNameAndLastName(String query);
+
     @RawQuery(observedEntities = User.class)
     NameAndLastName getUserNameAndLastName(SupportSQLiteQuery query);
+
     @RawQuery
     int count(String query);
+
     @RawQuery
     List<User> getUserList(String query);
+
     @RawQuery
     List<UserAndPet> getUserAndPetList(String query);
+
+    @RawQuery(observedEntities = UserAndPet.class)
+    LiveData<List<UserAndPet>> getUserAndPetListObservable(String query);
+
     @RawQuery(observedEntities = User.class)
     LiveData<User> getUserLiveData(String query);
+
     @RawQuery(observedEntities = User.class)
     LiveData<User> getUserLiveData(SupportSQLiteQuery query);
+
     @RawQuery
     UserNameAndBirthday getUserAndBirthday(String query);
+
     class UserNameAndBirthday {
         @ColumnInfo(name = "mName")
         public final String name;
