@@ -17,11 +17,12 @@
 package androidx.dynamicanimation.animation;
 
 import android.os.Looper;
+import android.util.AndroidRuntimeException;
+import android.view.View;
+
 import androidx.annotation.FloatRange;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
-import android.util.AndroidRuntimeException;
-import android.view.View;
 
 import java.util.ArrayList;
 
