@@ -30,12 +30,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
-import androidx.vectordrawable.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
+import androidx.vectordrawable.test.R;
 
 import org.junit.Before;
 import org.junit.Test;

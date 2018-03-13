@@ -16,7 +16,8 @@
 
 package androidx.vectordrawable.graphics.drawable.tests;
 
-import static androidx.vectordrawable.graphics.drawable.tests.DrawableUtils.saveVectorDrawableIntoPNG;
+import static androidx.vectordrawable.graphics.drawable.tests.DrawableUtils
+        .saveVectorDrawableIntoPNG;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -33,20 +34,21 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
-import androidx.annotation.DrawableRes;
-import androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback;
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
-import androidx.vectordrawable.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Xml;
 import android.view.View;
 import android.widget.ImageButton;
+
+import androidx.annotation.DrawableRes;
+import androidx.core.view.ViewCompat;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
+import androidx.vectordrawable.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;

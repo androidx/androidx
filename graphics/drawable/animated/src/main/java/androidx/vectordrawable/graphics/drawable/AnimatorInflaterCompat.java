@@ -37,16 +37,17 @@ import android.content.res.XmlResourceParser;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.os.Build;
-import androidx.annotation.AnimatorRes;
-import androidx.annotation.RestrictTo;
-import androidx.core.content.res.TypedArrayUtils;
-import androidx.core.graphics.PathParser;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.util.Xml;
 import android.view.InflateException;
 import android.view.animation.Interpolator;
+
+import androidx.annotation.AnimatorRes;
+import androidx.annotation.RestrictTo;
+import androidx.core.content.res.TypedArrayUtils;
+import androidx.core.graphics.PathParser;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
