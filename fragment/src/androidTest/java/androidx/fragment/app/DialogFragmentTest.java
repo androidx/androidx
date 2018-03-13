@@ -24,11 +24,12 @@ import static org.junit.Assert.assertTrue;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.test.EmptyFragmentTestActivity;
 
 import org.junit.Rule;

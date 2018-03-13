@@ -25,17 +25,20 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.loader.app.LoaderManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.test.LoaderActivity;
+import androidx.fragment.test.R;
+import androidx.loader.app.LoaderManager;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
+import androidx.testutils.FragmentActivityUtils;
+import androidx.testutils.RecreatedActivity;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,9 +47,6 @@ import org.junit.runner.RunWith;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import androidx.testutils.FragmentActivityUtils;
-import androidx.testutils.RecreatedActivity;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest

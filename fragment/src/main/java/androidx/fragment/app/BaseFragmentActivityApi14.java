@@ -19,11 +19,12 @@ package androidx.fragment.app;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.util.AttributeSet;
+import android.view.View;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.SupportActivity;
-import android.util.AttributeSet;
-import android.view.View;
 
 @RequiresApi(14)
 abstract class BaseFragmentActivityApi14 extends SupportActivity {

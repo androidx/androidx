@@ -26,17 +26,18 @@ import android.app.Instrumentation;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.fragment.app.test.FragmentTestActivity;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.test.FragmentTestActivity;
+import androidx.fragment.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;

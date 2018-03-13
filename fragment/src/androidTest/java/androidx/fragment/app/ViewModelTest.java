@@ -33,6 +33,7 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.fragment.app.test.TestViewModel;
 import androidx.fragment.app.test.ViewModelActivity;
 import androidx.fragment.app.test.ViewModelActivity.ViewModelFragment;

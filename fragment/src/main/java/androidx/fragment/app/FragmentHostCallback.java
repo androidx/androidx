@@ -22,11 +22,12 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.LayoutInflater;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
-import android.view.LayoutInflater;
-import android.view.View;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
