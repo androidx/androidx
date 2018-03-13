@@ -17,10 +17,11 @@
 package androidx.recyclerview.widget;
 
 import android.os.Bundle;
-import androidx.core.view.AccessibilityDelegateCompat;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
+import androidx.annotation.NonNull;
+import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 /**
  * The AccessibilityDelegate used by RecyclerView.
@@ -32,7 +33,7 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
     final AccessibilityDelegateCompat mItemDelegate;
 
 
-    public RecyclerViewAccessibilityDelegate(RecyclerView recyclerView) {
+    public RecyclerViewAccessibilityDelegate(@NonNull RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
         mItemDelegate = new ItemDelegate(this);
     }
@@ -79,6 +80,7 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
      * A basic item delegate is provided by default, but you can override this
      * method to provide a custom per-item delegate.
      */
+    @NonNull
     public AccessibilityDelegateCompat getItemDelegate() {
         return mItemDelegate;
     }
@@ -99,7 +101,7 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
          *
          * @param recyclerViewDelegate The parent RecyclerView's accessibility delegate.
          */
-        public ItemDelegate(RecyclerViewAccessibilityDelegate recyclerViewDelegate) {
+        public ItemDelegate(@NonNull RecyclerViewAccessibilityDelegate recyclerViewDelegate) {
             mRecyclerViewDelegate = recyclerViewDelegate;
         }
 
