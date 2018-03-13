@@ -504,4 +504,13 @@ object ProcessorErrors {
             " String or SupportSQLiteQuery"
 
     val RAW_QUERY_BAD_RETURN_TYPE = "RawQuery methods must return a non-void type."
+
+    fun rawQueryBadEntity(typeName: TypeName): String {
+        return """
+            observedEntities field in RawQuery must either reference a class that is annotated
+            with @Entity or it should reference a Pojo that either contains @Embedded fields that
+            are annotated with @Entity or @Relation fields.
+            $typeName does not have these properties, did you mean another class?
+            """.trim()
+    }
 }

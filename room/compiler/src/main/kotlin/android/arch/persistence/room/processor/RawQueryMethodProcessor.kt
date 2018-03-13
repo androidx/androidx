@@ -23,7 +23,6 @@ import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.toListOfClassTypes
 import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.parser.SqlParser
-import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.RawQueryMethod
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -50,9 +49,8 @@ class RawQueryMethodProcessor(
         val returnTypeName = TypeName.get(executableType.returnType)
         context.checker.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
-        val observedEntities = processObservedTables()
-        val query = SqlParser.rawQueryForTables(
-                observedEntities.map { it.tableName }.toSet())
+        val observedTableNames = processObservedTables()
+        val query = SqlParser.rawQueryForTables(observedTableNames)
         // build the query but don't calculate result info since we just guessed it.
         val resultBinder = context.typeAdapterStore
                 .findQueryResultBinder(executableType.returnType, query)
@@ -62,7 +60,7 @@ class RawQueryMethodProcessor(
         val rawQueryMethod = RawQueryMethod(
                 element = executableElement,
                 name = executableElement.simpleName.toString(),
-                observedEntities = observedEntities,
+                observedTableNames = observedTableNames,
                 returnType = executableType.returnType,
                 runtimeQueryParam = runtimeQueryParam,
                 inTransaction = inTransaction,
@@ -73,20 +71,40 @@ class RawQueryMethodProcessor(
         return rawQueryMethod
     }
 
-    private fun processObservedTables(): List<Entity> {
+    private fun processObservedTables(): Set<String> {
         val annotation = MoreElements
                 .getAnnotationMirror(executableElement,
                         android.arch.persistence.room.RawQuery::class.java)
-                .orNull() ?: return emptyList()
+                .orNull() ?: return emptySet()
         val entityList = AnnotationMirrors.getAnnotationValue(annotation, "observedEntities")
         return entityList
                 .toListOfClassTypes()
                 .map {
-                    EntityProcessor(
-                            baseContext = context,
-                            element = MoreTypes.asTypeElement(it)
-                    ).process()
+                    MoreTypes.asTypeElement(it)
                 }
+                .flatMap {
+                    if (it.hasAnnotation(android.arch.persistence.room.Entity::class)) {
+                        val entity = EntityProcessor(
+                                baseContext = context,
+                                element = it
+                        ).process()
+                        arrayListOf(entity.tableName)
+                    } else {
+                        val pojo = PojoProcessor(
+                                baseContext = context,
+                                element = it,
+                                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                                parent = null
+                        ).process()
+                        val tableNames = pojo.accessedTableNames()
+                        // if it is empty, report error as it does not make sense
+                        if (tableNames.isEmpty()) {
+                            context.logger.e(executableElement,
+                                    ProcessorErrors.rawQueryBadEntity(it.asType().typeName()))
+                        }
+                        tableNames
+                    }
+                }.toSet()
     }
 
     private fun findRuntimeQueryParameter(): RawQueryMethod.RuntimeQueryParameter? {
