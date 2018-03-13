@@ -20,17 +20,15 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.RestrictTo;
-import androidx.core.content.res.TypedArrayUtils;
-
-import androidx.preference.R;
-
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+
+import androidx.annotation.RestrictTo;
+import androidx.core.content.res.TypedArrayUtils;
 
 /**
  * A {@link androidx.preference.Preference} that provides a two-state toggleable option.

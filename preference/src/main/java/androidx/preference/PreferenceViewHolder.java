@@ -16,11 +16,12 @@
 
 package androidx.preference;
 
+import android.util.SparseArray;
+import android.view.View;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.SparseArray;
-import android.view.View;
 
 /**
  * A {@link RecyclerView.ViewHolder} class which caches views associated

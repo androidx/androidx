@@ -20,10 +20,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.RestrictTo;
-import androidx.preference.R;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+
+import androidx.annotation.RestrictTo;
+import androidx.preference.R;
 
 /**
  * Extension of ImageView that correctly applies maxWidth and maxHeight.

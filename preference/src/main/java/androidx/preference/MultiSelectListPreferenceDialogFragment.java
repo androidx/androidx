@@ -19,6 +19,7 @@ package androidx.preference;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.preference.internal.AbstractMultiSelectListPreference;
 
