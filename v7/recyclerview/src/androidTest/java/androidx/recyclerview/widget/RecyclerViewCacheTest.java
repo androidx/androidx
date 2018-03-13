@@ -35,7 +35,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import androidx.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -44,6 +43,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
 
 import org.junit.After;
 import org.junit.Before;

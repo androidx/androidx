@@ -22,14 +22,14 @@ import static org.junit.Assert.assertTrue;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
-
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;

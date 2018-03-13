@@ -18,8 +18,9 @@ package androidx.recyclerview.widget;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
-import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
+
+import androidx.core.view.ViewCompat;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;

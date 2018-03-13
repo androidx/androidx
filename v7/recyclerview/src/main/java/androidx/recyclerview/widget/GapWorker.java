@@ -15,9 +15,10 @@
  */
 package androidx.recyclerview.widget;
 
+import android.view.View;
+
 import androidx.annotation.Nullable;
 import androidx.core.os.TraceCompat;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Arrays;

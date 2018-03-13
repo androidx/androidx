@@ -15,10 +15,11 @@
  */
 package androidx.recyclerview.widget;
 
-import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
-import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
+import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
+import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -28,10 +29,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
 import android.graphics.Rect;
-import androidx.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.Nullable;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;

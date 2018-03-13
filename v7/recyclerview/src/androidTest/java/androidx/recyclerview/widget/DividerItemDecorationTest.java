@@ -18,14 +18,15 @@ package androidx.recyclerview.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import androidx.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.recyclerview.test.R;
 import android.view.ContextThemeWrapper;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.test.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -19,10 +19,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
-import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 
 import java.util.ArrayList;
 import java.util.List;
