@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -100,7 +99,7 @@ public class TextListItemActivity extends Activity {
                 Toast.makeText(mContext, "Clicked!", Toast.LENGTH_SHORT).show();
 
         private View.OnClickListener mGetParentHeight = v -> {
-            int parentHeight = ((FrameLayout) v.getParent().getParent().getParent()).getHeight();
+            int parentHeight = ((View) v.getParent().getParent()).getHeight();
             Toast.makeText(v.getContext(),
                     "card height is " + pixelToDip(mContext, parentHeight) + " dp",
                     Toast.LENGTH_SHORT).show();
