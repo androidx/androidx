@@ -16,9 +16,10 @@
 
 package androidx.coordinatorlayout.widget;
 
-import androidx.coordinatorlayout.test.R;
-import androidx.coordinatorlayout.BaseTestActivity;
 import android.widget.FrameLayout;
+
+import androidx.coordinatorlayout.BaseTestActivity;
+import androidx.coordinatorlayout.test.R;
 
 public class CoordinatorLayoutActivity extends BaseTestActivity {
 
