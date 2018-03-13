@@ -20,6 +20,8 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.app.BackgroundManager;
 import androidx.leanback.app.BrowseFragment;
 import androidx.leanback.widget.ArrayObjectAdapter;
@@ -29,7 +31,6 @@ import androidx.leanback.widget.ListRowPresenter;
 import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.PresenterSelector;
 import androidx.leanback.widget.ShadowOverlayHelper;
-import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.leanbackjank.IntentDefaults;
 import com.google.android.leanbackjank.IntentKeys;

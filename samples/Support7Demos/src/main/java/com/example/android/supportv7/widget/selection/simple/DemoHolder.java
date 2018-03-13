@@ -16,15 +16,15 @@
 package com.example.android.supportv7.widget.selection.simple;
 
 import android.graphics.Rect;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.android.supportv7.R;
-
+import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.android.supportv7.R;
 
 final class DemoHolder extends RecyclerView.ViewHolder {
 

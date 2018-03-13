@@ -16,14 +16,15 @@
 
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.Cheeses;
-import com.example.android.supportv7.R;
-
 import android.os.Bundle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Spinner;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.android.supportv7.Cheeses;
+import com.example.android.supportv7.R;
 
 /**
  * This demonstrates idiomatic usage of AppCompat's AlertDialog.

@@ -19,12 +19,13 @@ package com.example.android.supportpreference;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+
 import androidx.annotation.RequiresApi;
-import androidx.preference.PreferenceDialogFragment;
-import androidx.preference.PreferenceFragment;
 import androidx.leanback.preference.LeanbackPreferenceFragment;
 import androidx.leanback.preference.LeanbackSettingsFragment;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceDialogFragment;
+import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceScreen;
 
 @RequiresApi(17)

@@ -16,14 +16,16 @@
 package com.example.android.supportv4.app;
 
 //BEGIN_INCLUDE(complete)
-import com.example.android.supportv4.R;
 
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTabHost;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTabHost;
+
+import com.example.android.supportv4.R;
 
 public class FragmentTabsFragmentSupport extends Fragment {
     private FragmentTabHost mTabHost;

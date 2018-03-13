@@ -17,12 +17,13 @@
 package com.example.android.support.text.emoji;
 
 import android.os.Bundle;
-import androidx.emoji.text.EmojiCompat;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.emoji.text.EmojiCompat;
+import androidx.fragment.app.Fragment;
 
 /**
  * Main fragment.

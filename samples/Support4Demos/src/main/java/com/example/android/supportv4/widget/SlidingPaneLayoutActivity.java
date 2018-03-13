@@ -21,7 +21,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -29,6 +28,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 
 import com.example.android.supportv4.R;
 import com.example.android.supportv4.Shakespeare;

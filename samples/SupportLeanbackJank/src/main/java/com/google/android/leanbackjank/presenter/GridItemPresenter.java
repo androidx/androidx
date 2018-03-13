@@ -18,11 +18,12 @@ package com.google.android.leanbackjank.presenter;
 
 import android.content.res.Resources;
 import android.graphics.Color;
-import androidx.leanback.widget.Presenter;
-import androidx.core.content.res.ResourcesCompat;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.core.content.res.ResourcesCompat;
+import androidx.leanback.widget.Presenter;
 
 import com.google.android.leanbackjank.R;
 

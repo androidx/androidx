@@ -16,13 +16,14 @@
 
 package com.example.android.support.appnavigation.app;
 
-import com.example.android.support.appnavigation.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.core.app.TaskStackBuilder;
 import android.view.View;
+
+import androidx.core.app.TaskStackBuilder;
+
+import com.example.android.support.appnavigation.R;
 
 public class InterstitialMessageActivity extends Activity {
     @Override

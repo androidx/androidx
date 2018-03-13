@@ -18,6 +18,9 @@ package com.example.android.leanback;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.HeaderItem;
 import androidx.leanback.widget.ImageCardView;
@@ -29,8 +32,6 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.TitleHelper;
-import androidx.core.app.ActivityOptionsCompat;
-import android.util.Log;
 
 public class RowsSupportFragment extends androidx.leanback.app.RowsSupportFragment {
 

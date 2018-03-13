@@ -16,13 +16,9 @@
 
 package com.example.android.supportv7.graphics;
 
-import com.example.android.supportv7.R;
-
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.palette.graphics.Palette;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +28,11 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.palette.graphics.Palette;
+
+import com.example.android.supportv7.R;
 
 import java.util.List;
 

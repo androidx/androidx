@@ -16,15 +16,16 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.R;
-
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.core.app.ShareCompat;
 import android.util.Log;
 import android.widget.TextView;
+
+import androidx.core.app.ShareCompat;
+
+import com.example.android.supportv4.R;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

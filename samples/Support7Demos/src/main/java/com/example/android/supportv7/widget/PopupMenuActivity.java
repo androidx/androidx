@@ -17,11 +17,6 @@
 package com.example.android.supportv7.widget;
 
 import android.os.Bundle;
-import androidx.core.view.MenuCompat;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.PopupMenu;
-import androidx.appcompat.widget.SwitchCompat;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.Menu;
@@ -31,6 +26,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.view.MenuCompat;
+import androidx.core.view.MenuItemCompat;
 
 import com.example.android.supportv7.R;
 

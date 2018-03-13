@@ -23,13 +23,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import androidx.leanback.app.GuidedStepFragment;
-import androidx.leanback.widget.GuidanceStylist;
-import androidx.leanback.widget.GuidanceStylist.Guidance;
-import androidx.leanback.widget.GuidedAction;
-import androidx.leanback.widget.GuidedActionsStylist;
-import androidx.leanback.widget.GuidedDatePickerAction;
-import androidx.core.content.res.ResourcesCompat;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -37,6 +30,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+
+import androidx.core.content.res.ResourcesCompat;
+import androidx.leanback.app.GuidedStepFragment;
+import androidx.leanback.widget.GuidanceStylist;
+import androidx.leanback.widget.GuidanceStylist.Guidance;
+import androidx.leanback.widget.GuidedAction;
+import androidx.leanback.widget.GuidedActionsStylist;
+import androidx.leanback.widget.GuidedDatePickerAction;
 
 import java.util.ArrayList;
 import java.util.Calendar;

@@ -20,17 +20,17 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import android.content.Context;
 import android.net.Uri;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.example.android.supportv7.Cheeses;
-import com.example.android.supportv7.R;
-
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.android.supportv7.Cheeses;
+import com.example.android.supportv7.R;
 
 final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> {
 

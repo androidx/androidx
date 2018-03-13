@@ -16,11 +16,12 @@
 package com.example.android.supportv7.app;
 
 import android.os.Bundle;
-import androidx.core.view.WindowCompat;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
 
 /**
  * This demonstrates the basics of the Action Bar and how it interoperates with the
