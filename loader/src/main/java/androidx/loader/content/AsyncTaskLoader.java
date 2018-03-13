@@ -21,12 +21,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.os.OperationCanceledException;
 import androidx.core.util.TimeUtils;
-import android.util.Log;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
