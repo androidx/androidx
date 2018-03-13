@@ -25,11 +25,12 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Build;
-import androidx.tvprovider.media.tv.TvContractCompat.Channels;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.tvprovider.media.tv.TvContractCompat.Channels;
 
 import org.junit.After;
 import org.junit.Test;

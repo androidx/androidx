@@ -24,11 +24,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
-import androidx.tvprovider.media.tv.TvContractCompat.Channels;
-import androidx.tvprovider.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
+
+import androidx.tvprovider.media.tv.TvContractCompat.Channels;
+import androidx.tvprovider.test.R;
 
 import junit.framework.TestCase;
 

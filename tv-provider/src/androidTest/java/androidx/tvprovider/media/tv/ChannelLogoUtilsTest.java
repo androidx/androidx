@@ -31,10 +31,11 @@ import android.graphics.BitmapFactory;
 import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.SystemClock;
-import androidx.tvprovider.test.R;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.tvprovider.test.R;
 
 import org.junit.After;
 import org.junit.Before;

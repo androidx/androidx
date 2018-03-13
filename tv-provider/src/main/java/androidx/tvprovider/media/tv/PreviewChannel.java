@@ -27,13 +27,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.tv.TvContract;
 import android.net.Uri;
+import android.text.TextUtils;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels.Type;
-import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
