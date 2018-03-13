@@ -21,10 +21,11 @@ import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.NonNull;
-import androidx.leanback.graphics.BoundsRule.ValueRule;
-import androidx.core.graphics.drawable.DrawableCompat;
 import android.util.Property;
+
+import androidx.annotation.NonNull;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.leanback.graphics.BoundsRule.ValueRule;
 
 import java.util.ArrayList;
 

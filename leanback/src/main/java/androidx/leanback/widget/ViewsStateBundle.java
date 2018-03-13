@@ -13,20 +13,21 @@
  */
 package androidx.leanback.widget;
 
+import static androidx.leanback.widget.BaseGridView.SAVE_ALL_CHILD;
+import static androidx.leanback.widget.BaseGridView.SAVE_LIMITED_CHILD;
+import static androidx.leanback.widget.BaseGridView.SAVE_NO_CHILD;
+import static androidx.leanback.widget.BaseGridView.SAVE_ON_SCREEN_CHILD;
+
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.collection.LruCache;
 import android.util.SparseArray;
 import android.view.View;
+
+import androidx.collection.LruCache;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import static androidx.leanback.widget.BaseGridView.SAVE_NO_CHILD;
-import static androidx.leanback.widget.BaseGridView.SAVE_ON_SCREEN_CHILD;
-import static androidx.leanback.widget.BaseGridView.SAVE_LIMITED_CHILD;
-import static androidx.leanback.widget.BaseGridView.SAVE_ALL_CHILD;
 
 /**
  * Maintains a bundle of states for a group of views. Each view must have a unique id to identify

@@ -16,11 +16,11 @@ package androidx.leanback.widget;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A Presenter is used to generate {@link View}s and bind Objects to them on

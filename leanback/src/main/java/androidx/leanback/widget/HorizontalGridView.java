@@ -24,11 +24,12 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Shader;
-import androidx.leanback.R;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
+
+import androidx.leanback.R;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A {@link android.view.ViewGroup} that shows items in a horizontal scrolling list. The items come from

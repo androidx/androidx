@@ -13,10 +13,11 @@
  */
 package androidx.leanback.app;
 
+import android.view.SurfaceHolder;
+
 import androidx.leanback.media.PlaybackGlue;
 import androidx.leanback.media.PlaybackGlueHost;
 import androidx.leanback.media.SurfaceHolderGlueHost;
-import android.view.SurfaceHolder;
 
 /**
  * {@link PlaybackGlueHost} implementation

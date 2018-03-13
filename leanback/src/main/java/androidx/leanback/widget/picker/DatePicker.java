@@ -18,11 +18,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.RestrictTo;
-import androidx.leanback.R;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+
+import androidx.annotation.RestrictTo;
+import androidx.leanback.R;
 
 import java.text.DateFormat;
 import java.text.ParseException;

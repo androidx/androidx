@@ -27,14 +27,15 @@ import static org.mockito.Mockito.times;
 
 import android.content.Context;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
-import androidx.leanback.R;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.Nullable;
+import androidx.leanback.R;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.junit.Before;
 import org.junit.Test;

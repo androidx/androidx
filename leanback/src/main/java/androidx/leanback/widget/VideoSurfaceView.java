@@ -17,9 +17,10 @@
 package androidx.leanback.widget;
 
 import android.content.Context;
-import androidx.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.view.SurfaceView;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Activity transition will change transitionVisibility multiple times even the view is not

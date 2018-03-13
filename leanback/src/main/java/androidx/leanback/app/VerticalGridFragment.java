@@ -17,6 +17,11 @@
 package androidx.leanback.app;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.leanback.R;
 import androidx.leanback.transition.TransitionHelper;
 import androidx.leanback.util.StateMachine.State;
@@ -29,10 +34,6 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.VerticalGridPresenter;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * A fragment for creating leanback vertical grids.

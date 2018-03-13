@@ -25,6 +25,9 @@ import static androidx.leanback.app.BrowseFragmentTestActivity.EXTRA_TEST_ENTRAN
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.View;
+
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.HeaderItem;
 import androidx.leanback.widget.ListRow;
@@ -35,8 +38,6 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.VerticalGridView;
-import android.util.Log;
-import android.view.View;
 
 public class BrowseTestFragment extends BrowseFragment {
     private static final String TAG = "BrowseTestFragment";

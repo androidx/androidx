@@ -21,10 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.leanback.R;
-import androidx.leanback.widget.Parallax;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
 import android.util.AttributeSet;
@@ -32,6 +28,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.leanback.R;
+import androidx.leanback.widget.Parallax;
 
 /**
  * A slide transition changes TRANSLATION attribute of view which is not exposed by any event.

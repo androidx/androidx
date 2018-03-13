@@ -15,10 +15,11 @@ package androidx.leanback.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.leanback.R;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+
+import androidx.leanback.R;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A {@link android.view.ViewGroup} that shows items in a vertically scrolling list. The items

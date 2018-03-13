@@ -15,8 +15,9 @@ package androidx.leanback.util;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
 import android.util.Log;
+
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 

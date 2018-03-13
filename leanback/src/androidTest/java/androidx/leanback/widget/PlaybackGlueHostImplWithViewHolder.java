@@ -17,11 +17,12 @@
 package androidx.leanback.widget;
 
 import android.content.Context;
-import androidx.leanback.media.PlaybackGlueHostImpl;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.leanback.media.PlaybackGlueHostImpl;
 
 /**
  * Example to create a ViewHolder and rebind when notifyPlaybackRowChanged.

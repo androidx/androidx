@@ -25,9 +25,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.os.Build;
+import android.util.Log;
+
 import androidx.annotation.RestrictTo;
 import androidx.leanback.widget.ShadowOverlayContainer;
-import android.util.Log;
 
 /**
  * Provides various preferences affecting Leanback runtime behavior.

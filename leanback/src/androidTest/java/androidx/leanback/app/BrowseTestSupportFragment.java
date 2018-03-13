@@ -17,11 +17,16 @@ import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_HEAD
 import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY;
 import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_NUM_ROWS;
 import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_REPEAT_PER_ROW;
-import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_SET_ADAPTER_AFTER_DATA_LOAD;
-import static androidx.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_TEST_ENTRANCE_TRANSITION;
+import static androidx.leanback.app.BrowseSupportFragmentTestActivity
+        .EXTRA_SET_ADAPTER_AFTER_DATA_LOAD;
+import static androidx.leanback.app.BrowseSupportFragmentTestActivity
+        .EXTRA_TEST_ENTRANCE_TRANSITION;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.View;
+
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.HeaderItem;
 import androidx.leanback.widget.ListRow;
@@ -32,8 +37,6 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.VerticalGridView;
-import android.util.Log;
-import android.view.View;
 
 public class BrowseTestSupportFragment extends BrowseSupportFragment {
     private static final String TAG = "BrowseTestSupportFragment";

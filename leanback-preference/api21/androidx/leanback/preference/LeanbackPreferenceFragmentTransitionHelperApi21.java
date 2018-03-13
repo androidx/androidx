@@ -19,11 +19,12 @@ package androidx.leanback.preference;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Fragment;
+import android.transition.Transition;
+import android.view.Gravity;
+
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.transition.FadeAndShortSlide;
-import android.transition.Transition;
-import android.view.Gravity;
 
 /**
  * @hide

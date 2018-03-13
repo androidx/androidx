@@ -17,11 +17,12 @@ package androidx.leanback.transition;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
-import androidx.annotation.RequiresApi;
-import android.view.View;
-import android.view.ViewGroup;
 import android.transition.Transition;
 import android.transition.TransitionValues;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.RequiresApi;
 
 @RequiresApi(19)
 class Scale extends Transition {

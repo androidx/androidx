@@ -15,13 +15,14 @@ package androidx.leanback.widget;
 
 import android.app.Activity;
 import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.view.ViewCompat;
 import androidx.leanback.transition.TransitionHelper;
 import androidx.leanback.transition.TransitionListener;
 import androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder;
-import androidx.core.app.ActivityCompat;
-import androidx.core.view.ViewCompat;
-import android.text.TextUtils;
-import android.util.Log;
 
 import java.lang.ref.WeakReference;
 

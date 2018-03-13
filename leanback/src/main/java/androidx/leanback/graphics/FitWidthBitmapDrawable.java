@@ -15,7 +15,6 @@
  */
 package androidx.leanback.graphics;
 
-import androidx.annotation.RequiresApi;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -24,9 +23,11 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.NonNull;
 import android.util.IntProperty;
 import android.util.Property;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Subclass of {@link Drawable} that can be used to draw a bitmap into a region. Bitmap

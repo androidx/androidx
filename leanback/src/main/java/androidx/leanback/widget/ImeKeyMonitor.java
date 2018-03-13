@@ -13,8 +13,8 @@
  */
 package androidx.leanback.widget;
 
-import android.widget.EditText;
 import android.view.KeyEvent;
+import android.widget.EditText;
 
 /**
  * Interface for an EditText subclass that can delegate calls to onKeyPreIme up to a registered

@@ -15,8 +15,9 @@
  */
 package androidx.leanback.widget;
 
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 /**
  * DiffCallback used for GuidedActions, see {@link

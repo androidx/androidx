@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
+
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.junit.Rule;

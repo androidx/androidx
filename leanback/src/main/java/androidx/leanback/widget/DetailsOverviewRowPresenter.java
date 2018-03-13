@@ -19,9 +19,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import androidx.annotation.ColorInt;
-import androidx.leanback.R;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -30,6 +27,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
+import androidx.annotation.ColorInt;
+import androidx.leanback.R;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Renders a {@link DetailsOverviewRow} to display an overview of an item.

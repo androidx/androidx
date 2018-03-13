@@ -17,10 +17,11 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import androidx.annotation.RestrictTo;
-import androidx.leanback.R;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.annotation.RestrictTo;
+import androidx.leanback.R;
 
 /**
  * Creates a view for a media item row in a playlist

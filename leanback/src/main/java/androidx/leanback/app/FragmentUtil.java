@@ -15,10 +15,11 @@
  */
 package androidx.leanback.app;
 
-import androidx.annotation.RequiresApi;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 class FragmentUtil {
 

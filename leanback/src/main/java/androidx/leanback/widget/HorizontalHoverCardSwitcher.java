@@ -14,11 +14,12 @@
 package androidx.leanback.widget;
 
 import android.graphics.Rect;
-import androidx.core.view.ViewCompat;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
+
+import androidx.core.view.ViewCompat;
 
 /**
  * A helper class for showing a hover card view below a {@link HorizontalGridView}.  The hover card

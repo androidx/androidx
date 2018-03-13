@@ -19,6 +19,13 @@ package androidx.leanback.app;
 import android.animation.TimeAnimator;
 import android.animation.TimeAnimator.TimeListener;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.leanback.R;
@@ -36,12 +43,6 @@ import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.leanback.widget.ViewHolderTask;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
 
 import java.util.ArrayList;
 

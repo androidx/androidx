@@ -22,10 +22,11 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import androidx.leanback.R;
-import androidx.leanback.util.MathUtil;
 import android.util.TypedValue;
 import android.view.KeyEvent;
+
+import androidx.leanback.R;
+import androidx.leanback.util.MathUtil;
 
 /**
  * A {@link Row} of playback controls to be displayed by a {@link PlaybackControlsRowPresenter}.

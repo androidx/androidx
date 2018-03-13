@@ -15,12 +15,13 @@ package androidx.leanback.widget;
 
 import android.content.Context;
 import android.graphics.Color;
-import androidx.leanback.R;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.leanback.R;
 
 /**
  * Abstract presenter class for rendering the header for a list of media items in a playlist.

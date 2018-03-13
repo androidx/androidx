@@ -14,11 +14,12 @@
 package androidx.leanback.widget;
 
 import android.content.Context;
-import androidx.leanback.R;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.leanback.R;
 
 /**
  * A presenter that assumes a LinearLayout container for a series

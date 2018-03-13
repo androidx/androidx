@@ -23,9 +23,6 @@ import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.leanback.R;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionValues;
@@ -35,6 +32,10 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.leanback.R;
 
 /**
  * Execute horizontal slide of 1/4 width and fade (to workaround bug 23718734)

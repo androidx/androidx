@@ -20,6 +20,10 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+
 import androidx.annotation.RestrictTo;
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 import androidx.leanback.widget.Action;
@@ -32,9 +36,6 @@ import androidx.leanback.widget.PlaybackRowPresenter;
 import androidx.leanback.widget.PresenterSelector;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.SparseArrayObjectAdapter;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
