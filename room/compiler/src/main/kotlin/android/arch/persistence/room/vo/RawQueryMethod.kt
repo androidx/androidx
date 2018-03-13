@@ -33,7 +33,7 @@ data class RawQueryMethod(
         val name: String,
         val returnType: TypeMirror,
         val inTransaction: Boolean,
-        val observedEntities: List<Entity>,
+        val observedTableNames: Set<String>,
         val runtimeQueryParam: RuntimeQueryParameter?,
         val queryResultBinder: QueryResultBinder) {
     val returnsValue by lazy {
