@@ -80,6 +80,11 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
      * Changes are not saved back until requested.
      */
     fun applyRules(context: TransformationContext) {
+        if (context.rewritingSupportLib) {
+            rewriteOwnArtifactInfo(context)
+            hasChanged = true
+        }
+
         if (dependenciesGroup == null) {
             // Nothing to transform as this file has no dependencies section
             return
@@ -87,38 +92,71 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
 
         val newDependencies = mutableSetOf<PomDependency>()
         for (dependency in dependencies) {
-            if (dependency.shouldSkipRewrite()) {
-                continue
-            }
-
-            val rule = context.config.pomRewriteRules.firstOrNull { it.matches(dependency) }
-            if (rule != null) {
-                // Replace with new dependencies
-                newDependencies.addAll(rule.to.mapTo(newDependencies) { it.rewrite(dependency) })
-                continue
-            }
-
-            val matchesPrefix = context.config.restrictToPackagePrefixesWithDots.any {
-                dependency.groupId!!.startsWith(it)
-            }
-            if (matchesPrefix) {
-                // Report error
-                Log.e(TAG, "No mapping found for '%s'", dependency.toStringNotation())
-                context.reportNoPackageMappingFoundFailure()
-            }
-
-            // No rule to rewrite => keep it
-            newDependencies.add(dependency)
+            newDependencies.addAll(mapDependency(dependency, context))
         }
 
         if (newDependencies.isEmpty()) {
-            // No changes
             return
         }
 
         dependenciesGroup!!.children.clear()
         newDependencies.forEach { dependenciesGroup!!.addContent(it.toXmlElement(document)) }
         hasChanged = true
+    }
+
+    private fun rewriteOwnArtifactInfo(context: TransformationContext) {
+        val groupIdNode = document.rootElement
+                .getChild("groupId", document.rootElement.namespace)
+        val artifactIdNode = document.rootElement
+                .getChild("artifactId", document.rootElement.namespace)
+        val version = document.rootElement
+                .getChild("version", document.rootElement.namespace)
+
+        if (groupIdNode == null || artifactIdNode == null || version == null) {
+            return
+        }
+
+        val dependency = PomDependency(groupIdNode.text, artifactIdNode.text, version.text)
+        val newDependency = mapDependency(dependency, context).first()
+
+        if (newDependency != dependency) {
+            groupIdNode.text = newDependency.groupId
+            artifactIdNode.text = newDependency.artifactId
+            version.text = newDependency.version
+        }
+    }
+
+    private fun mapDependency(
+            dependency: PomDependency,
+            context: TransformationContext
+    ): Set<PomDependency> {
+        if (dependency.shouldSkipRewrite()) {
+            return emptySet()
+        }
+
+        val rule = context.config.pomRewriteRules.firstOrNull { it.matches(dependency) }
+        if (rule != null) {
+            // Replace with new dependencies
+            return rule.to.map { it.rewrite(dependency) }.toSet()
+        }
+
+        val matchesPrefix = context.config.restrictToPackagePrefixesWithDots.any {
+            dependency.groupId!!.startsWith(it)
+        }
+
+        if (matchesPrefix) {
+            if (context.useIdentityIfTypeIsMissing) {
+                Log.i(TAG, "No mapping found for '%s' - using identity",
+                        dependency.toStringNotation())
+            } else {
+                // Report error
+                Log.e(TAG, "No mapping found for '%s'", dependency.toStringNotation())
+                context.reportNoPackageMappingFoundFailure()
+            }
+        }
+
+        // No rule to rewrite => keep it
+        return setOf(dependency)
     }
 
     /**

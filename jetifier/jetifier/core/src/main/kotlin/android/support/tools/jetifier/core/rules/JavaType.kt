@@ -69,5 +69,16 @@ data class JavaType(val fullName: String) {
         return JavaType(tokens.joinToString("$"))
     }
 
+    /**
+     * Returns parent type of this types (e.g. for test.Class.InnerClass -> returns test.Class). For
+     * top level packages returns identity.
+     */
+    fun getParentType(): JavaType {
+        if (fullName.contains("/")) {
+            return JavaType(fullName.substringBeforeLast('/'))
+        }
+        return this
+    }
+
     override fun toString() = fullName
 }

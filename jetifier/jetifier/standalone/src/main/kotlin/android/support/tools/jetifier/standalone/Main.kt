@@ -50,6 +50,8 @@ class Main {
             " are assumed to be part of Support Library. Otherwise only general dependencies are" +
             " expected.",
             hasArgs = false, isRequired = false)
+        val OPTION_STRICT = createOption("strict",
+                "Don't fallback in case rules are missing", hasArgs = false, isRequired = false)
 
         private fun createOption(
             argName: String,
@@ -118,10 +120,12 @@ class Main {
 
         val isReversed = cmd.hasOption(OPTION_REVERSED.opt)
         val rewriteSupportLib = cmd.hasOption(OPTION_REWRITE_SUPPORT_LIB.opt)
+        val isStrict = cmd.hasOption(OPTION_STRICT.opt)
         val processor = Processor.createProcessor(
             config = config,
             reversedMode = isReversed,
-            rewritingSupportLib = rewriteSupportLib)
+            rewritingSupportLib = rewriteSupportLib,
+            useIdentityIfTypeIsMissing = !isStrict)
         processor.transform(fileMappings)
     }
 
