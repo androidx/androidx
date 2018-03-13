@@ -42,7 +42,7 @@ android {
 
 supportLibrary {
     name = "WebView Support Library"
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.WEBKIT
     inceptionYear = "2017"
