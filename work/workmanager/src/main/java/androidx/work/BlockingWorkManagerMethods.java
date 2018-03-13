@@ -28,10 +28,11 @@ import java.util.List;
 public interface BlockingWorkManagerMethods {
 
     /**
-     * Cancels work with the given id in a blocking fashion.  Note that cancellation is dependent
-     * on timing (for example, the work could have completed in a different thread just as you issue
-     * this call).  Use {@link #getStatusByIdBlocking(String)} to find out the actual state of the
-     * work after this call.  This method is expected to be called from a background thread.
+     * Cancels work with the given id in a blocking fashion if it isn't finished.  Note that
+     * cancellation is dependent on timing (for example, the work could have completed in a
+     * different thread just as you issue this call).  Use {@link #getStatusByIdBlocking(String)} to
+     * find out the actual state of the work after this call.  This method is expected to be called
+     * from a background thread.
      *
      * @param id The id of the work
      */
@@ -40,9 +41,9 @@ public interface BlockingWorkManagerMethods {
 
 
     /**
-     * Cancels all work with the given tag in a blocking fashion.  Note that cancellation is
-     * dependent on timing (for example, the work could have completed in a different thread just as
-     * you issue this call).  Use {@link #getStatusByIdBlocking(String)} to find out the actual
+     * Cancels all unfinished work with the given tag in a blocking fashion.  Note that cancellation
+     * is dependent on timing (for example, the work could have completed in a different thread just
+     * as you issue this call).  Use {@link #getStatusByIdBlocking(String)} to find out the actual
      * state of the work after this call.  This method is expected to be called from a background
      * thread.
      *
@@ -51,6 +52,17 @@ public interface BlockingWorkManagerMethods {
     @WorkerThread
     void cancelAllWorkWithTagBlocking(@NonNull String tag);
 
+    /**
+     * Cancels all unfinished work in the work chain with the given name in a blocking fashion.
+     * Note that cancellation is dependent on timing (for example, the work could have completed in
+     * a different thread just as you issue this call).  Use {@link #getStatusByIdBlocking(String)}
+     * to find out the actual state of the work after this call.  This method is expected to be
+     * called from a background thread.
+     *
+     * @param name The name used to identify the chain of work
+     */
+    @WorkerThread
+    void cancelAllWorkWithNameBlocking(@NonNull String name);
 
     /**
      * Gets the {@link WorkStatus} of a given work id in a blocking fashion.  This method is

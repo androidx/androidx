@@ -16,6 +16,18 @@
 
 package androidx.work.impl;
 
+import static androidx.work.ExistingWorkPolicy.APPEND;
+import static androidx.work.ExistingWorkPolicy.KEEP;
+import static androidx.work.ExistingWorkPolicy.REPLACE;
+import static androidx.work.NetworkType.METERED;
+import static androidx.work.NetworkType.NOT_REQUIRED;
+import static androidx.work.State.BLOCKED;
+import static androidx.work.State.CANCELLED;
+import static androidx.work.State.ENQUEUED;
+import static androidx.work.State.FAILED;
+import static androidx.work.State.RUNNING;
+import static androidx.work.State.SUCCEEDED;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -30,18 +42,6 @@ import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
-import static androidx.work.ExistingWorkPolicy.APPEND;
-import static androidx.work.ExistingWorkPolicy.KEEP;
-import static androidx.work.ExistingWorkPolicy.REPLACE;
-import static androidx.work.NetworkType.METERED;
-import static androidx.work.NetworkType.NOT_REQUIRED;
-import static androidx.work.State.BLOCKED;
-import static androidx.work.State.CANCELLED;
-import static androidx.work.State.ENQUEUED;
-import static androidx.work.State.FAILED;
-import static androidx.work.State.RUNNING;
-import static androidx.work.State.SUCCEEDED;
 
 import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
@@ -58,19 +58,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import androidx.work.Arguments;
 import androidx.work.BackoffPolicy;
@@ -92,6 +79,19 @@ import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
 import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.TestWorker;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest extends WorkManagerTest {
@@ -935,6 +935,38 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(workSpecDao.getState(work2.getId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work3.getId()), is(not(CANCELLED)));
         assertThat(workSpecDao.getState(work4.getId()), is(CANCELLED));
+    }
+
+    @Test
+    @SmallTest
+    public void testCancelWorkForName() {
+        final String testName = "myname";
+
+        Work work0 = new Work.Builder(InfiniteTestWorker.class).build();
+        Work work1 = new Work.Builder(InfiniteTestWorker.class).build();
+
+        mWorkManagerImpl.beginWithName(testName, KEEP, work0).then(work1).enqueue();
+        mWorkManagerImpl.cancelAllWorkWithName(testName);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
+    }
+
+    @Test
+    @SmallTest
+    public void testCancelWorkForName_ignoresFinishedWork() {
+        final String testName = "myname";
+
+        Work work0 = new Work.Builder(InfiniteTestWorker.class).withInitialState(SUCCEEDED).build();
+        Work work1 = new Work.Builder(InfiniteTestWorker.class).build();
+
+        mWorkManagerImpl.beginWithName(testName, KEEP, work0).then(work1).enqueue();
+        mWorkManagerImpl.cancelAllWorkWithName(testName);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getState(work0.getId()), is(SUCCEEDED));
+        assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
     }
 
     @Test

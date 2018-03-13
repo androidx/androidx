@@ -26,10 +26,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import androidx.work.BaseWork;
 import androidx.work.BlockingWorkManagerMethods;
 import androidx.work.ExistingWorkPolicy;
@@ -47,6 +43,10 @@ import androidx.work.impl.utils.StartWorkRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A concrete implementation of {@link WorkManager}.
@@ -164,20 +164,33 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
     @Override
     @WorkerThread
     public void cancelWorkByIdBlocking(@NonNull String id) {
-        assertBackgroundThread("Cannot cancelWorkByIdSync on main thread!");
+        assertBackgroundThread("Cannot cancelWorkByIdBlocking on main thread!");
         CancelWorkRunnable.forId(id, this).run();
     }
 
     @Override
     public void cancelAllWorkWithTag(@NonNull final String tag) {
-        mTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forTag(tag, this));
+        mTaskExecutor.executeOnBackgroundThread(
+                CancelWorkRunnable.forTag(tag, this));
     }
 
     @Override
     @WorkerThread
     public void cancelAllWorkWithTagBlocking(@NonNull String tag) {
-        assertBackgroundThread("Cannot cancelAllWorkWithTagSync on main thread!");
+        assertBackgroundThread("Cannot cancelAllWorkWithTagBlocking on main thread!");
         CancelWorkRunnable.forTag(tag, this).run();
+    }
+
+    @Override
+    public void cancelAllWorkWithName(@NonNull String name) {
+        mTaskExecutor.executeOnBackgroundThread(
+                CancelWorkRunnable.forName(name, this));
+    }
+
+    @Override
+    public void cancelAllWorkWithNameBlocking(@NonNull String name) {
+        assertBackgroundThread("Cannot cancelAllWorkWithNameBlocking on main thread!");
+        CancelWorkRunnable.forName(name, this).run();
     }
 
     @Override
@@ -204,7 +217,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
     @Override
     @WorkerThread
     public @Nullable WorkStatus getStatusByIdBlocking(@NonNull String id) {
-        assertBackgroundThread("Cannot call getStatusByIdSync on main thread!");
+        assertBackgroundThread("Cannot call getStatusByIdBlocking on main thread!");
         WorkSpec.WorkStatusPojo workStatusPojo =
                 mWorkDatabase.workSpecDao().getIdStateAndOutputForId(id);
         if (workStatusPojo != null) {
@@ -240,7 +253,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
 
     @Override
     public List<WorkStatus> getStatusesByTagBlocking(@NonNull String tag) {
-        assertBackgroundThread("Cannot call getStatusesByTagSync on main thread!");
+        assertBackgroundThread("Cannot call getStatusesByTagBlocking on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         List<WorkStatus> workStatuses = null;
         List<WorkSpec.WorkStatusPojo> workStatusPojos =

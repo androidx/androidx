@@ -20,10 +20,10 @@ import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import androidx.work.impl.WorkManagerImpl;
+
 import java.util.Arrays;
 import java.util.List;
-
-import androidx.work.impl.WorkManagerImpl;
 
 /**
  * WorkManager is a class used to enqueue persisted work that is guaranteed to run after its
@@ -138,21 +138,28 @@ public abstract class WorkManager {
             @NonNull List<Work> work);
 
     /**
-     * Cancels work with the given id, regardless of the current state of the work.  Note that
-     * cancellation is a best-effort policy and work that is already executing may continue to run.
+     * Cancels work with the given id if it isn't finished.  Note that cancellation is a best-effort
+     * policy and work that is already executing may continue to run.
      *
      * @param id The id of the work
      */
     public abstract void cancelWorkById(@NonNull String id);
 
     /**
-     * Cancels all work with the given tag, regardless of the current state of the work.
-     * Note that cancellation is a best-effort policy and work that is already executing may
-     * continue to run.
+     * Cancels all unfinished work with the given tag.  Note that cancellation is a best-effort
+     * policy and work that is already executing may continue to run.
      *
      * @param tag The tag used to identify the work
      */
     public abstract void cancelAllWorkWithTag(@NonNull String tag);
+
+    /**
+     * Cancels all unfinished work in the work chain with the given name.  Note that cancellation is
+     * a best-effort policy and work that is already executing may continue to run.
+     *
+     * @param name The name used to identify the chain of work
+     */
+    public abstract void cancelAllWorkWithName(@NonNull String name);
 
     /**
      * Gets a {@link LiveData} of the {@link WorkStatus} for a given work id.
