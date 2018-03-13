@@ -17,8 +17,9 @@
 package androidx.palette.graphics;
 
 import android.graphics.Color;
-import androidx.core.graphics.ColorUtils;
 import android.util.TimingLogger;
+
+import androidx.core.graphics.ColorUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

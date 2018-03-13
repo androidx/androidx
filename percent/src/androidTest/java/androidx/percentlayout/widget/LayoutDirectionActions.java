@@ -16,13 +16,15 @@
 
 package androidx.percentlayout.widget;
 
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
-import androidx.core.view.ViewCompat;
 import android.view.View;
-import org.hamcrest.Matcher;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import androidx.core.view.ViewCompat;
+
+import org.hamcrest.Matcher;
 
 public class LayoutDirectionActions {
     /**
