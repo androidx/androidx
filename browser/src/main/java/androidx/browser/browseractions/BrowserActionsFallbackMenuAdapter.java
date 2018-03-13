@@ -18,14 +18,15 @@ package androidx.browser.browseractions;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.browser.R;
-import androidx.core.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.browser.R;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.util.List;
 
