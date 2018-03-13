@@ -19,8 +19,9 @@ package androidx.transition;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.graphics.Matrix;
-import androidx.annotation.RequiresApi;
 import android.widget.ImageView;
+
+import androidx.annotation.RequiresApi;
 
 @RequiresApi(14)
 class ImageViewUtilsApi14 implements ImageViewUtilsImpl {

@@ -23,8 +23,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 
 import android.support.test.filters.MediumTest;
-import androidx.transition.test.R;
 import android.view.View;
+
+import androidx.transition.test.R;
 
 import org.junit.Before;
 import org.junit.Test;

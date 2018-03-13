@@ -22,8 +22,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import android.support.test.filters.MediumTest;
-import androidx.transition.test.R;
 import android.view.View;
+
+import androidx.transition.test.R;
 
 import org.junit.Test;
 

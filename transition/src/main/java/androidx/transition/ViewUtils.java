@@ -19,12 +19,13 @@ package androidx.transition;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
 import android.util.Log;
 import android.util.Property;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 
 import java.lang.reflect.Field;
 

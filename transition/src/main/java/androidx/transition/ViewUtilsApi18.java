@@ -16,9 +16,10 @@
 
 package androidx.transition;
 
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import android.view.View;
 
 @RequiresApi(18)
 class ViewUtilsApi18 extends ViewUtilsApi14 {

@@ -15,10 +15,11 @@
  */
 package androidx.transition;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import android.view.View;
 import android.view.WindowId;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 @RequiresApi(18)
 class WindowIdApi18 implements WindowIdImpl {

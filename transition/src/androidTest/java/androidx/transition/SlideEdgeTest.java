@@ -27,10 +27,11 @@ import static org.mockito.Mockito.verify;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
-import androidx.transition.test.R;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.transition.test.R;
 
 import org.junit.Test;
 

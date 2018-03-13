@@ -16,11 +16,12 @@
 
 package androidx.transition;
 
+import android.util.SparseArray;
+import android.view.View;
+
 import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
-import android.util.SparseArray;
-import android.view.View;
 
 @RequiresApi(14)
 class TransitionValuesMaps {

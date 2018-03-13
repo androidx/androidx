@@ -17,10 +17,11 @@
 package androidx.transition;
 
 import android.os.Bundle;
-import androidx.transition.test.R;
-import androidx.fragment.app.FragmentActivity;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import androidx.fragment.app.FragmentActivity;
+import androidx.transition.test.R;
 
 public class TransitionActivity extends FragmentActivity {
 

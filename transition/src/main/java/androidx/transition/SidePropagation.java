@@ -17,10 +17,11 @@
 package androidx.transition;
 
 import android.graphics.Rect;
-import androidx.core.view.ViewCompat;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.core.view.ViewCompat;
 
 /**
  * A <code>TransitionPropagation</code> that propagates based on the distance to the side

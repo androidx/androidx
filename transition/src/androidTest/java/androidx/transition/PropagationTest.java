@@ -21,10 +21,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
-import androidx.annotation.NonNull;
 import android.support.test.filters.MediumTest;
-import androidx.transition.test.R;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.transition.test.R;
 
 import org.junit.Test;
 

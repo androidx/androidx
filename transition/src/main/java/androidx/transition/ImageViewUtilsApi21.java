@@ -18,9 +18,10 @@ package androidx.transition;
 
 import android.animation.Animator;
 import android.graphics.Matrix;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.ImageView;
+
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

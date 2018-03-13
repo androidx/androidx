@@ -26,13 +26,14 @@ import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.core.content.res.TypedArrayUtils;
-import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Property;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.res.TypedArrayUtils;
+import androidx.core.view.ViewCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 

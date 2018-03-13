@@ -22,17 +22,18 @@ import android.animation.Animator;
 import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.core.content.res.TypedArrayUtils;
-import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.core.content.res.TypedArrayUtils;
+import androidx.core.view.ViewCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 
