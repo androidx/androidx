@@ -6,6 +6,14 @@
 ##
 ##############################################################################
 
+# --------- androidx specific code needed for build server. ------------------
+
+if [ -n "$OUT_DIR" ] ; then
+    export GRADLE_USER_HOME="$OUT_DIR/.gradle"
+fi
+
+# ----------------------------------------------------------------------------
+
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 
 APP_NAME="Gradle"
