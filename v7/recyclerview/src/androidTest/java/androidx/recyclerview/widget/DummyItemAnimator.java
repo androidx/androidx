@@ -29,9 +29,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
-
 /**
  * This is a dummy ItemAnimator class that does not depends on Duration, Tests would use this class
  * to control whenever they want the Animator to finish.

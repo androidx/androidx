@@ -32,8 +32,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import androidx.recyclerview.widget.ChildHelper;
-
 @SmallTest
 @RunWith(JUnit4.class)
 public class BucketTest {

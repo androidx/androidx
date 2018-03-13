@@ -17,9 +17,10 @@
 package androidx.recyclerview.widget;
 
 import android.graphics.PointF;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.view.View;
 
 /**
  * Implementation of the {@link SnapHelper} supporting snapping in either vertical or horizontal

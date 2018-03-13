@@ -28,15 +28,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import android.support.test.filters.SmallTest;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.support.test.filters.SmallTest;
 import androidx.core.util.Pair;
-
 import androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-
-import android.view.View;
 
 import org.junit.Before;
 import org.junit.Test;

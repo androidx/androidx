@@ -27,14 +27,15 @@ import static org.junit.Assert.fail;
 
 import android.graphics.Rect;
 import android.os.Build;
-import androidx.annotation.NonNull;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.view.ViewCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;

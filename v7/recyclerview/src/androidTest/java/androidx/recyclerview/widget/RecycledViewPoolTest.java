@@ -29,8 +29,6 @@ import android.view.View;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class RecycledViewPoolTest {

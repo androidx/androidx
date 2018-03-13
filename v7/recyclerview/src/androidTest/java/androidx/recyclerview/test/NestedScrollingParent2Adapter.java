@@ -16,10 +16,11 @@
 
 package androidx.recyclerview.test;
 
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.core.view.NestedScrollingParent2;
 import androidx.core.view.ViewCompat;
-import android.view.View;
 
 public class NestedScrollingParent2Adapter implements NestedScrollingParent2 {
 

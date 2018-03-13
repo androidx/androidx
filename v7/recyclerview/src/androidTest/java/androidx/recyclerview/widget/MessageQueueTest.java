@@ -28,8 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import androidx.recyclerview.widget.MessageThreadUtil;
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MessageQueueTest {

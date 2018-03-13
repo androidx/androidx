@@ -20,13 +20,14 @@ import static junit.framework.Assert.assertTrue;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import androidx.annotation.NonNull;
-import androidx.core.view.NestedScrollingParent2;
-import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.NestedScrollingParent2;
+import androidx.core.view.ViewCompat;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

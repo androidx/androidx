@@ -23,8 +23,9 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
-import androidx.core.view.ViewCompat;
 import android.view.Gravity;
+
+import androidx.core.view.ViewCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

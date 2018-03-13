@@ -34,9 +34,6 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import androidx.recyclerview.widget.GapWorker;
-import androidx.recyclerview.widget.RecyclerView;
-
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class GapWorkerTest {

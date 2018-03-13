@@ -28,8 +28,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
-import androidx.recyclerview.widget.SortedList;
-
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
 @SmallTest

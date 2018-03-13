@@ -38,9 +38,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.support.test.filters.LargeTest;
-import androidx.core.view.AccessibilityDelegateCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.StateSet;
@@ -49,6 +47,9 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.AccessibilityDelegateCompat;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
