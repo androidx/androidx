@@ -15,8 +15,6 @@
  */
 package androidx.viewpager.widget;
 
-import androidx.viewpager.test.R;
-
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
@@ -25,6 +23,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
+
+import androidx.viewpager.test.R;
 
 /**
  * Provides assertions that depend on the non-interactive nature of <code>PagerTabStrip</code>.

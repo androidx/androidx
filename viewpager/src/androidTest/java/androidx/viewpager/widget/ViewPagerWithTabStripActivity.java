@@ -18,8 +18,9 @@ package androidx.viewpager.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
-import androidx.viewpager.test.R;
 import android.view.WindowManager;
+
+import androidx.viewpager.test.R;
 
 public class ViewPagerWithTabStripActivity extends Activity {
     @Override
