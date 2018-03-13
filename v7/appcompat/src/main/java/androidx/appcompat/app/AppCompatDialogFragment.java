@@ -21,10 +21,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import androidx.annotation.RestrictTo;
-import androidx.fragment.app.DialogFragment;
 import android.view.Window;
 import android.view.WindowManager;
+
+import androidx.annotation.RestrictTo;
+import androidx.fragment.app.DialogFragment;
 
 /**
  * A special version of {@link DialogFragment} which uses an {@link AppCompatDialog} in place of a

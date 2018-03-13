@@ -18,8 +18,9 @@ package androidx.appcompat.view.menu;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
 import android.widget.ListView;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * A list menu which can be shown and hidden and which is internally represented by a ListView.

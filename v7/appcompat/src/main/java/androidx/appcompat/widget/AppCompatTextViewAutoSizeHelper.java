@@ -23,12 +23,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.RectF;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.core.widget.TextViewCompat;
-import androidx.appcompat.R;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextDirectionHeuristic;
@@ -40,6 +34,13 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.core.widget.TextViewCompat;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

@@ -18,6 +18,7 @@ package androidx.appcompat.widget;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
 import static androidx.appcompat.testutils.AppCompatTintableViewActions.setBackgroundResource;
 import static androidx.appcompat.testutils.AppCompatTintableViewActions.setBackgroundTintList;
 import static androidx.appcompat.testutils.AppCompatTintableViewActions.setBackgroundTintMode;
@@ -32,20 +33,21 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.ColorInt;
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.core.graphics.ColorUtils;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.AppCompatTintableViewActions;
 import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.testutils.TestUtils;
-import android.view.View;
-import android.view.ViewGroup;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.ColorUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

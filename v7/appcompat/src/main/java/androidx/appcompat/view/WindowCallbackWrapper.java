@@ -18,8 +18,6 @@ package androidx.appcompat.view;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.KeyboardShortcutGroup;
@@ -31,6 +29,9 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
+
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
 import java.util.List;
 

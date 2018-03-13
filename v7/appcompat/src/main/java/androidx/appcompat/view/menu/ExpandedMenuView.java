@@ -19,14 +19,15 @@ package androidx.appcompat.view.menu;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import androidx.annotation.RestrictTo;
-import androidx.appcompat.view.menu.MenuBuilder.ItemInvoker;
-import androidx.appcompat.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.view.menu.MenuBuilder.ItemInvoker;
+import androidx.appcompat.widget.TintTypedArray;
 
 /**
  * The expanded menu view is a list-like menu with all of the available menu items.  It is opened

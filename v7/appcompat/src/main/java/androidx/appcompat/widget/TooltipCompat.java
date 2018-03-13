@@ -17,9 +17,10 @@
 package androidx.appcompat.widget;
 
 import android.os.Build;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.view.View;
 
 /**
  * Helper class used to emulate the behavior of {@link View#setTooltipText(CharSequence)} prior

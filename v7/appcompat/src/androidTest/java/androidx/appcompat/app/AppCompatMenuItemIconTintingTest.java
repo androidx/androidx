@@ -25,19 +25,20 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.appcompat.test.R;
+import androidx.appcompat.testutils.TestUtils;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.test.R;
-import androidx.appcompat.testutils.TestUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import org.junit.Before;
 import org.junit.Rule;

@@ -22,17 +22,18 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
-import androidx.core.view.TintableBackgroundView;
-import androidx.appcompat.R;
 import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.core.os.BuildCompat;
+import androidx.core.view.TintableBackgroundView;
 
 /**
  * A {@link EditText} which supports compatible features on older versions of the platform,

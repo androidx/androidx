@@ -18,9 +18,10 @@ package androidx.appcompat.app;
 
 import android.app.UiModeManager;
 import android.content.Context;
-import androidx.annotation.RequiresApi;
 import android.view.ActionMode;
 import android.view.Window;
+
+import androidx.annotation.RequiresApi;
 
 @RequiresApi(23)
 class AppCompatDelegateImplV23 extends AppCompatDelegateImplV14 {

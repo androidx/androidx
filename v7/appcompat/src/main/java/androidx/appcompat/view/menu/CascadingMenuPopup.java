@@ -40,11 +40,6 @@ import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.AttrRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -56,6 +51,11 @@ import androidx.appcompat.widget.MenuPopupWindow;
 import androidx.core.internal.view.SupportMenu;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A popup for a menu which will allow multiple submenus to appear in a cascading fashion, side by

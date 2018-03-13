@@ -19,6 +19,7 @@ package androidx.appcompat.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Rect;
+
 import androidx.annotation.RestrictTo;
 
 /**

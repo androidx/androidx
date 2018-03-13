@@ -26,12 +26,13 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.appcompat.testutils.BaseTestActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+
+import androidx.appcompat.testutils.BaseTestActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import org.junit.Rule;
 import org.junit.Test;

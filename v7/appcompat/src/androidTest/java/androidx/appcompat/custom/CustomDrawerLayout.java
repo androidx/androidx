@@ -16,9 +16,10 @@
 package androidx.appcompat.custom;
 
 import android.content.Context;
-import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.AttributeSet;
 import android.view.WindowInsets;
+
+import androidx.drawerlayout.widget.DrawerLayout;
 
 public class CustomDrawerLayout extends DrawerLayout {
     private int mSystemWindowInsetTop;

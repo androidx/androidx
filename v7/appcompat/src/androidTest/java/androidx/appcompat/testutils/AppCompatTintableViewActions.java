@@ -25,13 +25,14 @@ import static org.hamcrest.core.AnyOf.anyOf;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.DrawableRes;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
-import androidx.core.view.ViewCompat;
-import androidx.core.widget.ImageViewCompat;
 import android.view.View;
 import android.widget.ImageView;
+
+import androidx.annotation.DrawableRes;
+import androidx.core.view.ViewCompat;
+import androidx.core.widget.ImageViewCompat;
 
 import org.hamcrest.Matcher;
 

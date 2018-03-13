@@ -20,10 +20,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Rect;
 import android.os.Build;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
 import android.util.Log;
 import android.view.View;
+
+import androidx.annotation.RestrictTo;
+import androidx.core.view.ViewCompat;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

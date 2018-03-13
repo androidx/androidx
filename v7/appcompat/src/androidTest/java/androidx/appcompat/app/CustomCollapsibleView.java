@@ -17,10 +17,11 @@
 package androidx.appcompat.app;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.appcompat.view.CollapsibleActionView;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.view.CollapsibleActionView;
 
 public class CustomCollapsibleView extends View implements CollapsibleActionView {
     public CustomCollapsibleView(Context context) {

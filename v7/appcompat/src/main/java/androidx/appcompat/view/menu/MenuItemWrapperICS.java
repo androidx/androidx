@@ -23,17 +23,18 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.core.internal.view.SupportMenuItem;
-import androidx.core.view.ActionProvider;
-import androidx.appcompat.view.CollapsibleActionView;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.view.CollapsibleActionView;
+import androidx.core.internal.view.SupportMenuItem;
+import androidx.core.view.ActionProvider;
 
 import java.lang.reflect.Method;
 

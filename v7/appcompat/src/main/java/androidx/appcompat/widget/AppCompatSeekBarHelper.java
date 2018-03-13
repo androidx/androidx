@@ -20,13 +20,14 @@ import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.R;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.R;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ViewCompat;
 
 class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
 

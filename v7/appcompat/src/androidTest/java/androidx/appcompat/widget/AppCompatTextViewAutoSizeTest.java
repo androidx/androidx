@@ -20,14 +20,15 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.os.Build;
-import androidx.annotation.Nullable;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.widget.TextViewCompat;
-import androidx.appcompat.test.R;
 import android.text.method.SingleLineTransformationMethod;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.test.R;
+import androidx.core.widget.TextViewCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

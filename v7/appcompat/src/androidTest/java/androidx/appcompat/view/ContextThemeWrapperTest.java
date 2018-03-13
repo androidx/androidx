@@ -30,6 +30,7 @@ import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.appcompat.test.R;
 
 import org.junit.Before;

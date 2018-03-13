@@ -17,6 +17,7 @@ package androidx.appcompat.app;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
 import static androidx.appcompat.testutils.DrawerLayoutActions.closeDrawer;
 import static androidx.appcompat.testutils.DrawerLayoutActions.openDrawer;
 import static androidx.appcompat.testutils.DrawerLayoutActions.setDrawerLockMode;
@@ -30,11 +31,12 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.View;
+
+import androidx.appcompat.custom.CustomDrawerLayout;
+import androidx.appcompat.test.R;
 import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.test.R;
-import androidx.appcompat.custom.CustomDrawerLayout;
-import android.view.View;
 
 import org.junit.Before;
 import org.junit.Rule;

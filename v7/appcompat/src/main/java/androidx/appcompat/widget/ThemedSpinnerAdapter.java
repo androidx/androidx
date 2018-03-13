@@ -20,13 +20,14 @@ package androidx.appcompat.widget;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SpinnerAdapter;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.view.ContextThemeWrapper;
 
 /**
  * An extension of SpinnerAdapter that is capable of inflating drop-down views

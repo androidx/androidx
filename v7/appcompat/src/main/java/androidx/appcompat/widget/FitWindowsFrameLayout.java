@@ -20,9 +20,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.graphics.Rect;
-import androidx.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * @hide

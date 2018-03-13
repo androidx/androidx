@@ -20,10 +20,13 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.InflateException;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.collection.ArrayMap;
-import androidx.core.view.ViewCompat;
 import androidx.appcompat.R;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -40,10 +43,8 @@ import androidx.appcompat.widget.AppCompatSeekBar;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.TintContextWrapper;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.InflateException;
-import android.view.View;
+import androidx.collection.ArrayMap;
+import androidx.core.view.ViewCompat;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

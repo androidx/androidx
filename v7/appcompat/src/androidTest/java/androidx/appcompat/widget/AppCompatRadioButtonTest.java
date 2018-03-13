@@ -21,9 +21,10 @@ import android.graphics.Typeface;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.appcompat.test.R;
 import android.view.ViewGroup;
+
+import androidx.appcompat.test.R;
+import androidx.core.content.res.ResourcesCompat;
 
 import org.junit.Before;
 import org.junit.Rule;
