@@ -26,11 +26,12 @@ import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.text.format.DateUtils;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
-import android.text.format.DateUtils;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;

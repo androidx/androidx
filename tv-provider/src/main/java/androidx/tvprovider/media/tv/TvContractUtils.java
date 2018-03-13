@@ -18,9 +18,10 @@ package androidx.tvprovider.media.tv;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.media.tv.TvContentRating;
-import androidx.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
