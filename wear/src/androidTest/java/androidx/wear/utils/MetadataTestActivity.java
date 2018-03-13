@@ -16,12 +16,13 @@
 
 package androidx.wear.utils;
 
-import android.app.Activity;
-import android.os.Bundle;
-import androidx.wear.test.R;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import android.app.Activity;
+import android.os.Bundle;
+
+import androidx.wear.test.R;
 
 public class MetadataTestActivity extends Activity {
     @Override

@@ -31,6 +31,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.wear.R;
+import androidx.wear.widget.util.WakeLockRule;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,9 +43,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import androidx.wear.R;
-import androidx.wear.widget.util.WakeLockRule;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)

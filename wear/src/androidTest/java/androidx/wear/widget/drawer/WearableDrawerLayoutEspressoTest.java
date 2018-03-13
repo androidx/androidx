@@ -26,6 +26,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+
 import static androidx.wear.widget.util.AsyncViewActions.waitForMatchingView;
 
 import static org.hamcrest.Matchers.allOf;
@@ -46,15 +47,16 @@ import android.support.test.espresso.util.TreeIterables;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.wear.test.R;
-import androidx.wear.widget.drawer.DrawerTestActivity.DrawerStyle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.wear.test.R;
+import androidx.wear.widget.drawer.DrawerTestActivity.DrawerStyle;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

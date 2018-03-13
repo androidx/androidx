@@ -22,16 +22,6 @@ import static androidx.wear.widget.drawer.WearableDrawerView.STATE_SETTLING;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-import androidx.core.view.NestedScrollingParent;
-import androidx.core.view.NestedScrollingParentHelper;
-import androidx.core.view.ViewCompat;
-import androidx.customview.widget.ViewDragHelper;
-import androidx.wear.widget.drawer.FlingWatcherFactory.FlingListener;
-import androidx.wear.widget.drawer.FlingWatcherFactory.FlingWatcher;
-import androidx.wear.widget.drawer.WearableDrawerView.DrawerState;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -44,6 +34,17 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.core.view.NestedScrollingParent;
+import androidx.core.view.NestedScrollingParentHelper;
+import androidx.core.view.ViewCompat;
+import androidx.customview.widget.ViewDragHelper;
+import androidx.wear.widget.drawer.FlingWatcherFactory.FlingListener;
+import androidx.wear.widget.drawer.FlingWatcherFactory.FlingWatcher;
+import androidx.wear.widget.drawer.WearableDrawerView.DrawerState;
 
 /**
  * Top-level container that allows interactive drawers to be pulled from the top and bottom edge of
