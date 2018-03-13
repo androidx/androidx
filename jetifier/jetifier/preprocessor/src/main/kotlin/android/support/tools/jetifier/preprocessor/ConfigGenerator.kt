@@ -65,7 +65,7 @@ class ConfigGenerator {
             }
         }
 
-        val map = mapper.generateMap().mergetWith(config.typesMap)
+        val map = mapper.generateMap().mergeWith(config.typesMap)
         map.reverseMapOrDie() // Check that map can be reversed
         val newConfig = config.setNewMap(map)
 

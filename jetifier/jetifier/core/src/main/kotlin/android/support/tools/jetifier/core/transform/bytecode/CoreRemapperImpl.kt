@@ -49,7 +49,7 @@ class CoreRemapperImpl(
             return type
         }
 
-        val result = typesMap.types[type]
+        val result = typesMap.mapType(type)
         if (result != null) {
             changesDone = changesDone || result != type
             Log.i(TAG, "  map: %s -> %s", type, result)
@@ -71,7 +71,7 @@ class CoreRemapperImpl(
             return value
         }
 
-        val result = typesMap.types[type]
+        val result = typesMap.mapType(type)
         if (result != null) {
             changesDone = changesDone || result != type
             Log.i(TAG, "  map string: %s -> %s", type, result)
