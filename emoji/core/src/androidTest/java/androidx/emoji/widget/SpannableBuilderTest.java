@@ -34,13 +34,14 @@ import static org.mockito.Mockito.withSettings;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.emoji.text.EmojiSpan;
 import android.text.Editable;
 import android.text.SpanWatcher;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.style.QuoteSpan;
+
+import androidx.emoji.text.EmojiSpan;
 
 import org.junit.Before;
 import org.junit.Test;

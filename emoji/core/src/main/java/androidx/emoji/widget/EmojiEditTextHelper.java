@@ -18,19 +18,20 @@ package androidx.emoji.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Build;
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.text.EmojiSpan;
-import androidx.core.util.Preconditions;
 import android.text.method.KeyListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.core.util.Preconditions;
+import androidx.emoji.text.EmojiCompat;
+import androidx.emoji.text.EmojiSpan;
 
 /**
  * Utility class to enhance custom EditText widgets with {@link EmojiCompat}.

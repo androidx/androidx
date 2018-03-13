@@ -19,19 +19,19 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
+import android.util.SparseArray;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
-import android.util.SparseArray;
+import androidx.text.emoji.flatbuffer.MetadataList;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-
-import androidx.text.emoji.flatbuffer.MetadataList;
 
 /**
  * Class to hold the emoji metadata required to process and draw emojis.

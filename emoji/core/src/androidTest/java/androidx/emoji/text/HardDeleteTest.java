@@ -37,11 +37,12 @@ import static org.junit.Assert.assertTrue;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.emoji.util.TestString;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.view.KeyEvent;
+
+import androidx.emoji.util.TestString;
 
 import org.junit.Before;
 import org.junit.BeforeClass;

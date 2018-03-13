@@ -30,12 +30,13 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.emoji.text.EmojiCompat;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
+
+import androidx.emoji.text.EmojiCompat;
 
 import org.junit.Before;
 import org.junit.Test;

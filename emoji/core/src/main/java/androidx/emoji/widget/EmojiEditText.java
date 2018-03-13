@@ -17,15 +17,16 @@ package androidx.emoji.widget;
 
 import android.content.Context;
 import android.os.Build;
-import androidx.annotation.IntRange;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.emoji.text.EmojiCompat;
 import android.text.method.KeyListener;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
+
+import androidx.annotation.IntRange;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.emoji.text.EmojiCompat;
 
 /**
  * EditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}. When used

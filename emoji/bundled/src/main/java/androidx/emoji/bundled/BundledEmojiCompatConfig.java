@@ -18,11 +18,12 @@ package androidx.emoji.bundled;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.util.Preconditions;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.MetadataRepo;
-import androidx.core.util.Preconditions;
 
 /**
  * {@link EmojiCompat.Config} implementation that loads the metadata using AssetManager and

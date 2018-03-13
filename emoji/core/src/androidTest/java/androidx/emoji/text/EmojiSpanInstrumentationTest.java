@@ -29,12 +29,13 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.emoji.util.TestString;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.text.style.RelativeSizeSpan;
 import android.util.TypedValue;
 import android.widget.TextView;
+
+import androidx.emoji.util.TestString;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
