@@ -16,7 +16,9 @@
 
 package androidx.viewpager.widget;
 
-import androidx.annotation.Nullable;
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
+
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.UiController;
@@ -27,10 +29,10 @@ import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.Tap;
 import android.view.View;
 import android.widget.TextView;
-import org.hamcrest.Matcher;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
+import androidx.annotation.Nullable;
+
+import org.hamcrest.Matcher;
 
 public class ViewPagerActions {
     /**

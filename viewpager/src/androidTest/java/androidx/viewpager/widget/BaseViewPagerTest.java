@@ -60,7 +60,6 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.testutils.TestUtilsMatchers;
-import androidx.viewpager.test.R;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -69,6 +68,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.viewpager.test.R;
 
 import org.junit.After;
 import org.junit.Assert;
