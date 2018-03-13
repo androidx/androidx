@@ -27,11 +27,12 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.media.tv.TvContentRating;
 import android.net.Uri;
-import androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms;
 
 import org.junit.Before;
 import org.junit.Test;
