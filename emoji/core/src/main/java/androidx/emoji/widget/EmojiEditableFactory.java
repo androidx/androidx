@@ -16,10 +16,11 @@
 package androidx.emoji.widget;
 
 import android.annotation.SuppressLint;
+import android.text.Editable;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.text.Editable;
 
 /**
  * EditableFactory used to improve editing operations on an EditText.

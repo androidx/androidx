@@ -30,20 +30,20 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.Suppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.emoji.test.R;
-import androidx.emoji.util.KeyboardUtil;
-import androidx.emoji.util.TestString;
 import android.text.Editable;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
+
+import androidx.emoji.test.R;
+import androidx.emoji.util.KeyboardUtil;
+import androidx.emoji.util.TestString;
+import androidx.testutils.PollingCheck;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.testutils.PollingCheck;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)

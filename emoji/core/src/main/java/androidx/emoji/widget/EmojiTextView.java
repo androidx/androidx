@@ -17,10 +17,11 @@ package androidx.emoji.widget;
 
 import android.content.Context;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 /**
  * TextView widget enhanced with emoji capability by using {@link EmojiTextViewHelper}. When used

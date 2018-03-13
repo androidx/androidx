@@ -17,9 +17,10 @@
 package androidx.emoji.widget;
 
 import android.content.Context;
-import androidx.appcompat.widget.AppCompatTextView;
 import android.text.InputFilter;
 import android.util.AttributeSet;
+
+import androidx.appcompat.widget.AppCompatTextView;
 
 /**
  * AppCompatTextView widget enhanced with emoji capability by using {@link EmojiTextViewHelper}.

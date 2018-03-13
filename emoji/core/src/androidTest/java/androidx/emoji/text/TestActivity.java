@@ -17,6 +17,7 @@ package androidx.emoji.text;
 
 import android.app.Activity;
 import android.os.Bundle;
+
 import androidx.emoji.test.R;
 
 public class TestActivity extends Activity {

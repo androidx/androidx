@@ -32,10 +32,11 @@ import static org.mockito.Mockito.when;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.emoji.text.EmojiCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.widget.TextView;
+
+import androidx.emoji.text.EmojiCompat;
 
 import org.junit.Before;
 import org.junit.Test;

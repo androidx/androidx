@@ -18,17 +18,17 @@ package androidx.emoji.text;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.res.AssetManager;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntRange;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.text.emoji.flatbuffer.MetadataList;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import androidx.text.emoji.flatbuffer.MetadataList;
 
 /**
  * Reads the emoji metadata from a given InputStream or ByteBuffer.
