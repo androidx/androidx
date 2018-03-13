@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package android.support.dynamicanimation.tests;
+package androidx.dynamicanimation.tests;
 
 import android.app.Activity;
 import android.os.Bundle;
+
 import androidx.dynamicanimation.test.R;
 
 public class AnimationActivity extends Activity {
