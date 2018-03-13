@@ -22,6 +22,15 @@ plugins {
 
 project.ext.noDocs = true
 
+android {
+    buildTypes {
+        getByName("release") {
+            minifyEnabled = true
+            proguardFiles("proguard-rules.pro")
+        }
+    }
+}
+
 dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     compile project(':arch:runtime')
