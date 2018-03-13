@@ -19,6 +19,6 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">
-        <activity android:name="android.support.dynamicanimation.tests.AnimationActivity"/>
+        <activity android:name="androidx.dynamicanimation.tests.AnimationActivity"/>
     </application>
 </manifest>
