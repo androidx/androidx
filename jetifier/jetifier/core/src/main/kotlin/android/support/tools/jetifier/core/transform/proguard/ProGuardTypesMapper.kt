@@ -34,7 +34,7 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
      * Replaces the given ProGuard type that was parsed from the ProGuard file (thus having '.' as
      * a separator.
      */
-    fun replaceType(typeToReplace: String) : String {
+    fun replaceType(typeToReplace: String): String {
         val type = ProGuardType.fromDotNotation(typeToReplace)
         if (type.isTrivial()) {
             return typeToReplace
@@ -47,7 +47,7 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
                 return typeToReplace
             }
 
-            val result = config.typesMap.types[javaType]
+            val result = config.typesMap.mapType(javaType)
             if (result != null) {
                 Log.i(TAG, "  map: %s -> %s", type, result)
                 return result.toDotNotation()
@@ -82,7 +82,7 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
      * Replaces the given arguments list used in a ProGuard method rule. Argument must be separated
      * with ','. The method also accepts '...' symbol as defined in the spec.
      */
-    fun replaceMethodArgs(argsTypes: String) : String {
+    fun replaceMethodArgs(argsTypes: String): String {
         if (argsTypes.isEmpty() || argsTypes == "...") {
             return argsTypes
         }

@@ -43,16 +43,17 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
         return ClassRemapper(visitor, CustomRemapper(this))
     }
 
-    override fun rewriteType(type: JavaType): JavaType {
-        if (!isTypeSupported(type)) {
-            return type
+    override fun rewriteType(typeToMap: JavaType): JavaType {
+        if (!isTypeSupported(typeToMap)) {
+            return typeToMap
         }
 
-        if (typesRewritesMap.contains(type)) {
-            return type
+        if (typesRewritesMap.contains(typeToMap)) {
+            return typeToMap
         }
 
         // Try to find a rule
+        val type = typeToMap.getRootType()
         for (rule in config.rewriteRules) {
             val typeRewriteResult = rule.apply(type)
             if (typeRewriteResult.isIgnored) {
