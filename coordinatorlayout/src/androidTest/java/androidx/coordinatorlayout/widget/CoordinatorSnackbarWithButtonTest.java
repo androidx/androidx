@@ -20,13 +20,11 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
 import static org.junit.Assert.assertTrue;
 
 import android.os.Handler;
 import android.os.Looper;
-import androidx.coordinatorlayout.test.R;
-import androidx.coordinatorlayout.custom.CustomBar;
-import androidx.coordinatorlayout.custom.TestFloatingBehavior;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
@@ -34,6 +32,10 @@ import android.support.test.filters.MediumTest;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.coordinatorlayout.custom.CustomBar;
+import androidx.coordinatorlayout.custom.TestFloatingBehavior;
+import androidx.coordinatorlayout.test.R;
 
 import org.hamcrest.Matcher;
 import org.junit.After;

@@ -16,9 +16,10 @@
 package androidx.coordinatorlayout.custom;
 
 import android.content.Context;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.widget.TextView;
+
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 @CoordinatorLayout.DefaultBehavior(TestFloatingBehavior.class)
 public class CustomTextView extends TextView {
