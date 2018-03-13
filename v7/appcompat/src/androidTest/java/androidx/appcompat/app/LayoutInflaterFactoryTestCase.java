@@ -22,14 +22,21 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.res.Resources;
-import androidx.annotation.RequiresApi;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.appcompat.test.R;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.custom.ContextWrapperFrameLayout;
+import androidx.appcompat.test.R;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatCheckBox;
@@ -39,12 +46,6 @@ import androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatRatingBar;
 import androidx.appcompat.widget.AppCompatSpinner;
-import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import org.junit.Before;
 import org.junit.Rule;

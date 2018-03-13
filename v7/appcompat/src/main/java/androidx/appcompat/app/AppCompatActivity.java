@@ -21,19 +21,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.CallSuper;
-import androidx.annotation.IdRes;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.StyleRes;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
-import androidx.core.app.NavUtils;
-import androidx.core.app.TaskStackBuilder;
-import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.widget.Toolbar;
-import androidx.appcompat.widget.VectorEnabledTintResources;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -41,6 +28,20 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.IdRes;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
+import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.VectorEnabledTintResources;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NavUtils;
+import androidx.core.app.TaskStackBuilder;
+import androidx.fragment.app.FragmentActivity;
 
 /**
  * Base class for activities that use the

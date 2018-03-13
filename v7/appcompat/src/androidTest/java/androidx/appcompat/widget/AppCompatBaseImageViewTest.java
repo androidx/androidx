@@ -18,23 +18,25 @@ package androidx.appcompat.widget;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
 import static androidx.appcompat.testutils.TestUtilsActions.setEnabled;
 
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.test.filters.SmallTest;
+import android.widget.ImageView;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-import android.support.test.filters.SmallTest;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.core.graphics.ColorUtils;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.AppCompatTintableViewActions;
 import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.testutils.TestUtils;
-import android.widget.ImageView;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.ColorUtils;
 
 import org.junit.Test;
 

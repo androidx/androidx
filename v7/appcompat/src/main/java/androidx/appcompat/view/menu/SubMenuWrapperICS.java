@@ -20,12 +20,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.core.internal.view.SupportSubMenu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.core.internal.view.SupportSubMenu;
 
 /**
  * Wraps a support {@link SupportSubMenu} as a framework {@link android.view.SubMenu}

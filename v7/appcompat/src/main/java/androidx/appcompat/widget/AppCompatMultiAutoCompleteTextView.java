@@ -22,16 +22,17 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.TintableBackgroundView;
-import androidx.appcompat.R;
-import androidx.appcompat.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.MultiAutoCompleteTextView;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.view.TintableBackgroundView;
 
 /**
  * A {@link MultiAutoCompleteTextView} which supports compatible features on older version of the

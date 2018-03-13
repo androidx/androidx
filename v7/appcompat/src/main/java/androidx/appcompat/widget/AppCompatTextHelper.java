@@ -26,16 +26,17 @@ import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.core.widget.TextViewCompat;
-import androidx.appcompat.R;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.widget.TextViewCompat;
 
 import java.lang.ref.WeakReference;
 

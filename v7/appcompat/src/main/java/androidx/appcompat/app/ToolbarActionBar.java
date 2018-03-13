@@ -20,14 +20,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.view.WindowCallbackWrapper;
-import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.view.menu.MenuPresenter;
-import androidx.appcompat.widget.DecorToolbar;
-import androidx.appcompat.widget.Toolbar;
-import androidx.appcompat.widget.ToolbarWidgetWrapper;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -37,6 +29,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.SpinnerAdapter;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.view.WindowCallbackWrapper;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPresenter;
+import androidx.appcompat.widget.DecorToolbar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.ToolbarWidgetWrapper;
+import androidx.core.view.ViewCompat;
 
 import java.util.ArrayList;
 

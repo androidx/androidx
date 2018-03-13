@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.junit.Rule;

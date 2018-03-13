@@ -49,7 +49,6 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.appcompat.test.R;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -60,6 +59,8 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+
+import androidx.appcompat.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;

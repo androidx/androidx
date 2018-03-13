@@ -19,14 +19,15 @@ package androidx.appcompat.testutils;
 import android.database.sqlite.SQLiteCursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.ColorInt;
 import android.support.test.espresso.matcher.BoundedMatcher;
-import androidx.core.view.TintableBackgroundView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 import android.widget.ImageView;
+
+import androidx.annotation.ColorInt;
+import androidx.core.view.TintableBackgroundView;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

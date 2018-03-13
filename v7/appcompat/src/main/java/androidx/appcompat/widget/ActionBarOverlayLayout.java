@@ -28,13 +28,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcelable;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.NestedScrollingParent;
-import androidx.core.view.NestedScrollingParentHelper;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.R;
-import androidx.appcompat.view.menu.MenuPresenter;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.Menu;
@@ -43,6 +36,14 @@ import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.Window;
 import android.widget.OverScroller;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.view.menu.MenuPresenter;
+import androidx.core.view.NestedScrollingParent;
+import androidx.core.view.NestedScrollingParentHelper;
+import androidx.core.view.ViewCompat;
 
 /**
  * Special layout for the containing of an overlay action bar (and its content) to correctly handle

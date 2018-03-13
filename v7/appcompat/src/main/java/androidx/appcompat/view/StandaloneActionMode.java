@@ -18,16 +18,17 @@ package androidx.appcompat.view;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import androidx.annotation.RestrictTo;
-import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.view.menu.MenuPopupHelper;
-import androidx.appcompat.view.menu.SubMenuBuilder;
-import androidx.appcompat.widget.ActionBarContextView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
+import androidx.appcompat.view.menu.SubMenuBuilder;
+import androidx.appcompat.widget.ActionBarContextView;
 
 import java.lang.ref.WeakReference;
 

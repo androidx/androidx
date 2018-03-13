@@ -21,18 +21,19 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.view.ViewPropertyAnimatorCompat;
-import androidx.core.widget.ListViewAutoScrollHelper;
-import androidx.appcompat.R;
-import androidx.appcompat.graphics.drawable.DrawableWrapper;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.R;
+import androidx.appcompat.graphics.drawable.DrawableWrapper;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ViewPropertyAnimatorCompat;
+import androidx.core.widget.ListViewAutoScrollHelper;
 
 import java.lang.reflect.Field;
 

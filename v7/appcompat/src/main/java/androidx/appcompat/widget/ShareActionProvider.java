@@ -22,16 +22,17 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.core.view.ActionProvider;
-import androidx.appcompat.R;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.widget.ActivityChooserModel.OnChooseActivityListener;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.SubMenu;
 import android.view.View;
+
+import androidx.appcompat.R;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.ActivityChooserModel.OnChooseActivityListener;
+import androidx.core.view.ActionProvider;
 
 /**
  * Provides a share action, which is suitable for an activity's app bar. Creates

@@ -17,10 +17,11 @@
 package androidx.appcompat.app.inflater;
 
 import android.content.Context;
+import android.util.AttributeSet;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatViewInflater;
 import androidx.appcompat.widget.AppCompatButton;
-import android.util.AttributeSet;
 
 /**
  * Custom view inflater that declares that it takes over the view inflation but

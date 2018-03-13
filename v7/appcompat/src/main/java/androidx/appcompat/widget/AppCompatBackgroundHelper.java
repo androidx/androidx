@@ -20,11 +20,12 @@ import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.R;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.R;
+import androidx.core.view.ViewCompat;
 
 class AppCompatBackgroundHelper {
 

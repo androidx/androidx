@@ -26,11 +26,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
-import androidx.core.widget.NestedScrollView;
-import androidx.appcompat.R;
-import androidx.appcompat.widget.LinearLayoutCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -58,6 +53,12 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.R;
+import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.widget.NestedScrollView;
 
 import java.lang.ref.WeakReference;
 

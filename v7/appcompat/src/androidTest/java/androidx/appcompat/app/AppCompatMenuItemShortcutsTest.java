@@ -24,8 +24,9 @@ import android.os.SystemClock;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.appcompat.test.R;
 import android.view.KeyEvent;
+
+import androidx.appcompat.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;

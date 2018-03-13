@@ -21,18 +21,20 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+
 import static androidx.appcompat.testutils.TestUtilsMatchers.hasChild;
 import static androidx.appcompat.testutils.TestUtilsMatchers.isCombinedBackground;
 
 import android.content.res.Resources;
+import android.support.test.filters.LargeTest;
+import android.support.test.filters.SmallTest;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.IdRes;
-import android.support.test.filters.LargeTest;
-import android.support.test.filters.SmallTest;
+import androidx.appcompat.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.appcompat.test.R;
 
 import org.hamcrest.Matcher;
 import org.junit.Test;

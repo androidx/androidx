@@ -23,16 +23,6 @@ import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.ViewPropertyAnimatorCompat;
-import androidx.core.view.ViewPropertyAnimatorListenerAdapter;
-import androidx.appcompat.app.WindowDecorActionBar;
-import androidx.appcompat.R;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.view.menu.ActionMenuItem;
-import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.view.menu.MenuPresenter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
@@ -45,6 +35,17 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.appcompat.app.WindowDecorActionBar;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.view.menu.ActionMenuItem;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPresenter;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewPropertyAnimatorCompat;
+import androidx.core.view.ViewPropertyAnimatorListenerAdapter;
 
 /**
  * Internal class used to interact with the Toolbar widget without

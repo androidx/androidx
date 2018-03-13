@@ -21,8 +21,9 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.Editable;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.junit.Rule;
 import org.junit.Test;

@@ -21,11 +21,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import androidx.annotation.RestrictTo;
-import androidx.appcompat.view.menu.MenuPresenter;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.Window;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.view.menu.MenuPresenter;
 
 /**
  * Implemented by the top-level decor layout for a window. DecorContentParent offers

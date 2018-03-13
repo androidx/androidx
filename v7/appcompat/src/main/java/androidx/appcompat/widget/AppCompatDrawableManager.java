@@ -17,11 +17,11 @@
 package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.core.graphics.ColorUtils.compositeColors;
 import static androidx.appcompat.content.res.AppCompatResources.getColorStateList;
 import static androidx.appcompat.widget.ThemeUtils.getDisabledThemeAttrColor;
 import static androidx.appcompat.widget.ThemeUtils.getThemeAttrColor;
 import static androidx.appcompat.widget.ThemeUtils.getThemeAttrColorStateList;
+import static androidx.core.graphics.ColorUtils.compositeColors;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -34,25 +34,26 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.util.TypedValue;
+import android.util.Xml;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.appcompat.R;
 import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
 import androidx.collection.LruCache;
 import androidx.collection.SparseArrayCompat;
-import androidx.appcompat.R;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.util.TypedValue;
-import android.util.Xml;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

@@ -15,10 +15,11 @@
  */
 package androidx.appcompat.app;
 
-import androidx.appcompat.test.R;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import androidx.appcompat.test.R;
 
 public class AppCompatMenuItemShortcutsTestActivity extends AppCompatActivity {
 

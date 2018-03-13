@@ -21,8 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
 import android.util.SparseArray;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -31,6 +29,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
 
 import java.util.ArrayList;
 

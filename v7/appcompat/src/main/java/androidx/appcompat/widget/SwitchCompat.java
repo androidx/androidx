@@ -28,12 +28,6 @@ import android.graphics.Region;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.Nullable;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.R;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.text.AllCapsTransformationMethod;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -49,6 +43,13 @@ import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.CompoundButton;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.R;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.text.AllCapsTransformationMethod;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ViewCompat;
 
 /**
  * SwitchCompat is a version of the Switch widget which on devices back to API v7. It does not

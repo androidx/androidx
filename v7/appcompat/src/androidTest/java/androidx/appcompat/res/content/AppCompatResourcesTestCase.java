@@ -25,11 +25,12 @@ import android.graphics.Color;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.graphics.ColorUtils;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.test.R;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtils;
+import androidx.core.graphics.ColorUtils;
 
 import org.junit.Rule;
 import org.junit.Test;

@@ -16,20 +16,22 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.view.View.MeasureSpec.AT_MOST;
 import static android.view.View.MeasureSpec.EXACTLY;
 import static android.view.View.MeasureSpec.getMode;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.graphics.Rect;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.FrameLayout;
+
+import androidx.annotation.RestrictTo;
+import androidx.core.view.ViewCompat;
 
 /**
  * @hide

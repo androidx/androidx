@@ -30,9 +30,6 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.core.content.ContextCompat;
-import androidx.cursoradapter.widget.ResourceCursorAdapter;
-import androidx.appcompat.R;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -44,6 +41,10 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.appcompat.R;
+import androidx.core.content.ContextCompat;
+import androidx.cursoradapter.widget.ResourceCursorAdapter;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

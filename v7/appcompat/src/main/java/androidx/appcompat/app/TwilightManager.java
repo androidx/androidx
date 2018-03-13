@@ -24,12 +24,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.text.format.DateUtils;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.PermissionChecker;
-import android.text.format.DateUtils;
-import android.util.Log;
 
 import java.util.Calendar;
 

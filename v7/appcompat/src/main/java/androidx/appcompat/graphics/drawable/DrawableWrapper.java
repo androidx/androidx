@@ -25,9 +25,10 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
+import android.view.View;
+
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
-import android.view.View;
 
 /**
  * Drawable which delegates all calls to its wrapped {@link Drawable}.

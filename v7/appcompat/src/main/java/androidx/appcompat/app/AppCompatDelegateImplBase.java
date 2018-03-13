@@ -22,6 +22,12 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
+import android.view.Window;
+
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.R;
 import androidx.appcompat.view.ActionMode;
@@ -29,11 +35,6 @@ import androidx.appcompat.view.SupportMenuInflater;
 import androidx.appcompat.view.WindowCallbackWrapper;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.TintTypedArray;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.View;
-import android.view.Window;
 
 @RequiresApi(14)
 abstract class AppCompatDelegateImplBase extends AppCompatDelegate {

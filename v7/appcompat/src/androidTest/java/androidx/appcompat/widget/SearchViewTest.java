@@ -35,10 +35,11 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.appcompat.test.R;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.inputmethod.EditorInfo;
+
+import androidx.appcompat.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;

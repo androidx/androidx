@@ -16,12 +16,13 @@
 
 package androidx.appcompat.app;
 
-import androidx.annotation.RequiresApi;
 import android.content.res.Resources;
 import android.os.Build;
-import androidx.annotation.NonNull;
 import android.util.Log;
 import android.util.LongSparseArray;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Field;
 import java.util.Map;

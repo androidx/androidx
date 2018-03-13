@@ -25,14 +25,15 @@ import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.AttributeSet;
+import android.util.TypedValue;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleableRes;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.appcompat.content.res.AppCompatResources;
-import android.util.AttributeSet;
-import android.util.TypedValue;
+import androidx.core.content.res.ResourcesCompat;
 
 /**
  * A class that wraps a {@link android.content.res.TypedArray} and provides the same public API

@@ -22,9 +22,10 @@ import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
+import android.view.LayoutInflater;
+
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
-import android.view.LayoutInflater;
 
 /**
  * A context wrapper that allows you to modify or replace the theme of the wrapped context.

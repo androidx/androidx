@@ -25,6 +25,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.appcompat.test.R;
 
 import org.junit.Rule;

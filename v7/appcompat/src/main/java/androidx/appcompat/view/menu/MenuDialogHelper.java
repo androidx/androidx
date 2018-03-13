@@ -19,12 +19,13 @@ package androidx.appcompat.view.menu;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.IBinder;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.R;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import androidx.appcompat.R;
+import androidx.appcompat.app.AlertDialog;
 
 /**
  * Helper for menus that appear as Dialogs (context and submenus).

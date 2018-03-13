@@ -18,15 +18,16 @@ package androidx.appcompat.widget;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.AttributeSet;
+import android.view.View;
+import android.widget.PopupWindow;
+
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
-import androidx.core.widget.PopupWindowCompat;
 import androidx.appcompat.R;
-import android.util.AttributeSet;
-import android.view.View;
-import android.widget.PopupWindow;
+import androidx.core.widget.PopupWindowCompat;
 
 class AppCompatPopupWindow extends PopupWindow {
 

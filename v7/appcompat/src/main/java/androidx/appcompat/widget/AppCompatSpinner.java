@@ -27,15 +27,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.TintableBackgroundView;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.R;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.view.ContextThemeWrapper;
-import androidx.appcompat.view.menu.ShowableListMenu;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -49,6 +40,16 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.appcompat.view.menu.ShowableListMenu;
+import androidx.core.view.TintableBackgroundView;
+import androidx.core.view.ViewCompat;
 
 
 /**

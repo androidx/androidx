@@ -22,10 +22,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewPropertyAnimatorCompat;
-import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.view.menu.MenuPresenter;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.View;
@@ -33,6 +29,11 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.SpinnerAdapter;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPresenter;
+import androidx.core.view.ViewPropertyAnimatorCompat;
 
 /**
  * Common interface for a toolbar that sits as part of the window decor.

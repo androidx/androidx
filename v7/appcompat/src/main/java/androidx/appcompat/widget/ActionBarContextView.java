@@ -19,11 +19,6 @@ package androidx.appcompat.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.R;
-import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.view.menu.MenuBuilder;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -32,6 +27,12 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.core.view.ViewCompat;
 
 /**
  * @hide

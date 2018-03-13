@@ -24,16 +24,17 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
+
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.widget.ActionMenuView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.ForwardingListener;
 import androidx.appcompat.widget.TooltipCompat;
-import android.text.TextUtils;
-import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
 
 /**
  * @hide

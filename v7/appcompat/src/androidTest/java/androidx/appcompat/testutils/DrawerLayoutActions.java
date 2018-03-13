@@ -18,13 +18,14 @@ package androidx.appcompat.testutils;
 
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 
-import androidx.annotation.Nullable;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
-import androidx.drawerlayout.widget.DrawerLayout;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import org.hamcrest.Matcher;
 
