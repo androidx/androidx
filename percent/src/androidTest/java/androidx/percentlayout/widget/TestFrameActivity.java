@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package android.percentlayout.widget;
+package androidx.percentlayout.widget;
 
 import androidx.percentlayout.test.R;
 
-public class TestRelativeRtlActivity extends BaseTestActivity {
+public class TestFrameActivity extends BaseTestActivity {
     @Override
     protected int getContentViewLayoutResId() {
-        return R.layout.percent_relative_layout_rtl;
+        return R.layout.percent_frame_layout;
     }
 }

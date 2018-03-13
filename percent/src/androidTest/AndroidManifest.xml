@@ -19,10 +19,10 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">
-        <activity android:name="android.percentlayout.widget.TestFrameActivity"/>
-        <activity android:name="android.percentlayout.widget.TestRelativeActivity"/>
-        <activity android:name="android.percentlayout.widget.TestRelativeRtlActivity"/>
-        <activity android:name="android.percentlayout.widget.PercentDynamicLayoutActivity"/>
+        <activity android:name="androidx.percentlayout.widget.TestFrameActivity"/>
+        <activity android:name="androidx.percentlayout.widget.TestRelativeActivity"/>
+        <activity android:name="androidx.percentlayout.widget.TestRelativeRtlActivity"/>
+        <activity android:name="androidx.percentlayout.widget.PercentDynamicLayoutActivity"/>
     </application>
 
 </manifest>

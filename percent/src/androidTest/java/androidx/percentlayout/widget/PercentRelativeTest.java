@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.percentlayout.widget;
+package androidx.percentlayout.widget;
 
 import androidx.percentlayout.test.R;
 import android.support.test.filters.SmallTest;
