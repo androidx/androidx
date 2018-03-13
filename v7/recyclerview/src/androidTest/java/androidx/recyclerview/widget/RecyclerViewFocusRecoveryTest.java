@@ -22,14 +22,15 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.support.test.filters.MediumTest;
-import androidx.recyclerview.test.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.test.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

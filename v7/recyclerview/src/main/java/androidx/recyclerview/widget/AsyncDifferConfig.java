@@ -18,6 +18,7 @@ package androidx.recyclerview.widget;
 
 import android.os.Handler;
 import android.os.Looper;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 

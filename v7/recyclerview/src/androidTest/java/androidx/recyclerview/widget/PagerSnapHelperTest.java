@@ -21,11 +21,12 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import androidx.annotation.Nullable;
 import android.support.test.filters.LargeTest;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -29,8 +29,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import androidx.recyclerview.widget.ViewBoundsCheck;
-
 
 @SmallTest
 @RunWith(JUnit4.class)

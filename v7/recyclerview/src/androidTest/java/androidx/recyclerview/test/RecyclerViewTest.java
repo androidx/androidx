@@ -28,13 +28,13 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import org.junit.Rule;
 import org.junit.Test;

@@ -18,7 +18,6 @@ package androidx.recyclerview.widget;
 
 import android.app.Instrumentation;
 import android.os.SystemClock;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;

@@ -17,11 +17,11 @@
 package androidx.recyclerview.widget;
 
 import android.graphics.PointF;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
 
 /**

@@ -16,9 +16,10 @@
 
 package androidx.recyclerview.widget;
 
-import static androidx.recyclerview.widget.StaggeredGridLayoutManager.HORIZONTAL;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
+import static androidx.recyclerview.widget.StaggeredGridLayoutManager.HORIZONTAL;
 
 import android.graphics.Rect;
 import android.os.Build;

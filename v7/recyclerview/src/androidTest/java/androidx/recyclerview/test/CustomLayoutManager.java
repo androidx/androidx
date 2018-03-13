@@ -17,9 +17,10 @@
 package androidx.recyclerview.test;
 
 import android.content.Context;
+import android.util.AttributeSet;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.AttributeSet;
 
 /**
  * A couple of LayoutManagers used to test inflation using XML attributes.

@@ -23,12 +23,13 @@ import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.view.MotionEvent;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.view.ViewCompat;
-import android.view.MotionEvent;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

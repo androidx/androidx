@@ -23,10 +23,11 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
 import android.support.test.filters.MediumTest;
-import androidx.core.view.AccessibilityDelegateCompat;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
+
+import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

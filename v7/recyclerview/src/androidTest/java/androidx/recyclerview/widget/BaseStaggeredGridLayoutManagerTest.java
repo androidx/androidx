@@ -19,7 +19,8 @@ package androidx.recyclerview.widget;
 import static androidx.recyclerview.widget.LayoutState.LAYOUT_END;
 import static androidx.recyclerview.widget.LayoutState.LAYOUT_START;
 import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
-import static androidx.recyclerview.widget.StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
+import static androidx.recyclerview.widget.StaggeredGridLayoutManager
+        .GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
 import static androidx.recyclerview.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE;
 import static androidx.recyclerview.widget.StaggeredGridLayoutManager.HORIZONTAL;
 
@@ -34,12 +35,13 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 import android.util.StateSet;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;

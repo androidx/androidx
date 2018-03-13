@@ -21,8 +21,9 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import androidx.annotation.Nullable;
 import android.support.test.filters.SmallTest;
+
+import androidx.annotation.Nullable;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Rule;

@@ -16,13 +16,14 @@
 
 package androidx.recyclerview.widget;
 
+import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.util.SparseIntArray;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
-import android.util.Log;
-import android.util.SparseBooleanArray;
-import android.util.SparseIntArray;
 
 /**
  * A utility class that supports asynchronous content loading.

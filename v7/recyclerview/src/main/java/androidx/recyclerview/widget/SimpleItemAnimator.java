@@ -16,10 +16,11 @@
 
 package androidx.recyclerview.widget;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * A wrapper class for ItemAnimator that records View bounds and decides whether it should run

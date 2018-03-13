@@ -16,10 +16,11 @@
 
 package androidx.recyclerview.widget;
 
-import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
-import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
+import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
+import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -34,16 +35,17 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
-import androidx.annotation.NonNull;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
-import androidx.core.view.AccessibilityDelegateCompat;
-import androidx.core.view.ViewCompat;
 import android.util.Log;
 import android.util.StateSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.ViewCompat;
 
 import org.junit.Test;
 
