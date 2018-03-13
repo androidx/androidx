@@ -18,24 +18,23 @@ package androidx.recyclerview.selection;
 
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
-
 import static androidx.recyclerview.selection.Shared.VERBOSE;
 
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.util.Log;
+import android.view.MotionEvent;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
-import android.util.Log;
-import android.view.MotionEvent;
 
 import java.util.Set;
-
-import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 
 /**
  * Provides mouse driven band-selection support when used in conjunction with a {@link RecyclerView}

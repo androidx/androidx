@@ -23,10 +23,6 @@ import static androidx.recyclerview.selection.testing.TestEvents.Mouse.SHIFT_CLI
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import androidx.recyclerview.selection.testing.SelectionProbe;
 import androidx.recyclerview.selection.testing.SelectionTrackers;
 import androidx.recyclerview.selection.testing.TestAdapter;
@@ -37,6 +33,10 @@ import androidx.recyclerview.selection.testing.TestItemDetailsLookup;
 import androidx.recyclerview.selection.testing.TestItemKeyProvider;
 import androidx.recyclerview.selection.testing.TestOnContextClickListener;
 import androidx.recyclerview.selection.testing.TestOnItemActivatedListener;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * MouseInputDelegate / SelectHelper integration test covering the shared

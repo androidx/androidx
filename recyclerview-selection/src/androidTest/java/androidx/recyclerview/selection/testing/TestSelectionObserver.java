@@ -20,10 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
 
 public class TestSelectionObserver<K> extends SelectionObserver<K> {
 

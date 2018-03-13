@@ -22,12 +22,12 @@ import android.os.Bundle;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.recyclerview.selection.testing.Bundles;
+import androidx.recyclerview.selection.testing.SelectionTrackers;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.recyclerview.selection.testing.Bundles;
-import androidx.recyclerview.selection.testing.SelectionTrackers;
 
 /**
  * Tests guaranteeing that two distinct selections can be stored side-by-side.

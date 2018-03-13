@@ -16,12 +16,13 @@
 
 package androidx.recyclerview.selection;
 
+import android.util.SparseArray;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener;
-import android.util.SparseArray;
-import android.view.View;
 
 import java.util.HashMap;
 import java.util.Map;

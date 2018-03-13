@@ -20,6 +20,7 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;

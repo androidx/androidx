@@ -18,17 +18,17 @@ package androidx.recyclerview.selection;
 
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
-
 import static androidx.recyclerview.selection.Shared.DEBUG;
 import static androidx.recyclerview.selection.Shared.VERBOSE;
 
 import android.graphics.Point;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
 
 /**
  * Provides auto-scrolling upon request when user's interaction with the application

@@ -21,11 +21,10 @@ import static androidx.core.util.Preconditions.checkArgument;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Provides selection library access to stable selection keys identifying items

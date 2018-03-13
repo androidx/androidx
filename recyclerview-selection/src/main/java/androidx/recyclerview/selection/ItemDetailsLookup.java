@@ -16,10 +16,11 @@
 
 package androidx.recyclerview.selection;
 
+import android.view.MotionEvent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.MotionEvent;
 
 /**
  * The Selection library calls {@link #getItemDetails(MotionEvent)} when it needs
