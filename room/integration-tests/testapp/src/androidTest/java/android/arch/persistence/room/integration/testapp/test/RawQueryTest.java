@@ -20,6 +20,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import static java.util.Collections.emptyList;
+
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.db.SimpleSQLiteQuery;
@@ -203,6 +205,71 @@ public class RawQueryTest extends TestDatabaseTest {
         mUserDao.insertAll(TestUtil.createUsersArray(3, 5, 7, 10));
         int count = mRawDao.count("SELECT COUNT(*) FROM User");
         assertThat(count, is(4));
+    }
+
+    @Test
+    public void embedded_liveData() throws TimeoutException, InterruptedException {
+        LiveData<List<UserAndPet>> liveData = mRawDao.getUserAndPetListObservable(
+                "SELECT * FROM User LEFT JOIN Pet ON (User.mId = Pet.mUserId)"
+                        + " ORDER BY mId ASC, mPetId ASC");
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> liveData.observeForever(user -> {
+                })
+        );
+        drain();
+        assertThat(liveData.getValue(), is(emptyList()));
+
+        User[] users = TestUtil.createUsersArray(3, 5);
+        Pet[] pets = TestUtil.createPetsForUser(3, 1, 2);
+        mUserDao.insertAll(users);
+        drain();
+        List<UserAndPet> justUsers = liveData.getValue();
+        //noinspection ConstantConditions
+        assertThat(justUsers.size(), is(2));
+        assertThat(justUsers.get(0).getUser(), is(users[0]));
+        assertThat(justUsers.get(1).getUser(), is(users[1]));
+        assertThat(justUsers.get(0).getPet(), is(nullValue()));
+        assertThat(justUsers.get(1).getPet(), is(nullValue()));
+
+        mPetDao.insertAll(pets);
+        drain();
+        List<UserAndPet> allItems = liveData.getValue();
+        //noinspection ConstantConditions
+        assertThat(allItems.size(), is(3));
+        // row 0
+        assertThat(allItems.get(0).getUser(), is(users[0]));
+        assertThat(allItems.get(0).getPet(), is(pets[0]));
+        // row 1
+        assertThat(allItems.get(1).getUser(), is(users[0]));
+        assertThat(allItems.get(1).getPet(), is(pets[1]));
+        // row 2
+        assertThat(allItems.get(2).getUser(), is(users[1]));
+        assertThat(allItems.get(2).getPet(), is(nullValue()));
+
+        mDatabase.clearAllTables();
+        drain();
+        assertThat(liveData.getValue(), is(emptyList()));
+    }
+
+    @Test
+    public void relation_liveData() throws TimeoutException, InterruptedException {
+        LiveData<UserAndAllPets> liveData = mRawDao
+                .getUserAndAllPetsObservable("SELECT * FROM User WHERE mId = 3");
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> liveData.observeForever(user -> {
+                })
+        );
+        drain();
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        drain();
+        assertThat(liveData.getValue().user, is(user));
+        assertThat(liveData.getValue().pets, is(emptyList()));
+        Pet[] pets = TestUtil.createPetsForUser(3, 1, 5);
+        mPetDao.insertAll(pets);
+        drain();
+        assertThat(liveData.getValue().user, is(user));
+        assertThat(liveData.getValue().pets, is(Arrays.asList(pets)));
     }
 
     private void drain() throws TimeoutException, InterruptedException {
