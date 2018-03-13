@@ -17,9 +17,9 @@
 package androidx.coordinatorlayout.widget;
 
 import android.os.Bundle;
-import androidx.annotation.LayoutRes;
 import android.view.WindowManager;
 
+import androidx.annotation.LayoutRes;
 import androidx.testutils.RecreatedActivity;
 
 abstract class BaseTestActivity extends RecreatedActivity {

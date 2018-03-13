@@ -21,8 +21,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.util.Pools;
 import androidx.collection.SimpleArrayMap;
+import androidx.core.util.Pools;
 
 import java.util.ArrayList;
 import java.util.HashSet;

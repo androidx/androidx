@@ -16,10 +16,11 @@
 package androidx.coordinatorlayout.custom;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 public class CustomTextView2 extends TextView implements
         CoordinatorLayout.AttachedBehavior {
