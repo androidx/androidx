@@ -19,12 +19,13 @@ package android.support.v4.testutils;
 import static org.junit.Assert.fail;
 
 import android.graphics.drawable.Drawable;
-import androidx.annotation.ColorInt;
 import android.support.test.espresso.matcher.BoundedMatcher;
-import androidx.core.view.ViewCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+
+import androidx.annotation.ColorInt;
+import androidx.core.view.ViewCompat;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
