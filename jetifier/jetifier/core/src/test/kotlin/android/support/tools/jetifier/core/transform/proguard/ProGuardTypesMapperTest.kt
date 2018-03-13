@@ -116,7 +116,7 @@ class ProGuardTypesMapperTest {
                 "support/"
             )
             .forGivenTypesMap(
-                "support/Activity\$InnerClass" to "test/Activity\$InnerClass"
+                "support/Activity" to "test/Activity"
             )
             .testThatGivenType("support.Activity\$InnerClass")
             .getsRewrittenTo("test.Activity\$InnerClass")
@@ -205,7 +205,6 @@ class ProGuardTypesMapperTest {
             .testThatGivenType("support.v7.**")
             .getsRewrittenTo("support.v7.**")
     }
-
 
     @Test(expected = AssertionError::class)
     fun proGuard_shouldNotIgnore() {
