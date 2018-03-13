@@ -21,9 +21,10 @@ import android.content.res.TypedArray;
 import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
+import android.util.AttributeSet;
+
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.graphics.PathParser;
-import android.util.AttributeSet;
 
 import org.xmlpull.v1.XmlPullParser;
 

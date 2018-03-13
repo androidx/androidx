@@ -17,8 +17,9 @@
 package androidx.transition;
 
 import android.os.Build;
-import androidx.annotation.NonNull;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
 
 /**
  * Compatibility utilities for platform features of {@link ViewGroup}.

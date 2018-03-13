@@ -24,9 +24,10 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Rect;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
-import androidx.transition.test.R;
-import androidx.core.view.ViewCompat;
 import android.view.View;
+
+import androidx.core.view.ViewCompat;
+import androidx.transition.test.R;
 
 import org.junit.Test;
 

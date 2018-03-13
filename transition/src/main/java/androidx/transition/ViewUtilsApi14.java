@@ -17,10 +17,11 @@
 package androidx.transition;
 
 import android.graphics.Matrix;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import android.view.View;
 import android.view.ViewParent;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 @RequiresApi(14)
 class ViewUtilsApi14 implements ViewUtilsImpl {

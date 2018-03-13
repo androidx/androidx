@@ -22,13 +22,14 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
-import androidx.annotation.NonNull;
-import androidx.core.content.res.TypedArrayUtils;
-import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.res.TypedArrayUtils;
+import androidx.core.view.ViewCompat;
 
 /**
  * This transition tracks changes to the visibility of target views in the

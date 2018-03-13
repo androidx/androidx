@@ -16,10 +16,11 @@
 
 package androidx.transition;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
