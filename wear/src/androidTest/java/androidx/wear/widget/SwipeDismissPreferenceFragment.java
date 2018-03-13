@@ -18,11 +18,12 @@ package androidx.wear.widget;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import androidx.wear.widget.SwipeDismissFrameLayout.Callback;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.wear.widget.SwipeDismissFrameLayout.Callback;
 
 /**
  * {@link PreferenceFragment} that supports swipe-to-dismiss.

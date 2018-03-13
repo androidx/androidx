@@ -22,12 +22,13 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.ArrayMap;
+import android.view.Gravity;
+
 import androidx.annotation.IntDef;
 import androidx.wear.test.R;
 import androidx.wear.widget.drawer.WearableDrawerLayout.DrawerStateCallback;
 import androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter;
-import android.util.ArrayMap;
-import android.view.Gravity;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

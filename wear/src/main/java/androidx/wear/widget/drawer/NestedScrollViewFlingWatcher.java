@@ -18,13 +18,14 @@ package androidx.wear.widget.drawer;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.core.widget.NestedScrollView;
 import androidx.core.widget.NestedScrollView.OnScrollChangeListener;
 import androidx.wear.widget.drawer.FlingWatcherFactory.FlingListener;
 import androidx.wear.widget.drawer.FlingWatcherFactory.FlingWatcher;
-import android.view.View;
 
 import java.lang.ref.WeakReference;
 

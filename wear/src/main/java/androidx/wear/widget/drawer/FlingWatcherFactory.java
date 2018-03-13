@@ -16,14 +16,15 @@
 
 package androidx.wear.widget.drawer;
 
+import android.view.View;
+import android.widget.AbsListView;
+import android.widget.ScrollView;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.View;
-import android.widget.AbsListView;
-import android.widget.ScrollView;
 
 import java.util.Map;
 import java.util.WeakHashMap;

@@ -16,6 +16,7 @@
 package androidx.wear.ambient;
 
 import android.os.Bundle;
+
 import androidx.fragment.app.FragmentActivity;
 
 public class AmbientModeSupportTestActivity extends FragmentActivity

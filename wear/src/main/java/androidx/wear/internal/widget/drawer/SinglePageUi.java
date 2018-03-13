@@ -19,6 +19,12 @@ package androidx.wear.internal.widget.drawer;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
@@ -27,11 +33,6 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.R;
 import androidx.wear.widget.CircledImageView;
 import androidx.wear.widget.drawer.WearableNavigationDrawerView;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * Handles view logic for the single page style {@link WearableNavigationDrawerView}.

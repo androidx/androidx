@@ -17,6 +17,7 @@ package androidx.wear.ambient;
 
 import android.app.Activity;
 import android.os.Bundle;
+
 import androidx.annotation.RestrictTo;
 
 import com.google.android.wearable.compat.WearableActivityController;
