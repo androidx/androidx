@@ -16,12 +16,13 @@
 
 package androidx.core.text;
 
-import androidx.core.view.ViewCompat;
+import static androidx.core.text.TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR;
+
 import android.text.SpannableStringBuilder;
 
-import java.util.Locale;
+import androidx.core.view.ViewCompat;
 
-import static androidx.core.text.TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR;
+import java.util.Locale;
 
 /**
  * Utility class for formatting text for display in a potentially opposite-directionality context

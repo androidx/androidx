@@ -20,9 +20,10 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Outline;
 import android.graphics.Rect;
-import androidx.annotation.RequiresApi;
 import android.view.Gravity;
 import android.view.View;
+
+import androidx.annotation.RequiresApi;
 
 @RequiresApi(21)
 class RoundedBitmapDrawable21 extends RoundedBitmapDrawable {

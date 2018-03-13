@@ -20,12 +20,13 @@ package androidx.core.view;
 import static androidx.core.view.ViewCompat.TYPE_NON_TOUCH;
 import static androidx.core.view.ViewCompat.TYPE_TOUCH;
 
+import android.view.View;
+import android.view.ViewParent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat.NestedScrollType;
 import androidx.core.view.ViewCompat.ScrollAxis;
-import android.view.View;
-import android.view.ViewParent;
 
 /**
  * Helper class for implementing nested scrolling child views compatible with Android platform

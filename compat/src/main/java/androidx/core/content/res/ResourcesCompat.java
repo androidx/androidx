@@ -17,6 +17,7 @@
 package androidx.core.content.res;
 
 import static android.os.Build.VERSION.SDK_INT;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
@@ -29,6 +30,9 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+import android.util.TypedValue;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
@@ -41,8 +45,6 @@ import androidx.core.graphics.TypefaceCompat;
 import androidx.core.provider.FontsContractCompat.FontRequestCallback;
 import androidx.core.provider.FontsContractCompat.FontRequestCallback.FontRequestFailReason;
 import androidx.core.util.Preconditions;
-import android.util.Log;
-import android.util.TypedValue;
 
 import org.xmlpull.v1.XmlPullParserException;
 

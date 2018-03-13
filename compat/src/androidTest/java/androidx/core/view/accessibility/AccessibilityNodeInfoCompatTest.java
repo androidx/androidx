@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeTrue;
+
 import android.os.Build;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;

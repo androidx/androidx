@@ -27,11 +27,12 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
 
 /**
  * A Drawable that wraps a bitmap and can be drawn with rounded corners. You can create a

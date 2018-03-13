@@ -19,6 +19,7 @@ package androidx.core.app;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Notification;
+
 import androidx.annotation.RestrictTo;
 
 /**

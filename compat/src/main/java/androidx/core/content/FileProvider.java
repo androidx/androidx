@@ -33,11 +33,12 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
+import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.text.TextUtils;
-import android.webkit.MimeTypeMap;
 
 import org.xmlpull.v1.XmlPullParserException;
 

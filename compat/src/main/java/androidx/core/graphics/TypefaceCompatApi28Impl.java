@@ -19,6 +19,7 @@ package androidx.core.graphics;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Typeface;
+
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 

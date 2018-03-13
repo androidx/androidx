@@ -40,14 +40,15 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ProviderInfo;
 import android.content.pm.Signature;
 import android.graphics.Typeface;
-import androidx.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Base64;
+
+import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontInfo;
-import android.util.Base64;
 
 import org.junit.After;
 import org.junit.Before;

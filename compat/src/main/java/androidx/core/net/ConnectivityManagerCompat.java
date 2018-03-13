@@ -25,12 +25,14 @@ import static android.net.ConnectivityManager.TYPE_MOBILE_MMS;
 import static android.net.ConnectivityManager.TYPE_MOBILE_SUPL;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.ConnectivityManager.TYPE_WIMAX;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

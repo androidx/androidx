@@ -18,12 +18,13 @@ package androidx.core.view;
 
 import android.content.Context;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Field;
 

@@ -16,6 +16,7 @@
 package androidx.core.util;
 
 import android.os.Build;
+
 import androidx.annotation.Nullable;
 
 import java.util.Arrays;

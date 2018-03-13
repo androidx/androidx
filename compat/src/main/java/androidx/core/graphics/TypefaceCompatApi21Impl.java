@@ -23,13 +23,14 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
+import android.system.ErrnoException;
+import android.system.Os;
+import android.system.OsConstants;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.provider.FontsContractCompat.FontInfo;
-import android.system.ErrnoException;
-import android.system.Os;
-import android.system.OsConstants;
 
 import java.io.File;
 import java.io.FileInputStream;

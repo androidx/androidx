@@ -18,18 +18,18 @@ package androidx.core.widget;
 
 import static org.junit.Assert.assertEquals;
 
-import androidx.core.test.R;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
 
+import androidx.core.test.R;
+import androidx.testutils.PollingCheck;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.testutils.PollingCheck;
 
 /**
  * Tests for {@link ContentLoadingProgressBar}

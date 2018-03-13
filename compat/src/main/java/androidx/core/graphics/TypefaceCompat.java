@@ -24,9 +24,11 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.collection.LruCache;
 import androidx.core.content.res.FontResourcesParserCompat;
 import androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
@@ -35,7 +37,6 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.os.BuildCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.FontsContractCompat.FontInfo;
-import androidx.collection.LruCache;
 /**
  * Helper for accessing features in {@link Typeface}.
  * @hide
