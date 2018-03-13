@@ -83,4 +83,14 @@ public interface BlockingWorkManagerMethods {
      */
     @WorkerThread
     List<WorkStatus> getStatusesByTagBlocking(@NonNull String tag);
+
+    /**
+     * Gets the {@link WorkStatus} for all work for the chain of work with a given name in a
+     * blocking fashion.  This method is expected to be called from a background thread.
+     *
+     * @param name The name used to identify the chain of work
+     * @return A list of {@link WorkStatus} for work in the chain named {@code name}
+     */
+    @WorkerThread
+    List<WorkStatus> getStatusesByNameBlocking(@NonNull String name);
 }

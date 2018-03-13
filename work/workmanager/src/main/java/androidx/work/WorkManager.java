@@ -178,6 +178,15 @@ public abstract class WorkManager {
     public abstract LiveData<List<WorkStatus>> getStatusesByTag(@NonNull String tag);
 
     /**
+     * Gets a {@link LiveData} of the {@link WorkStatus} for all work in a work chain with a given
+     * name.
+     *
+     * @param name The name used to identify the chain of work
+     * @return A {@link LiveData} of the {@link WorkStatus} for work in the chain named {@code name}
+     */
+    public abstract LiveData<List<WorkStatus>> getStatusesByName(@NonNull String name);
+
+    /**
      * Gets an object that gives access to blocking (synchronous) methods.
      *
      * @return A {@link BlockingWorkManagerMethods} object, which gives access to blocking

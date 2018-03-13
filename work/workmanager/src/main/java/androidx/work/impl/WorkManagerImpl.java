@@ -199,7 +199,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
         final MediatorLiveData<WorkStatus> mediatorLiveData = new MediatorLiveData<>();
         mediatorLiveData.addSource(
                 LiveDataUtils.dedupedLiveDataFor(
-                        dao.getIdStateAndOutputsLiveDataForIds(Collections.singletonList(id))),
+                        dao.getWorkStatusPojoLiveDataForIds(Collections.singletonList(id))),
                 new Observer<List<WorkSpec.WorkStatusPojo>>() {
                     @Override
                     public void onChanged(
@@ -219,7 +219,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
     public @Nullable WorkStatus getStatusByIdBlocking(@NonNull String id) {
         assertBackgroundThread("Cannot call getStatusByIdBlocking on main thread!");
         WorkSpec.WorkStatusPojo workStatusPojo =
-                mWorkDatabase.workSpecDao().getIdStateAndOutputForId(id);
+                mWorkDatabase.workSpecDao().getWorkStatusPojoForId(id);
         if (workStatusPojo != null) {
             return workStatusPojo.toWorkStatus();
         } else {
@@ -233,7 +233,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
         final MediatorLiveData<List<WorkStatus>> mediatorLiveData = new MediatorLiveData<>();
         mediatorLiveData.addSource(
                 LiveDataUtils.dedupedLiveDataFor(
-                        workSpecDao.getIdStateAndOutputLiveDataForTag(tag)),
+                        workSpecDao.getWorkStatusPojoLiveDataForTag(tag)),
                 new Observer<List<WorkSpec.WorkStatusPojo>>() {
                     @Override
                     public void onChanged(
@@ -256,8 +256,46 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
         assertBackgroundThread("Cannot call getStatusesByTagBlocking on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         List<WorkStatus> workStatuses = null;
-        List<WorkSpec.WorkStatusPojo> workStatusPojos =
-                workSpecDao.getIdStateAndOutputForTag(tag);
+        List<WorkSpec.WorkStatusPojo> workStatusPojos = workSpecDao.getWorkStatusPojoForTag(tag);
+        if (workStatusPojos != null) {
+            workStatuses = new ArrayList<>(workStatusPojos.size());
+            for (WorkSpec.WorkStatusPojo workStatusPojo : workStatusPojos) {
+                workStatuses.add(workStatusPojo.toWorkStatus());
+            }
+        }
+        return workStatuses;
+    }
+
+    @Override
+    public LiveData<List<WorkStatus>> getStatusesByName(@NonNull String name) {
+        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+        final MediatorLiveData<List<WorkStatus>> mediatorLiveData = new MediatorLiveData<>();
+        mediatorLiveData.addSource(
+                LiveDataUtils.dedupedLiveDataFor(
+                        workSpecDao.getWorkStatusPojoLiveDataForName(name)),
+                new Observer<List<WorkSpec.WorkStatusPojo>>() {
+                    @Override
+                    public void onChanged(@Nullable List<WorkSpec.WorkStatusPojo> workStatusPojos) {
+                        List<WorkStatus> workStatuses = null;
+                        if (workStatusPojos != null) {
+                            workStatuses = new ArrayList<>(workStatusPojos.size());
+                            for (WorkSpec.WorkStatusPojo workStatusPojo : workStatusPojos) {
+                                workStatuses.add(workStatusPojo.toWorkStatus());
+                            }
+                        }
+                        mediatorLiveData.setValue(workStatuses);
+                    }
+                }
+        );
+        return mediatorLiveData;
+    }
+
+    @Override
+    public List<WorkStatus> getStatusesByNameBlocking(@NonNull String name) {
+        assertBackgroundThread("Cannot call getStatusesByNameBlocking on main thread!");
+        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+        List<WorkStatus> workStatuses = null;
+        List<WorkSpec.WorkStatusPojo> workStatusPojos = workSpecDao.getWorkStatusPojoForName(name);
         if (workStatusPojos != null) {
             workStatuses = new ArrayList<>(workStatusPojos.size());
             for (WorkSpec.WorkStatusPojo workStatusPojo : workStatusPojos) {
@@ -277,7 +315,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
         final MediatorLiveData<List<WorkStatus>> mediatorLiveData = new MediatorLiveData<>();
         mediatorLiveData.addSource(
                 LiveDataUtils.dedupedLiveDataFor(
-                        dao.getIdStateAndOutputsLiveDataForIds(workSpecIds)),
+                        dao.getWorkStatusPojoLiveDataForIds(workSpecIds)),
                 new Observer<List<WorkSpec.WorkStatusPojo>>() {
                     @Override
                     public void onChanged(
