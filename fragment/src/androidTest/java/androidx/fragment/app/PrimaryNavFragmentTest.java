@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.fragment.app.test.EmptyFragmentTestActivity;
 
 import org.junit.Rule;

@@ -31,16 +31,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.collection.SparseArrayCompat;
-import androidx.loader.content.Loader;
-
-import androidx.core.app.ActivityCompat;
-import androidx.loader.app.LoaderManager;
-import androidx.core.app.SharedElementCallback;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,6 +38,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.collection.SparseArrayCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.SharedElementCallback;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;

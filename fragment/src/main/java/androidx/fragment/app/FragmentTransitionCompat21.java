@@ -17,12 +17,13 @@
 package androidx.fragment.app;
 
 import android.graphics.Rect;
-import androidx.annotation.RequiresApi;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;

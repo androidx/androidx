@@ -21,13 +21,13 @@ import static org.junit.Assert.assertTrue;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.fragment.app.test.NonConfigOnStopActivity;
+import androidx.testutils.FragmentActivityUtils;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.testutils.FragmentActivityUtils;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
