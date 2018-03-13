@@ -19,10 +19,11 @@ package androidx.appcompat.view.menu;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import androidx.annotation.RestrictTo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 

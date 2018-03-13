@@ -19,13 +19,14 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.R;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.core.view.ViewCompat;
 
 /**
  * An extension of LinearLayout that automatically switches to vertical

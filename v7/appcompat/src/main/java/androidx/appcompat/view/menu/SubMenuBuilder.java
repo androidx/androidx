@@ -20,11 +20,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.RestrictTo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * The model for a sub menu, which is an extension of the menu.  Most methods are proxied to the

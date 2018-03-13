@@ -36,11 +36,6 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
@@ -48,6 +43,11 @@ import androidx.core.content.ContextCompat;
 import androidx.core.internal.view.SupportMenu;
 import androidx.core.internal.view.SupportMenuItem;
 import androidx.core.view.ActionProvider;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Implementation of the {@link androidx.core.internal.view.SupportMenu} interface for creating a

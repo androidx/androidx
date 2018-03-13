@@ -22,11 +22,15 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.SparseBooleanArray;
+import android.view.MenuItem;
+import android.view.SoundEffectConstants;
+import android.view.View;
+import android.view.View.MeasureSpec;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.view.ActionProvider;
-import androidx.core.view.GravityCompat;
 import androidx.appcompat.R;
 import androidx.appcompat.view.ActionBarPolicy;
 import androidx.appcompat.view.menu.ActionMenuItemView;
@@ -37,12 +41,9 @@ import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.view.menu.MenuView;
 import androidx.appcompat.view.menu.ShowableListMenu;
 import androidx.appcompat.view.menu.SubMenuBuilder;
-import android.util.SparseBooleanArray;
-import android.view.MenuItem;
-import android.view.SoundEffectConstants;
-import android.view.View;
-import android.view.View.MeasureSpec;
-import android.view.ViewGroup;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ActionProvider;
+import androidx.core.view.GravityCompat;
 
 import java.util.ArrayList;
 

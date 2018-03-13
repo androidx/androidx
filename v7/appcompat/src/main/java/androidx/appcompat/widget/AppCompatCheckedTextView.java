@@ -17,12 +17,13 @@
 package androidx.appcompat.widget;
 
 import android.content.Context;
-import androidx.annotation.DrawableRes;
-import androidx.appcompat.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.CheckedTextView;
+
+import androidx.annotation.DrawableRes;
+import androidx.appcompat.content.res.AppCompatResources;
 
 /**
  * A {@link CheckedTextView} which supports compatible features on older versions of the platform.

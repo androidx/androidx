@@ -23,17 +23,18 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.mockito.Mockito.mock;
 
-import androidx.annotation.LayoutRes;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.test.R;
 import android.view.View;
 import android.view.ViewStub;
+
+import androidx.annotation.LayoutRes;
+import androidx.appcompat.test.R;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

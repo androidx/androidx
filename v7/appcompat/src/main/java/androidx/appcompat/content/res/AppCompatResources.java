@@ -22,15 +22,16 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.Log;
+import android.util.SparseArray;
+import android.util.TypedValue;
+
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.appcompat.widget.AppCompatDrawableManager;
-import android.util.Log;
-import android.util.SparseArray;
-import android.util.TypedValue;
+import androidx.core.content.ContextCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 

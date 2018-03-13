@@ -17,15 +17,16 @@
 package androidx.appcompat.app.inflater;
 
 import android.content.Context;
+import android.util.AttributeSet;
+import android.view.View;
+import android.widget.ToggleButton;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatViewInflater;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatTextView;
-import android.util.AttributeSet;
-import android.view.View;
-import android.widget.ToggleButton;
 
 /**
  * Custom view inflater that takes over the inflation of a few widget types.

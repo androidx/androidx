@@ -17,16 +17,16 @@
 package androidx.appcompat.testutils;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatCallback;
-import androidx.appcompat.test.R;
-import androidx.appcompat.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatCallback;
+import androidx.appcompat.test.R;
+import androidx.appcompat.view.ActionMode;
 import androidx.testutils.RecreatedAppCompatActivity;
 
 public abstract class BaseTestActivity extends RecreatedAppCompatActivity {

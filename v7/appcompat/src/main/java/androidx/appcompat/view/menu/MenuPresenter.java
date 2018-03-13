@@ -20,8 +20,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.os.Parcelable;
-import androidx.annotation.RestrictTo;
 import android.view.ViewGroup;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * A MenuPresenter is responsible for building views for a Menu object. It takes over some

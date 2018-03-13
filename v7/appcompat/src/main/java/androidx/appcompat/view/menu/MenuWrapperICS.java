@@ -19,12 +19,13 @@ package androidx.appcompat.view.menu;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import androidx.annotation.RequiresApi;
-import androidx.core.internal.view.SupportMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.internal.view.SupportMenu;
 
 /**
  * Wraps a support {@link SupportMenu} as a framework {@link android.view.Menu}

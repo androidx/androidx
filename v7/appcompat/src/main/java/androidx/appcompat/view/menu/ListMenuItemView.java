@@ -22,10 +22,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.R;
-import androidx.appcompat.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +33,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.appcompat.widget.TintTypedArray;
+import androidx.core.view.ViewCompat;
 
 /**
  * The item view for each item in the ListView-based MenuViews.

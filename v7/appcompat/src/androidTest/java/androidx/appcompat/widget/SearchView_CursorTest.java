@@ -36,20 +36,20 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
-import androidx.appcompat.test.R;
-import androidx.appcompat.testutils.TestUtils;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+
+import androidx.appcompat.test.R;
+import androidx.appcompat.testutils.TestUtils;
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.testutils.PollingCheck;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.testutils.PollingCheck;
 
 /**
  * Test {@link SearchView} with {@link Cursor}-backed suggestions adapter.

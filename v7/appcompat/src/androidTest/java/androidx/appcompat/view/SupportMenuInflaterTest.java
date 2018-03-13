@@ -20,12 +20,13 @@ import static org.junit.Assert.assertEquals;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.internal.view.SupportMenuItem;
-import androidx.appcompat.test.R;
-import androidx.appcompat.widget.PopupMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
+
+import androidx.appcompat.test.R;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.core.internal.view.SupportMenuItem;
 
 import org.junit.Before;
 import org.junit.Rule;

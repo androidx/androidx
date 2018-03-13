@@ -19,16 +19,17 @@ package androidx.appcompat.widget;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.ViewPropertyAnimatorCompat;
-import androidx.core.view.ViewPropertyAnimatorListener;
-import androidx.appcompat.R;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.appcompat.R;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewPropertyAnimatorCompat;
+import androidx.core.view.ViewPropertyAnimatorListener;
 
 abstract class AbsActionBarView extends ViewGroup {
     private static final int FADE_DURATION = 200;

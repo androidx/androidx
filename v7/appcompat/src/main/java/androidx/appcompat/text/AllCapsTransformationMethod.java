@@ -20,9 +20,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.graphics.Rect;
-import androidx.annotation.RestrictTo;
 import android.text.method.TransformationMethod;
 import android.view.View;
+
+import androidx.annotation.RestrictTo;
 
 import java.util.Locale;
 

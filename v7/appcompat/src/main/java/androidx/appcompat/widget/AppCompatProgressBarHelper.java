@@ -27,10 +27,11 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.graphics.drawable.shapes.Shape;
-import androidx.core.graphics.drawable.WrappedDrawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.ProgressBar;
+
+import androidx.core.graphics.drawable.WrappedDrawable;
 
 class AppCompatProgressBarHelper {
 

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.appcompat.view.menu.MenuBuilder;
 
 import org.junit.Test;

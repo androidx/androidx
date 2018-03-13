@@ -20,15 +20,16 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.R;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
 
 /**
  * Special implementation of linear layout that's capable of laying out alert

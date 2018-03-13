@@ -22,12 +22,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.view.menu.ListMenuItemView;
-import androidx.appcompat.view.menu.MenuAdapter;
-import androidx.appcompat.view.menu.MenuBuilder;
 import android.transition.Transition;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -37,6 +31,13 @@ import android.view.MotionEvent;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ListAdapter;
 import android.widget.PopupWindow;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.view.menu.ListMenuItemView;
+import androidx.appcompat.view.menu.MenuAdapter;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.core.view.ViewCompat;
 
 import java.lang.reflect.Method;
 

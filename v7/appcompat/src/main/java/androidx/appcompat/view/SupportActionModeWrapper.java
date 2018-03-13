@@ -19,15 +19,16 @@ package androidx.appcompat.view;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import androidx.annotation.RestrictTo;
-import androidx.core.internal.view.SupportMenu;
-import androidx.core.internal.view.SupportMenuItem;
-import androidx.collection.SimpleArrayMap;
-import androidx.appcompat.view.menu.MenuWrapperFactory;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.view.menu.MenuWrapperFactory;
+import androidx.collection.SimpleArrayMap;
+import androidx.core.internal.view.SupportMenu;
+import androidx.core.internal.view.SupportMenuItem;
 
 import java.util.ArrayList;
 

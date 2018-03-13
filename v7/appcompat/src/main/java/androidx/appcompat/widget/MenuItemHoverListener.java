@@ -18,10 +18,11 @@ package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.view.MenuItem;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.view.menu.MenuBuilder;
-import android.view.MenuItem;
 
 /**
  * An interface notified when a menu item is hovered. Useful for cases when hover should trigger

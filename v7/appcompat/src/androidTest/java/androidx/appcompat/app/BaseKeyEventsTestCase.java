@@ -36,13 +36,14 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.test.R;
-import androidx.appcompat.testutils.BaseTestActivity;
-import androidx.appcompat.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import androidx.appcompat.test.R;
+import androidx.appcompat.testutils.BaseTestActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.core.view.MenuItemCompat;
 
 import org.hamcrest.Matchers;
 import org.junit.Before;

@@ -25,11 +25,12 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.appcompat.test.R;
-import androidx.appcompat.testutils.BaseTestActivity;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+
+import androidx.appcompat.test.R;
+import androidx.appcompat.testutils.BaseTestActivity;
 
 import org.junit.Rule;
 import org.junit.Test;

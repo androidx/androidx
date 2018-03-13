@@ -48,13 +48,14 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.appcompat.test.R;
-import androidx.appcompat.testutils.TestUtilsMatchers;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import androidx.appcompat.test.R;
+import androidx.appcompat.testutils.TestUtilsMatchers;
 
 import org.hamcrest.Matcher;
 import org.junit.After;

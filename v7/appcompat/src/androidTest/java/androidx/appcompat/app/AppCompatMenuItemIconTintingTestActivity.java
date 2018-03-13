@@ -16,11 +16,12 @@
 
 package androidx.appcompat.app;
 
+import android.view.Menu;
+import android.view.MenuInflater;
+
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
 
 public class AppCompatMenuItemIconTintingTestActivity extends BaseTestActivity {
     private Toolbar mToolbar;

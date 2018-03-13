@@ -24,15 +24,6 @@ import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import androidx.annotation.AttrRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.StyleRes;
-import androidx.core.view.ViewCompat;
-import androidx.core.widget.PopupWindowCompat;
-import androidx.appcompat.R;
-import androidx.appcompat.view.menu.ShowableListMenu;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -51,6 +42,16 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+
+import androidx.annotation.AttrRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.StyleRes;
+import androidx.appcompat.R;
+import androidx.appcompat.view.menu.ShowableListMenu;
+import androidx.core.view.ViewCompat;
+import androidx.core.widget.PopupWindowCompat;
 
 import java.lang.reflect.Method;
 

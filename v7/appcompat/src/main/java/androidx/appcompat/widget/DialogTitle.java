@@ -20,12 +20,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.TextView;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
 
 /**
  * Used by dialogs to change the font size and number of lines to try to fit

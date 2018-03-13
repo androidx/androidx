@@ -18,12 +18,13 @@ package androidx.appcompat.view;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.view.View;
+import android.view.animation.Interpolator;
+
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewPropertyAnimatorCompat;
 import androidx.core.view.ViewPropertyAnimatorListener;
 import androidx.core.view.ViewPropertyAnimatorListenerAdapter;
-import android.view.View;
-import android.view.animation.Interpolator;
 
 import java.util.ArrayList;
 

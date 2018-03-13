@@ -18,11 +18,12 @@ package androidx.appcompat.view;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Represents a contextual mode of the user interface. Action modes can be used to provide

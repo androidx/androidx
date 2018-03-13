@@ -22,13 +22,14 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
 
 import java.lang.ref.WeakReference;
 
