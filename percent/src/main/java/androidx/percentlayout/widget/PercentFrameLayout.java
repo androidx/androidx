@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.percentlayout.widget;
+package androidx.percentlayout.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -31,7 +31,7 @@ import android.widget.FrameLayout;
  * this example:
  *
  * <pre class="prettyprint">
- * &lt;android.percentlayout.widget.PercentFrameLayout
+ * &lt;androidx.percentlayout.widget.PercentFrameLayout
  *         xmlns:android="http://schemas.android.com/apk/res/android"
  *         xmlns:app="http://schemas.android.com/apk/res-auto"
  *         android:layout_width="match_parent"
@@ -41,7 +41,7 @@ import android.widget.FrameLayout;
  *         app:layout_heightPercent="50%"
  *         app:layout_marginTopPercent="25%"
  *         app:layout_marginLeftPercent="25%"/&gt
- * &lt;/android.percentlayout.widget.PercentFrameLayout&gt
+ * &lt;/androidx.percentlayout.widget.PercentFrameLayout&gt
  * </pre>
  *
  * The attributes that you can use are:
