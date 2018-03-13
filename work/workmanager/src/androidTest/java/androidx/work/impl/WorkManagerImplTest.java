@@ -768,12 +768,10 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Observer<List<WorkStatus>> mockObserver = mock(Observer.class);
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
-        LiveData<List<WorkStatus>> liveData =
-                mWorkManagerImpl.getStatusesByTag(firstTag);
+        LiveData<List<WorkStatus>> liveData = mWorkManagerImpl.getStatusesByTag(firstTag);
         liveData.observe(testLifecycleOwner, mockObserver);
 
-        ArgumentCaptor<List<WorkStatus>> captor =
-                ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<WorkStatus>> captor = ArgumentCaptor.forClass(List.class);
         verify(mockObserver).onChanged(captor.capture());
         assertThat(captor.getValue(), is(not(nullValue())));
         assertThat(captor.getValue().size(), is(2));
@@ -802,6 +800,97 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 Arguments.EMPTY,
                 Arrays.asList(firstTag, secondTag));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
+
+        liveData.removeObservers(testLifecycleOwner);
+    }
+
+    @Test
+    @SmallTest
+    public void getStatusByNameSync() {
+        final String testName = "myname";
+
+        Work work0 = new Work.Builder(InfiniteTestWorker.class).withInitialState(RUNNING).build();
+        Work work1 = new Work.Builder(InfiniteTestWorker.class).withInitialState(BLOCKED).build();
+        Work work2 = new Work.Builder(InfiniteTestWorker.class).withInitialState(BLOCKED).build();
+
+        mWorkManagerImpl.beginWithName(testName, KEEP, work0).then(work1).then(work2).enqueue();
+
+        WorkStatus workStatus0 = new WorkStatus(
+                work0.getId(),
+                RUNNING,
+                Arguments.EMPTY,
+                Collections.<String>emptyList());
+        WorkStatus workStatus1 = new WorkStatus(
+                work1.getId(),
+                BLOCKED,
+                Arguments.EMPTY,
+                Collections.<String>emptyList());
+        WorkStatus workStatus2 = new WorkStatus(
+                work2.getId(),
+                BLOCKED,
+                Arguments.EMPTY,
+                Collections.<String>emptyList());
+
+        List<WorkStatus> workStatuses = mWorkManagerImpl.getStatusesByNameBlocking(testName);
+        assertThat(workStatuses, containsInAnyOrder(workStatus0, workStatus1, workStatus2));
+
+        workStatuses = mWorkManagerImpl.getStatusesByNameBlocking("dummy");
+        assertThat(workStatuses.size(), is(0));
+    }
+
+    @Test
+    @SmallTest
+    @SuppressWarnings("unchecked")
+    public void testGetStatusesByName() {
+        final String testName = "myname";
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        Work work0 = new Work.Builder(InfiniteTestWorker.class).build();
+        Work work1 = new Work.Builder(InfiniteTestWorker.class).build();
+        Work work2 = new Work.Builder(InfiniteTestWorker.class).build();
+
+        mWorkManagerImpl.beginWithName(testName, KEEP, work0).then(work1).then(work2).enqueue();
+
+        Observer<List<WorkStatus>> mockObserver = mock(Observer.class);
+
+        TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
+        LiveData<List<WorkStatus>> liveData = mWorkManagerImpl.getStatusesByName(testName);
+        liveData.observe(testLifecycleOwner, mockObserver);
+
+        ArgumentCaptor<List<WorkStatus>> captor = ArgumentCaptor.forClass(List.class);
+        verify(mockObserver).onChanged(captor.capture());
+        assertThat(captor.getValue(), is(not(nullValue())));
+        assertThat(captor.getValue().size(), is(3));
+
+        WorkStatus workStatus0 = new WorkStatus(
+                work0.getId(),
+                RUNNING,
+                Arguments.EMPTY,
+                Collections.<String>emptyList());
+        WorkStatus workStatus1 = new WorkStatus(
+                work1.getId(),
+                BLOCKED,
+                Arguments.EMPTY,
+                Collections.<String>emptyList());
+        WorkStatus workStatus2 = new WorkStatus(
+                work2.getId(),
+                BLOCKED,
+                Arguments.EMPTY,
+                Collections.<String>emptyList());
+        assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1, workStatus2));
+
+        workSpecDao.setState(ENQUEUED, work0.getId());
+
+        verify(mockObserver, times(2)).onChanged(captor.capture());
+        assertThat(captor.getValue(), is(not(nullValue())));
+        assertThat(captor.getValue().size(), is(3));
+
+        workStatus0 = new WorkStatus(
+                work0.getId(),
+                ENQUEUED,
+                Arguments.EMPTY,
+                Collections.<String>emptyList());
+        assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1, workStatus2));
 
         liveData.removeObservers(testLifecycleOwner);
     }

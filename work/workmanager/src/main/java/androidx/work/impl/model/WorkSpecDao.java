@@ -26,10 +26,10 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.support.annotation.NonNull;
 
-import java.util.List;
-
 import androidx.work.Arguments;
 import androidx.work.State;
+
+import java.util.List;
 
 /**
  * The Data Access Object for {@link WorkSpec}s.
@@ -147,7 +147,7 @@ public interface WorkSpecDao {
      * @return A list of {@link WorkSpec.WorkStatusPojo}
      */
     @Query("SELECT id, state, output FROM workspec WHERE id=:id")
-    WorkSpec.WorkStatusPojo getIdStateAndOutputForId(String id);
+    WorkSpec.WorkStatusPojo getWorkStatusPojoForId(String id);
 
     /**
      * For a list of {@link WorkSpec} identifiers, retrieves a {@link LiveData} list of their
@@ -157,7 +157,7 @@ public interface WorkSpecDao {
      * @return A {@link LiveData} list of {@link WorkSpec.WorkStatusPojo}
      */
     @Query("SELECT id, state, output FROM workspec WHERE id IN (:ids)")
-    LiveData<List<WorkSpec.WorkStatusPojo>> getIdStateAndOutputsLiveDataForIds(List<String> ids);
+    LiveData<List<WorkSpec.WorkStatusPojo>> getWorkStatusPojoLiveDataForIds(List<String> ids);
 
     /**
      * Retrieves a list of {@link WorkSpec.WorkStatusPojo} for all work with a given tag.
@@ -167,7 +167,7 @@ public interface WorkSpecDao {
      */
     @Query("SELECT id, state, output FROM workspec WHERE id IN "
             + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
-    List<WorkSpec.WorkStatusPojo> getIdStateAndOutputForTag(String tag);
+    List<WorkSpec.WorkStatusPojo> getWorkStatusPojoForTag(String tag);
 
     /**
      * Retrieves a {@link LiveData} list of {@link WorkSpec.WorkStatusPojo} for all work with a
@@ -178,7 +178,28 @@ public interface WorkSpecDao {
      */
     @Query("SELECT id, state, output FROM workspec WHERE id IN "
             + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
-    LiveData<List<WorkSpec.WorkStatusPojo>> getIdStateAndOutputLiveDataForTag(String tag);
+    LiveData<List<WorkSpec.WorkStatusPojo>> getWorkStatusPojoLiveDataForTag(String tag);
+
+    /**
+     * Retrieves a list of {@link WorkSpec.WorkStatusPojo} for all work with a given name.
+     *
+     * @param name The name of the {@link WorkSpec}s
+     * @return A list of {@link WorkSpec.WorkStatusPojo}
+     */
+    @Query("SELECT id, state, output FROM workspec WHERE id IN "
+            + "(SELECT work_spec_id FROM workname WHERE name=:name)")
+    List<WorkSpec.WorkStatusPojo> getWorkStatusPojoForName(String name);
+
+    /**
+     * Retrieves a {@link LiveData} list of {@link WorkSpec.WorkStatusPojo} for all work with a
+     * given name.
+     *
+     * @param name The name for the {@link WorkSpec}s
+     * @return A {@link LiveData} list of {@link WorkSpec.WorkStatusPojo}
+     */
+    @Query("SELECT id, state, output FROM workspec WHERE id IN "
+            + "(SELECT work_spec_id FROM workname WHERE name=:name)")
+    LiveData<List<WorkSpec.WorkStatusPojo>> getWorkStatusPojoLiveDataForName(String name);
 
     /**
      * Retrieves {@link WorkSpec}s that have state {@code ENQUEUED} or {@code RUNNING}
