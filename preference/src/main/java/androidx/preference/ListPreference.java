@@ -20,11 +20,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.AttributeSet;
+
 import androidx.annotation.ArrayRes;
 import androidx.annotation.NonNull;
 import androidx.core.content.res.TypedArrayUtils;
-import android.text.TextUtils;
-import android.util.AttributeSet;
 
 /**
  * A {@link Preference} that displays a list of entries as

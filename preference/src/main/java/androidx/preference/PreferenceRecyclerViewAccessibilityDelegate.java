@@ -19,12 +19,13 @@ package androidx.preference;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Bundle;
+import android.view.View;
+
 import androidx.annotation.RestrictTo;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
-import android.view.View;
 
 /**
  * The AccessibilityDelegate used by the RecyclerView that displays Views for Preferences.
