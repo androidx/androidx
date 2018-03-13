@@ -19,6 +19,7 @@ package androidx.transition;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.os.Build;
+
 import androidx.annotation.NonNull;
 
 class AnimatorUtils {

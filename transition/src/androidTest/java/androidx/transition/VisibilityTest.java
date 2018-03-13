@@ -23,12 +23,13 @@ import static org.junit.Assert.assertThat;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.junit.Before;
 import org.junit.Test;

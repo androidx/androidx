@@ -24,8 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import android.support.test.filters.MediumTest;
-import androidx.transition.test.R;
 import android.view.View;
+
+import androidx.transition.test.R;
 
 import org.junit.Test;
 

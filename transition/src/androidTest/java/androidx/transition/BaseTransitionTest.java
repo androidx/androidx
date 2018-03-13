@@ -24,10 +24,11 @@ import static org.mockito.Mockito.verify;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.support.test.InstrumentationRegistry;
-import androidx.transition.test.R;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import androidx.transition.test.R;
 
 import org.junit.Before;
 
