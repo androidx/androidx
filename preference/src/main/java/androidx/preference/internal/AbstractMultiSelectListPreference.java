@@ -19,9 +19,10 @@ package androidx.preference.internal;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
+import android.util.AttributeSet;
+
 import androidx.annotation.RestrictTo;
 import androidx.preference.DialogPreference;
-import android.util.AttributeSet;
 
 import java.util.Set;
 

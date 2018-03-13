@@ -19,10 +19,11 @@ package androidx.preference;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import android.view.View;
 import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 public class EditTextPreferenceDialogFragment extends PreferenceDialogFragment {
 

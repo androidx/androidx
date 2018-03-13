@@ -20,10 +20,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.core.content.res.TypedArrayUtils;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.EditText;
+
+import androidx.core.content.res.TypedArrayUtils;
 
 /**
  * A {@link Preference} that allows for string

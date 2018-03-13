@@ -25,12 +25,13 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.preference.AndroidResources;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceViewHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import androidx.preference.AndroidResources;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceViewHolder;
 
 import org.junit.Before;
 import org.junit.Test;

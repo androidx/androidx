@@ -20,12 +20,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.AttributeSet;
+
 import androidx.annotation.ArrayRes;
 import androidx.annotation.NonNull;
 import androidx.core.content.res.TypedArrayUtils;
-import androidx.preference.R;
 import androidx.preference.internal.AbstractMultiSelectListPreference;
-import android.util.AttributeSet;
 
 import java.util.Collections;
 import java.util.HashSet;
