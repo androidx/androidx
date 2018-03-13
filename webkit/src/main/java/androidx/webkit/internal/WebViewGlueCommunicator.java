@@ -16,8 +16,9 @@
 
 package androidx.webkit.internal;
 
-import androidx.core.os.BuildCompat;
 import android.webkit.WebView;
+
+import androidx.core.os.BuildCompat;
 
 import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
