@@ -72,6 +72,7 @@ import androidx.work.WorkManagerTest;
 import androidx.work.WorkStatus;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
+import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
@@ -428,7 +429,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String testName = "myname";
 
         Work originalWork = new Work.Builder(InfiniteTestWorker.class).build();
-        mWorkManagerImpl.beginWithName(testName, KEEP, originalWork).enqueue();
+        insertNamedWorks(testName, originalWork);
 
         List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));
@@ -457,7 +458,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String testName = "myname";
 
         Work originalWork = new Work.Builder(InfiniteTestWorker.class).build();
-        mWorkManagerImpl.beginWithName(testName, KEEP, originalWork).enqueue();
+        insertNamedWorks(testName, originalWork);
 
         List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));
@@ -484,7 +485,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String testName = "myname";
 
         Work originalWork = new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
-        mWorkManagerImpl.beginWithName(testName, KEEP, originalWork).enqueue();
+        insertNamedWorks(testName, originalWork);
 
         List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));
@@ -512,7 +513,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String testName = "myname";
 
         Work originalWork = new Work.Builder(InfiniteTestWorker.class).build();
-        mWorkManagerImpl.beginWithName(testName, KEEP, originalWork).enqueue();
+        insertNamedWorks(testName, originalWork);
 
         List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));
@@ -546,10 +547,10 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work originalWork2 = new Work.Builder(InfiniteTestWorker.class).build();
         Work originalWork3 = new Work.Builder(InfiniteTestWorker.class).build();
         Work originalWork4 = new Work.Builder(InfiniteTestWorker.class).build();
-        mWorkManagerImpl.beginWithName(testName, KEEP, originalWork1)
-                .then(originalWork2)
-                .then(originalWork3, originalWork4)
-                .enqueue();
+        insertNamedWorks(testName, originalWork1, originalWork2, originalWork3, originalWork4);
+        insertDependency(originalWork4, originalWork2);
+        insertDependency(originalWork3, originalWork2);
+        insertDependency(originalWork2, originalWork1);
 
         List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds,
@@ -642,8 +643,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 mWorkManagerImpl.getStatusesById(Arrays.asList(work0.getId(), work1.getId()));
         liveData.observe(testLifecycleOwner, mockObserver);
 
-        ArgumentCaptor<List<WorkStatus>> captor =
-                ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<WorkStatus>> captor = ArgumentCaptor.forClass(List.class);
         verify(mockObserver).onChanged(captor.capture());
         assertThat(captor.getValue(), is(not(nullValue())));
         assertThat(captor.getValue().size(), is(2));
@@ -812,8 +812,9 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work work0 = new Work.Builder(InfiniteTestWorker.class).withInitialState(RUNNING).build();
         Work work1 = new Work.Builder(InfiniteTestWorker.class).withInitialState(BLOCKED).build();
         Work work2 = new Work.Builder(InfiniteTestWorker.class).withInitialState(BLOCKED).build();
-
-        mWorkManagerImpl.beginWithName(testName, KEEP, work0).then(work1).then(work2).enqueue();
+        insertNamedWorks(testName, work0, work1, work2);
+        insertDependency(work1, work0);
+        insertDependency(work2, work1);
 
         WorkStatus workStatus0 = new WorkStatus(
                 work0.getId(),
@@ -845,11 +846,12 @@ public class WorkManagerImplTest extends WorkManagerTest {
         final String testName = "myname";
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
-        Work work0 = new Work.Builder(InfiniteTestWorker.class).build();
-        Work work1 = new Work.Builder(InfiniteTestWorker.class).build();
-        Work work2 = new Work.Builder(InfiniteTestWorker.class).build();
-
-        mWorkManagerImpl.beginWithName(testName, KEEP, work0).then(work1).then(work2).enqueue();
+        Work work0 = new Work.Builder(InfiniteTestWorker.class).withInitialState(RUNNING).build();
+        Work work1 = new Work.Builder(InfiniteTestWorker.class).withInitialState(BLOCKED).build();
+        Work work2 = new Work.Builder(InfiniteTestWorker.class).withInitialState(BLOCKED).build();
+        insertNamedWorks(testName, work0, work1, work2);
+        insertDependency(work1, work0);
+        insertDependency(work2, work1);
 
         Observer<List<WorkStatus>> mockObserver = mock(Observer.class);
 
@@ -920,11 +922,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work work1 = new Work.Builder(TestWorker.class).withInitialState(BLOCKED).build();
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
-
-        Dependency dependency10 = new Dependency(work1.getId(), work0.getId());
-
-        DependencyDao dependencyDao = mDatabase.dependencyDao();
-        dependencyDao.insertDependency(dependency10);
+        insertDependency(work1, work0);
 
         mWorkManagerImpl.cancelWorkById(work0.getId());
 
@@ -941,11 +939,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         Work work1 = new Work.Builder(TestWorker.class).withInitialState(ENQUEUED).build();
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
-
-        Dependency dependency10 = new Dependency(work1.getId(), work0.getId());
-
-        DependencyDao dependencyDao = mDatabase.dependencyDao();
-        dependencyDao.insertDependency(dependency10);
+        insertDependency(work1, work0);
 
         mWorkManagerImpl.cancelWorkById(work0.getId());
 
@@ -1005,16 +999,10 @@ public class WorkManagerImplTest extends WorkManagerTest {
         //                 |
         //                 2
 
-        Dependency dependency21 = new Dependency(work2.getId(), work1.getId());
-        Dependency dependency23 = new Dependency(work2.getId(), work3.getId());
-        Dependency dependency10 = new Dependency(work1.getId(), work0.getId());
-        Dependency dependency40 = new Dependency(work4.getId(), work0.getId());
-
-        DependencyDao dependencyDao = mDatabase.dependencyDao();
-        dependencyDao.insertDependency(dependency21);
-        dependencyDao.insertDependency(dependency23);
-        dependencyDao.insertDependency(dependency10);
-        dependencyDao.insertDependency(dependency40);
+        insertDependency(work2, work1);
+        insertDependency(work2, work3);
+        insertDependency(work1, work0);
+        insertDependency(work4, work0);
 
         mWorkManagerImpl.cancelAllWorkWithTag(tag);
 
@@ -1033,8 +1021,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         Work work0 = new Work.Builder(InfiniteTestWorker.class).build();
         Work work1 = new Work.Builder(InfiniteTestWorker.class).build();
+        insertNamedWorks(testName, work0, work1);
 
-        mWorkManagerImpl.beginWithName(testName, KEEP, work0).then(work1).enqueue();
         mWorkManagerImpl.cancelAllWorkWithName(testName);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
@@ -1049,8 +1037,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         Work work0 = new Work.Builder(InfiniteTestWorker.class).withInitialState(SUCCEEDED).build();
         Work work1 = new Work.Builder(InfiniteTestWorker.class).build();
+        insertNamedWorks(testName, work0, work1);
 
-        mWorkManagerImpl.beginWithName(testName, KEEP, work0).then(work1).enqueue();
         mWorkManagerImpl.cancelAllWorkWithName(testName);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
@@ -1132,12 +1120,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
         insertWorkSpecAndTags(work2);
 
         // Dependency graph: 0 -> 1 -> 2
-
-        Dependency dependency10 = new Dependency(work1.getId(), work0.getId());
-        Dependency dependency21 = new Dependency(work2.getId(), work1.getId());
-        DependencyDao dependencyDao = mDatabase.dependencyDao();
-        dependencyDao.insertDependency(dependency10);
-        dependencyDao.insertDependency(dependency21);
+        insertDependency(work1, work0);
+        insertDependency(work2, work1);
 
         SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
         SupportSQLiteDatabase db = openHelper.getWritableDatabase();
@@ -1154,5 +1138,17 @@ public class WorkManagerImplTest extends WorkManagerTest {
         for (String tag : getTags(work)) {
             mDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
         }
+    }
+
+    private void insertNamedWorks(String name, Work... works) {
+        for (Work work : works) {
+            insertWorkSpecAndTags(work);
+            mDatabase.workNameDao().insert(new WorkName(name, work.getId()));
+        }
+    }
+
+    private void insertDependency(Work work, Work prerequisiteWork) {
+        mDatabase.dependencyDao().insertDependency(
+                new Dependency(work.getId(), prerequisiteWork.getId()));
     }
 }
