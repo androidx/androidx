@@ -17,14 +17,15 @@ package androidx.emoji.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.text.EmojiCompat.InitCallback;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
 import android.widget.EditText;
+
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.emoji.text.EmojiCompat;
+import androidx.emoji.text.EmojiCompat.InitCallback;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;

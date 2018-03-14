@@ -20,18 +20,18 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.text.emoji.flatbuffer.MetadataItem;
+import androidx.text.emoji.flatbuffer.MetadataList;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
-import androidx.text.emoji.flatbuffer.MetadataItem;
-import androidx.text.emoji.flatbuffer.MetadataList;
 
 /**
  * Information about a single emoji.

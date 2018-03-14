@@ -18,12 +18,13 @@ package androidx.emoji.text;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Paint;
+import android.text.style.ReplacementSpan;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
-import android.text.style.ReplacementSpan;
 
 /**
  * Base span class for the emoji replacement. When an emoji is found and needs to be replaced in a

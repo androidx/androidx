@@ -66,8 +66,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.emoji.util.Emoji.EmojiMapping;
-import androidx.emoji.util.TestString;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
@@ -77,6 +75,9 @@ import android.text.SpannedString;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+
+import androidx.emoji.util.Emoji.EmojiMapping;
+import androidx.emoji.util.TestString;
 
 import org.junit.Before;
 import org.junit.Test;

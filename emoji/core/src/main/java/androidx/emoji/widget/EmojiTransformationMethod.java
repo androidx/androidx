@@ -18,13 +18,14 @@ package androidx.emoji.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Rect;
+import android.text.method.TransformationMethod;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji.text.EmojiCompat;
-import android.text.method.TransformationMethod;
-import android.view.View;
 
 /**
  * TransformationMethod wrapper in order to update transformed text with emojis.

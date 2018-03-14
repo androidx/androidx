@@ -17,9 +17,10 @@ package androidx.emoji.util;
 
 import static org.mockito.Matchers.argThat;
 
-import androidx.emoji.text.EmojiSpan;
 import android.text.Spanned;
 import android.text.TextUtils;
+
+import androidx.emoji.text.EmojiSpan;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

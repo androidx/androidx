@@ -41,15 +41,16 @@ import static org.mockito.Mockito.when;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.text.TestConfigBuilder;
-import androidx.emoji.util.TestString;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.method.KeyListener;
 import android.view.KeyEvent;
 import android.view.View;
+
+import androidx.emoji.text.EmojiCompat;
+import androidx.emoji.text.TestConfigBuilder;
+import androidx.emoji.util.TestString;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
