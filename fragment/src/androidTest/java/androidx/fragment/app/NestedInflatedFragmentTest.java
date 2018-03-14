@@ -60,12 +60,57 @@ public class NestedInflatedFragmentTest {
         fm.popBackStackImmediate();
     }
 
+    /**
+     * This mimics the behavior of FragmentStatePagerAdapter jumping between pages
+     */
+    @Test
+    @UiThreadTest
+    public void nestedSetUserVisibleHint() throws Throwable {
+        FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        // Add a UserVisibleHintParentFragment
+        UserVisibleHintParentFragment fragment = new UserVisibleHintParentFragment();
+        fm.beginTransaction().add(android.R.id.content, fragment).commit();
+        fm.executePendingTransactions();
+
+        fragment.setUserVisibleHint(false);
+
+        Fragment.SavedState state = fm.saveFragmentInstanceState(fragment);
+        fm.beginTransaction().remove(fragment).commit();
+        fm.executePendingTransactions();
+
+        fragment = new UserVisibleHintParentFragment();
+        fragment.setInitialSavedState(state);
+        fragment.setUserVisibleHint(true);
+
+        fm.beginTransaction().add(android.R.id.content, fragment).commit();
+        fm.executePendingTransactions();
+    }
+
     public static class ParentFragment extends Fragment {
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                 @Nullable Bundle savedInstanceState) {
             return inflater.inflate(R.layout.nested_inflated_fragment_parent, container, false);
+        }
+    }
+
+    public static class UserVisibleHintParentFragment extends ParentFragment {
+        @Override
+        public void setUserVisibleHint(boolean isVisibleToUser) {
+            super.setUserVisibleHint(isVisibleToUser);
+            if (getHost() != null) {
+                for (Fragment fragment : getChildFragmentManager().getFragments()) {
+                    fragment.setUserVisibleHint(isVisibleToUser);
+                }
+            }
+        }
+
+        @Override
+        public void onAttachFragment(Fragment childFragment) {
+            super.onAttachFragment(childFragment);
+            childFragment.setUserVisibleHint(getUserVisibleHint());
         }
     }
 
