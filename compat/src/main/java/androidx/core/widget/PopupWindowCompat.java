@@ -17,14 +17,15 @@
 package androidx.core.widget;
 
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.PopupWindow;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

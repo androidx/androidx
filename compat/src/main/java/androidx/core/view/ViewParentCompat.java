@@ -17,7 +17,6 @@
 package androidx.core.view;
 
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -25,6 +24,8 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
+
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link ViewParent}.

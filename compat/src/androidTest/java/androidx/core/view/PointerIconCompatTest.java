@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNull;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Build;
-import androidx.core.test.R;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -30,6 +29,8 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.PointerIcon;
 import android.view.View;
+
+import androidx.core.test.R;
 
 import org.junit.Before;
 import org.junit.Test;

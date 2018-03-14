@@ -22,12 +22,13 @@ import static org.junit.Assert.assertTrue;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import androidx.core.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.ViewGroup;
+
+import androidx.core.test.R;
 
 import org.junit.Before;
 import org.junit.Test;

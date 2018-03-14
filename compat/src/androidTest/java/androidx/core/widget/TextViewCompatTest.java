@@ -45,19 +45,20 @@ import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
-import androidx.annotation.ColorInt;
-import androidx.core.test.R;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.testutils.TestUtils;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.view.menu.MenuBuilder;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.annotation.ColorInt;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.core.test.R;
+import androidx.core.view.ViewCompat;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -27,10 +27,11 @@ import static androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY;
 import android.app.Notification;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.widget.RemoteViews;
+
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;

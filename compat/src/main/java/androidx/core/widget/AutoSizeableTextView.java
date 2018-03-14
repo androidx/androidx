@@ -19,9 +19,10 @@ package androidx.core.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Build;
+import android.util.TypedValue;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import android.util.TypedValue;
 
 /**
  * Interface which allows a {@link android.widget.TextView} to receive background auto-sizing calls

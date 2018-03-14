@@ -21,12 +21,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Build;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.BitmapCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
-import android.util.Log;
 
 import java.io.InputStream;
 

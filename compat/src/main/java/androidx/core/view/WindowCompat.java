@@ -16,10 +16,11 @@
 
 package androidx.core.view;
 
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
 import android.view.View;
 import android.view.Window;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 
 /**
  * Helper for accessing features in {@link Window}.

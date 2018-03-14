@@ -18,6 +18,7 @@ package androidx.core.os;
 
 import android.os.Build;
 import android.os.LocaleList;
+
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

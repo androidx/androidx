@@ -36,6 +36,7 @@ import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.provider.BaseColumns;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
@@ -44,14 +45,14 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.collection.LruCache;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.content.res.FontResourcesParserCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.TypefaceCompat;
 import androidx.core.graphics.TypefaceCompatUtil;
 import androidx.core.provider.SelfDestructiveThread.ReplyCallback;
-import androidx.collection.LruCache;
 import androidx.core.util.Preconditions;
-import androidx.collection.SimpleArrayMap;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

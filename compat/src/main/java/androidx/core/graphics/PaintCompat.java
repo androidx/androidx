@@ -19,6 +19,7 @@ package androidx.core.graphics;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 

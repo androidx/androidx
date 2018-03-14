@@ -20,6 +20,7 @@ import static android.os.Build.VERSION.SDK_INT;
 
 import android.content.res.Configuration;
 import android.content.res.Resources;
+
 import androidx.annotation.NonNull;
 
 /**

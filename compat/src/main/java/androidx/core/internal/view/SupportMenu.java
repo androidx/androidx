@@ -18,8 +18,9 @@ package androidx.core.internal.view;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
 import android.view.KeyEvent;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Interface for managing the items in a menu.

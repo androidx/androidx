@@ -18,10 +18,11 @@ package androidx.core.view;
 
 import android.content.Context;
 import android.os.Build;
-import androidx.annotation.NonNull;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewConfiguration;
+
+import androidx.annotation.NonNull;
 
 import java.lang.reflect.Method;
 

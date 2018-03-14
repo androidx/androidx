@@ -18,10 +18,11 @@ package androidx.core.view.accessibility;
 
 import android.os.Build;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityRecord;
+
+import androidx.annotation.NonNull;
 
 import java.util.List;
 

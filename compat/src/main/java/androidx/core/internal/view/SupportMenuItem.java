@@ -21,10 +21,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.ActionProvider;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.annotation.RestrictTo;
+import androidx.core.view.ActionProvider;
 
 /**
  * Interface for direct access to a previously created menu item.

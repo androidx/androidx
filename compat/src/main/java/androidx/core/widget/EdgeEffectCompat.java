@@ -18,9 +18,10 @@ package androidx.core.widget;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
+import android.widget.EdgeEffect;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import android.widget.EdgeEffect;
 
 /**
  * Helper for accessing {@link android.widget.EdgeEffect}.

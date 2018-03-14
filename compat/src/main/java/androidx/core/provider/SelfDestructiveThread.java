@@ -22,6 +22,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;

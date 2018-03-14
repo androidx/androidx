@@ -17,6 +17,7 @@ package androidx.core.graphics;
 
 import android.graphics.Bitmap;
 import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 

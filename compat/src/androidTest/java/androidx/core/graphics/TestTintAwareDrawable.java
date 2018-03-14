@@ -19,6 +19,7 @@ package androidx.core.graphics;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+
 import androidx.core.graphics.drawable.TintAwareDrawable;
 
 public class TestTintAwareDrawable extends BitmapDrawable implements TintAwareDrawable {

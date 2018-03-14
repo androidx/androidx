@@ -31,12 +31,13 @@ import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.core.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.core.content.ContextCompat;
+import androidx.core.test.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

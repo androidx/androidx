@@ -19,6 +19,7 @@ package androidx.core.os;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Build;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;

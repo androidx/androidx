@@ -20,6 +20,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.util.AttributeSet;
+import android.util.Base64;
+import android.util.Xml;
+
 import androidx.annotation.ArrayRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -27,9 +31,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.provider.FontRequest;
-import android.util.AttributeSet;
-import android.util.Base64;
-import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

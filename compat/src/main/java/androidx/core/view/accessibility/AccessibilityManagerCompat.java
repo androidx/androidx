@@ -18,9 +18,10 @@ package androidx.core.view.accessibility;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.os.Build;
+import android.view.accessibility.AccessibilityManager;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import android.view.accessibility.AccessibilityManager;
 
 import java.util.List;
 

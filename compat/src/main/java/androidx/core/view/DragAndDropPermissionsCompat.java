@@ -20,10 +20,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
 import android.os.Build;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import android.view.DragAndDropPermissions;
 import android.view.DragEvent;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /**
  * Helper for accessing features in {@link android.view.DragAndDropPermissions} a backwards
