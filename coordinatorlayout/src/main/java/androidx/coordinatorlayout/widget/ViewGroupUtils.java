@@ -21,10 +21,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import androidx.annotation.RestrictTo;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * @hide
