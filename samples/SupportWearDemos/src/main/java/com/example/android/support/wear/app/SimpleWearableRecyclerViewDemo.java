@@ -18,11 +18,12 @@ package com.example.android.support.wear.app;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.widget.WearableLinearLayoutManager;
 import androidx.wear.widget.WearableRecyclerView;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.android.support.wear.R;
 

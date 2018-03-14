@@ -16,18 +16,19 @@
 
 package com.example.android.support.appnavigation.app;
 
-import com.example.android.support.appnavigation.R;
-
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+
 import androidx.core.app.NavUtils;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
-import android.view.MenuItem;
-import android.view.View;
+
+import com.example.android.support.appnavigation.R;
 
 public class NotificationsActivity extends Activity {
     @Override

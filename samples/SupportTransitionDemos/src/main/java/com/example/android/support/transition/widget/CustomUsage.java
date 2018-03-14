@@ -16,13 +16,14 @@
 
 package com.example.android.support.transition.widget;
 
-import com.example.android.support.transition.R;
-
 import android.os.Bundle;
+import android.view.ViewGroup;
+
 import androidx.transition.Scene;
 import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
-import android.view.ViewGroup;
+
+import com.example.android.support.transition.R;
 
 /**
  * This demonstrates usage of a custom Transition. See {@link ChangeColor} for the actual

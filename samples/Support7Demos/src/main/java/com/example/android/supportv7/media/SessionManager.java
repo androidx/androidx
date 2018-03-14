@@ -18,12 +18,13 @@ package com.example.android.supportv7.media;
 
 import android.app.PendingIntent;
 import android.net.Uri;
-import androidx.mediarouter.media.MediaItemStatus;
-import androidx.mediarouter.media.MediaSessionStatus;
 import android.util.Log;
 
-import java.util.List;
+import androidx.mediarouter.media.MediaItemStatus;
+import androidx.mediarouter.media.MediaSessionStatus;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SessionManager manages a media session as a queue. It supports common

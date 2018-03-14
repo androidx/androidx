@@ -17,11 +17,13 @@
 package com.example.android.supportv4.content;
 
 //BEGIN_INCLUDE(complete)
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
-import androidx.legacy.content.WakefulBroadcastReceiver;
 import android.util.Log;
+
+import androidx.legacy.content.WakefulBroadcastReceiver;
 
 public class SimpleWakefulReceiver extends WakefulBroadcastReceiver {
     @Override

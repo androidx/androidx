@@ -16,16 +16,17 @@
 
 package com.example.android.support.design.widget;
 
-import com.example.android.support.design.R;
-import com.example.android.support.design.Shakespeare;
-
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.android.support.design.R;
+import com.example.android.support.design.Shakespeare;
 
 /**
  * This demonstrates basic usage of {@link BottomSheetBehavior}.

@@ -16,15 +16,16 @@
 
 package com.example.android.support.appnavigation.app;
 
-import com.example.android.support.appnavigation.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.core.app.NavUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.core.app.NavUtils;
+
+import com.example.android.support.appnavigation.R;
 
 public class PeerActivity extends Activity {
     private static final String EXTRA_PEER_COUNT =

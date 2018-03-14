@@ -18,6 +18,7 @@ package androidx.textclassifier;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;

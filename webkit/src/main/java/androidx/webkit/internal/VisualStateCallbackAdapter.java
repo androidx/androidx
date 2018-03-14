@@ -16,9 +16,9 @@
 
 package androidx.webkit.internal;
 
-import org.chromium.support_lib_boundary.VisualStateCallbackBoundaryInterface;
-
 import androidx.webkit.WebViewCompat;
+
+import org.chromium.support_lib_boundary.VisualStateCallbackBoundaryInterface;
 
 /**
  * Adapter between WebViewCompat.VisualStateCallback and VisualStateCallbackBoundaryInterface (the

@@ -17,9 +17,10 @@
 package com.example.android.support.design.widget;
 
 import android.os.Bundle;
+import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import android.widget.TextView;
 
 import com.example.android.support.design.R;
 import com.example.android.support.design.Shakespeare;

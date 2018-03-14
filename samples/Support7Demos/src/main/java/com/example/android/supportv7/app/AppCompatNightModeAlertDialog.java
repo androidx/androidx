@@ -16,11 +16,12 @@
 package com.example.android.supportv7.app;
 
 import android.os.Bundle;
+import android.view.View;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import android.view.View;
 
 import com.example.android.supportv7.R;
 

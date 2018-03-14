@@ -18,6 +18,10 @@ package androidx.textclassifier;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.Spannable;
+import android.text.style.ClickableSpan;
+import android.view.View;
+
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -25,9 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
-import android.text.Spannable;
-import android.text.style.ClickableSpan;
-import android.view.View;
+import androidx.textclassifier.TextClassifier.EntityType;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -36,8 +38,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import androidx.textclassifier.TextClassifier.EntityType;
 
 /**
  * A collection of links, representing subsequences of text and the entity types (phone number,

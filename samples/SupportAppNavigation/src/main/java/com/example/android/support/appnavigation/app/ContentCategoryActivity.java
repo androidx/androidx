@@ -16,14 +16,15 @@
 
 package com.example.android.support.appnavigation.app;
 
-import com.example.android.support.appnavigation.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.core.app.NavUtils;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.core.app.NavUtils;
+
+import com.example.android.support.appnavigation.R;
 
 public class ContentCategoryActivity extends Activity {
     @Override

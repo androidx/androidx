@@ -16,14 +16,6 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.Shakespeare;
-import com.example.android.supportv4.R;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.fragment.app.ListFragment;
-
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -35,6 +27,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.ListFragment;
+
+import com.example.android.supportv4.R;
+import com.example.android.supportv4.Shakespeare;
 
 /**
  * Demonstration of using fragments to implement different activity layouts.

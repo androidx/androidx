@@ -17,10 +17,11 @@
 package com.example.android.support.transition.widget;
 
 import android.os.Bundle;
-import androidx.transition.TransitionManager;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.transition.TransitionManager;
 
 import com.example.android.support.transition.R;
 

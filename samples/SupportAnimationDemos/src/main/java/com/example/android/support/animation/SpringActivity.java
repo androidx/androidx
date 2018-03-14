@@ -18,13 +18,14 @@ package com.example.android.support.animation;
 
 import android.app.Activity;
 import android.os.Bundle;
-import androidx.dynamicanimation.animation.DynamicAnimation;
-import androidx.dynamicanimation.animation.SpringAnimation;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.dynamicanimation.animation.DynamicAnimation;
+import androidx.dynamicanimation.animation.SpringAnimation;
 
 /**
  * This is a single spring animation. It provides a UI to interact with the spring, and two seek

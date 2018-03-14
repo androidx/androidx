@@ -20,6 +20,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.View;
+
+import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.OnItemViewClickedListener;
 import androidx.leanback.widget.OnItemViewSelectedListener;
@@ -27,9 +31,6 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.VerticalGridPresenter;
-import androidx.core.content.res.ResourcesCompat;
-import android.util.Log;
-import android.view.View;
 
 public class VerticalGridSupportFragment extends androidx.leanback.app.VerticalGridSupportFragment {
     private static final String TAG = "leanback.VerticalGridSupportFragment";
