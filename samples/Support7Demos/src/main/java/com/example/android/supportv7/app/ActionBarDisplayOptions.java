@@ -16,15 +16,16 @@
 package com.example.android.supportv7.app;
 
 import android.os.Bundle;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.ActionBar.Tab;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBar.Tab;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.android.supportv7.R;
 

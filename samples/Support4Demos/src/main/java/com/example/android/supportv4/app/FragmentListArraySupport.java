@@ -16,16 +16,16 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.Shakespeare;
-
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.ListFragment;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.ListFragment;
+
+import com.example.android.supportv4.Shakespeare;
 
 /**
  * Demonstration of using ListFragment to show a list of items

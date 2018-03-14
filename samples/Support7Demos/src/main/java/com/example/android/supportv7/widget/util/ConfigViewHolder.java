@@ -16,10 +16,11 @@
 
 package com.example.android.supportv7.widget.util;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ConfigViewHolder extends RecyclerView.ViewHolder
         implements CompoundButton.OnCheckedChangeListener {

@@ -18,13 +18,14 @@ package com.example.android.supportv7.widget;
 
 import android.graphics.Color;
 import android.os.Parcelable;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;

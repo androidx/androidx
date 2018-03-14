@@ -17,11 +17,12 @@
 package com.example.android.support.design.widget;
 
 import android.content.Context;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.support.design.R;
 

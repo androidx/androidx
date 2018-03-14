@@ -19,21 +19,22 @@ package com.example.android.support.content.demos;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.contentpager.content.ContentPager;
-import androidx.contentpager.content.ContentPager.ContentCallback;
-import androidx.contentpager.content.LoaderQueryRunner;
-import androidx.contentpager.content.Query;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.contentpager.content.ContentPager;
+import androidx.contentpager.content.ContentPager.ContentCallback;
+import androidx.contentpager.content.LoaderQueryRunner;
+import androidx.contentpager.content.Query;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Locale;
 

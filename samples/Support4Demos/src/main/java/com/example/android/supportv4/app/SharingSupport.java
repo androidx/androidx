@@ -19,10 +19,11 @@ package com.example.android.supportv4.app;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.core.app.ShareCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.core.app.ShareCompat;
 
 import com.example.android.supportv4.R;
 import com.example.android.supportv4.content.SharingSupportProvider;

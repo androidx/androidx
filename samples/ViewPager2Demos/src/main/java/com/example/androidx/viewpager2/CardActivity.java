@@ -20,16 +20,16 @@ import static java.util.Collections.unmodifiableList;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.ViewGroup;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.androidx.viewpager2.cards.Card;
 import com.example.androidx.viewpager2.cards.CardView;
 
 import java.util.List;
-
-import androidx.viewpager2.widget.ViewPager2;
 
 /**
  * Shows how to use {@link ViewPager2#setAdapter(RecyclerView.Adapter)}

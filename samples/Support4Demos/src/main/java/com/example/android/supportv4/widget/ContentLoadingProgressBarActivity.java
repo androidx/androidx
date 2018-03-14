@@ -18,12 +18,13 @@ package com.example.android.supportv4.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
-import androidx.core.widget.ContentLoadingProgressBar;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.core.widget.ContentLoadingProgressBar;
 
 import com.example.android.supportv4.R;
 

@@ -17,8 +17,9 @@
 package androidx.testutils;
 
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.support.test.rule.ActivityTestRule;
+
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
 import java.util.concurrent.CountDownLatch;

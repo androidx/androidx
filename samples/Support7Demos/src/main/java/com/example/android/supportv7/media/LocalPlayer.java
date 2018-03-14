@@ -26,9 +26,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import androidx.annotation.RequiresApi;
-import androidx.mediarouter.media.MediaItemStatus;
-import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -39,6 +36,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+
+import androidx.annotation.RequiresApi;
+import androidx.mediarouter.media.MediaItemStatus;
+import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
 import com.example.android.supportv7.R;
 

@@ -36,17 +36,8 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
-import androidx.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import androidx.core.util.ObjectsCompat;
-import androidx.core.view.accessibility.AccessibilityEventCompat;
-import androidx.appcompat.app.AlertDialog;
-
-import androidx.palette.graphics.Palette;
-import androidx.mediarouter.media.MediaRouteSelector;
-import androidx.mediarouter.media.MediaRouter;
-import androidx.mediarouter.R;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -74,6 +65,15 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.util.ObjectsCompat;
+import androidx.core.view.accessibility.AccessibilityEventCompat;
+import androidx.media.session.MediaControllerCompat;
+import androidx.mediarouter.R;
+import androidx.mediarouter.media.MediaRouteSelector;
+import androidx.mediarouter.media.MediaRouter;
+import androidx.palette.graphics.Palette;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

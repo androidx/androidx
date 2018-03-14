@@ -16,8 +16,9 @@
  */
 package com.example.android.leanback;
 
-import androidx.fragment.app.FragmentActivity;
 import android.os.Bundle;
+
+import androidx.fragment.app.FragmentActivity;
 
 public class BrowseSupportActivity extends FragmentActivity {
     /** Called when the activity is first created. */

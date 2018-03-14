@@ -15,10 +15,6 @@
  */
 package com.example.android.supportv13.app;
 
-import java.util.ArrayList;
-
-import com.example.android.supportv13.R;
-
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Activity;
@@ -26,8 +22,13 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.legacy.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
+import com.example.android.supportv13.R;
+
+import java.util.ArrayList;
 
 //BEGIN_INCLUDE(complete)
 public class FragmentNestingPagerSupport extends Activity {

@@ -20,15 +20,16 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.AsyncTask;
+import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.util.TimingLogger;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
-import androidx.core.graphics.ColorUtils;
 import androidx.collection.ArrayMap;
-import android.util.Log;
-import android.util.SparseBooleanArray;
-import android.util.TimingLogger;
+import androidx.core.graphics.ColorUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

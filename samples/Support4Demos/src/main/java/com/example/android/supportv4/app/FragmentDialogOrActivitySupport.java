@@ -16,18 +16,19 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.R;
-
 import android.os.Bundle;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.example.android.supportv4.R;
 
 public class FragmentDialogOrActivitySupport extends FragmentActivity {
     @Override

@@ -20,13 +20,14 @@ package com.example.android.supportv7.widget;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.widget.adapter.SimpleStringAdapter;

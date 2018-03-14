@@ -18,10 +18,11 @@ package com.example.android.supportv4.view;
 
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
-import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.FrameLayout;
+
+import androidx.core.view.ViewCompat;
 
 public class CheckableFrameLayout extends FrameLayout implements Checkable {
     private boolean mChecked;

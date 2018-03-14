@@ -16,10 +16,10 @@
 
 package com.example.android.supportv7.view;
 
-import com.example.android.supportv7.R;
-
 import android.app.Activity;
 import android.os.Bundle;
+
+import com.example.android.supportv7.R;
 
 /**
  * Demonstrates using GridLayout to build the same "Simple Form" as in the

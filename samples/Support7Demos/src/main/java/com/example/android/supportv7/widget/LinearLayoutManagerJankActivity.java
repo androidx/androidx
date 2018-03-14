@@ -16,9 +16,10 @@
 
 package com.example.android.supportv7.widget;
 
+import android.view.ViewGroup;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.ViewGroup;
 
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;

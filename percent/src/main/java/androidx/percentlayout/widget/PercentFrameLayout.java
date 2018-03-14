@@ -18,10 +18,11 @@ package androidx.percentlayout.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.RequiresApi;
 
 /**
  * Subclass of {@link android.widget.FrameLayout} that supports percentage based dimensions and

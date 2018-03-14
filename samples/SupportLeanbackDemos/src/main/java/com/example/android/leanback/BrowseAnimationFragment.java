@@ -16,6 +16,10 @@ package com.example.android.leanback;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.View;
+
+import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.HeaderItem;
 import androidx.leanback.widget.ListRow;
@@ -24,9 +28,6 @@ import androidx.leanback.widget.OnItemViewClickedListener;
 import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
-import androidx.core.content.res.ResourcesCompat;
-import android.util.Log;
-import android.view.View;
 
 import java.util.Random;
 

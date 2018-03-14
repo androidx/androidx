@@ -25,9 +25,11 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_REGISTER;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol
         .CLIENT_MSG_RELEASE_ROUTE_CONTROLLER;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_ROUTE_CONTROL_REQUEST;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol
+        .CLIENT_MSG_ROUTE_CONTROL_REQUEST;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_SELECT_ROUTE;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_SET_DISCOVERY_REQUEST;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol
+        .CLIENT_MSG_SET_DISCOVERY_REQUEST;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_SET_ROUTE_VOLUME;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UNREGISTER;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UNSELECT_ROUTE;
@@ -55,10 +57,11 @@ import android.os.IBinder.DeathRecipient;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import androidx.annotation.VisibleForTesting;
-import androidx.core.util.ObjectsCompat;
 import android.util.Log;
 import android.util.SparseArray;
+
+import androidx.annotation.VisibleForTesting;
+import androidx.core.util.ObjectsCompat;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

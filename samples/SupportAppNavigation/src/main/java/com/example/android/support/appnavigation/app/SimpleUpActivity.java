@@ -16,12 +16,13 @@
 
 package com.example.android.support.appnavigation.app;
 
-import com.example.android.support.appnavigation.R;
-
 import android.app.Activity;
 import android.os.Bundle;
-import androidx.core.app.NavUtils;
 import android.view.MenuItem;
+
+import androidx.core.app.NavUtils;
+
+import com.example.android.support.appnavigation.R;
 
 public class SimpleUpActivity extends Activity {
     @Override

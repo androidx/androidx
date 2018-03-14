@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import android.app.Activity;
 import android.os.Looper;
 import android.support.test.rule.ActivityTestRule;
+
 import androidx.fragment.app.FragmentActivity;
 
 import java.util.concurrent.CountDownLatch;

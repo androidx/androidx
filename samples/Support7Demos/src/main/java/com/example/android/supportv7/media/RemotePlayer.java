@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
@@ -28,7 +30,6 @@ import androidx.mediarouter.media.RemotePlaybackClient;
 import androidx.mediarouter.media.RemotePlaybackClient.ItemActionCallback;
 import androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback;
 import androidx.mediarouter.media.RemotePlaybackClient.StatusCallback;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;

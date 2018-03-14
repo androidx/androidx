@@ -17,12 +17,14 @@
 package com.example.android.support.transition.widget;
 
 import android.os.Bundle;
-import androidx.transition.Scene;
-import androidx.transition.TransitionManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.transition.Scene;
+import androidx.transition.TransitionManager;
+
 import com.example.android.support.transition.R;
 
 abstract class SceneUsageBase extends TransitionUsageBase {

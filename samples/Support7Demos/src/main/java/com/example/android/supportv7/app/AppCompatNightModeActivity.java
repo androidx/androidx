@@ -17,13 +17,14 @@
 package com.example.android.supportv7.app;
 
 
-import com.example.android.supportv7.R;
-
 import android.os.Bundle;
+import android.view.View;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import android.view.View;
+
+import com.example.android.supportv7.R;
 
 /**
  * This demonstrates idiomatic usage of AppCompatActivity with Theme.AppCompat.DayNight

@@ -19,11 +19,12 @@ package com.example.android.support.wear.app.drawers;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
-import androidx.wear.widget.drawer.WearableActionDrawerView;
-import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import androidx.wear.widget.drawer.WearableActionDrawerView;
+import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 
 import com.example.android.support.wear.R;
 
