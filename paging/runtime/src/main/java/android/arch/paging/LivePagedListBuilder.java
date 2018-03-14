@@ -143,7 +143,6 @@ public class LivePagedListBuilder<Key, Value> {
      * @return The LiveData of PagedLists
      */
     @NonNull
-    @SuppressWarnings("RestrictedApi") // Arch executors
     public LiveData<PagedList<Value>> build() {
         if (mConfig == null) {
             throw new IllegalArgumentException("PagedList.Config must be provided");
@@ -161,7 +160,6 @@ public class LivePagedListBuilder<Key, Value> {
 
     @AnyThread
     @NonNull
-    @SuppressWarnings("RestrictedApi") // ComputableLiveData
     private static <Key, Value> LiveData<PagedList<Value>> create(
             @Nullable final Key initialLoadKey,
             @NonNull final PagedList.Config config,
