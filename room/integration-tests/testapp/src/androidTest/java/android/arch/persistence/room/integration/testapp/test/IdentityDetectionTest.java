@@ -19,16 +19,16 @@ package android.arch.persistence.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
+import static org.junit.Assert.fail;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
 import android.arch.persistence.room.integration.testapp.vo.User;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import org.junit.After;
 import org.junit.Before;
@@ -78,8 +78,25 @@ public class IdentityDetectionTest {
         assertThat(exceptions[0], instanceOf(IllegalStateException.class));
     }
 
+    @Test
+    public void reOpenMasterTableDropped() {
+        openDb();
+        mTestDatabase.getUserDao().insert(TestUtil.createUser(3));
+        // drop the master table
+        SupportSQLiteDatabase db = mTestDatabase.getOpenHelper().getWritableDatabase();
+        db.execSQL("DROP TABLE " + Room.MASTER_TABLE_NAME);
+        closeDb();
+        try {
+            openDb();
+            mTestDatabase.getUserDao().loadByIds(3);
+            fail("Was expecting an exception.");
+        } catch (Throwable t) {
+            assertThat(t, instanceOf(IllegalStateException.class));
+        }
+    }
+
     private void closeDb() {
-        mTestDatabase.getOpenHelper().close();
+        mTestDatabase.close();
     }
 
     private void openDb() {
@@ -94,8 +111,9 @@ public class IdentityDetectionTest {
                 closeDb();
             }
             deleteDbFile();
-        } finally {
-            Log.e(TAG, "could not close test database");
+        } catch (Throwable t) {
+            Log.e(TAG, "could not close test database", t);
+            throw t;
         }
     }
 
