@@ -40,7 +40,7 @@ package androidx.fragment.app {
     method public final int getId();
     method public final android.view.LayoutInflater getLayoutInflater();
     method public android.arch.lifecycle.Lifecycle getLifecycle();
-    method public androidx.loader.app.LoaderManager getLoaderManager();
+    method public deprecated androidx.loader.app.LoaderManager getLoaderManager();
     method public final androidx.fragment.app.Fragment getParentFragment();
     method public java.lang.Object getReenterTransition();
     method public final android.content.res.Resources getResources();
@@ -151,7 +151,7 @@ package androidx.fragment.app {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
-    method public androidx.loader.app.LoaderManager getSupportLoaderManager();
+    method public deprecated androidx.loader.app.LoaderManager getSupportLoaderManager();
     method public android.arch.lifecycle.ViewModelStore getViewModelStore();
     method public void onAttachFragment(androidx.fragment.app.Fragment);
     method public void onMultiWindowModeChanged(boolean);
