@@ -24,15 +24,16 @@ import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.util.AttributeSet;
+import android.widget.ImageView;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.ImageViewCompat;
 import androidx.core.widget.TintableImageSourceView;
-import androidx.appcompat.R;
-import android.util.AttributeSet;
-import android.widget.ImageView;
 
 /**
  * A {@link ImageView} which supports compatible features on older versions of the platform,

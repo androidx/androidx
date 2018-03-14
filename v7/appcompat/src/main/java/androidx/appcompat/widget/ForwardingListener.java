@@ -19,12 +19,13 @@ package androidx.appcompat.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.SystemClock;
-import androidx.annotation.RestrictTo;
-import androidx.appcompat.view.menu.ShowableListMenu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.view.menu.ShowableListMenu;
 
 /**
  * Abstract class that forwards touch events to a {@link ShowableListMenu}.

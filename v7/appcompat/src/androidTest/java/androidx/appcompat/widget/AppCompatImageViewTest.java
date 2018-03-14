@@ -21,6 +21,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.filters.SmallTest;
+
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtilsMatchers;
 

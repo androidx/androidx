@@ -38,13 +38,6 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.speech.RecognizerIntent;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.customview.view.AbsSavedState;
-import androidx.core.view.ViewCompat;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.appcompat.R;
-import androidx.appcompat.view.CollapsibleActionView;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Spannable;
@@ -73,6 +66,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.appcompat.view.CollapsibleActionView;
+import androidx.core.view.ViewCompat;
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.customview.view.AbsSavedState;
 
 import java.lang.reflect.Method;
 import java.util.WeakHashMap;

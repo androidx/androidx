@@ -21,9 +21,10 @@ import static org.junit.Assert.assertTrue;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
-import androidx.appcompat.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Window;
+
+import androidx.appcompat.widget.Toolbar;
 
 import org.junit.Test;
 

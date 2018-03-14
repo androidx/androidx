@@ -26,13 +26,6 @@ import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.internal.view.SupportMenuItem;
-import androidx.core.view.ActionProvider;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.R;
 import android.util.Log;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
@@ -43,6 +36,14 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewDebug;
 import android.widget.LinearLayout;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.internal.view.SupportMenuItem;
+import androidx.core.view.ActionProvider;
 
 /**
  * @hide

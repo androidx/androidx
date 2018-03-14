@@ -16,11 +16,12 @@
 
 package androidx.appcompat.app;
 
+import android.view.KeyEvent;
+import android.view.Menu;
+
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.view.KeyEvent;
-import android.view.Menu;
 
 public class ToolbarAppCompatActivity extends BaseTestActivity {
 

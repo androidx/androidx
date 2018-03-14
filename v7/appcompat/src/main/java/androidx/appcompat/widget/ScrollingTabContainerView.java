@@ -22,11 +22,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.GravityCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.R;
-import androidx.appcompat.view.ActionBarPolicy;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.view.Gravity;
@@ -46,6 +41,12 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.view.ActionBarPolicy;
+import androidx.core.view.GravityCompat;
 
 /**
  * This widget implements the dynamic action bar tab behavior that can change across different

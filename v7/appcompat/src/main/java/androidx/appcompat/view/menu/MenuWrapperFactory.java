@@ -20,13 +20,14 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.os.Build;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SubMenu;
+
 import androidx.annotation.RestrictTo;
 import androidx.core.internal.view.SupportMenu;
 import androidx.core.internal.view.SupportMenuItem;
 import androidx.core.internal.view.SupportSubMenu;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.SubMenu;
 
 /**
  * @hide

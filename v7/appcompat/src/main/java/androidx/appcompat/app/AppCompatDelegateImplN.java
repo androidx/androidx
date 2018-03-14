@@ -17,10 +17,11 @@
 package androidx.appcompat.app;
 
 import android.content.Context;
-import androidx.annotation.RequiresApi;
 import android.view.KeyboardShortcutGroup;
 import android.view.Menu;
 import android.view.Window;
+
+import androidx.annotation.RequiresApi;
 
 import java.util.List;
 

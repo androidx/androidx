@@ -22,13 +22,14 @@ import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.core.widget.ImageViewCompat;
-import androidx.appcompat.R;
-import androidx.appcompat.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.widget.ImageViewCompat;
 
 /**
  * @hide

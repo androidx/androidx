@@ -23,9 +23,10 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.view.ViewConfiguration;
+
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
-import android.view.ViewConfiguration;
 
 /**
  * Allows components to query for various configuration policy decisions about how the action bar

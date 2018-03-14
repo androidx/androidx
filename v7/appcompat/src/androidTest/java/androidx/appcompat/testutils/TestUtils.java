@@ -25,15 +25,16 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
-import androidx.appcompat.widget.TintTypedArray;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.TintTypedArray;
+import androidx.core.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;

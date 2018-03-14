@@ -16,17 +16,18 @@
 
 package androidx.appcompat.app;
 
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.test.R;
-import androidx.appcompat.testutils.BaseTestActivity;
-import androidx.appcompat.testutils.Shakespeare;
-import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.appcompat.test.R;
+import androidx.appcompat.testutils.BaseTestActivity;
+import androidx.appcompat.testutils.Shakespeare;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 /**
  * Test activity for testing various APIs and interactions for DrawerLayout with start and end

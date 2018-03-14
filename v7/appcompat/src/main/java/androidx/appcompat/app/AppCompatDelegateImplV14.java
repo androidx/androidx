@@ -28,16 +28,17 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.VisibleForTesting;
-import androidx.appcompat.view.SupportActionModeWrapper;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.View;
 import android.view.Window;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
+import androidx.appcompat.view.SupportActionModeWrapper;
 
 @RequiresApi(14)
 class AppCompatDelegateImplV14 extends AppCompatDelegateImplV9 {

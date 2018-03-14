@@ -22,14 +22,15 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.R;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.core.view.ViewCompat;
 
 /**
  * This class acts as a container for the action bar view and action mode context views.

@@ -22,18 +22,19 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.TintableBackgroundView;
-import androidx.core.widget.AutoSizeableTextView;
-import androidx.core.widget.TextViewCompat;
-import androidx.appcompat.R;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
+import androidx.core.view.TintableBackgroundView;
+import androidx.core.widget.AutoSizeableTextView;
+import androidx.core.widget.TextViewCompat;
 
 /**
  * A {@link TextView} which supports compatible features on older versions of the platform,

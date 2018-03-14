@@ -19,10 +19,11 @@ package androidx.appcompat.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.R;
 import android.util.AttributeSet;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.R;
 
 @RequiresApi(17)
 class AppCompatTextHelperV17 extends AppCompatTextHelper {

@@ -19,14 +19,15 @@ import static org.junit.Assert.assertEquals;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
+import android.view.ViewGroup;
+import android.widget.ScrollView;
+
 import androidx.appcompat.app.inflater.CustomViewInflater;
 import androidx.appcompat.test.R;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.AppCompatTextView;
-import android.view.ViewGroup;
-import android.widget.ScrollView;
 
 import org.junit.Before;
 import org.junit.Rule;

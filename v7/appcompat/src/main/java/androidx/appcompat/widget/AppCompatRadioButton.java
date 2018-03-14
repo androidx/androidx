@@ -22,14 +22,15 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+import android.widget.RadioButton;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.widget.TintableCompoundButton;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
-import android.util.AttributeSet;
-import android.widget.RadioButton;
+import androidx.core.widget.TintableCompoundButton;
 
 /**
  * A {@link RadioButton} which supports compatible features on older versions of the platform,

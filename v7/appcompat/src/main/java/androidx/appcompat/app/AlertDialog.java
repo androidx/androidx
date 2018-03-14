@@ -25,6 +25,15 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+
 import androidx.annotation.ArrayRes;
 import androidx.annotation.AttrRes;
 import androidx.annotation.DrawableRes;
@@ -34,14 +43,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
-import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
-import android.view.KeyEvent;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 
 /**
  * A subclass of Dialog that can display one, two or three buttons. If you only want to

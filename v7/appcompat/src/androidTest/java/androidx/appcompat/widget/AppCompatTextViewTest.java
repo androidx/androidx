@@ -18,6 +18,7 @@ package androidx.appcompat.widget;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
 import static androidx.appcompat.testutils.TestUtilsActions.setEnabled;
 import static androidx.appcompat.testutils.TestUtilsActions.setTextAppearance;
 import static androidx.appcompat.testutils.TestUtilsMatchers.isBackground;
@@ -32,18 +33,19 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
-import androidx.annotation.ColorInt;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
+import android.view.View;
+import android.widget.TextView;
+
+import androidx.annotation.ColorInt;
+import androidx.appcompat.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
-import androidx.appcompat.test.R;
-import android.view.View;
-import android.widget.TextView;
 
 import org.junit.Test;
 

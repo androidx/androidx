@@ -24,8 +24,6 @@ import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -34,6 +32,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
+
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.R;
 
 /**
  * A popup window displaying a text message aligned to a specified view.

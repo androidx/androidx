@@ -56,8 +56,6 @@ import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.test.R;
 import android.text.TextUtils;
 import android.view.InputDevice;
 import android.view.MenuInflater;
@@ -69,6 +67,10 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
+import androidx.appcompat.test.R;
+import androidx.core.view.MenuItemCompat;
+import androidx.testutils.PollingCheck;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -78,8 +80,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.testutils.PollingCheck;
 
 @RunWith(AndroidJUnit4.class)
 public class PopupMenuTest {

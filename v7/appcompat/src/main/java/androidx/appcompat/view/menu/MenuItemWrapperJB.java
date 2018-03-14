@@ -19,12 +19,13 @@ package androidx.appcompat.view.menu;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
+import android.view.MenuItem;
+import android.view.View;
+
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.internal.view.SupportMenuItem;
 import androidx.core.view.ActionProvider;
-import android.view.MenuItem;
-import android.view.View;
 
 /**
  * Wraps a support {@link SupportMenuItem} as a framework {@link android.view.MenuItem}

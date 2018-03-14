@@ -16,19 +16,21 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.view.View.SYSTEM_UI_FLAG_LOW_PROFILE;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
-import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.ViewConfigurationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityManager;
+
+import androidx.annotation.RestrictTo;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewConfigurationCompat;
 
 /**
  * Event handler used used to emulate the behavior of {@link View#setTooltipText(CharSequence)}

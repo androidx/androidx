@@ -17,11 +17,12 @@
 package androidx.appcompat.view.menu;
 
 import android.content.Context;
-import androidx.core.internal.view.SupportMenuItem;
-import androidx.core.internal.view.SupportSubMenu;
-import androidx.collection.ArrayMap;
 import android.view.MenuItem;
 import android.view.SubMenu;
+
+import androidx.collection.ArrayMap;
+import androidx.core.internal.view.SupportMenuItem;
+import androidx.core.internal.view.SupportSubMenu;
 
 import java.util.Iterator;
 import java.util.Map;
