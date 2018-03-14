@@ -17,17 +17,18 @@
 package com.example.android.support.transition.widget;
 
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.transition.AutoTransition;
-import androidx.transition.Fade;
-import androidx.transition.Transition;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.view.ViewCompat;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.transition.AutoTransition;
+import androidx.transition.Fade;
+import androidx.transition.Transition;
 
 import com.example.android.support.transition.R;
 

@@ -16,16 +16,17 @@
 
 package com.example.android.supportv4.graphics;
 
-import com.example.android.supportv4.R;
-
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+
+import com.example.android.supportv4.R;
 
 /**
  * Demonstrates use of a {@link DrawableCompat}'s ability to become circular.

@@ -15,13 +15,13 @@
  */
 package com.example.android.supportv7.widget.selection.simple;
 
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 /**
  * Access to details of an item associated with a {@link MotionEvent} instance.

@@ -16,6 +16,9 @@
 
 package com.example.android.supportv4.media.utils;
 
+import static com.example.android.supportv4.media.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
+import static com.example.android.supportv4.media.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_SEARCH;
+
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
@@ -26,9 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
-import static com.example.android.supportv4.media.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
-import static com.example.android.supportv4.media.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_SEARCH;
 
 /**
  * Utility class to help on queue related tasks.

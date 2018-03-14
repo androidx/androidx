@@ -21,11 +21,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.app.GuidedStepFragment;
 import androidx.leanback.widget.GuidanceStylist.Guidance;
 import androidx.leanback.widget.GuidedAction;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.res.ResourcesCompat;
 
 import java.util.List;
 

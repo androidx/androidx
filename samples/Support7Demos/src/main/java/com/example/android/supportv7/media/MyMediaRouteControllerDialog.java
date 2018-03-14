@@ -16,13 +16,14 @@
 
 package com.example.android.supportv7.media;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.mediarouter.app.MediaRouteControllerDialog;
-
-import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.mediarouter.app.MediaRouteControllerDialog;
+
 import com.example.android.supportv7.R;
 
 /**

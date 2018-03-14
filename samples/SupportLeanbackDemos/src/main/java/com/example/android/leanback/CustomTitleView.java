@@ -15,10 +15,11 @@ package com.example.android.leanback;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.leanback.widget.SearchOrbView;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
+
+import androidx.leanback.widget.SearchOrbView;
 import androidx.leanback.widget.TitleViewAdapter;
 
 public class CustomTitleView extends LinearLayout implements TitleViewAdapter.Provider {

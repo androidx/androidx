@@ -22,8 +22,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.core.util.ObjectsCompat;
 import android.util.Log;
+
+import androidx.core.util.ObjectsCompat;
 
 /**
  * A helper class for playing media on remote routes using the remote playback protocol

@@ -17,9 +17,10 @@
 package androidx.mediarouter.app;
 
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
-import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaRouteSelector;
+import androidx.mediarouter.media.MediaRouter;
 
 /**
  * Media route discovery fragment.

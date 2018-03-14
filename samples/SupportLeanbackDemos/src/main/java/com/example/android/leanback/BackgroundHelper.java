@@ -22,10 +22,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Handler;
-import androidx.leanback.app.BackgroundManager;
-import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+
+import androidx.core.content.ContextCompat;
+import androidx.leanback.app.BackgroundManager;
 
 /**
  * App uses BackgroundHelper for each Activity, it wraps BackgroundManager and provides:

@@ -22,14 +22,15 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.CoreMatchers.allOf;
 
-import androidx.annotation.LayoutRes;
-import androidx.percentlayout.test.R;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.test.filters.SmallTest;
 import android.view.View;
 import android.view.ViewStub;
+
+import androidx.annotation.LayoutRes;
+import androidx.percentlayout.test.R;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

@@ -16,26 +16,26 @@
 
 package com.example.android.supportv13.app;
 
-import com.example.android.supportv13.Cheeses;
-import com.example.android.supportv13.R;
-
-import androidx.legacy.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-
-import android.os.Bundle;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ListFragment;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.legacy.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import com.example.android.supportv13.Cheeses;
+import com.example.android.supportv13.R;
 
 //BEGIN_INCLUDE(complete)
 public class FragmentStatePagerSupport extends Activity {

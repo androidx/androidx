@@ -18,10 +18,11 @@ package com.example.android.leanback;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import androidx.leanback.widget.PlaybackSeekDataProvider;
-import androidx.collection.LruCache;
 import android.util.Log;
 import android.util.SparseArray;
+
+import androidx.collection.LruCache;
+import androidx.leanback.widget.PlaybackSeekDataProvider;
 
 import java.util.Iterator;
 import java.util.Map;

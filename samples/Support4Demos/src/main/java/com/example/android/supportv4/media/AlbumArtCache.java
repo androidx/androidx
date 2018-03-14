@@ -18,9 +18,10 @@ package com.example.android.supportv4.media;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import androidx.core.graphics.BitmapCompat;
-import androidx.collection.LruCache;
 import android.util.Log;
+
+import androidx.collection.LruCache;
+import androidx.core.graphics.BitmapCompat;
 
 import com.example.android.supportv4.media.utils.BitmapHelper;
 

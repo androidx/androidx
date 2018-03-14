@@ -19,22 +19,22 @@ package com.example.androidx.viewpager2;
 import static java.util.Collections.unmodifiableList;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import androidx.viewpager2.widget.ViewPager2;
+import androidx.viewpager2.widget.ViewPager2.FragmentProvider;
 
 import com.example.androidx.viewpager2.cards.Card;
 import com.example.androidx.viewpager2.cards.CardView;
 
 import java.util.List;
-
-import androidx.viewpager2.widget.ViewPager2;
-import androidx.viewpager2.widget.ViewPager2.FragmentProvider;
 
 /**
  * Shows how to use {@link ViewPager2#setAdapter(FragmentManager, FragmentProvider, int)}

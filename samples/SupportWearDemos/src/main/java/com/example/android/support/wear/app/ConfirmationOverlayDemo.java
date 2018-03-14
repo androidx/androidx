@@ -22,9 +22,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.example.android.support.wear.R;
-
 import androidx.wear.widget.ConfirmationOverlay;
+
+import com.example.android.support.wear.R;
 
 /** Main activity for the ConfirmationOverlay demo. */
 public class ConfirmationOverlayDemo extends Activity {

@@ -17,11 +17,12 @@
 package com.example.android.support.text.emoji;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.emoji.widget.EmojiTextViewHelper;
-import androidx.appcompat.widget.AppCompatTextView;
 import android.text.InputFilter;
 import android.util.AttributeSet;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.emoji.widget.EmojiTextViewHelper;
 
 
 /**

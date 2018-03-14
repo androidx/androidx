@@ -17,11 +17,12 @@
 package com.example.android.supportv7.widget;
 
 import android.os.Bundle;
+import android.view.ViewGroup;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.ViewGroup;
 
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.widget.adapter.SimpleStringAdapter;

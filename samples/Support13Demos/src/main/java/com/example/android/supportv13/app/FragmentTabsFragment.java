@@ -15,14 +15,15 @@
  */
 package com.example.android.supportv13.app;
 
-import com.example.android.supportv13.R;
-
 import android.app.Fragment;
 import android.os.Bundle;
-import androidx.legacy.app.FragmentTabHost;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.legacy.app.FragmentTabHost;
+
+import com.example.android.supportv13.R;
 
 public class FragmentTabsFragment extends Fragment {
     private FragmentTabHost mTabHost;

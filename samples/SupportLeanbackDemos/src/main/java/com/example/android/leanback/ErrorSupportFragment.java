@@ -18,9 +18,10 @@ package com.example.android.leanback;
 
 import android.content.Context;
 import android.os.Bundle;
-import androidx.core.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.View;
+
+import androidx.core.content.res.ResourcesCompat;
 
 public class ErrorSupportFragment extends androidx.leanback.app.ErrorSupportFragment {
     private static final String TAG = "leanback.ErrorSupportFragment";

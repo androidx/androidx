@@ -16,10 +16,11 @@ package com.example.android.leanback;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+
 import androidx.leanback.widget.BrowseFrameLayout;
 import androidx.leanback.widget.TitleHelper;
 import androidx.leanback.widget.TitleView;
-import android.view.View;
 
 public class RowsActivity extends Activity
 {

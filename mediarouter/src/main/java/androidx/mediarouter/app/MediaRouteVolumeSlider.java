@@ -20,9 +20,10 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import androidx.appcompat.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
 import android.util.Log;
+
+import androidx.appcompat.widget.AppCompatSeekBar;
 
 /**
  * Volume slider with showing, hiding, and applying alpha supports to the thumb.

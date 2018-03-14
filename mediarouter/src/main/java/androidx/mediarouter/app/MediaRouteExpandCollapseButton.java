@@ -21,11 +21,12 @@ import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.AnimationDrawable;
-import androidx.core.content.ContextCompat;
-import androidx.mediarouter.R;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageButton;
+
+import androidx.core.content.ContextCompat;
+import androidx.mediarouter.R;
 
 /**
  * Chevron/Caret button to expand/collapse group volume list with animation.

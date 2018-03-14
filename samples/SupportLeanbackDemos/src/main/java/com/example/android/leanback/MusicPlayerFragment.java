@@ -22,6 +22,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.media.session.MediaSessionCompat;
+
 import androidx.leanback.app.PlaybackFragment;
 import androidx.leanback.app.PlaybackFragmentGlueHost;
 import androidx.leanback.media.MediaControllerAdapter;
@@ -31,7 +33,6 @@ import androidx.leanback.widget.Action;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.PlaybackControlsRow;
 import androidx.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
 
 import com.google.gson.Gson;
 

@@ -36,9 +36,6 @@ import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.SparseArray;
 
-import java.util.Arrays;
-import java.util.Calendar;
-
 import androidx.annotation.NonNull;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
@@ -46,6 +43,9 @@ import androidx.slice.builders.GridBuilder;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.MessagingSliceBuilder;
 import androidx.slice.builders.SliceAction;
+
+import java.util.Arrays;
+import java.util.Calendar;
 
 /**
  * Examples of using slice template builders.

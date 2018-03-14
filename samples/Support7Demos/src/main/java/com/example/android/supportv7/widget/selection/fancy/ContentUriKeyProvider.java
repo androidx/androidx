@@ -17,12 +17,12 @@
 package com.example.android.supportv7.widget.selection.fancy;
 
 import android.net.Uri;
+
 import androidx.annotation.Nullable;
+import androidx.recyclerview.selection.ItemKeyProvider;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.recyclerview.selection.ItemKeyProvider;
 
 class ContentUriKeyProvider extends ItemKeyProvider<Uri> {
 

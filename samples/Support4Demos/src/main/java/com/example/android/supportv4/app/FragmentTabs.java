@@ -16,11 +16,13 @@
 package com.example.android.supportv4.app;
 
 //BEGIN_INCLUDE(complete)
-import com.example.android.supportv4.R;
 
 import android.os.Bundle;
+
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTabHost;
+
+import com.example.android.supportv4.R;
 
 /**
  * This demonstrates how you can implement switching between the tabs of a

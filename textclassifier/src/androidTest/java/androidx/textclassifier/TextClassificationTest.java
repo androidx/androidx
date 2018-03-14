@@ -26,6 +26,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Parcel;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.core.os.LocaleListCompat;
 
 import org.junit.Test;

@@ -29,12 +29,13 @@ import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.os.BuildCompat;
 import android.webkit.SafeBrowsingResponse;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import androidx.core.os.BuildCompat;
 
 import org.junit.Assert;
 import org.junit.Before;

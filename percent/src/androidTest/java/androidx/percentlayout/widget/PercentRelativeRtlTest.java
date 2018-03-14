@@ -19,10 +19,11 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import android.os.Build;
-import androidx.percentlayout.test.R;
 import android.support.test.filters.SmallTest;
-import androidx.core.view.ViewCompat;
 import android.view.View;
+
+import androidx.core.view.ViewCompat;
+import androidx.percentlayout.test.R;
 
 import org.junit.Before;
 import org.junit.Test;

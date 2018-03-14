@@ -17,15 +17,15 @@ package com.example.android.supportv7.widget.selection.fancy;
 
 import android.graphics.Rect;
 import android.net.Uri;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.android.supportv7.R;
-
+import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.android.supportv7.R;
 
 final class FancyHolder extends RecyclerView.ViewHolder {
 

@@ -18,9 +18,10 @@ package com.example.android.supportv4.text;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.core.text.BidiFormatter;
-import android.widget.TextView;
+
 import com.example.android.supportv4.R;
 
 /**

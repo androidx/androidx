@@ -17,6 +17,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
+
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.widget.Action;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.ClassPresenterSelector;
@@ -33,11 +39,6 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.SparseArrayObjectAdapter;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.res.ResourcesCompat;
-import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 public class DetailsFragment extends androidx.leanback.app.DetailsFragment {
     private static final String TAG = "leanback.DetailsFragment";
