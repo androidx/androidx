@@ -16,11 +16,12 @@
 
 package androidx.wear.widget;
 
+import android.view.MotionEvent;
+import android.view.VelocityTracker;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.MotionEvent;
-import android.view.VelocityTracker;
 
 /**
  * Class adding circular scrolling support to {@link WearableRecyclerView}.

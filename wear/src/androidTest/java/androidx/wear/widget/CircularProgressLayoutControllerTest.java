@@ -25,6 +25,7 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import org.junit.Before;

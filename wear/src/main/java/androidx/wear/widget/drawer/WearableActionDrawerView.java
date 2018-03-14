@@ -20,12 +20,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.wear.R;
-import androidx.wear.internal.widget.ResourcesUtil;
-import androidx.wear.widget.drawer.WearableActionDrawerMenu.WearableActionDrawerMenuItem;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -41,6 +35,13 @@ import android.view.accessibility.AccessibilityManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.wear.R;
+import androidx.wear.internal.widget.ResourcesUtil;
+import androidx.wear.widget.drawer.WearableActionDrawerMenu.WearableActionDrawerMenuItem;
 
 import java.util.Objects;
 

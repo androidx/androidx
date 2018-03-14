@@ -19,10 +19,11 @@ package androidx.wear.widget;
 import android.content.Context;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
+import android.view.View;
+
 import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.R;
-import android.view.View;
 
 /**
  * An implementation of the {@link WearableLinearLayoutManager.LayoutCallback} aligning the children
