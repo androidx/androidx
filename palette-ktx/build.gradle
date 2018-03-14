@@ -42,7 +42,7 @@ supportLibrary {
     name = "Palette Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.FRAGMENT
+    mavenGroup = LibraryGroups.PALETTE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'palette' artifact"
 }
