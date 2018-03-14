@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.ViewModelStore;
 import android.arch.lifecycle.ViewModelStoreOwner;
 import android.content.Context;
@@ -53,15 +54,18 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.Collection;
 
+import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.collection.SparseArrayCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.SharedElementCallback;
+import androidx.loader.app.LoaderManager;
+
 /**
  * Base class for activities that want to use the support-based
- * {@link Fragment} and
- * {@link Loader} APIs.
- *
- * <p>When using this class as opposed to new platform's built-in fragment
- * and loader support, you must use the {@link #getSupportFragmentManager()}
- * and {@link #getSupportLoaderManager()} methods respectively to access
- * those features.
+ * {@link Fragment Fragments}.
  *
  * <p>Known limitations:</p>
  * <ul>
@@ -729,6 +733,11 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         return mFragments.getSupportFragmentManager();
     }
 
+    /**
+     * @deprecated Use
+     * {@link LoaderManager#getInstance(LifecycleOwner) LoaderManager.getInstance(this)}.
+     */
+    @Deprecated
     public LoaderManager getSupportLoaderManager() {
         return LoaderManager.getInstance(this);
     }
