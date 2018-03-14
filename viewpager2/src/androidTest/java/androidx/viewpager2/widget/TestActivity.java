@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.viewpager2.widget.tests;
+package androidx.viewpager2.widget;
 
 import android.os.Bundle;
 
-import androidx.fragment.app.FragmentActivity;
+import androidx.testutils.RecreatedActivity;
 import androidx.viewpager2.test.R;
-import androidx.viewpager2.widget.ViewPager2;
 
-public class TestActivity extends FragmentActivity {
+public class TestActivity extends RecreatedActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
