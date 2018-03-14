@@ -22,6 +22,11 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.Toast;
+
 import androidx.leanback.media.PlaybackControlGlue;
 import androidx.leanback.test.R;
 import androidx.leanback.widget.Action;
@@ -37,10 +42,6 @@ import androidx.leanback.widget.PresenterSelector;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.SparseArrayObjectAdapter;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.widget.Toast;
 
 public class PlaybackTestFragment extends PlaybackFragment {
     private static final String TAG = "PlaybackTestFragment";

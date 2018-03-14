@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import android.app.Fragment;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,6 +36,12 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
 import androidx.leanback.test.R;
 import androidx.leanback.testutils.PollingCheck;
 import androidx.leanback.widget.ArrayObjectAdapter;
@@ -51,12 +58,6 @@ import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.SinglePresenterSelector;
 import androidx.leanback.widget.VerticalGridView;
-import android.app.Fragment;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

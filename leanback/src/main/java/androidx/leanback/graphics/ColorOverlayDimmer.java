@@ -18,8 +18,9 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import androidx.leanback.R;
 import android.view.View;
+
+import androidx.leanback.R;
 
 /**
  * Helper class for assigning a dim color to Paint. It holds the alpha value for

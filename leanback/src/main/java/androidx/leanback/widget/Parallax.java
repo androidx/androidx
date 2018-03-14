@@ -16,10 +16,11 @@
 
 package androidx.leanback.widget;
 
+import android.util.Property;
+
 import androidx.annotation.CallSuper;
 import androidx.leanback.widget.ParallaxEffect.FloatEffect;
 import androidx.leanback.widget.ParallaxEffect.IntEffect;
-import android.util.Property;
 
 import java.util.ArrayList;
 import java.util.Collections;

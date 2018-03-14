@@ -16,7 +16,6 @@ package androidx.leanback.transition;
 import android.animation.Animator;
 import android.animation.TimeInterpolator;
 import android.content.Context;
-import androidx.annotation.RequiresApi;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
 import android.transition.Fade;
@@ -29,6 +28,8 @@ import android.transition.TransitionValues;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.RequiresApi;
 
 import java.util.HashMap;
 

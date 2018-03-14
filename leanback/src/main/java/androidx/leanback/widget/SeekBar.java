@@ -25,11 +25,12 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
-import androidx.annotation.RestrictTo;
-import androidx.leanback.R;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.annotation.RestrictTo;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.leanback.R;
 
 /**
  * Replacement of SeekBar, has two bar heights and two thumb size when focused/not_focused.

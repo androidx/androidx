@@ -26,16 +26,16 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-import java.lang.reflect.Modifier;
-
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.util.DebugUtils;
 import androidx.loader.content.Loader;
+
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
+import java.lang.reflect.Modifier;
 
 class LoaderManagerImpl extends LoaderManager {
     static final String TAG = "LoaderManager";

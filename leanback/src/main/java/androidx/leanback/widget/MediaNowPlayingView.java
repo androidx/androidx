@@ -19,14 +19,15 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import androidx.annotation.RestrictTo;
-import androidx.leanback.R;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import androidx.annotation.RestrictTo;
+import androidx.leanback.R;
 
 /**
  * The view displaying 3 animated peak meters next to each other when a media item is playing.

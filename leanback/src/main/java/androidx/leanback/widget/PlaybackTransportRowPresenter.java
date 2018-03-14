@@ -19,10 +19,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
-import androidx.annotation.ColorInt;
-import androidx.leanback.R;
-import androidx.leanback.widget.ControlBarPresenter.OnControlClickedListener;
-import androidx.leanback.widget.ControlBarPresenter.OnControlSelectedListener;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -30,6 +26,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.ColorInt;
+import androidx.leanback.R;
+import androidx.leanback.widget.ControlBarPresenter.OnControlClickedListener;
+import androidx.leanback.widget.ControlBarPresenter.OnControlSelectedListener;
 
 import java.util.Arrays;
 

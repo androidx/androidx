@@ -15,14 +15,15 @@ package androidx.leanback.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.leanback.R;
-import androidx.leanback.system.Settings;
-import androidx.leanback.transition.TransitionHelper;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.leanback.R;
+import androidx.leanback.system.Settings;
+import androidx.leanback.transition.TransitionHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.HashMap;
 

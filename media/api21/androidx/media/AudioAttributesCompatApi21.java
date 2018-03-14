@@ -17,9 +17,10 @@
 package androidx.media;
 
 import android.media.AudioAttributes;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

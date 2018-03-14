@@ -26,14 +26,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.media.R;
-import androidx.core.app.BundleCompat;
-import androidx.core.app.NotificationBuilderWithBuilderAccessor;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.view.View;
 import android.widget.RemoteViews;
+
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.core.app.BundleCompat;
+import androidx.core.app.NotificationBuilderWithBuilderAccessor;
+import androidx.media.R;
 
 /**
  * Class containing media specfic {@link androidx.core.app.NotificationCompat.Style styles}

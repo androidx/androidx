@@ -17,6 +17,7 @@
 package androidx.loader.app.test;
 
 import android.content.Context;
+
 import androidx.loader.content.Loader;
 
 public class DummyLoader extends Loader<Boolean> {

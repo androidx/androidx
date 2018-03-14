@@ -29,11 +29,12 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import androidx.leanback.widget.PlaybackControlsRow;
 import android.support.v4.media.MediaMetadataCompat;
-import androidx.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
+
+import androidx.leanback.widget.PlaybackControlsRow;
+import androidx.media.session.MediaControllerCompat;
 
 /**
  * A helper class for implementing a adapter layer for {@link MediaControllerCompat}.

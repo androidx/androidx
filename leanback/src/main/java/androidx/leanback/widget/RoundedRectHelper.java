@@ -14,9 +14,10 @@
 package androidx.leanback.widget;
 
 import android.os.Build;
+import android.view.View;
+
 import androidx.annotation.RequiresApi;
 import androidx.leanback.R;
-import android.view.View;
 
 /**
  * Helper for setting rounded rectangle backgrounds on a view.

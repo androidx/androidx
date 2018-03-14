@@ -17,10 +17,11 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import androidx.leanback.R;
-import androidx.leanback.system.Settings;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.leanback.R;
+import androidx.leanback.system.Settings;
 
 
 /**

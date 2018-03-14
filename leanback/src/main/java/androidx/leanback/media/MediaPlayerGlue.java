@@ -22,6 +22,10 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
+import android.view.KeyEvent;
+import android.view.SurfaceHolder;
+import android.view.View;
+
 import androidx.annotation.RestrictTo;
 import androidx.leanback.widget.Action;
 import androidx.leanback.widget.ArrayObjectAdapter;
@@ -30,9 +34,6 @@ import androidx.leanback.widget.PlaybackControlsRow;
 import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
-import android.view.KeyEvent;
-import android.view.SurfaceHolder;
-import android.view.View;
 
 import java.io.IOException;
 import java.util.List;

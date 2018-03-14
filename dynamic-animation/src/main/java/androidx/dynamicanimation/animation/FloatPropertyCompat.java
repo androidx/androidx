@@ -16,8 +16,9 @@
 
 package androidx.dynamicanimation.animation;
 
-import androidx.annotation.RequiresApi;
 import android.util.FloatProperty;
+
+import androidx.annotation.RequiresApi;
 
 /**
  * <p>FloatPropertyCompat is an abstraction that can be used to represent a mutable float value that

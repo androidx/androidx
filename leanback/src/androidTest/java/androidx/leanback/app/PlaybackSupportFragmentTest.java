@@ -29,6 +29,9 @@ import android.support.test.filters.FlakyTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.KeyEvent;
+import android.view.View;
+
 import androidx.leanback.media.PlaybackControlGlue;
 import androidx.leanback.media.PlaybackGlue;
 import androidx.leanback.testutils.PollingCheck;
@@ -42,8 +45,6 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.SparseArrayObjectAdapter;
-import android.view.KeyEvent;
-import android.view.View;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

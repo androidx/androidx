@@ -17,20 +17,21 @@
 package androidx.leanback.preference;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.preference.MultiSelectListPreference;
-import androidx.leanback.widget.VerticalGridView;
-import androidx.collection.ArraySet;
-import androidx.preference.DialogPreference;
-import androidx.preference.ListPreference;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Checkable;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.ArraySet;
+import androidx.leanback.widget.VerticalGridView;
+import androidx.preference.DialogPreference;
+import androidx.preference.ListPreference;
+import androidx.preference.MultiSelectListPreference;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Collections;
 import java.util.HashSet;

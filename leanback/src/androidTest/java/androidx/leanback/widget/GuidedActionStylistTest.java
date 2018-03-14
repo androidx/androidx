@@ -24,10 +24,11 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.leanback.test.R;
 import android.text.InputType;
 import android.view.ContextThemeWrapper;
 import android.widget.FrameLayout;
+
+import androidx.leanback.test.R;
 
 import org.junit.Before;
 import org.junit.Test;

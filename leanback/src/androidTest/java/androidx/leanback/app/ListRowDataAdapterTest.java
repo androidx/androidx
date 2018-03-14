@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.DividerRow;
 import androidx.leanback.widget.HeaderItem;

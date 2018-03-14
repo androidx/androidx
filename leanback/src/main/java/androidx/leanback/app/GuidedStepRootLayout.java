@@ -14,11 +14,12 @@
 package androidx.leanback.app;
 
 import android.content.Context;
-import androidx.leanback.widget.Util;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import androidx.leanback.widget.Util;
 
 /**
  * Utility class used by GuidedStepFragment to disable focus out left/right.

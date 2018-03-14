@@ -16,12 +16,6 @@ package androidx.leanback.widget;
 import android.app.Activity;
 import android.graphics.Matrix;
 import android.os.Handler;
-import androidx.leanback.transition.TransitionHelper;
-import androidx.leanback.transition.TransitionListener;
-import androidx.leanback.widget.DetailsOverviewRowPresenter.ViewHolder;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.SharedElementCallback;
-import androidx.core.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +23,13 @@ import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.SharedElementCallback;
+import androidx.core.view.ViewCompat;
+import androidx.leanback.transition.TransitionHelper;
+import androidx.leanback.transition.TransitionListener;
+import androidx.leanback.widget.DetailsOverviewRowPresenter.ViewHolder;
 
 import java.lang.ref.WeakReference;
 import java.util.List;

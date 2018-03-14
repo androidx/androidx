@@ -14,10 +14,11 @@
 package androidx.leanback.widget;
 
 import android.graphics.Outline;
-import androidx.annotation.RequiresApi;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewOutlineProvider;
+
+import androidx.annotation.RequiresApi;
 
 @RequiresApi(21)
 class RoundedRectHelperApi21 {

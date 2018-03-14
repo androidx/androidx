@@ -25,8 +25,7 @@ import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_REGISTER_CALLBACK_M
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_REMOVE_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_SEARCH;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_SEND_CUSTOM_ACTION;
-import static androidx.media.MediaBrowserProtocol
-        .CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
+import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
 import static androidx.media.MediaBrowserProtocol.DATA_CALLBACK_TOKEN;
 import static androidx.media.MediaBrowserProtocol.DATA_CALLING_UID;
 import static androidx.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION;
@@ -61,19 +60,20 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.Parcel;
 import android.os.RemoteException;
+import android.support.v4.media.session.IMediaSession;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.os.ResultReceiver;
+import android.text.TextUtils;
+import android.util.Log;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.app.BundleCompat;
-import android.support.v4.media.session.IMediaSession;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.os.ResultReceiver;
 import androidx.collection.ArrayMap;
+import androidx.core.app.BundleCompat;
 import androidx.core.util.Pair;
-import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;

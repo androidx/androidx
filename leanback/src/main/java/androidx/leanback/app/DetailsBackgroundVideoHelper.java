@@ -19,6 +19,7 @@ package androidx.leanback.app;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.graphics.drawable.Drawable;
+
 import androidx.leanback.media.PlaybackGlue;
 import androidx.leanback.widget.DetailsParallax;
 import androidx.leanback.widget.Parallax;

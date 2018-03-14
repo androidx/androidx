@@ -41,12 +41,6 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.leanback.test.R;
-import androidx.leanback.testutils.PollingCheck;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
 import android.text.Selection;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
@@ -57,6 +51,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.leanback.test.R;
+import androidx.leanback.testutils.PollingCheck;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
 
 import org.junit.After;
 import org.junit.Rule;

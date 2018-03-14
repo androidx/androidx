@@ -19,10 +19,10 @@ package androidx.loader.app.test;
 import android.content.Context;
 import android.os.SystemClock;
 
-import java.util.concurrent.CountDownLatch;
-
 import androidx.annotation.Nullable;
 import androidx.loader.content.AsyncTaskLoader;
+
+import java.util.concurrent.CountDownLatch;
 
 public class DelayLoader extends AsyncTaskLoader<Boolean> {
     private final CountDownLatch mDeliverResultLatch;

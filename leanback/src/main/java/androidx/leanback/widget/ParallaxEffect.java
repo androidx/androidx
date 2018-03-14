@@ -17,12 +17,13 @@
 package androidx.leanback.widget;
 
 import android.animation.PropertyValuesHolder;
+import android.util.Property;
+
 import androidx.annotation.RestrictTo;
 import androidx.leanback.widget.Parallax.FloatProperty;
 import androidx.leanback.widget.Parallax.FloatPropertyMarkerValue;
 import androidx.leanback.widget.Parallax.IntProperty;
 import androidx.leanback.widget.Parallax.PropertyMarkerValue;
-import android.util.Property;
 
 import java.util.ArrayList;
 import java.util.List;

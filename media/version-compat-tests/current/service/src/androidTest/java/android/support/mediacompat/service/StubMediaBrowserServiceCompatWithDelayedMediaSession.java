@@ -17,11 +17,12 @@
 package android.support.mediacompat.service;
 
 import android.os.Bundle;
+import android.support.v4.media.session.MediaSessionCompat;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.MediaBrowserCompat;
 import androidx.media.MediaBrowserServiceCompat;
-import android.support.v4.media.session.MediaSessionCompat;
 
 import java.util.List;
 
