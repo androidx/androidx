@@ -28,17 +28,17 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.util.concurrent.TimeUnit;
-
 import androidx.work.DatabaseTest;
 import androidx.work.Work;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.AlarmInfo;
 import androidx.work.worker.TestWorker;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -74,16 +74,14 @@ public class AlarmsTest extends DatabaseTest {
         insertWork(work);
         String workSpecId = work.getId();
 
-        AlarmInfo alarmInfo = new AlarmInfo();
-        alarmInfo.setWorkSpecId(workSpecId);
-        alarmInfo.setAlarmId(1);
+        AlarmInfo alarmInfo = new AlarmInfo(workSpecId, 1);
 
         mDatabase.alarmInfoDao().insertAlarmInfo(alarmInfo);
 
         Alarms.setAlarm(mContext, mWorkManager, workSpecId, mTriggerAt);
         AlarmInfo updatedAlarmInfo = mDatabase.alarmInfoDao().getAlarmInfo(workSpecId);
         assertThat(updatedAlarmInfo, is(notNullValue()));
-        assertThat(updatedAlarmInfo.getAlarmId(), is(alarmInfo.getAlarmId()));
+        assertThat(updatedAlarmInfo.alarmId, is(alarmInfo.alarmId));
     }
 
     @Test
@@ -92,9 +90,7 @@ public class AlarmsTest extends DatabaseTest {
         insertWork(work);
         String workSpecId = work.getId();
 
-        AlarmInfo alarmInfo = new AlarmInfo();
-        alarmInfo.setWorkSpecId(workSpecId);
-        alarmInfo.setAlarmId(1);
+        AlarmInfo alarmInfo = new AlarmInfo(workSpecId, 1);
 
         mDatabase.alarmInfoDao().insertAlarmInfo(alarmInfo);
 

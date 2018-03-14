@@ -19,12 +19,14 @@ package androidx.work.impl.model;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 /**
  * Stores Alarm ids for a {@link WorkSpec}.
+ *
+ * @hide
  */
 @Entity(tableName = "alarmInfo",
         foreignKeys = {
@@ -34,40 +36,20 @@ import android.support.annotation.NonNull;
                         childColumns = "work_spec_id",
                         onDelete = ForeignKey.CASCADE,
                         onUpdate = ForeignKey.CASCADE)})
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AlarmInfo {
 
     @NonNull
     @PrimaryKey
     @ColumnInfo(name = "work_spec_id")
-    String mWorkSpecId;
+    public String workSpecId;
 
     @ColumnInfo(name = "alarm_id")
-    int mAlarmId;
+    public int alarmId;
 
-    public AlarmInfo() {
-        // Default no-arg constructor for Room.
-    }
-
-    @Ignore
     public AlarmInfo(@NonNull String workSpecId, int alarmId) {
-        mWorkSpecId = workSpecId;
-        mAlarmId = alarmId;
-    }
-
-    public int getAlarmId() {
-        return mAlarmId;
-    }
-
-    public void setAlarmId(int alarmId) {
-        mAlarmId = alarmId;
-    }
-
-    public String getWorkSpecId() {
-        return mWorkSpecId;
-    }
-
-    public void setWorkSpecId(@NonNull String workSpecId) {
-        mWorkSpecId = workSpecId;
+        this.workSpecId = workSpecId;
+        this.alarmId = alarmId;
     }
 
     @Override
@@ -77,15 +59,14 @@ public class AlarmInfo {
 
         AlarmInfo alarmInfo = (AlarmInfo) o;
 
-        if (mAlarmId != alarmInfo.mAlarmId) return false;
-        return mWorkSpecId != null ? mWorkSpecId.equals(alarmInfo.mWorkSpecId)
-                : alarmInfo.mWorkSpecId == null;
+        if (alarmId != alarmInfo.alarmId) return false;
+        return workSpecId.equals(alarmInfo.workSpecId);
     }
 
     @Override
     public int hashCode() {
-        int result = mWorkSpecId != null ? mWorkSpecId.hashCode() : 0;
-        result = 31 * result + mAlarmId;
+        int result = workSpecId.hashCode();
+        result = 31 * result + alarmId;
         return result;
     }
 }
