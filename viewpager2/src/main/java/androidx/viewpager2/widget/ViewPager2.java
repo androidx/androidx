@@ -22,7 +22,11 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +34,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
@@ -37,6 +42,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -83,6 +89,7 @@ public class ViewPager2 extends ViewGroup {
 
     private void initialize(Context context) {
         mRecyclerView = new RecyclerView(context);
+        mRecyclerView.setId(ViewCompat.generateViewId());
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         // TODO(b/69103581): add support for vertical layout
@@ -97,6 +104,105 @@ public class ViewPager2 extends ViewGroup {
         new PagerSnapHelper().attachToRecyclerView(mRecyclerView);
 
         attachViewToParent(mRecyclerView, 0, mRecyclerView.getLayoutParams());
+    }
+
+    @Nullable
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        SavedState ss = new SavedState(superState);
+
+        ss.mRecyclerViewId = mRecyclerView.getId();
+
+        Adapter adapter = mRecyclerView.getAdapter();
+        if (adapter instanceof FragmentStateAdapter) {
+            ss.mAdapterState = ((FragmentStateAdapter) adapter).saveState();
+        }
+
+        return ss;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+
+        if (ss.mAdapterState != null) {
+            Adapter adapter = mRecyclerView.getAdapter();
+            if (adapter instanceof FragmentStateAdapter) {
+                ((FragmentStateAdapter) adapter).restoreState(ss.mAdapterState);
+            }
+        }
+    }
+
+    @Override
+    protected void dispatchRestoreInstanceState(SparseArray<Parcelable> container) {
+        // RecyclerView changed an id, so we need to reflect that in the saved state
+        Parcelable state = container.get(getId());
+        if (state instanceof SavedState) {
+            final int previousRvId = ((SavedState) state).mRecyclerViewId;
+            final int currentRvId = mRecyclerView.getId();
+            container.put(currentRvId, container.get(previousRvId));
+            container.remove(previousRvId);
+        }
+
+        super.dispatchRestoreInstanceState(container);
+    }
+
+    static class SavedState extends BaseSavedState {
+        int mRecyclerViewId;
+        Parcelable[] mAdapterState;
+
+        @RequiresApi(21)
+        SavedState(Parcel source, ClassLoader loader) {
+            super(source, loader);
+            readValues(source, loader);
+        }
+
+        SavedState(Parcel source) {
+            super(source);
+            readValues(source, null);
+        }
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        private void readValues(Parcel source, ClassLoader loader) {
+            mRecyclerViewId = source.readInt();
+            mAdapterState = source.readParcelableArray(loader);
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(mRecyclerViewId);
+            out.writeParcelableArray(mAdapterState, flags);
+        }
+
+        static final Creator<SavedState> CREATOR = new ClassLoaderCreator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel source, ClassLoader loader) {
+                return Build.VERSION.SDK_INT >= 21
+                        ? new SavedState(source, loader)
+                        : new SavedState(source);
+            }
+
+            @Override
+            public SavedState createFromParcel(Parcel source) {
+                return createFromParcel(source, null);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 
     /**
@@ -171,6 +277,8 @@ public class ViewPager2 extends ViewGroup {
      * </ul>
      */
     private static class FragmentStateAdapter extends RecyclerView.Adapter<FragmentViewHolder> {
+        private final List<Fragment> mFragments = new ArrayList<>();
+
         private final List<Fragment.SavedState> mSavedStates = new ArrayList<>();
         // TODO: handle current item's menuVisibility userVisibleHint as FragmentStatePagerAdapter
 
@@ -210,6 +318,10 @@ public class ViewPager2 extends ViewGroup {
                     fragment.setInitialSavedState(savedState);
                 }
             }
+            while (mFragments.size() <= position) {
+                mFragments.add(null);
+            }
+            mFragments.set(position, fragment);
             return fragment;
         }
 
@@ -243,23 +355,53 @@ public class ViewPager2 extends ViewGroup {
         }
 
         private void removeFragment(@NonNull FragmentViewHolder holder) {
-            if (holder.mFragment == null) {
-                return; // fresh ViewHolder, nothing to do
+            removeFragment(holder.mFragment, holder.getAdapterPosition());
+            holder.mFragment = null;
+        }
+
+        /**
+         * Removes a Fragment and commits the operation.
+         */
+        private void removeFragment(Fragment fragment, int position) {
+            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+            removeFragment(fragment, position, fragmentTransaction);
+            fragmentTransaction.commitNowAllowingStateLoss();
+        }
+
+        /**
+         * Adds a remove operation to the transaction, but does not commit.
+         */
+        private void removeFragment(Fragment fragment, int position,
+                @NonNull FragmentTransaction fragmentTransaction) {
+            if (fragment == null) {
+                return;
             }
 
-            int position = holder.getAdapterPosition();
-
-            if (holder.mFragment.isAdded()) {
+            if (fragment.isAdded()) {
                 while (mSavedStates.size() <= position) {
                     mSavedStates.add(null);
                 }
-                mSavedStates.set(position,
-                        mFragmentManager.saveFragmentInstanceState(holder.mFragment));
+                mSavedStates.set(position, mFragmentManager.saveFragmentInstanceState(fragment));
             }
 
-            mFragmentManager.beginTransaction().remove(
-                    holder.mFragment).commitNowAllowingStateLoss();
-            holder.mFragment = null;
+            mFragments.set(position, null);
+            fragmentTransaction.remove(fragment);
+        }
+
+        @Nullable
+        Parcelable[] saveState() {
+            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+            for (int i = 0; i < mFragments.size(); i++) {
+                removeFragment(mFragments.get(i), i, fragmentTransaction);
+            }
+            fragmentTransaction.commitNowAllowingStateLoss();
+            return mSavedStates.toArray(new Fragment.SavedState[mSavedStates.size()]);
+        }
+
+        void restoreState(@NonNull Parcelable[] savedStates) {
+            for (Parcelable savedState : savedStates) {
+                mSavedStates.add((Fragment.SavedState) savedState);
+            }
         }
     }
 
