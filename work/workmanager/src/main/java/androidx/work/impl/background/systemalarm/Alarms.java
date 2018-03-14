@@ -61,8 +61,8 @@ class Alarms {
         AlarmInfoDao alarmInfoDao = workDatabase.alarmInfoDao();
         AlarmInfo alarmInfo = alarmInfoDao.getAlarmInfo(workSpecId);
         if (alarmInfo != null) {
-            cancelExactAlarm(context, workSpecId, alarmInfo.getAlarmId());
-            setExactAlarm(context, workSpecId, alarmInfo.getAlarmId(), triggerAtMillis);
+            cancelExactAlarm(context, workSpecId, alarmInfo.alarmId);
+            setExactAlarm(context, workSpecId, alarmInfo.alarmId, triggerAtMillis);
         } else {
             IdGenerator idGenerator = new IdGenerator(context);
             int alarmId = idGenerator.nextAlarmManagerId();
@@ -88,7 +88,7 @@ class Alarms {
         AlarmInfoDao alarmInfoDao = workDatabase.alarmInfoDao();
         AlarmInfo alarmInfo = alarmInfoDao.getAlarmInfo(workSpecId);
         if (alarmInfo != null) {
-            cancelExactAlarm(context, workSpecId, alarmInfo.getAlarmId());
+            cancelExactAlarm(context, workSpecId, alarmInfo.alarmId);
             Logger.debug(TAG, "Removing AlarmInfo for workSpecId (%s)", workSpecId);
             alarmInfoDao.removeAlarmInfo(workSpecId);
         }
