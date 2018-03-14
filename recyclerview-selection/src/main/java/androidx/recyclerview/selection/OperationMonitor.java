@@ -18,17 +18,16 @@ package androidx.recyclerview.selection;
 
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
-
 import static androidx.recyclerview.selection.Shared.DEBUG;
+
+import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import android.util.Log;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * OperationMonitor provides a mechanism to coordinate application

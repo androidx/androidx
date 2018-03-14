@@ -18,15 +18,15 @@ package androidx.recyclerview.selection;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.core.util.Preconditions.checkArgument;
-
 import static androidx.recyclerview.selection.Shared.VERBOSE;
+
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
 
 /**
  * Provides the necessary glue to notify RecyclerView when selection data changes,

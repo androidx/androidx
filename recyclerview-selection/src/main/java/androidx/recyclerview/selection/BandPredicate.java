@@ -18,13 +18,14 @@ package androidx.recyclerview.selection;
 
 import static androidx.core.util.Preconditions.checkArgument;
 
+import android.view.MotionEvent;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.MotionEvent;
-import android.view.View;
 
 /**
  * Provides a means of controlling when and where band selection can be initiated.

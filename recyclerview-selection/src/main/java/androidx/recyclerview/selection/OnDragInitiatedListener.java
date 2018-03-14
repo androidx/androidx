@@ -16,8 +16,9 @@
 
 package androidx.recyclerview.selection;
 
-import androidx.annotation.NonNull;
 import android.view.MotionEvent;
+
+import androidx.annotation.NonNull;
 
 /**
  * Register an OnDragInitiatedListener to be notified of potential drag operations,

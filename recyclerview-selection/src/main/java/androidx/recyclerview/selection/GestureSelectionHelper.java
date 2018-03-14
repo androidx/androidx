@@ -20,14 +20,15 @@ import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
 import android.graphics.Point;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
 
 /**
  * GestureSelectionHelper provides logic that interprets a combination
