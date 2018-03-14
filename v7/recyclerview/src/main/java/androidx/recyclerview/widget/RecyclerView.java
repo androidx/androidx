@@ -89,6 +89,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 /**
  * A flexible view for providing a limited window into a large data set.
  *
@@ -5452,7 +5453,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return expectedDurationNs == 0 || (approxCurrentNs + expectedDurationNs < deadlineNs);
         }
 
-        void attach(Adapter adapter) {
+        void attach() {
             mAttachCount++;
         }
 
@@ -5481,7 +5482,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 clear();
             }
             if (newAdapter != null) {
-                attach(newAdapter);
+                attach();
             }
         }
 
@@ -6509,8 +6510,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 mRecyclerPool.detach();
             }
             mRecyclerPool = pool;
-            if (pool != null) {
-                mRecyclerPool.attach(getAdapter());
+            if (mRecyclerPool != null && getAdapter() != null) {
+                mRecyclerPool.attach();
             }
         }
 
