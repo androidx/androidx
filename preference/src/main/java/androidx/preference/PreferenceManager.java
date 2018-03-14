@@ -22,12 +22,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.text.TextUtils;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
-import android.text.TextUtils;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Used to help create {@link Preference} hierarchies
@@ -586,7 +585,7 @@ public class PreferenceManager {
     }
 
     /**
-     * Callback class to be used by the {@link RecyclerView.Adapter}
+     * Callback class to be used by the {@link androidx.recyclerview.widget.RecyclerView.Adapter}
      * associated with the {@link PreferenceScreen}, used to determine when two {@link Preference}
      * objects are semantically and visually the same.
      */
