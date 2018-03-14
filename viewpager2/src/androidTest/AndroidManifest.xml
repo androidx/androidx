@@ -19,6 +19,6 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">
-        <activity android:name="androidx.viewpager2.widget.tests.TestActivity"/>
+        <activity android:name="androidx.viewpager2.widget.TestActivity"/>
     </application>
 </manifest>

@@ -28,6 +28,9 @@ dependencies {
 
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
     androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation project(':internal-testutils'), {
+        exclude group: 'androidx.viewpager2', module: 'viewpager2'
+    }
 }
 
 android {
