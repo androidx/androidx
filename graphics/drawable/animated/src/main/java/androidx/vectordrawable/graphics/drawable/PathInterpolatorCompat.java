@@ -25,12 +25,13 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
-import androidx.annotation.RestrictTo;
-import androidx.core.content.res.TypedArrayUtils;
-import androidx.core.graphics.PathParser;
 import android.util.AttributeSet;
 import android.view.InflateException;
 import android.view.animation.Interpolator;
+
+import androidx.annotation.RestrictTo;
+import androidx.core.content.res.TypedArrayUtils;
+import androidx.core.graphics.PathParser;
 
 import org.xmlpull.v1.XmlPullParser;
 
