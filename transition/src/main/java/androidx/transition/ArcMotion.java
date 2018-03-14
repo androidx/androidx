@@ -19,8 +19,9 @@ package androidx.transition;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Path;
-import androidx.core.content.res.TypedArrayUtils;
 import android.util.AttributeSet;
+
+import androidx.core.content.res.TypedArrayUtils;
 
 import org.xmlpull.v1.XmlPullParser;
 

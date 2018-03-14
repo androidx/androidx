@@ -25,13 +25,14 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
-import androidx.annotation.NonNull;
 import android.support.test.filters.MediumTest;
-import androidx.transition.test.R;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.transition.test.R;
 
 import org.junit.Test;
 

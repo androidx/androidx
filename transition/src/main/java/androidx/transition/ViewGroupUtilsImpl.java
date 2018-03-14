@@ -16,9 +16,10 @@
 
 package androidx.transition;
 
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import android.view.ViewGroup;
 
 @RequiresApi(14)
 interface ViewGroupUtilsImpl {

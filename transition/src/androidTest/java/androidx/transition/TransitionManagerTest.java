@@ -28,8 +28,9 @@ import static org.mockito.Mockito.verify;
 
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
-import androidx.transition.test.R;
 import android.view.ViewGroup;
+
+import androidx.transition.test.R;
 
 import org.junit.Before;
 import org.junit.Test;

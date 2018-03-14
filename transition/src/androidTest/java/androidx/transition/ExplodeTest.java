@@ -28,8 +28,9 @@ import static org.mockito.Mockito.verify;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
-import androidx.transition.test.R;
 import android.view.View;
+
+import androidx.transition.test.R;
 
 import org.junit.Test;
 

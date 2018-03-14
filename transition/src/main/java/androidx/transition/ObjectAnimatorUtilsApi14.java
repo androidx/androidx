@@ -19,8 +19,9 @@ package androidx.transition;
 import android.animation.ObjectAnimator;
 import android.graphics.Path;
 import android.graphics.PointF;
-import androidx.annotation.RequiresApi;
 import android.util.Property;
+
+import androidx.annotation.RequiresApi;
 
 @RequiresApi(14)
 class ObjectAnimatorUtilsApi14 implements ObjectAnimatorUtilsImpl {

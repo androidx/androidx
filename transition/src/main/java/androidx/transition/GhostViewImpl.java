@@ -17,9 +17,10 @@
 package androidx.transition;
 
 import android.graphics.Matrix;
-import androidx.annotation.RequiresApi;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.RequiresApi;
 
 @RequiresApi(14)
 interface GhostViewImpl {
