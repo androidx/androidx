@@ -17,26 +17,21 @@
 package androidx.car.drawer;
 
 import android.app.Activity;
-import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarUxRestrictions;
-import android.car.drivingstate.CarUxRestrictionsManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.IBinder;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.car.R;
+import androidx.car.utils.CarUxRestrictionsHelper;
 import androidx.car.widget.PagedListView;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Base adapter for displaying items in the car navigation drawer, which uses a
@@ -62,44 +57,8 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
     private CharSequence mTitle;
     private TitleChangeListener mTitleChangeListener;
 
-    private final Car mCar;
-    @Nullable private CarUxRestrictionsManager mCarUxRestrictionsManager;
+    private final CarUxRestrictionsHelper mUxRestrictionsHelper;
     private CarUxRestrictions mCurrentUxRestrictions;
-    // Keep onUxRestrictionsChangedListener an internal var to avoid exposing APIs from android.car.
-    // Otherwise car sample apk will fail at compile time due to not having access to the stubs.
-    private CarUxRestrictionsManager.onUxRestrictionsChangedListener mUxrChangeListener =
-            new CarUxRestrictionsManager.onUxRestrictionsChangedListener() {
-        @Override
-        public void onUxRestrictionsChanged(CarUxRestrictions carUxRestrictions) {
-            mCurrentUxRestrictions = carUxRestrictions;
-            notifyDataSetChanged();
-        }
-    };
-
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            try {
-                mCarUxRestrictionsManager = (CarUxRestrictionsManager)
-                        mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
-                mCarUxRestrictionsManager.registerListener(mUxrChangeListener);
-                mUxrChangeListener.onUxRestrictionsChanged(
-                        mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
-            } catch (CarNotConnectedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            try {
-                mCarUxRestrictionsManager.unregisterListener();
-                mCarUxRestrictionsManager = null;
-            } catch (CarNotConnectedException e) {
-                e.printStackTrace();
-            }
-        }
-    };
 
     /**
      * Enables support for {@link CarUxRestrictions}.
@@ -110,9 +69,7 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
      * <p>This method must be accompanied with a matching {@link #stop()} to avoid leak.
      */
     public void start() {
-        if (!mCar.isConnected()) {
-            mCar.connect();
-        }
+        mUxRestrictionsHelper.start();
     }
 
     /**
@@ -122,7 +79,7 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
      * time of this adapter being discarded.
      */
     public void stop() {
-        mCar.disconnect();
+        mUxRestrictionsHelper.stop();
     }
 
     /**
@@ -143,7 +100,11 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
         mEmptyListDrawable.setColorFilter(context.getColor(R.color.car_tint),
                 PorterDuff.Mode.SRC_IN);
 
-        mCar = Car.createCar(context, mServiceConnection);
+        mUxRestrictionsHelper =
+                new CarUxRestrictionsHelper(context, carUxRestrictions -> {
+                    mCurrentUxRestrictions = carUxRestrictions;
+                    notifyDataSetChanged();
+                });
     }
 
     /** Returns the title set via {@link #setTitle(CharSequence)}. */

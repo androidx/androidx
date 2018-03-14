@@ -16,18 +16,10 @@
 
 package androidx.car.moderator;
 
-import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarUxRestrictions;
-import android.car.drivingstate.CarUxRestrictionsManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Handler;
-import android.os.IBinder;
-import androidx.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -36,14 +28,13 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import androidx.car.R;
+import androidx.car.utils.CarUxRestrictionsHelper;
 
 /**
  * A controller for the actual monitoring of when interaction should be allowed in a
  * {@link SpeedBumpView}.
  */
 class SpeedBumpController {
-    private static final String TAG = "SpeedBumpController";
-
     /**
      * The number of permitted actions that are acquired per second that the user has not
      * interacted with the {@code SpeedBumpView}.
@@ -61,11 +52,6 @@ class SpeedBumpController {
             MAX_PERMIT_POOL,
             PERMIT_FILL_DELAY_MS);
 
-    // mCar is created in the constructor, but can be null if connection to the car is not
-    // successful.
-    @Nullable private final Car mCar;
-    @Nullable private CarUxRestrictionsManager mCarUxRestrictionsManager;
-
     /**
      * Whether or not the user is currently allowed to interact with any child views of
      * {@code SpeedBumpView}.
@@ -78,6 +64,8 @@ class SpeedBumpController {
     private final Context mContext;
     private final View mLockoutMessageView;
     private final ImageView mLockoutImageView;
+
+    private final CarUxRestrictionsHelper mUxRestrictionsHelper;
 
     /**
      * Creates the {@code SpeedBumpController} and associate it with the given
@@ -93,7 +81,8 @@ class SpeedBumpController {
         mLockOutMessageDurationMs =
                 mContext.getResources().getInteger(R.integer.speed_bump_lock_out_duration_ms);
 
-        mCar = Car.createCar(mContext, mServiceConnection);
+        mUxRestrictionsHelper = new CarUxRestrictionsHelper(mContext,
+                carUxRestrictions -> updateUnlimitedModeEnabled(carUxRestrictions));
 
         // By default, no limiting until UXR restrictions kick in.
         mContentRateLimiter.setUnlimitedMode(true);
@@ -103,28 +92,14 @@ class SpeedBumpController {
      * Starts this {@code SpeedBumpController} for monitoring any changes in driving restrictions.
      */
     void start() {
-        try {
-            if (mCar != null && !mCar.isConnected()) {
-                mCar.connect();
-            }
-        } catch (IllegalStateException e) {
-            // Do nothing.
-            Log.w(TAG, "start(); cannot connect to Car");
-        }
+        mUxRestrictionsHelper.start();
     }
 
     /**
      * Stops this {@code SpeedBumpController} from monitoring any changes in driving restrictions.
      */
     void stop() {
-        try {
-            if (mCar != null && mCar.isConnected()) {
-                mCar.disconnect();
-            }
-        } catch (IllegalStateException e) {
-            // Do nothing.
-            Log.w(TAG, "stop(); cannot disconnect from Car");
-        }
+        mUxRestrictionsHelper.stop();
     }
 
     /**
@@ -238,40 +213,4 @@ class SpeedBumpController {
         // If driver optimization is not required, then there is no need to limit anything.
         mContentRateLimiter.setUnlimitedMode(!restrictions.isRequiresDistractionOptimization());
     }
-
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            try {
-                mCarUxRestrictionsManager = (CarUxRestrictionsManager)
-                        mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
-
-                // Use explicit class definition instead of lambda. Using lambda makes compiler to
-                // desugar, which will lead to failure due to class definition not being available
-                // to dependencies at compile time (e.g. sample apk).
-                mCarUxRestrictionsManager.registerListener(
-                        new CarUxRestrictionsManager.onUxRestrictionsChangedListener() {
-                            @Override
-                            public void onUxRestrictionsChanged(CarUxRestrictions uxRestrictions) {
-                                updateUnlimitedModeEnabled(uxRestrictions);
-                            }
-                        });
-
-                updateUnlimitedModeEnabled(
-                        mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
-            } catch (CarNotConnectedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            try {
-                mCarUxRestrictionsManager.unregisterListener();
-                mCarUxRestrictionsManager = null;
-            } catch (CarNotConnectedException e) {
-                e.printStackTrace();
-            }
-        }
-    };
 }
