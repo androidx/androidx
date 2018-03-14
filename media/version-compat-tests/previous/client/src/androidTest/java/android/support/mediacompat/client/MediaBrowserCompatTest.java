@@ -63,7 +63,6 @@ import static org.junit.Assert.fail;
 import android.content.ComponentName;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import android.support.mediacompat.testlib.util.PollingCheck;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
@@ -73,6 +72,8 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import org.junit.After;
 import org.junit.Before;

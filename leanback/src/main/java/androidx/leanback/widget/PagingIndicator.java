@@ -34,14 +34,15 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
-import androidx.annotation.ColorInt;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.leanback.R;
 import android.util.AttributeSet;
 import android.util.Property;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
+import androidx.leanback.R;
 
 /**
  * A page indicator with dots.

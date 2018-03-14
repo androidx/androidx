@@ -33,11 +33,12 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.leanback.widget.PlaybackControlsRow;
 import android.support.v4.media.MediaMetadataCompat;
-import androidx.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+
+import androidx.leanback.widget.PlaybackControlsRow;
+import androidx.media.session.MediaControllerCompat;
 
 import org.junit.After;
 import org.junit.Before;

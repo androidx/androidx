@@ -2,12 +2,13 @@ package androidx.leanback.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.leanback.R;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+
+import androidx.leanback.R;
 
 /**
  * Relative layout implementation that assign subactions list topMargin based on a percentage

@@ -13,10 +13,11 @@
  */
 package androidx.leanback.widget;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListUpdateCallback;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;

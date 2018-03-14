@@ -27,15 +27,16 @@ import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.LayoutInflater;
+import android.view.SurfaceHolder;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.leanback.media.MediaPlayerGlue;
 import androidx.leanback.media.PlaybackGlue;
 import androidx.leanback.media.PlaybackGlueHost;
 import androidx.leanback.test.R;
 import androidx.leanback.testutils.PollingCheck;
-import android.view.LayoutInflater;
-import android.view.SurfaceHolder;
-import android.view.View;
-import android.view.ViewGroup;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -17,9 +17,10 @@ package androidx.leanback.app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.leanback.test.R;
+
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.leanback.test.R;
 
 public class BrowseSupportFragmentTestActivity extends FragmentActivity {
 

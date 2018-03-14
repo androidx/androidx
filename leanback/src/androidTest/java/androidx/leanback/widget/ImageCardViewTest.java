@@ -29,11 +29,12 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.View;
+import android.widget.ImageView;
+
 import androidx.leanback.R;
 import androidx.leanback.app.TestActivity;
 import androidx.leanback.testutils.PollingCheck;
-import android.view.View;
-import android.widget.ImageView;
 
 import org.junit.Before;
 import org.junit.Rule;

@@ -20,13 +20,14 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import androidx.annotation.RestrictTo;
-import androidx.preference.PreferenceFragment;
-import androidx.leanback.widget.VerticalGridView;
-import androidx.preference.PreferenceRecyclerViewAccessibilityDelegate;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import androidx.annotation.RestrictTo;
+import androidx.leanback.widget.VerticalGridView;
+import androidx.preference.PreferenceFragment;
+import androidx.preference.PreferenceRecyclerViewAccessibilityDelegate;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * This fragment provides a preference fragment with leanback-style behavior, suitable for

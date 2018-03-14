@@ -15,11 +15,12 @@ package androidx.leanback.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.leanback.R;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.TextView;
+
+import androidx.leanback.R;
 
 /**
  * <p>A {@link android.widget.TextView} that adjusts text size automatically in response

@@ -29,7 +29,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import androidx.swiperefreshlayout.test.R;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
@@ -38,6 +37,9 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
 
+import androidx.swiperefreshlayout.test.R;
+import androidx.testutils.PollingCheck;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,8 +47,6 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import androidx.testutils.PollingCheck;
 
 /**
  * Tests SwipeRefreshLayout widget.

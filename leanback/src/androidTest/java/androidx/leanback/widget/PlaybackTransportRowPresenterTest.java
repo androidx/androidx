@@ -32,13 +32,14 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
-import androidx.leanback.media.PlaybackTransportControlGlue;
-import androidx.leanback.media.PlayerAdapter;
-import androidx.leanback.widget.PlaybackSeekDataProvider.ResultCallback;
 import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewParent;
+
+import androidx.leanback.media.PlaybackTransportControlGlue;
+import androidx.leanback.media.PlayerAdapter;
+import androidx.leanback.widget.PlaybackSeekDataProvider.ResultCallback;
 
 import org.junit.Before;
 import org.junit.Test;

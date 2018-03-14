@@ -15,8 +15,6 @@
  */
 package androidx.media;
 
-import androidx.media.MediaBrowserCompat;
-
 /**
  * Defines the communication protocol for media browsers and media browser services.
  */

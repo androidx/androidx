@@ -21,8 +21,6 @@ import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.RequiresApi;
-import androidx.leanback.R;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
 import android.util.AttributeSet;
@@ -33,6 +31,9 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
+
+import androidx.annotation.RequiresApi;
+import androidx.leanback.R;
 
 /**
  * Slide distance toward/from a edge.

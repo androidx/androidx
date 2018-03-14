@@ -21,8 +21,9 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
-import androidx.leanback.R;
 import android.view.SurfaceHolder;
+
+import androidx.leanback.R;
 
 import java.io.IOException;
 

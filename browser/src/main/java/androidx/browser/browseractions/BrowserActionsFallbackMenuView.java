@@ -19,10 +19,11 @@ package androidx.browser.browseractions;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import androidx.annotation.RestrictTo;
-import androidx.browser.R;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
+
+import androidx.annotation.RestrictTo;
+import androidx.browser.R;
 
 /**
  * The class responsible for deciding the size of Browser Actions context menu.

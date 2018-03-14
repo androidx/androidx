@@ -18,6 +18,9 @@ package androidx.leanback.app;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewTreeObserver;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.leanback.transition.TransitionHelper;
@@ -26,8 +29,6 @@ import androidx.leanback.util.StateMachine;
 import androidx.leanback.util.StateMachine.Condition;
 import androidx.leanback.util.StateMachine.Event;
 import androidx.leanback.util.StateMachine.State;
-import android.view.View;
-import android.view.ViewTreeObserver;
 
 /**
  * Base class for leanback Fragments. This class is not intended to be subclassed by apps.

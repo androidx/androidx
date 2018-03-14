@@ -21,12 +21,13 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.TypedValue;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.R;
 import androidx.leanback.graphics.CompositeDrawable;
 import androidx.leanback.graphics.FitWidthBitmapDrawable;
-import android.util.TypedValue;
 
 /**
  * Helper class responsible for wiring in parallax effect in

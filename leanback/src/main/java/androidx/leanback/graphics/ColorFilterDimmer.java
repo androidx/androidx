@@ -18,6 +18,7 @@ import android.content.res.TypedArray;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.view.View;
+
 import androidx.leanback.R;
 
 /**

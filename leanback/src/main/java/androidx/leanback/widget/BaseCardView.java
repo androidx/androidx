@@ -19,8 +19,6 @@ package androidx.leanback.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.VisibleForTesting;
-import androidx.leanback.R;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +29,9 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.FrameLayout;
+
+import androidx.annotation.VisibleForTesting;
+import androidx.leanback.R;
 
 import java.util.ArrayList;
 

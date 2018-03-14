@@ -13,10 +13,11 @@
  */
 package androidx.leanback.widget;
 
-import androidx.leanback.app.HeadersFragment;
-import androidx.leanback.graphics.ColorOverlayDimmer;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.leanback.app.HeadersFragment;
+import androidx.leanback.graphics.ColorOverlayDimmer;
 
 /**
  * An abstract {@link Presenter} that renders an Object in RowsFragment, the object can be

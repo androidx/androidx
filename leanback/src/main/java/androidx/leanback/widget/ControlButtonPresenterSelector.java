@@ -13,7 +13,6 @@
  */
 package androidx.leanback.widget;
 
-import androidx.leanback.R;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +20,8 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.leanback.R;
 
 /**
  * Displays primary and secondary controls for a {@link PlaybackControlsRow}.

@@ -24,12 +24,12 @@ import static org.mockito.Mockito.mock;
 import android.content.Context;
 import android.support.test.filters.SmallTest;
 
+import androidx.loader.app.test.DummyLoader;
+import androidx.loader.content.Loader;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import androidx.loader.app.test.DummyLoader;
-import androidx.loader.content.Loader;
 
 @RunWith(JUnit4.class)
 @SmallTest

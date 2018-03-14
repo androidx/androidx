@@ -15,13 +15,14 @@ package androidx.leanback.widget;
 
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetricsInt;
-import androidx.leanback.R;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
+
+import androidx.leanback.R;
 
 /**
  * An abstract {@link Presenter} for rendering a detailed description of an

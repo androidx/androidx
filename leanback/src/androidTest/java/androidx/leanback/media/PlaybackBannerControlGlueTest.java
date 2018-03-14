@@ -27,14 +27,15 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
-import androidx.leanback.widget.PlaybackControlsRow;
-import androidx.leanback.widget.PlaybackControlsRowPresenter;
-import androidx.leanback.widget.PlaybackRowPresenter;
-import androidx.leanback.widget.RowPresenter;
 import android.view.ContextThemeWrapper;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
+import androidx.leanback.widget.PlaybackControlsRow;
+import androidx.leanback.widget.PlaybackControlsRowPresenter;
+import androidx.leanback.widget.PlaybackRowPresenter;
+import androidx.leanback.widget.RowPresenter;
 
 import org.junit.Test;
 import org.mockito.Mockito;

@@ -17,14 +17,15 @@
 
 package androidx.leanback.app;
 
-import android.os.Bundle;
-import androidx.leanback.widget.GuidanceStylist.Guidance;
-import androidx.leanback.widget.GuidedAction;
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.leanback.widget.GuidanceStylist.Guidance;
+import androidx.leanback.widget.GuidedAction;
 
 import java.util.HashMap;
 import java.util.List;

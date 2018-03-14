@@ -13,11 +13,12 @@
  */
 package androidx.leanback.widget;
 
-import androidx.annotation.RequiresApi;
-import androidx.leanback.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.RequiresApi;
+import androidx.leanback.R;
 
 @RequiresApi(18)
 class ShadowHelperJbmr2 {

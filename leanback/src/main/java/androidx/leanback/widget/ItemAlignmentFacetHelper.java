@@ -17,9 +17,10 @@ import static androidx.leanback.widget.ItemAlignmentFacet.ITEM_ALIGN_OFFSET_PERC
 import static androidx.recyclerview.widget.RecyclerView.HORIZONTAL;
 
 import android.graphics.Rect;
-import androidx.leanback.widget.GridLayoutManager.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.leanback.widget.GridLayoutManager.LayoutParams;
 
 /**
  * Helper class to handle ItemAlignmentFacet in a grid view.

@@ -22,10 +22,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 
 /**
  * The dialog class showing the context menu and ensures proper animation is played upon calling
