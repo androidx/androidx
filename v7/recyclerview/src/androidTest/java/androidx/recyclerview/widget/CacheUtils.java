@@ -24,8 +24,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 class CacheUtils {
     static void verifyPositionsPrefetched(RecyclerView view, int dx, int dy,
             Integer[]... positionData) {

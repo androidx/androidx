@@ -29,18 +29,19 @@ import static org.junit.Assert.assertTrue;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
-import androidx.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
-import androidx.core.view.ViewCompat;
-import androidx.recyclerview.test.R;
-import androidx.recyclerview.test.RecyclerViewTestActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.LinearLayout;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.test.R;
+import androidx.recyclerview.test.RecyclerViewTestActivity;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.CoreMatchers;

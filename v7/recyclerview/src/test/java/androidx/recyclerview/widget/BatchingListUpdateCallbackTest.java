@@ -26,9 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import androidx.recyclerview.widget.BatchingListUpdateCallback;
-import androidx.recyclerview.widget.ListUpdateCallback;
-
 @RunWith(JUnit4.class)
 @SmallTest
 public class BatchingListUpdateCallbackTest {

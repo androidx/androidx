@@ -16,8 +16,9 @@
 
 package androidx.recyclerview.widget;
 
-import androidx.core.util.Pools;
 import android.util.Log;
+
+import androidx.core.util.Pools;
 
 import java.util.ArrayList;
 import java.util.Collections;

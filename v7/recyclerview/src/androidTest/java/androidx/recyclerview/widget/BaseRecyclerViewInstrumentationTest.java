@@ -32,18 +32,20 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.os.Looper;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
-import androidx.core.view.ViewCompat;
-import androidx.recyclerview.test.R;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.test.R;
+import androidx.testutils.PollingCheck;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
@@ -61,8 +63,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import androidx.testutils.PollingCheck;
 
 abstract public class BaseRecyclerViewInstrumentationTest {
 

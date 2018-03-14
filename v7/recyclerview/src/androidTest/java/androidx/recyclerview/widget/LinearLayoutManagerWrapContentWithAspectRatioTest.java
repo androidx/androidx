@@ -16,10 +16,11 @@
 
 package androidx.recyclerview.widget;
 
-import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
-import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
+import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
+import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 

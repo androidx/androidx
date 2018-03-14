@@ -27,23 +27,22 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
-import androidx.annotation.NonNull;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.core.util.Pair;
-
 import android.view.Gravity;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
+import androidx.testutils.PollingCheck;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.testutils.PollingCheck;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)

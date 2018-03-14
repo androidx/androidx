@@ -17,9 +17,10 @@
 package androidx.recyclerview.widget;
 
 import android.graphics.Canvas;
+import android.view.View;
+
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.R;
-import android.view.View;
 
 /**
  * Package private class to keep implementations. Putting them inside ItemTouchUIUtil makes them

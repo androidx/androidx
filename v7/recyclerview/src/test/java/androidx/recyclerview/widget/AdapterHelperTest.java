@@ -41,9 +41,6 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import androidx.recyclerview.widget.AdapterHelper;
-import androidx.recyclerview.widget.RecyclerView;
-
 @RunWith(JUnit4.class)
 @SmallTest
 public class AdapterHelperTest {

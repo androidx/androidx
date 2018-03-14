@@ -15,8 +15,6 @@
  */
 package androidx.recyclerview.widget;
 
-import androidx.recyclerview.widget.ViewInfoStore;
-
 /**
  * Helper class for tests to check internals of ViewInfoStore
  */
