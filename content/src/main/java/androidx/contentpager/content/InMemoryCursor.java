@@ -25,6 +25,7 @@ import android.database.CursorIndexOutOfBoundsException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+
 import androidx.annotation.RestrictTo;
 
 /**

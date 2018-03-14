@@ -18,7 +18,6 @@ import android.graphics.Paint.FontMetricsInt;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import androidx.leanback.R;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +25,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.leanback.R;
 
 /**
  * A fragment for displaying an error indication.

@@ -21,9 +21,10 @@ import static androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import static androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import android.graphics.Rect;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Property;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Implementation of {@link Parallax} class for {@link RecyclerView}. This class

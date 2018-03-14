@@ -15,9 +15,10 @@ package androidx.leanback.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * @hide

@@ -17,10 +17,9 @@
 package androidx.leanback.widget;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 
 import java.util.List;
-
-import androidx.recyclerview.widget.DiffUtil;
 
 /**
  * Callback that informs {@link ArrayObjectAdapter} how to compute list updates when using

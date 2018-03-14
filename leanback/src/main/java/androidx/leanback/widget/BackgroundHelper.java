@@ -19,8 +19,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.RestrictTo;
 import android.view.View;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Helper for view backgrounds.

@@ -19,15 +19,15 @@ package androidx.loader.content;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.os.Handler;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.DebugUtils;
+import androidx.loader.app.LoaderManager;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-
-import androidx.loader.app.LoaderManager;
 
 /**
  * Static library support version of the framework's {@link android.content.Loader}.

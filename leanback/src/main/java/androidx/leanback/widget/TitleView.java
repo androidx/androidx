@@ -13,9 +13,12 @@
  */
 package androidx.leanback.widget;
 
+import static androidx.leanback.widget.TitleViewAdapter.BRANDING_VIEW_VISIBLE;
+import static androidx.leanback.widget.TitleViewAdapter.FULL_VIEW_VISIBLE;
+import static androidx.leanback.widget.TitleViewAdapter.SEARCH_VIEW_VISIBLE;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.leanback.R;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,9 +26,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import static androidx.leanback.widget.TitleViewAdapter.BRANDING_VIEW_VISIBLE;
-import static androidx.leanback.widget.TitleViewAdapter.SEARCH_VIEW_VISIBLE;
-import static androidx.leanback.widget.TitleViewAdapter.FULL_VIEW_VISIBLE;
+import androidx.leanback.R;
 
 /**
  * Title view for a leanback fragment.

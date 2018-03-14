@@ -17,17 +17,17 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
-import java.util.ArrayList;
-
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
+import java.util.ArrayList;
 
 /**
  * Helper for view transitions.

@@ -19,8 +19,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import androidx.leanback.R;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -28,6 +26,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.FrameLayout;
+
+import androidx.leanback.R;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Renders a {@link DetailsOverviewRow} to display an overview of an item. Typically this row will

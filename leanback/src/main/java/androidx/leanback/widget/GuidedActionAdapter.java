@@ -15,11 +15,6 @@ package androidx.leanback.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -29,6 +24,12 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -31,16 +31,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.core.app.BundleCompat;
-import androidx.core.app.SupportActivity;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
-import androidx.media.VolumeProviderCompat;
-
 import android.support.v4.media.session.IMediaControllerCallback;
 import android.support.v4.media.session.IMediaSession;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -52,13 +45,19 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.core.app.BundleCompat;
+import androidx.core.app.SupportActivity;
+import androidx.media.MediaBrowserCompat;
+import androidx.media.VolumeProviderCompat;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-
-import androidx.media.MediaBrowserCompat;
 
 /**
  * Allows an app to interact with an ongoing media session. Media buttons and

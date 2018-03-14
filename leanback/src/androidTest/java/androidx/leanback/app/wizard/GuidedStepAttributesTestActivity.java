@@ -17,6 +17,7 @@ package androidx.leanback.app.wizard;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+
 import androidx.leanback.app.GuidedStepFragment;
 
 public class GuidedStepAttributesTestActivity extends Activity {

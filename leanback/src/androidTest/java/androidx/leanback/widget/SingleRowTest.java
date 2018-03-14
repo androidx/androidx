@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.junit.Test;

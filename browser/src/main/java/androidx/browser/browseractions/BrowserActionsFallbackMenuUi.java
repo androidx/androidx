@@ -23,10 +23,6 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.browser.R;
-import androidx.core.widget.TextViewCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +30,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
+import androidx.browser.R;
+import androidx.core.widget.TextViewCompat;
 
 import java.util.List;
 

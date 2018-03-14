@@ -23,9 +23,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
-import androidx.annotation.IntDef;
 import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.ICustomTabsService;
+
+import androidx.annotation.IntDef;
 import androidx.collection.ArrayMap;
 
 import java.lang.annotation.Retention;

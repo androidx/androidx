@@ -21,15 +21,16 @@ import static androidx.leanback.widget.FocusHighlight.ZOOM_FACTOR_XSMALL;
 
 import android.animation.TimeAnimator;
 import android.content.res.Resources;
-import androidx.leanback.R;
-import androidx.leanback.app.HeadersFragment;
-import androidx.leanback.graphics.ColorOverlayDimmer;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewParent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
+
+import androidx.leanback.R;
+import androidx.leanback.app.HeadersFragment;
+import androidx.leanback.graphics.ColorOverlayDimmer;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Sets up the highlighting behavior when an item gains focus.

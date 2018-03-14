@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 import android.support.test.filters.SmallTest;
+
 import androidx.loader.app.test.DummyLoaderCallbacks;
 import androidx.loader.content.Loader;
 

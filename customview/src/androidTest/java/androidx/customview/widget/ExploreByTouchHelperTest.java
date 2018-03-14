@@ -22,15 +22,16 @@ import static org.junit.Assert.assertNotNull;
 
 import android.graphics.Rect;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.customview.test.R;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.View;
+
+import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-import android.view.View;
+import androidx.customview.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;

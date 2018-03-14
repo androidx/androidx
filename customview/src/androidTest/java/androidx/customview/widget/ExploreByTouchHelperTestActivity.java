@@ -18,6 +18,7 @@ package androidx.customview.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
+
 import androidx.customview.test.R;
 
 public class ExploreByTouchHelperTestActivity extends Activity {

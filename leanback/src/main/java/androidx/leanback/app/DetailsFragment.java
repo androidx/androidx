@@ -26,6 +26,13 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+
 import androidx.annotation.CallSuper;
 import androidx.leanback.R;
 import androidx.leanback.transition.TransitionHelper;
@@ -44,12 +51,6 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.PresenterSelector;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.VerticalGridView;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
 
 import java.lang.ref.WeakReference;
 

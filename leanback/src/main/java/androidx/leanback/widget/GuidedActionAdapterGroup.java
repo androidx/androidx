@@ -16,13 +16,14 @@ package androidx.leanback.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import androidx.annotation.RestrictTo;
-import androidx.leanback.widget.GuidedActionAdapter.EditListener;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+
+import androidx.annotation.RestrictTo;
+import androidx.leanback.widget.GuidedActionAdapter.EditListener;
 
 import java.util.ArrayList;
 

@@ -18,12 +18,24 @@ package androidx.leanback.app;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentManager.BackStackEntry;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.MarginLayoutParams;
+import android.view.ViewTreeObserver;
+
 import androidx.annotation.ColorInt;
+import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 import androidx.leanback.transition.TransitionHelper;
 import androidx.leanback.transition.TransitionListener;
@@ -44,18 +56,7 @@ import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.ScaleFrameLayout;
 import androidx.leanback.widget.TitleViewAdapter;
 import androidx.leanback.widget.VerticalGridView;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentManager.BackStackEntry;
-import android.app.FragmentTransaction;
-import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.MarginLayoutParams;
-import android.view.ViewTreeObserver;
 
 import java.util.HashMap;
 import java.util.Map;

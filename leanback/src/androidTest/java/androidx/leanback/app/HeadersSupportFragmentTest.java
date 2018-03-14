@@ -21,6 +21,8 @@ import static org.junit.Assert.assertTrue;
 import android.os.Bundle;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.View;
+
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.FocusHighlightHelper;
 import androidx.leanback.widget.HeaderItem;
@@ -28,7 +30,6 @@ import androidx.leanback.widget.ItemBridgeAdapter;
 import androidx.leanback.widget.ListRow;
 import androidx.leanback.widget.ListRowPresenter;
 import androidx.leanback.widget.VerticalGridView;
-import android.view.View;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

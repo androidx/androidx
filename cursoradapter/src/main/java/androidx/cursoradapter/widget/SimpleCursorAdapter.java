@@ -21,10 +21,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import androidx.annotation.RestrictTo;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Static library support version of the framework's {@link android.widget.SimpleCursorAdapter}.

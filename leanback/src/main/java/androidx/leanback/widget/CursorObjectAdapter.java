@@ -14,8 +14,9 @@
 package androidx.leanback.widget;
 
 import android.database.Cursor;
-import androidx.leanback.database.CursorMapper;
 import android.util.LruCache;
+
+import androidx.leanback.database.CursorMapper;
 
 /**
  * An {@link ObjectAdapter} implemented with a {@link Cursor}.

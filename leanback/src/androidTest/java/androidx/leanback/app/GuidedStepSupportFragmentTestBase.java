@@ -23,9 +23,10 @@ import static org.mockito.Mockito.when;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
+import android.view.View;
+
 import androidx.leanback.R;
 import androidx.leanback.testutils.PollingCheck;
-import android.view.View;
 
 import org.junit.Before;
 import org.junit.Rule;

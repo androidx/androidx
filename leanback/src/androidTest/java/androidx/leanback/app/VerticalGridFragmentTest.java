@@ -19,13 +19,14 @@
 
 package androidx.leanback.app;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.VerticalGridPresenter;
-import android.app.Fragment;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

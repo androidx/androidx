@@ -17,11 +17,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.InputType;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
-import androidx.leanback.R;
 import androidx.core.content.ContextCompat;
-import android.text.InputType;
+import androidx.leanback.R;
 
 import java.util.List;
 

@@ -16,11 +16,12 @@
 
 package androidx.leanback.widget;
 
-import androidx.leanback.transition.LeanbackTransitionHelper;
-import androidx.leanback.transition.TransitionHelper;
-import androidx.core.view.ViewCompat;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.core.view.ViewCompat;
+import androidx.leanback.transition.LeanbackTransitionHelper;
+import androidx.leanback.transition.TransitionHelper;
 
 /**
  * Helper for managing {@link androidx.leanback.widget.TitleView}, including

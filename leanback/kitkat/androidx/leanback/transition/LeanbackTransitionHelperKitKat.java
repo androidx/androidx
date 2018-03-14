@@ -14,10 +14,11 @@
 package androidx.leanback.transition;
 
 import android.content.Context;
-import androidx.annotation.RequiresApi;
-import androidx.leanback.R;
 import android.view.Gravity;
 import android.view.animation.AnimationUtils;
+
+import androidx.annotation.RequiresApi;
+import androidx.leanback.R;
 
 @RequiresApi(19)
 class LeanbackTransitionHelperKitKat {

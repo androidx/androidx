@@ -16,10 +16,11 @@ package androidx.leanback.transition;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import android.transition.Slide;
 import android.util.AttributeSet;
+
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
 /**
  * @hide

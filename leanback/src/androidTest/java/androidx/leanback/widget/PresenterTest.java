@@ -25,12 +25,13 @@ import android.graphics.Bitmap;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.leanback.R;
-import androidx.leanback.app.HeadersFragment;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
+
+import androidx.leanback.R;
+import androidx.leanback.app.HeadersFragment;
 
 import org.junit.Before;
 import org.junit.Test;

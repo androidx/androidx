@@ -14,10 +14,11 @@
 package androidx.leanback.app;
 
 import android.graphics.Color;
-import androidx.leanback.widget.Presenter;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.leanback.widget.Presenter;
 
 public class StringPresenter extends Presenter {
     private static final boolean DEBUG = false;

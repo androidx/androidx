@@ -14,8 +14,9 @@
 package androidx.leanback.widget;
 
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 import android.view.View;
+
+import androidx.annotation.RequiresApi;
 
 
 /**

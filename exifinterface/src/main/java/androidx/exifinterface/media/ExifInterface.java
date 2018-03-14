@@ -20,12 +20,13 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.util.Log;
+import android.util.Pair;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import android.util.Log;
-import android.util.Pair;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;

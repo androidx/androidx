@@ -19,11 +19,11 @@ package androidx.loader.app.test;
 import android.content.Context;
 import android.os.Bundle;
 
-import java.util.concurrent.CountDownLatch;
-
 import androidx.annotation.NonNull;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+
+import java.util.concurrent.CountDownLatch;
 
 public class DelayLoaderCallbacks implements LoaderManager.LoaderCallbacks<Boolean> {
     private final Context mContext;

@@ -14,13 +14,14 @@
 package androidx.leanback.widget;
 
 import android.content.Context;
-import androidx.leanback.R;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.leanback.R;
 
 /**
  * ListRowHoverCardView contains a title and description.
