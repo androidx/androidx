@@ -335,6 +335,98 @@ class ItemKeyedDataSourceTest {
         it.onResult(emptyList(), 0, 1)
     }
 
+    private abstract class WrapperDataSource<K, A, B>(private val source: ItemKeyedDataSource<K, A>)
+            : ItemKeyedDataSource<K, B>() {
+        private val invalidatedCallback = DataSource.InvalidatedCallback {
+            invalidate()
+            removeCallback()
+        }
+
+        init {
+            source.addInvalidatedCallback(invalidatedCallback)
+        }
+
+        private fun removeCallback() {
+            removeInvalidatedCallback(invalidatedCallback)
+        }
+
+        override fun loadInitial(params: LoadInitialParams<K>, callback: LoadInitialCallback<B>) {
+            source.loadInitial(params, object : LoadInitialCallback<A>() {
+                override fun onResult(data: List<A>, position: Int, totalCount: Int) {
+                    callback.onResult(convert(data), position, totalCount)
+                }
+
+                override fun onResult(data: MutableList<A>) {
+                    callback.onResult(convert(data))
+                }
+            })
+        }
+
+        override fun loadAfter(params: LoadParams<K>, callback: LoadCallback<B>) {
+            source.loadAfter(params, object : LoadCallback<A>() {
+                override fun onResult(data: MutableList<A>) {
+                    callback.onResult(convert(data))
+                }
+            })
+        }
+
+        override fun loadBefore(params: LoadParams<K>, callback: LoadCallback<B>) {
+            source.loadBefore(params, object : LoadCallback<A>() {
+                override fun onResult(data: MutableList<A>) {
+                    callback.onResult(convert(data))
+                }
+            })
+        }
+
+        protected abstract fun convert(source: List<A>): List<B>
+    }
+
+    private data class DecoratedItem(val item: Item)
+
+    private class DecoratedWrapperDataSource(private val source: ItemKeyedDataSource<Key, Item>)
+            : WrapperDataSource<Key, Item, DecoratedItem>(source) {
+        override fun convert(source: List<Item>): List<DecoratedItem> {
+            return source.map { DecoratedItem(it) }
+        }
+
+        override fun getKey(item: DecoratedItem): Key {
+            return source.getKey(item.item)
+        }
+    }
+
+    @Test
+    fun simpleWrappedDataSource() {
+        // verify that it's possible to wrap an ItemKeyedDataSource, and add info to its data
+
+        val orig = ItemDataSource(items = ITEMS_BY_NAME_ID)
+        val wrapper = DecoratedWrapperDataSource(orig)
+
+        // load initial
+        @Suppress("UNCHECKED_CAST")
+        val loadInitialCallback = mock(ItemKeyedDataSource.LoadInitialCallback::class.java)
+                as ItemKeyedDataSource.LoadInitialCallback<DecoratedItem>
+        val initKey = orig.getKey(ITEMS_BY_NAME_ID.first())
+        wrapper.loadInitial(ItemKeyedDataSource.LoadInitialParams(initKey, 10, false),
+                loadInitialCallback)
+        verify(loadInitialCallback).onResult(
+                ITEMS_BY_NAME_ID.subList(0, 10).map { DecoratedItem(it) })
+        verifyNoMoreInteractions(loadInitialCallback)
+
+        @Suppress("UNCHECKED_CAST")
+        val loadCallback = mock(ItemKeyedDataSource.LoadCallback::class.java)
+                as ItemKeyedDataSource.LoadCallback<DecoratedItem>
+        val key = orig.getKey(ITEMS_BY_NAME_ID[20])
+        // load after
+        wrapper.loadAfter(ItemKeyedDataSource.LoadParams(key, 10), loadCallback)
+        verify(loadCallback).onResult(ITEMS_BY_NAME_ID.subList(21, 31).map { DecoratedItem(it) })
+        verifyNoMoreInteractions(loadCallback)
+
+        // load before
+        wrapper.loadBefore(ItemKeyedDataSource.LoadParams(key, 10), loadCallback)
+        verify(loadCallback).onResult(ITEMS_BY_NAME_ID.subList(10, 20).map { DecoratedItem(it) })
+        verifyNoMoreInteractions(loadCallback)
+    }
+
     companion object {
         private val ITEM_COMPARATOR = compareBy<Item>({ it.name }).thenByDescending({ it.id })
         private val KEY_COMPARATOR = compareBy<Key>({ it.name }).thenByDescending({ it.id })
