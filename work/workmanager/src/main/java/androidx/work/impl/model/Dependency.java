@@ -21,9 +21,12 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 /**
  * Database entity that defines a dependency between two {@link WorkSpec}s.
+ *
+ * @hide
  */
 
 @Entity(foreignKeys = {
@@ -43,35 +46,18 @@ import android.support.annotation.NonNull;
         indices = {
                 @Index(value = {"work_spec_id"}),
                 @Index(value = {"prerequisite_id"})})
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Dependency {
     @NonNull
     @ColumnInfo(name = "work_spec_id")
-    String mWorkSpecId;
+    public final String workSpecId;
 
     @NonNull
     @ColumnInfo(name = "prerequisite_id")
-    String mPrerequisiteId;
+    public final String prerequisiteId;
 
     public Dependency(@NonNull String workSpecId, @NonNull String prerequisiteId) {
-        mWorkSpecId = workSpecId;
-        mPrerequisiteId = prerequisiteId;
-    }
-
-    @NonNull
-    public String getWorkSpecId() {
-        return mWorkSpecId;
-    }
-
-    public void setWorkSpecId(@NonNull String workSpecId) {
-        mWorkSpecId = workSpecId;
-    }
-
-    @NonNull
-    public String getPrerequisiteId() {
-        return mPrerequisiteId;
-    }
-
-    public void setPrerequisiteId(@NonNull String prerequisiteId) {
-        mPrerequisiteId = prerequisiteId;
+        this.workSpecId = workSpecId;
+        this.prerequisiteId = prerequisiteId;
     }
 }

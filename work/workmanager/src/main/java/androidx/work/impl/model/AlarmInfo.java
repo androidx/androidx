@@ -42,10 +42,10 @@ public class AlarmInfo {
     @NonNull
     @PrimaryKey
     @ColumnInfo(name = "work_spec_id")
-    public String workSpecId;
+    public final String workSpecId;
 
     @ColumnInfo(name = "alarm_id")
-    public int alarmId;
+    public final int alarmId;
 
     public AlarmInfo(@NonNull String workSpecId, int alarmId) {
         this.workSpecId = workSpecId;

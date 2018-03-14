@@ -21,9 +21,12 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 /**
  * Database entity that defines a mapping from a name to a {@link WorkSpec} id.
+ *
+ * @hide
  */
 
 @Entity(foreignKeys = {
@@ -35,36 +38,19 @@ import android.support.annotation.NonNull;
                 onUpdate = ForeignKey.CASCADE)},
         primaryKeys = {"name", "work_spec_id"},
         indices = {@Index(value = {"work_spec_id"})})
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkName {
 
     @NonNull
     @ColumnInfo(name = "name")
-    String mName;
+    public final String name;
 
     @NonNull
     @ColumnInfo(name = "work_spec_id")
-    String mWorkSpecId;
+    public final String workSpecId;
 
     public WorkName(@NonNull String name, @NonNull String workSpecId) {
-        mName = name;
-        mWorkSpecId = workSpecId;
-    }
-
-    @NonNull
-    public String getName() {
-        return mName;
-    }
-
-    public void setName(@NonNull String name) {
-        mName = name;
-    }
-
-    @NonNull
-    public String getWorkSpecId() {
-        return mWorkSpecId;
-    }
-
-    public void setWorkSpecId(@NonNull String workSpecId) {
-        mWorkSpecId = workSpecId;
+        this.name = name;
+        this.workSpecId = workSpecId;
     }
 }
