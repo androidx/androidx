@@ -23,7 +23,7 @@ import android.content.Context;
 /**
  * A test database.
  */
-@Database(entities = {WordCount.class, Image.class}, version = 1)
+@Database(entities = {WordCount.class, Image.class}, version = 1, exportSchema = false)
 public abstract class TestDatabase extends RoomDatabase {
 
     private static TestDatabase sInstance;

@@ -24,6 +24,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Transaction;
 import android.support.annotation.NonNull;
 
 import androidx.work.Arguments;
@@ -146,6 +147,7 @@ public interface WorkSpecDao {
      * @param id The identifier of the {@link WorkSpec}
      * @return A list of {@link WorkSpec.WorkStatusPojo}
      */
+    @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id=:id")
     WorkSpec.WorkStatusPojo getWorkStatusPojoForId(String id);
 
@@ -156,6 +158,7 @@ public interface WorkSpecDao {
      * @param ids The identifier of the {@link WorkSpec}s
      * @return A {@link LiveData} list of {@link WorkSpec.WorkStatusPojo}
      */
+    @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id IN (:ids)")
     LiveData<List<WorkSpec.WorkStatusPojo>> getWorkStatusPojoLiveDataForIds(List<String> ids);
 
@@ -165,6 +168,7 @@ public interface WorkSpecDao {
      * @param tag The tag for the {@link WorkSpec}s
      * @return A list of {@link WorkSpec.WorkStatusPojo}
      */
+    @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id IN "
             + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
     List<WorkSpec.WorkStatusPojo> getWorkStatusPojoForTag(String tag);
@@ -176,6 +180,7 @@ public interface WorkSpecDao {
      * @param tag The tag for the {@link WorkSpec}s
      * @return A {@link LiveData} list of {@link WorkSpec.WorkStatusPojo}
      */
+    @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id IN "
             + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
     LiveData<List<WorkSpec.WorkStatusPojo>> getWorkStatusPojoLiveDataForTag(String tag);
@@ -186,6 +191,7 @@ public interface WorkSpecDao {
      * @param name The name of the {@link WorkSpec}s
      * @return A list of {@link WorkSpec.WorkStatusPojo}
      */
+    @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id IN "
             + "(SELECT work_spec_id FROM workname WHERE name=:name)")
     List<WorkSpec.WorkStatusPojo> getWorkStatusPojoForName(String name);
@@ -197,6 +203,7 @@ public interface WorkSpecDao {
      * @param name The name for the {@link WorkSpec}s
      * @return A {@link LiveData} list of {@link WorkSpec.WorkStatusPojo}
      */
+    @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id IN "
             + "(SELECT work_spec_id FROM workname WHERE name=:name)")
     LiveData<List<WorkSpec.WorkStatusPojo>> getWorkStatusPojoLiveDataForName(String name);
