@@ -21,6 +21,8 @@ package androidx.leanback.app;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.ViewGroup;
+
 import androidx.leanback.test.R;
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 import androidx.leanback.widget.Action;
@@ -34,7 +36,6 @@ import androidx.leanback.widget.ListRow;
 import androidx.leanback.widget.ListRowPresenter;
 import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.SparseArrayObjectAdapter;
-import android.view.ViewGroup;
 
 /**
  * Base class provides overview row and some related rows.

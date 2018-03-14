@@ -21,8 +21,9 @@ import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.service.media.MediaBrowserService;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

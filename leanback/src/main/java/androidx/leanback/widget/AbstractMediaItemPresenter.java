@@ -18,8 +18,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
-import androidx.leanback.R;
-import androidx.core.view.ViewCompat;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -28,6 +26,9 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
+
+import androidx.core.view.ViewCompat;
+import androidx.leanback.R;
 
 import java.util.ArrayList;
 import java.util.List;

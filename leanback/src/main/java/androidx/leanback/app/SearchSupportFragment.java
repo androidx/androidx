@@ -22,6 +22,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.CompletionInfo;
+import android.widget.FrameLayout;
+
+import androidx.fragment.app.Fragment;
 import androidx.leanback.R;
 import androidx.leanback.widget.ObjectAdapter;
 import androidx.leanback.widget.ObjectAdapter.DataObserver;
@@ -34,13 +42,6 @@ import androidx.leanback.widget.SearchBar;
 import androidx.leanback.widget.SearchOrbView;
 import androidx.leanback.widget.SpeechRecognitionCallback;
 import androidx.leanback.widget.VerticalGridView;
-import androidx.fragment.app.Fragment;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.CompletionInfo;
-import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;

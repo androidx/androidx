@@ -33,14 +33,15 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
-import android.util.DisplayMetrics;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

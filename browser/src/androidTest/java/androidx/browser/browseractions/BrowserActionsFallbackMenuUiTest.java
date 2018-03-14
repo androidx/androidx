@@ -22,14 +22,15 @@ import static org.junit.Assert.assertNotNull;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import androidx.browser.R;
-import androidx.browser.customtabs.TestActivity;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.browser.R;
+import androidx.browser.customtabs.TestActivity;
 
 import org.junit.Before;
 import org.junit.Rule;

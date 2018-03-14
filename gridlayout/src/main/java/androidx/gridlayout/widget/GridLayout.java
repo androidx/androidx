@@ -33,10 +33,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.ViewGroupCompat;
-import androidx.gridlayout.R;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.LogPrinter;
@@ -47,14 +43,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
+import androidx.gridlayout.R;
+import androidx.legacy.widget.Space;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.legacy.widget.Space;
 
 /**
  * A layout that places its children in a rectangular <em>grid</em>.

@@ -28,11 +28,12 @@ import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.leanback.R;
-import androidx.core.view.ViewCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.core.view.ViewCompat;
+import androidx.leanback.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

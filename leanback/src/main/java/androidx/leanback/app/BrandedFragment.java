@@ -16,19 +16,20 @@
  */
 package androidx.leanback.app;
 
+import android.app.Fragment;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.leanback.R;
 import androidx.leanback.widget.SearchOrbView;
 import androidx.leanback.widget.TitleHelper;
 import androidx.leanback.widget.TitleViewAdapter;
-import android.app.Fragment;
-import android.util.TypedValue;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * Fragment class for managing search and branding using a view that implements

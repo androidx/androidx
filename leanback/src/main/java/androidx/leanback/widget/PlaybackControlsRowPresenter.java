@@ -15,10 +15,6 @@ package androidx.leanback.widget;
 
 import android.content.Context;
 import android.graphics.Color;
-import androidx.annotation.ColorInt;
-import androidx.leanback.R;
-import androidx.leanback.widget.ControlBarPresenter.OnControlClickedListener;
-import androidx.leanback.widget.ControlBarPresenter.OnControlSelectedListener;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -28,6 +24,11 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import androidx.annotation.ColorInt;
+import androidx.leanback.R;
+import androidx.leanback.widget.ControlBarPresenter.OnControlClickedListener;
+import androidx.leanback.widget.ControlBarPresenter.OnControlSelectedListener;
 
 /**
  * A PlaybackControlsRowPresenter renders a {@link PlaybackControlsRow} to display a

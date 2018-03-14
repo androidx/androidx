@@ -18,9 +18,6 @@ import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import androidx.annotation.ColorInt;
-import androidx.leanback.R;
-import androidx.leanback.util.MathUtil;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +26,10 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.ColorInt;
+import androidx.leanback.R;
+import androidx.leanback.util.MathUtil;
 
 /**
  * A presenter for a control bar that supports "more actions",

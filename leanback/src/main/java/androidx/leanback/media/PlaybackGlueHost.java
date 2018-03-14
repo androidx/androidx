@@ -16,11 +16,12 @@
 
 package androidx.leanback.media;
 
+import android.view.View;
+
 import androidx.leanback.widget.OnActionClickedListener;
 import androidx.leanback.widget.PlaybackRowPresenter;
 import androidx.leanback.widget.PlaybackSeekUi;
 import androidx.leanback.widget.Row;
-import android.view.View;
 
 /**
  * This class represents the UI (e.g. Fragment/Activity) hosting playback controls and

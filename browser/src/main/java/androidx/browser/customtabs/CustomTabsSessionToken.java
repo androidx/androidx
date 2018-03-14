@@ -21,10 +21,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import androidx.annotation.NonNull;
 import android.support.customtabs.ICustomTabsCallback;
-import androidx.core.app.BundleCompat;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.BundleCompat;
 
 /**
  * Wrapper class that can be used as a unique identifier for a session. Also contains an accessor

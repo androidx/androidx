@@ -27,11 +27,12 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.leanback.test.R;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.leanback.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;

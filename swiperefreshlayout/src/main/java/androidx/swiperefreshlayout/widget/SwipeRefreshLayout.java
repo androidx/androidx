@@ -18,18 +18,6 @@ package androidx.swiperefreshlayout.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.ColorInt;
-import androidx.annotation.ColorRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.NestedScrollingChild;
-import androidx.core.view.NestedScrollingChildHelper;
-import androidx.core.view.NestedScrollingParent;
-import androidx.core.view.NestedScrollingParentHelper;
-import androidx.core.view.ViewCompat;
-import androidx.core.widget.ListViewCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -43,6 +31,19 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.AbsListView;
 import android.widget.ListView;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.NestedScrollingChild;
+import androidx.core.view.NestedScrollingChildHelper;
+import androidx.core.view.NestedScrollingParent;
+import androidx.core.view.NestedScrollingParentHelper;
+import androidx.core.view.ViewCompat;
+import androidx.core.widget.ListViewCompat;
 
 /**
  * The SwipeRefreshLayout should be used whenever the user can refresh the

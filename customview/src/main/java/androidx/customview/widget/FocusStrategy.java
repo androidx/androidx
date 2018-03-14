@@ -17,11 +17,12 @@
 package androidx.customview.widget;
 
 import android.graphics.Rect;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat.FocusRealDirection;
 import androidx.core.view.ViewCompat.FocusRelativeDirection;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Collections;

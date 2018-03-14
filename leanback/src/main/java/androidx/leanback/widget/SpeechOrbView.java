@@ -3,8 +3,9 @@ package androidx.leanback.widget;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
-import androidx.leanback.R;
 import android.util.AttributeSet;
+
+import androidx.leanback.R;
 
 /**
  * A subclass of {@link SearchOrbView} that visualizes the state of an ongoing speech recognition.

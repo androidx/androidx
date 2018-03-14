@@ -17,12 +17,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Subclass of FrameLayout that support scale layout area size for children.

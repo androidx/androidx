@@ -13,11 +13,12 @@
  */
 package androidx.leanback.widget;
 
+import android.util.SparseIntArray;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.CircularIntArray;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.SparseIntArray;
 
 import java.io.PrintWriter;
 import java.util.Arrays;

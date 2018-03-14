@@ -23,6 +23,10 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.widget.LinearLayout;
+
 import androidx.leanback.app.GuidedStepFragment;
 import androidx.leanback.test.R;
 import androidx.leanback.widget.GuidanceStylist;
@@ -30,9 +34,6 @@ import androidx.leanback.widget.GuidedAction;
 import androidx.leanback.widget.GuidedDatePickerAction;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.leanback.widget.picker.DatePicker;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.widget.LinearLayout;
 
 import org.junit.Before;
 import org.junit.Rule;

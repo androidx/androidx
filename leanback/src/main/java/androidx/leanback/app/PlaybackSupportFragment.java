@@ -24,9 +24,19 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
+import android.view.InputEvent;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.fragment.app.Fragment;
 import androidx.leanback.R;
 import androidx.leanback.animation.LogAccelerateInterpolator;
 import androidx.leanback.animation.LogDecelerateInterpolator;
@@ -47,16 +57,7 @@ import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.SparseArrayObjectAdapter;
 import androidx.leanback.widget.VerticalGridView;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
-import android.view.InputEvent;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 
 /**
  * A fragment for displaying playback controls and related content.

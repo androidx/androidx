@@ -14,10 +14,11 @@
 package androidx.leanback.widget;
 
 import android.content.Context;
-import androidx.leanback.R;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+
+import androidx.leanback.R;
 
 /**
  * EditText widget that monitors keyboard changes.

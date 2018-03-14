@@ -30,6 +30,12 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
 
+import androidx.dynamicanimation.animation.DynamicAnimation;
+import androidx.dynamicanimation.animation.FlingAnimation;
+import androidx.dynamicanimation.animation.FloatPropertyCompat;
+import androidx.dynamicanimation.animation.FloatValueHolder;
+import androidx.dynamicanimation.test.R;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,12 +43,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.GreaterThan;
 import org.mockito.internal.matchers.LessThan;
-
-import androidx.dynamicanimation.animation.DynamicAnimation;
-import androidx.dynamicanimation.animation.FlingAnimation;
-import androidx.dynamicanimation.animation.FloatPropertyCompat;
-import androidx.dynamicanimation.animation.FloatValueHolder;
-import androidx.dynamicanimation.test.R;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)

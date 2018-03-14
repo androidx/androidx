@@ -20,12 +20,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.graphics.Outline;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
+
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
 /**
  * {@link FrameLayout} subclass that provides an outline only when it has children, so that it does

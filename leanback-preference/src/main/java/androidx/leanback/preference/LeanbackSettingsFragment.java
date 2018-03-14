@@ -22,19 +22,20 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.preference.MultiSelectListPreference;
-import androidx.preference.PreferenceFragment;
-import androidx.preference.ListPreference;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceScreen;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Space;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.preference.ListPreference;
+import androidx.preference.MultiSelectListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragment;
+import androidx.preference.PreferenceScreen;
 
 /**
  * This fragment provides a container for displaying a {@link LeanbackPreferenceFragment}

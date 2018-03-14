@@ -20,13 +20,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.leanback.test.R;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.leanback.test.R;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 

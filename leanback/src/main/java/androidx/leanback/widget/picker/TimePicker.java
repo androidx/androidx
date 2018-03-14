@@ -18,12 +18,13 @@ package androidx.leanback.widget.picker;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.IntRange;
-import androidx.leanback.R;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.annotation.IntRange;
+import androidx.leanback.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

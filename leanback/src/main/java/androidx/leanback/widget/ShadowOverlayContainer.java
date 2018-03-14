@@ -18,12 +18,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import androidx.annotation.ColorInt;
-import androidx.leanback.R;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.ColorInt;
+import androidx.leanback.R;
 
 /**
  * Provides an SDK version-independent wrapper to support shadows, color overlays, and rounded

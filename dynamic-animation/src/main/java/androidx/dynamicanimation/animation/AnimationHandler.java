@@ -20,9 +20,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.view.Choreographer;
+
 import androidx.annotation.RequiresApi;
 import androidx.collection.SimpleArrayMap;
-import android.view.Choreographer;
 
 import java.util.ArrayList;
 

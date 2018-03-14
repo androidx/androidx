@@ -27,12 +27,13 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Environment;
-import androidx.exifinterface.test.R;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 import android.util.Pair;
+
+import androidx.exifinterface.test.R;
 
 import org.junit.After;
 import org.junit.Before;

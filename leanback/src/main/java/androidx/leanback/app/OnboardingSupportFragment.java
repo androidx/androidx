@@ -25,12 +25,6 @@ import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.leanback.R;
-import androidx.leanback.widget.PagingIndicator;
-import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
@@ -47,6 +41,13 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.leanback.R;
+import androidx.leanback.widget.PagingIndicator;
 
 import java.util.ArrayList;
 import java.util.List;

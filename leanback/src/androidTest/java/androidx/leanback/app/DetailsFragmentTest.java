@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.animation.PropertyValuesHolder;
+import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,6 +38,9 @@ import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
+import android.view.KeyEvent;
+import android.view.View;
+
 import androidx.leanback.R;
 import androidx.leanback.graphics.FitWidthBitmapDrawable;
 import androidx.leanback.media.MediaPlayerGlue;
@@ -49,9 +53,6 @@ import androidx.leanback.widget.DetailsParallaxDrawable;
 import androidx.leanback.widget.ParallaxTarget;
 import androidx.leanback.widget.RecyclerViewParallax;
 import androidx.leanback.widget.VerticalGridView;
-import android.app.Fragment;
-import android.view.KeyEvent;
-import android.view.View;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

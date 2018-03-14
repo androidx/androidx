@@ -16,13 +16,14 @@ package androidx.leanback.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Paint;
-import androidx.annotation.RestrictTo;
-import androidx.leanback.R;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.RestrictTo;
+import androidx.leanback.R;
 
 /**
  * RowHeaderPresenter provides a default presentation for {@link HeaderItem} using a

@@ -25,10 +25,11 @@ import static org.junit.Assert.assertTrue;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
-import androidx.annotation.ColorRes;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.annotation.ColorRes;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -63,10 +63,11 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
-import androidx.media.session.MediaControllerCompat;
-import androidx.media.session.MediaControllerCompat.TransportControls;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+
+import androidx.media.session.MediaControllerCompat;
+import androidx.media.session.MediaControllerCompat.TransportControls;
 
 public class ClientBroadcastReceiver extends BroadcastReceiver {
 

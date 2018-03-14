@@ -32,18 +32,18 @@ import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.annotation.NonNull;
+import androidx.loader.app.test.DelayLoaderCallbacks;
+import androidx.loader.app.test.DummyLoaderCallbacks;
+import androidx.loader.app.test.EmptyActivity;
+import androidx.loader.content.Loader;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.NonNull;
-import androidx.loader.app.test.DelayLoaderCallbacks;
-import androidx.loader.app.test.DummyLoaderCallbacks;
-import androidx.loader.app.test.EmptyActivity;
-import androidx.loader.content.Loader;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

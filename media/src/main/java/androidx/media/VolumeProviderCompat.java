@@ -19,9 +19,10 @@ package androidx.media;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Build;
+import android.support.v4.media.session.MediaSessionCompat;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
-import android.support.v4.media.session.MediaSessionCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

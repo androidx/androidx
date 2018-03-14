@@ -17,11 +17,12 @@ package androidx.leanback.app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.leanback.test.R;
+import android.util.Log;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
-import android.util.Log;
+import androidx.leanback.test.R;
 
 public class SingleSupportFragmentTestActivity extends FragmentActivity {
 

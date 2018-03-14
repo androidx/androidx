@@ -1,10 +1,11 @@
 package androidx.leanback.widget;
 
-import androidx.leanback.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import androidx.leanback.R;
 
 /**
  * Presenter that responsible to create a ImageView and bind to DetailsOverviewRow. The default

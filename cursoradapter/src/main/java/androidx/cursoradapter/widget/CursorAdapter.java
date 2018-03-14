@@ -23,7 +23,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.os.Handler;
-import androidx.annotation.RestrictTo;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +30,8 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.FilterQueryProvider;
 import android.widget.Filterable;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Static library support version of the framework's {@link android.widget.CursorAdapter}.

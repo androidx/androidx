@@ -3,11 +3,12 @@ package androidx.leanback.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import androidx.leanback.R;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import androidx.leanback.R;
 
 /**
  * Relative layout implementation that lays out child views based on provided keyline percent(

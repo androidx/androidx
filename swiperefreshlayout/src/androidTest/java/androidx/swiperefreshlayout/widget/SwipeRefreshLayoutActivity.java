@@ -18,6 +18,7 @@ package androidx.swiperefreshlayout.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
+
 import androidx.swiperefreshlayout.test.R;
 
 public class SwipeRefreshLayoutActivity extends Activity {

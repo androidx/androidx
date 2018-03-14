@@ -13,8 +13,9 @@
  */
 package androidx.leanback.widget;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Optional facet provided by {@link RecyclerView.Adapter} or {@link RecyclerView.ViewHolder} for

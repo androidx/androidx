@@ -19,8 +19,9 @@ package android.support.v4.media.session;
 import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

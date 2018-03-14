@@ -25,13 +25,14 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import androidx.annotation.ColorInt;
-import androidx.leanback.R;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
+import androidx.annotation.ColorInt;
+import androidx.leanback.R;
 
 /**
  * <p>A widget that draws a search affordance, represented by a round background and an icon.</p>

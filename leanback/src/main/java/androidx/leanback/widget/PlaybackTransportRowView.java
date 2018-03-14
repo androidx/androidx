@@ -20,14 +20,15 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.graphics.Rect;
-import androidx.annotation.RestrictTo;
-import androidx.leanback.R;
 import android.util.AttributeSet;
 import android.view.FocusFinder;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import androidx.annotation.RestrictTo;
+import androidx.leanback.R;
 
 /**
  * View for PlaybackTransportRowPresenter that has a custom focusSearch.

@@ -19,10 +19,12 @@
 package androidx.leanback.app;
 
 import android.animation.PropertyValuesHolder;
+import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,7 +34,6 @@ import androidx.leanback.media.PlaybackGlue;
 import androidx.leanback.media.PlaybackGlueHost;
 import androidx.leanback.widget.DetailsParallaxDrawable;
 import androidx.leanback.widget.ParallaxTarget;
-import android.app.Fragment;
 
 /**
  * Controller for DetailsFragment parallax background and embedded video play.
