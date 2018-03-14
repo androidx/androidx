@@ -19,13 +19,13 @@ package androidx.recyclerview.selection;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Base class for handlers that can be registered w/ {@link GestureRouter}.

@@ -19,6 +19,7 @@ package androidx.recyclerview.selection;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Point;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 

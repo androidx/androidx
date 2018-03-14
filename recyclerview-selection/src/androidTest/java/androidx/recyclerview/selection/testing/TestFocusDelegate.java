@@ -18,10 +18,9 @@ package androidx.recyclerview.selection.testing;
 
 import static org.junit.Assert.assertEquals;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import androidx.recyclerview.selection.FocusDelegate;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.recyclerview.widget.RecyclerView;
 
 public final class TestFocusDelegate<K> extends FocusDelegate<K> {
 

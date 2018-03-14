@@ -19,9 +19,10 @@ package androidx.recyclerview.selection;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
+import android.view.MotionEvent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.view.MotionEvent;
 
 import java.util.Arrays;
 import java.util.List;

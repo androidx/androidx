@@ -27,13 +27,13 @@ import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 
+import androidx.recyclerview.selection.testing.TestEvents.Mouse;
+import androidx.recyclerview.selection.testing.TestEvents.Touch;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-
-import androidx.recyclerview.selection.testing.TestEvents.Mouse;
-import androidx.recyclerview.selection.testing.TestEvents.Touch;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

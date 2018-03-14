@@ -17,9 +17,10 @@
 package androidx.recyclerview.selection;
 
 import android.graphics.Point;
-import androidx.annotation.NonNull;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+
+import androidx.annotation.NonNull;
 
 /**
  * Utility methods for working with {@link MotionEvent} instances.
