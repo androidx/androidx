@@ -34,18 +34,6 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.CallSuper;
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.StringRes;
-import androidx.collection.ArraySet;
-
-import androidx.loader.app.LoaderManager;
-import androidx.core.util.DebugUtils;
-import androidx.core.util.LogWriter;
-import androidx.core.util.Pair;
-import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -65,6 +53,17 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.StringRes;
+import androidx.collection.ArraySet;
+import androidx.core.util.DebugUtils;
+import androidx.core.util.LogWriter;
+import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;

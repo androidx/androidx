@@ -19,14 +19,14 @@ package androidx.fragment.app;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
 import androidx.fragment.app.test.HangingFragmentActivity;
+import androidx.testutils.FragmentActivityUtils;
 
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.testutils.FragmentActivityUtils;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

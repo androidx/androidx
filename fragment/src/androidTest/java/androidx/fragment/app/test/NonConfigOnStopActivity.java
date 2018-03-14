@@ -17,7 +17,6 @@
 package androidx.fragment.app.test;
 
 import androidx.fragment.app.Fragment;
-
 import androidx.testutils.RecreatedActivity;
 
 public class NonConfigOnStopActivity extends RecreatedActivity {

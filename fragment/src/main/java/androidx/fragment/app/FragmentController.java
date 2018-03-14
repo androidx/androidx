@@ -19,15 +19,15 @@ package androidx.fragment.app;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Parcelable;
-import androidx.annotation.Nullable;
-import androidx.collection.SimpleArrayMap;
-
-import androidx.loader.app.LoaderManager;
 import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.collection.SimpleArrayMap;
+import androidx.loader.app.LoaderManager;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
