@@ -65,10 +65,10 @@ public abstract class WorkContinuation {
     /**
      * Gets an object that gives access to blocking (synchronous) methods.
      *
-     * @return A {@link BlockingWorkContinuationMethods} object, which gives access to blocking
+     * @return A {@link BlockingWorkContinuation} object, which gives access to blocking
      *         (synchronous) methods
      */
-    public abstract BlockingWorkContinuationMethods blocking();
+    public abstract BlockingWorkContinuation blocking();
 
     /**
      * Joins multiple {@link WorkContinuation}s to allow for complex chaining.

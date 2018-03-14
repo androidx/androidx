@@ -899,7 +899,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testCancelWorkForId() {
+    public void testCancelWorkById() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         Work work0 = new Work.Builder(TestWorker.class).build();
@@ -915,7 +915,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testCancelWorkForId_cancelsDependentWork() {
+    public void testCancelWorkById_cancelsDependentWork() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         Work work0 = new Work.Builder(TestWorker.class).build();
@@ -932,7 +932,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testCancelWorkForId_cancelsUnfinishedWorkOnly() {
+    public void testCancelWorkById_cancelsUnfinishedWorkOnly() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         Work work0 = new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
@@ -949,7 +949,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testCancelAllWorkWithTag() {
+    public void testCancelAllWorkByTag() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         final String tagToClear = "tag_to_clear";
@@ -964,7 +964,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         insertWorkSpecAndTags(work2);
         insertWorkSpecAndTags(work3);
 
-        mWorkManagerImpl.cancelAllWorkWithTag(tagToClear);
+        mWorkManagerImpl.cancelAllWorkByTag(tagToClear);
 
         assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
@@ -974,7 +974,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testCancelAllWorkWithTag_cancelsDependentWork() {
+    public void testCancelAllWorkByTag_cancelsDependentWork() {
         String tag = "tag";
 
         Work work0 = new Work.Builder(TestWorker.class).addTag(tag).build();
@@ -1004,7 +1004,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         insertDependency(work1, work0);
         insertDependency(work4, work0);
 
-        mWorkManagerImpl.cancelAllWorkWithTag(tag);
+        mWorkManagerImpl.cancelAllWorkByTag(tag);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
@@ -1016,14 +1016,14 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testCancelWorkForName() {
+    public void testCancelWorkByName() {
         final String testName = "myname";
 
         Work work0 = new Work.Builder(InfiniteTestWorker.class).build();
         Work work1 = new Work.Builder(InfiniteTestWorker.class).build();
         insertNamedWorks(testName, work0, work1);
 
-        mWorkManagerImpl.cancelAllWorkWithName(testName);
+        mWorkManagerImpl.cancelAllWorkByName(testName);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
@@ -1032,14 +1032,14 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testCancelWorkForName_ignoresFinishedWork() {
+    public void testCancelWorkByName_ignoresFinishedWork() {
         final String testName = "myname";
 
         Work work0 = new Work.Builder(InfiniteTestWorker.class).withInitialState(SUCCEEDED).build();
         Work work1 = new Work.Builder(InfiniteTestWorker.class).build();
         insertNamedWorks(testName, work0, work1);
 
-        mWorkManagerImpl.cancelAllWorkWithName(testName);
+        mWorkManagerImpl.cancelAllWorkByName(testName);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getId()), is(SUCCEEDED));

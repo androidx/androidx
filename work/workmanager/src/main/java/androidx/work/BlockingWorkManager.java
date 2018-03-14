@@ -25,7 +25,7 @@ import java.util.List;
  * Blocking methods for {@link WorkManager} operations.  These methods are expected to be called
  * from a background thread.
  */
-public interface BlockingWorkManagerMethods {
+public interface BlockingWorkManager {
 
     /**
      * Cancels work with the given id in a blocking fashion if it isn't finished.  Note that
@@ -50,7 +50,7 @@ public interface BlockingWorkManagerMethods {
      * @param tag The tag used to identify the work
      */
     @WorkerThread
-    void cancelAllWorkWithTagBlocking(@NonNull String tag);
+    void cancelAllWorkByTagBlocking(@NonNull String tag);
 
     /**
      * Cancels all unfinished work in the work chain with the given name in a blocking fashion.
@@ -62,7 +62,7 @@ public interface BlockingWorkManagerMethods {
      * @param name The name used to identify the chain of work
      */
     @WorkerThread
-    void cancelAllWorkWithNameBlocking(@NonNull String name);
+    void cancelAllWorkByNameBlocking(@NonNull String name);
 
     /**
      * Gets the {@link WorkStatus} of a given work id in a blocking fashion.  This method is

@@ -27,7 +27,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import androidx.work.BaseWork;
-import androidx.work.BlockingWorkManagerMethods;
+import androidx.work.BlockingWorkManager;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Work;
 import androidx.work.WorkContinuation;
@@ -55,7 +55,7 @@ import java.util.List;
  */
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerMethods {
+public class WorkManagerImpl extends WorkManager implements BlockingWorkManager {
 
     public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 22;
     public static final int MIN_JOB_SCHEDULER_API_LEVEL = 23;
@@ -169,27 +169,27 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
     }
 
     @Override
-    public void cancelAllWorkWithTag(@NonNull final String tag) {
+    public void cancelAllWorkByTag(@NonNull final String tag) {
         mTaskExecutor.executeOnBackgroundThread(
                 CancelWorkRunnable.forTag(tag, this));
     }
 
     @Override
     @WorkerThread
-    public void cancelAllWorkWithTagBlocking(@NonNull String tag) {
-        assertBackgroundThread("Cannot cancelAllWorkWithTagBlocking on main thread!");
+    public void cancelAllWorkByTagBlocking(@NonNull String tag) {
+        assertBackgroundThread("Cannot cancelAllWorkByTagBlocking on main thread!");
         CancelWorkRunnable.forTag(tag, this).run();
     }
 
     @Override
-    public void cancelAllWorkWithName(@NonNull String name) {
+    public void cancelAllWorkByName(@NonNull String name) {
         mTaskExecutor.executeOnBackgroundThread(
                 CancelWorkRunnable.forName(name, this));
     }
 
     @Override
-    public void cancelAllWorkWithNameBlocking(@NonNull String name) {
-        assertBackgroundThread("Cannot cancelAllWorkWithNameBlocking on main thread!");
+    public void cancelAllWorkByNameBlocking(@NonNull String name) {
+        assertBackgroundThread("Cannot cancelAllWorkByNameBlocking on main thread!");
         CancelWorkRunnable.forName(name, this).run();
     }
 
@@ -306,7 +306,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManagerM
     }
 
     @Override
-    public BlockingWorkManagerMethods blocking() {
+    public BlockingWorkManager blocking() {
         return this;
     }
 

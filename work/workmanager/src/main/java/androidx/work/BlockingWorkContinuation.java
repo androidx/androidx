@@ -22,7 +22,7 @@ import android.support.annotation.WorkerThread;
  * Blocking methods for {@link WorkContinuation} operations.  These methods are expected to be
  * called from a background thread.
  */
-public interface BlockingWorkContinuationMethods {
+public interface BlockingWorkContinuation {
 
     /**
      * Enqueues the instance of {@link WorkContinuation} in a blocking fashion.  This method is
