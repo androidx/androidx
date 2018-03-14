@@ -18,9 +18,9 @@ package androidx.recyclerview.selection.testing;
 
 import android.view.MotionEvent;
 
-import javax.annotation.Nullable;
-
 import androidx.recyclerview.selection.ItemDetailsLookup;
+
+import javax.annotation.Nullable;
 
 /**
  * Test impl of ItemDetailsLookup.

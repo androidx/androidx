@@ -16,8 +16,9 @@
 
 package androidx.recyclerview.selection.testing;
 
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 public class TestHolder extends ViewHolder {
     public TestHolder(View itemView) {

@@ -17,9 +17,8 @@
 package androidx.recyclerview.selection;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Override methods in this class to provide application specific behaviors

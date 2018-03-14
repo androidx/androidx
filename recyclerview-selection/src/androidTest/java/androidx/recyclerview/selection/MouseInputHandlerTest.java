@@ -16,9 +16,6 @@
 
 package androidx.recyclerview.selection;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import static androidx.recyclerview.selection.testing.TestEvents.Mouse.ALT_CLICK;
 import static androidx.recyclerview.selection.testing.TestEvents.Mouse.CLICK;
 import static androidx.recyclerview.selection.testing.TestEvents.Mouse.CTRL_CLICK;
@@ -26,14 +23,12 @@ import static androidx.recyclerview.selection.testing.TestEvents.Mouse.SECONDARY
 import static androidx.recyclerview.selection.testing.TestEvents.Mouse.SHIFT_CLICK;
 import static androidx.recyclerview.selection.testing.TestEvents.Mouse.TERTIARY_CLICK;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.MotionEvent;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import androidx.recyclerview.selection.testing.SelectionProbe;
 import androidx.recyclerview.selection.testing.SelectionTrackers;
@@ -46,6 +41,11 @@ import androidx.recyclerview.selection.testing.TestItemDetailsLookup;
 import androidx.recyclerview.selection.testing.TestItemKeyProvider;
 import androidx.recyclerview.selection.testing.TestOnContextClickListener;
 import androidx.recyclerview.selection.testing.TestOnItemActivatedListener;
+import androidx.recyclerview.widget.RecyclerView;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

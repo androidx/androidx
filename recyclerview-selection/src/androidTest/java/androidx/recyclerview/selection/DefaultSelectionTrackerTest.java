@@ -26,6 +26,13 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.SparseBooleanArray;
 
+import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
+import androidx.recyclerview.selection.testing.Bundles;
+import androidx.recyclerview.selection.testing.SelectionProbe;
+import androidx.recyclerview.selection.testing.TestAdapter;
+import androidx.recyclerview.selection.testing.TestItemKeyProvider;
+import androidx.recyclerview.selection.testing.TestSelectionObserver;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,13 +41,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
-import androidx.recyclerview.selection.testing.Bundles;
-import androidx.recyclerview.selection.testing.SelectionProbe;
-import androidx.recyclerview.selection.testing.TestAdapter;
-import androidx.recyclerview.selection.testing.TestItemKeyProvider;
-import androidx.recyclerview.selection.testing.TestSelectionObserver;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

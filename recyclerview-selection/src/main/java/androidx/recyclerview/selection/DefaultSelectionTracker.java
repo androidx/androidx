@@ -19,23 +19,22 @@ package androidx.recyclerview.selection;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
-
 import static androidx.recyclerview.selection.Shared.DEBUG;
 
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.recyclerview.selection.Range.RangeType;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import androidx.recyclerview.selection.Range.RangeType;
 
 /**
  * {@link SelectionTracker} providing support for traditional multi-item selection on top

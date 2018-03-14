@@ -18,13 +18,13 @@ package androidx.recyclerview.selection;
 
 import static androidx.core.util.Preconditions.checkArgument;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A MotionInputHandler that provides the high-level glue for touch driven selection. This class

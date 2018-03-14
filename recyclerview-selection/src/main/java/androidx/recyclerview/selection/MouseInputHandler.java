@@ -18,17 +18,16 @@ package androidx.recyclerview.selection;
 
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
-
 import static androidx.recyclerview.selection.Shared.DEBUG;
 import static androidx.recyclerview.selection.Shared.VERBOSE;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A MotionInputHandler that provides the high-level glue for mouse driven selection. This
