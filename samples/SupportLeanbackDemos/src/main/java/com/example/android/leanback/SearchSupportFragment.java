@@ -11,7 +11,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
+
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.DiffCallback;
 import androidx.leanback.widget.HeaderItem;
@@ -23,10 +28,6 @@ import androidx.leanback.widget.OnItemViewClickedListener;
 import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.res.ResourcesCompat;
-import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 

@@ -17,14 +17,15 @@ package com.example.android.supportv7.view;
 
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.example.android.supportv7.R;
 

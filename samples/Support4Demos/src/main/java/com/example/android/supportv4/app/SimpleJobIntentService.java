@@ -17,13 +17,15 @@
 package com.example.android.supportv4.app;
 
 //BEGIN_INCLUDE(complete)
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.SystemClock;
-import androidx.core.app.JobIntentService;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.core.app.JobIntentService;
 
 /**
  * Example implementation of a JobIntentService.

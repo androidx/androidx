@@ -18,12 +18,13 @@ package com.example.android.support.text.emoji;
 
 import android.content.Context;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+
+import androidx.annotation.RequiresApi;
 
 /**
  * Layout that includes configuration parameters.

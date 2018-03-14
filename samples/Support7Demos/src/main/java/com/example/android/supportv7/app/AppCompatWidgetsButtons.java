@@ -16,10 +16,11 @@
 
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.android.supportv7.R;
 
 /**
  * This demonstrates the styled {@link android.widget.Button} widgets in AppCompat.

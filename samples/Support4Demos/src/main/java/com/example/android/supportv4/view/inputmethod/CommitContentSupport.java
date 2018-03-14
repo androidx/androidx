@@ -21,9 +21,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.core.view.inputmethod.EditorInfoCompat;
-import androidx.core.view.inputmethod.InputConnectionCompat;
-import androidx.core.view.inputmethod.InputContentInfoCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.inputmethod.EditorInfo;
@@ -32,6 +29,10 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.view.inputmethod.EditorInfoCompat;
+import androidx.core.view.inputmethod.InputConnectionCompat;
+import androidx.core.view.inputmethod.InputContentInfoCompat;
 
 import com.example.android.supportv4.R;
 

@@ -25,19 +25,20 @@ import android.graphics.Canvas;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.mediarouter.media.MediaRouteSelector;
-import androidx.mediarouter.media.MediaRouter;
-import androidx.mediarouter.R;
-import androidx.appcompat.widget.TooltipCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.SoundEffectConstants;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.TooltipCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.mediarouter.R;
+import androidx.mediarouter.media.MediaRouteSelector;
+import androidx.mediarouter.media.MediaRouter;
 
 /**
  * The media route button allows the user to select routes and to control the

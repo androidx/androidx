@@ -16,16 +16,17 @@
 
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.widget.Toolbar;
+
+import com.example.android.supportv7.R;
 
 /**
  * This demonstrates idiomatic usage of an action mode with a Toolbar.

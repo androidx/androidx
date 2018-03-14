@@ -16,8 +16,9 @@
  */
 package com.example.android.leanback;
 
-import androidx.fragment.app.FragmentActivity;
 import android.os.Bundle;
+
+import androidx.fragment.app.FragmentActivity;
 
 /**
  * Activity demonstrating the use of {@link androidx.leanback.app.VideoFragment}

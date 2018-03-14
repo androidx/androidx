@@ -18,13 +18,15 @@ package androidx.mediarouter.media;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
+
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+
+import androidx.media.session.MediaControllerCompat;
 
 import org.junit.After;
 import org.junit.Before;

@@ -16,11 +16,12 @@
 
 package com.example.android.support.design.widget;
 
-import com.example.android.support.design.R;
-
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import com.example.android.support.design.R;
 
 /**
  * This demonstrates idiomatic usage of the Floating Action Button

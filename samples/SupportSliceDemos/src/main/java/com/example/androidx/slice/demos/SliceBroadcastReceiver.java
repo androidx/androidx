@@ -18,9 +18,9 @@ package com.example.androidx.slice.demos;
 
 import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 
-import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
-
 import static androidx.slice.core.SliceHints.EXTRA_RANGE_VALUE;
+
+import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

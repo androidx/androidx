@@ -15,9 +15,10 @@
  */
 package androidx.percentlayout.widget;
 
-import androidx.percentlayout.test.R;
 import android.support.test.filters.SmallTest;
 import android.view.View;
+
+import androidx.percentlayout.test.R;
 
 import org.junit.Before;
 import org.junit.Test;

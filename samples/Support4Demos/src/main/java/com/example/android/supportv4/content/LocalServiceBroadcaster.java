@@ -16,8 +16,6 @@
 
 package com.example.android.supportv4.content;
 
-import com.example.android.supportv4.R;
-
 import android.app.Activity;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -28,12 +26,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import androidx.core.app.ServiceCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.core.app.ServiceCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.example.android.supportv4.R;
 
 /**
  * Demonstrates the use of a LocalBroadcastManager to easily communicate

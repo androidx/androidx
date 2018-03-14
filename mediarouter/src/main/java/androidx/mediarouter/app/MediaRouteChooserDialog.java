@@ -27,11 +27,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatDialog;
-import androidx.mediarouter.media.MediaRouteSelector;
-import androidx.mediarouter.media.MediaRouter;
-import androidx.mediarouter.R;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -43,6 +38,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDialog;
+import androidx.mediarouter.R;
+import androidx.mediarouter.media.MediaRouteSelector;
+import androidx.mediarouter.media.MediaRouter;
 
 import java.io.IOException;
 import java.io.InputStream;

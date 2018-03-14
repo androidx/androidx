@@ -16,25 +16,26 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.Cheeses;
-import com.example.android.supportv4.R;
-
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.ListFragment;
 import androidx.viewpager.widget.ViewPager;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
+
+import com.example.android.supportv4.Cheeses;
+import com.example.android.supportv4.R;
 
 //BEGIN_INCLUDE(complete)
 public class FragmentPagerSupport extends FragmentActivity {

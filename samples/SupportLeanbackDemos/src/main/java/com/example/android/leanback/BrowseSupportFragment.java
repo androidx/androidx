@@ -16,10 +16,17 @@
  */
 package com.example.android.leanback;
 
-import androidx.fragment.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.app.RowsSupportFragment;
 import androidx.leanback.widget.ArrayObjectAdapter;
@@ -35,12 +42,6 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.SectionRow;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.res.ResourcesCompat;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 public class BrowseSupportFragment extends androidx.leanback.app.BrowseSupportFragment {
     private static final String TAG = "leanback.BrowseSupportFragment";

@@ -19,12 +19,13 @@ package com.example.android.supportv4.widget;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.LayoutRes;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import androidx.annotation.LayoutRes;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 
 import com.example.android.supportv4.R;
 

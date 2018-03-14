@@ -22,6 +22,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.legacy.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 

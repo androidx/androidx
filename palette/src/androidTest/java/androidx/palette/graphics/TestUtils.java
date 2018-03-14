@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.test.InstrumentationRegistry;
+
 import androidx.palette.test.R;
 
 class TestUtils {

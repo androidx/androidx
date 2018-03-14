@@ -16,14 +16,15 @@
 
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
 import android.content.Intent;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.ShareActionProvider;
+import androidx.core.view.MenuItemCompat;
+
+import com.example.android.supportv7.R;
 
 /**
  * This activity demonstrates how to use {@link ShareActionProvider} with the Action Bar.

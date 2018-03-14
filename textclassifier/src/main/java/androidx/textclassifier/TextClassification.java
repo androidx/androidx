@@ -23,22 +23,22 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.LocaleListCompat;
 import androidx.collection.ArrayMap;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
+import androidx.textclassifier.TextClassifier.EntityType;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import androidx.textclassifier.TextClassifier.EntityType;
 
 /**
  * Information for generating a widget to handle classified text.

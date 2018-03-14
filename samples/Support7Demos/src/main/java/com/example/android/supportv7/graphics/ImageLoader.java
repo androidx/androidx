@@ -19,9 +19,10 @@ package com.example.android.supportv7.graphics;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
-import androidx.core.graphics.BitmapCompat;
-import androidx.collection.LruCache;
 import android.widget.ImageView;
+
+import androidx.collection.LruCache;
+import androidx.core.graphics.BitmapCompat;
 
 /**
  * A very naive lazily implemented image loader. Do not use this in production code.

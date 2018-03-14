@@ -19,6 +19,8 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.leanback.app.PlaybackFragmentGlueHost;
 import androidx.leanback.widget.Action;
 import androidx.leanback.widget.ArrayObjectAdapter;
@@ -27,7 +29,6 @@ import androidx.leanback.widget.HeaderItem;
 import androidx.leanback.widget.ListRow;
 import androidx.leanback.widget.ListRowPresenter;
 import androidx.leanback.widget.SparseArrayObjectAdapter;
-import android.util.Log;
 
 /**
  * Example of PlaybackFragment working with a PlaybackControlGlue.

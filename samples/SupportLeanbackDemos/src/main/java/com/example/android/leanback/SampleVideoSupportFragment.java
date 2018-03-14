@@ -18,12 +18,13 @@ package com.example.android.leanback;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.media.session.MediaSessionCompat;
+
 import androidx.leanback.app.VideoSupportFragmentGlueHost;
 import androidx.leanback.media.MediaPlayerAdapter;
 import androidx.leanback.media.PlaybackGlue;
 import androidx.leanback.media.PlaybackTransportControlGlue;
 import androidx.leanback.widget.PlaybackControlsRow;
-import android.support.v4.media.session.MediaSessionCompat;
 
 /**
  * Fragment demonstrating the use of {@link androidx.leanback.app.VideoSupportFragment} to

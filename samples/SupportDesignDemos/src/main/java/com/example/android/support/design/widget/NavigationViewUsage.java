@@ -16,16 +16,17 @@
 
 package com.example.android.support.design.widget;
 
-import com.example.android.support.design.R;
-
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.example.android.support.design.R;
 
 /**
  * This demonstrates basic usage of NavigationView

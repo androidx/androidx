@@ -24,14 +24,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.wear.widget.WearableRecyclerView;
+
 import com.example.android.support.wear.app.drawers.WearableDrawersDemo;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.wear.widget.WearableRecyclerView;
 
 /**
  * Main activity for the wear demos.

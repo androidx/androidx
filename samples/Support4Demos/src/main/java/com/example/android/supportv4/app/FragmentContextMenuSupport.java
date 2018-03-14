@@ -16,11 +16,7 @@
 
 package com.example.android.supportv4.app;
 
-import com.example.android.supportv4.R;
-
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -29,6 +25,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+
+import com.example.android.supportv4.R;
 
 /**
  * Demonstration of displaying a context menu from a fragment.

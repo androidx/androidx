@@ -24,9 +24,10 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.media.AudioManager;
 import android.os.Build;
+import android.view.Display;
+
 import androidx.annotation.RequiresApi;
 import androidx.mediarouter.R;
-import android.view.Display;
 
 import java.util.ArrayList;
 import java.util.List;

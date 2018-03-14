@@ -18,10 +18,11 @@ package com.example.android.support.design.widget;
 
 import android.os.Bundle;
 import android.support.design.widget.BaseTransientBottomBar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.example.android.support.design.R;
 
