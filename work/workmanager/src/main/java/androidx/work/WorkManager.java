@@ -151,7 +151,7 @@ public abstract class WorkManager {
      *
      * @param tag The tag used to identify the work
      */
-    public abstract void cancelAllWorkWithTag(@NonNull String tag);
+    public abstract void cancelAllWorkByTag(@NonNull String tag);
 
     /**
      * Cancels all unfinished work in the work chain with the given name.  Note that cancellation is
@@ -159,7 +159,7 @@ public abstract class WorkManager {
      *
      * @param name The name used to identify the chain of work
      */
-    public abstract void cancelAllWorkWithName(@NonNull String name);
+    public abstract void cancelAllWorkByName(@NonNull String name);
 
     /**
      * Gets a {@link LiveData} of the {@link WorkStatus} for a given work id.
@@ -189,8 +189,8 @@ public abstract class WorkManager {
     /**
      * Gets an object that gives access to blocking (synchronous) methods.
      *
-     * @return A {@link BlockingWorkManagerMethods} object, which gives access to blocking
+     * @return A {@link BlockingWorkManager} object, which gives access to blocking
      *         (synchronous) methods
      */
-    public abstract BlockingWorkManagerMethods blocking();
+    public abstract BlockingWorkManager blocking();
 }

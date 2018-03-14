@@ -24,12 +24,8 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import androidx.work.BaseWork;
-import androidx.work.BlockingWorkContinuationMethods;
+import androidx.work.BlockingWorkContinuation;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Work;
 import androidx.work.WorkContinuation;
@@ -38,6 +34,10 @@ import androidx.work.impl.logger.Logger;
 import androidx.work.impl.utils.EnqueueRunnable;
 import androidx.work.impl.workers.JoinWorker;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * A concrete implementation of {@link WorkContinuation}.
  *
@@ -45,7 +45,7 @@ import androidx.work.impl.workers.JoinWorker;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkContinuationImpl extends WorkContinuation
-        implements BlockingWorkContinuationMethods {
+        implements BlockingWorkContinuation {
 
     private static final String TAG = "WorkContinuationImpl";
 
@@ -189,7 +189,7 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @Override
-    public BlockingWorkContinuationMethods blocking() {
+    public BlockingWorkContinuation blocking() {
         return this;
     }
 

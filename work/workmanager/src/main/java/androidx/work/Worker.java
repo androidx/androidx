@@ -105,7 +105,7 @@ public abstract class Worker {
      * Determines if the {@link Worker} was interrupted and should stop executing.
      * The {@link Worker} can be interrupted for the following reasons:
      * 1. The {@link Work} or {@link PeriodicWork} was explicitly cancelled.
-     *    {@link WorkManager#cancelAllWorkWithTag(String)}
+     *    {@link WorkManager#cancelAllWorkByTag(String)}
      * 2. Constraints set in {@link Work} or {@link PeriodicWork} are no longer valid.
      * @return {@code true} if {@link Worker} is instructed to stop executing.
      */
