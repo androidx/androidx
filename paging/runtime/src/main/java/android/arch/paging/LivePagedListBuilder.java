@@ -36,7 +36,7 @@ import java.util.concurrent.Executor;
  *             you're using PositionalDataSource.
  * @param <Value> Item type being presented.
  */
-public class LivePagedListBuilder<Key, Value> {
+public final class LivePagedListBuilder<Key, Value> {
     private Key mInitialLoadKey;
     private PagedList.Config mConfig;
     private DataSource.Factory<Key, Value> mDataSourceFactory;
