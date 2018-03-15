@@ -394,8 +394,8 @@ class ItemKeyedDataSourceTest {
         }
     }
 
-    @Test
-    fun simpleWrappedDataSource() {
+    private fun verifyWrappedDataSource(createWrapper:
+            (ItemKeyedDataSource<Key, Item>) -> ItemKeyedDataSource<Key, DecoratedItem>) {
         // verify that it's possible to wrap an ItemKeyedDataSource, and add info to its data
 
         val orig = ItemDataSource(items = ITEMS_BY_NAME_ID)
@@ -425,6 +425,21 @@ class ItemKeyedDataSourceTest {
         wrapper.loadBefore(ItemKeyedDataSource.LoadParams(key, 10), loadCallback)
         verify(loadCallback).onResult(ITEMS_BY_NAME_ID.subList(10, 20).map { DecoratedItem(it) })
         verifyNoMoreInteractions(loadCallback)
+    }
+
+    @Test
+    fun testManualWrappedDataSource() = verifyWrappedDataSource {
+        DecoratedWrapperDataSource(it)
+    }
+
+    @Test
+    fun testListConverterWrappedDataSource() = verifyWrappedDataSource {
+        it.mapByPage { it.map { DecoratedItem(it) } }
+    }
+
+    @Test
+    fun testItemConverterWrappedDataSource() = verifyWrappedDataSource {
+        it.map { DecoratedItem(it) }
     }
 
     companion object {
