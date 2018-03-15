@@ -31,23 +31,25 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Lazy loading list that pages in content from a {@link DataSource}.
+ * Lazy loading list that pages in immutable content from a {@link DataSource}.
  * <p>
  * A PagedList is a {@link List} which loads its data in chunks (pages) from a {@link DataSource}.
  * Items can be accessed with {@link #get(int)}, and further loading can be triggered with
- * {@link #loadAround(int)}. See {@link PagedListAdapter}, which enables the binding of a PagedList
- * to a {@link android.support.v7.widget.RecyclerView}.
+ * {@link #loadAround(int)}. To display a PagedList, see {@link PagedListAdapter}, which enables the
+ * binding of a PagedList to a {@link android.support.v7.widget.RecyclerView}.
  * <h4>Loading Data</h4>
  * <p>
- * All data in a PagedList is loaded from its {@link DataSource}. Creating a PagedList loads data
- * from the DataSource immediately, and should for this reason be done on a background thread. The
- * constructed PagedList may then be passed to and used on the UI thread. This is done to prevent
- * passing a list with no loaded content to the UI thread, which should generally not be presented
- * to the user.
+ * All data in a PagedList is loaded from its {@link DataSource}. Creating a PagedList loads the
+ * first chunk of data from the DataSource immediately, and should for this reason be done on a
+ * background thread. The constructed PagedList may then be passed to and used on the UI thread.
+ * This is done to prevent passing a list with no loaded content to the UI thread, which should
+ * generally not be presented to the user.
  * <p>
- * When {@link #loadAround} is called, items will be loaded in near the passed list index. If
- * placeholder {@code null}s are present in the list, they will be replaced as content is
- * loaded. If not, newly loaded items will be inserted at the beginning or end of the list.
+ * A PagedList initially presents this first partial load as its content, and expands over time as
+ * content is loaded in. When {@link #loadAround} is called, items will be loaded in near the passed
+ * list index. If placeholder {@code null}s are present in the list, they will be replaced as
+ * content is loaded. If not, newly loaded items will be inserted at the beginning or end of the
+ * list.
  * <p>
  * PagedList can present data for an unbounded, infinite scrolling list, or a very large but
  * countable list. Use {@link Config} to control how many items a PagedList loads, and when.
@@ -91,6 +93,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Placeholders are enabled by default, but can be disabled in two ways. They are disabled if the
  * DataSource does not count its data set in its initial load, or if  {@code false} is passed to
  * {@link Config.Builder#setEnablePlaceholders(boolean)} when building a {@link Config}.
+ * <h4>Mutability and Snapshots</h4>
+ * A PagedList is <em>mutable</em> while loading, or ready to load from its DataSource.
+ * As loads succeed, a mutable PagedList will be updated via Runnables on the main thread. You can
+ * listen to these updates with a {@link Callback}. (Note that {@link PagedListAdapter} will listen
+ * to these to signal RecyclerView about the updates/changes).
+ * <p>
+ * If a PagedList attempts to load from an invalid DataSource, it will {@link #detach()}
+ * from the DataSource, meaning that it will no longer attempt to load data. It will return true
+ * from {@link #isImmutable()}, and a new DataSource / PagedList pair must be created to load
+ * further data. See {@link DataSource} and {@link LivePagedListBuilder} for how new PagedLists are
+ * created to represent changed data.
+ * <p>
+ * A PagedList snapshot is simply an immutable shallow copy of the current state of the PagedList as
+ * a {@code List}. It will reference the same inner items, and contain the same {@code null}
+ * placeholders, if present.
  *
  * @param <T> The type of the entries in the list.
  */
@@ -504,8 +521,12 @@ public abstract class PagedList<T> extends AbstractList<T> {
     }
 
     /**
-     * Returns whether the list is immutable. Immutable lists may not become mutable again, and may
-     * safely be accessed from any thread.
+     * Returns whether the list is immutable.
+     *
+     * Immutable lists may not become mutable again, and may safely be accessed from any thread.
+     * <p>
+     * In the future, this method may return true when a PagedList has completed loading from its
+     * DataSource. Currently, it is equivalent to {@link #isDetached()}.
      *
      * @return True if the PagedList is immutable.
      */
@@ -515,8 +536,10 @@ public abstract class PagedList<T> extends AbstractList<T> {
     }
 
     /**
-     * Returns an immutable snapshot of the PagedList. If this PagedList is already
-     * immutable, it will be returned.
+     * Returns an immutable snapshot of the PagedList in its current state.
+     *
+     * If this PagedList {@link #isImmutable() is immutable} due to its DataSource being invalid, it
+     * will be returned.
      *
      * @return Immutable snapshot of PagedList data.
      */
@@ -557,6 +580,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
     /**
      * True if the PagedList has detached the DataSource it was loading from, and will no longer
      * load new data.
+     * <p>
+     * A detached list is {@link #isImmutable() immutable}.
      *
      * @return True if the data source is detached.
      */
