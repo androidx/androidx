@@ -16,11 +16,13 @@
 
 package android.arch.paging;
 
+import android.arch.core.util.Function;
 import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
@@ -130,10 +132,64 @@ public abstract class DataSource<Key, Value> {
         DataSource<Key, Value> create();
     }
 
+    @NonNull
+    static <X, Y> Function<List<X>, List<Y>> createListFunction(
+            final @NonNull Function<X, Y> innerFunc) {
+        return new Function<List<X>, List<Y>>() {
+            @Override
+            public List<Y> apply(@NonNull List<X> source) {
+                List<Y> out = new ArrayList<>(source.size());
+                for (int i = 0; i < source.size(); i++) {
+                    out.add(innerFunc.apply(source.get(i)));
+                }
+                return out;
+            }
+        };
+    }
+
+    static <A, B> List<B> convert(Function<List<A>, List<B>> function, List<A> source) {
+        List<B> dest = function.apply(source);
+        if (dest.size() != source.size()) {
+            throw new IllegalStateException("Invalid Function " + function
+                    + " changed return size. This is not supported.");
+        }
+        return dest;
+    }
+
     // Since we currently rely on implementation details of two implementations,
     // prevent external subclassing, except through exposed subclasses
     DataSource() {
     }
+
+    /**
+     * Applies the given function to each value emitted by the DataSource.
+     * <p>
+     * Same as {@link #map(Function)}, but allows for batch conversions.
+     *
+     * @param function Function that runs on each loaded page, returning items of a potentially
+     *                  new type.
+     * @param <ToValue> Type of items produced by the new DataSource, from the passed function.
+     *
+     * @return A new DataSource, which loads items produced by the passed function.
+     */
+    @NonNull
+    public abstract <ToValue> DataSource<Key, ToValue> mapByPage(
+            @NonNull Function<List<Value>, List<ToValue>> function);
+
+    /**
+     * Applies the given function to each value emitted by the DataSource.
+     * <p>
+     * Same as {@link #mapByPage(Function)}, but operates on individual items.
+     *
+     * @param function Function that runs on each loaded item, returning items of a potentially
+     *                  new type.
+     * @param <ToValue> Type of items produced by the new DataSource, from the passed function.
+     *
+     * @return A new DataSource, which loads items produced by the passed function.
+     */
+    @NonNull
+    public abstract <ToValue> DataSource<Key, ToValue> map(
+            @NonNull Function<Value, ToValue> function);
 
     /**
      * Returns true if the data source guaranteed to produce a contiguous set of items,
