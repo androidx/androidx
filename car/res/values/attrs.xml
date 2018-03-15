@@ -162,9 +162,6 @@ limitations under the License.
         <!-- An attribute for specifying a style that modifies the look of a PagedListView. -->
         <attr name="pagedListViewStyle" format="reference"/>
 
-        <!-- An attribute for specifying a style that modifies the look of ListItems. -->
-        <attr name="listItemStyle" format="reference"/>
-
         <!-- ================= -->
         <!-- Dialog Attributes -->
         <!-- ================= -->
