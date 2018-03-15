@@ -22,6 +22,7 @@ import android.support.annotation.Nullable;
 class SnapshotPagedList<T> extends PagedList<T> {
     private final boolean mContiguous;
     private final Object mLastKey;
+    private final DataSource<?, T> mDataSource;
 
     SnapshotPagedList(@NonNull PagedList<T> pagedList) {
         super(pagedList.mStorage.snapshot(),
@@ -29,6 +30,7 @@ class SnapshotPagedList<T> extends PagedList<T> {
                 pagedList.mBackgroundThreadExecutor,
                 null,
                 pagedList.mConfig);
+        mDataSource = pagedList.getDataSource();
         mContiguous = pagedList.isContiguous();
         mLastKey = pagedList.getLastKey();
     }
@@ -52,6 +54,12 @@ class SnapshotPagedList<T> extends PagedList<T> {
     @Override
     public Object getLastKey() {
         return mLastKey;
+    }
+
+    @NonNull
+    @Override
+    public DataSource<?, T> getDataSource() {
+        return mDataSource;
     }
 
     @Override
