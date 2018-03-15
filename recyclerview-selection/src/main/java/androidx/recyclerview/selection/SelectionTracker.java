@@ -121,7 +121,7 @@ public abstract class SelectionTracker<K> {
      * of the selection that will not reflect future changes
      * to selection.
      */
-    public abstract Selection getSelection();
+    public abstract Selection<K> getSelection();
 
     /**
      * Updates {@code dest} to reflect the current selection.

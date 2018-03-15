@@ -41,11 +41,11 @@ public class SelectionTest {
             "auth|id=@53di*/f3#d"
     };
 
-    private Selection mSelection;
+    private Selection<String> mSelection;
 
     @Before
     public void setUp() throws Exception {
-        mSelection = new Selection();
+        mSelection = new Selection<>();
         mSelection.add(mIds[0]);
         mSelection.add(mIds[1]);
         mSelection.add(mIds[2]);
@@ -96,14 +96,14 @@ public class SelectionTest {
 
     @Test
     public void testIsEmpty() {
-        assertTrue(new Selection().isEmpty());
+        assertTrue(new Selection<>().isEmpty());
         mSelection.clear();
         assertTrue(mSelection.isEmpty());
     }
 
     @Test
     public void testSize() {
-        Selection other = new Selection();
+        Selection<String> other = new Selection<>();
         for (int i = 0; i < mSelection.size(); i++) {
             other.add(mIds[i]);
         }
@@ -117,7 +117,7 @@ public class SelectionTest {
 
     @Test
     public void testEqualsOther() {
-        Selection other = new Selection();
+        Selection<String> other = new Selection<>();
         other.add(mIds[0]);
         other.add(mIds[1]);
         other.add(mIds[2]);
@@ -127,7 +127,7 @@ public class SelectionTest {
 
     @Test
     public void testEqualsCopy() {
-        Selection other = new Selection();
+        Selection<String> other = new Selection<>();
         other.copyFrom(mSelection);
         assertEquals(mSelection, other);
         assertEquals(mSelection.hashCode(), other.hashCode());
@@ -135,7 +135,7 @@ public class SelectionTest {
 
     @Test
     public void testNotEquals() {
-        Selection other = new Selection();
+        Selection<String> other = new Selection<>();
         other.add("foobar");
         assertFalse(mSelection.equals(other));
     }
