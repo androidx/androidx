@@ -69,6 +69,16 @@ class TiledPagedListTest {
     }
 
     @Test
+    fun getDataSource() {
+        val pagedList = createTiledPagedList(loadPosition = 0, initPageCount = 1)
+        assertTrue(pagedList.dataSource is ListDataSource<Item>)
+
+        // snapshot keeps same DataSource
+        assertSame(pagedList.dataSource,
+                (pagedList.snapshot() as SnapshotPagedList<Item>).dataSource)
+    }
+
+    @Test
     fun initialLoad_onePage() {
         val pagedList = createTiledPagedList(loadPosition = 0, initPageCount = 1)
         verifyLoadedPages(pagedList, 0, 1)
