@@ -255,18 +255,17 @@ class PositionalDataSourceTest {
         protected abstract fun convert(source: List<A>): List<B>
     }
 
-    private class StringWrapper<in A>(source: PositionalDataSource<A>)
+    private class StringWrapperDataSource<in A>(source: PositionalDataSource<A>)
             : WrapperDataSource<A, String>(source) {
         override fun convert(source: List<A>): List<String> {
             return source.map { it.toString() }
         }
     }
 
-    @Test
-    fun simpleWrappedDataSource() {
-        // verify that it's possible to wrap a PositionalDataSource, and transform its data
+    private fun verifyWrappedDataSource(
+            createWrapper: (PositionalDataSource<Int>) -> PositionalDataSource<String>) {
         val orig = ListDataSource(listOf(0, 5, 4, 8, 12))
-        val wrapper = StringWrapper(orig)
+        val wrapper = createWrapper(orig)
 
         // load initial
         @Suppress("UNCHECKED_CAST")
@@ -293,5 +292,20 @@ class PositionalDataSourceTest {
         orig.invalidate()
         verify(invalCallback).onInvalidated()
         verifyNoMoreInteractions(invalCallback)
+    }
+
+    @Test
+    fun testManualWrappedDataSource() = verifyWrappedDataSource {
+        StringWrapperDataSource(it)
+    }
+
+    @Test
+    fun testListConverterWrappedDataSource() = verifyWrappedDataSource {
+        it.mapByPage { it.map { it.toString() } }
+    }
+
+    @Test
+    fun testItemConverterWrappedDataSource() = verifyWrappedDataSource {
+        it.map { it.toString() }
     }
 }
