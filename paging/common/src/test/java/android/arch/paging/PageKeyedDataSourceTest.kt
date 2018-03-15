@@ -214,11 +214,11 @@ class PageKeyedDataSourceTest {
         }
     }
 
-    @Test
-    fun simpleWrappedDataSource() {
+    private fun verifyWrappedDataSource(createWrapper:
+            (PageKeyedDataSource<String, Item>) -> PageKeyedDataSource<String, String>) {
         // verify that it's possible to wrap a PageKeyedDataSource, and add info to its data
         val orig = ItemDataSource(data = PAGE_MAP)
-        val wrapper = StringWrapperDataSource<String, Item>(orig)
+        val wrapper = createWrapper(orig)
 
         // load initial
         @Suppress("UNCHECKED_CAST")
@@ -232,10 +232,10 @@ class PageKeyedDataSourceTest {
                 expectedInitial.prev, expectedInitial.next)
         verifyNoMoreInteractions(loadInitialCallback)
 
-        // load after
         @Suppress("UNCHECKED_CAST")
         val loadCallback = mock(PageKeyedDataSource.LoadCallback::class.java)
                 as PageKeyedDataSource.LoadCallback<String, String>
+        // load after
         wrapper.loadAfter(PageKeyedDataSource.LoadParams(expectedInitial.next!!, 4), loadCallback)
         val expectedAfter = PAGE_MAP.get(expectedInitial.next)!!
         verify(loadCallback).onResult(expectedAfter.data.map { it.toString() },
@@ -247,6 +247,20 @@ class PageKeyedDataSourceTest {
         verify(loadCallback).onResult(expectedInitial.data.map { it.toString() },
                 expectedInitial.prev)
         verifyNoMoreInteractions(loadCallback)
+    }
+
+    @Test
+    fun testManualWrappedDataSource() = verifyWrappedDataSource {
+        StringWrapperDataSource(it)
+    }
+
+    @Test
+    fun testListConverterWrappedDataSource() = verifyWrappedDataSource {
+        it.mapByPage { it.map { it.toString() } }
+    }
+    @Test
+    fun testItemConverterWrappedDataSource() = verifyWrappedDataSource {
+        it.map { it.toString() }
     }
 
     companion object {
