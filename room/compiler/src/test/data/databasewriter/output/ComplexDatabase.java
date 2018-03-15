@@ -100,6 +100,8 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
             super.setTransactionSuccessful();
         } finally {
             super.endTransaction();
+            _db.query("PRAGMA wal_checkpoint(FULL)").close();
+            _db.execSQL("VACUUM");
         }
     }
 
