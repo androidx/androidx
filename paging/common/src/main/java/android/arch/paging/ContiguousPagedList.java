@@ -237,6 +237,12 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         return true;
     }
 
+    @NonNull
+    @Override
+    public DataSource<?, V> getDataSource() {
+        return mDataSource;
+    }
+
     @Nullable
     @Override
     public Object getLastKey() {

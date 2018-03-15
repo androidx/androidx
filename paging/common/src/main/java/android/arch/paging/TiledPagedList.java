@@ -106,6 +106,12 @@ class TiledPagedList<T> extends PagedList<T>
         return false;
     }
 
+    @NonNull
+    @Override
+    public DataSource<?, T> getDataSource() {
+        return mDataSource;
+    }
+
     @Nullable
     @Override
     public Object getLastKey() {
