@@ -55,7 +55,7 @@ public class TextListItemActivity extends Activity {
 
         SampleProvider provider = new SampleProvider(this);
         ListItemAdapter adapter = new ListItemAdapter(this, provider,
-                ListItemAdapter.BackgroundStyle.PANEL);
+                ListItemAdapter.BackgroundStyle.NONE);
 
         final boolean[] hideDivider = {true};
         // Demonstrate how to update list item post construction.
