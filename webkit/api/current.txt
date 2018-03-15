@@ -20,5 +20,10 @@ package androidx.webkit {
     method public abstract void onComplete(long);
   }
 
+  public class WebViewFeature {
+    method public static boolean isFeatureSupported(java.lang.String);
+    field public static final java.lang.String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
+  }
+
 }
 

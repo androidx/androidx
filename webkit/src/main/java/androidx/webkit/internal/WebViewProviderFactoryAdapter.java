@@ -63,4 +63,11 @@ public class WebViewProviderFactoryAdapter {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 StaticsBoundaryInterface.class, mImpl.getStatics());
     }
+
+    /**
+     * Adapter method for fetching the features supported by the current WebView APK.
+     */
+    public String[] getWebViewFeatures() {
+        return mImpl.getSupportedFeatures();
+    }
 }
