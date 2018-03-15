@@ -2126,7 +2126,7 @@ public class NotificationCompat {
         CharSequence mUserDisplayName;
         @Nullable CharSequence mConversationTitle;
         List<Message> mMessages = new ArrayList<>();
-        boolean mIsGroupConversation;
+        @Nullable Boolean mIsGroupConversation;
 
         MessagingStyle() {
         }
@@ -2154,9 +2154,9 @@ public class NotificationCompat {
          * <p>This API's behavior was changed in SDK version {@link Build.VERSION_CODES#P}. If your
          * application's target version is less than {@link Build.VERSION_CODES#P}, setting a
          * conversation title to a non-null value will make {@link #isGroupConversation()} return
-         * {@code true} and passing {@code null} will make it return {@code false}. In
-         * {@link Build.VERSION_CODES#P} and beyond, use {@link #setGroupConversation(boolean)}
-         * to set group conversation status.
+         * {@code true} and passing {@code null} will make it return {@code false}. This behavior
+         * can be overridden by calling {@link #setGroupConversation(boolean)} regardless of SDK
+         * version. In {@code P} and above, this method does not affect group conversation settings.
          *
          * @param conversationTitle Title displayed for this conversation
          * @return this object for method chaining
@@ -2233,24 +2233,28 @@ public class NotificationCompat {
          * {@code false}.
          *
          * <p> If the application that generated this {@link MessagingStyle} targets an SDK version
-         * less than {@link Build.VERSION_CODES#P}, this method becomes dependent on whether or
-         * not the conversation title is set; returning {@code true} if the conversation title is
-         * a non-null value, or {@code false} otherwise. From {@link Build.VERSION_CODES#P} forward,
-         * this method returns what's set by {@link #setGroupConversation(boolean)} allowing for
-         * named, non-group conversations.
+         * less than {@link Build.VERSION_CODES#P} and {@link #setGroupConversation(boolean)}
+         * was not called, this method becomes dependent on whether or not the conversation title is
+         * set; returning {@code true} if the conversation title is a non-null value, or
+         * {@code false} otherwise. This is to maintain backwards compatibility. Regardless, {@link
+         * #setGroupConversation(boolean)} has precedence over this legacy behavior. From {@code P}
+         * forward, {@link #setConversationTitle(CharSequence)} has no affect on group conversation
+         * status.
          *
          * @see #setConversationTitle(CharSequence)
          */
         public boolean isGroupConversation() {
-            // When target SDK version is < P, a non-null conversation title dictates if this is
-            // as group conversation.
+            // When target SDK version is < P and the app didn't explicitly set isGroupConversation,
+            // a non-null conversation title dictates if this is a group conversation.
             if (mBuilder != null
                     && mBuilder.mContext.getApplicationInfo().targetSdkVersion
-                    < Build.VERSION_CODES.P) {
+                    < Build.VERSION_CODES.P
+                    && mIsGroupConversation == null) {
                 return mConversationTitle != null;
             }
 
-            return mIsGroupConversation;
+            // Default to false if not set.
+            return (mIsGroupConversation != null) ? mIsGroupConversation : false;
         }
 
         /**
@@ -2398,10 +2402,13 @@ public class NotificationCompat {
             if (mConversationTitle != null) {
                 extras.putCharSequence(EXTRA_CONVERSATION_TITLE, mConversationTitle);
             }
-            if (!mMessages.isEmpty()) { extras.putParcelableArray(EXTRA_MESSAGES,
-                    Message.getBundleArrayForMessages(mMessages));
+            if (!mMessages.isEmpty()) {
+                extras.putParcelableArray(
+                        EXTRA_MESSAGES, Message.getBundleArrayForMessages(mMessages));
             }
-            extras.putBoolean(EXTRA_IS_GROUP_CONVERSATION, mIsGroupConversation);
+            if (mIsGroupConversation != null) {
+                extras.putBoolean(EXTRA_IS_GROUP_CONVERSATION, mIsGroupConversation);
+            }
         }
 
         /**
@@ -2417,7 +2424,9 @@ public class NotificationCompat {
             if (parcelables != null) {
                 mMessages = Message.getMessagesFromBundleArray(parcelables);
             }
-            mIsGroupConversation = extras.getBoolean(EXTRA_IS_GROUP_CONVERSATION);
+            if (extras.containsKey(EXTRA_IS_GROUP_CONVERSATION)) {
+                mIsGroupConversation = extras.getBoolean(EXTRA_IS_GROUP_CONVERSATION);
+            }
         }
 
         public static final class Message {
