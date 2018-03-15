@@ -19,6 +19,7 @@ package android.arch.paging
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -156,6 +157,16 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
     fun construct() {
         val pagedList = createCountedPagedList(0)
         verifyRange(0, 40, pagedList)
+    }
+
+    @Test
+    fun getDataSource() {
+        val pagedList = createCountedPagedList(0)
+        assertTrue(pagedList.dataSource is TestSource)
+
+        // snapshot keeps same DataSource
+        assertSame(pagedList.dataSource,
+                (pagedList.snapshot() as SnapshotPagedList<Item>).dataSource)
     }
 
     private fun verifyCallback(callback: PagedList.Callback, countedPosition: Int,
