@@ -204,7 +204,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * @param <Value> Type of items held and loaded by the PagedList.
      */
     @SuppressWarnings("WeakerAccess")
-    public static class Builder<Key, Value> {
+    public static final class Builder<Key, Value> {
         private final DataSource<Key, Value> mDataSource;
         private final Config mConfig;
         private Executor mMainThreadExecutor;
@@ -782,7 +782,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
          * <p>
          * You must at minimum specify page size with {@link #setPageSize(int)}.
          */
-        public static class Builder {
+        public static final class Builder {
             private int mPageSize = -1;
             private int mPrefetchDistance = -1;
             private int mInitialLoadSizeHint = -1;
