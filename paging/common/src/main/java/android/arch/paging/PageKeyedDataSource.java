@@ -16,6 +16,7 @@
 
 package android.arch.paging;
 
+import android.arch.core.util.Function;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -407,4 +408,18 @@ public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSour
      */
     public abstract void loadAfter(@NonNull LoadParams<Key> params,
             @NonNull LoadCallback<Key, Value> callback);
+
+    @NonNull
+    @Override
+    public final <ToValue> PageKeyedDataSource<Key, ToValue> mapByPage(
+            @NonNull Function<List<Value>, List<ToValue>> function) {
+        return new WrapperPageKeyedDataSource<>(this, function);
+    }
+
+    @NonNull
+    @Override
+    public final <ToValue> PageKeyedDataSource<Key, ToValue> map(
+            @NonNull Function<Value, ToValue> function) {
+        return mapByPage(createListFunction(function));
+    }
 }
