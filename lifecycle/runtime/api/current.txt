@@ -10,7 +10,7 @@ package android.arch.lifecycle {
     method public void removeObserver(android.arch.lifecycle.LifecycleObserver);
   }
 
-  public abstract interface LifecycleRegistryOwner implements android.arch.lifecycle.LifecycleOwner {
+  public abstract deprecated interface LifecycleRegistryOwner implements android.arch.lifecycle.LifecycleOwner {
     method public abstract android.arch.lifecycle.LifecycleRegistry getLifecycle();
   }
 
