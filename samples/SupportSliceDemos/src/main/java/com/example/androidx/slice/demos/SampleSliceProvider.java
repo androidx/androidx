@@ -293,7 +293,8 @@ public class SampleSliceProvider extends SliceProvider {
                 DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
                 "See contact info"), Icon.createWithResource(getContext(),
-                R.drawable.mady), "Mady");
+                R.drawable.mady), SMALL_IMAGE, "Mady");
+
         return new ListBuilder(getContext(), sliceUri)
                 .setColor(0xff3949ab)
                 .setHeader(b -> b

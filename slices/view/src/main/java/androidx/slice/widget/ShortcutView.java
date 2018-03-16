@@ -39,9 +39,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
-import androidx.annotation.RestrictTo;
 import android.widget.ImageView;
 
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
@@ -141,15 +141,15 @@ public class ShortcutView extends SliceChildView {
      * Looks at the slice and determines which items are best to use to compose the shortcut.
      */
     private void determineShortcutItems(Context context, Slice slice) {
-        SliceItem titleItem = SliceQuery.find(slice, FORMAT_ACTION,
-                HINT_TITLE, null);
+        ListContent lc = new ListContent(context, slice);
+        SliceItem primaryAction = lc.getPrimaryAction();
 
-        if (titleItem != null) {
-            // Preferred case: hinted action containing hinted image and text
-            mActionItem = titleItem;
-            mIcon = SliceQuery.find(titleItem.getSlice(), FORMAT_IMAGE, HINT_TITLE,
+        if (primaryAction != null) {
+            // Preferred case: slice has a primary action
+            mActionItem = primaryAction.getSlice().getItems().get(0);
+            mIcon = SliceQuery.find(primaryAction.getSlice(), FORMAT_IMAGE, (String) null,
                     null);
-            mLabel = SliceQuery.find(titleItem.getSlice(), FORMAT_TEXT, HINT_TITLE,
+            mLabel = SliceQuery.find(primaryAction.getSlice(), FORMAT_TEXT, (String) null,
                     null);
         } else {
             // No hinted action; just use the first one

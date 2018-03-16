@@ -16,21 +16,24 @@
 
 package androidx.slice.builders;
 
+import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_SELECTED;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 import static android.app.slice.Slice.SUBTYPE_PRIORITY;
 import static android.app.slice.Slice.SUBTYPE_TOGGLE;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
+
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-
 import androidx.slice.Slice;
 
 /**
@@ -40,6 +43,7 @@ public class SliceAction {
 
     private PendingIntent mAction;
     private Icon mIcon;
+    private int mImageMode;
     private CharSequence mTitle;
     private CharSequence mContentDescription;
     private boolean mIsToggle;
@@ -56,9 +60,32 @@ public class SliceAction {
      */
     public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
             @NonNull CharSequence actionTitle) {
+        this(action, actionIcon, ICON_IMAGE, actionTitle);
+    }
+
+    /**
+     * Construct a SliceAction representing a tappable icon. Use this method to specify the
+     * format of the image, {@link ListBuilder#ICON_IMAGE} will be presented as a tintable icon.
+     * Note that there is no difference between {@link ListBuilder#SMALL_IMAGE} and
+     * {@link ListBuilder#LARGE_IMAGE} for actions; these will just be represented as an
+     * non-tintable image.
+     *
+     * @param action the pending intent to invoke for this action.
+     * @param actionIcon the icon to display for this action.
+     * @param imageMode the mode this icon should be displayed in.
+     * @param actionTitle the title for this action, also used for content description if one hasn't
+     *                    been set via {@link #setContentDescription(CharSequence)}.
+     *
+     * @see ListBuilder#ICON_IMAGE
+     * @see ListBuilder#SMALL_IMAGE
+     * @see ListBuilder#LARGE_IMAGE
+     */
+    public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+            @ListBuilder.ImageMode int imageMode, @NonNull CharSequence actionTitle) {
         mAction = action;
         mIcon = actionIcon;
         mTitle = actionTitle;
+        mImageMode = imageMode;
     }
 
     /**
@@ -73,7 +100,7 @@ public class SliceAction {
      */
     public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
             @NonNull CharSequence actionTitle, boolean isChecked) {
-        this(action, actionIcon, actionTitle);
+        this(action, actionIcon, ICON_IMAGE, actionTitle);
         mIsChecked = isChecked;
         mIsToggle = true;
     }
@@ -194,7 +221,10 @@ public class SliceAction {
     public Slice buildSlice(@NonNull Slice.Builder builder) {
         Slice.Builder sb = new Slice.Builder(builder);
         if (mIcon != null) {
-            sb.addIcon(mIcon, null);
+            @Slice.SliceHint String[] hints = mImageMode == ICON_IMAGE
+                    ? new String[] {}
+                    : new String[] {HINT_NO_TINT};
+            sb.addIcon(mIcon, null, hints);
         }
         if (mTitle != null) {
             sb.addText(mTitle, null, HINT_TITLE);

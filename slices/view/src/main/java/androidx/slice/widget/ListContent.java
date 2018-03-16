@@ -31,9 +31,6 @@ import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
 
 import android.content.Context;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -41,6 +38,9 @@ import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceUtils;
 import androidx.slice.core.SliceQuery;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Extracts information required to present content in a list format from a slice.
@@ -206,6 +206,15 @@ public class ListContent {
      */
     public boolean hasHeader() {
         return mHeaderItem != null && isValidHeader(mHeaderItem);
+    }
+
+    /**
+     * @return the primary action for this list; i.e. action on the header or first row.
+     */
+    @Nullable
+    public SliceItem getPrimaryAction() {
+        RowContent rc = new RowContent(mContext, mHeaderItem, false);
+        return rc.getPrimaryAction();
     }
 
     @Nullable

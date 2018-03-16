@@ -34,14 +34,14 @@ import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 
-import java.util.Arrays;
-
 import androidx.slice.Slice;
 import androidx.slice.builders.GridBuilder;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.MessagingSliceBuilder;
 import androidx.slice.builders.SliceAction;
 import androidx.slice.view.test.R;
+
+import java.util.Arrays;
 
 /**
  * Examples of using slice template builders.
@@ -220,13 +220,15 @@ public class SliceCreator {
     private Slice createContact(Uri sliceUri) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri);
         ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(b);
+        SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
+                "See contact info"), Icon.createWithResource(getContext(),
+                R.drawable.mady), SMALL_IMAGE, "Mady");
         GridBuilder gb = new GridBuilder(b);
         return b.setColor(0xff3949ab)
                 .addRow(rb
                         .setTitle("Mady Pitza")
                         .setSubtitle("Frequently contacted contact")
-                        .addEndItem(Icon.createWithResource(getContext(), R.drawable.mady),
-                        SMALL_IMAGE))
+                        .addEndItem(primaryAction))
                 .addGrid(gb
                         .addCell(new GridBuilder.CellBuilder(gb)
                             .addImage(Icon.createWithResource(getContext(), R.drawable.ic_call),
