@@ -52,4 +52,8 @@ class StringPagedList constructor(leadingNulls: Int, trailingNulls: Int, vararg 
     override fun onPagePlaceholderInserted(pageIndex: Int) {}
 
     override fun onPageInserted(start: Int, count: Int) {}
+
+    override fun getDataSource(): DataSource<*, String> {
+        throw UnsupportedOperationException()
+    }
 }
