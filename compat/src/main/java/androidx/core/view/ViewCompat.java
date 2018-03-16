@@ -447,11 +447,12 @@ public class ViewCompat {
     private static Field sMinHeightField;
     private static boolean sMinHeightFieldFetched;
 
+    private static Method sDispatchStartTemporaryDetach;
+    private static Method sDispatchFinishTemporaryDetach;
+    private static boolean sTempDetachBound;
+
     static class ViewCompatBaseImpl {
         private static WeakHashMap<View, String> sTransitionNameMap;
-        private Method mDispatchStartTemporaryDetach;
-        private Method mDispatchFinishTemporaryDetach;
-        private boolean mTempDetachBound;
         WeakHashMap<View, ViewPropertyAnimatorCompat> mViewPropertyAnimatorCompatMap = null;
         private static Method sChildrenDrawingOrderMethod;
         static Field sAccessibilityDelegateField;
@@ -492,66 +493,8 @@ public class ViewCompat {
             v.onInitializeAccessibilityNodeInfo(info.unwrap());
         }
 
-        @SuppressWarnings("deprecation")
-        public boolean startDragAndDrop(View v, ClipData data, View.DragShadowBuilder shadowBuilder,
-                Object localState, int flags) {
-            return v.startDrag(data, shadowBuilder, localState, flags);
-        }
-
-        public void cancelDragAndDrop(View v) {
-            // no-op
-        }
-
-        public void updateDragShadow(View v, View.DragShadowBuilder shadowBuilder) {
-            // no-op
-        }
-
         public boolean isImportantForAccessibility(View view) {
             return true;
-        }
-
-        public void dispatchStartTemporaryDetach(View view) {
-            if (!mTempDetachBound) {
-                bindTempDetach();
-            }
-            if (mDispatchStartTemporaryDetach != null) {
-                try {
-                    mDispatchStartTemporaryDetach.invoke(view);
-                } catch (Exception e) {
-                    Log.d(TAG, "Error calling dispatchStartTemporaryDetach", e);
-                }
-            } else {
-                // Try this instead
-                view.onStartTemporaryDetach();
-            }
-        }
-
-        public void dispatchFinishTemporaryDetach(View view) {
-            if (!mTempDetachBound) {
-                bindTempDetach();
-            }
-            if (mDispatchFinishTemporaryDetach != null) {
-                try {
-                    mDispatchFinishTemporaryDetach.invoke(view);
-                } catch (Exception e) {
-                    Log.d(TAG, "Error calling dispatchFinishTemporaryDetach", e);
-                }
-            } else {
-                // Try this instead
-                view.onFinishTemporaryDetach();
-            }
-        }
-
-        private void bindTempDetach() {
-            try {
-                mDispatchStartTemporaryDetach = View.class.getDeclaredMethod(
-                        "dispatchStartTemporaryDetach");
-                mDispatchFinishTemporaryDetach = View.class.getDeclaredMethod(
-                        "dispatchFinishTemporaryDetach");
-            } catch (NoSuchMethodException e) {
-                Log.e(TAG, "Couldn't find method", e);
-            }
-            mTempDetachBound = true;
         }
 
         public ViewPropertyAnimatorCompat animate(View view) {
@@ -767,10 +710,6 @@ public class ViewCompat {
             final float y = view.getTranslationY();
             view.setTranslationY(y + 1);
             view.setTranslationY(y);
-        }
-
-        public void setPointerIcon(View view, PointerIconCompat pointerIcon) {
-            // no-op
         }
 
         public void setTooltipText(View view, CharSequence tooltipText) {
@@ -1111,43 +1050,8 @@ public class ViewCompat {
         }
     }
 
-    @RequiresApi(24)
-    static class ViewCompatApi24Impl extends ViewCompatApi23Impl {
-        @Override
-        public void dispatchStartTemporaryDetach(View view) {
-            view.dispatchStartTemporaryDetach();
-        }
-
-        @Override
-        public void dispatchFinishTemporaryDetach(View view) {
-            view.dispatchFinishTemporaryDetach();
-        }
-
-        @Override
-        public void setPointerIcon(View view, PointerIconCompat pointerIconCompat) {
-            view.setPointerIcon((PointerIcon) (pointerIconCompat != null
-                    ? pointerIconCompat.getPointerIcon() : null));
-        }
-
-        @Override
-        public boolean startDragAndDrop(View view, ClipData data,
-                View.DragShadowBuilder shadowBuilder, Object localState, int flags) {
-            return view.startDragAndDrop(data, shadowBuilder, localState, flags);
-        }
-
-        @Override
-        public void cancelDragAndDrop(View view) {
-            view.cancelDragAndDrop();
-        }
-
-        @Override
-        public void updateDragShadow(View view, View.DragShadowBuilder shadowBuilder) {
-            view.updateDragShadow(shadowBuilder);
-        }
-    }
-
     @RequiresApi(26)
-    static class ViewCompatApi26Impl extends ViewCompatApi24Impl {
+    static class ViewCompatApi26Impl extends ViewCompatApi23Impl {
 
         @Override
         public void setAutofillHints(@NonNull View v, @Nullable String... autofillHints) {
@@ -1231,8 +1135,6 @@ public class ViewCompat {
     static {
         if (Build.VERSION.SDK_INT >= 26) {
             IMPL = new ViewCompatApi26Impl();
-        } else if (Build.VERSION.SDK_INT >= 24) {
-            IMPL = new ViewCompatApi24Impl();
         } else if (Build.VERSION.SDK_INT >= 23) {
             IMPL = new ViewCompatApi23Impl();
         } else if (Build.VERSION.SDK_INT >= 21) {
@@ -2291,18 +2193,62 @@ public class ViewCompat {
         }
     }
 
+    private static void bindTempDetach() {
+        try {
+            sDispatchStartTemporaryDetach = View.class.getDeclaredMethod(
+                    "dispatchStartTemporaryDetach");
+            sDispatchFinishTemporaryDetach = View.class.getDeclaredMethod(
+                    "dispatchFinishTemporaryDetach");
+        } catch (NoSuchMethodException e) {
+            Log.e(TAG, "Couldn't find method", e);
+        }
+        sTempDetachBound = true;
+    }
+
     /**
      * Notify a view that it is being temporarily detached.
      */
     public static void dispatchStartTemporaryDetach(@NonNull View view) {
-        IMPL.dispatchStartTemporaryDetach(view);
+        if (Build.VERSION.SDK_INT >= 24) {
+            view.dispatchStartTemporaryDetach();
+        } else {
+            if (!sTempDetachBound) {
+                bindTempDetach();
+            }
+            if (sDispatchStartTemporaryDetach != null) {
+                try {
+                    sDispatchStartTemporaryDetach.invoke(view);
+                } catch (Exception e) {
+                    Log.d(TAG, "Error calling dispatchStartTemporaryDetach", e);
+                }
+            } else {
+                // Try this instead
+                view.onStartTemporaryDetach();
+            }
+        }
     }
 
     /**
      * Notify a view that its temporary detach has ended; the view is now reattached.
      */
     public static void dispatchFinishTemporaryDetach(@NonNull View view) {
-        IMPL.dispatchFinishTemporaryDetach(view);
+        if (Build.VERSION.SDK_INT >= 24) {
+            view.dispatchFinishTemporaryDetach();
+        } else {
+            if (!sTempDetachBound) {
+                bindTempDetach();
+            }
+            if (sDispatchFinishTemporaryDetach != null) {
+                try {
+                    sDispatchFinishTemporaryDetach.invoke(view);
+                } catch (Exception e) {
+                    Log.d(TAG, "Error calling dispatchFinishTemporaryDetach", e);
+                }
+            } else {
+                // Try this instead
+                view.onFinishTemporaryDetach();
+            }
+        }
     }
 
     /**
@@ -3535,7 +3481,10 @@ public class ViewCompat {
      * @param pointerIcon A PointerIconCompat instance which will be shown when the mouse hovers.
      */
     public static void setPointerIcon(@NonNull View view, PointerIconCompat pointerIcon) {
-        IMPL.setPointerIcon(view, pointerIcon);
+        if (Build.VERSION.SDK_INT >= 24) {
+            view.setPointerIcon((PointerIcon) (pointerIcon != null
+                    ? pointerIcon.getPointerIcon() : null));
+        }
     }
 
     /**
@@ -3578,21 +3527,29 @@ public class ViewCompat {
      */
     public static boolean startDragAndDrop(@NonNull View v, ClipData data,
             View.DragShadowBuilder shadowBuilder, Object localState, int flags) {
-        return IMPL.startDragAndDrop(v, data, shadowBuilder, localState, flags);
+        if (Build.VERSION.SDK_INT >= 24) {
+            return v.startDragAndDrop(data, shadowBuilder, localState, flags);
+        } else {
+            return v.startDrag(data, shadowBuilder, localState, flags);
+        }
     }
 
     /**
      * Cancel the drag and drop operation.
      */
     public static void cancelDragAndDrop(@NonNull View v) {
-        IMPL.cancelDragAndDrop(v);
+        if (Build.VERSION.SDK_INT >= 24) {
+            v.cancelDragAndDrop();
+        }
     }
 
     /**
      * Update the drag shadow while drag and drop is in progress.
      */
     public static void updateDragShadow(@NonNull View v, View.DragShadowBuilder shadowBuilder) {
-        IMPL.updateDragShadow(v, shadowBuilder);
+        if (Build.VERSION.SDK_INT >= 24) {
+            v.updateDragShadow(shadowBuilder);
+        }
     }
 
     /**
