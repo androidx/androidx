@@ -537,9 +537,6 @@ public class ViewCompat {
             return 0;
         }
 
-        public void setImportantForAccessibility(View view, int mode) {
-        }
-
         public boolean isImportantForAccessibility(View view) {
             return true;
         }
@@ -577,14 +574,6 @@ public class ViewCompat {
 
         public ViewParent getParentForAccessibility(View view) {
             return view.getParent();
-        }
-
-        public int getAccessibilityLiveRegion(View view) {
-            return ACCESSIBILITY_LIVE_REGION_NONE;
-        }
-
-        public void setAccessibilityLiveRegion(View view, int mode) {
-            // No-op
         }
 
         public int getPaddingStart(View view) {
@@ -877,24 +866,12 @@ public class ViewCompat {
             return false;
         }
 
-        public boolean isLaidOut(View view) {
-            return view.getWidth() > 0 && view.getHeight() > 0;
-        }
-
-        public boolean isLayoutDirectionResolved(View view) {
-            return false;
-        }
-
         public float getZ(View view) {
             return getTranslationZ(view) + getElevation(view);
         }
 
         public void setZ(View view, float z) {
             // no-op
-        }
-
-        public boolean isAttachedToWindow(View view) {
-            return view.getWindowToken() != null;
         }
 
         public int getScrollIndicators(View view) {
@@ -1057,17 +1034,6 @@ public class ViewCompat {
             return view.getImportantForAccessibility();
         }
         @Override
-        public void setImportantForAccessibility(View view, int mode) {
-            // IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS is not available
-            // on this platform so replace with IMPORTANT_FOR_ACCESSIBILITY_NO
-            // which is closer semantically.
-            if (mode == IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
-                mode = IMPORTANT_FOR_ACCESSIBILITY_NO;
-            }
-            //noinspection WrongConstant
-            view.setImportantForAccessibility(mode);
-        }
-        @Override
         public boolean performAccessibilityAction(View view, int action, Bundle arguments) {
             return view.performAccessibilityAction(action, arguments);
         }
@@ -1181,41 +1147,8 @@ public class ViewCompat {
         }
     }
 
-    @RequiresApi(19)
-    static class ViewCompatApi19Impl extends ViewCompatApi17Impl {
-        @Override
-        public int getAccessibilityLiveRegion(View view) {
-            return view.getAccessibilityLiveRegion();
-        }
-
-        @Override
-        public void setAccessibilityLiveRegion(View view, int mode) {
-            view.setAccessibilityLiveRegion(mode);
-        }
-
-        @Override
-        public void setImportantForAccessibility(View view, int mode) {
-            view.setImportantForAccessibility(mode);
-        }
-
-        @Override
-        public boolean isLaidOut(View view) {
-            return view.isLaidOut();
-        }
-
-        @Override
-        public boolean isLayoutDirectionResolved(View view) {
-            return view.isLayoutDirectionResolved();
-        }
-
-        @Override
-        public boolean isAttachedToWindow(View view) {
-            return view.isAttachedToWindow();
-        }
-    }
-
     @RequiresApi(21)
-    static class ViewCompatApi21Impl extends ViewCompatApi19Impl {
+    static class ViewCompatApi21Impl extends ViewCompatApi17Impl {
         private static ThreadLocal<Rect> sThreadLocalRect;
 
         @Override
@@ -1624,8 +1557,6 @@ public class ViewCompat {
             IMPL = new ViewCompatApi23Impl();
         } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new ViewCompatApi21Impl();
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            IMPL = new ViewCompatApi19Impl();
         } else if (Build.VERSION.SDK_INT >= 17) {
             IMPL = new ViewCompatApi17Impl();
         } else if (Build.VERSION.SDK_INT >= 16) {
@@ -2124,7 +2055,18 @@ public class ViewCompat {
      */
     public static void setImportantForAccessibility(@NonNull View view,
             @ImportantForAccessibility int mode) {
-        IMPL.setImportantForAccessibility(view, mode);
+        if (Build.VERSION.SDK_INT >= 19) {
+            view.setImportantForAccessibility(mode);
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            // IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS is not available
+            // on this platform so replace with IMPORTANT_FOR_ACCESSIBILITY_NO
+            // which is closer semantically.
+            if (mode == IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
+                mode = IMPORTANT_FOR_ACCESSIBILITY_NO;
+            }
+            //noinspection WrongConstant
+            view.setImportantForAccessibility(mode);
+        }
     }
 
     /**
@@ -2526,8 +2468,10 @@ public class ViewCompat {
      */
     @AccessibilityLiveRegion
     public static int getAccessibilityLiveRegion(@NonNull View view) {
-        //noinspection ResourceType
-        return IMPL.getAccessibilityLiveRegion(view);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return view.getAccessibilityLiveRegion();
+        }
+        return ACCESSIBILITY_LIVE_REGION_NONE;
     }
 
     /**
@@ -2560,7 +2504,9 @@ public class ViewCompat {
      */
     public static void setAccessibilityLiveRegion(@NonNull View view,
             @AccessibilityLiveRegion int mode) {
-        IMPL.setAccessibilityLiveRegion(view, mode);
+        if (Build.VERSION.SDK_INT >= 19) {
+            view.setAccessibilityLiveRegion(mode);
+        }
     }
 
     /**
@@ -3594,7 +3540,10 @@ public class ViewCompat {
      * was last attached to or detached from a window.
      */
     public static boolean isLaidOut(@NonNull View view) {
-        return IMPL.isLaidOut(view);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return view.isLaidOut();
+        }
+        return view.getWidth() > 0 && view.getHeight() > 0;
     }
 
     /**
@@ -3608,7 +3557,10 @@ public class ViewCompat {
      * @return true if layout direction has been resolved.
      */
     public static boolean isLayoutDirectionResolved(@NonNull View view) {
-        return IMPL.isLayoutDirectionResolved(view);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return view.isLayoutDirectionResolved();
+        }
+        return false;
     }
 
     /**
@@ -3693,7 +3645,10 @@ public class ViewCompat {
      * Returns true if the provided view is currently attached to a window.
      */
     public static boolean isAttachedToWindow(@NonNull View view) {
-        return IMPL.isAttachedToWindow(view);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return view.isAttachedToWindow();
+        }
+        return view.getWindowToken() != null;
     }
 
     /**
