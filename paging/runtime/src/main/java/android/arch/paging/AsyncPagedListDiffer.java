@@ -16,6 +16,7 @@
 
 package android.arch.paging;
 
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,6 +25,8 @@ import android.support.v7.util.AdapterListUpdateCallback;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 import android.support.v7.widget.RecyclerView;
+
+import java.util.concurrent.Executor;
 
 /**
  * Helper object for mapping a {@link PagedList} into a
@@ -115,6 +118,9 @@ public class AsyncPagedListDiffer<T> {
     // this ensures Adapter#notifyItemRangeInserted etc are accessing the new data
     private final ListUpdateCallback mUpdateCallback;
     private final AsyncDifferConfig<T> mConfig;
+
+    @SuppressWarnings("RestrictedApi")
+    Executor mMainThreadExecutor = ArchTaskExecutor.getMainThreadExecutor();
 
     // TODO: REAL API
     interface PagedListListener<T> {
@@ -287,7 +293,6 @@ public class AsyncPagedListDiffer<T> {
         final PagedList<T> newSnapshot = (PagedList<T>) pagedList.snapshot();
         mConfig.getBackgroundThreadExecutor().execute(new Runnable() {
             @Override
-            @SuppressWarnings("RestrictedApi")
             public void run() {
                 final DiffUtil.DiffResult result;
                 result = PagedStorageDiffHelper.computeDiff(
@@ -295,7 +300,7 @@ public class AsyncPagedListDiffer<T> {
                         newSnapshot.mStorage,
                         mConfig.getDiffCallback());
 
-                mConfig.getMainThreadExecutor().execute(new Runnable() {
+                mMainThreadExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         if (mMaxScheduledGeneration == runGeneration) {

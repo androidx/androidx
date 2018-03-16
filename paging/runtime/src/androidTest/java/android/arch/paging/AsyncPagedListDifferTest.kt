@@ -16,6 +16,7 @@
 
 package android.arch.paging
 
+import android.arch.core.executor.ArchTaskExecutor
 import android.support.test.filters.SmallTest
 import android.support.v7.recyclerview.extensions.AsyncDifferConfig
 import android.support.v7.util.DiffUtil
@@ -41,13 +42,16 @@ class AsyncPagedListDifferTest {
     private val mDiffThread = TestExecutor()
     private val mPageLoadingThread = TestExecutor()
 
-    private fun <T> createHelper(listUpdateCallback: ListUpdateCallback,
+    private fun <T> createDiffer(listUpdateCallback: ListUpdateCallback,
                                  diffCallback: DiffUtil.ItemCallback<T>): AsyncPagedListDiffer<T> {
-        return AsyncPagedListDiffer(listUpdateCallback,
+        val differ = AsyncPagedListDiffer(listUpdateCallback,
                 AsyncDifferConfig.Builder<T>(diffCallback)
-                        .setMainThreadExecutor(mMainThread)
                         .setBackgroundThreadExecutor(mDiffThread)
                         .build())
+        // by default, use ArchExecutor
+        assertEquals(differ.mMainThreadExecutor, ArchTaskExecutor.getMainThreadExecutor())
+        differ.mMainThreadExecutor = mMainThread
+        return differ
     }
 
     private fun <V> createPagedListFromListAndPos(
@@ -62,21 +66,21 @@ class AsyncPagedListDifferTest {
     @Test
     fun initialState() {
         val callback = mock(ListUpdateCallback::class.java)
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
-        assertEquals(null, helper.currentList)
-        assertEquals(0, helper.itemCount)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        assertEquals(null, differ.currentList)
+        assertEquals(0, differ.itemCount)
         verifyZeroInteractions(callback)
     }
 
     @Test
     fun setFullList() {
         val callback = mock(ListUpdateCallback::class.java)
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
-        helper.submitList(StringPagedList(0, 0, "a", "b"))
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        differ.submitList(StringPagedList(0, 0, "a", "b"))
 
-        assertEquals(2, helper.itemCount)
-        assertEquals("a", helper.getItem(0))
-        assertEquals("b", helper.getItem(1))
+        assertEquals(2, differ.itemCount)
+        assertEquals("a", differ.getItem(0))
+        assertEquals("b", differ.getItem(1))
 
         verify(callback).onInserted(0, 2)
         verifyNoMoreInteractions(callback)
@@ -86,43 +90,43 @@ class AsyncPagedListDifferTest {
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getEmpty() {
-        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.getItem(0)
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        differ.getItem(0)
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getNegative() {
-        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.submitList(StringPagedList(0, 0, "a", "b"))
-        helper.getItem(-1)
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        differ.submitList(StringPagedList(0, 0, "a", "b"))
+        differ.getItem(-1)
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
     fun getPastEnd() {
-        val helper = createHelper(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
-        helper.submitList(StringPagedList(0, 0, "a", "b"))
-        helper.getItem(2)
+        val differ = createDiffer(IGNORE_CALLBACK, STRING_DIFF_CALLBACK)
+        differ.submitList(StringPagedList(0, 0, "a", "b"))
+        differ.getItem(2)
     }
 
     @Test
     fun simpleStatic() {
         val callback = mock(ListUpdateCallback::class.java)
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
 
-        assertEquals(0, helper.itemCount)
+        assertEquals(0, differ.itemCount)
 
-        helper.submitList(StringPagedList(2, 2, "a", "b"))
+        differ.submitList(StringPagedList(2, 2, "a", "b"))
 
         verify(callback).onInserted(0, 6)
         verifyNoMoreInteractions(callback)
-        assertEquals(6, helper.itemCount)
+        assertEquals(6, differ.itemCount)
 
-        assertNull(helper.getItem(0))
-        assertNull(helper.getItem(1))
-        assertEquals("a", helper.getItem(2))
-        assertEquals("b", helper.getItem(3))
-        assertNull(helper.getItem(4))
-        assertNull(helper.getItem(5))
+        assertNull(differ.getItem(0))
+        assertNull(differ.getItem(1))
+        assertEquals("a", differ.getItem(2))
+        assertEquals("b", differ.getItem(3))
+        assertNull(differ.getItem(4))
+        assertNull(differ.getItem(5))
     }
 
     @Test
@@ -134,29 +138,29 @@ class AsyncPagedListDifferTest {
                 .build()
 
         val callback = mock(ListUpdateCallback::class.java)
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
 
-        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
         verify(callback).onInserted(0, ALPHABET_LIST.size)
         verifyNoMoreInteractions(callback)
         drain()
         verifyNoMoreInteractions(callback)
 
         // get without triggering prefetch...
-        helper.getItem(1)
+        differ.getItem(1)
         verifyNoMoreInteractions(callback)
         drain()
         verifyNoMoreInteractions(callback)
 
         // get triggering prefetch...
-        helper.getItem(2)
+        differ.getItem(2)
         verifyNoMoreInteractions(callback)
         drain()
         verify(callback).onChanged(4, 2, null)
         verifyNoMoreInteractions(callback)
 
         // get with no data loaded nearby...
-        helper.getItem(12)
+        differ.getItem(12)
         verifyNoMoreInteractions(callback)
         drain()
         verify(callback).onChanged(10, 2, null)
@@ -165,7 +169,7 @@ class AsyncPagedListDifferTest {
         verifyNoMoreInteractions(callback)
 
         // finally, clear
-        helper.submitList(null)
+        differ.submitList(null)
         verify(callback).onRemoved(0, 26)
         drain()
         verifyNoMoreInteractions(callback)
@@ -179,26 +183,26 @@ class AsyncPagedListDifferTest {
                 .build()
 
         val callback = mock(ListUpdateCallback::class.java)
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
 
         // initial list missing one item (immediate)
-        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 25), 0))
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 25), 0))
         verify(callback).onInserted(0, 25)
         verifyNoMoreInteractions(callback)
-        assertEquals(helper.itemCount, 25)
+        assertEquals(differ.itemCount, 25)
         drain()
         verifyNoMoreInteractions(callback)
 
         // pass second list with full data
-        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 0))
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 0))
         verifyNoMoreInteractions(callback)
         drain()
         verify(callback).onInserted(25, 1)
         verifyNoMoreInteractions(callback)
-        assertEquals(helper.itemCount, 26)
+        assertEquals(differ.itemCount, 26)
 
         // finally, clear (immediate)
-        helper.submitList(null)
+        differ.submitList(null)
         verify(callback).onRemoved(0, 26)
         verifyNoMoreInteractions(callback)
         drain()
@@ -214,49 +218,49 @@ class AsyncPagedListDifferTest {
                 .build()
 
         val callback = mock(ListUpdateCallback::class.java)
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
 
-        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
         verify(callback).onInserted(0, ALPHABET_LIST.size)
         verifyNoMoreInteractions(callback)
         drain()
         verifyNoMoreInteractions(callback)
-        assertNotNull(helper.currentList)
-        assertFalse(helper.currentList!!.isImmutable)
+        assertNotNull(differ.currentList)
+        assertFalse(differ.currentList!!.isImmutable)
 
         // trigger page loading
-        helper.getItem(10)
-        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
+        differ.getItem(10)
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
         verifyNoMoreInteractions(callback)
 
         // drain page fetching, but list became immutable, page will be ignored
         drainExceptDiffThread()
         verifyNoMoreInteractions(callback)
-        assertNotNull(helper.currentList)
-        assertTrue(helper.currentList!!.isImmutable)
+        assertNotNull(differ.currentList)
+        assertTrue(differ.currentList!!.isImmutable)
 
         // finally full drain, which signals nothing, since 1st pagedlist == 2nd pagedlist
         drain()
         verifyNoMoreInteractions(callback)
-        assertNotNull(helper.currentList)
-        assertFalse(helper.currentList!!.isImmutable)
+        assertNotNull(differ.currentList)
+        assertFalse(differ.currentList!!.isImmutable)
     }
 
     @Test
     fun itemCountUpdatedBeforeListUpdateCallbacks() {
-        // verify that itemCount is updated in the helper before dispatching ListUpdateCallbacks
+        // verify that itemCount is updated in the differ before dispatching ListUpdateCallbacks
 
         val expectedCount = intArrayOf(0)
-        // provides access to helper, which must be constructed after callback
-        val helperAccessor = arrayOf<AsyncPagedListDiffer<*>?>(null)
+        // provides access to differ, which must be constructed after callback
+        val differAccessor = arrayOf<AsyncPagedListDiffer<*>?>(null)
 
         val callback = object : ListUpdateCallback {
             override fun onInserted(position: Int, count: Int) {
-                assertEquals(expectedCount[0], helperAccessor[0]!!.itemCount)
+                assertEquals(expectedCount[0], differAccessor[0]!!.itemCount)
             }
 
             override fun onRemoved(position: Int, count: Int) {
-                assertEquals(expectedCount[0], helperAccessor[0]!!.itemCount)
+                assertEquals(expectedCount[0], differAccessor[0]!!.itemCount)
             }
 
             override fun onMoved(fromPosition: Int, toPosition: Int) {
@@ -268,8 +272,8 @@ class AsyncPagedListDifferTest {
             }
         }
 
-        val helper = createHelper(callback, STRING_DIFF_CALLBACK)
-        helperAccessor[0] = helper
+        val differ = createDiffer(callback, STRING_DIFF_CALLBACK)
+        differAccessor[0] = differ
 
         val config = PagedList.Config.Builder()
                 .setPageSize(20)
@@ -277,22 +281,22 @@ class AsyncPagedListDifferTest {
 
         // in the fast-add case...
         expectedCount[0] = 5
-        assertEquals(0, helper.itemCount)
-        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 5), 0))
-        assertEquals(5, helper.itemCount)
+        assertEquals(0, differ.itemCount)
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 5), 0))
+        assertEquals(5, differ.itemCount)
 
         // in the slow, diff on BG thread case...
         expectedCount[0] = 10
-        assertEquals(5, helper.itemCount)
-        helper.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 10), 0))
+        assertEquals(5, differ.itemCount)
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 10), 0))
         drain()
-        assertEquals(10, helper.itemCount)
+        assertEquals(10, differ.itemCount)
 
         // and in the fast-remove case
         expectedCount[0] = 0
-        assertEquals(10, helper.itemCount)
-        helper.submitList(null)
-        assertEquals(0, helper.itemCount)
+        assertEquals(10, differ.itemCount)
+        differ.submitList(null)
+        assertEquals(0, differ.itemCount)
     }
 
     private fun drainExceptDiffThread() {
