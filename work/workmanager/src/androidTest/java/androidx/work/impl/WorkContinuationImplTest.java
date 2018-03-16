@@ -17,9 +17,11 @@
 package androidx.work.impl;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -33,26 +35,32 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.Arguments;
+import androidx.work.State;
+import androidx.work.TestLifecycleOwner;
+import androidx.work.Work;
+import androidx.work.WorkContinuation;
+import androidx.work.WorkManagerTest;
+import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
+import androidx.work.worker.TestWorker;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-import androidx.work.TestLifecycleOwner;
-import androidx.work.Work;
-import androidx.work.WorkContinuation;
-import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
-import androidx.work.worker.TestWorker;
-
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class WorkContinuationImplTest {
+public class WorkContinuationImplTest extends WorkManagerTest {
 
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
@@ -231,6 +239,60 @@ public class WorkContinuationImplTest {
                 firstDependent, secondDependent);
         dependent.enqueue();
         verifyEnqueued(dependent);
+    }
+
+    @Test
+    @SmallTest
+    @SuppressWarnings("unchecked")
+    public void testContinuation_joinPassesAllOutput() throws InterruptedException {
+        final String intTag = "myint";
+        final String stringTag = "mystring";
+
+        Work firstWork = new Work.Builder(TestWorker.class)
+                .withInitialState(State.SUCCEEDED)
+                .build();
+        Work secondWork = new Work.Builder(TestWorker.class)
+                .withInitialState(State.SUCCEEDED)
+                .build();
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        workSpecDao.insertWorkSpec(getWorkSpec(firstWork));
+        workSpecDao.insertWorkSpec(getWorkSpec(secondWork));
+
+        workSpecDao.setOutput(
+                firstWork.getId(),
+                new Arguments.Builder().putInt(intTag, 0).build());
+        workSpecDao.setOutput(
+                secondWork.getId(),
+                new Arguments.Builder().putInt(intTag, 1).putString(stringTag, "hello").build());
+
+        WorkContinuationImpl firstContinuation =
+                new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(firstWork));
+        WorkContinuationImpl secondContinuation =
+                new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(secondWork));
+        WorkContinuationImpl dependentContinuation =
+                (WorkContinuationImpl) WorkContinuation.join(firstContinuation, secondContinuation);
+        dependentContinuation.enqueue();
+
+        String joinId = null;
+        for (String id : dependentContinuation.getAllIds()) {
+            if (!firstWork.getId().equals(id) && !secondWork.getId().equals(id)) {
+                joinId = id;
+                mWorkManagerImpl.getProcessor().startWork(id);
+                Thread.sleep(5000L);
+                break;
+            }
+        }
+
+        assertThat(joinId, is(not(nullValue())));
+        WorkSpec joinWorkSpec = workSpecDao.getWorkSpec(joinId);
+        assertThat(joinWorkSpec, is(not(nullValue())));
+
+        Arguments output = joinWorkSpec.getOutput();
+        assertThat(output.getIntArray(intTag), is(not(nullValue())));
+        assertThat(Arrays.asList(output.getIntArray(intTag)), containsInAnyOrder(0, 1));
+        assertThat(output.getStringArray(stringTag), is(not(nullValue())));
+        assertThat(Arrays.asList(output.getStringArray(stringTag)), contains("hello"));
     }
 
     private void verifyEnqueued(WorkContinuationImpl continuation) {

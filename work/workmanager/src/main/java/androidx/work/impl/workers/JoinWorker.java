@@ -30,6 +30,7 @@ import androidx.work.Worker;
 public class JoinWorker extends Worker {
     @Override
     public WorkerResult doWork() {
+        setOutput(getArguments());
         return WorkerResult.SUCCESS;
     }
 }
