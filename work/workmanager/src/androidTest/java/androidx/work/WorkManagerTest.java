@@ -22,14 +22,13 @@ import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 
-import org.junit.After;
-
-import java.util.Set;
-
-import androidx.work.impl.InternalWorkImpl;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
+
+import org.junit.After;
+
+import java.util.Set;
 
 public abstract class WorkManagerTest {
 
@@ -49,10 +48,10 @@ public abstract class WorkManagerTest {
     }
 
     protected WorkSpec getWorkSpec(BaseWork work) {
-        return ((InternalWorkImpl) work).getWorkSpec();
+        return work.getWorkSpec();
     }
 
     protected Set<String> getTags(BaseWork work) {
-        return ((InternalWorkImpl) work).getTags();
+        return work.getTags();
     }
 }

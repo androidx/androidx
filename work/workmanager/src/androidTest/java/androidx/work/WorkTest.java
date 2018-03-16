@@ -22,16 +22,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 
+import androidx.work.worker.TestWorker;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.concurrent.TimeUnit;
-
-import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.workers.ConstraintTrackingWorker;
-import androidx.work.worker.TestWorker;
 
 @SmallTest
 public class WorkTest extends WorkManagerTest {
@@ -86,49 +84,5 @@ public class WorkTest extends WorkManagerTest {
         mBuilder.withBackoffCriteria(BackoffPolicy.EXPONENTIAL, 123L, TimeUnit.MILLISECONDS)
                 .withConstraints(constraints)
                 .build();
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
-    public void testBuild_withBatteryNotLowConstraint_expectsConstraintTrackingWorker() {
-        Constraints constraints = new Constraints.Builder()
-                .setRequiresBatteryNotLow(true)
-                .build();
-
-        Work work = mBuilder.withConstraints(constraints).build();
-        WorkSpec workSpec = getWorkSpec(work);
-        String workerClassName = workSpec.getArguments().getString(
-                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null);
-
-        assertThat(workSpec.getWorkerClassName(), is(ConstraintTrackingWorker.class.getName()));
-        assertThat(workerClassName, is(TestWorker.class.getName()));
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
-    public void testBuild_withStorageNotLowConstraint_expectsConstraintTrackingWorker() {
-        Constraints constraints = new Constraints.Builder()
-                .setRequiresStorageNotLow(true)
-                .build();
-
-        Work work = mBuilder.withConstraints(constraints).build();
-        WorkSpec workSpec = getWorkSpec(work);
-        String workerClassName = workSpec.getArguments().getString(
-                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null);
-
-        assertThat(workSpec.getWorkerClassName(), is(ConstraintTrackingWorker.class.getName()));
-        assertThat(workerClassName, is(TestWorker.class.getName()));
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 26)
-    public void testBuild_withBatteryNotLowConstraintApi26() {
-        Constraints constraints = new Constraints.Builder()
-                .setRequiresBatteryNotLow(true)
-                .build();
-
-        Work work = mBuilder.withConstraints(constraints).build();
-        WorkSpec workSpec = getWorkSpec(work);
-        assertThat(workSpec.getWorkerClassName(), is(TestWorker.class.getName()));
     }
 }

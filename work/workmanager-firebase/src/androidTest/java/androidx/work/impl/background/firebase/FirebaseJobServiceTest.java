@@ -26,6 +26,15 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.BaseWork;
+import androidx.work.State;
+import androidx.work.Work;
+import androidx.work.impl.WorkDatabase;
+import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
+import androidx.work.worker.FirebaseInfiniteTestWorker;
+
 import com.firebase.jobdispatcher.JobParameters;
 
 import org.junit.After;
@@ -34,18 +43,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import androidx.work.BaseWork;
-import androidx.work.State;
-import androidx.work.Work;
-import androidx.work.WorkManagerTest;
-import androidx.work.impl.WorkDatabase;
-import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
-import androidx.work.worker.FirebaseInfiniteTestWorker;
-
 @RunWith(AndroidJUnit4.class)
-public class FirebaseJobServiceTest extends WorkManagerTest {
+public class FirebaseJobServiceTest {
 
     @Rule
     public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
@@ -116,6 +115,6 @@ public class FirebaseJobServiceTest extends WorkManagerTest {
     }
 
     private void insertWork(BaseWork work) {
-        mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(work));
+        mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
     }
 }

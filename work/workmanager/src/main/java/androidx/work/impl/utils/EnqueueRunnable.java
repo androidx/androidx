@@ -24,21 +24,19 @@ import static androidx.work.State.ENQUEUED;
 import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
 import static androidx.work.State.SUCCEEDED;
+import static androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME;
 
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import androidx.work.Arguments;
 import androidx.work.BaseWork;
+import androidx.work.Constraints;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.State;
-import androidx.work.impl.InternalWorkImpl;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
@@ -50,6 +48,12 @@ import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
+import androidx.work.impl.workers.ConstraintTrackingWorker;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Manages the enqueuing of a {@link WorkContinuationImpl}.
@@ -62,7 +66,7 @@ public class EnqueueRunnable implements Runnable {
     private static final String TAG = "EnqueueRunnable";
 
     private final WorkContinuationImpl mWorkContinuation;
-    private final List<InternalWorkImpl> mWorkToBeScheduled;
+    private final List<BaseWork> mWorkToBeScheduled;
 
     public EnqueueRunnable(@NonNull WorkContinuationImpl workContinuation) {
         mWorkContinuation = workContinuation;
@@ -99,7 +103,7 @@ public class EnqueueRunnable implements Runnable {
     public void scheduleWorkInBackground() {
         // Schedule in the background. This list contains work that does not have prerequisites.
         for (Scheduler scheduler : mWorkContinuation.getWorkManagerImpl().getSchedulers()) {
-            for (InternalWorkImpl work : mWorkToBeScheduled) {
+            for (BaseWork work : mWorkToBeScheduled) {
                 scheduler.schedule(work.getWorkSpec());
             }
         }
@@ -107,7 +111,7 @@ public class EnqueueRunnable implements Runnable {
 
     private static void processContinuation(
             @NonNull WorkContinuationImpl workContinuation,
-            @NonNull List<InternalWorkImpl> workToBeScheduled) {
+            @NonNull List<BaseWork> workToBeScheduled) {
 
         List<WorkContinuationImpl> parents = workContinuation.getParents();
         if (parents != null) {
@@ -127,7 +131,7 @@ public class EnqueueRunnable implements Runnable {
 
     private static void enqueueContinuation(
             @NonNull WorkContinuationImpl workContinuation,
-            @NonNull List<InternalWorkImpl> workToBeScheduled) {
+            @NonNull List<BaseWork> workToBeScheduled) {
 
         List<WorkContinuationImpl> parents = workContinuation.getParents();
         Set<String> prerequisiteIds = new HashSet<>();
@@ -157,15 +161,10 @@ public class EnqueueRunnable implements Runnable {
             String[] prerequisiteIds,
             String name,
             ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<InternalWorkImpl> workToBeScheduled) {
+            @NonNull List<BaseWork> workToBeScheduled) {
 
         long currentTimeMillis = System.currentTimeMillis();
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
-
-        List<InternalWorkImpl> workImplList = new ArrayList<>(workList.size());
-        for (int i = 0; i < workList.size(); ++i) {
-            workImplList.add((InternalWorkImpl) workList.get(i));
-        }
 
         boolean hasPrerequisite = (prerequisiteIds != null && prerequisiteIds.length > 0);
         boolean hasCompletedAllPrerequisites = true;
@@ -243,7 +242,7 @@ public class EnqueueRunnable implements Runnable {
             }
         }
 
-        for (InternalWorkImpl work : workImplList) {
+        for (BaseWork work : workList) {
             WorkSpec workSpec = work.getWorkSpec();
 
             if (hasPrerequisite && !hasCompletedAllPrerequisites) {
@@ -258,6 +257,10 @@ public class EnqueueRunnable implements Runnable {
                 // Set scheduled times only for work without prerequisites. Dependent work
                 // will set their scheduled times when they are unblocked.
                 workSpec.setPeriodStartTime(currentTimeMillis);
+            }
+
+            if (Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT <= 25) {
+                tryDelegateConstrainedWorkSpec(workSpec);
             }
 
             workDatabase.workSpecDao().insertWorkSpec(workSpec);
@@ -282,7 +285,22 @@ public class EnqueueRunnable implements Runnable {
         // list of work items that can be scheduled in the background. The actual scheduling is
         // typically done after the transaction has settled.
         if (!hasPrerequisite || hasCompletedAllPrerequisites) {
-            workToBeScheduled.addAll(workImplList);
+            workToBeScheduled.addAll(workList);
+        }
+    }
+
+    private static void tryDelegateConstrainedWorkSpec(WorkSpec workSpec) {
+        // requiresBatteryNotLow and requiresStorageNotLow require API 26 for JobScheduler.
+        // Delegate to ConstraintTrackingWorker between API 23-25.
+        Constraints constraints = workSpec.getConstraints();
+        if (constraints.requiresBatteryNotLow() || constraints.requiresStorageNotLow()) {
+            String workerClassName = workSpec.getWorkerClassName();
+            Arguments.Builder builder = new Arguments.Builder();
+            // Copy all arguments
+            builder.putAll(workSpec.getArguments())
+                    .putString(ARGUMENT_CLASS_NAME, workerClassName);
+            workSpec.setWorkerClassName(ConstraintTrackingWorker.class.getName());
+            workSpec.setArguments(builder.build());
         }
     }
 }

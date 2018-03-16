@@ -78,6 +78,7 @@ import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
+import androidx.work.impl.workers.ConstraintTrackingWorker;
 import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.TestWorker;
 
@@ -1131,6 +1132,102 @@ public class WorkManagerImplTest extends WorkManagerTest {
         assertThat(workSpecDao.getWorkSpec(work0.getId()), is(nullValue()));
         assertThat(workSpecDao.getWorkSpec(work1.getId()), is(not(nullValue())));
         assertThat(workSpecDao.getWorkSpec(work2.getId()), is(not(nullValue())));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(maxSdkVersion = 22)
+    public void testEnqueueApi22OrLower_withBatteryNotLowConstraint_expectsOriginalWorker() {
+        Work work = new Work.Builder(TestWorker.class)
+                .withConstraints(new Constraints.Builder()
+                        .setRequiresBatteryNotLow(true)
+                        .build())
+                .build();
+        mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
+
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
+        assertThat(workSpec.getWorkerClassName(), is(TestWorker.class.getName()));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(maxSdkVersion = 22)
+    public void testEnqueueApi22OrLower_withStorageNotLowConstraint_expectsOriginalWorker() {
+        Work work = new Work.Builder(TestWorker.class)
+                .withConstraints(new Constraints.Builder()
+                        .setRequiresStorageNotLow(true)
+                        .build())
+                .build();
+        mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
+
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
+        assertThat(workSpec.getWorkerClassName(), is(TestWorker.class.getName()));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    public void testEnqueueApi23To25_withBatteryNotLowConstraint_expectsConstraintTrackingWorker() {
+        Work work = new Work.Builder(TestWorker.class)
+                .withConstraints(new Constraints.Builder()
+                .setRequiresBatteryNotLow(true)
+                .build())
+                .build();
+        mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
+
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
+        assertThat(workSpec.getWorkerClassName(), is(ConstraintTrackingWorker.class.getName()));
+        assertThat(workSpec.getArguments().getString(
+                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null),
+                is(TestWorker.class.getName()));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    public void testEnqueueApi23To25_withStorageNotLowConstraint_expectsConstraintTrackingWorker() {
+        Work work = new Work.Builder(TestWorker.class)
+                .withConstraints(new Constraints.Builder()
+                        .setRequiresStorageNotLow(true)
+                        .build())
+                .build();
+        mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
+
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
+        assertThat(workSpec.getWorkerClassName(), is(ConstraintTrackingWorker.class.getName()));
+        assertThat(workSpec.getArguments().getString(
+                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null),
+                is(TestWorker.class.getName()));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    public void testEnqueueApi26OrHigher_withBatteryNotLowConstraint_expectsOriginalWorker() {
+        Work work = new Work.Builder(TestWorker.class)
+                .withConstraints(new Constraints.Builder()
+                        .setRequiresBatteryNotLow(true)
+                        .build())
+                .build();
+        mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
+
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
+        assertThat(workSpec.getWorkerClassName(), is(TestWorker.class.getName()));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    public void testEnqueueApi26OrHigher_withStorageNotLowConstraint_expectsOriginalWorker() {
+        Work work = new Work.Builder(TestWorker.class)
+                .withConstraints(new Constraints.Builder()
+                        .setRequiresStorageNotLow(true)
+                        .build())
+                .build();
+        mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
+
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
+        assertThat(workSpec.getWorkerClassName(), is(TestWorker.class.getName()));
     }
 
     private void insertWorkSpecAndTags(Work work) {

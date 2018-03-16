@@ -16,21 +16,25 @@
 
 package androidx.work;
 
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
-import androidx.work.impl.WorkImpl;
+import androidx.work.impl.model.WorkSpec;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
  * A class to execute a logical unit of non-repeating work.
  */
 
-public abstract class Work implements BaseWork {
+public class Work extends BaseWork {
 
     /**
      * Creates an array of {@link Work} with defaults from an array of {@link Worker} class names.
@@ -58,44 +62,43 @@ public abstract class Work implements BaseWork {
         return workList;
     }
 
+
+    Work(Builder builder) {
+        super(builder.mWorkSpec, builder.mTags);
+    }
+
     /**
      * Builder for {@link Work} class.
      */
     public static class Builder implements WorkBuilder<Work, Builder> {
 
-        private WorkImpl.Builder mInternalBuilder;
+        private boolean mBackoffCriteriaSet = false;
+        WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
+        Set<String> mTags = new HashSet<>();
 
-        /**
-         * Creates a {@link Work} that runs once.
-         *
-         * @param workerClass The {@link Worker} class to run with this job
-         */
         public Builder(@NonNull Class<? extends Worker> workerClass) {
-            mInternalBuilder = new WorkImpl.Builder(workerClass);
+            mWorkSpec.setWorkerClassName(workerClass.getName());
+            mWorkSpec.setInputMergerClassName(OverwritingInputMerger.class.getName());
         }
 
-        /**
-         * Specify whether {@link Work} should run with an initial delay. Default is 0ms.
-         *
-         * @param duration initial delay before running WorkSpec in {@code timeUnit} units
-         * @param timeUnit The {@link TimeUnit} for {@code duration}
-         * @return The current {@link Builder}
-         */
+        @VisibleForTesting
         @Override
-        public Builder withInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
-            mInternalBuilder.withInitialDelay(duration, timeUnit);
+        public Builder withInitialState(@NonNull State state) {
+            mWorkSpec.setState(state);
             return this;
         }
 
-        /**
-         * Specify an {@link InputMerger}.  The default is {@link OverwritingInputMerger}.
-         *
-         * @param inputMerger The class name of the {@link InputMerger} to use for this {@link Work}
-         * @return The current {@link Builder}
-         */
+        @VisibleForTesting
         @Override
-        public Builder withInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
-            mInternalBuilder.withInputMerger(inputMerger);
+        public Builder withInitialRunAttemptCount(int runAttemptCount) {
+            mWorkSpec.setRunAttemptCount(runAttemptCount);
+            return this;
+        }
+
+        @VisibleForTesting
+        @Override
+        public Builder withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
+            mWorkSpec.setPeriodStartTime(timeUnit.toMillis(periodStartTime));
             return this;
         }
 
@@ -104,64 +107,57 @@ public abstract class Work implements BaseWork {
                 @NonNull BackoffPolicy backoffPolicy,
                 long backoffDelay,
                 @NonNull TimeUnit timeUnit) {
-            mInternalBuilder.withBackoffCriteria(backoffPolicy, backoffDelay, timeUnit);
+            mBackoffCriteriaSet = true;
+            mWorkSpec.setBackoffPolicy(backoffPolicy);
+            mWorkSpec.setBackoffDelayDuration(timeUnit.toMillis(backoffDelay));
             return this;
         }
 
         @Override
         public Builder withConstraints(@NonNull Constraints constraints) {
-            mInternalBuilder.withConstraints(constraints);
+            mWorkSpec.setConstraints(constraints);
             return this;
         }
 
         @Override
         public Builder withArguments(@NonNull Arguments arguments) {
-            mInternalBuilder.withArguments(arguments);
+            mWorkSpec.setArguments(arguments);
             return this;
         }
 
         @Override
         public Builder addTag(@NonNull String tag) {
-            mInternalBuilder.addTag(tag);
+            mTags.add(tag);
+            return this;
+        }
+
+        @Override
+        public Builder withInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
+            mWorkSpec.setInitialDelay(timeUnit.toMillis(duration));
+            return this;
+        }
+
+        @Override
+        public Builder withInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
+            mWorkSpec.setInputMergerClassName(inputMerger.getName());
             return this;
         }
 
         @Override
         public Builder keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
-            mInternalBuilder.keepResultsForAtLeast(duration, timeUnit);
+            mWorkSpec.setMinimumRetentionDuration(timeUnit.toMillis(duration));
             return this;
         }
 
         @Override
         public Work build() {
-            return mInternalBuilder.build();
-        }
-
-        @VisibleForTesting
-        @Override
-        public Builder withInitialState(@NonNull State state) {
-            mInternalBuilder.withInitialState(state);
-            return this;
-        }
-
-        /**
-         * @hide
-         */
-        @VisibleForTesting
-        @Override
-        public Builder withInitialRunAttemptCount(int runAttemptCount) {
-            mInternalBuilder.withInitialRunAttemptCount(runAttemptCount);
-            return this;
-        }
-
-        /**
-         * @hide
-         */
-        @VisibleForTesting
-        @Override
-        public Builder withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
-            mInternalBuilder.withPeriodStartTime(periodStartTime, timeUnit);
-            return this;
+            if (mBackoffCriteriaSet
+                    && Build.VERSION.SDK_INT >= 23
+                    && mWorkSpec.getConstraints().requiresDeviceIdle()) {
+                throw new IllegalArgumentException(
+                        "Cannot set backoff criteria on an idle mode job");
+            }
+            return new Work(this);
         }
     }
 }

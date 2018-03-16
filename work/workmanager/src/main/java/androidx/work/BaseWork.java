@@ -16,37 +16,75 @@
 package androidx.work;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
+import androidx.work.impl.model.WorkSpec;
+
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
  * The base interface for units of work.
  */
 
-public interface BaseWork {
+public abstract class BaseWork {
 
     /**
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#77}
      */
-    long DEFAULT_BACKOFF_DELAY_MILLIS = 30000L;
+    public static final long DEFAULT_BACKOFF_DELAY_MILLIS = 30000L;
 
     /**
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#82}
      */
-    long MAX_BACKOFF_MILLIS = 5 * 60 * 60 * 1000; // 5 hours.
+    public static final long MAX_BACKOFF_MILLIS = 5 * 60 * 60 * 1000; // 5 hours.
 
     /**
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#119}
      */
-    long MIN_BACKOFF_MILLIS = 10 * 1000; // 10 seconds.
+    public static final long MIN_BACKOFF_MILLIS = 10 * 1000; // 10 seconds.
+
+
+    private WorkSpec mWorkSpec;
+    private Set<String> mTags;
+
+    protected BaseWork(@NonNull WorkSpec workSpec, @NonNull Set<String> tags) {
+        mWorkSpec = workSpec;
+        mTags = tags;
+    }
+
 
     /**
      * Gets the unique identifier associated with this unit of work.
      *
      * @return The identifier for this unit of work
      */
-    String getId();
+    public String getId() {
+        return mWorkSpec.getId();
+    }
+
+    /**
+     * Gets the {@link WorkSpec} associated with this unit of work.
+     *
+     * @return The {@link WorkSpec} for this unit of work
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WorkSpec getWorkSpec() {
+        return mWorkSpec;
+    }
+
+    /**
+     * Gets the tags associated with this unit of work.
+     *
+     * @return THe tags for this unit of work
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public Set<String> getTags() {
+        return mTags;
+    }
 
     /**
      * A builder for {@link BaseWork}.
