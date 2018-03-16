@@ -115,7 +115,7 @@ public abstract class DataSource<Key, Value> {
      * @param <Key> Key identifying items in DataSource.
      * @param <Value> Type of items in the list loaded by the DataSources.
      */
-    public interface Factory<Key, Value> {
+    public abstract static class Factory<Key, Value> {
         /**
          * Create a DataSource.
          * <p>
@@ -129,7 +129,54 @@ public abstract class DataSource<Key, Value> {
          *
          * @return the new DataSource.
          */
-        DataSource<Key, Value> create();
+        public abstract DataSource<Key, Value> create();
+
+        /**
+         * Applies the given function to each value emitted by DataSources produced by this Factory.
+         * <p>
+         * Same as {@link #mapByPage(Function)}, but operates on individual items.
+         *
+         * @param function Function that runs on each loaded item, returning items of a potentially
+         *                  new type.
+         * @param <ToValue> Type of items produced by the new DataSource, from the passed function.
+         *
+         * @return A new DataSource.Factory, which transforms items using the given function.
+         *
+         * @see #mapByPage(Function)
+         * @see DataSource#map(Function)
+         * @see DataSource#mapByPage(Function)
+         */
+        @NonNull
+        public <ToValue> DataSource.Factory<Key, ToValue> map(
+                @NonNull Function<Value, ToValue> function) {
+            return mapByPage(createListFunction(function));
+        }
+
+        /**
+         * Applies the given function to each value emitted by DataSources produced by this Factory.
+         * <p>
+         * Same as {@link #map(Function)}, but allows for batch conversions.
+         *
+         * @param function Function that runs on each loaded page, returning items of a potentially
+         *                  new type.
+         * @param <ToValue> Type of items produced by the new DataSource, from the passed function.
+         *
+         * @return A new DataSource.Factory, which transforms items using the given function.
+         *
+         * @see #map(Function)
+         * @see DataSource#map(Function)
+         * @see DataSource#mapByPage(Function)
+         */
+        @NonNull
+        public <ToValue> DataSource.Factory<Key, ToValue> mapByPage(
+                @NonNull final Function<List<Value>, List<ToValue>> function) {
+            return new Factory<Key, ToValue>() {
+                @Override
+                public DataSource<Key, ToValue> create() {
+                    return Factory.this.create().mapByPage(function);
+                }
+            };
+        }
     }
 
     @NonNull
@@ -170,7 +217,11 @@ public abstract class DataSource<Key, Value> {
      *                  new type.
      * @param <ToValue> Type of items produced by the new DataSource, from the passed function.
      *
-     * @return A new DataSource, which loads items produced by the passed function.
+     * @return A new DataSource, which transforms items using the given function.
+     *
+     * @see #map(Function)
+     * @see DataSource.Factory#map(Function)
+     * @see DataSource.Factory#mapByPage(Function)
      */
     @NonNull
     public abstract <ToValue> DataSource<Key, ToValue> mapByPage(
@@ -185,7 +236,11 @@ public abstract class DataSource<Key, Value> {
      *                  new type.
      * @param <ToValue> Type of items produced by the new DataSource, from the passed function.
      *
-     * @return A new DataSource, which loads items produced by the passed function.
+     * @return A new DataSource, which transforms items using the given function.
+     *
+     * @see #mapByPage(Function)
+     * @see DataSource.Factory#map(Function)
+     * @see DataSource.Factory#mapByPage(Function)
      */
     @NonNull
     public abstract <ToValue> DataSource<Key, ToValue> map(
