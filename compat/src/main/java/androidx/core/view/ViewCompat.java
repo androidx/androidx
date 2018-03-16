@@ -740,13 +740,6 @@ public class ViewCompat {
             return 0f;
         }
 
-        public void setClipBounds(View view, Rect clipBounds) {
-        }
-
-        public Rect getClipBounds(View view) {
-            return null;
-        }
-
         public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
             if (sChildrenDrawingOrderMethod == null) {
                 try {
@@ -881,10 +874,6 @@ public class ViewCompat {
             if (view instanceof NestedScrollingChild) {
                 return ((NestedScrollingChild) view).dispatchNestedPreFling(velocityX, velocityY);
             }
-            return false;
-        }
-
-        public boolean isInLayout(View view) {
             return false;
         }
 
@@ -1192,26 +1181,8 @@ public class ViewCompat {
         }
     }
 
-    @RequiresApi(18)
-    static class ViewCompatApi18Impl extends ViewCompatApi17Impl {
-        @Override
-        public void setClipBounds(View view, Rect clipBounds) {
-            view.setClipBounds(clipBounds);
-        }
-
-        @Override
-        public Rect getClipBounds(View view) {
-            return view.getClipBounds();
-        }
-
-        @Override
-        public boolean isInLayout(View view) {
-            return view.isInLayout();
-        }
-    }
-
     @RequiresApi(19)
-    static class ViewCompatApi19Impl extends ViewCompatApi18Impl {
+    static class ViewCompatApi19Impl extends ViewCompatApi17Impl {
         @Override
         public int getAccessibilityLiveRegion(View view) {
             return view.getAccessibilityLiveRegion();
@@ -1655,8 +1626,6 @@ public class ViewCompat {
             IMPL = new ViewCompatApi21Impl();
         } else if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new ViewCompatApi19Impl();
-        } else if (Build.VERSION.SDK_INT >= 18) {
-            IMPL = new ViewCompatApi18Impl();
         } else if (Build.VERSION.SDK_INT >= 17) {
             IMPL = new ViewCompatApi17Impl();
         } else if (Build.VERSION.SDK_INT >= 16) {
@@ -3614,7 +3583,10 @@ public class ViewCompat {
      * @return whether the view hierarchy is currently undergoing a layout pass
      */
     public static boolean isInLayout(@NonNull View view) {
-        return IMPL.isInLayout(view);
+        if (Build.VERSION.SDK_INT >= 18) {
+            return view.isInLayout();
+        }
+        return false;
     }
 
     /**
@@ -3696,7 +3668,9 @@ public class ViewCompat {
      * this view, to which future drawing operations will be clipped.
      */
     public static void setClipBounds(@NonNull View view, Rect clipBounds) {
-        IMPL.setClipBounds(view, clipBounds);
+        if (Build.VERSION.SDK_INT >= 18) {
+            view.setClipBounds(clipBounds);
+        }
     }
 
     /**
@@ -3709,7 +3683,10 @@ public class ViewCompat {
      */
     @Nullable
     public static Rect getClipBounds(@NonNull View view) {
-        return IMPL.getClipBounds(view);
+        if (Build.VERSION.SDK_INT >= 18) {
+            return view.getClipBounds();
+        }
+        return null;
     }
 
     /**
