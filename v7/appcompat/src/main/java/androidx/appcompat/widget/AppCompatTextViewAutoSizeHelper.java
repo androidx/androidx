@@ -513,22 +513,15 @@ class AppCompatTextViewAutoSizeHelper {
             // not have a predefined set of sizes or if the current sizes array is empty.
             if (!mHasPresetAutoSizeValues || mAutoSizeTextSizesInPx.length == 0) {
                 // Calculate sizes to choose from based on the current auto-size configuration.
-                int autoSizeValuesLength = 1;
-                float currentSize = Math.round(mAutoSizeMinTextSizeInPx);
-                while (Math.round(currentSize + mAutoSizeStepGranularityInPx)
-                        <= Math.round(mAutoSizeMaxTextSizeInPx)) {
-                    autoSizeValuesLength++;
-                    currentSize += mAutoSizeStepGranularityInPx;
-                }
-                int[] autoSizeTextSizesInPx = new int[autoSizeValuesLength];
-                float sizeToAdd = mAutoSizeMinTextSizeInPx;
+                final int autoSizeValuesLength = ((int) Math.floor((mAutoSizeMaxTextSizeInPx
+                        - mAutoSizeMinTextSizeInPx) / mAutoSizeStepGranularityInPx)) + 1;
+                final int[] autoSizeTextSizesInPx = new int[autoSizeValuesLength];
                 for (int i = 0; i < autoSizeValuesLength; i++) {
-                    autoSizeTextSizesInPx[i] = Math.round(sizeToAdd);
-                    sizeToAdd += mAutoSizeStepGranularityInPx;
+                    autoSizeTextSizesInPx[i] = Math.round(
+                            mAutoSizeMinTextSizeInPx + (i * mAutoSizeStepGranularityInPx));
                 }
                 mAutoSizeTextSizesInPx = cleanupAutoSizePresetSizes(autoSizeTextSizesInPx);
             }
-
             mNeedsAutoSizeText = true;
         } else {
             mNeedsAutoSizeText = false;
