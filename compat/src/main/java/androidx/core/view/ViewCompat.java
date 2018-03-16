@@ -908,10 +908,6 @@ public class ViewCompat {
             return view.getWindowToken() != null;
         }
 
-        public boolean hasOnClickListeners(View view) {
-            return false;
-        }
-
         public int getScrollIndicators(View view) {
             return 0;
         }
@@ -1041,16 +1037,8 @@ public class ViewCompat {
         }
     }
 
-    @RequiresApi(15)
-    static class ViewCompatApi15Impl extends ViewCompatBaseImpl {
-        @Override
-        public boolean hasOnClickListeners(View view) {
-            return view.hasOnClickListeners();
-        }
-    }
-
     @RequiresApi(16)
-    static class ViewCompatApi16Impl extends ViewCompatApi15Impl {
+    static class ViewCompatApi16Impl extends ViewCompatBaseImpl {
         @Override
         public boolean hasTransientState(View view) {
             return view.hasTransientState();
@@ -1673,8 +1661,6 @@ public class ViewCompat {
             IMPL = new ViewCompatApi17Impl();
         } else if (Build.VERSION.SDK_INT >= 16) {
             IMPL = new ViewCompatApi16Impl();
-        } else if (Build.VERSION.SDK_INT >= 15) {
-            IMPL = new ViewCompatApi15Impl();
         } else {
             IMPL = new ViewCompatBaseImpl();
         }
@@ -3739,7 +3725,10 @@ public class ViewCompat {
      * @return true if there is a listener, false if there is none.
      */
     public static boolean hasOnClickListeners(@NonNull View view) {
-        return IMPL.hasOnClickListeners(view);
+        if (Build.VERSION.SDK_INT >= 15) {
+            return view.hasOnClickListeners();
+        }
+        return false;
     }
 
     /**
