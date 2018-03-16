@@ -440,13 +440,15 @@ public class ViewCompat {
      */
     public static final int SCROLL_INDICATOR_END = 0x20;
 
+    private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
+
+    private static Field sMinWidthField;
+    private static boolean sMinWidthFieldFetched;
+    private static Field sMinHeightField;
+    private static boolean sMinHeightFieldFetched;
+
     static class ViewCompatBaseImpl {
-        private static Field sMinWidthField;
-        private static boolean sMinWidthFieldFetched;
-        private static Field sMinHeightField;
-        private static boolean sMinHeightFieldFetched;
         private static WeakHashMap<View, String> sTransitionNameMap;
-        private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
         private Method mDispatchStartTemporaryDetach;
         private Method mDispatchFinishTemporaryDetach;
         private boolean mTempDetachBound;
@@ -504,99 +506,8 @@ public class ViewCompat {
             // no-op
         }
 
-        public boolean hasTransientState(View view) {
-            // A view can't have transient state if transient state wasn't supported.
-            return false;
-        }
-
-        public void setHasTransientState(View view, boolean hasTransientState) {
-            // Do nothing; API doesn't exist
-        }
-
-        public void postInvalidateOnAnimation(View view) {
-            view.postInvalidate();
-        }
-
-        public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
-            view.postInvalidate(left, top, right, bottom);
-        }
-
-        public void postOnAnimation(View view, Runnable action) {
-            view.postDelayed(action, getFrameTime());
-        }
-
-        public void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
-            view.postDelayed(action, getFrameTime() + delayMillis);
-        }
-
-        long getFrameTime() {
-            return ValueAnimator.getFrameDelay();
-        }
-
-        public int getImportantForAccessibility(View view) {
-            return 0;
-        }
-
-        public void setImportantForAccessibility(View view, int mode) {
-        }
-
         public boolean isImportantForAccessibility(View view) {
             return true;
-        }
-
-        public boolean performAccessibilityAction(View view, int action, Bundle arguments) {
-            return false;
-        }
-
-        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
-            return null;
-        }
-
-        public int getLabelFor(View view) {
-            return 0;
-        }
-
-        public void setLabelFor(View view, int id) {
-        }
-
-        public void setLayerPaint(View view, Paint paint) {
-            // Make sure the paint is correct; this will be cheap if it's the same
-            // instance as was used to call setLayerType earlier.
-            view.setLayerType(view.getLayerType(), paint);
-            // This is expensive, but the only way to accomplish this before JB-MR1.
-            view.invalidate();
-        }
-
-        public int getLayoutDirection(View view) {
-            return LAYOUT_DIRECTION_LTR;
-        }
-
-        public void setLayoutDirection(View view, int layoutDirection) {
-            // No-op
-        }
-
-        public ViewParent getParentForAccessibility(View view) {
-            return view.getParent();
-        }
-
-        public int getAccessibilityLiveRegion(View view) {
-            return ACCESSIBILITY_LIVE_REGION_NONE;
-        }
-
-        public void setAccessibilityLiveRegion(View view, int mode) {
-            // No-op
-        }
-
-        public int getPaddingStart(View view) {
-            return view.getPaddingLeft();
-        }
-
-        public int getPaddingEnd(View view) {
-            return view.getPaddingRight();
-        }
-
-        public void setPaddingRelative(View view, int start, int top, int end, int bottom) {
-            view.setPadding(start, top, end, bottom);
         }
 
         public void dispatchStartTemporaryDetach(View view) {
@@ -631,10 +542,6 @@ public class ViewCompat {
             }
         }
 
-        public boolean hasOverlappingRendering(View view) {
-            return true;
-        }
-
         private void bindTempDetach() {
             try {
                 mDispatchStartTemporaryDetach = View.class.getDeclaredMethod(
@@ -645,52 +552,6 @@ public class ViewCompat {
                 Log.e(TAG, "Couldn't find method", e);
             }
             mTempDetachBound = true;
-        }
-
-        public int getMinimumWidth(View view) {
-            if (!sMinWidthFieldFetched) {
-                try {
-                    sMinWidthField = View.class.getDeclaredField("mMinWidth");
-                    sMinWidthField.setAccessible(true);
-                } catch (NoSuchFieldException e) {
-                    // Couldn't find the field. Abort!
-                }
-                sMinWidthFieldFetched = true;
-            }
-
-            if (sMinWidthField != null) {
-                try {
-                    return (int) sMinWidthField.get(view);
-                } catch (Exception e) {
-                    // Field get failed. Oh well...
-                }
-            }
-
-            // We failed, return 0
-            return 0;
-        }
-
-        public int getMinimumHeight(View view) {
-            if (!sMinHeightFieldFetched) {
-                try {
-                    sMinHeightField = View.class.getDeclaredField("mMinHeight");
-                    sMinHeightField.setAccessible(true);
-                } catch (NoSuchFieldException e) {
-                    // Couldn't find the field. Abort!
-                }
-                sMinHeightFieldFetched = true;
-            }
-
-            if (sMinHeightField != null) {
-                try {
-                    return (int) sMinHeightField.get(view);
-                } catch (Exception e) {
-                    // Field get failed. Oh well...
-                }
-            }
-
-            // We failed, return 0
-            return 0;
         }
 
         public ViewPropertyAnimatorCompat animate(View view) {
@@ -717,13 +578,6 @@ public class ViewCompat {
                 return null;
             }
             return sTransitionNameMap.get(view);
-        }
-
-        public int getWindowSystemUiVisibility(View view) {
-            return 0;
-        }
-
-        public void requestApplyInsets(View view) {
         }
 
         public void setElevation(View view, float elevation) {
@@ -761,10 +615,6 @@ public class ViewCompat {
             }
         }
 
-        public boolean getFitsSystemWindows(View view) {
-            return false;
-        }
-
         public void setOnApplyWindowInsetsListener(View view,
                 OnApplyWindowInsetsListener listener) {
             // noop
@@ -778,10 +628,6 @@ public class ViewCompat {
             return insets;
         }
 
-        public boolean isPaddingRelative(View view) {
-            return false;
-        }
-
         public void setNestedScrollingEnabled(View view, boolean enabled) {
             if (view instanceof NestedScrollingChild) {
                 ((NestedScrollingChild) view).setNestedScrollingEnabled(enabled);
@@ -793,10 +639,6 @@ public class ViewCompat {
                 return ((NestedScrollingChild) view).isNestedScrollingEnabled();
             }
             return false;
-        }
-
-        public void setBackground(View view, Drawable background) {
-            view.setBackgroundDrawable(background);
         }
 
         public ColorStateList getBackgroundTintList(View view) {
@@ -877,24 +719,12 @@ public class ViewCompat {
             return false;
         }
 
-        public boolean isLaidOut(View view) {
-            return view.getWidth() > 0 && view.getHeight() > 0;
-        }
-
-        public boolean isLayoutDirectionResolved(View view) {
-            return false;
-        }
-
         public float getZ(View view) {
             return getTranslationZ(view) + getElevation(view);
         }
 
         public void setZ(View view, float z) {
             // no-op
-        }
-
-        public boolean isAttachedToWindow(View view) {
-            return view.getWindowToken() != null;
         }
 
         public int getScrollIndicators(View view) {
@@ -941,15 +771,6 @@ public class ViewCompat {
 
         public void setPointerIcon(View view, PointerIconCompat pointerIcon) {
             // no-op
-        }
-
-        public Display getDisplay(View view) {
-            if (isAttachedToWindow(view)) {
-                final WindowManager wm = (WindowManager) view.getContext().getSystemService(
-                        Context.WINDOW_SERVICE);
-                return wm.getDefaultDisplay();
-            }
-            return null;
         }
 
         public void setTooltipText(View view, CharSequence tooltipText) {
@@ -1009,213 +830,10 @@ public class ViewCompat {
         public boolean isImportantForAutofill(@NonNull View v) {
             return true;
         }
-
-        /**
-         * {@link ViewCompat#generateViewId()}
-         */
-        public int generateViewId() {
-            for (;;) {
-                final int result = sNextGeneratedId.get();
-                // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
-                int newValue = result + 1;
-                if (newValue > 0x00FFFFFF) newValue = 1; // Roll over to 1, not 0.
-                if (sNextGeneratedId.compareAndSet(result, newValue)) {
-                    return result;
-                }
-            }
-        }
-    }
-
-    @RequiresApi(16)
-    static class ViewCompatApi16Impl extends ViewCompatBaseImpl {
-        @Override
-        public boolean hasTransientState(View view) {
-            return view.hasTransientState();
-        }
-        @Override
-        public void setHasTransientState(View view, boolean hasTransientState) {
-            view.setHasTransientState(hasTransientState);
-        }
-        @Override
-        public void postInvalidateOnAnimation(View view) {
-            view.postInvalidateOnAnimation();
-        }
-        @Override
-        public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
-            view.postInvalidateOnAnimation(left, top, right, bottom);
-        }
-        @Override
-        public void postOnAnimation(View view, Runnable action) {
-            view.postOnAnimation(action);
-        }
-        @Override
-        public void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
-            view.postOnAnimationDelayed(action, delayMillis);
-        }
-        @Override
-        public int getImportantForAccessibility(View view) {
-            return view.getImportantForAccessibility();
-        }
-        @Override
-        public void setImportantForAccessibility(View view, int mode) {
-            // IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS is not available
-            // on this platform so replace with IMPORTANT_FOR_ACCESSIBILITY_NO
-            // which is closer semantically.
-            if (mode == IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
-                mode = IMPORTANT_FOR_ACCESSIBILITY_NO;
-            }
-            //noinspection WrongConstant
-            view.setImportantForAccessibility(mode);
-        }
-        @Override
-        public boolean performAccessibilityAction(View view, int action, Bundle arguments) {
-            return view.performAccessibilityAction(action, arguments);
-        }
-        @Override
-        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
-            AccessibilityNodeProvider provider = view.getAccessibilityNodeProvider();
-            if (provider != null) {
-                return new AccessibilityNodeProviderCompat(provider);
-            }
-            return null;
-        }
-
-        @Override
-        public ViewParent getParentForAccessibility(View view) {
-            return view.getParentForAccessibility();
-        }
-
-        @Override
-        public int getMinimumWidth(View view) {
-            return view.getMinimumWidth();
-        }
-
-        @Override
-        public int getMinimumHeight(View view) {
-            return view.getMinimumHeight();
-        }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        public void requestApplyInsets(View view) {
-            view.requestFitSystemWindows();
-        }
-
-        @Override
-        public boolean getFitsSystemWindows(View view) {
-            return view.getFitsSystemWindows();
-        }
-
-        @Override
-        public boolean hasOverlappingRendering(View view) {
-            return view.hasOverlappingRendering();
-        }
-
-        @Override
-        public void setBackground(View view, Drawable background) {
-            view.setBackground(background);
-        }
-    }
-
-    @RequiresApi(17)
-    static class ViewCompatApi17Impl extends ViewCompatApi16Impl {
-
-        @Override
-        public int getLabelFor(View view) {
-            return view.getLabelFor();
-        }
-
-        @Override
-        public void setLabelFor(View view, int id) {
-            view.setLabelFor(id);
-        }
-
-        @Override
-        public void setLayerPaint(View view, Paint paint) {
-            view.setLayerPaint(paint);
-        }
-
-        @Override
-        public int getLayoutDirection(View view) {
-            return view.getLayoutDirection();
-        }
-
-        @Override
-        public void setLayoutDirection(View view, int layoutDirection) {
-            view.setLayoutDirection(layoutDirection);
-        }
-
-        @Override
-        public int getPaddingStart(View view) {
-            return view.getPaddingStart();
-        }
-
-        @Override
-        public int getPaddingEnd(View view) {
-            return view.getPaddingEnd();
-        }
-
-        @Override
-        public void setPaddingRelative(View view, int start, int top, int end, int bottom) {
-            view.setPaddingRelative(start, top, end, bottom);
-        }
-
-        @Override
-        public int getWindowSystemUiVisibility(View view) {
-            return view.getWindowSystemUiVisibility();
-        }
-
-        @Override
-        public boolean isPaddingRelative(View view) {
-            return view.isPaddingRelative();
-        }
-
-        @Override
-        public Display getDisplay(View view) {
-            return view.getDisplay();
-        }
-
-        @Override
-        public int generateViewId() {
-            return View.generateViewId();
-        }
-    }
-
-    @RequiresApi(19)
-    static class ViewCompatApi19Impl extends ViewCompatApi17Impl {
-        @Override
-        public int getAccessibilityLiveRegion(View view) {
-            return view.getAccessibilityLiveRegion();
-        }
-
-        @Override
-        public void setAccessibilityLiveRegion(View view, int mode) {
-            view.setAccessibilityLiveRegion(mode);
-        }
-
-        @Override
-        public void setImportantForAccessibility(View view, int mode) {
-            view.setImportantForAccessibility(mode);
-        }
-
-        @Override
-        public boolean isLaidOut(View view) {
-            return view.isLaidOut();
-        }
-
-        @Override
-        public boolean isLayoutDirectionResolved(View view) {
-            return view.isLayoutDirectionResolved();
-        }
-
-        @Override
-        public boolean isAttachedToWindow(View view) {
-            return view.isAttachedToWindow();
-        }
     }
 
     @RequiresApi(21)
-    static class ViewCompatApi21Impl extends ViewCompatApi19Impl {
+    static class ViewCompatApi21Impl extends ViewCompatBaseImpl {
         private static ThreadLocal<Rect> sThreadLocalRect;
 
         @Override
@@ -1226,11 +844,6 @@ public class ViewCompat {
         @Override
         public String getTransitionName(View view) {
             return view.getTransitionName();
-        }
-
-        @Override
-        public void requestApplyInsets(View view) {
-            view.requestApplyInsets();
         }
 
         @Override
@@ -1624,12 +1237,6 @@ public class ViewCompat {
             IMPL = new ViewCompatApi23Impl();
         } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new ViewCompatApi21Impl();
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            IMPL = new ViewCompatApi19Impl();
-        } else if (Build.VERSION.SDK_INT >= 17) {
-            IMPL = new ViewCompatApi17Impl();
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            IMPL = new ViewCompatApi16Impl();
         } else {
             IMPL = new ViewCompatBaseImpl();
         }
@@ -2007,7 +1614,10 @@ public class ViewCompat {
      * @return true if the view has transient state
      */
     public static boolean hasTransientState(@NonNull View view) {
-        return IMPL.hasTransientState(view);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return view.hasTransientState();
+        }
+        return false;
     }
 
     /**
@@ -2018,7 +1628,9 @@ public class ViewCompat {
      * @param hasTransientState true if this view has transient state
      */
     public static void setHasTransientState(@NonNull View view, boolean hasTransientState) {
-        IMPL.setHasTransientState(view, hasTransientState);
+        if (Build.VERSION.SDK_INT >= 16) {
+            view.setHasTransientState(hasTransientState);
+        }
     }
 
     /**
@@ -2031,7 +1643,11 @@ public class ViewCompat {
      * @param view View to invalidate
      */
     public static void postInvalidateOnAnimation(@NonNull View view) {
-        IMPL.postInvalidateOnAnimation(view);
+        if (Build.VERSION.SDK_INT >= 16) {
+            view.postInvalidateOnAnimation();
+        } else {
+            view.postInvalidate();
+        }
     }
 
     /**
@@ -2049,7 +1665,11 @@ public class ViewCompat {
      */
     public static void postInvalidateOnAnimation(@NonNull View view, int left, int top,
             int right, int bottom) {
-        IMPL.postInvalidateOnAnimation(view, left, top, right, bottom);
+        if (Build.VERSION.SDK_INT >= 16) {
+            view.postInvalidateOnAnimation(left, top, right, bottom);
+        } else {
+            view.postInvalidate(left, top, right, bottom);
+        }
     }
 
     /**
@@ -2063,7 +1683,11 @@ public class ViewCompat {
      * @param action The Runnable that will be executed.
      */
     public static void postOnAnimation(@NonNull View view, Runnable action) {
-        IMPL.postOnAnimation(view, action);
+        if (Build.VERSION.SDK_INT >= 16) {
+            view.postOnAnimation(action);
+        } else {
+            view.postDelayed(action, ValueAnimator.getFrameDelay());
+        }
     }
 
     /**
@@ -2081,7 +1705,11 @@ public class ViewCompat {
      */
     public static void postOnAnimationDelayed(@NonNull View view, Runnable action,
             long delayMillis) {
-        IMPL.postOnAnimationDelayed(view, action, delayMillis);
+        if (Build.VERSION.SDK_INT >= 16) {
+            view.postOnAnimationDelayed(action, delayMillis);
+        } else {
+            view.postDelayed(action, ValueAnimator.getFrameDelay() + delayMillis);
+        }
     }
 
     /**
@@ -2099,8 +1727,10 @@ public class ViewCompat {
      */
     @ImportantForAccessibility
     public static int getImportantForAccessibility(@NonNull View view) {
-        //noinspection ResourceType
-        return IMPL.getImportantForAccessibility(view);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return view.getImportantForAccessibility();
+        }
+        return 0;
     }
 
     /**
@@ -2124,7 +1754,18 @@ public class ViewCompat {
      */
     public static void setImportantForAccessibility(@NonNull View view,
             @ImportantForAccessibility int mode) {
-        IMPL.setImportantForAccessibility(view, mode);
+        if (Build.VERSION.SDK_INT >= 19) {
+            view.setImportantForAccessibility(mode);
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            // IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS is not available
+            // on this platform so replace with IMPORTANT_FOR_ACCESSIBILITY_NO
+            // which is closer semantically.
+            if (mode == IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
+                mode = IMPORTANT_FOR_ACCESSIBILITY_NO;
+            }
+            //noinspection WrongConstant
+            view.setImportantForAccessibility(mode);
+        }
     }
 
     /**
@@ -2183,7 +1824,10 @@ public class ViewCompat {
      */
     public static boolean performAccessibilityAction(@NonNull View view, int action,
             Bundle arguments) {
-        return IMPL.performAccessibilityAction(view, action, arguments);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return view.performAccessibilityAction(action, arguments);
+        }
+        return false;
     }
 
     /**
@@ -2210,7 +1854,13 @@ public class ViewCompat {
      * @see AccessibilityNodeProviderCompat
      */
     public static AccessibilityNodeProviderCompat getAccessibilityNodeProvider(@NonNull View view) {
-        return IMPL.getAccessibilityNodeProvider(view);
+        if (Build.VERSION.SDK_INT >= 16) {
+            AccessibilityNodeProvider provider = view.getAccessibilityNodeProvider();
+            if (provider != null) {
+                return new AccessibilityNodeProviderCompat(provider);
+            }
+        }
+        return null;
     }
 
     /**
@@ -2299,7 +1949,10 @@ public class ViewCompat {
      * @return The labeled view id.
      */
     public static int getLabelFor(@NonNull View view) {
-        return IMPL.getLabelFor(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.getLabelFor();
+        }
+        return 0;
     }
 
     /**
@@ -2310,7 +1963,9 @@ public class ViewCompat {
      * @param labeledId The labeled view id.
      */
     public static void setLabelFor(@NonNull View view, @IdRes int labeledId) {
-        IMPL.setLabelFor(view, labeledId);
+        if (Build.VERSION.SDK_INT >= 17) {
+            view.setLabelFor(labeledId);
+        }
     }
 
     /**
@@ -2344,7 +1999,15 @@ public class ViewCompat {
      * @see #setLayerType(View, int, android.graphics.Paint)
      */
     public static void setLayerPaint(@NonNull View view, Paint paint) {
-        IMPL.setLayerPaint(view, paint);
+        if (Build.VERSION.SDK_INT >= 17) {
+            view.setLayerPaint(paint);
+        } else {
+            // Make sure the paint is correct; this will be cheap if it's the same
+            // instance as was used to call setLayerType earlier.
+            view.setLayerType(view.getLayerType(), paint);
+            // This is expensive, but the only way to accomplish this before JB-MR1.
+            view.invalidate();
+        }
     }
 
     /**
@@ -2359,8 +2022,10 @@ public class ViewCompat {
      */
     @ResolvedLayoutDirectionMode
     public static int getLayoutDirection(@NonNull View view) {
-        //noinspection ResourceType
-        return IMPL.getLayoutDirection(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.getLayoutDirection();
+        }
+        return LAYOUT_DIRECTION_LTR;
     }
 
     /**
@@ -2381,7 +2046,9 @@ public class ViewCompat {
      */
     public static void setLayoutDirection(@NonNull View view,
             @LayoutDirectionMode int layoutDirection) {
-        IMPL.setLayoutDirection(view, layoutDirection);
+        if (Build.VERSION.SDK_INT >= 17) {
+            view.setLayoutDirection(layoutDirection);
+        }
     }
 
     /**
@@ -2393,7 +2060,10 @@ public class ViewCompat {
      * @return The parent for use in accessibility inspection
      */
     public static ViewParent getParentForAccessibility(@NonNull View view) {
-        return IMPL.getParentForAccessibility(view);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return view.getParentForAccessibility();
+        }
+        return view.getParent();
     }
 
     /**
@@ -2526,8 +2196,10 @@ public class ViewCompat {
      */
     @AccessibilityLiveRegion
     public static int getAccessibilityLiveRegion(@NonNull View view) {
-        //noinspection ResourceType
-        return IMPL.getAccessibilityLiveRegion(view);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return view.getAccessibilityLiveRegion();
+        }
+        return ACCESSIBILITY_LIVE_REGION_NONE;
     }
 
     /**
@@ -2560,7 +2232,9 @@ public class ViewCompat {
      */
     public static void setAccessibilityLiveRegion(@NonNull View view,
             @AccessibilityLiveRegion int mode) {
-        IMPL.setAccessibilityLiveRegion(view, mode);
+        if (Build.VERSION.SDK_INT >= 19) {
+            view.setAccessibilityLiveRegion(mode);
+        }
     }
 
     /**
@@ -2573,7 +2247,10 @@ public class ViewCompat {
      */
     @Px
     public static int getPaddingStart(@NonNull View view) {
-        return IMPL.getPaddingStart(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.getPaddingStart();
+        }
+        return view.getPaddingLeft();
     }
 
     /**
@@ -2586,7 +2263,10 @@ public class ViewCompat {
      */
     @Px
     public static int getPaddingEnd(@NonNull View view) {
-        return IMPL.getPaddingEnd(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.getPaddingEnd();
+        }
+        return view.getPaddingRight();
     }
 
     /**
@@ -2604,7 +2284,11 @@ public class ViewCompat {
      */
     public static void setPaddingRelative(@NonNull View view, @Px int start, @Px int top,
             @Px int end, @Px int bottom) {
-        IMPL.setPaddingRelative(view, start, top, end, bottom);
+        if (Build.VERSION.SDK_INT >= 17) {
+            view.setPaddingRelative(start, top, end, bottom);
+        } else {
+            view.setPadding(start, top, end, bottom);
+        }
     }
 
     /**
@@ -2679,7 +2363,30 @@ public class ViewCompat {
      * @return the minimum width the view will try to be.
      */
     public static int getMinimumWidth(@NonNull View view) {
-        return IMPL.getMinimumWidth(view);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return view.getMinimumWidth();
+        }
+
+        if (!sMinWidthFieldFetched) {
+            try {
+                sMinWidthField = View.class.getDeclaredField("mMinWidth");
+                sMinWidthField.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                // Couldn't find the field. Abort!
+            }
+            sMinWidthFieldFetched = true;
+        }
+
+        if (sMinWidthField != null) {
+            try {
+                return (int) sMinWidthField.get(view);
+            } catch (Exception e) {
+                // Field get failed. Oh well...
+            }
+        }
+
+        // We failed, return 0
+        return 0;
     }
 
     /**
@@ -2690,7 +2397,30 @@ public class ViewCompat {
      * @return the minimum height the view will try to be.
      */
     public static int getMinimumHeight(@NonNull View view) {
-        return IMPL.getMinimumHeight(view);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return view.getMinimumHeight();
+        }
+
+        if (!sMinHeightFieldFetched) {
+            try {
+                sMinHeightField = View.class.getDeclaredField("mMinHeight");
+                sMinHeightField.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                // Couldn't find the field. Abort!
+            }
+            sMinHeightFieldFetched = true;
+        }
+
+        if (sMinHeightField != null) {
+            try {
+                return (int) sMinHeightField.get(view);
+            } catch (Exception e) {
+                // Field get failed. Oh well...
+            }
+        }
+
+        // We failed, return 0
+        return 0;
     }
 
     /**
@@ -3024,7 +2754,10 @@ public class ViewCompat {
      * Returns the current system UI visibility that is currently set for the entire window.
      */
     public static int getWindowSystemUiVisibility(@NonNull View view) {
-        return IMPL.getWindowSystemUiVisibility(view);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return view.getWindowSystemUiVisibility();
+        }
+        return 0;
     }
 
     /**
@@ -3032,7 +2765,11 @@ public class ViewCompat {
      * falls back to {@code View.requestFitSystemWindows()} where available.
      */
     public static void requestApplyInsets(@NonNull View view) {
-        IMPL.requestApplyInsets(view);
+        if (Build.VERSION.SDK_INT >= 20) {
+            view.requestApplyInsets();
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            view.requestFitSystemWindows();
+        }
     }
 
     /**
@@ -3056,7 +2793,10 @@ public class ViewCompat {
      * return false before API 16 (Jellybean).
      */
     public static boolean getFitsSystemWindows(@NonNull View v) {
-        return IMPL.getFitsSystemWindows(v);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return v.getFitsSystemWindows();
+        }
+        return false;
     }
 
     /**
@@ -3174,7 +2914,10 @@ public class ViewCompat {
      * @return true if the content in this view might overlap, false otherwise.
      */
     public static boolean hasOverlappingRendering(@NonNull View view) {
-        return IMPL.hasOverlappingRendering(view);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return view.hasOverlappingRendering();
+        }
+        return true;
     }
 
     /**
@@ -3184,7 +2927,10 @@ public class ViewCompat {
      * @return true if the padding is relative or false if it is not.
      */
     public static boolean isPaddingRelative(@NonNull View view) {
-        return IMPL.isPaddingRelative(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.isPaddingRelative();
+        }
+        return false;
     }
 
     /**
@@ -3194,7 +2940,11 @@ public class ViewCompat {
      * desired, please use{@code setPadding(int, int, int, int)}.
      */
     public static void setBackground(@NonNull View view, @Nullable Drawable background) {
-        IMPL.setBackground(view, background);
+        if (Build.VERSION.SDK_INT >= 16) {
+            view.setBackground(background);
+        } else {
+            view.setBackgroundDrawable(background);
+        }
     }
 
     /**
@@ -3594,7 +3344,10 @@ public class ViewCompat {
      * was last attached to or detached from a window.
      */
     public static boolean isLaidOut(@NonNull View view) {
-        return IMPL.isLaidOut(view);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return view.isLaidOut();
+        }
+        return view.getWidth() > 0 && view.getHeight() > 0;
     }
 
     /**
@@ -3608,7 +3361,10 @@ public class ViewCompat {
      * @return true if layout direction has been resolved.
      */
     public static boolean isLayoutDirectionResolved(@NonNull View view) {
-        return IMPL.isLayoutDirectionResolved(view);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return view.isLayoutDirectionResolved();
+        }
+        return false;
     }
 
     /**
@@ -3693,7 +3449,10 @@ public class ViewCompat {
      * Returns true if the provided view is currently attached to a window.
      */
     public static boolean isAttachedToWindow(@NonNull View view) {
-        return IMPL.isAttachedToWindow(view);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return view.isAttachedToWindow();
+        }
+        return view.getWindowToken() != null;
     }
 
     /**
@@ -3791,7 +3550,15 @@ public class ViewCompat {
      */
     @Nullable
     public static Display getDisplay(@NonNull View view) {
-        return IMPL.getDisplay(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.getDisplay();
+        }
+        if (isAttachedToWindow(view)) {
+            final WindowManager wm = (WindowManager) view.getContext().getSystemService(
+                    Context.WINDOW_SERVICE);
+            return wm.getDefaultDisplay();
+        }
+        return null;
     }
 
     /**
@@ -3966,7 +3733,18 @@ public class ViewCompat {
      * @return a generated ID value
      */
     public static int generateViewId() {
-        return IMPL.generateViewId();
+        if (Build.VERSION.SDK_INT >= 17) {
+            return View.generateViewId();
+        }
+        for (;;) {
+            final int result = sNextGeneratedId.get();
+            // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
+            int newValue = result + 1;
+            if (newValue > 0x00FFFFFF) newValue = 1; // Roll over to 1, not 0.
+            if (sNextGeneratedId.compareAndSet(result, newValue)) {
+                return result;
+            }
+        }
     }
 
     protected ViewCompat() {}
