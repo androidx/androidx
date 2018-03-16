@@ -43,15 +43,17 @@ class Main {
         val OPTION_OUTPUT_FILE = createOption("outputfile", "Output file", isRequired = false)
         val OPTION_CONFIG = createOption("c", "Input config path", isRequired = false)
         val OPTION_LOG_LEVEL = createOption("l", "Logging level. debug, verbose, error, info " +
-            "(default)", isRequired = false)
+                "(default)", isRequired = false)
         val OPTION_REVERSED = createOption("r", "Run reversed process", hasArgs = false,
-            isRequired = false)
+                isRequired = false)
         val OPTION_REWRITE_SUPPORT_LIB = createOption("s", "If set, all libraries being rewritten" +
-            " are assumed to be part of Support Library. Otherwise only general dependencies are" +
-            " expected.",
-            hasArgs = false, isRequired = false)
+                " are assumed to be part of Support Library. Otherwise only general dependencies " +
+                " are expected.", hasArgs = false, isRequired = false)
         val OPTION_STRICT = createOption("strict",
                 "Don't fallback in case rules are missing", hasArgs = false, isRequired = false)
+        val OPTION_REBUILD_TOP_OF_TREE = createOption("rebuildTopOfTree",
+                "Rebuild the zip of maven distribution according to the generated pom file",
+                hasArgs = false, isRequired = false)
 
         private fun createOption(
             argName: String,
@@ -82,6 +84,8 @@ class Main {
         val inputLibraries = cmd.getOptionValues(OPTION_INPUT.opt).map { File(it) }.toSet()
         val outputDir = cmd.getOptionValue(OPTION_OUTPUT_DIR.opt)
         val outputFile = cmd.getOptionValue(OPTION_OUTPUT_FILE.opt)
+        val rebuildTopOfTree = cmd.hasOption(OPTION_REBUILD_TOP_OF_TREE.opt)
+
         if (outputDir == null && outputFile == null) {
             throw IllegalArgumentException("Must specify -outputdir or -outputfile")
         }
@@ -95,8 +99,12 @@ class Main {
 
         val fileMappings = mutableSetOf<FileMapping>()
         if (outputFile != null) {
-            fileMappings.add(FileMapping(inputLibraries.first(),
-                    File(outputFile)))
+            if (rebuildTopOfTree) {
+                val tempFile = createTempFile(suffix = "zip")
+                fileMappings.add(FileMapping(inputLibraries.first(), tempFile))
+            } else {
+                fileMappings.add(FileMapping(inputLibraries.first(), File(outputFile)))
+            }
         } else {
             inputLibraries.forEach {
                 val newFileName = File(Paths.get(outputDir).toString(), it.name)
@@ -127,6 +135,14 @@ class Main {
             rewritingSupportLib = rewriteSupportLib,
             useIdentityIfTypeIsMissing = !isStrict)
         processor.transform(fileMappings)
+
+        if (rebuildTopOfTree) {
+            val tempFile = fileMappings.first().to
+            TopOfTreeBuilder().rebuildFrom(
+                inputZip = tempFile,
+                outputZip = File(outputFile))
+            tempFile.delete()
+        }
     }
 
     private fun parseCmdLine(args: Array<String>): CommandLine? {

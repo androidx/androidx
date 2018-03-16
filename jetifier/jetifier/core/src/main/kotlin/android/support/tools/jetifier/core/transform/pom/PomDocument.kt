@@ -104,6 +104,17 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
         hasChanged = true
     }
 
+    fun getAsPomDependency(): PomDependency {
+        val groupIdNode = document.rootElement
+                .getChild("groupId", document.rootElement.namespace)
+        val artifactIdNode = document.rootElement
+                .getChild("artifactId", document.rootElement.namespace)
+        val version = document.rootElement
+                .getChild("version", document.rootElement.namespace)
+
+        return PomDependency(groupIdNode.text, artifactIdNode.text, version.text)
+    }
+
     private fun rewriteOwnArtifactInfo(context: TransformationContext) {
         val groupIdNode = document.rootElement
                 .getChild("groupId", document.rootElement.namespace)
