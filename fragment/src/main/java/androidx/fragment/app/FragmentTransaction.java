@@ -25,6 +25,7 @@ import androidx.annotation.AnimRes;
 import androidx.annotation.AnimatorRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
@@ -44,12 +45,14 @@ public abstract class FragmentTransaction {
     /**
      * Calls {@link #add(int, Fragment, String)} with a 0 containerViewId.
      */
-    public abstract FragmentTransaction add(Fragment fragment, String tag);
+    @NonNull
+    public abstract FragmentTransaction add(@NonNull Fragment fragment, @Nullable String tag);
 
     /**
      * Calls {@link #add(int, Fragment, String)} with a null tag.
      */
-    public abstract FragmentTransaction add(@IdRes int containerViewId, Fragment fragment);
+    @NonNull
+    public abstract FragmentTransaction add(@IdRes int containerViewId, @NonNull Fragment fragment);
 
     /**
      * Add a fragment to the activity state.  This fragment may optionally
@@ -66,13 +69,16 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    public abstract FragmentTransaction add(@IdRes int containerViewId, Fragment fragment,
+    @NonNull
+    public abstract FragmentTransaction add(@IdRes int containerViewId, @NonNull Fragment fragment,
             @Nullable String tag);
 
     /**
      * Calls {@link #replace(int, Fragment, String)} with a null tag.
      */
-    public abstract FragmentTransaction replace(@IdRes int containerViewId, Fragment fragment);
+    @NonNull
+    public abstract FragmentTransaction replace(@IdRes int containerViewId,
+            @NonNull Fragment fragment);
 
     /**
      * Replace an existing fragment that was added to a container.  This is
@@ -90,8 +96,9 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    public abstract FragmentTransaction replace(@IdRes int containerViewId, Fragment fragment,
-            @Nullable String tag);
+    @NonNull
+    public abstract FragmentTransaction replace(@IdRes int containerViewId,
+            @NonNull Fragment fragment, @Nullable String tag);
 
     /**
      * Remove an existing fragment.  If it was added to a container, its view
@@ -101,7 +108,8 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    public abstract FragmentTransaction remove(Fragment fragment);
+    @NonNull
+    public abstract FragmentTransaction remove(@NonNull Fragment fragment);
 
     /**
      * Hides an existing fragment.  This is only relevant for fragments whose
@@ -112,7 +120,8 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    public abstract FragmentTransaction hide(Fragment fragment);
+    @NonNull
+    public abstract FragmentTransaction hide(@NonNull Fragment fragment);
 
     /**
      * Shows a previously hidden fragment.  This is only relevant for fragments whose
@@ -123,7 +132,8 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    public abstract FragmentTransaction show(Fragment fragment);
+    @NonNull
+    public abstract FragmentTransaction show(@NonNull Fragment fragment);
 
     /**
      * Detach the given fragment from the UI.  This is the same state as
@@ -136,7 +146,8 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    public abstract FragmentTransaction detach(Fragment fragment);
+    @NonNull
+    public abstract FragmentTransaction detach(@NonNull Fragment fragment);
 
     /**
      * Re-attach a fragment after it had previously been detached from
@@ -148,7 +159,8 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    public abstract FragmentTransaction attach(Fragment fragment);
+    @NonNull
+    public abstract FragmentTransaction attach(@NonNull Fragment fragment);
 
     /**
      * Set a currently active fragment in this FragmentManager as the primary navigation fragment.
@@ -166,7 +178,8 @@ public abstract class FragmentTransaction {
      * @param fragment the fragment to set as the primary navigation fragment
      * @return the same FragmentTransaction instance
      */
-    public abstract FragmentTransaction setPrimaryNavigationFragment(Fragment fragment);
+    @NonNull
+    public abstract FragmentTransaction setPrimaryNavigationFragment(@Nullable Fragment fragment);
 
     /**
      * @return <code>true</code> if this transaction contains no operations,
@@ -212,6 +225,7 @@ public abstract class FragmentTransaction {
      * @param exit An animation or animator resource ID used for the exit animation on the
      *             view of the fragment being removed or detached.
      */
+    @NonNull
     public abstract FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
             @AnimatorRes @AnimRes int exit);
 
@@ -232,6 +246,7 @@ public abstract class FragmentTransaction {
      *                view of the fragment being removed or detached caused by
      *                {@link FragmentManager#popBackStack()} or similar methods.
      */
+    @NonNull
     public abstract FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
             @AnimatorRes @AnimRes int exit, @AnimatorRes @AnimRes int popEnter,
             @AnimatorRes @AnimRes int popExit);
@@ -248,19 +263,23 @@ public abstract class FragmentTransaction {
      * @see Fragment#setSharedElementReturnTransition(Object)
      * @see Fragment#setSharedElementEnterTransition(Object)
      */
-    public abstract FragmentTransaction addSharedElement(View sharedElement, String name);
+    @NonNull
+    public abstract FragmentTransaction addSharedElement(@NonNull View sharedElement,
+            @NonNull String name);
 
     /**
      * Select a standard transition animation for this transaction.  May be
      * one of {@link #TRANSIT_NONE}, {@link #TRANSIT_FRAGMENT_OPEN},
      * {@link #TRANSIT_FRAGMENT_CLOSE}, or {@link #TRANSIT_FRAGMENT_FADE}.
      */
+    @NonNull
     public abstract FragmentTransaction setTransition(@Transit int transit);
 
     /**
      * Set a custom style resource that will be used for resolving transit
      * animations.
      */
+    @NonNull
     public abstract FragmentTransaction setTransitionStyle(@StyleRes int styleRes);
 
     /**
@@ -270,6 +289,7 @@ public abstract class FragmentTransaction {
      *
      * @param name An optional name for this back stack state, or null.
      */
+    @NonNull
     public abstract FragmentTransaction addToBackStack(@Nullable String name);
 
     /**
@@ -286,6 +306,7 @@ public abstract class FragmentTransaction {
      * addToBackStack will throw {@link IllegalStateException}. If addToBackStack
      * has already been called, this method will throw IllegalStateException.
      */
+    @NonNull
     public abstract FragmentTransaction disallowAddToBackStack();
 
     /**
@@ -294,6 +315,7 @@ public abstract class FragmentTransaction {
      *
      * @param res A string resource containing the title.
      */
+    @NonNull
     public abstract FragmentTransaction setBreadCrumbTitle(@StringRes int res);
 
     /**
@@ -301,7 +323,8 @@ public abstract class FragmentTransaction {
      * method is <em>not</em> recommended, as the string can not be changed
      * later if the locale changes.
      */
-    public abstract FragmentTransaction setBreadCrumbTitle(CharSequence text);
+    @NonNull
+    public abstract FragmentTransaction setBreadCrumbTitle(@Nullable CharSequence text);
 
     /**
      * Set the short title to show as a bread crumb when this transaction
@@ -309,6 +332,7 @@ public abstract class FragmentTransaction {
      *
      * @param res A string resource containing the title.
      */
+    @NonNull
     public abstract FragmentTransaction setBreadCrumbShortTitle(@StringRes int res);
 
     /**
@@ -316,7 +340,8 @@ public abstract class FragmentTransaction {
      * method is <em>not</em> recommended, as the string can not be changed
      * later if the locale changes.
      */
-    public abstract FragmentTransaction setBreadCrumbShortTitle(CharSequence text);
+    @NonNull
+    public abstract FragmentTransaction setBreadCrumbShortTitle(@Nullable CharSequence text);
 
     /**
      * Sets whether or not to allow optimizing operations within and across
@@ -346,6 +371,7 @@ public abstract class FragmentTransaction {
      *                          or {@code false} to disable optimizing out redundant
      *                          operations on this transaction.
      */
+    @NonNull
     public abstract FragmentTransaction setReorderingAllowed(boolean reorderingAllowed);
 
     /**
@@ -375,7 +401,8 @@ public abstract class FragmentTransaction {
      * @return this FragmentTransaction
      * @throws IllegalStateException if {@link #addToBackStack(String)} has been called
      */
-    public abstract FragmentTransaction runOnCommit(Runnable runnable);
+    @NonNull
+    public abstract FragmentTransaction runOnCommit(@NonNull Runnable runnable);
 
     /**
      * Schedules a commit of this transaction.  The commit does
