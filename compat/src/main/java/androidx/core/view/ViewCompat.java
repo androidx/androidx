@@ -19,6 +19,7 @@ package androidx.core.view;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.Context;
@@ -458,10 +459,6 @@ public class ViewCompat {
         static Field sAccessibilityDelegateField;
         static boolean sAccessibilityDelegateCheckFailed = false;
 
-        public void setAutofillHints(@NonNull View v, @Nullable String... autofillHints) {
-            // no-op
-        }
-
         public void setAccessibilityDelegate(View v,
                 @Nullable AccessibilityDelegateCompat delegate) {
             v.setAccessibilityDelegate(delegate == null ? null : delegate.getBridge());
@@ -710,64 +707,6 @@ public class ViewCompat {
             final float y = view.getTranslationY();
             view.setTranslationY(y + 1);
             view.setTranslationY(y);
-        }
-
-        public void setTooltipText(View view, CharSequence tooltipText) {
-        }
-
-        public int getNextClusterForwardId(@NonNull View view) {
-            return View.NO_ID;
-        }
-
-        public void setNextClusterForwardId(@NonNull View view, int nextClusterForwardId) {
-            // no-op
-        }
-
-        public boolean isKeyboardNavigationCluster(@NonNull View view) {
-            return false;
-        }
-
-        public void setKeyboardNavigationCluster(@NonNull View view, boolean isCluster) {
-            // no-op
-        }
-
-        public boolean isFocusedByDefault(@NonNull View view) {
-            return false;
-        }
-
-        public void setFocusedByDefault(@NonNull View view, boolean isFocusedByDefault) {
-            // no-op
-        }
-
-        public View keyboardNavigationClusterSearch(@NonNull View view, View currentCluster,
-                @FocusDirection int direction) {
-            return null;
-        }
-
-        public void addKeyboardNavigationClusters(@NonNull View view,
-                @NonNull Collection<View> views, int direction) {
-            // no-op
-        }
-
-        public boolean restoreDefaultFocus(@NonNull View view) {
-            return view.requestFocus();
-        }
-
-        public boolean hasExplicitFocusable(@NonNull View view) {
-            return view.hasFocusable();
-        }
-
-        @TargetApi(Build.VERSION_CODES.O)
-        public @AutofillImportance int getImportantForAutofill(@NonNull View v) {
-            return View.IMPORTANT_FOR_AUTOFILL_AUTO;
-        }
-
-        public void setImportantForAutofill(@NonNull View v, @AutofillImportance int mode) {
-            // no-op
-        }
-
-        public boolean isImportantForAutofill(@NonNull View v) {
-            return true;
         }
     }
 
@@ -1050,92 +989,9 @@ public class ViewCompat {
         }
     }
 
-    @RequiresApi(26)
-    static class ViewCompatApi26Impl extends ViewCompatApi23Impl {
-
-        @Override
-        public void setAutofillHints(@NonNull View v, @Nullable String... autofillHints) {
-            v.setAutofillHints(autofillHints);
-        }
-
-        @Override
-        public @AutofillImportance int getImportantForAutofill(@NonNull View v) {
-            return v.getImportantForAutofill();
-        }
-
-        @Override
-        public void setImportantForAutofill(@NonNull View v, @AutofillImportance int mode) {
-            v.setImportantForAutofill(mode);
-        }
-
-        @Override
-        public boolean isImportantForAutofill(@NonNull View v) {
-            return v.isImportantForAutofill();
-        }
-
-        @Override
-        public void setTooltipText(View view, CharSequence tooltipText) {
-            view.setTooltipText(tooltipText);
-        }
-
-        @Override
-        public int getNextClusterForwardId(@NonNull View view) {
-            return view.getNextClusterForwardId();
-        }
-
-        @Override
-        public void setNextClusterForwardId(@NonNull View view, int nextClusterForwardId) {
-            view.setNextClusterForwardId(nextClusterForwardId);
-        }
-
-        @Override
-        public boolean isKeyboardNavigationCluster(@NonNull View view) {
-            return view.isKeyboardNavigationCluster();
-        }
-
-        @Override
-        public void setKeyboardNavigationCluster(@NonNull View view, boolean isCluster) {
-            view.setKeyboardNavigationCluster(isCluster);
-        }
-
-        @Override
-        public boolean isFocusedByDefault(@NonNull View view) {
-            return view.isFocusedByDefault();
-        }
-
-        @Override
-        public void setFocusedByDefault(@NonNull View view, boolean isFocusedByDefault) {
-            view.setFocusedByDefault(isFocusedByDefault);
-        }
-
-        @Override
-        public View keyboardNavigationClusterSearch(@NonNull View view, View currentCluster,
-                @FocusDirection int direction) {
-            return view.keyboardNavigationClusterSearch(currentCluster, direction);
-        }
-
-        @Override
-        public void addKeyboardNavigationClusters(@NonNull View view,
-                @NonNull Collection<View> views, int direction) {
-            view.addKeyboardNavigationClusters(views, direction);
-        }
-
-        @Override
-        public boolean restoreDefaultFocus(@NonNull View view) {
-            return view.restoreDefaultFocus();
-        }
-
-        @Override
-        public boolean hasExplicitFocusable(@NonNull View view) {
-            return view.hasExplicitFocusable();
-        }
-    }
-
     static final ViewCompatBaseImpl IMPL;
     static {
-        if (Build.VERSION.SDK_INT >= 26) {
-            IMPL = new ViewCompatApi26Impl();
-        } else if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             IMPL = new ViewCompatApi23Impl();
         } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new ViewCompatApi21Impl();
@@ -1368,7 +1224,9 @@ public class ViewCompat {
      * @attr ref android.R.styleable#View_autofillHints
      */
     public static void setAutofillHints(@NonNull View v, @Nullable String... autofillHints) {
-        IMPL.setAutofillHints(v, autofillHints);
+        if (Build.VERSION.SDK_INT >= 26) {
+            v.setAutofillHints(autofillHints);
+        }
     }
 
     /**
@@ -1385,8 +1243,12 @@ public class ViewCompat {
      *
      * @attr ref android.R.styleable#View_importantForAutofill
      */
+    @SuppressLint("InlinedApi")
     public static @AutofillImportance int getImportantForAutofill(@NonNull View v) {
-        return IMPL.getImportantForAutofill(v);
+        if (Build.VERSION.SDK_INT >= 26) {
+            return v.getImportantForAutofill();
+        }
+        return View.IMPORTANT_FOR_AUTOFILL_AUTO;
     }
 
     /**
@@ -1427,7 +1289,9 @@ public class ViewCompat {
      * @attr ref android.R.styleable#View_importantForAutofill
      */
     public static void setImportantForAutofill(@NonNull View v, @AutofillImportance int mode) {
-        IMPL.setImportantForAutofill(v, mode);
+        if (Build.VERSION.SDK_INT >= 26) {
+            v.setImportantForAutofill(mode);
+        }
     }
 
     /**
@@ -1494,7 +1358,10 @@ public class ViewCompat {
      * @see android.view.autofill.AutofillManager#requestAutofill(View)
      */
     public static boolean isImportantForAutofill(@NonNull View v) {
-        return IMPL.isImportantForAutofill(v);
+        if (Build.VERSION.SDK_INT >= 26) {
+            return v.isImportantForAutofill();
+        }
+        return true;
     }
 
     /**
@@ -3519,7 +3386,9 @@ public class ViewCompat {
      * @param tooltipText the tooltip text
      */
     public static void setTooltipText(@NonNull View view, @Nullable CharSequence tooltipText) {
-        IMPL.setTooltipText(view, tooltipText);
+        if (Build.VERSION.SDK_INT >= 26) {
+            view.setTooltipText(tooltipText);
+        }
     }
 
     /**
@@ -3559,7 +3428,10 @@ public class ViewCompat {
      *         should decide automatically or API < 26.
      */
     public static int getNextClusterForwardId(@NonNull View view) {
-        return IMPL.getNextClusterForwardId(view);
+        if (Build.VERSION.SDK_INT >= 26) {
+            return view.getNextClusterForwardId();
+        }
+        return View.NO_ID;
     }
 
     /**
@@ -3570,7 +3442,9 @@ public class ViewCompat {
      *                             should decide automatically.
      */
     public static void setNextClusterForwardId(@NonNull View view, int nextClusterForwardId) {
-        IMPL.setNextClusterForwardId(view, nextClusterForwardId);
+        if (Build.VERSION.SDK_INT >= 26) {
+            view.setNextClusterForwardId(nextClusterForwardId);
+        }
     }
 
     /**
@@ -3580,7 +3454,10 @@ public class ViewCompat {
      * @return {@code true} if this view is a root of a cluster, or {@code false} otherwise.
      */
     public static boolean isKeyboardNavigationCluster(@NonNull View view) {
-        return IMPL.isKeyboardNavigationCluster(view);
+        if (Build.VERSION.SDK_INT >= 26) {
+            return view.isKeyboardNavigationCluster();
+        }
+        return false;
     }
 
     /**
@@ -3591,7 +3468,9 @@ public class ViewCompat {
      *                  to unmark.
      */
     public static void setKeyboardNavigationCluster(@NonNull View view, boolean isCluster) {
-        IMPL.setKeyboardNavigationCluster(view, isCluster);
+        if (Build.VERSION.SDK_INT >= 26) {
+            view.setKeyboardNavigationCluster(isCluster);
+        }
     }
 
     /**
@@ -3604,7 +3483,10 @@ public class ViewCompat {
      * @return {@code true} if {@code view} is the default-focus view, {@code false} otherwise.
      */
     public static boolean isFocusedByDefault(@NonNull View view) {
-        return IMPL.isFocusedByDefault(view);
+        if (Build.VERSION.SDK_INT >= 26) {
+            return view.isFocusedByDefault();
+        }
+        return false;
     }
 
     /**
@@ -3620,7 +3502,9 @@ public class ViewCompat {
      *                           {@code false} otherwise.
      */
     public static void setFocusedByDefault(@NonNull View view, boolean isFocusedByDefault) {
-        IMPL.setFocusedByDefault(view, isFocusedByDefault);
+        if (Build.VERSION.SDK_INT >= 26) {
+            view.setFocusedByDefault(isFocusedByDefault);
+        }
     }
 
     /**
@@ -3636,7 +3520,10 @@ public class ViewCompat {
      */
     public static View keyboardNavigationClusterSearch(@NonNull View view, View currentCluster,
             @FocusDirection int direction) {
-        return IMPL.keyboardNavigationClusterSearch(view, currentCluster, direction);
+        if (Build.VERSION.SDK_INT >= 26) {
+            return view.keyboardNavigationClusterSearch(currentCluster, direction);
+        }
+        return null;
     }
 
     /**
@@ -3649,7 +3536,9 @@ public class ViewCompat {
      */
     public static void addKeyboardNavigationClusters(@NonNull View view,
             @NonNull Collection<View> views, int direction) {
-        IMPL.addKeyboardNavigationClusters(view, views, direction);
+        if (Build.VERSION.SDK_INT >= 26) {
+            view.addKeyboardNavigationClusters(views, direction);
+        }
     }
 
     /**
@@ -3661,7 +3550,10 @@ public class ViewCompat {
      *         otherwise.
      */
     public static boolean restoreDefaultFocus(@NonNull View view) {
-        return IMPL.restoreDefaultFocus(view);
+        if (Build.VERSION.SDK_INT >= 26) {
+            return view.restoreDefaultFocus();
+        }
+        return view.requestFocus();
     }
 
     /**
@@ -3680,7 +3572,10 @@ public class ViewCompat {
      *         view, {@code false} otherwise
      */
     public static boolean hasExplicitFocusable(@NonNull View view) {
-        return IMPL.hasExplicitFocusable(view);
+        if (Build.VERSION.SDK_INT >= 26) {
+            return view.hasExplicitFocusable();
+        }
+        return view.hasFocusable();
     }
 
     /**
