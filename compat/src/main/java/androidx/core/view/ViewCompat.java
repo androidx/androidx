@@ -49,6 +49,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
@@ -1842,7 +1843,8 @@ public class ViewCompat {
      * @param v The View against which to invoke the method.
      * @param info The instance to initialize.
      */
-    public static void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
+    public static void onInitializeAccessibilityNodeInfo(@NonNull View v,
+            AccessibilityNodeInfoCompat info) {
         IMPL.onInitializeAccessibilityNodeInfo(v, info);
     }
 
@@ -1867,7 +1869,8 @@ public class ViewCompat {
      *                 delegated
      * @see AccessibilityDelegateCompat
      */
-    public static void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
+    public static void setAccessibilityDelegate(@NonNull View v,
+            AccessibilityDelegateCompat delegate) {
         IMPL.setAccessibilityDelegate(v, delegate);
     }
 
@@ -2036,7 +2039,7 @@ public class ViewCompat {
      * @param v The View instance to check
      * @return True if the View has an accessibility delegate
      */
-    public static boolean hasAccessibilityDelegate(View v) {
+    public static boolean hasAccessibilityDelegate(@NonNull View v) {
         return IMPL.hasAccessibilityDelegate(v);
     }
 
@@ -2048,7 +2051,7 @@ public class ViewCompat {
      * @param view View to check for transient state
      * @return true if the view has transient state
      */
-    public static boolean hasTransientState(View view) {
+    public static boolean hasTransientState(@NonNull View view) {
         return IMPL.hasTransientState(view);
     }
 
@@ -2059,7 +2062,7 @@ public class ViewCompat {
      * @param view View tracking transient state
      * @param hasTransientState true if this view has transient state
      */
-    public static void setHasTransientState(View view, boolean hasTransientState) {
+    public static void setHasTransientState(@NonNull View view, boolean hasTransientState) {
         IMPL.setHasTransientState(view, hasTransientState);
     }
 
@@ -2072,7 +2075,7 @@ public class ViewCompat {
      *
      * @param view View to invalidate
      */
-    public static void postInvalidateOnAnimation(View view) {
+    public static void postInvalidateOnAnimation(@NonNull View view) {
         IMPL.postInvalidateOnAnimation(view);
     }
 
@@ -2089,7 +2092,7 @@ public class ViewCompat {
      * @param right The right coordinate of the rectangle to invalidate.
      * @param bottom The bottom coordinate of the rectangle to invalidate.
      */
-    public static void postInvalidateOnAnimation(View view, int left, int top,
+    public static void postInvalidateOnAnimation(@NonNull View view, int left, int top,
             int right, int bottom) {
         IMPL.postInvalidateOnAnimation(view, left, top, right, bottom);
     }
@@ -2104,7 +2107,7 @@ public class ViewCompat {
      * @param view View to post this Runnable to
      * @param action The Runnable that will be executed.
      */
-    public static void postOnAnimation(View view, Runnable action) {
+    public static void postOnAnimation(@NonNull View view, Runnable action) {
         IMPL.postOnAnimation(view, action);
     }
 
@@ -2121,7 +2124,8 @@ public class ViewCompat {
      * @param delayMillis The delay (in milliseconds) until the Runnable
      *        will be executed.
      */
-    public static void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
+    public static void postOnAnimationDelayed(@NonNull View view, Runnable action,
+            long delayMillis) {
         IMPL.postOnAnimationDelayed(view, action, delayMillis);
     }
 
@@ -2139,7 +2143,7 @@ public class ViewCompat {
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
      */
     @ImportantForAccessibility
-    public static int getImportantForAccessibility(View view) {
+    public static int getImportantForAccessibility(@NonNull View view) {
         //noinspection ResourceType
         return IMPL.getImportantForAccessibility(view);
     }
@@ -2163,7 +2167,7 @@ public class ViewCompat {
      * @see #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
      */
-    public static void setImportantForAccessibility(View view,
+    public static void setImportantForAccessibility(@NonNull View view,
             @ImportantForAccessibility int mode) {
         IMPL.setImportantForAccessibility(view, mode);
     }
@@ -2204,7 +2208,7 @@ public class ViewCompat {
      * @see #setImportantForAccessibility(View, int)
      * @see #getImportantForAccessibility(View)
      */
-    public static boolean isImportantForAccessibility(View view) {
+    public static boolean isImportantForAccessibility(@NonNull View view) {
         return IMPL.isImportantForAccessibility(view);
     }
 
@@ -2222,7 +2226,8 @@ public class ViewCompat {
      * @param arguments Optional action arguments.
      * @return Whether the action was performed.
      */
-    public static boolean performAccessibilityAction(View view, int action, Bundle arguments) {
+    public static boolean performAccessibilityAction(@NonNull View view, int action,
+            Bundle arguments) {
         return IMPL.performAccessibilityAction(view, action, arguments);
     }
 
@@ -2249,7 +2254,7 @@ public class ViewCompat {
      *
      * @see AccessibilityNodeProviderCompat
      */
-    public static AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view) {
+    public static AccessibilityNodeProviderCompat getAccessibilityNodeProvider(@NonNull View view) {
         return IMPL.getAccessibilityNodeProvider(view);
     }
 
@@ -2338,7 +2343,7 @@ public class ViewCompat {
      * @param view The view on which to invoke the corresponding method.
      * @return The labeled view id.
      */
-    public static int getLabelFor(View view) {
+    public static int getLabelFor(@NonNull View view) {
         return IMPL.getLabelFor(view);
     }
 
@@ -2349,7 +2354,7 @@ public class ViewCompat {
      * @param view The view on which to invoke the corresponding method.
      * @param labeledId The labeled view id.
      */
-    public static void setLabelFor(View view, @IdRes int labeledId) {
+    public static void setLabelFor(@NonNull View view, @IdRes int labeledId) {
         IMPL.setLabelFor(view, labeledId);
     }
 
@@ -2383,7 +2388,7 @@ public class ViewCompat {
      *
      * @see #setLayerType(View, int, android.graphics.Paint)
      */
-    public static void setLayerPaint(View view, Paint paint) {
+    public static void setLayerPaint(@NonNull View view, Paint paint) {
         IMPL.setLayerPaint(view, paint);
     }
 
@@ -2398,7 +2403,7 @@ public class ViewCompat {
      * is lower than Jellybean MR1 (API 17)
      */
     @ResolvedLayoutDirectionMode
-    public static int getLayoutDirection(View view) {
+    public static int getLayoutDirection(@NonNull View view) {
         //noinspection ResourceType
         return IMPL.getLayoutDirection(view);
     }
@@ -2419,7 +2424,8 @@ public class ViewCompat {
      * proceeds up the parent chain of the view to get the value. If there is no parent, then it
      * will return the default {@link #LAYOUT_DIRECTION_LTR}.
      */
-    public static void setLayoutDirection(View view, @LayoutDirectionMode int layoutDirection) {
+    public static void setLayoutDirection(@NonNull View view,
+            @LayoutDirectionMode int layoutDirection) {
         IMPL.setLayoutDirection(view, layoutDirection);
     }
 
@@ -2431,7 +2437,7 @@ public class ViewCompat {
      * @param view View to retrieve parent for
      * @return The parent for use in accessibility inspection
      */
-    public static ViewParent getParentForAccessibility(View view) {
+    public static ViewParent getParentForAccessibility(@NonNull View view) {
         return IMPL.getParentForAccessibility(view);
     }
 
@@ -2564,7 +2570,7 @@ public class ViewCompat {
      * @see ViewCompat#setAccessibilityLiveRegion(View, int)
      */
     @AccessibilityLiveRegion
-    public static int getAccessibilityLiveRegion(View view) {
+    public static int getAccessibilityLiveRegion(@NonNull View view) {
         //noinspection ResourceType
         return IMPL.getAccessibilityLiveRegion(view);
     }
@@ -2597,7 +2603,8 @@ public class ViewCompat {
      *        <li>{@link #ACCESSIBILITY_LIVE_REGION_ASSERTIVE}
      *        </ul>
      */
-    public static void setAccessibilityLiveRegion(View view, @AccessibilityLiveRegion int mode) {
+    public static void setAccessibilityLiveRegion(@NonNull View view,
+            @AccessibilityLiveRegion int mode) {
         IMPL.setAccessibilityLiveRegion(view, mode);
     }
 
@@ -2609,7 +2616,8 @@ public class ViewCompat {
      * @param view The view to get padding for
      * @return the start padding in pixels
      */
-    public static int getPaddingStart(View view) {
+    @Px
+    public static int getPaddingStart(@NonNull View view) {
         return IMPL.getPaddingStart(view);
     }
 
@@ -2621,7 +2629,8 @@ public class ViewCompat {
      * @param view The view to get padding for
      * @return the end padding in pixels
      */
-    public static int getPaddingEnd(View view) {
+    @Px
+    public static int getPaddingEnd(@NonNull View view) {
         return IMPL.getPaddingEnd(view);
     }
 
@@ -2638,21 +2647,22 @@ public class ViewCompat {
      * @param end the end padding in pixels
      * @param bottom the bottom padding in pixels
      */
-    public static void setPaddingRelative(View view, int start, int top, int end, int bottom) {
+    public static void setPaddingRelative(@NonNull View view, @Px int start, @Px int top,
+            @Px int end, @Px int bottom) {
         IMPL.setPaddingRelative(view, start, top, end, bottom);
     }
 
     /**
      * Notify a view that it is being temporarily detached.
      */
-    public static void dispatchStartTemporaryDetach(View view) {
+    public static void dispatchStartTemporaryDetach(@NonNull View view) {
         IMPL.dispatchStartTemporaryDetach(view);
     }
 
     /**
      * Notify a view that its temporary detach has ended; the view is now reattached.
      */
-    public static void dispatchFinishTemporaryDetach(View view) {
+    public static void dispatchFinishTemporaryDetach(@NonNull View view) {
         IMPL.dispatchFinishTemporaryDetach(view);
     }
 
@@ -2713,7 +2723,7 @@ public class ViewCompat {
      *
      * @return the minimum width the view will try to be.
      */
-    public static int getMinimumWidth(View view) {
+    public static int getMinimumWidth(@NonNull View view) {
         return IMPL.getMinimumWidth(view);
     }
 
@@ -2724,7 +2734,7 @@ public class ViewCompat {
      *
      * @return the minimum height the view will try to be.
      */
-    public static int getMinimumHeight(View view) {
+    public static int getMinimumHeight(@NonNull View view) {
         return IMPL.getMinimumHeight(view);
     }
 
@@ -2734,7 +2744,8 @@ public class ViewCompat {
      *
      * @return ViewPropertyAnimator The ViewPropertyAnimator associated with this View.
      */
-    public static ViewPropertyAnimatorCompat animate(View view) {
+    @NonNull
+    public static ViewPropertyAnimatorCompat animate(@NonNull View view) {
         return IMPL.animate(view);
     }
 
@@ -2999,7 +3010,7 @@ public class ViewCompat {
     /**
      * Sets the base elevation of this view, in pixels.
      */
-    public static void setElevation(View view, float elevation) {
+    public static void setElevation(@NonNull View view, float elevation) {
         IMPL.setElevation(view, elevation);
     }
 
@@ -3008,14 +3019,14 @@ public class ViewCompat {
      *
      * @return The base depth position of the view, in pixels.
      */
-    public static float getElevation(View view) {
+    public static float getElevation(@NonNull View view) {
         return IMPL.getElevation(view);
     }
 
     /**
      * Sets the depth location of this view relative to its {@link #getElevation(View) elevation}.
      */
-    public static void setTranslationZ(View view, float translationZ) {
+    public static void setTranslationZ(@NonNull View view, float translationZ) {
         IMPL.setTranslationZ(view, translationZ);
     }
 
@@ -3024,7 +3035,7 @@ public class ViewCompat {
      *
      * @return The depth of this view relative to its elevation.
      */
-    public static float getTranslationZ(View view) {
+    public static float getTranslationZ(@NonNull View view) {
         return IMPL.getTranslationZ(view);
     }
 
@@ -3035,7 +3046,7 @@ public class ViewCompat {
      * @param view The View against which to invoke the method.
      * @param transitionName The name of the View to uniquely identify it for Transitions.
      */
-    public static void setTransitionName(View view, String transitionName) {
+    public static void setTransitionName(@NonNull View view, String transitionName) {
         IMPL.setTransitionName(view, transitionName);
     }
 
@@ -3049,14 +3060,15 @@ public class ViewCompat {
      * @return The name used of the View to be used to identify Views in Transitions or null
      * if no name has been given.
      */
-    public static String getTransitionName(View view) {
+    @Nullable
+    public static String getTransitionName(@NonNull View view) {
         return IMPL.getTransitionName(view);
     }
 
     /**
      * Returns the current system UI visibility that is currently set for the entire window.
      */
-    public static int getWindowSystemUiVisibility(View view) {
+    public static int getWindowSystemUiVisibility(@NonNull View view) {
         return IMPL.getWindowSystemUiVisibility(view);
     }
 
@@ -3064,7 +3076,7 @@ public class ViewCompat {
      * Ask that a new dispatch of {@code View.onApplyWindowInsets(WindowInsets)} be performed. This
      * falls back to {@code View.requestFitSystemWindows()} where available.
      */
-    public static void requestApplyInsets(View view) {
+    public static void requestApplyInsets(@NonNull View view) {
         IMPL.requestApplyInsets(view);
     }
 
@@ -3088,7 +3100,7 @@ public class ViewCompat {
      * Returns true if this view should adapt to fit system window insets. This method will always
      * return false before API 16 (Jellybean).
      */
-    public static boolean getFitsSystemWindows(View v) {
+    public static boolean getFitsSystemWindows(@NonNull View v) {
         return IMPL.getFitsSystemWindows(v);
     }
 
@@ -3123,7 +3135,7 @@ public class ViewCompat {
      * Set an {@link OnApplyWindowInsetsListener} to take over the policy for applying
      * window insets to this view. This will only take effect on devices with API 21 or above.
      */
-    public static void setOnApplyWindowInsetsListener(View v,
+    public static void setOnApplyWindowInsetsListener(@NonNull View v,
             OnApplyWindowInsetsListener listener) {
         IMPL.setOnApplyWindowInsetsListener(v, listener);
     }
@@ -3140,7 +3152,8 @@ public class ViewCompat {
      * @param insets Insets to apply
      * @return The supplied insets with any applied insets consumed
      */
-    public static WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat insets) {
+    public static WindowInsetsCompat onApplyWindowInsets(@NonNull View view,
+            WindowInsetsCompat insets) {
         return IMPL.onApplyWindowInsets(view, insets);
     }
 
@@ -3156,7 +3169,7 @@ public class ViewCompat {
      * @param insets Insets to apply
      * @return The provided insets minus the insets that were consumed
      */
-    public static WindowInsetsCompat dispatchApplyWindowInsets(View view,
+    public static WindowInsetsCompat dispatchApplyWindowInsets(@NonNull View view,
             WindowInsetsCompat insets) {
         return IMPL.dispatchApplyWindowInsets(view, insets);
     }
@@ -3205,7 +3218,7 @@ public class ViewCompat {
      *
      * @return true if the content in this view might overlap, false otherwise.
      */
-    public static boolean hasOverlappingRendering(View view) {
+    public static boolean hasOverlappingRendering(@NonNull View view) {
         return IMPL.hasOverlappingRendering(view);
     }
 
@@ -3215,7 +3228,7 @@ public class ViewCompat {
      *
      * @return true if the padding is relative or false if it is not.
      */
-    public static boolean isPaddingRelative(View view) {
+    public static boolean isPaddingRelative(@NonNull View view) {
         return IMPL.isPaddingRelative(view);
     }
 
@@ -3225,7 +3238,7 @@ public class ViewCompat {
      * when a background is removed, this View's padding isn't touched. If setting the padding is
      * desired, please use{@code setPadding(int, int, int, int)}.
      */
-    public static void setBackground(View view, Drawable background) {
+    public static void setBackground(@NonNull View view, @Nullable Drawable background) {
         IMPL.setBackground(view, background);
     }
 
@@ -3235,7 +3248,7 @@ public class ViewCompat {
      * Only returns meaningful info when running on API v21 or newer, or if {@code view}
      * implements the {@code TintableBackgroundView} interface.
      */
-    public static ColorStateList getBackgroundTintList(View view) {
+    public static ColorStateList getBackgroundTintList(@NonNull View view) {
         return IMPL.getBackgroundTintList(view);
     }
 
@@ -3246,7 +3259,7 @@ public class ViewCompat {
      * previous to API v21, it will only take effect if {@code view} implements the
      * {@code TintableBackgroundView} interface.
      */
-    public static void setBackgroundTintList(View view, ColorStateList tintList) {
+    public static void setBackgroundTintList(@NonNull View view, ColorStateList tintList) {
         IMPL.setBackgroundTintList(view, tintList);
     }
 
@@ -3257,7 +3270,7 @@ public class ViewCompat {
      * Only returns meaningful info when running on API v21 or newer, or if {@code view}
      * implements the {@code TintableBackgroundView} interface.
      */
-    public static PorterDuff.Mode getBackgroundTintMode(View view) {
+    public static PorterDuff.Mode getBackgroundTintMode(@NonNull View view) {
         return IMPL.getBackgroundTintMode(view);
     }
 
@@ -3270,7 +3283,7 @@ public class ViewCompat {
      * previous to API v21, it will only take effect if {@code view} implement the
      * {@code TintableBackgroundView} interface.
      */
-    public static void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
+    public static void setBackgroundTintMode(@NonNull View view, PorterDuff.Mode mode) {
         IMPL.setBackgroundTintMode(view, mode);
     }
 
@@ -3614,7 +3627,7 @@ public class ViewCompat {
      *
      * @return whether the view hierarchy is currently undergoing a layout pass
      */
-    public static boolean isInLayout(View view) {
+    public static boolean isInLayout(@NonNull View view) {
         return IMPL.isInLayout(view);
     }
 
@@ -3622,7 +3635,7 @@ public class ViewCompat {
      * Returns true if {@code view} has been through at least one layout since it
      * was last attached to or detached from a window.
      */
-    public static boolean isLaidOut(View view) {
+    public static boolean isLaidOut(@NonNull View view) {
         return IMPL.isLaidOut(view);
     }
 
@@ -3636,7 +3649,7 @@ public class ViewCompat {
      *
      * @return true if layout direction has been resolved.
      */
-    public static boolean isLayoutDirectionResolved(View view) {
+    public static boolean isLayoutDirectionResolved(@NonNull View view) {
         return IMPL.isLayoutDirectionResolved(view);
     }
 
@@ -3647,7 +3660,7 @@ public class ViewCompat {
      *
      * @return The visual z position of this view, in pixels.
      */
-    public static float getZ(View view) {
+    public static float getZ(@NonNull View view) {
         return IMPL.getZ(view);
     }
 
@@ -3663,7 +3676,7 @@ public class ViewCompat {
      *
      * @param z The visual z position of this view, in pixels.
      */
-    public static void setZ(View view, float z) {
+    public static void setZ(@NonNull View view, float z) {
         IMPL.setZ(view, z);
     }
 
@@ -3672,7 +3685,7 @@ public class ViewCompat {
      *
      * @param offset the number of pixels to offset the view by
      */
-    public static void offsetTopAndBottom(View view, int offset) {
+    public static void offsetTopAndBottom(@NonNull View view, int offset) {
         IMPL.offsetTopAndBottom(view, offset);
     }
 
@@ -3681,7 +3694,7 @@ public class ViewCompat {
      *
      * @param offset the number of pixels to offset the view by
      */
-    public static void offsetLeftAndRight(View view, int offset) {
+    public static void offsetLeftAndRight(@NonNull View view, int offset) {
         IMPL.offsetLeftAndRight(view, offset);
     }
 
@@ -3696,7 +3709,7 @@ public class ViewCompat {
      * @param clipBounds The rectangular area, in the local coordinates of
      * this view, to which future drawing operations will be clipped.
      */
-    public static void setClipBounds(View view, Rect clipBounds) {
+    public static void setClipBounds(@NonNull View view, Rect clipBounds) {
         IMPL.setClipBounds(view, clipBounds);
     }
 
@@ -3708,14 +3721,15 @@ public class ViewCompat {
      * @return A copy of the current clip bounds if clip bounds are set,
      * otherwise null.
      */
-    public static Rect getClipBounds(View view) {
+    @Nullable
+    public static Rect getClipBounds(@NonNull View view) {
         return IMPL.getClipBounds(view);
     }
 
     /**
      * Returns true if the provided view is currently attached to a window.
      */
-    public static boolean isAttachedToWindow(View view) {
+    public static boolean isAttachedToWindow(@NonNull View view) {
         return IMPL.isAttachedToWindow(view);
     }
 
@@ -3724,7 +3738,7 @@ public class ViewCompat {
      *
      * @return true if there is a listener, false if there is none.
      */
-    public static boolean hasOnClickListeners(View view) {
+    public static boolean hasOnClickListeners(@NonNull View view) {
         return IMPL.hasOnClickListeners(view);
     }
 
@@ -3809,6 +3823,7 @@ public class ViewCompat {
      *
      * @return The logical display, or null if the view is not currently attached to a window.
      */
+    @Nullable
     public static Display getDisplay(@NonNull View view) {
         return IMPL.getDisplay(view);
     }
@@ -3828,7 +3843,7 @@ public class ViewCompat {
     /**
      * Start the drag and drop operation.
      */
-    public static boolean startDragAndDrop(View v, ClipData data,
+    public static boolean startDragAndDrop(@NonNull View v, ClipData data,
             View.DragShadowBuilder shadowBuilder, Object localState, int flags) {
         return IMPL.startDragAndDrop(v, data, shadowBuilder, localState, flags);
     }
@@ -3836,14 +3851,14 @@ public class ViewCompat {
     /**
      * Cancel the drag and drop operation.
      */
-    public static void cancelDragAndDrop(View v) {
+    public static void cancelDragAndDrop(@NonNull View v) {
         IMPL.cancelDragAndDrop(v);
     }
 
     /**
      * Update the drag shadow while drag and drop is in progress.
      */
-    public static void updateDragShadow(View v, View.DragShadowBuilder shadowBuilder) {
+    public static void updateDragShadow(@NonNull View v, View.DragShadowBuilder shadowBuilder) {
         IMPL.updateDragShadow(v, shadowBuilder);
     }
 
