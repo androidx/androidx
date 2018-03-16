@@ -63,8 +63,15 @@ class PreferenceInflater {
 
     private void init(PreferenceManager preferenceManager) {
         mPreferenceManager = preferenceManager;
-        setDefaultPackages(new String[] {"androidx.preference.",
-                "androidx.preference."});
+
+        // Handle legacy case for de-Jetification. These preference classes were originally
+        // in separate packages, so we need two defaults when de-Jetified.
+        setDefaultPackages(new String[] {
+                // Preference was originally in android.support.v7.preference.
+                Preference.class.getPackage().getName() + ".",
+                // SwitchPreference was originally in android.support.v14.preference.
+                SwitchPreference.class.getPackage().getName() + "."
+        });
     }
 
     /**
