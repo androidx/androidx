@@ -20,7 +20,7 @@
     <application android:label="@string/activity_sample_code"
             android:supportsRtl="true"
             android:icon="@drawable/app_sample_code"
-            android:theme="@style/Theme.Car.Light.NoActionBar">
+            android:theme="@style/CarTheme">
 
         <activity android:name=".SupportCarDemoActivity">
             <intent-filter>
