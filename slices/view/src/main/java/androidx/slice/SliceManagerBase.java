@@ -24,10 +24,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import android.util.ArrayMap;
 import android.util.Pair;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.util.concurrent.Executor;
 
@@ -58,13 +59,11 @@ public abstract class SliceManagerBase extends SliceManager {
     @Override
     public void registerSliceCallback(@NonNull Uri uri, @NonNull Executor executor,
             @NonNull SliceCallback callback) {
-        pinSlice(uri);
         getListener(uri, callback, new SliceListenerImpl(uri, executor, callback)).startListening();
     }
 
     @Override
     public void unregisterSliceCallback(@NonNull Uri uri, @NonNull SliceCallback callback) {
-        unpinSlice(uri);
         SliceListenerImpl impl = mListenerLookup.remove(new Pair<>(uri, callback));
         if (impl != null) impl.stopListening();
     }
@@ -84,6 +83,7 @@ public abstract class SliceManagerBase extends SliceManager {
         private Uri mUri;
         private final Executor mExecutor;
         private final SliceCallback mCallback;
+        private boolean mPinned;
 
         SliceListenerImpl(Uri uri, Executor executor, SliceCallback callback) {
             mUri = uri;
@@ -93,15 +93,32 @@ public abstract class SliceManagerBase extends SliceManager {
 
         void startListening() {
             mContext.getContentResolver().registerContentObserver(mUri, true, mObserver);
+            tryPin();
+        }
+
+        private void tryPin() {
+            if (!mPinned) {
+                try {
+                    pinSlice(mUri);
+                    mPinned = true;
+                } catch (SecurityException e) {
+                    // No permission currently.
+                }
+            }
         }
 
         void stopListening() {
             mContext.getContentResolver().unregisterContentObserver(mObserver);
+            if (mPinned) {
+                unpinSlice(mUri);
+                mPinned = false;
+            }
         }
 
         private final Runnable mUpdateSlice = new Runnable() {
             @Override
             public void run() {
+                tryPin();
                 final Slice s = Slice.bindSlice(mContext, mUri, SUPPORTED_SPECS);
                 mExecutor.execute(new Runnable() {
                     @Override
