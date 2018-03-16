@@ -20,18 +20,19 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
 import android.net.Uri;
-import androidx.annotation.RestrictTo;
 import android.util.Log;
 import android.util.Pair;
 
-import java.util.Arrays;
-import java.util.List;
-
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
 import androidx.slice.SliceSpec;
 import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Base class of builders of various template types.
@@ -131,7 +132,7 @@ public abstract class TemplateSliceBuilder {
 
     private List<SliceSpec> getSpecs() {
         if (SliceProvider.getCurrentSpecs() != null) {
-            return SliceProvider.getCurrentSpecs();
+            return new ArrayList<>(SliceProvider.getCurrentSpecs());
         }
         // TODO: Support getting specs from pinned info.
         Log.w(TAG, "Not currently bunding a slice");

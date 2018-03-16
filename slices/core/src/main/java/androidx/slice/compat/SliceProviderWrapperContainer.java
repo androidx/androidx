@@ -24,12 +24,13 @@ import android.app.slice.SliceProvider;
 import android.app.slice.SliceSpec;
 import android.content.Intent;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArraySet;
+import androidx.slice.SliceConvert;
 
 import java.util.List;
-
-import androidx.slice.SliceConvert;
 
 /**
  * @hide
@@ -55,7 +56,7 @@ public class SliceProviderWrapperContainer {
 
         @Override
         public Slice onBindSlice(Uri sliceUri, List<SliceSpec> supportedVersions) {
-            androidx.slice.SliceProvider.setSpecs(wrap(supportedVersions));
+            androidx.slice.SliceProvider.setSpecs(new ArraySet<>(wrap(supportedVersions)));
             try {
                 return SliceConvert.unwrap(mSliceProvider.onBindSlice(sliceUri));
             } finally {
