@@ -181,7 +181,7 @@ public final class ViewGroupCompat {
      *
      * @see #setLayoutMode(ViewGroup, int)
      */
-    public static int getLayoutMode(ViewGroup group) {
+    public static int getLayoutMode(@NonNull ViewGroup group) {
         return IMPL.getLayoutMode(group);
     }
 
@@ -194,7 +194,7 @@ public final class ViewGroupCompat {
      *
      * @see #getLayoutMode(ViewGroup)
      */
-    public static void setLayoutMode(ViewGroup group, int mode) {
+    public static void setLayoutMode(@NonNull ViewGroup group, int mode) {
         IMPL.setLayoutMode(group, mode);
     }
 
@@ -206,7 +206,7 @@ public final class ViewGroupCompat {
      *                          only its children. If true, the entire ViewGroup will transition
      *                          together.
      */
-    public static void setTransitionGroup(ViewGroup group, boolean isTransitionGroup) {
+    public static void setTransitionGroup(@NonNull ViewGroup group, boolean isTransitionGroup) {
         IMPL.setTransitionGroup(group, isTransitionGroup);
     }
 
@@ -215,7 +215,7 @@ public final class ViewGroupCompat {
      * when executing an Activity transition. If this is false, child elements will move
      * individually during the transition.
      */
-    public static boolean isTransitionGroup(ViewGroup group) {
+    public static boolean isTransitionGroup(@NonNull ViewGroup group) {
         return IMPL.isTransitionGroup(group);
     }
 
