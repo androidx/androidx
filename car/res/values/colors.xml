@@ -144,8 +144,8 @@
 
     <!-- The ripple colors. The "dark" and "light" designation here refers to the color of the
          ripple  itself. -->
-    <color name="car_card_ripple_background_dark">#8F000000</color>
-    <color name="car_card_ripple_background_light">#27ffffff</color>
+    <color name="car_card_ripple_background_dark">#ff7da9c7</color>
+    <color name="car_card_ripple_background_light">#aeffffff</color>
 
     <!-- The ripple color for a light colored card. -->
     <color name="car_card_ripple_background">@color/car_card_ripple_background_dark</color>
