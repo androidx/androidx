@@ -18,9 +18,9 @@ package androidx.work;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
-import java.util.concurrent.TimeUnit;
-
 import androidx.work.impl.PeriodicWorkImpl;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * A class to execute a logical unit of repeating work.
@@ -151,6 +151,9 @@ public abstract class PeriodicWork implements BaseWork {
             return this;
         }
 
+        /**
+         * @hide
+         */
         @VisibleForTesting
         @Override
         public Builder withInitialRunAttemptCount(int runAttemptCount) {
@@ -158,6 +161,9 @@ public abstract class PeriodicWork implements BaseWork {
             return this;
         }
 
+        /**
+         * @hide
+         */
         @VisibleForTesting
         @Override
         public Builder withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
