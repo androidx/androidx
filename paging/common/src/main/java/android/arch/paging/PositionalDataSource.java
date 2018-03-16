@@ -16,6 +16,7 @@
 
 package android.arch.paging;
 
+import android.arch.core.util.Function;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
@@ -467,6 +468,22 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
             mPositionalDataSource = positionalDataSource;
         }
 
+        @NonNull
+        @Override
+        public <ToValue> DataSource<Integer, ToValue> mapByPage(
+                @NonNull Function<List<Value>, List<ToValue>> function) {
+            throw new UnsupportedOperationException(
+                    "Inaccessible inner type doesn't support map op");
+        }
+
+        @NonNull
+        @Override
+        public <ToValue> DataSource<Integer, ToValue> map(
+                @NonNull Function<Value, ToValue> function) {
+            throw new UnsupportedOperationException(
+                    "Inaccessible inner type doesn't support map op");
+        }
+
         @Override
         void dispatchLoadInitial(@Nullable Integer position, int initialLoadSize, int pageSize,
                 boolean enablePlaceholders, @NonNull Executor mainThreadExecutor,
@@ -511,5 +528,19 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
         Integer getKey(int position, Value item) {
             return position;
         }
+
+    }
+
+    @NonNull
+    @Override
+    public final <V> PositionalDataSource<V> mapByPage(
+            @NonNull Function<List<T>, List<V>> function) {
+        return new WrapperPositionalDataSource<>(this, function);
+    }
+
+    @NonNull
+    @Override
+    public final <V> PositionalDataSource<V> map(@NonNull Function<T, V> function) {
+        return mapByPage(createListFunction(function));
     }
 }

@@ -16,6 +16,7 @@
 
 package android.arch.paging;
 
+import android.arch.core.util.Function;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -356,4 +357,18 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
      */
     @NonNull
     public abstract Key getKey(@NonNull Value item);
+
+    @NonNull
+    @Override
+    public final <ToValue> ItemKeyedDataSource<Key, ToValue> mapByPage(
+            @NonNull Function<List<Value>, List<ToValue>> function) {
+        return new WrapperItemKeyedDataSource<>(this, function);
+    }
+
+    @NonNull
+    @Override
+    public final <ToValue> ItemKeyedDataSource<Key, ToValue> map(
+            @NonNull Function<Value, ToValue> function) {
+        return mapByPage(createListFunction(function));
+    }
 }
