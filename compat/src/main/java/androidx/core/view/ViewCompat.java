@@ -440,13 +440,14 @@ public class ViewCompat {
      */
     public static final int SCROLL_INDICATOR_END = 0x20;
 
+    private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
+
     static class ViewCompatBaseImpl {
         private static Field sMinWidthField;
         private static boolean sMinWidthFieldFetched;
         private static Field sMinHeightField;
         private static boolean sMinHeightFieldFetched;
         private static WeakHashMap<View, String> sTransitionNameMap;
-        private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
         private Method mDispatchStartTemporaryDetach;
         private Method mDispatchFinishTemporaryDetach;
         private boolean mTempDetachBound;
@@ -549,43 +550,8 @@ public class ViewCompat {
             return null;
         }
 
-        public int getLabelFor(View view) {
-            return 0;
-        }
-
-        public void setLabelFor(View view, int id) {
-        }
-
-        public void setLayerPaint(View view, Paint paint) {
-            // Make sure the paint is correct; this will be cheap if it's the same
-            // instance as was used to call setLayerType earlier.
-            view.setLayerType(view.getLayerType(), paint);
-            // This is expensive, but the only way to accomplish this before JB-MR1.
-            view.invalidate();
-        }
-
-        public int getLayoutDirection(View view) {
-            return LAYOUT_DIRECTION_LTR;
-        }
-
-        public void setLayoutDirection(View view, int layoutDirection) {
-            // No-op
-        }
-
         public ViewParent getParentForAccessibility(View view) {
             return view.getParent();
-        }
-
-        public int getPaddingStart(View view) {
-            return view.getPaddingLeft();
-        }
-
-        public int getPaddingEnd(View view) {
-            return view.getPaddingRight();
-        }
-
-        public void setPaddingRelative(View view, int start, int top, int end, int bottom) {
-            view.setPadding(start, top, end, bottom);
         }
 
         public void dispatchStartTemporaryDetach(View view) {
@@ -708,10 +674,6 @@ public class ViewCompat {
             return sTransitionNameMap.get(view);
         }
 
-        public int getWindowSystemUiVisibility(View view) {
-            return 0;
-        }
-
         public void requestApplyInsets(View view) {
         }
 
@@ -765,10 +727,6 @@ public class ViewCompat {
 
         public WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
             return insets;
-        }
-
-        public boolean isPaddingRelative(View view) {
-            return false;
         }
 
         public void setNestedScrollingEnabled(View view, boolean enabled) {
@@ -920,15 +878,6 @@ public class ViewCompat {
             // no-op
         }
 
-        public Display getDisplay(View view) {
-            if (isAttachedToWindow(view)) {
-                final WindowManager wm = (WindowManager) view.getContext().getSystemService(
-                        Context.WINDOW_SERVICE);
-                return wm.getDefaultDisplay();
-            }
-            return null;
-        }
-
         public void setTooltipText(View view, CharSequence tooltipText) {
         }
 
@@ -985,21 +934,6 @@ public class ViewCompat {
 
         public boolean isImportantForAutofill(@NonNull View v) {
             return true;
-        }
-
-        /**
-         * {@link ViewCompat#generateViewId()}
-         */
-        public int generateViewId() {
-            for (;;) {
-                final int result = sNextGeneratedId.get();
-                // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
-                int newValue = result + 1;
-                if (newValue > 0x00FFFFFF) newValue = 1; // Roll over to 1, not 0.
-                if (sNextGeneratedId.compareAndSet(result, newValue)) {
-                    return result;
-                }
-            }
         }
     }
 
@@ -1083,72 +1017,8 @@ public class ViewCompat {
         }
     }
 
-    @RequiresApi(17)
-    static class ViewCompatApi17Impl extends ViewCompatApi16Impl {
-
-        @Override
-        public int getLabelFor(View view) {
-            return view.getLabelFor();
-        }
-
-        @Override
-        public void setLabelFor(View view, int id) {
-            view.setLabelFor(id);
-        }
-
-        @Override
-        public void setLayerPaint(View view, Paint paint) {
-            view.setLayerPaint(paint);
-        }
-
-        @Override
-        public int getLayoutDirection(View view) {
-            return view.getLayoutDirection();
-        }
-
-        @Override
-        public void setLayoutDirection(View view, int layoutDirection) {
-            view.setLayoutDirection(layoutDirection);
-        }
-
-        @Override
-        public int getPaddingStart(View view) {
-            return view.getPaddingStart();
-        }
-
-        @Override
-        public int getPaddingEnd(View view) {
-            return view.getPaddingEnd();
-        }
-
-        @Override
-        public void setPaddingRelative(View view, int start, int top, int end, int bottom) {
-            view.setPaddingRelative(start, top, end, bottom);
-        }
-
-        @Override
-        public int getWindowSystemUiVisibility(View view) {
-            return view.getWindowSystemUiVisibility();
-        }
-
-        @Override
-        public boolean isPaddingRelative(View view) {
-            return view.isPaddingRelative();
-        }
-
-        @Override
-        public Display getDisplay(View view) {
-            return view.getDisplay();
-        }
-
-        @Override
-        public int generateViewId() {
-            return View.generateViewId();
-        }
-    }
-
     @RequiresApi(21)
-    static class ViewCompatApi21Impl extends ViewCompatApi17Impl {
+    static class ViewCompatApi21Impl extends ViewCompatApi16Impl {
         private static ThreadLocal<Rect> sThreadLocalRect;
 
         @Override
@@ -1557,8 +1427,6 @@ public class ViewCompat {
             IMPL = new ViewCompatApi23Impl();
         } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new ViewCompatApi21Impl();
-        } else if (Build.VERSION.SDK_INT >= 17) {
-            IMPL = new ViewCompatApi17Impl();
         } else if (Build.VERSION.SDK_INT >= 16) {
             IMPL = new ViewCompatApi16Impl();
         } else {
@@ -2241,7 +2109,10 @@ public class ViewCompat {
      * @return The labeled view id.
      */
     public static int getLabelFor(@NonNull View view) {
-        return IMPL.getLabelFor(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.getLabelFor();
+        }
+        return 0;
     }
 
     /**
@@ -2252,7 +2123,9 @@ public class ViewCompat {
      * @param labeledId The labeled view id.
      */
     public static void setLabelFor(@NonNull View view, @IdRes int labeledId) {
-        IMPL.setLabelFor(view, labeledId);
+        if (Build.VERSION.SDK_INT >= 17) {
+            view.setLabelFor(labeledId);
+        }
     }
 
     /**
@@ -2286,7 +2159,15 @@ public class ViewCompat {
      * @see #setLayerType(View, int, android.graphics.Paint)
      */
     public static void setLayerPaint(@NonNull View view, Paint paint) {
-        IMPL.setLayerPaint(view, paint);
+        if (Build.VERSION.SDK_INT >= 17) {
+            view.setLayerPaint(paint);
+        } else {
+            // Make sure the paint is correct; this will be cheap if it's the same
+            // instance as was used to call setLayerType earlier.
+            view.setLayerType(view.getLayerType(), paint);
+            // This is expensive, but the only way to accomplish this before JB-MR1.
+            view.invalidate();
+        }
     }
 
     /**
@@ -2301,8 +2182,10 @@ public class ViewCompat {
      */
     @ResolvedLayoutDirectionMode
     public static int getLayoutDirection(@NonNull View view) {
-        //noinspection ResourceType
-        return IMPL.getLayoutDirection(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.getLayoutDirection();
+        }
+        return LAYOUT_DIRECTION_LTR;
     }
 
     /**
@@ -2323,7 +2206,9 @@ public class ViewCompat {
      */
     public static void setLayoutDirection(@NonNull View view,
             @LayoutDirectionMode int layoutDirection) {
-        IMPL.setLayoutDirection(view, layoutDirection);
+        if (Build.VERSION.SDK_INT >= 17) {
+            view.setLayoutDirection(layoutDirection);
+        }
     }
 
     /**
@@ -2519,7 +2404,10 @@ public class ViewCompat {
      */
     @Px
     public static int getPaddingStart(@NonNull View view) {
-        return IMPL.getPaddingStart(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.getPaddingStart();
+        }
+        return view.getPaddingLeft();
     }
 
     /**
@@ -2532,7 +2420,10 @@ public class ViewCompat {
      */
     @Px
     public static int getPaddingEnd(@NonNull View view) {
-        return IMPL.getPaddingEnd(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.getPaddingEnd();
+        }
+        return view.getPaddingRight();
     }
 
     /**
@@ -2550,7 +2441,11 @@ public class ViewCompat {
      */
     public static void setPaddingRelative(@NonNull View view, @Px int start, @Px int top,
             @Px int end, @Px int bottom) {
-        IMPL.setPaddingRelative(view, start, top, end, bottom);
+        if (Build.VERSION.SDK_INT >= 17) {
+            view.setPaddingRelative(start, top, end, bottom);
+        } else {
+            view.setPadding(start, top, end, bottom);
+        }
     }
 
     /**
@@ -2970,7 +2865,10 @@ public class ViewCompat {
      * Returns the current system UI visibility that is currently set for the entire window.
      */
     public static int getWindowSystemUiVisibility(@NonNull View view) {
-        return IMPL.getWindowSystemUiVisibility(view);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return view.getWindowSystemUiVisibility();
+        }
+        return 0;
     }
 
     /**
@@ -3130,7 +3028,10 @@ public class ViewCompat {
      * @return true if the padding is relative or false if it is not.
      */
     public static boolean isPaddingRelative(@NonNull View view) {
-        return IMPL.isPaddingRelative(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.isPaddingRelative();
+        }
+        return false;
     }
 
     /**
@@ -3746,7 +3647,15 @@ public class ViewCompat {
      */
     @Nullable
     public static Display getDisplay(@NonNull View view) {
-        return IMPL.getDisplay(view);
+        if (Build.VERSION.SDK_INT >= 17) {
+            return view.getDisplay();
+        }
+        if (isAttachedToWindow(view)) {
+            final WindowManager wm = (WindowManager) view.getContext().getSystemService(
+                    Context.WINDOW_SERVICE);
+            return wm.getDefaultDisplay();
+        }
+        return null;
     }
 
     /**
@@ -3921,7 +3830,18 @@ public class ViewCompat {
      * @return a generated ID value
      */
     public static int generateViewId() {
-        return IMPL.generateViewId();
+        if (Build.VERSION.SDK_INT >= 17) {
+            return View.generateViewId();
+        }
+        for (;;) {
+            final int result = sNextGeneratedId.get();
+            // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
+            int newValue = result + 1;
+            if (newValue > 0x00FFFFFF) newValue = 1; // Roll over to 1, not 0.
+            if (sNextGeneratedId.compareAndSet(result, newValue)) {
+                return result;
+            }
+        }
     }
 
     protected ViewCompat() {}
