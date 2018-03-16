@@ -24,6 +24,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
+import androidx.work.ArrayCreatingInputMerger;
 import androidx.work.BaseWork;
 import androidx.work.BlockingWorkContinuation;
 import androidx.work.ExistingWorkPolicy;
@@ -199,7 +200,9 @@ public class WorkContinuationImpl extends WorkContinuation
             @NonNull List<WorkContinuation> continuations) {
 
         if (work == null) {
-            work = new Work.Builder(JoinWorker.class).build();
+            work = new Work.Builder(JoinWorker.class)
+                    .withInputMerger(ArrayCreatingInputMerger.class)
+                    .build();
         }
 
         List<WorkContinuationImpl> parents = new ArrayList<>(continuations.size());

@@ -16,7 +16,7 @@
 
 package androidx.work.impl.model;
 
-import static android.arch.persistence.room.OnConflictStrategy.FAIL;
+import static android.arch.persistence.room.OnConflictStrategy.IGNORE;
 
 import static androidx.work.impl.model.EnumTypeConverters.StateIds.COMPLETED_STATES;
 
@@ -43,7 +43,7 @@ public interface WorkSpecDao {
      *
      * @param workSpec The WorkSpec to insert.
      */
-    @Insert(onConflict = FAIL)
+    @Insert(onConflict = IGNORE)
     void insertWorkSpec(WorkSpec workSpec);
 
     /**
