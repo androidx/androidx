@@ -10,6 +10,8 @@ dependencies {
     api(project(":core"))
     api(project(":legacy-support-core-utils"))
 
+    annotationProcessor(NULLAWAY)
+
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
 }
 

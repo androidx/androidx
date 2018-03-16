@@ -19,6 +19,7 @@ package androidx.palette.graphics;
 import android.graphics.Color;
 import android.util.TimingLogger;
 
+import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ final class ColorCutQuantizer {
     final int[] mColors;
     final int[] mHistogram;
     final List<Palette.Swatch> mQuantizedColors;
-    final TimingLogger mTimingLogger;
+    @Nullable final TimingLogger mTimingLogger;
     final Palette.Filter[] mFilters;
 
     private final float[] mTempHsl = new float[3];
@@ -68,6 +69,7 @@ final class ColorCutQuantizer {
      * @param maxColors The maximum number of colors that should be in the result palette.
      * @param filters Set of filters to use in the quantization stage
      */
+    @SuppressWarnings("NullAway") // mTimingLogger initialization and access guarded by LOG_TIMINGS.
     ColorCutQuantizer(final int[] pixels, final int maxColors, final Palette.Filter[] filters) {
         mTimingLogger = LOG_TIMINGS ? new TimingLogger(LOG_TAG, "Creation") : null;
         mFilters = filters;
@@ -169,6 +171,7 @@ final class ColorCutQuantizer {
      * @param queue {@link java.util.PriorityQueue} to poll for boxes
      * @param maxSize Maximum amount of boxes to split
      */
+    @SuppressWarnings("NullAway") // mTimingLogger initialization and access guarded by LOG_TIMINGS.
     private void splitBoxes(final PriorityQueue<Vbox> queue, final int maxSize) {
         while (queue.size() < maxSize) {
             final Vbox vbox = queue.poll();
