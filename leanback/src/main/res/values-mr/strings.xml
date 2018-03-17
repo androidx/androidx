@@ -29,7 +29,7 @@ limitations under the License.
     <!-- String.format failed for translation -->
     <!-- no translation found for lb_control_display_rewind_multiplier (6173753802428649303) -->
     <skip />
-    <string name="lb_playback_controls_play" msgid="1590369760862605402">"खेळा"</string>
+    <string name="lb_playback_controls_play" msgid="1590369760862605402">"प्ले"</string>
     <string name="lb_playback_controls_pause" msgid="1769131316742618433">"विराम द्या"</string>
     <string name="lb_playback_controls_fast_forward" msgid="8966769845721269304">"पुढे ढकला"</string>
     <string name="lb_playback_controls_fast_forward_multiplier" msgid="801276177839339511">"फास्ट फॉरवर्ड %1$d"</string>
@@ -38,10 +38,10 @@ limitations under the License.
     <string name="lb_playback_controls_skip_next" msgid="4877009494447817003">"पुढील वगळा"</string>
     <string name="lb_playback_controls_skip_previous" msgid="3147124289285911980">"मागील वगळा"</string>
     <string name="lb_playback_controls_more_actions" msgid="2827883329510404797">"आणखी क्रिया"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="8332816524260995892">"वर अंगठा निवड रद्द करा"</string>
-    <string name="lb_playback_controls_thumb_up_outline" msgid="1038344559734334272">"वर अंगठा निवडा"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"खाली अंगठा निवड रद्द करा"</string>
-    <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"खाली अंगठा निवडा"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="8332816524260995892">"थंब अप निवड रद्द करा"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1038344559734334272">"थंब अप निवडा"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"थंब डाउन निवड रद्द करा"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"थंब डाउन निवडा"</string>
     <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"काहीही रिपीट करू नका"</string>
     <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"सर्व रिपीट करा"</string>
     <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"एक रिपीट करा"</string>
