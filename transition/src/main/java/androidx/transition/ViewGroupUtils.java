@@ -26,28 +26,25 @@ import androidx.annotation.NonNull;
  */
 class ViewGroupUtils {
 
-    private static final ViewGroupUtilsImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 18) {
-            IMPL = new ViewGroupUtilsApi18();
-        } else {
-            IMPL = new ViewGroupUtilsApi14();
-        }
-    }
-
     /**
      * Backward-compatible {@link ViewGroup#getOverlay()}.
      */
     static ViewGroupOverlayImpl getOverlay(@NonNull ViewGroup group) {
-        return IMPL.getOverlay(group);
+        if (Build.VERSION.SDK_INT >= 18) {
+            return new ViewGroupOverlayApi18(group);
+        }
+        return ViewGroupOverlayApi14.createFrom(group);
     }
 
     /**
      * Provides access to the hidden ViewGroup#suppressLayout method.
      */
     static void suppressLayout(@NonNull ViewGroup group, boolean suppress) {
-        IMPL.suppressLayout(group, suppress);
+        if (Build.VERSION.SDK_INT >= 18) {
+            ViewGroupUtilsApi18.suppressLayout(group, suppress);
+        } else {
+            ViewGroupUtilsApi14.suppressLayout(group, suppress);
+        }
     }
 
 }
