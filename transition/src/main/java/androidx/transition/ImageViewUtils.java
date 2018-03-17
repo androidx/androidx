@@ -17,43 +17,92 @@
 package androidx.transition;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.graphics.Matrix;
 import android.os.Build;
+import android.util.Log;
 import android.widget.ImageView;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 class ImageViewUtils {
+    private static final String TAG = "ImageViewUtils";
 
-    private static final ImageViewUtilsImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 21) {
-            IMPL = new ImageViewUtilsApi21();
-        } else {
-            IMPL = new ImageViewUtilsApi14();
-        }
-    }
+    private static Method sAnimateTransformMethod;
+    private static boolean sAnimateTransformMethodFetched;
 
     /**
      * Starts animating the transformation of the image view. This has to be called before calling
      * {@link #animateTransform(ImageView, Matrix)}.
      */
     static void startAnimateTransform(ImageView view) {
-        IMPL.startAnimateTransform(view);
+        if (Build.VERSION.SDK_INT < 21) {
+            final ImageView.ScaleType scaleType = view.getScaleType();
+            view.setTag(R.id.save_scale_type, scaleType);
+            if (scaleType == ImageView.ScaleType.MATRIX) {
+                view.setTag(R.id.save_image_matrix, view.getImageMatrix());
+            } else {
+                view.setScaleType(ImageView.ScaleType.MATRIX);
+            }
+            view.setImageMatrix(MatrixUtils.IDENTITY_MATRIX);
+        }
     }
 
     /**
      * Sets the matrix to animate the content of the image view.
      */
     static void animateTransform(ImageView view, Matrix matrix) {
-        IMPL.animateTransform(view, matrix);
+        if (Build.VERSION.SDK_INT < 21) {
+            view.setImageMatrix(matrix);
+        } else {
+            fetchAnimateTransformMethod();
+            if (sAnimateTransformMethod != null) {
+                try {
+                    sAnimateTransformMethod.invoke(view, matrix);
+                } catch (IllegalAccessException e) {
+                    // Do nothing
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException(e.getCause());
+                }
+            }
+        }
+    }
+
+    private static void fetchAnimateTransformMethod() {
+        if (!sAnimateTransformMethodFetched) {
+            try {
+                sAnimateTransformMethod = ImageView.class.getDeclaredMethod("animateTransform",
+                        Matrix.class);
+                sAnimateTransformMethod.setAccessible(true);
+            } catch (NoSuchMethodException e) {
+                Log.i(TAG, "Failed to retrieve animateTransform method", e);
+            }
+            sAnimateTransformMethodFetched = true;
+        }
     }
 
     /**
      * Reserves that the caller will stop calling {@link #animateTransform(ImageView, Matrix)} when
      * the specified animator ends.
      */
-    static void reserveEndAnimateTransform(ImageView view, Animator animator) {
-        IMPL.reserveEndAnimateTransform(view, animator);
+    static void reserveEndAnimateTransform(final ImageView view, Animator animator) {
+        if (Build.VERSION.SDK_INT < 21) {
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    final ImageView.ScaleType scaleType = (ImageView.ScaleType)
+                            view.getTag(R.id.save_scale_type);
+                    view.setScaleType(scaleType);
+                    view.setTag(R.id.save_scale_type, null);
+                    if (scaleType == ImageView.ScaleType.MATRIX) {
+                        view.setImageMatrix((Matrix) view.getTag(R.id.save_image_matrix));
+                        view.setTag(R.id.save_image_matrix, null);
+                    }
+                    animation.removeListener(this);
+                }
+            });
+        }
     }
 
 }
