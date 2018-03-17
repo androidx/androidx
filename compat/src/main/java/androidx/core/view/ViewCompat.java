@@ -486,14 +486,6 @@ public class ViewCompat {
             }
         }
 
-        public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info) {
-            v.onInitializeAccessibilityNodeInfo(info.unwrap());
-        }
-
-        public boolean isImportantForAccessibility(View view) {
-            return true;
-        }
-
         public ViewPropertyAnimatorCompat animate(View view) {
             if (mViewPropertyAnimatorCompatMap == null) {
                 mViewPropertyAnimatorCompatMap = new WeakHashMap<>();
@@ -520,20 +512,6 @@ public class ViewCompat {
             return sTransitionNameMap.get(view);
         }
 
-        public void setElevation(View view, float elevation) {
-        }
-
-        public float getElevation(View view) {
-            return 0f;
-        }
-
-        public void setTranslationZ(View view, float translationZ) {
-        }
-
-        public float getTranslationZ(View view) {
-            return 0f;
-        }
-
         public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
             if (sChildrenDrawingOrderMethod == null) {
                 try {
@@ -553,130 +531,6 @@ public class ViewCompat {
             } catch (InvocationTargetException e) {
                 Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
             }
-        }
-
-        public void setOnApplyWindowInsetsListener(View view,
-                OnApplyWindowInsetsListener listener) {
-            // noop
-        }
-
-        public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-            return insets;
-        }
-
-        public WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
-            return insets;
-        }
-
-        public void setNestedScrollingEnabled(View view, boolean enabled) {
-            if (view instanceof NestedScrollingChild) {
-                ((NestedScrollingChild) view).setNestedScrollingEnabled(enabled);
-            }
-        }
-
-        public boolean isNestedScrollingEnabled(View view) {
-            if (view instanceof NestedScrollingChild) {
-                return ((NestedScrollingChild) view).isNestedScrollingEnabled();
-            }
-            return false;
-        }
-
-        public ColorStateList getBackgroundTintList(View view) {
-            return (view instanceof TintableBackgroundView)
-                    ? ((TintableBackgroundView) view).getSupportBackgroundTintList()
-                    : null;
-        }
-
-        public void setBackgroundTintList(View view, ColorStateList tintList) {
-            if (view instanceof TintableBackgroundView) {
-                ((TintableBackgroundView) view).setSupportBackgroundTintList(tintList);
-            }
-        }
-
-        public void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
-            if (view instanceof TintableBackgroundView) {
-                ((TintableBackgroundView) view).setSupportBackgroundTintMode(mode);
-            }
-        }
-
-        public PorterDuff.Mode getBackgroundTintMode(View view) {
-            return (view instanceof TintableBackgroundView)
-                    ? ((TintableBackgroundView) view).getSupportBackgroundTintMode()
-                    : null;
-        }
-
-        public boolean startNestedScroll(View view, int axes) {
-            if (view instanceof NestedScrollingChild) {
-                return ((NestedScrollingChild) view).startNestedScroll(axes);
-            }
-            return false;
-        }
-
-        public void stopNestedScroll(View view) {
-            if (view instanceof NestedScrollingChild) {
-                ((NestedScrollingChild) view).stopNestedScroll();
-            }
-        }
-
-        public boolean hasNestedScrollingParent(View view) {
-            if (view instanceof NestedScrollingChild) {
-                return ((NestedScrollingChild) view).hasNestedScrollingParent();
-            }
-            return false;
-        }
-
-        public boolean dispatchNestedScroll(View view, int dxConsumed, int dyConsumed,
-                int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow) {
-            if (view instanceof NestedScrollingChild) {
-                return ((NestedScrollingChild) view).dispatchNestedScroll(dxConsumed, dyConsumed,
-                        dxUnconsumed, dyUnconsumed, offsetInWindow);
-            }
-            return false;
-        }
-
-        public boolean dispatchNestedPreScroll(View view, int dx, int dy,
-                int[] consumed, int[] offsetInWindow) {
-            if (view instanceof NestedScrollingChild) {
-                return ((NestedScrollingChild) view).dispatchNestedPreScroll(dx, dy, consumed,
-                        offsetInWindow);
-            }
-            return false;
-        }
-
-        public boolean dispatchNestedFling(View view, float velocityX, float velocityY,
-                boolean consumed) {
-            if (view instanceof NestedScrollingChild) {
-                return ((NestedScrollingChild) view).dispatchNestedFling(velocityX, velocityY,
-                        consumed);
-            }
-            return false;
-        }
-
-        public boolean dispatchNestedPreFling(View view, float velocityX, float velocityY) {
-            if (view instanceof NestedScrollingChild) {
-                return ((NestedScrollingChild) view).dispatchNestedPreFling(velocityX, velocityY);
-            }
-            return false;
-        }
-
-        public float getZ(View view) {
-            return getTranslationZ(view) + getElevation(view);
-        }
-
-        public void setZ(View view, float z) {
-            // no-op
-        }
-
-        public int getScrollIndicators(View view) {
-            return 0;
-        }
-
-        public void setScrollIndicators(View view, int indicators) {
-            // no-op
-        }
-
-        public void setScrollIndicators(View view, int indicators, int mask) {
-            // no-op
         }
 
         public void offsetLeftAndRight(View view, int offset) {
@@ -722,176 +576,6 @@ public class ViewCompat {
         @Override
         public String getTransitionName(View view) {
             return view.getTransitionName();
-        }
-
-        @Override
-        public void setElevation(View view, float elevation) {
-            view.setElevation(elevation);
-        }
-
-        @Override
-        public float getElevation(View view) {
-            return view.getElevation();
-        }
-
-        @Override
-        public void setTranslationZ(View view, float translationZ) {
-            view.setTranslationZ(translationZ);
-        }
-
-        @Override
-        public float getTranslationZ(View view) {
-            return view.getTranslationZ();
-        }
-
-        @Override
-        public void setOnApplyWindowInsetsListener(View view,
-                final OnApplyWindowInsetsListener listener) {
-            if (listener == null) {
-                view.setOnApplyWindowInsetsListener(null);
-                return;
-            }
-
-            view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                @Override
-                public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
-                    WindowInsetsCompat compatInsets = WindowInsetsCompat.wrap(insets);
-                    compatInsets = listener.onApplyWindowInsets(view, compatInsets);
-                    return (WindowInsets) WindowInsetsCompat.unwrap(compatInsets);
-                }
-            });
-        }
-
-        @Override
-        public void setNestedScrollingEnabled(View view, boolean enabled) {
-            view.setNestedScrollingEnabled(enabled);
-        }
-
-        @Override
-        public boolean isNestedScrollingEnabled(View view) {
-            return view.isNestedScrollingEnabled();
-        }
-
-        @Override
-        public boolean startNestedScroll(View view, int axes) {
-            return view.startNestedScroll(axes);
-        }
-
-        @Override
-        public void stopNestedScroll(View view) {
-            view.stopNestedScroll();
-        }
-
-        @Override
-        public boolean hasNestedScrollingParent(View view) {
-            return view.hasNestedScrollingParent();
-        }
-
-        @Override
-        public boolean dispatchNestedScroll(View view, int dxConsumed, int dyConsumed,
-                int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow) {
-            return view.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
-                    offsetInWindow);
-        }
-
-        @Override
-        public boolean dispatchNestedPreScroll(View view, int dx, int dy,
-                int[] consumed, int[] offsetInWindow) {
-            return view.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
-        }
-
-        @Override
-        public boolean dispatchNestedFling(View view, float velocityX, float velocityY,
-                boolean consumed) {
-            return view.dispatchNestedFling(velocityX, velocityY, consumed);
-        }
-
-        @Override
-        public boolean dispatchNestedPreFling(View view, float velocityX, float velocityY) {
-            return view.dispatchNestedPreFling(velocityX, velocityY);
-        }
-
-        @Override
-        public boolean isImportantForAccessibility(View view) {
-            return view.isImportantForAccessibility();
-        }
-
-        @Override
-        public ColorStateList getBackgroundTintList(View view) {
-            return view.getBackgroundTintList();
-        }
-
-        @Override
-        public void setBackgroundTintList(View view, ColorStateList tintList) {
-            view.setBackgroundTintList(tintList);
-
-            if (Build.VERSION.SDK_INT == 21) {
-                // Work around a bug in L that did not update the state of the background
-                // after applying the tint
-                Drawable background = view.getBackground();
-                boolean hasTint = (view.getBackgroundTintList() != null)
-                        || (view.getBackgroundTintMode() != null);
-                if ((background != null) && hasTint) {
-                    if (background.isStateful()) {
-                        background.setState(view.getDrawableState());
-                    }
-                    view.setBackground(background);
-                }
-            }
-        }
-
-        @Override
-        public void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
-            view.setBackgroundTintMode(mode);
-
-            if (Build.VERSION.SDK_INT == 21) {
-                // Work around a bug in L that did not update the state of the background
-                // after applying the tint
-                Drawable background = view.getBackground();
-                boolean hasTint = (view.getBackgroundTintList() != null)
-                        || (view.getBackgroundTintMode() != null);
-                if ((background != null) && hasTint) {
-                    if (background.isStateful()) {
-                        background.setState(view.getDrawableState());
-                    }
-                    view.setBackground(background);
-                }
-            }
-        }
-
-        @Override
-        public PorterDuff.Mode getBackgroundTintMode(View view) {
-            return view.getBackgroundTintMode();
-        }
-
-        @Override
-        public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-            WindowInsets unwrapped = (WindowInsets)  WindowInsetsCompat.unwrap(insets);
-            WindowInsets result = v.onApplyWindowInsets(unwrapped);
-            if (result != unwrapped) {
-                unwrapped = new WindowInsets(result);
-            }
-            return WindowInsetsCompat.wrap(unwrapped);
-        }
-
-        @Override
-        public WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
-            WindowInsets unwrapped = (WindowInsets) WindowInsetsCompat.unwrap(insets);
-            WindowInsets result = v.dispatchApplyWindowInsets(unwrapped);
-            if (result != unwrapped) {
-                unwrapped = new WindowInsets(result);
-            }
-            return WindowInsetsCompat.wrap(unwrapped);
-        }
-
-        @Override
-        public float getZ(View view) {
-            return view.getZ();
-        }
-
-        @Override
-        public void setZ(View view, float z) {
-            view.setZ(z);
         }
 
         @Override
@@ -962,22 +646,6 @@ public class ViewCompat {
 
     @RequiresApi(23)
     static class ViewCompatApi23Impl extends ViewCompatApi21Impl {
-        @Override
-        public void setScrollIndicators(View view, int indicators) {
-            view.setScrollIndicators(indicators);
-        }
-
-        @Override
-        public void setScrollIndicators(View view, int indicators, int mask) {
-            view.setScrollIndicators(indicators, mask);
-        }
-
-        @Override
-        public int getScrollIndicators(View view) {
-            return view.getScrollIndicators();
-        }
-
-
         @Override
         public void offsetLeftAndRight(View view, int offset) {
             view.offsetLeftAndRight(offset);
@@ -1165,7 +833,7 @@ public class ViewCompat {
      */
     public static void onInitializeAccessibilityNodeInfo(@NonNull View v,
             AccessibilityNodeInfoCompat info) {
-        IMPL.onInitializeAccessibilityNodeInfo(v, info);
+        v.onInitializeAccessibilityNodeInfo(info.unwrap());
     }
 
     /**
@@ -1574,7 +1242,10 @@ public class ViewCompat {
      * @see #getImportantForAccessibility(View)
      */
     public static boolean isImportantForAccessibility(@NonNull View view) {
-        return IMPL.isImportantForAccessibility(view);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.isImportantForAccessibility();
+        }
+        return true;
     }
 
     /**
@@ -2509,7 +2180,9 @@ public class ViewCompat {
      * Sets the base elevation of this view, in pixels.
      */
     public static void setElevation(@NonNull View view, float elevation) {
-        IMPL.setElevation(view, elevation);
+        if (Build.VERSION.SDK_INT >= 21) {
+            view.setElevation(elevation);
+        }
     }
 
     /**
@@ -2518,14 +2191,19 @@ public class ViewCompat {
      * @return The base depth position of the view, in pixels.
      */
     public static float getElevation(@NonNull View view) {
-        return IMPL.getElevation(view);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.getElevation();
+        }
+        return 0f;
     }
 
     /**
      * Sets the depth location of this view relative to its {@link #getElevation(View) elevation}.
      */
     public static void setTranslationZ(@NonNull View view, float translationZ) {
-        IMPL.setTranslationZ(view, translationZ);
+        if (Build.VERSION.SDK_INT >= 21) {
+            view.setTranslationZ(translationZ);
+        }
     }
 
     /**
@@ -2534,7 +2212,10 @@ public class ViewCompat {
      * @return The depth of this view relative to its elevation.
      */
     public static float getTranslationZ(@NonNull View view) {
-        return IMPL.getTranslationZ(view);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.getTranslationZ();
+        }
+        return 0f;
     }
 
     /**
@@ -2644,8 +2325,22 @@ public class ViewCompat {
      * window insets to this view. This will only take effect on devices with API 21 or above.
      */
     public static void setOnApplyWindowInsetsListener(@NonNull View v,
-            OnApplyWindowInsetsListener listener) {
-        IMPL.setOnApplyWindowInsetsListener(v, listener);
+            final OnApplyWindowInsetsListener listener) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            if (listener == null) {
+                v.setOnApplyWindowInsetsListener(null);
+                return;
+            }
+
+            v.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
+                    WindowInsetsCompat compatInsets = WindowInsetsCompat.wrap(insets);
+                    compatInsets = listener.onApplyWindowInsets(view, compatInsets);
+                    return (WindowInsets) WindowInsetsCompat.unwrap(compatInsets);
+                }
+            });
+        }
     }
 
     /**
@@ -2662,7 +2357,15 @@ public class ViewCompat {
      */
     public static WindowInsetsCompat onApplyWindowInsets(@NonNull View view,
             WindowInsetsCompat insets) {
-        return IMPL.onApplyWindowInsets(view, insets);
+        if (Build.VERSION.SDK_INT >= 21) {
+            WindowInsets unwrapped = (WindowInsets)  WindowInsetsCompat.unwrap(insets);
+            WindowInsets result = view.onApplyWindowInsets(unwrapped);
+            if (result != unwrapped) {
+                unwrapped = new WindowInsets(result);
+            }
+            return WindowInsetsCompat.wrap(unwrapped);
+        }
+        return insets;
     }
 
     /**
@@ -2679,7 +2382,15 @@ public class ViewCompat {
      */
     public static WindowInsetsCompat dispatchApplyWindowInsets(@NonNull View view,
             WindowInsetsCompat insets) {
-        return IMPL.dispatchApplyWindowInsets(view, insets);
+        if (Build.VERSION.SDK_INT >= 21) {
+            WindowInsets unwrapped = (WindowInsets) WindowInsetsCompat.unwrap(insets);
+            WindowInsets result = view.dispatchApplyWindowInsets(unwrapped);
+            if (result != unwrapped) {
+                unwrapped = new WindowInsets(result);
+            }
+            return WindowInsetsCompat.wrap(unwrapped);
+        }
+        return insets;
     }
 
     /**
@@ -2767,7 +2478,12 @@ public class ViewCompat {
      * implements the {@code TintableBackgroundView} interface.
      */
     public static ColorStateList getBackgroundTintList(@NonNull View view) {
-        return IMPL.getBackgroundTintList(view);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.getBackgroundTintList();
+        }
+        return (view instanceof TintableBackgroundView)
+                ? ((TintableBackgroundView) view).getSupportBackgroundTintList()
+                : null;
     }
 
     /**
@@ -2778,7 +2494,25 @@ public class ViewCompat {
      * {@code TintableBackgroundView} interface.
      */
     public static void setBackgroundTintList(@NonNull View view, ColorStateList tintList) {
-        IMPL.setBackgroundTintList(view, tintList);
+        if (Build.VERSION.SDK_INT >= 21) {
+            view.setBackgroundTintList(tintList);
+
+            if (Build.VERSION.SDK_INT == 21) {
+                // Work around a bug in L that did not update the state of the background
+                // after applying the tint
+                Drawable background = view.getBackground();
+                boolean hasTint = (view.getBackgroundTintList() != null)
+                        || (view.getBackgroundTintMode() != null);
+                if ((background != null) && hasTint) {
+                    if (background.isStateful()) {
+                        background.setState(view.getDrawableState());
+                    }
+                    view.setBackground(background);
+                }
+            }
+        } else if (view instanceof TintableBackgroundView) {
+            ((TintableBackgroundView) view).setSupportBackgroundTintList(tintList);
+        }
     }
 
     /**
@@ -2789,7 +2523,12 @@ public class ViewCompat {
      * implements the {@code TintableBackgroundView} interface.
      */
     public static PorterDuff.Mode getBackgroundTintMode(@NonNull View view) {
-        return IMPL.getBackgroundTintMode(view);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.getBackgroundTintMode();
+        }
+        return (view instanceof TintableBackgroundView)
+                ? ((TintableBackgroundView) view).getSupportBackgroundTintMode()
+                : null;
     }
 
     /**
@@ -2802,7 +2541,25 @@ public class ViewCompat {
      * {@code TintableBackgroundView} interface.
      */
     public static void setBackgroundTintMode(@NonNull View view, PorterDuff.Mode mode) {
-        IMPL.setBackgroundTintMode(view, mode);
+        if (Build.VERSION.SDK_INT >= 21) {
+            view.setBackgroundTintMode(mode);
+
+            if (Build.VERSION.SDK_INT == 21) {
+                // Work around a bug in L that did not update the state of the background
+                // after applying the tint
+                Drawable background = view.getBackground();
+                boolean hasTint = (view.getBackgroundTintList() != null)
+                        || (view.getBackgroundTintMode() != null);
+                if ((background != null) && hasTint) {
+                    if (background.isStateful()) {
+                        background.setState(view.getDrawableState());
+                    }
+                    view.setBackground(background);
+                }
+            }
+        } else if (view instanceof TintableBackgroundView) {
+            ((TintableBackgroundView) view).setSupportBackgroundTintMode(mode);
+        }
     }
 
     // TODO: getters for various view properties (rotation, etc)
@@ -2820,8 +2577,15 @@ public class ViewCompat {
      *
      * @see #isNestedScrollingEnabled(View)
      */
+    @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static void setNestedScrollingEnabled(@NonNull View view, boolean enabled) {
-        IMPL.setNestedScrollingEnabled(view, enabled);
+        if (Build.VERSION.SDK_INT >= 21) {
+            view.setNestedScrollingEnabled(enabled);
+        } else {
+            if (view instanceof NestedScrollingChild) {
+                ((NestedScrollingChild) view).setNestedScrollingEnabled(enabled);
+            }
+        }
     }
 
     /**
@@ -2836,8 +2600,15 @@ public class ViewCompat {
      *
      * @see #setNestedScrollingEnabled(View, boolean)
      */
+    @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static boolean isNestedScrollingEnabled(@NonNull View view) {
-        return IMPL.isNestedScrollingEnabled(view);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.isNestedScrollingEnabled();
+        }
+        if (view instanceof NestedScrollingChild) {
+            return ((NestedScrollingChild) view).isNestedScrollingEnabled();
+        }
+        return false;
     }
 
     /**
@@ -2851,8 +2622,15 @@ public class ViewCompat {
      * @return true if a cooperative parent was found and nested scrolling has been enabled for
      *         the current gesture.
      */
+    @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static boolean startNestedScroll(@NonNull View view, @ScrollAxis int axes) {
-        return IMPL.startNestedScroll(view, axes);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.startNestedScroll(axes);
+        }
+        if (view instanceof NestedScrollingChild) {
+            return ((NestedScrollingChild) view).startNestedScroll(axes);
+        }
+        return false;
     }
 
     /**
@@ -2863,8 +2641,13 @@ public class ViewCompat {
      *
      * @see #startNestedScroll(View, int)
      */
+    @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static void stopNestedScroll(@NonNull View view) {
-        IMPL.stopNestedScroll(view);
+        if (Build.VERSION.SDK_INT >= 21) {
+            view.stopNestedScroll();
+        } else if (view instanceof NestedScrollingChild) {
+            ((NestedScrollingChild) view).stopNestedScroll();
+        }
     }
 
     /**
@@ -2875,8 +2658,15 @@ public class ViewCompat {
      *
      * @return whether this view has a nested scrolling parent
      */
+    @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static boolean hasNestedScrollingParent(@NonNull View view) {
-        return IMPL.hasNestedScrollingParent(view);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.hasNestedScrollingParent();
+        }
+        if (view instanceof NestedScrollingChild) {
+            return ((NestedScrollingChild) view).hasNestedScrollingParent();
+        }
+        return false;
     }
 
     /**
@@ -2896,10 +2686,18 @@ public class ViewCompat {
      *                       expected input coordinate tracking.
      * @return true if the event was dispatched, false if it could not be dispatched.
      */
+    @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static boolean dispatchNestedScroll(@NonNull View view, int dxConsumed, int dyConsumed,
             int dxUnconsumed, int dyUnconsumed, @Nullable int[] offsetInWindow) {
-        return IMPL.dispatchNestedScroll(view, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
-                offsetInWindow);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                    offsetInWindow);
+        }
+        if (view instanceof NestedScrollingChild) {
+            return ((NestedScrollingChild) view).dispatchNestedScroll(dxConsumed, dyConsumed,
+                    dxUnconsumed, dyUnconsumed, offsetInWindow);
+        }
+        return false;
     }
 
     /**
@@ -2919,9 +2717,17 @@ public class ViewCompat {
      *                       expected input coordinate tracking.
      * @return true if the parent consumed some or all of the scroll delta
      */
+    @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static boolean dispatchNestedPreScroll(@NonNull View view, int dx, int dy,
             @Nullable int[] consumed, @Nullable int[] offsetInWindow) {
-        return IMPL.dispatchNestedPreScroll(view, dx, dy, consumed, offsetInWindow);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+        }
+        if (view instanceof NestedScrollingChild) {
+            return ((NestedScrollingChild) view).dispatchNestedPreScroll(dx, dy, consumed,
+                    offsetInWindow);
+        }
+        return false;
     }
 
     /**
@@ -2968,7 +2774,7 @@ public class ViewCompat {
         if (view instanceof NestedScrollingChild2) {
             return ((NestedScrollingChild2) view).startNestedScroll(axes, type);
         } else if (type == ViewCompat.TYPE_TOUCH) {
-            return IMPL.startNestedScroll(view, axes);
+            return startNestedScroll(view, axes);
         }
         return false;
     }
@@ -2985,7 +2791,7 @@ public class ViewCompat {
         if (view instanceof NestedScrollingChild2) {
             ((NestedScrollingChild2) view).stopNestedScroll(type);
         } else if (type == ViewCompat.TYPE_TOUCH) {
-            IMPL.stopNestedScroll(view);
+            stopNestedScroll(view);
         }
     }
 
@@ -3002,7 +2808,7 @@ public class ViewCompat {
         if (view instanceof NestedScrollingChild2) {
             ((NestedScrollingChild2) view).hasNestedScrollingParent(type);
         } else if (type == ViewCompat.TYPE_TOUCH) {
-            return IMPL.hasNestedScrollingParent(view);
+            return hasNestedScrollingParent(view);
         }
         return false;
     }
@@ -3038,7 +2844,7 @@ public class ViewCompat {
             return ((NestedScrollingChild2) view).dispatchNestedScroll(dxConsumed, dyConsumed,
                     dxUnconsumed, dyUnconsumed, offsetInWindow, type);
         } else if (type == ViewCompat.TYPE_TOUCH) {
-            return IMPL.dispatchNestedScroll(view, dxConsumed, dyConsumed, dxUnconsumed,
+            return dispatchNestedScroll(view, dxConsumed, dyConsumed, dxUnconsumed,
                     dyUnconsumed, offsetInWindow);
         }
         return false;
@@ -3070,7 +2876,7 @@ public class ViewCompat {
             return ((NestedScrollingChild2) view).dispatchNestedPreScroll(dx, dy, consumed,
                     offsetInWindow, type);
         } else if (type == ViewCompat.TYPE_TOUCH) {
-            return IMPL.dispatchNestedPreScroll(view, dx, dy, consumed, offsetInWindow);
+            return dispatchNestedPreScroll(view, dx, dy, consumed, offsetInWindow);
         }
         return false;
     }
@@ -3093,9 +2899,17 @@ public class ViewCompat {
      * @param consumed true if the child consumed the fling, false otherwise
      * @return true if the nested scrolling parent consumed or otherwise reacted to the fling
      */
+    @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static boolean dispatchNestedFling(@NonNull View view, float velocityX, float velocityY,
             boolean consumed) {
-        return IMPL.dispatchNestedFling(view, velocityX, velocityY, consumed);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.dispatchNestedFling(velocityX, velocityY, consumed);
+        }
+        if (view instanceof NestedScrollingChild) {
+            return ((NestedScrollingChild) view).dispatchNestedFling(velocityX, velocityY,
+                    consumed);
+        }
+        return false;
     }
 
     /**
@@ -3128,9 +2942,16 @@ public class ViewCompat {
      * @param velocityY Vertical fling velocity in pixels per second
      * @return true if a nested scrolling parent consumed the fling
      */
+    @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static boolean dispatchNestedPreFling(@NonNull View view, float velocityX,
             float velocityY) {
-        return IMPL.dispatchNestedPreFling(view, velocityX, velocityY);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.dispatchNestedPreFling(velocityX, velocityY);
+        }
+        if (view instanceof NestedScrollingChild) {
+            return ((NestedScrollingChild) view).dispatchNestedPreFling(velocityX, velocityY);
+        }
+        return false;
     }
 
     /**
@@ -3188,7 +3009,10 @@ public class ViewCompat {
      * @return The visual z position of this view, in pixels.
      */
     public static float getZ(@NonNull View view) {
-        return IMPL.getZ(view);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.getZ();
+        }
+        return 0f;
     }
 
     /**
@@ -3204,7 +3028,9 @@ public class ViewCompat {
      * @param z The visual z position of this view, in pixels.
      */
     public static void setZ(@NonNull View view, float z) {
-        IMPL.setZ(view, z);
+        if (Build.VERSION.SDK_INT >= 21) {
+            view.setZ(z);
+        }
     }
 
     /**
@@ -3292,7 +3118,9 @@ public class ViewCompat {
      * @see #getScrollIndicators(View)
      */
     public static void setScrollIndicators(@NonNull View view, @ScrollIndicators int indicators) {
-        IMPL.setScrollIndicators(view, indicators);
+        if (Build.VERSION.SDK_INT >= 23) {
+            view.setScrollIndicators(indicators);
+        }
     }
 
     /**
@@ -3324,7 +3152,9 @@ public class ViewCompat {
      */
     public static void setScrollIndicators(@NonNull View view, @ScrollIndicators int indicators,
             @ScrollIndicators int mask) {
-        IMPL.setScrollIndicators(view, indicators, mask);
+        if (Build.VERSION.SDK_INT >= 23) {
+            view.setScrollIndicators(indicators, mask);
+        }
     }
 
     /**
@@ -3340,7 +3170,10 @@ public class ViewCompat {
      * @return a bitmask representing the enabled scroll indicators
      */
     public static int getScrollIndicators(@NonNull View view) {
-        return IMPL.getScrollIndicators(view);
+        if (Build.VERSION.SDK_INT >= 23) {
+            return view.getScrollIndicators();
+        }
+        return 0;
     }
 
     /**
