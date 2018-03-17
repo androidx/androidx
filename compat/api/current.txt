@@ -946,10 +946,10 @@ package androidx.core.graphics.drawable {
 
 package androidx.core.hardware.display {
 
-  public abstract class DisplayManagerCompat {
-    method public abstract android.view.Display getDisplay(int);
-    method public abstract android.view.Display[] getDisplays();
-    method public abstract android.view.Display[] getDisplays(java.lang.String);
+  public final class DisplayManagerCompat {
+    method public android.view.Display getDisplay(int);
+    method public android.view.Display[] getDisplays();
+    method public android.view.Display[] getDisplays(java.lang.String);
     method public static androidx.core.hardware.display.DisplayManagerCompat getInstance(android.content.Context);
     field public static final java.lang.String DISPLAY_CATEGORY_PRESENTATION = "android.hardware.display.category.PRESENTATION";
   }

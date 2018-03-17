@@ -24,14 +24,13 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.util.WeakHashMap;
 
 /**
  * Helper for accessing features in {@link android.hardware.display.DisplayManager}.
  */
-public abstract class DisplayManagerCompat {
+public final class DisplayManagerCompat {
     private static final WeakHashMap<Context, DisplayManagerCompat> sInstances =
             new WeakHashMap<Context, DisplayManagerCompat>();
 
@@ -49,7 +48,10 @@ public abstract class DisplayManagerCompat {
     public static final String DISPLAY_CATEGORY_PRESENTATION =
             "android.hardware.display.category.PRESENTATION";
 
-    DisplayManagerCompat() {
+    private final Context mContext;
+
+    private DisplayManagerCompat(Context context) {
+        mContext = context;
     }
 
     /**
@@ -60,11 +62,7 @@ public abstract class DisplayManagerCompat {
         synchronized (sInstances) {
             DisplayManagerCompat instance = sInstances.get(context);
             if (instance == null) {
-                if (Build.VERSION.SDK_INT >= 17) {
-                    instance = new DisplayManagerCompatApi17Impl(context);
-                } else {
-                    instance = new DisplayManagerCompatApi14Impl(context);
-                }
+                instance = new DisplayManagerCompat(context);
                 sInstances.put(context, instance);
             }
             return instance;
@@ -81,7 +79,19 @@ public abstract class DisplayManagerCompat {
      * @return The display object, or null if there is no valid display with the given id.
      */
     @Nullable
-    public abstract Display getDisplay(int displayId);
+    public Display getDisplay(int displayId) {
+        if (Build.VERSION.SDK_INT >= 17) {
+            return ((DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE))
+                    .getDisplay(displayId);
+        }
+
+        Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay();
+        if (display.getDisplayId() == displayId) {
+            return display;
+        }
+        return null;
+    }
 
     /**
      * Gets all currently valid logical displays.
@@ -89,7 +99,16 @@ public abstract class DisplayManagerCompat {
      * @return An array containing all displays.
      */
     @NonNull
-    public abstract Display[] getDisplays();
+    public Display[] getDisplays() {
+        if (Build.VERSION.SDK_INT >= 17) {
+            return ((DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE))
+                    .getDisplays();
+        }
+
+        Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay();
+        return new Display[] { display };
+    }
 
     /**
      * Gets all currently valid logical displays of the specified category.
@@ -108,56 +127,17 @@ public abstract class DisplayManagerCompat {
      * @see #DISPLAY_CATEGORY_PRESENTATION
      */
     @NonNull
-    public abstract Display[] getDisplays(String category);
-
-    private static class DisplayManagerCompatApi14Impl extends DisplayManagerCompat {
-        private final WindowManager mWindowManager;
-
-        DisplayManagerCompatApi14Impl(Context context) {
-            mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    public Display[] getDisplays(@Nullable String category) {
+        if (Build.VERSION.SDK_INT >= 17) {
+            return ((DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE))
+                    .getDisplays(category);
+        }
+        if (category == null) {
+            return new Display[0];
         }
 
-        @Override
-        public Display getDisplay(int displayId) {
-            Display display = mWindowManager.getDefaultDisplay();
-            if (display.getDisplayId() == displayId) {
-                return display;
-            }
-            return null;
-        }
-
-        @Override
-        public Display[] getDisplays() {
-            return new Display[] { mWindowManager.getDefaultDisplay() };
-        }
-
-        @Override
-        public Display[] getDisplays(String category) {
-            return category == null ? getDisplays() : new Display[0];
-        }
-    }
-
-    @RequiresApi(17)
-    private static class DisplayManagerCompatApi17Impl extends DisplayManagerCompat {
-        private final DisplayManager mDisplayManager;
-
-        DisplayManagerCompatApi17Impl(Context context) {
-            mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
-        }
-
-        @Override
-        public Display getDisplay(int displayId) {
-            return mDisplayManager.getDisplay(displayId);
-        }
-
-        @Override
-        public Display[] getDisplays() {
-            return mDisplayManager.getDisplays();
-        }
-
-        @Override
-        public Display[] getDisplays(String category) {
-            return mDisplayManager.getDisplays(category);
-        }
+        Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay();
+        return new Display[] { display };
     }
 }
