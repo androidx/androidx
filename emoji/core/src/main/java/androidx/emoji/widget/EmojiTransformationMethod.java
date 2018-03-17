@@ -57,6 +57,7 @@ class EmojiTransformationMethod implements TransformationMethod {
                     return EmojiCompat.get().process(source);
                 case EmojiCompat.LOAD_STATE_LOADING:
                 case EmojiCompat.LOAD_STATE_FAILED:
+                case EmojiCompat.LOAD_STATE_DEFAULT:
                 default:
                     break;
             }
