@@ -51,7 +51,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
@@ -459,130 +458,19 @@ public class ViewCompat {
     private static Field sAccessibilityDelegateField;
     private static boolean sAccessibilityDelegateCheckFailed = false;
 
-    static class ViewCompatBaseImpl {
-        public void offsetLeftAndRight(View view, int offset) {
-            view.offsetLeftAndRight(offset);
-            if (view.getVisibility() == View.VISIBLE) {
-                tickleInvalidationFlag(view);
+    private static ThreadLocal<Rect> sThreadLocalRect;
 
-                ViewParent parent = view.getParent();
-                if (parent instanceof View) {
-                    tickleInvalidationFlag((View) parent);
-                }
-            }
+    private static Rect getEmptyTempRect() {
+        if (sThreadLocalRect == null) {
+            sThreadLocalRect = new ThreadLocal<>();
         }
-
-        public void offsetTopAndBottom(View view, int offset) {
-            view.offsetTopAndBottom(offset);
-            if (view.getVisibility() == View.VISIBLE) {
-                tickleInvalidationFlag(view);
-
-                ViewParent parent = view.getParent();
-                if (parent instanceof View) {
-                    tickleInvalidationFlag((View) parent);
-                }
-            }
+        Rect rect = sThreadLocalRect.get();
+        if (rect == null) {
+            rect = new Rect();
+            sThreadLocalRect.set(rect);
         }
-
-        private static void tickleInvalidationFlag(View view) {
-            final float y = view.getTranslationY();
-            view.setTranslationY(y + 1);
-            view.setTranslationY(y);
-        }
-    }
-
-    @RequiresApi(21)
-    static class ViewCompatApi21Impl extends ViewCompatBaseImpl {
-        private static ThreadLocal<Rect> sThreadLocalRect;
-
-        @Override
-        public void offsetLeftAndRight(View view, int offset) {
-            final Rect parentRect = getEmptyTempRect();
-            boolean needInvalidateWorkaround = false;
-
-            final ViewParent parent = view.getParent();
-            if (parent instanceof View) {
-                final View p = (View) parent;
-                parentRect.set(p.getLeft(), p.getTop(), p.getRight(), p.getBottom());
-                // If the view currently does not currently intersect the parent (and is therefore
-                // not displayed) we may need need to invalidate
-                needInvalidateWorkaround = !parentRect.intersects(view.getLeft(), view.getTop(),
-                        view.getRight(), view.getBottom());
-            }
-
-            // Now offset, invoking the API 11+ implementation (which contains its own workarounds)
-            super.offsetLeftAndRight(view, offset);
-
-            // The view has now been offset, so let's intersect the Rect and invalidate where
-            // the View is now displayed
-            if (needInvalidateWorkaround && parentRect.intersect(view.getLeft(), view.getTop(),
-                    view.getRight(), view.getBottom())) {
-                ((View) parent).invalidate(parentRect);
-            }
-        }
-
-        @Override
-        public void offsetTopAndBottom(View view, int offset) {
-            final Rect parentRect = getEmptyTempRect();
-            boolean needInvalidateWorkaround = false;
-
-            final ViewParent parent = view.getParent();
-            if (parent instanceof View) {
-                final View p = (View) parent;
-                parentRect.set(p.getLeft(), p.getTop(), p.getRight(), p.getBottom());
-                // If the view currently does not currently intersect the parent (and is therefore
-                // not displayed) we may need need to invalidate
-                needInvalidateWorkaround = !parentRect.intersects(view.getLeft(), view.getTop(),
-                        view.getRight(), view.getBottom());
-            }
-
-            // Now offset, invoking the API 11+ implementation (which contains its own workarounds)
-            super.offsetTopAndBottom(view, offset);
-
-            // The view has now been offset, so let's intersect the Rect and invalidate where
-            // the View is now displayed
-            if (needInvalidateWorkaround && parentRect.intersect(view.getLeft(), view.getTop(),
-                    view.getRight(), view.getBottom())) {
-                ((View) parent).invalidate(parentRect);
-            }
-        }
-
-        private static Rect getEmptyTempRect() {
-            if (sThreadLocalRect == null) {
-                sThreadLocalRect = new ThreadLocal<>();
-            }
-            Rect rect = sThreadLocalRect.get();
-            if (rect == null) {
-                rect = new Rect();
-                sThreadLocalRect.set(rect);
-            }
-            rect.setEmpty();
-            return rect;
-        }
-    }
-
-    @RequiresApi(23)
-    static class ViewCompatApi23Impl extends ViewCompatApi21Impl {
-        @Override
-        public void offsetLeftAndRight(View view, int offset) {
-            view.offsetLeftAndRight(offset);
-        }
-
-        @Override
-        public void offsetTopAndBottom(View view, int offset) {
-            view.offsetTopAndBottom(offset);
-        }
-    }
-
-    static final ViewCompatBaseImpl IMPL;
-    static {
-        if (Build.VERSION.SDK_INT >= 23) {
-            IMPL = new ViewCompatApi23Impl();
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            IMPL = new ViewCompatApi21Impl();
-        } else {
-            IMPL = new ViewCompatBaseImpl();
-        }
+        rect.setEmpty();
+        return rect;
     }
 
     /**
@@ -3012,7 +2900,46 @@ public class ViewCompat {
      * @param offset the number of pixels to offset the view by
      */
     public static void offsetTopAndBottom(@NonNull View view, int offset) {
-        IMPL.offsetTopAndBottom(view, offset);
+        if (Build.VERSION.SDK_INT >= 23) {
+            view.offsetTopAndBottom(offset);
+        } else if (Build.VERSION.SDK_INT >= 21) {
+            final Rect parentRect = getEmptyTempRect();
+            boolean needInvalidateWorkaround = false;
+
+            final ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                final View p = (View) parent;
+                parentRect.set(p.getLeft(), p.getTop(), p.getRight(), p.getBottom());
+                // If the view currently does not currently intersect the parent (and is therefore
+                // not displayed) we may need need to invalidate
+                needInvalidateWorkaround = !parentRect.intersects(view.getLeft(), view.getTop(),
+                        view.getRight(), view.getBottom());
+            }
+
+            // Now offset, invoking the API 14+ implementation (which contains its own workarounds)
+            compatOffsetTopAndBottom(view, offset);
+
+            // The view has now been offset, so let's intersect the Rect and invalidate where
+            // the View is now displayed
+            if (needInvalidateWorkaround && parentRect.intersect(view.getLeft(), view.getTop(),
+                    view.getRight(), view.getBottom())) {
+                ((View) parent).invalidate(parentRect);
+            }
+        } else {
+            compatOffsetTopAndBottom(view, offset);
+        }
+    }
+
+    private static void compatOffsetTopAndBottom(View view, int offset) {
+        view.offsetTopAndBottom(offset);
+        if (view.getVisibility() == View.VISIBLE) {
+            tickleInvalidationFlag(view);
+
+            ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                tickleInvalidationFlag((View) parent);
+            }
+        }
     }
 
     /**
@@ -3021,7 +2948,52 @@ public class ViewCompat {
      * @param offset the number of pixels to offset the view by
      */
     public static void offsetLeftAndRight(@NonNull View view, int offset) {
-        IMPL.offsetLeftAndRight(view, offset);
+        if (Build.VERSION.SDK_INT >= 23) {
+            view.offsetLeftAndRight(offset);
+        } else if (Build.VERSION.SDK_INT >= 21) {
+            final Rect parentRect = getEmptyTempRect();
+            boolean needInvalidateWorkaround = false;
+
+            final ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                final View p = (View) parent;
+                parentRect.set(p.getLeft(), p.getTop(), p.getRight(), p.getBottom());
+                // If the view currently does not currently intersect the parent (and is therefore
+                // not displayed) we may need need to invalidate
+                needInvalidateWorkaround = !parentRect.intersects(view.getLeft(), view.getTop(),
+                        view.getRight(), view.getBottom());
+            }
+
+            // Now offset, invoking the API 14+ implementation (which contains its own workarounds)
+            compatOffsetLeftAndRight(view, offset);
+
+            // The view has now been offset, so let's intersect the Rect and invalidate where
+            // the View is now displayed
+            if (needInvalidateWorkaround && parentRect.intersect(view.getLeft(), view.getTop(),
+                    view.getRight(), view.getBottom())) {
+                ((View) parent).invalidate(parentRect);
+            }
+        } else {
+            compatOffsetLeftAndRight(view, offset);
+        }
+    }
+
+    private static void compatOffsetLeftAndRight(View view, int offset) {
+        view.offsetLeftAndRight(offset);
+        if (view.getVisibility() == View.VISIBLE) {
+            tickleInvalidationFlag(view);
+
+            ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                tickleInvalidationFlag((View) parent);
+            }
+        }
+    }
+
+    private static void tickleInvalidationFlag(View view) {
+        final float y = view.getTranslationY();
+        view.setTranslationY(y + 1);
+        view.setTranslationY(y);
     }
 
     /**
