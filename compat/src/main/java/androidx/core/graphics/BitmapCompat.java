@@ -19,66 +19,22 @@ import android.graphics.Bitmap;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link android.graphics.Bitmap}.
  */
 public final class BitmapCompat {
-    static class BitmapCompatBaseImpl {
-        public boolean hasMipMap(Bitmap bitmap) {
-            return false;
-        }
-
-        public void setHasMipMap(Bitmap bitmap, boolean hasMipMap) {
-        }
-
-        public int getAllocationByteCount(Bitmap bitmap) {
-            return bitmap.getByteCount();
-        }
-    }
-
-    @RequiresApi(18)
-    static class BitmapCompatApi18Impl extends BitmapCompatBaseImpl {
-        @Override
-        public boolean hasMipMap(Bitmap bitmap){
+    public static boolean hasMipMap(@NonNull Bitmap bitmap) {
+        if (Build.VERSION.SDK_INT >= 18) {
             return bitmap.hasMipMap();
         }
-
-        @Override
-        public void setHasMipMap(Bitmap bitmap, boolean hasMipMap) {
-            bitmap.setHasMipMap(hasMipMap);
-        }
-    }
-
-    @RequiresApi(19)
-    static class BitmapCompatApi19Impl extends BitmapCompatApi18Impl {
-        @Override
-        public int getAllocationByteCount(Bitmap bitmap) {
-            return bitmap.getAllocationByteCount();
-        }
-    }
-
-    /**
-     * Select the correct implementation to use for the current platform.
-     */
-    static final BitmapCompatBaseImpl IMPL;
-    static {
-        if (Build.VERSION.SDK_INT >= 19) {
-            IMPL = new BitmapCompatApi19Impl();
-        } else if (Build.VERSION.SDK_INT >= 18) {
-            IMPL = new BitmapCompatApi18Impl();
-        } else {
-            IMPL = new BitmapCompatBaseImpl();
-        }
-    }
-
-    public static boolean hasMipMap(@NonNull Bitmap bitmap) {
-        return IMPL.hasMipMap(bitmap);
+        return false;
     }
 
     public static void setHasMipMap(@NonNull Bitmap bitmap, boolean hasMipMap) {
-        IMPL.setHasMipMap(bitmap, hasMipMap);
+        if (Build.VERSION.SDK_INT >= 18) {
+            bitmap.setHasMipMap(hasMipMap);
+        }
     }
 
     /**
@@ -89,7 +45,10 @@ public final class BitmapCompat {
      * @return the allocation size in bytes
      */
     public static int getAllocationByteCount(@NonNull Bitmap bitmap) {
-        return IMPL.getAllocationByteCount(bitmap);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return bitmap.getAllocationByteCount();
+        }
+        return bitmap.getByteCount();
     }
 
     private BitmapCompat() {}
