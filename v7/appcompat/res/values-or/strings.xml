@@ -32,10 +32,27 @@
     <!-- no translation found for abc_shareactionprovider_share_with_application (3300176832234831527) -->
     <skip />
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"ଏହାଙ୍କ ସହ ଶେୟାର୍‌ କରନ୍ତୁ"</string>
-    <!-- no translation found for abc_capital_on (3405795526292276155) -->
+    <string name="abc_capital_on" msgid="3405795526292276155">"ଅନ୍"</string>
+    <string name="abc_capital_off" msgid="121134116657445385">"ଅଫ୍"</string>
+    <string name="search_menu_title" msgid="146198913615257606">"ସର୍ଚ୍ଚ କରନ୍ତୁ"</string>
+    <!-- no translation found for abc_prepend_shortcut_label (1351762916121158029) -->
     <skip />
-    <!-- no translation found for abc_capital_off (121134116657445385) -->
+    <!-- no translation found for abc_menu_meta_shortcut_label (7643535737296831317) -->
     <skip />
-    <!-- no translation found for search_menu_title (146198913615257606) -->
+    <!-- no translation found for abc_menu_ctrl_shortcut_label (1324831542140195728) -->
+    <skip />
+    <!-- no translation found for abc_menu_alt_shortcut_label (1302280443949172191) -->
+    <skip />
+    <!-- no translation found for abc_menu_shift_shortcut_label (8126296154200614004) -->
+    <skip />
+    <!-- no translation found for abc_menu_sym_shortcut_label (9002602288060866689) -->
+    <skip />
+    <!-- no translation found for abc_menu_function_shortcut_label (4792426091847145555) -->
+    <skip />
+    <!-- no translation found for abc_menu_space_shortcut_label (2378550843553983978) -->
+    <skip />
+    <!-- no translation found for abc_menu_enter_shortcut_label (8341180395196749340) -->
+    <skip />
+    <!-- no translation found for abc_menu_delete_shortcut_label (8362206064229013510) -->
     <skip />
 </resources>
