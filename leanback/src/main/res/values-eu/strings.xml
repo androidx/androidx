@@ -49,8 +49,8 @@ limitations under the License.
     <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"Desgaitu azpitituluak"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"Aktibatu \"Pantaila txiki gainjarri\" modua"</string>
     <string name="lb_playback_time_separator" msgid="6549544638083578695">"/"</string>
-    <string name="lb_playback_controls_shown" msgid="7794717158616536936">"Multimedia kontrolatzeko aukerak ikusgai"</string>
-    <string name="lb_playback_controls_hidden" msgid="619396299825306757">"Ezkutatuta daude multimedia-edukia kontrolatzeko aukerak. Erakusteko, sakatu nabigazio-gurutzea."</string>
+    <string name="lb_playback_controls_shown" msgid="7794717158616536936">"Multimedia-edukia kontrolatzeko aukerak ikusgai"</string>
+    <string name="lb_playback_controls_hidden" msgid="619396299825306757">"Ezkutatuta daude multimedia-edukia kontrolatzeko aukerak. Haiek erakusteko, sakatu nabigazio-gurutzea."</string>
     <string name="lb_guidedaction_finish_title" msgid="7747913934287176843">"Amaitu"</string>
     <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"Egin aurrera"</string>
     <string name="lb_media_player_error" msgid="8748646000835486516">"MediaPlayer errore-kodea: %1$d (%2$d gehigarria)"</string>
