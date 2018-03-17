@@ -22,7 +22,7 @@ limitations under the License.
     <string name="lb_search_bar_hint" msgid="4819380969103509861">"Haz una búsqueda"</string>
     <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"Habla para buscar"</string>
     <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"Busca <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"Busca <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> por voz"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"Habla para buscar <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_control_display_fast_forward_multiplier" msgid="2721825378927619928">"%1$dx"</string>
     <string name="lb_control_display_rewind_multiplier" msgid="6173753802428649303">"%1$dx"</string>
     <string name="lb_playback_controls_play" msgid="1590369760862605402">"Reproducir"</string>
