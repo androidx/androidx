@@ -79,6 +79,7 @@ final class EmojiInputFilter implements android.text.InputFilter {
 
                 return source;
             case EmojiCompat.LOAD_STATE_LOADING:
+            case EmojiCompat.LOAD_STATE_DEFAULT:
                 EmojiCompat.get().registerInitCallback(getInitCallback());
                 return source;
 

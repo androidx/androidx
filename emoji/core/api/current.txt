@@ -9,6 +9,7 @@ package androidx.emoji.text {
     method public boolean hasEmojiGlyph(java.lang.CharSequence);
     method public boolean hasEmojiGlyph(java.lang.CharSequence, int);
     method public static androidx.emoji.text.EmojiCompat init(androidx.emoji.text.EmojiCompat.Config);
+    method public void load();
     method public java.lang.CharSequence process(java.lang.CharSequence);
     method public java.lang.CharSequence process(java.lang.CharSequence, int, int);
     method public java.lang.CharSequence process(java.lang.CharSequence, int, int, int);
@@ -17,9 +18,12 @@ package androidx.emoji.text {
     method public void unregisterInitCallback(androidx.emoji.text.EmojiCompat.InitCallback);
     field public static final java.lang.String EDITOR_INFO_METAVERSION_KEY = "android.support.text.emoji.emojiCompat_metadataVersion";
     field public static final java.lang.String EDITOR_INFO_REPLACE_ALL_KEY = "android.support.text.emoji.emojiCompat_replaceAll";
+    field public static final int LOAD_STATE_DEFAULT = 3; // 0x3
     field public static final int LOAD_STATE_FAILED = 2; // 0x2
     field public static final int LOAD_STATE_LOADING = 0; // 0x0
     field public static final int LOAD_STATE_SUCCEEDED = 1; // 0x1
+    field public static final int LOAD_STRATEGY_DEFAULT = 0; // 0x0
+    field public static final int LOAD_STRATEGY_MANUAL = 1; // 0x1
     field public static final int REPLACE_STRATEGY_ALL = 1; // 0x1
     field public static final int REPLACE_STRATEGY_DEFAULT = 0; // 0x0
     field public static final int REPLACE_STRATEGY_NON_EXISTENT = 2; // 0x2
@@ -31,6 +35,7 @@ package androidx.emoji.text {
     method public androidx.emoji.text.EmojiCompat.Config registerInitCallback(androidx.emoji.text.EmojiCompat.InitCallback);
     method public androidx.emoji.text.EmojiCompat.Config setEmojiSpanIndicatorColor(int);
     method public androidx.emoji.text.EmojiCompat.Config setEmojiSpanIndicatorEnabled(boolean);
+    method public androidx.emoji.text.EmojiCompat.Config setMetadataLoadStrategy(int);
     method public androidx.emoji.text.EmojiCompat.Config setReplaceAll(boolean);
     method public androidx.emoji.text.EmojiCompat.Config setUseEmojiAsDefaultStyle(boolean);
     method public androidx.emoji.text.EmojiCompat.Config setUseEmojiAsDefaultStyle(boolean, java.util.List<java.lang.Integer>);
