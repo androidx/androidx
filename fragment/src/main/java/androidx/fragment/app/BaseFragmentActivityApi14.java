@@ -19,6 +19,7 @@ package androidx.fragment.app;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -35,6 +36,12 @@ abstract class BaseFragmentActivityApi14 extends SupportActivity {
     // super.startIntentSenderForResult(...) to bypass the check when the call didn't come from a
     // fragment, since we need to use the ActivityCompat version for backward compatibility.
     boolean mStartedIntentSenderFromFragment;
+    // We need to keep track of whether startActivityForResult originated from a Fragment, so we
+    // can conditionally check whether the requestCode collides with our reserved ID space for the
+    // request index (see above). Unfortunately we can't just call
+    // super.startActivityForResult(...) to bypass the check when the call didn't come from a
+    // fragment, since we need to use the ActivityCompat version for backward compatibility.
+    boolean mStartedActivityFromFragment;
 
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
@@ -70,6 +77,34 @@ abstract class BaseFragmentActivityApi14 extends SupportActivity {
         }
         super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
                 extraFlags);
+    }
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode,
+            @Nullable Bundle options) {
+        // If this was started from a Fragment we've already checked the upper 16 bits were not in
+        // use, and then repurposed them for the Fragment's index.
+        if (!mStartedActivityFromFragment) {
+            if (requestCode != -1) {
+                checkForValidRequestCode(requestCode);
+            }
+        }
+        super.startActivityForResult(intent, requestCode, options);
+    }
+
+    @Override
+    public void startIntentSenderForResult(IntentSender intent, int requestCode,
+            @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,
+            Bundle options) throws IntentSender.SendIntentException {
+        // If this was started from a Fragment we've already checked the upper 16 bits were not in
+        // use, and then repurposed them for the Fragment's index.
+        if (!mStartedIntentSenderFromFragment) {
+            if (requestCode != -1) {
+                checkForValidRequestCode(requestCode);
+            }
+        }
+        super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
+                extraFlags, options);
     }
 
     /**
