@@ -59,7 +59,6 @@ import android.widget.TextView;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.view.ActionMode;
@@ -90,8 +89,7 @@ import androidx.core.widget.PopupWindowCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 
-@RequiresApi(14)
-class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
+abstract class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         implements MenuBuilder.Callback, LayoutInflater.Factory2 {
 
     private static final boolean IS_PRE_LOLLIPOP = Build.VERSION.SDK_INT < 21;
@@ -637,8 +635,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         }
     }
 
-    @Override
-    void onPanelClosed(final int featureId, Menu menu) {
+    void onPanelClosed(final int featureId) {
         if (featureId == FEATURE_SUPPORT_ACTION_BAR) {
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
@@ -654,16 +651,13 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         }
     }
 
-    @Override
-    boolean onMenuOpened(final int featureId, Menu menu) {
+    void onMenuOpened(final int featureId) {
         if (featureId == FEATURE_SUPPORT_ACTION_BAR) {
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.dispatchMenuVisibilityChanged(true);
             }
-            return true;
         }
-        return false;
     }
 
     @Override
@@ -901,7 +895,6 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         return false;
     }
 
-    @Override
     boolean onKeyShortcut(int keyCode, KeyEvent ev) {
         // Let the Action Bar have a chance at handling the shortcut
         ActionBar ab = getSupportActionBar();
@@ -938,7 +931,6 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         return false;
     }
 
-    @Override
     boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
             // If this is a MENU event, let the Activity have a go.

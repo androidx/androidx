@@ -32,15 +32,17 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.view.SupportActionModeWrapper;
+import androidx.appcompat.view.WindowCallbackWrapper;
+import androidx.appcompat.view.menu.MenuBuilder;
 
-@RequiresApi(14)
 class AppCompatDelegateImplV14 extends AppCompatDelegateImplV9 {
 
     private static final String KEY_LOCAL_NIGHT_MODE = "appcompat:local_night_mode";
@@ -278,9 +280,77 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV9 {
         return false;
     }
 
-    class AppCompatWindowCallbackV14 extends AppCompatWindowCallbackBase {
+    class AppCompatWindowCallbackV14 extends WindowCallbackWrapper {
         AppCompatWindowCallbackV14(Window.Callback callback) {
             super(callback);
+        }
+
+        @Override
+        public boolean dispatchKeyEvent(KeyEvent event) {
+            return AppCompatDelegateImplV14.this.dispatchKeyEvent(event)
+                    || super.dispatchKeyEvent(event);
+        }
+
+        @Override
+        public boolean dispatchKeyShortcutEvent(KeyEvent event) {
+            return super.dispatchKeyShortcutEvent(event)
+                    || AppCompatDelegateImplV14.this.onKeyShortcut(event.getKeyCode(), event);
+        }
+
+        @Override
+        public boolean onCreatePanelMenu(int featureId, Menu menu) {
+            if (featureId == Window.FEATURE_OPTIONS_PANEL && !(menu instanceof MenuBuilder)) {
+                // If this is an options menu but it's not an AppCompat menu, we eat the event
+                // and return false
+                return false;
+            }
+            return super.onCreatePanelMenu(featureId, menu);
+        }
+
+        @Override
+        public void onContentChanged() {
+            // We purposely do not propagate this call as this is called when we install
+            // our sub-decor rather than the user's content
+        }
+
+        @Override
+        public boolean onPreparePanel(int featureId, View view, Menu menu) {
+            final MenuBuilder mb = menu instanceof MenuBuilder ? (MenuBuilder) menu : null;
+
+            if (featureId == Window.FEATURE_OPTIONS_PANEL && mb == null) {
+                // If this is an options menu but it's not an AppCompat menu, we eat the event
+                // and return false
+                return false;
+            }
+
+            // On ICS and below devices, onPreparePanel calls menu.hasVisibleItems() to determine
+            // if a panel is prepared. This interferes with any initially invisible items, which
+            // are later made visible. We workaround it by making hasVisibleItems() always
+            // return true during the onPreparePanel call.
+            if (mb != null) {
+                mb.setOverrideVisibleItems(true);
+            }
+
+            final boolean handled = super.onPreparePanel(featureId, view, menu);
+
+            if (mb != null) {
+                mb.setOverrideVisibleItems(false);
+            }
+
+            return handled;
+        }
+
+        @Override
+        public boolean onMenuOpened(int featureId, Menu menu) {
+            super.onMenuOpened(featureId, menu);
+            AppCompatDelegateImplV14.this.onMenuOpened(featureId);
+            return true;
+        }
+
+        @Override
+        public void onPanelClosed(int featureId, Menu menu) {
+            super.onPanelClosed(featureId, menu);
+            AppCompatDelegateImplV14.this.onPanelClosed(featureId);
         }
 
         @Override
