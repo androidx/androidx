@@ -19,20 +19,11 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
-
 class FragmentUtil {
-
-    @RequiresApi(23)
-    private static Context getContextNew(Fragment fragment) {
-        return fragment.getContext();
-    }
-
-    public static Context getContext(Fragment fragment) {
+    static Context getContext(Fragment fragment) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return getContextNew(fragment);
-        } else {
-            return fragment.getActivity();
+            return fragment.getContext();
         }
+        return fragment.getActivity();
     }
 }
