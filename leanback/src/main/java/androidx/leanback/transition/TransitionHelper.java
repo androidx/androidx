@@ -33,8 +33,6 @@ import android.view.Window;
 import android.view.animation.AnimationUtils;
 
 import androidx.annotation.RestrictTo;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import java.util.ArrayList;
 
@@ -420,26 +418,6 @@ public final class TransitionHelper {
         if (Build.VERSION.SDK_INT >= 21) {
             ft.addSharedElement(view, transitionName);
         }
-    }
-
-    public static void setEnterTransition(Fragment fragment,
-            Object transition) {
-        fragment.setEnterTransition(transition);
-    }
-
-    public static void setExitTransition(Fragment fragment,
-            Object transition) {
-        fragment.setExitTransition(transition);
-    }
-
-    public static void setSharedElementEnterTransition(Fragment fragment,
-            Object transition) {
-        fragment.setSharedElementEnterTransition(transition);
-    }
-
-    public static void addSharedElement(FragmentTransaction ft,
-            View view, String transitionName) {
-        ft.addSharedElement(view, transitionName);
     }
 
     public static Object createFadeAndShortSlide(int edge) {
