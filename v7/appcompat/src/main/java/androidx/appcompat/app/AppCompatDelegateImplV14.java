@@ -122,8 +122,6 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV9 {
 
     @Override
     public void onStart() {
-        super.onStart();
-
         // This will apply day/night if the time has changed, it will also call through to
         // setupAutoNightModeIfNeeded()
         applyDayNight();
@@ -182,8 +180,6 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV9 {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
         if (mLocalNightMode != MODE_NIGHT_UNSPECIFIED) {
             // If we have a local night mode set, save it
             outState.putInt(KEY_LOCAL_NIGHT_MODE, mLocalNightMode);

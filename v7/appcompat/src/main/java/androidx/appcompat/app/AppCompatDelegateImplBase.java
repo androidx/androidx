@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Bundle;
 import android.view.MenuInflater;
 import android.view.Window;
 
@@ -100,10 +99,6 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
     private CharSequence mTitle;
 
-    private boolean mIsStarted;
-    private boolean mIsDestroyed;
-    private boolean mEatKeyUpEvent;
-
     AppCompatDelegateImplBase(Context context, Window window, AppCompatCallback callback) {
         mContext = context;
         mWindow = window;
@@ -152,11 +147,6 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
                     mActionBar != null ? mActionBar.getThemedContext() : mContext);
         }
         return mMenuInflater;
-    }
-
-    @Override
-    public void setLocalNightMode(@NightMode int mode) {
-        // no-op
     }
 
     @Override
@@ -223,46 +213,6 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
     abstract ActionMode startSupportActionModeFromWindow(ActionMode.Callback callback);
 
-    @Override
-    public void onStart() {
-        mIsStarted = true;
-    }
-
-    @Override
-    public void onStop() {
-        mIsStarted = false;
-    }
-
-    @Override
-    public void onDestroy() {
-        mIsDestroyed = true;
-    }
-
-    @Override
-    public void setHandleNativeActionModesEnabled(boolean enabled) {
-        // no-op pre-v14
-    }
-
-    @Override
-    public boolean isHandleNativeActionModesEnabled() {
-        // Always false pre-v14
-        return false;
-    }
-
-    @Override
-    public boolean applyDayNight() {
-        // no-op on v7
-        return false;
-    }
-
-    final boolean isDestroyed() {
-        return mIsDestroyed;
-    }
-
-    final boolean isStarted() {
-        return mIsStarted;
-    }
-
     final Window.Callback getWindowCallback() {
         return mWindow.getCallback();
     }
@@ -271,11 +221,6 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     public final void setTitle(CharSequence title) {
         mTitle = title;
         onTitleChanged(title);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        // no-op
     }
 
     abstract void onTitleChanged(CharSequence title);
