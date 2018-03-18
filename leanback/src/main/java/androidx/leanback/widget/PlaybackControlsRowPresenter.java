@@ -140,11 +140,11 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
 
         void setOutline(View view) {
             if (mBgView != null) {
-                RoundedRectHelper.getInstance().setClipToRoundedOutline(mBgView, false);
+                RoundedRectHelper.setClipToRoundedOutline(mBgView, false);
                 ShadowHelper.getInstance().setZ(mBgView, 0);
             }
             mBgView = view;
-            RoundedRectHelper.getInstance().setClipToRoundedOutline(view, true);
+            RoundedRectHelper.setClipToRoundedOutline(view, true);
 
             if (sShadowZ == 0) {
                 sShadowZ = view.getResources().getDimensionPixelSize(
