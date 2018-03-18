@@ -126,7 +126,7 @@ public class ShadowOverlayContainer extends FrameLayout {
      * Returns true if the platform sdk supports dynamic shadows.
      */
     public static boolean supportsDynamicShadow() {
-        return ShadowHelper.getInstance().supportsDynamicShadow();
+        return ShadowHelper.supportsDynamicShadow();
     }
 
     /**
@@ -222,7 +222,7 @@ public class ShadowOverlayContainer extends FrameLayout {
         mShadowType = shadowType;
         switch (mShadowType) {
             case SHADOW_DYNAMIC:
-                mShadowImpl = ShadowHelper.getInstance().addDynamicShadow(
+                mShadowImpl = ShadowHelper.addDynamicShadow(
                         this, mUnfocusedZ, mFocusedZ, mRoundedCornerRadius);
                 break;
             case SHADOW_STATIC:

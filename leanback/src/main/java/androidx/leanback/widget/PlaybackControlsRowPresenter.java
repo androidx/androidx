@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.ColorInt;
+import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 import androidx.leanback.widget.ControlBarPresenter.OnControlClickedListener;
 import androidx.leanback.widget.ControlBarPresenter.OnControlSelectedListener;
@@ -141,7 +142,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
         void setOutline(View view) {
             if (mBgView != null) {
                 RoundedRectHelper.setClipToRoundedOutline(mBgView, false);
-                ShadowHelper.getInstance().setZ(mBgView, 0);
+                ViewCompat.setZ(mBgView, 0f);
             }
             mBgView = view;
             RoundedRectHelper.setClipToRoundedOutline(view, true);
@@ -150,7 +151,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
                 sShadowZ = view.getResources().getDimensionPixelSize(
                         R.dimen.lb_playback_controls_z);
             }
-            ShadowHelper.getInstance().setZ(view, sShadowZ);
+            ViewCompat.setZ(view, sShadowZ);
         }
     }
 

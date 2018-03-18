@@ -287,7 +287,7 @@ public final class ShadowOverlayHelper {
      * Returns true if the platform sdk supports dynamic shadows.
      */
     public static boolean supportsDynamicShadow() {
-        return ShadowHelper.getInstance().supportsDynamicShadow();
+        return ShadowHelper.supportsDynamicShadow();
     }
 
     /**
@@ -391,7 +391,7 @@ public final class ShadowOverlayHelper {
                 }
             } else {
                 if (mShadowType == SHADOW_DYNAMIC) {
-                    Object tag = ShadowHelper.getInstance().addDynamicShadow(
+                    Object tag = ShadowHelper.addDynamicShadow(
                             view, mUnfocusedZ, mFocusedZ, mRoundedCornerRadius);
                     view.setTag(R.id.lb_shadow_impl, tag);
                 } else if (mNeedsRoundedCorner) {
@@ -455,7 +455,7 @@ public final class ShadowOverlayHelper {
             }
             switch (shadowType) {
                 case SHADOW_DYNAMIC:
-                    ShadowHelper.getInstance().setShadowFocusLevel(impl, level);
+                    ShadowHelper.setShadowFocusLevel(impl, level);
                     break;
                 case SHADOW_STATIC:
                     StaticShadowHelper.getInstance().setShadowFocusLevel(impl, level);
