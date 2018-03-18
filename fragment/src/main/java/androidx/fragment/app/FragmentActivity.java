@@ -74,7 +74,7 @@ import androidx.loader.app.LoaderManager;
  * specify an ID (or tag) in the <code>&lt;fragment></code>.</p>
  * </ul>
  */
-public class FragmentActivity extends BaseFragmentActivityApi16 implements
+public class FragmentActivity extends BaseFragmentActivityApi14 implements
         ViewModelStoreOwner,
         ActivityCompat.OnRequestPermissionsResultCallback,
         ActivityCompat.RequestPermissionsRequestCodeValidator {
