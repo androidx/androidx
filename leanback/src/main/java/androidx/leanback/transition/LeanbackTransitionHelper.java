@@ -17,8 +17,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.os.Build;
+import android.view.Gravity;
+import android.view.animation.AnimationUtils;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.R;
 
@@ -29,63 +30,29 @@ import androidx.leanback.R;
 @RestrictTo(LIBRARY_GROUP)
 public class LeanbackTransitionHelper {
 
-    interface LeanbackTransitionHelperVersion {
-        Object loadTitleInTransition(Context context);
-        Object loadTitleOutTransition(Context context);
-    }
-
-    /*
-     * Kitkat does not allow load custom transition from resource, calling
-     * LeanbackTransitionHelperKitKat to build custom transition in code.
-     */
-    @RequiresApi(19)
-    static class LeanbackTransitionHelperKitKatImpl implements LeanbackTransitionHelperVersion {
-
-        @Override
-        public Object loadTitleInTransition(Context context) {
-            return LeanbackTransitionHelperKitKat.loadTitleInTransition(context);
-        }
-
-        @Override
-        public Object loadTitleOutTransition(Context context) {
-            return LeanbackTransitionHelperKitKat.loadTitleOutTransition(context);
-        }
-    }
-
-    /*
-     * Load transition from resource or just return stub for API17.
-     */
-    static class LeanbackTransitionHelperDefault implements LeanbackTransitionHelperVersion {
-
-        @Override
-        public Object loadTitleInTransition(Context context) {
+    public static Object loadTitleInTransition(Context context) {
+        if (Build.VERSION.SDK_INT < 19 || Build.VERSION.SDK_INT >= 21) {
             return TransitionHelper.loadTransition(context, R.transition.lb_title_in);
         }
 
-        @Override
-        public Object loadTitleOutTransition(Context context) {
+        SlideKitkat slide = new SlideKitkat();
+        slide.setSlideEdge(Gravity.TOP);
+        slide.setInterpolator(AnimationUtils.loadInterpolator(context,
+                android.R.anim.decelerate_interpolator));
+        slide.addTarget(R.id.browse_title_group);
+        return slide;
+    }
+
+    public static Object loadTitleOutTransition(Context context) {
+        if (Build.VERSION.SDK_INT < 19 || Build.VERSION.SDK_INT >= 21) {
             return TransitionHelper.loadTransition(context, R.transition.lb_title_out);
         }
-    }
 
-    static LeanbackTransitionHelperVersion sImpl;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 21) {
-            sImpl = new LeanbackTransitionHelperDefault();
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            sImpl = new LeanbackTransitionHelperKitKatImpl();
-        } else {
-            // Helper will create a stub object for transition in this case.
-            sImpl = new LeanbackTransitionHelperDefault();
-        }
-    }
-
-    static public Object loadTitleInTransition(Context context) {
-        return sImpl.loadTitleInTransition(context);
-    }
-
-    static public Object loadTitleOutTransition(Context context) {
-        return sImpl.loadTitleOutTransition(context);
+        SlideKitkat slide = new SlideKitkat();
+        slide.setSlideEdge(Gravity.TOP);
+        slide.setInterpolator(AnimationUtils.loadInterpolator(context,
+                R.anim.lb_decelerator_4));
+        slide.addTarget(R.id.browse_title_group);
+        return slide;
     }
 }
