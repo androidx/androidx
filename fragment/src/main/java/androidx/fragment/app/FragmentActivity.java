@@ -47,6 +47,7 @@ import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.SharedElementCallback;
+import androidx.core.app.SupportActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
@@ -74,7 +75,7 @@ import androidx.loader.app.LoaderManager;
  * specify an ID (or tag) in the <code>&lt;fragment></code>.</p>
  * </ul>
  */
-public class FragmentActivity extends BaseFragmentActivityApi14 implements
+public class FragmentActivity extends SupportActivity implements
         ViewModelStoreOwner,
         ActivityCompat.OnRequestPermissionsResultCallback,
         ActivityCompat.RequestPermissionsRequestCodeValidator {
@@ -119,6 +120,19 @@ public class FragmentActivity extends BaseFragmentActivityApi14 implements
     boolean mRetaining;
 
     boolean mRequestedPermissionsFromFragment;
+
+    // We need to keep track of whether startIntentSenderForResult originated from a Fragment, so we
+    // can conditionally check whether the requestCode collides with our reserved ID space for the
+    // request index (see above). Unfortunately we can't just call
+    // super.startIntentSenderForResult(...) to bypass the check when the call didn't come from a
+    // fragment, since we need to use the ActivityCompat version for backward compatibility.
+    boolean mStartedIntentSenderFromFragment;
+    // We need to keep track of whether startActivityForResult originated from a Fragment, so we
+    // can conditionally check whether the requestCode collides with our reserved ID space for the
+    // request index (see above). Unfortunately we can't just call
+    // super.startActivityForResult(...) to bypass the check when the call didn't come from a
+    // fragment, since we need to use the ActivityCompat version for backward compatibility.
+    boolean mStartedActivityFromFragment;
 
     // A hint for the next candidate request index. Request indicies are ints between 0 and 2^16-1
     // which are encoded into the upper 16 bits of the requestCode for
@@ -377,6 +391,23 @@ public class FragmentActivity extends BaseFragmentActivityApi14 implements
     }
 
     @Override
+    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        final View v = dispatchFragmentsOnCreateView(parent, name, context, attrs);
+        if (v == null) {
+            return super.onCreateView(parent, name, context, attrs);
+        }
+        return v;
+    }
+
+    @Override
+    public View onCreateView(String name, Context context, AttributeSet attrs) {
+        final View v = dispatchFragmentsOnCreateView(null, name, context, attrs);
+        if (v == null) {
+            return super.onCreateView(name, context, attrs);
+        }
+        return v;
+    }
+
     final View dispatchFragmentsOnCreateView(View parent, String name, Context context,
             AttributeSet attrs) {
         return mFragments.onCreateView(parent, name, context, attrs);
@@ -756,6 +787,59 @@ public class FragmentActivity extends BaseFragmentActivityApi14 implements
             }
         }
         super.startActivityForResult(intent, requestCode);
+    }
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode,
+            @Nullable Bundle options) {
+        // If this was started from a Fragment we've already checked the upper 16 bits were not in
+        // use, and then repurposed them for the Fragment's index.
+        if (!mStartedActivityFromFragment) {
+            if (requestCode != -1) {
+                checkForValidRequestCode(requestCode);
+            }
+        }
+        super.startActivityForResult(intent, requestCode, options);
+    }
+
+    @Override
+    public void startIntentSenderForResult(IntentSender intent, int requestCode,
+            @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags)
+            throws IntentSender.SendIntentException {
+        // If this was started from a Fragment we've already checked the upper 16 bits were not in
+        // use, and then repurposed them for the Fragment's index.
+        if (!mStartedIntentSenderFromFragment) {
+            if (requestCode != -1) {
+                checkForValidRequestCode(requestCode);
+            }
+        }
+        super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
+                extraFlags);
+    }
+
+    @Override
+    public void startIntentSenderForResult(IntentSender intent, int requestCode,
+            @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,
+            Bundle options) throws IntentSender.SendIntentException {
+        // If this was started from a Fragment we've already checked the upper 16 bits were not in
+        // use, and then repurposed them for the Fragment's index.
+        if (!mStartedIntentSenderFromFragment) {
+            if (requestCode != -1) {
+                checkForValidRequestCode(requestCode);
+            }
+        }
+        super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
+                extraFlags, options);
+    }
+
+    /**
+     * Checks whether the given request code is a valid code by masking it with 0xffff0000. Throws
+     * an {@link IllegalArgumentException} if the code is not valid.
+     */
+    static void checkForValidRequestCode(int requestCode) {
+        if ((requestCode & 0xffff0000) != 0) {
+            throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
+        }
     }
 
     @Override
