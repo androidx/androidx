@@ -178,15 +178,18 @@ public final class PrintHelper {
         private final Object mLock = new Object();
 
         /**
-         * Whether the PrintActivity respects the suggested orientation
+         * Whether the PrintActivity respects the suggested orientation.
+         *
+         * There is a bug in the PrintActivity that causes it to ignore the orientation
          */
-        protected boolean mPrintActivityRespectsOrientation;
+        private final boolean mPrintActivityRespectsOrientation =
+                Build.VERSION.SDK_INT < 20 || Build.VERSION.SDK_INT > 23;
 
         /**
          * Whether the print subsystem handles min margins correctly. If not the print helper needs
          * to fake this.
          */
-        protected boolean mIsMinMarginsHandlingCorrect;
+        private final boolean mIsMinMarginsHandlingCorrect = Build.VERSION.SDK_INT != 23;
 
         @ScaleMode int mScaleMode = SCALE_MODE_FILL;
 
@@ -195,9 +198,6 @@ public final class PrintHelper {
         @Orientation int mOrientation;
 
         PrintHelperApi19(Context context) {
-            mPrintActivityRespectsOrientation = true;
-            mIsMinMarginsHandlingCorrect = true;
-
             mContext = context;
         }
 
@@ -305,6 +305,12 @@ public final class PrintHelper {
 
             if (other.getColorMode() != 0) {
                 b.setColorMode(other.getColorMode());
+            }
+
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (other.getDuplexMode() != 0) {
+                    b.setDuplexMode(other.getDuplexMode());
+                }
             }
 
             return b;
@@ -804,68 +810,12 @@ public final class PrintHelper {
     }
 
     /**
-     * Api20 specific PrintManager API implementation.
-     */
-    @RequiresApi(20)
-    private static class PrintHelperApi20 extends PrintHelperApi19 {
-        PrintHelperApi20(Context context) {
-            super(context);
-
-
-            // There is a bug in the PrintActivity that causes it to ignore the orientation
-            mPrintActivityRespectsOrientation = false;
-        }
-    }
-
-    /**
-     * Api23 specific PrintManager API implementation.
-     */
-    @RequiresApi(23)
-    private static class PrintHelperApi23 extends PrintHelperApi20 {
-        @Override
-        protected PrintAttributes.Builder copyAttributes(PrintAttributes other) {
-            PrintAttributes.Builder b = super.copyAttributes(other);
-
-            if (other.getDuplexMode() != 0) {
-                b.setDuplexMode(other.getDuplexMode());
-            }
-
-            return b;
-        }
-
-        PrintHelperApi23(Context context) {
-            super(context);
-
-            mIsMinMarginsHandlingCorrect = false;
-        }
-    }
-
-    /**
-     * Api24 specific PrintManager API implementation.
-     */
-    @RequiresApi(24)
-    private static class PrintHelperApi24 extends PrintHelperApi23 {
-        PrintHelperApi24(Context context) {
-            super(context);
-
-            mIsMinMarginsHandlingCorrect = true;
-            mPrintActivityRespectsOrientation = true;
-        }
-    }
-
-    /**
      * Constructs the PrintHelper that can be used to print images.
      *
      * @param context A context for accessing system resources.
      */
     public PrintHelper(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            mImpl = new PrintHelperApi24(context);
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            mImpl = new PrintHelperApi23(context);
-        } else if (Build.VERSION.SDK_INT >= 20) {
-            mImpl = new PrintHelperApi20(context);
-        } else if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             mImpl = new PrintHelperApi19(context);
         } else {
             // System does not support printing.
