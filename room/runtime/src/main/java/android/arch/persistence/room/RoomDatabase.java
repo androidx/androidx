@@ -411,7 +411,7 @@ public abstract class RoomDatabase {
         /**
          * Keeps track of {@link Migration#startVersion}s and {@link Migration#endVersion}s added in
          * {@link #addMigrations(Migration...)} for later validation that makes those versions don't
-         * match any versions passed to {@link #fallbackToDestructiveMigrationFrom(Integer...)}.
+         * match any versions passed to {@link #fallbackToDestructiveMigrationFrom(int...)}.
          */
         private Set<Integer> mMigrationStartAndEndVersions;
 
@@ -554,11 +554,13 @@ public abstract class RoomDatabase {
          * @return this
          */
         @NonNull
-        public Builder<T> fallbackToDestructiveMigrationFrom(Integer... startVersions) {
+        public Builder<T> fallbackToDestructiveMigrationFrom(int... startVersions) {
             if (mMigrationsNotRequiredFrom == null) {
-                mMigrationsNotRequiredFrom = new HashSet<>();
+                mMigrationsNotRequiredFrom = new HashSet<>(startVersions.length);
             }
-            Collections.addAll(mMigrationsNotRequiredFrom, startVersions);
+            for (int startVersion : startVersions) {
+                mMigrationsNotRequiredFrom.add(startVersion);
+            }
             return this;
         }
 
@@ -604,7 +606,7 @@ public abstract class RoomDatabase {
                                 "Inconsistency detected. A Migration was supplied to "
                                         + "addMigration(Migration... migrations) that has a start "
                                         + "or end version equal to a start version supplied to "
-                                        + "fallbackToDestructiveMigrationFrom(Integer ... "
+                                        + "fallbackToDestructiveMigrationFrom(int... "
                                         + "startVersions). Start version: "
                                         + version);
                     }
