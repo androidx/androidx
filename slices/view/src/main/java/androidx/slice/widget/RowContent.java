@@ -37,15 +37,15 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Extracts information required to present content in a row format from a slice.
@@ -90,6 +90,11 @@ public class RowContent {
         String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};
         mPrimaryAction = SliceQuery.find(rowSlice, FORMAT_SLICE, hints,
                 new String[] { HINT_ACTIONS, HINT_KEY_WORDS } /* nonHints */);
+
+        if (mPrimaryAction == null && FORMAT_ACTION.equals(rowSlice.getFormat())
+                && rowSlice.getSlice().getItems().size() == 1) {
+            mPrimaryAction = rowSlice;
+        }
 
         mContentDescr = SliceQuery.findSubtype(rowSlice, FORMAT_TEXT, SUBTYPE_CONTENT_DESCRIPTION);
 
