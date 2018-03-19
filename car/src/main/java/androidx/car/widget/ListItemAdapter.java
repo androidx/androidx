@@ -23,7 +23,6 @@ import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +32,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.function.Function;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.StyleRes;
@@ -96,7 +96,8 @@ public class ListItemAdapter extends
             new SparseArray<>();
 
     @ListBackgroundStyle private int mBackgroundStyle;
-    @StyleRes private int mListItemStyle;
+
+    @ColorInt private int mListItemBackgroundColor;
     @StyleRes private int mListItemTitleTextAppearance;
     @StyleRes private int mListItemBodyTextAppearance;
 
@@ -180,9 +181,11 @@ public class ListItemAdapter extends
         // When attached to the RecyclerView, update the Context so that this ListItemAdapter can
         // retrieve theme information off that view.
         mContext = recyclerView.getContext();
-        mListItemStyle = getListItemStyle(mContext);
 
-        TypedArray a = mContext.obtainStyledAttributes(mListItemStyle, R.styleable.ListItem);
+        TypedArray a = mContext.getTheme().obtainStyledAttributes(R.styleable.ListItem);
+
+        mListItemBackgroundColor = a.getColor(R.styleable.ListItem_listItemBackgroundColor,
+                mContext.getColor(R.color.car_card));
         mListItemTitleTextAppearance = a.getResourceId(
                 R.styleable.ListItem_listItemTitleTextAppearance,
                 R.style.TextAppearance_Car_Body1);
@@ -211,8 +214,6 @@ public class ListItemAdapter extends
      * Creates a view with background set by {@link BackgroundStyle}.
      */
     private ViewGroup createListItemContainer() {
-        TypedArray a = mContext.obtainStyledAttributes(mListItemStyle, R.styleable.ListItem);
-
         ViewGroup container;
         switch (mBackgroundStyle) {
             case BackgroundStyle.NONE:
@@ -220,9 +221,7 @@ public class ListItemAdapter extends
                 FrameLayout frameLayout = new FrameLayout(mContext);
                 frameLayout.setLayoutParams(new RecyclerView.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                frameLayout.setBackgroundColor(a.getColor(
-                        R.styleable.ListItem_listItemBackgroundColor,
-                        mContext.getResources().getColor(R.color.car_card)));
+                frameLayout.setBackgroundColor(mListItemBackgroundColor);
 
                 container = frameLayout;
                 break;
@@ -234,9 +233,7 @@ public class ListItemAdapter extends
                         R.dimen.car_padding_3);
                 card.setLayoutParams(cardLayoutParams);
                 card.setRadius(mContext.getResources().getDimensionPixelSize(R.dimen.car_radius_1));
-                card.setCardBackgroundColor(a.getColor(
-                        R.styleable.ListItem_listItemBackgroundColor,
-                        mContext.getResources().getColor(R.color.car_card)));
+                card.setCardBackgroundColor(mListItemBackgroundColor);
 
                 container = card;
                 break;
@@ -244,8 +241,6 @@ public class ListItemAdapter extends
                 throw new IllegalArgumentException("Unknown background style. "
                     + "Expected constants in class ListItemAdapter.BackgroundStyle.");
         }
-
-        a.recycle();
         return container;
     }
 
@@ -292,15 +287,5 @@ public class ListItemAdapter extends
         // Check if position is within range, and then check the item flag.
         return position >= 0 && position < getItemCount()
                 && mItemProvider.get(position).shouldHideDivider();
-    }
-
-    /**
-     * Returns the style that has been assigned to {@code listItemStyle} in the
-     * current theme that is inflating this {@code ListItemAdapter}.
-     */
-    private static int getListItemStyle(Context context) {
-        TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.listItemStyle, outValue, true);
-        return outValue.resourceId;
     }
 }
