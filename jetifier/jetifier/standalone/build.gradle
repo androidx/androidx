@@ -31,5 +31,5 @@ task dist(type: Copy) {
 
   destinationDir rootProject.distDir // defined by support library plugin
 }
-rootProject.tasks["buildOnServer"].dependsOn(dist)
+rootProject.tasks["createArchive"].dependsOn(dist)
 

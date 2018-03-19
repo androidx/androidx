@@ -100,7 +100,7 @@ class ProGuardTester {
     class ProGuardTesterForType(private val config: Config, private val given: String) {
 
         fun getsRewrittenTo(expectedType: String) {
-            val context = TransformationContext(config)
+            val context = TransformationContext(config, useIdentityIfTypeIsMissing = false)
             val mapper = ProGuardTypesMapper(context)
             val result = mapper.replaceType(given)
 

@@ -28,17 +28,16 @@ import java.util.regex.Pattern
 class TransformationContext(
     val config: Config,
     val rewritingSupportLib: Boolean = false,
-    val isInReversedMode: Boolean = false
+    val isInReversedMode: Boolean = false,
+    /**
+     * Whether to use identity if type in our scope is missing instead of throwing an exception.
+     */
+    val useIdentityIfTypeIsMissing: Boolean = true
 ) {
 
     // Merges all packages prefixes into one regEx pattern
     private val packagePrefixPattern = Pattern.compile(
         "^(" + config.restrictToPackagePrefixes.map { "($it)" }.joinToString("|") + ").*$")
-
-    /**
-     * Whether to use identity if type in our scope is missing instead of throwing an exception.
-     */
-    val useIdentityIfTypeIsMissing = rewritingSupportLib || isInReversedMode
 
     /**
      * Whether to skip verification of dependency version match in pom files.
