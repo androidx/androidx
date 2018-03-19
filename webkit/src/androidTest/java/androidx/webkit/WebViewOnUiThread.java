@@ -16,12 +16,42 @@
 
 package androidx.webkit;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import android.graphics.Bitmap;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class WebViewOnUiThread {
+import java.util.concurrent.Callable;
+
+class WebViewOnUiThread {
+    /**
+     * The maximum time, in milliseconds (10 seconds) to wait for a load
+     * to be triggered.
+     */
+    private static final long LOAD_TIMEOUT = 10000;
+
+    /**
+     * Set to true after onPageFinished is called.
+     */
+    private boolean mLoaded;
+
+    /**
+     * The progress, in percentage, of the page load. Valid values are between
+     * 0 and 100.
+     */
+    private int mProgress;
+
+    /**
+     * The WebView that calls will be made on.
+     */
     private WebView mWebView;
 
     public WebViewOnUiThread() {
@@ -29,6 +59,8 @@ public class WebViewOnUiThread {
             @Override
             public void run() {
                 mWebView = new WebView(InstrumentationRegistry.getTargetContext());
+                mWebView.setWebViewClient(new WaitForLoadedClient(WebViewOnUiThread.this));
+                mWebView.setWebChromeClient(new WaitForProgressClient(WebViewOnUiThread.this));
             }
         });
     }
@@ -70,8 +102,206 @@ public class WebViewOnUiThread {
         });
     }
 
-    public WebView getWebViewOnCurrentThread() {
+    public void addJavascriptInterface(final Object object, final String name) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.addJavascriptInterface(object, name);
+            }
+        });
+    }
+
+    /**
+     * Called after a test is complete and the WebView should be disengaged from
+     * the tests.
+     */
+    public void cleanUp() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.clearHistory();
+                mWebView.clearCache(true);
+                mWebView.setWebChromeClient(null);
+                mWebView.setWebViewClient(null);
+                mWebView.destroy();
+            }
+        });
+    }
+
+    WebView getWebViewOnCurrentThread() {
         return mWebView;
+    }
+
+    /**
+     * Called from WaitForLoadedClient.
+     */
+    synchronized void onPageStarted() {}
+
+    /**
+     * Called from WaitForLoadedClient, this is used to indicate that
+     * the page is loaded, but not drawn yet.
+     */
+    synchronized void onPageFinished() {
+        mLoaded = true;
+        this.notifyAll();
+    }
+
+    /**
+     * Called from the WebChrome client, this sets the current progress
+     * for a page.
+     * @param progress The progress made so far between 0 and 100.
+     */
+    synchronized void onProgressChanged(int progress) {
+        mProgress = progress;
+        this.notifyAll();
+    }
+
+    /**
+     * Calls loadUrl on the WebView and then waits onPageFinished,
+     * onNewPicture and onProgressChange to reach 100.
+     * Test fails if the load timeout elapses.
+     * @param url The URL to load.
+     */
+    void loadUrlAndWaitForCompletion(final String url) {
+        callAndWait(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.loadUrl(url);
+            }
+        });
+    }
+
+    /**
+     * Use this only when JavaScript causes a page load to wait for the
+     * page load to complete. Otherwise use loadUrlAndWaitForCompletion or
+     * similar functions.
+     */
+    void waitForLoadCompletion() {
+        waitForCriteria(LOAD_TIMEOUT,
+                new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() {
+                        return isLoaded();
+                    }
+                });
+        clearLoad();
+    }
+
+    private void waitForCriteria(long timeout, Callable<Boolean> doneCriteria) {
+        if (isUiThread()) {
+            waitOnUiThread(timeout, doneCriteria);
+        } else {
+            waitOnTestThread(timeout, doneCriteria);
+        }
+    }
+
+    void evaluateJavascript(final String script, final ValueCallback<String> result) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.evaluateJavascript(script, result);
+            }
+        });
+    }
+
+    /**
+     * Returns true if the current thread is the UI thread based on the
+     * Looper.
+     */
+    private static boolean isUiThread() {
+        return (Looper.myLooper() == Looper.getMainLooper());
+    }
+
+    /**
+     * @return Whether or not the load has finished.
+     */
+    private synchronized boolean isLoaded() {
+        return mLoaded && mProgress == 100;
+    }
+
+    /**
+     * Makes a WebView call, waits for completion and then resets the
+     * load state in preparation for the next load call.
+     * @param call The call to make on the UI thread prior to waiting.
+     */
+    private void callAndWait(Runnable call) {
+        assertTrue("WebViewOnUiThread.load*AndWaitForCompletion calls "
+                        + "may not be mixed with load* calls directly on WebView "
+                        + "without calling waitForLoadCompletion after the load",
+                !isLoaded());
+        clearLoad(); // clear any extraneous signals from a previous load.
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(call);
+        waitForLoadCompletion();
+    }
+
+    /**
+     * Called whenever a load has been completed so that a subsequent call to
+     * waitForLoadCompletion doesn't return immediately.
+     */
+    private synchronized void clearLoad() {
+        mLoaded = false;
+        mProgress = 0;
+    }
+
+    /**
+     * Uses a polling mechanism, while pumping messages to check when the
+     * criteria is met.
+     */
+    private void waitOnUiThread(long timeout, final Callable<Boolean> doneCriteria) {
+        new PollingCheck(timeout) {
+            @Override
+            protected boolean check() {
+                pumpMessages();
+                try {
+                    return doneCriteria.call();
+                } catch (Exception e) {
+                    fail("Unexpected error while checking the criteria: " + e.getMessage());
+                    return true;
+                }
+            }
+        }.run();
+    }
+
+    /**
+     * Uses a wait/notify to check when the criteria is met.
+     */
+    private synchronized void waitOnTestThread(long timeout, Callable<Boolean> doneCriteria) {
+        try {
+            long waitEnd = SystemClock.uptimeMillis() + timeout;
+            long timeRemaining = timeout;
+            while (!doneCriteria.call() && timeRemaining > 0) {
+                this.wait(timeRemaining);
+                timeRemaining = waitEnd - SystemClock.uptimeMillis();
+            }
+            assertTrue("Action failed to complete before timeout", doneCriteria.call());
+        } catch (InterruptedException e) {
+            // We'll just drop out of the loop and fail
+        } catch (Exception e) {
+            fail("Unexpected error while checking the criteria: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Pumps all currently-queued messages in the UI thread and then exits.
+     * This is useful to force processing while running tests in the UI thread.
+     */
+    private void pumpMessages() {
+        class ExitLoopException extends RuntimeException {
+        }
+
+        // Force loop to exit when processing this. Loop.quit() doesn't
+        // work because this is the main Loop.
+        mWebView.getHandler().post(new Runnable() {
+            @Override
+            public void run() {
+                throw new ExitLoopException(); // exit loop!
+            }
+        });
+        try {
+            // Pump messages until our message gets through.
+            Looper.loop();
+        } catch (ExitLoopException e) {
+        }
     }
 
     private <T> T getValue(ValueGetter<T> getter) {
@@ -91,6 +321,53 @@ public class WebViewOnUiThread {
 
         public T getValue() {
             return mValue;
+        }
+    }
+
+    /**
+     * A WebChromeClient used to capture the onProgressChanged for use
+     * in waitFor functions. If a test must override the WebChromeClient,
+     * it can derive from this class or call onProgressChanged
+     * directly.
+     */
+    public static class WaitForProgressClient extends WebChromeClient {
+        private WebViewOnUiThread mOnUiThread;
+
+        WaitForProgressClient(WebViewOnUiThread onUiThread) {
+            mOnUiThread = onUiThread;
+        }
+
+        @Override
+        public void onProgressChanged(WebView view, int newProgress) {
+            super.onProgressChanged(view, newProgress);
+            mOnUiThread.onProgressChanged(newProgress);
+        }
+    }
+
+    /**
+     * A WebViewClient that captures the onPageFinished for use in
+     * waitFor functions. Using initializeWebView sets the WaitForLoadedClient
+     * into the WebView. If a test needs to set a specific WebViewClient and
+     * needs the waitForCompletion capability then it should derive from
+     * WaitForLoadedClient or call WebViewOnUiThread.onPageFinished.
+     */
+    public static class WaitForLoadedClient extends WebViewClient {
+        private WebViewOnUiThread mOnUiThread;
+
+        WaitForLoadedClient(WebViewOnUiThread onUiThread) {
+            mOnUiThread = onUiThread;
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            mOnUiThread.onPageFinished();
+        }
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+            mOnUiThread.onPageStarted();
         }
     }
 }
