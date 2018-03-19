@@ -110,7 +110,7 @@ public final class PrintHelper {
     @Retention(RetentionPolicy.SOURCE)
     private @interface Orientation {}
 
-    private final PrintHelperVersionImpl mImpl;
+    private final PrintHelperStub mImpl;
 
     /**
      * Gets whether the system supports printing.
@@ -123,77 +123,45 @@ public final class PrintHelper {
     }
 
     /**
-     * Interface implemented by classes that support printing
-     */
-    interface PrintHelperVersionImpl {
-
-        void setScaleMode(int scaleMode);
-
-        int getScaleMode();
-
-        void setColorMode(int colorMode);
-
-        int getColorMode();
-
-        void setOrientation(int orientation);
-
-        int getOrientation();
-
-        void printBitmap(@NonNull String jobName, @NonNull Bitmap bitmap,
-                @Nullable OnPrintFinishCallback callback);
-
-        void printBitmap(@NonNull String jobName, @NonNull Uri imageFile,
-                @Nullable OnPrintFinishCallback callback)
-                throws FileNotFoundException;
-    }
-
-    /**
      * Implementation used when we do not support printing
      */
-    private static final class PrintHelperStub implements PrintHelperVersionImpl {
+    private static class PrintHelperStub {
         @ScaleMode int mScaleMode = SCALE_MODE_FILL;
         @ColorMode int mColorMode = COLOR_MODE_COLOR;
         @Orientation int mOrientation = ORIENTATION_LANDSCAPE;
 
-        @Override
         public void setScaleMode(@ScaleMode int scaleMode) {
             mScaleMode = scaleMode;
         }
 
         @ScaleMode
-        @Override
         public int getScaleMode() {
             return mScaleMode;
         }
 
         @ColorMode
-        @Override
         public int getColorMode() {
             return mColorMode;
         }
 
-        @Override
         public void setColorMode(@ColorMode int colorMode) {
             mColorMode = colorMode;
         }
 
-        @Override
         public void setOrientation(@Orientation int orientation) {
             mOrientation = orientation;
         }
 
         @Orientation
-        @Override
         public int getOrientation() {
             return mOrientation;
         }
 
-        @Override
         public void printBitmap(String jobName, Bitmap bitmap, OnPrintFinishCallback callback) {
         }
 
-        @Override
-        public void printBitmap(String jobName, Uri imageFile, OnPrintFinishCallback callback) {
+        public void printBitmap(String jobName, Uri imageFile, OnPrintFinishCallback callback)
+                throws FileNotFoundException {
         }
     }
 
@@ -201,7 +169,7 @@ public final class PrintHelper {
      * Kitkat specific PrintManager API implementation.
      */
     @RequiresApi(19)
-    private static class PrintHelperApi19 implements PrintHelperVersionImpl{
+    private static class PrintHelperApi19 extends PrintHelperStub {
         private static final String LOG_TAG = "PrintHelperApi19";
         // will be <= 300 dpi on A4 (8.3×11.7) paper (worst case of 150 dpi)
         private static final int MAX_PRINT_SIZE = 3500;
